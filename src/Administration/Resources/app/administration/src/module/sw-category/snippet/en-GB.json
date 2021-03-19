@@ -11,7 +11,7 @@
       "descriptionLabel": "Description",
       "messageSaveSuccess": "Category \"{name}\" has been saved.",
       "useAsLogo": "Use as display image",
-      "treeHeadline": "Category structure",
+      "treeHeadline": "Categories",
       "treeHeadSelected": "{count} selected",
       "emptyStateHeadline": "No category selected",
       "errorNavigationEntryPoint": "This category is defined as a main navigation of at least one Sales Channel and can therefore not be deleted.",
@@ -35,7 +35,7 @@
       "general": {
         "categoryNameLabel": "Name",
         "headlineInformationCard": "General",
-        "isCategoryActiveLabel": "Category active",
+        "isCategoryActiveLabel": "Active",
         "useAsLink": "Use as link",
         "labelCategoryTags": "Tags",
         "labelCategoryTagsPlaceholder": "Enter tags individually...",
@@ -54,13 +54,13 @@
         }
       },
       "entry-point-card": {
-        "cardTitle": "Entry point",
+        "cardTitle": "Navigation",
         "labelEntryPoint": "Entry point",
         "placeholderEntryPoint": "Select entry point...",
         "existingNavigationDescription": "You have assigned this category as an entry point for the main navigation in these Sales Channels:",
-        "labelSalesChannelsAdd": "Add Sales Channels",
-        "placeholderSalesChannels": "Select Sales Channel...",
-        "buttonConfigureHome": "Configure home",
+        "labelSalesChannelsAdd": "Sales Channel assignment",
+        "placeholderSalesChannels": "Add Sales Channels...",
+        "buttonConfigureHome": "Configure home page",
         "types": {
           "labelMainNavigation": "Main navigation",
           "helpTextMainNavigation": "The entry point for the main navigation is a mandatory field for Sales Channels. If you assign this category as the entry point for the Main navigation to one or more Sales Channels, you can only change this assignment on the sales channel itself.",
@@ -71,11 +71,12 @@
         }
       },
       "entry-point-modal": {
-        "modalTitle": "Configure Home",
-        "salesChannelSelection": "Entry point main navigation",
-        "showInMainNavigation": "Show as Home in main navigation",
-        "mainNavigationName": "Name in main navigation",
-        "mainNavigationNamePlaceholder": "Name in main navigation...",
+        "modalTitle": "Configure home page",
+        "salesChannelSelection": "Sales Channel",
+        "showInMainNavigation": "Show in main navigation",
+        "mainNavigationName": "Display name",
+        "mainNavigationNamePlaceholder": "Enter alternative home page name...",
+        "mainNavigationNameHelpText": "By default this category is displayed as \"home\". Enter an alternative display name if the default configuration doesn't fit the current Sales Channel.",
         "layoutHeadline": "Layout",
         "seoSettingsHeadline": "SEO settings",
         "metaTitleLabel": "Meta title",
@@ -171,19 +172,19 @@
       "cms": "Layout"
     },
     "general": {
-      "placeholderSearchBar": "Search Landing pages...",
+      "placeholderSearchBar": "Search landing pages...",
       "treeHeadSelected": "{count} selected",
-      "buttonCreate": "Add Landing page",
+      "buttonCreate": "Add landing page",
       "treeHeadline": "Landing pages",
       "actions": {
-        "actionsDisabledInLanguage": "Landing pages can only be created in the default language."
+        "actionsDisabledInLanguage": "Landing pages can only be created in the system default language."
       }
     },
     "base": {
       "general": {
         "labelName": "Name",
         "headlineInformationCard": "General",
-        "isActiveLabel": "Landing page active",
+        "isActiveLabel": "Active",
         "labelTags": "Tags",
         "labelTagsPlaceholder": "Enter tags individually..."
       },
@@ -194,11 +195,11 @@
         "labelMetaDescription": "Meta description",
         "labelKeywords": "SEO keywords",
         "labelUrl": "SEO URL",
-        "placeholderSalesChannel": "Chose a Sales Channel...",
+        "placeholderSalesChannel": "Choose a Sales Channel...",
         "placeholderMetaTitle": "Enter meta title...",
         "placeholderMetaDescription": "Enter a meta description...",
         "placeholderKeywords": "Enter one or more keywords...",
-        "placeholderUrl": "Enter a URL..."
+        "placeholderUrl": "Enter URL..."
       },
       "cms": {
         "title": "Layout assignment",
@@ -213,8 +214,8 @@
       }
     },
     "modal": {
-      "textDeleteConfirm": "Are you sure you really want to delete the Landing page \"{name}\"?",
-      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected Landing pages?"
+      "textDeleteConfirm": "Are you sure you really want to delete the landing page \"{name}\"?",
+      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected landing pages?"
     }
   },
   "sw-privileges": {

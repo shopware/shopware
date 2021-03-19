@@ -2,9 +2,10 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/app/component/structure/sw-admin-menu-item';
+import createMenuService from 'src/app/service/menu.service';
+import catalogues from './_sw-admin-menu-item/catalogues';
 
 /** service */
-import createMenuService from 'src/app/service/menu.service';
 
 /** fixtures */
 import adminModules from '../../service/_mocks/adminModules.json';
@@ -297,5 +298,33 @@ describe('src/app/component/structure/sw-admin-menu', () => {
                 })
             );
         });
+    });
+
+    test('get the first plugin menu entry', () => {
+        let entry = {
+            path: 'sw.foo.index',
+            label: 'sw-foo.general.mainMenuItemList',
+            id: 'sw-foo',
+            moduleType: 'plugin',
+            parent: 'sw-catalogue',
+            position: 1010,
+            children: [],
+            level: 2
+        };
+
+        expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBeTruthy();
+
+        entry = {
+            path: 'sw.bar.index',
+            label: 'sw-bar.general.mainMenuItemList',
+            id: 'sw-bar',
+            moduleType: 'plugin',
+            parent: 'sw-catalogue',
+            position: 1010,
+            children: [],
+            level: 2
+        };
+
+        expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBeFalsy();
     });
 });

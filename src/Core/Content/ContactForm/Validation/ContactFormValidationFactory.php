@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ContactForm\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
@@ -70,7 +71,7 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
             $definition->add('phone', new NotBlank());
         }
 
-        $validationEvent = new BuildValidationEvent($definition, $context->getContext());
+        $validationEvent = new BuildValidationEvent($definition, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $definition;

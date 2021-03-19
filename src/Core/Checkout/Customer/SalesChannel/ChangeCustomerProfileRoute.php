@@ -103,7 +103,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->set('vatIds', null);
         }
 
-        $this->dispatchValidationEvent($validation, $context->getContext());
+        $this->dispatchValidationEvent($validation, $data, $context->getContext());
 
         $this->validator->validate($data->all(), $validation);
 
@@ -129,9 +129,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         return new SuccessResponse();
     }
 
-    private function dispatchValidationEvent(DataValidationDefinition $definition, Context $context): void
+    private function dispatchValidationEvent(DataValidationDefinition $definition, DataBag $data, Context $context): void
     {
-        $validationEvent = new BuildValidationEvent($definition, $context);
+        $validationEvent = new BuildValidationEvent($definition, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
     }
 

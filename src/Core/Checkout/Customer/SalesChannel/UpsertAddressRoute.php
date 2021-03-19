@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -124,7 +125,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition = $this->getValidationDefinition($accountType, $isCreate, $context);
+        $definition = $this->getValidationDefinition($data, $accountType, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $addressId], $data->all()), $definition);
 
         $addressData = [
@@ -161,7 +162,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         return new UpsertAddressRouteResponse($address);
     }
 
-    private function getValidationDefinition(string $accountType, bool $isCreate, SalesChannelContext $context): DataValidationDefinition
+    private function getValidationDefinition(DataBag $data, string $accountType, bool $isCreate, SalesChannelContext $context): DataValidationDefinition
     {
         if ($isCreate) {
             $validation = $this->addressValidationFactory->create($context);
@@ -173,7 +174,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation->add('company', new NotBlank());
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

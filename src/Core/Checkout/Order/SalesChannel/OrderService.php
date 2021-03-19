@@ -208,7 +208,7 @@ class OrderService
      */
     private function validateOrderData(ParameterBag $data, SalesChannelContext $context): void
     {
-        $definition = $this->getOrderCreateValidationDefinition($context);
+        $definition = $this->getOrderCreateValidationDefinition(new DataBag($data->all()), $context);
         $violations = $this->dataValidator->getViolations($data->all(), $definition);
 
         if ($violations->count() > 0) {
@@ -216,11 +216,11 @@ class OrderService
         }
     }
 
-    private function getOrderCreateValidationDefinition(SalesChannelContext $context): DataValidationDefinition
+    private function getOrderCreateValidationDefinition(DataBag $data, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->orderValidationFactory->create($context);
 
-        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -144,7 +145,7 @@ class CheckoutConfirmPageLoader
         SalesChannelContext $context
     ): void {
         $validation = $this->addressValidationFactory->create($context);
-        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent);
 
         if ($billingAddress === null) {
@@ -165,7 +166,7 @@ class CheckoutConfirmPageLoader
         SalesChannelContext $context
     ): void {
         $validation = $this->addressValidationFactory->create($context);
-        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent);
 
         if ($shippingAddress === null) {

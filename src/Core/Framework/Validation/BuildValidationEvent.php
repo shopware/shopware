@@ -5,24 +5,22 @@ namespace Shopware\Core\Framework\Validation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class BuildValidationEvent extends Event implements ShopwareEvent, GenericEvent
 {
-    /**
-     * @var DataValidationDefinition
-     */
-    private $definition;
+    private DataValidationDefinition $definition;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    public function __construct(DataValidationDefinition $definition, Context $context)
+    private DataBag $data;
+
+    public function __construct(DataValidationDefinition $definition, DataBag $data, Context $context)
     {
         $this->definition = $definition;
         $this->context = $context;
+        $this->data = $data;
     }
 
     public function getName(): string
@@ -38,5 +36,10 @@ class BuildValidationEvent extends Event implements ShopwareEvent, GenericEvent
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function getData(): DataBag
+    {
+        return $this->data;
     }
 }

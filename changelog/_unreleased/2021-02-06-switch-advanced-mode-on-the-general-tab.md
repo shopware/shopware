@@ -1,7 +1,6 @@
 ---
 title: Switch advanced mode on the general tab
 issue: NEXT-13305
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Added new `sw-product-settings-mode` component in `sw-product` module.

@@ -1,7 +1,6 @@
 ---
 title: When uncheck checkboxes the respecting cards should be hidden
 issue: NEXT-14187
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Added `onChangeSettings` method in `/module/sw-product/component/sw-product-settings-mode/index.js`.

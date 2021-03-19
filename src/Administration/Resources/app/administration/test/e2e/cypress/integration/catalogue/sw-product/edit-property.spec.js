@@ -90,33 +90,7 @@ describe('Product: Edit property assignment', () => {
             });
     });
 
-    // @deprecated tag:v6.5.0 - Will be removed when "FEATURE_NEXT_12429" feature flag is active
     it('@base @catalogue: delete property assignment', () => {
-        cy.skipOnFeature('FEATURE_NEXT_12429');
-
-        const page = new ProductPageObject();
-
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
-
-        cy.get('.sw-loader').should('not.exist');
-        cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Property assignment').click();
-
-        cy.get('.sw-property-assignment__grid_option_column .sw-property-assignment__grid_option_item').each(($el) => {
-            $el.trigger('mouseenter').find('.sw-label__dismiss').trigger('click');
-        });
-
-        // Verify deleted properties
-        cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
-    });
-
-    it('@base @catalogue: delete property assignment', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
 
         cy.clickContextMenuItem(

@@ -86,16 +86,7 @@
             <sw-card-view slot="content">
 
                 {% block sw_product_detail_content_top %}
-                    <template v-if="!feature.isActive('FEATURE_NEXT_12429')">
-                        <router-link
-                            v-if="isChild"
-                            class="sw-card__back-link"
-                            :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }">
-                                <sw-icon name="default-arrow-simple-left" small></sw-icon>
-                                {{ $tc('sw-product.general.backToParent') }}
-                        </router-link>
-                    </template>
-                    <template v-else>
+                    <template>
                         <router-link
                             v-if="!isLoading && isChild && !advanceModeEnabled"
                             class="sw-card__back-link"
@@ -139,7 +130,6 @@
 
                         {% block sw_product_detail_content_tabs_specifications %}
                             <sw-tabs-item
-                                v-if="feature.isActive('FEATURE_NEXT_12429')"
                                 class="sw-product-detail__tab-specifications"
                                 :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
                                 :title="$tc('sw-product.detail.tabSpecifications')">
@@ -149,7 +139,7 @@
 
                         {% block sw_product_detail_content_tabs_advanced_prices %}
                             <sw-tabs-item
-                                v-show="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+                                v-show="showModeSetting"
                                 class="sw-product-detail__tab-advanced-prices"
                                 :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
                                 :title="$tc('sw-product.detail.tabAdvancedPrices')">
@@ -159,7 +149,7 @@
 
                         {# @deprecated tag:v6.5.0 - The tab content will be moved to "sw-product-detail-specifications" component, like following:
                             {% block sw_product_detail_specifications %}
-                                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                                <div>
                                     ...
                                     {% block sw_product_detail_specifications_properties %}
                                         <sw-product-detail-properties>
@@ -170,18 +160,11 @@
                             {% endblock %}
                         #}
                         {% block sw_product_detail_content_tabs_advanced_properties %}
-                            <sw-tabs-item
-                                v-if="!feature.isActive('FEATURE_NEXT_12429')"
-                                class="sw-product-detail__tab-properties"
-                                :route="{ name: 'sw.product.detail.properties', params: { id: $route.params.id } }"
-                                :title="$tc('sw-product.detail.tabProperties')">
-                                {{ $tc('sw-product.detail.tabProperties') }}
-                            </sw-tabs-item>
                         {% endblock %}
 
                         {% block sw_product_detail_content_tabs_advanced_variants %}
                             <sw-tabs-item
-                                v-show="!isChild && (!feature.isActive('FEATURE_NEXT_12429') || showModeSetting)"
+                                v-show="!isChild && showModeSetting"
                                 class="sw-product-detail__tab-variants"
                                 :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
                                 :title="$tc('sw-product.detail.tabVariation')">
@@ -191,7 +174,7 @@
 
                         {% block sw_product_detail_content_tabs_layout %}
                             <sw-tabs-item
-                                v-show="!isChild && (!feature.isActive('FEATURE_NEXT_12429') || showModeSetting)"
+                                v-show="!isChild && showModeSetting"
                                 class="sw-product-detail__tab-layout"
                                 :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
                                 :title="$tc('sw-product.detail.tabLayout')">
@@ -201,7 +184,7 @@
 
                         {% block sw_product_detail_content_tabs_seo %}
                             <sw-tabs-item
-                                v-show="feature.isActive('FEATURE_NEXT_12429') && showModeSetting"
+                                v-show="showModeSetting"
                                 class="sw-product-detail__tab-seo"
                                 :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
                                 :title="$tc('sw-product.detail.tabSeo')">
@@ -211,7 +194,7 @@
 
                         {% block sw_product_detail_content_tabs_cross_selling %}
                             <sw-tabs-item
-                                v-show="!isChild && (!feature.isActive('FEATURE_NEXT_12429') || showModeSetting)"
+                                v-show="!isChild && showModeSetting"
                                 class="sw-product-detail__tab-cross-selling"
                                 :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
                                 :hasError="swProductDetailCrossSellingError"
@@ -222,7 +205,7 @@
 
                         {% block sw_product_detail_content_tabs_reviews %}
                             <sw-tabs-item
-                                v-show="feature.isActive('FEATURE_NEXT_12429') && showModeSetting"
+                                v-show="showModeSetting"
                                 class="sw-product-detail__tab-reviews"
                                 :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
                                 :title="$tc('sw-product.detail.tabReviews')">
@@ -245,7 +228,7 @@
 
                 {% block sw_product_settings_mode %}
                     <sw-product-settings-mode
-                        v-if="feature.isActive('FEATURE_NEXT_12429') && showAdvanceModeSetting"
+                        v-if="showAdvanceModeSetting"
                         :isLoading="isLoading"
                         :modeSettings="advancedModeSetting"
                         @settings-item-change="onChangeSettingItem"
@@ -256,20 +239,8 @@
         {% endblock %}
 
         {# @deprecated tag:v6.5.0 - Will be replaced by a media modal like in Shopping experiences. #}
-        <template v-if="!feature.isActive('FEATURE_NEXT_12429')" #sidebar>
+        <template #sidebar>
             {% block sw_product_detail_sidebar %}
-                <sw-sidebar :propagateWidth="true">
-                    <sw-sidebar-media-item ref="mediaSidebarItem" :disabled="!acl.can('product.editor')">
-                        <template slot="context-menu-items" slot-scope="media">
-                            <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
-                                {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}
-                            </sw-context-menu-item>
-                        </template>
-                    </sw-sidebar-media-item>
-
-                    {% block sw_product_detail_sidebar_additional_items %}
-                    {% endblock %}
-                </sw-sidebar>
             {% endblock %}
         </template>
     </sw-page>

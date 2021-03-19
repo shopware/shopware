@@ -1,7 +1,6 @@
 ---
 title: Create product reviews tab
 issue: NEXT-13288
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Added `sw-product-detail-reviews` component in `view` folder of `sw-product` module.

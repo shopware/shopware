@@ -1,7 +1,6 @@
 ---
 title: Replace the product media sidebar by a media modal
 issue: NEXT-13291
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Deprecated `onMediaUploadButtonOpenSidebar` method in `sw-product-media-form` component.

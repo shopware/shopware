@@ -1,32 +1,5 @@
 @import "~scss/variables";
 
-/**
-* @deprecated tag:v6.5.0 - The CSS block "sw-review-detail-base__stars" will be removed because
-* its relevant view was moved from this component to `sw-product-detail-reviews` component.
-*/
-.sw-review-detail-base__stars {
-    font-size: 0;
-
-    .icon--default-review-star-full {
-        color: $color-module-yellow-400;
-    }
-}
-
-/**
-* @deprecated tag:v6.5.0 - The CSS block "sw-product-detail-base__review-card" will be removed because
-* its relevant view was moved from this component to `sw-product-detail-reviews` component.
-*/
-.sw-product-detail-base__review-card {
-    .sw-card__content {
-        min-height: 250px;
-        padding: 0;
-    }
-
-    .sw-empty-state {
-        position: relative;
-    }
-}
-
 .sw-card__back-link {
     display: flow-root;
     max-width: 800px;

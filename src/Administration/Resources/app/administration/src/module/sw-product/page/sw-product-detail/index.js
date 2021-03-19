@@ -811,7 +811,7 @@ Component.register('sw-product-detail', {
 
         /**
          * @deprecated tag:v6.5.0 - The method "onAddItemToProduct" will be removed because
-         * its relevant view will be removed when feature flag "FEATURE_NEXT_12429" got active.
+         * its relevant view was removed
          */
         onAddItemToProduct(mediaItem) {
             if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {

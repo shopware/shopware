@@ -16,62 +16,7 @@ describe('Product: Test ACL privileges', () => {
             });
     });
 
-    // @deprecated tag:v6.5.0 - Will be removed when "FEATURE_NEXT_12429" feature flag is active
     it('@base @catalogue: can view product', () => {
-        cy.skipOnFeature('FEATURE_NEXT_12429');
-
-        const page = new ProductPageObject();
-
-        cy.loginAsUserWithPermissions([
-            {
-                key: 'product',
-                role: 'viewer'
-            }
-        ]);
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-product').click();
-
-        // open product
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`)
-            .contains('Product name')
-            .click();
-
-        // check product values
-        cy.get('#sw-field--product-name').scrollIntoView()
-            .should('have.value', 'Product name');
-        cy.get('#sw-price-field-gross').scrollIntoView()
-            .should('have.value', '64');
-
-        // check tabs
-        cy.get('.sw-product-detail__tab-advanced-prices')
-            .scrollIntoView()
-            .click();
-        cy.get('.sw-product-detail-context-prices__empty-state')
-            .should('be.visible');
-
-        cy.get('.sw-product-detail__tab-properties')
-            .scrollIntoView()
-            .click();
-
-        cy.contains('Create properties and property values first, then return here to assign them.');
-
-        cy.get('.sw-product-detail__tab-variants')
-            .scrollIntoView()
-            .click();
-        cy.get('.sw-product-detail-variants__generated-variants__empty-state')
-            .should('be.visible');
-
-        cy.get('.sw-product-detail__tab-cross-selling')
-            .scrollIntoView()
-            .click();
-        cy.get('.sw-product-detail-cross-selling__empty-state-inner')
-            .should('be.visible');
-    });
-
-    it('@base @catalogue: can view product', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
 
         cy.loginAsUserWithPermissions([

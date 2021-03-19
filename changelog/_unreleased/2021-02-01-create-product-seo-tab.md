@@ -1,7 +1,6 @@
 ---
 title: Create product SEO tab
 issue: NEXT-13289
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Added `sw-product-detail-seo` component in `view` folder of `sw-product` module.

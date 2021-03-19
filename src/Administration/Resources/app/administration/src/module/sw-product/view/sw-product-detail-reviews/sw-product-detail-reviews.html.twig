@@ -1,9 +1,5 @@
 {% block sw_product_detail_reviews %}
-    <sw-card
-        v-if="feature.isActive('FEATURE_NEXT_12429')"
-        class="sw-product-detail-reviews"
-        :title="$tc('sw-product.reviews.cardTitleReviews')"
-        :isLoading="isLoading">
+    <sw-card class="sw-product-detail-reviews" :title="$tc('sw-product.reviews.cardTitleReviews')" :isLoading="isLoading">
         {% block sw_product_detail_reviews_data %}
             <template v-if="total" #grid>
                 <sw-data-grid

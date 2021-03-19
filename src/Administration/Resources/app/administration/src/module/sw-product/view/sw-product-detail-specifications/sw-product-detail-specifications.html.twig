@@ -1,8 +1,8 @@
 {% block sw_product_detail_specifications %}
-    <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+    <div>
         {% block sw_product_detail_specifications_measures_packaging %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('measures_packaging')"
+                v-show="showProductCard('measures_packaging')"
                 :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_specifications_measures_packaging_content %}
@@ -17,13 +17,13 @@
 
         {% block sw_product_detail_specifications_properties %}
             <sw-product-detail-properties
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('properties')">
+                v-show="showProductCard('properties')">
             </sw-product-detail-properties>
         {% endblock %}
 
         {% block sw_product_detail_specifications_essential_characteristics %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('essential_characteristics')"
+                v-show="showProductCard('essential_characteristics')"
                 class="sw-product-detail-specification__essential-characteristics"
                 :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
                 :isLoading="isLoading">
@@ -41,7 +41,7 @@
 
         {% block sw_product_detail_specifications_custom_fields %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || this.showProductCard('custom_fields')"
+                v-show="showProductCard('custom_fields')"
                 class="sw-product-detail-specification__custom-fields"
                 :title="$tc('sw-product.specifications.cardTitleCustomFields')"
                 :isLoading="isLoading">

@@ -104,13 +104,7 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-product/view/sw-product-detail-base', () => {
-    let wrapper;
-    const mockReviews = [{
-        name: 'Billions',
-        id: '1000000000'
-    }];
     Shopware.State.registerModule('swProductDetail', productStore);
-    mockReviews.total = 1;
 
     beforeAll(() => {
         Shopware.State.registerModule('swProductDetail', {
@@ -144,6 +138,18 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     product: false,
                     media: false
                 },
+                modeSettings: [
+                    'general_information',
+                    'prices',
+                    'deliverability',
+                    'visibility_structure',
+                    'media',
+                    'labelling',
+                    'measures_packaging',
+                    'properties',
+                    'essential_characteristics',
+                    'custom_fields'
+                ],
                 advancedModeSetting: {
                     value: {
                         settings: [
@@ -192,86 +198,16 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         });
     });
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = createWrapper();
+    it('should be a Vue.JS component', () => {
+        const wrapper = createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    /**
-     * Remove the test when feature flag "FEATURE_NEXT_12429" is active because
-     * its relevant view was moved from this component to `sw-product-detail-reviews` component and
-     * this case was covered there as well.
-     */
-    it('should not be able to delete', async () => {
-        wrapper = createWrapper();
-        await wrapper.setData({
-            reviewItemData: mockReviews,
-            total: 1
-        });
+    it('should get media default folder id when component got created', async () => {
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        const deleteMenuItem = wrapper.find('.sw-product-detail-base__review-delete');
-        expect(deleteMenuItem.attributes().disabled).toBeTruthy();
-    });
-
-    /**
-     * Remove the test when feature flag "FEATURE_NEXT_12429" is active because
-     * its relevant view was moved from this component to `sw-product-detail-reviews` component and
-     * this case was covered there as well.
-     */
-    it('should be able to delete', async () => {
-        wrapper = createWrapper([
-            'product.editor'
-        ]);
-        await wrapper.setData({
-            reviewItemData: mockReviews,
-            total: 1
-        });
-
-        await wrapper.vm.$nextTick();
-
-        const deleteMenuItem = wrapper.find('.sw-product-detail-base__review-delete');
-        expect(deleteMenuItem.attributes().disabled).toBeFalsy();
-    });
-
-    /**
-     * Remove the test when feature flag "FEATURE_NEXT_12429" is active because
-     * its relevant view was moved from this component to `sw-product-detail-reviews` component and
-     * this case was covered there as well.
-     */
-    it('should not be able to edit', async () => {
-        wrapper = createWrapper();
-        await wrapper.setData({
-            reviewItemData: mockReviews,
-            total: 1
-        });
-        await wrapper.vm.$nextTick();
-
-        const editMenuItem = wrapper.find('.sw-product-detail-base__review-edit');
-        expect(editMenuItem.attributes().disabled).toBeTruthy();
-    });
-
-    /**
-     * Remove the test when feature flag "FEATURE_NEXT_12429" is active because
-     * its relevant view was moved from this component to `sw-product-detail-reviews` component and
-     * this case was covered there as well.
-     */
-    it('should be able to edit', async () => {
-        wrapper = createWrapper([
-            'product.editor'
-        ]);
-        await wrapper.setData({
-            reviewItemData: mockReviews,
-            total: 1
-        });
-        await wrapper.vm.$nextTick();
-
-        const deleteMenuItem = wrapper.find('.sw-product-detail-base__review-edit');
-        expect(deleteMenuItem.attributes().disabled).toBeFalsy();
-    });
-
-    it('should get media default folder id when component got created', () => {
         wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
             return Promise.resolve(Shopware.Utils.createId());
         });
@@ -283,6 +219,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should turn on media modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         await wrapper.setData({
             showMediaModal: true
         });
@@ -294,6 +233,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should turn off media modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         await wrapper.setData({
             showMediaModal: false
         });
@@ -304,6 +246,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be able to add a new media', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.addMedia = jest.fn(() => Promise.resolve());
 
         const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
@@ -323,6 +268,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should not be able to add a new media', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
 
         wrapper.vm.addMedia = jest.fn(() => Promise.reject(media));
@@ -340,6 +288,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should set media as cover', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
 
         await wrapper.vm.setMediaAsCover(media);
@@ -348,7 +299,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be visible Promotion Switch ', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -361,7 +314,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be visible Labelling card', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -374,7 +329,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be visible Media card', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -389,7 +346,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be visible price item fields', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -409,7 +368,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be visible Deliverability item fields', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -433,7 +394,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be visible Structure item fields', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -453,7 +416,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be not visible Promotion Switch when commit setAdvancedModeSetting with falsy value', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.feature = {
@@ -488,7 +451,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be not visible Labelling card when commit setModeSettings with falsy value', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -503,7 +468,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be not visible price item fields when commit setModeSettings with falsy value', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -525,7 +492,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be not visible Deliverability item fields when commit setModeSettings with falsy value', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -551,7 +520,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be not visible Structure item fields when commit setAdvancedModeSetting with falsy value', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };
@@ -573,7 +544,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be not visible Media card when commit setModeSettings with falsy value', async () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
         wrapper.vm.feature = {
             isActive: () => true
         };

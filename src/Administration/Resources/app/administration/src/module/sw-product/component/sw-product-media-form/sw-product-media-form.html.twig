@@ -10,23 +10,12 @@
             </sw-upload-listener>
 
             <sw-media-upload-v2
-                v-if="feature.isActive('FEATURE_NEXT_12429') && !isLoading && acl.can('product.editor')"
+                v-if="!isLoading && acl.can('product.editor')"
                 variant="regular"
                 :uploadTag="product.id"
                 :scrollTarget="$parent.$el"
                 :defaultFolder="product.getEntityName()"
                 @media-upload-sidebar-open="onOpenMedia">
-            </sw-media-upload-v2>
-
-            {# @deprecated tag:v6.5.0 - Will be removed when feature flag "FEATURE_NEXT_12429" got active. #}
-            <sw-media-upload-v2
-                    v-if="!feature.isActive('FEATURE_NEXT_12429') && !isLoading && acl.can('product.editor')"
-                    :uploadTag="product.id"
-                    variant="regular"
-                    :scrollTarget="$parent.$el"
-                    :defaultFolder="product.getEntityName()"
-                    @media-drop="$emit('media-drop', $event)"
-                    @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
             </sw-media-upload-v2>
         {% endblock %}
 

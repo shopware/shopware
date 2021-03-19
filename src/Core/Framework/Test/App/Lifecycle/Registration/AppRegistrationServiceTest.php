@@ -109,6 +109,16 @@ class AppRegistrationServiceTest extends TestCase
         $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
     }
 
+    public function testRegistrationFailsWithWrongProofAsArray(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $this->appendNewResponse(new Response(200, [], '{"proof": ["wrong proof"]}'));
+
+        static::expectException(AppRegistrationException::class);
+        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+    }
+
     public function testRegistrationFailsWithoutProof(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');

@@ -128,6 +128,11 @@ class AppRegistrationService
         $data = json_decode($response->getBody()->getContents(), true);
 
         $proof = $data['proof'] ?? '';
+
+        if (!\is_string($proof)) {
+            throw new AppRegistrationException('The app provided an invalid response');
+        }
+
         if (!hash_equals($handshake->fetchAppProof(), trim($proof))) {
             throw new AppRegistrationException('The app provided an invalid response');
         }

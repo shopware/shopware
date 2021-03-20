@@ -48,7 +48,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
      *      path="/search",
      *      summary="Search",
      *      operationId="searchPage",
-     *      tags={"Store API","Search"},
+     *      tags={"Store API", "Product"},
      *      @OA\Parameter(
      *          name="search",
      *          description="Search term",

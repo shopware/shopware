@@ -61,7 +61,8 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
      * @Since("6.3.4.0")
      * @OA\Post(
      *      path="/customer/wishlist/add/{productId}",
-     *      summary="Add a product into customer wishlist",
+     *      summary="Add a product to a wishlist",
+     *      description="Adds a product to a customers wishlist.",
      *      operationId="addProductOnWishlist",
      *      tags={"Store API", "Wishlist"},
      *      @OA\Parameter(

@@ -74,20 +74,30 @@ class LoginRoute extends AbstractLoginRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/login",
-     *      summary="Login as customer using password",
+     *      summary="Log in a customer",
+     *      description="Logs in customers given their credentials.",
      *      operationId="loginCustomer",
-     *      tags={"Store API", "Account"},
+     *      tags={"Store API", "Login & Registration"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
+     *              required={
+     *                  "username",
+     *                  "password"
+     *              },
      *              @OA\Property(property="username", description="Email", type="string"),
      *              @OA\Property(property="password", description="Password", type="string")
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Context token",
+     *          description="A successful login returns a context token which is associated with the logged in user. Use that as your `sw-context-token` header for subsequent requests.",
      *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
+     *     ),
+     *      @OA\Response(
+     *          response="401",
+     *          description="If credentials are incorrect an error is returned",
+     *          @OA\JsonContent(ref="#/components/schemas/failure")
      *     )
      * )
      * @Route(path="/store-api/account/login", name="store-api.account.login", methods={"POST"})

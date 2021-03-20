@@ -68,7 +68,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      * @Since("6.3.2.0")
      * @OA\Post(
      *      path="/product/{productId}/review",
-     *      summary="",
+     *      summary="Save product reviews",
      *      operationId="saveProductReview",
      *      tags={"Store API","Product"},
      *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),

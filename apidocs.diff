@@ -1,0 +1,637 @@
+diff --git a/src/Core/Checkout/Cart/SalesChannel/CartOrderRoute.php b/src/Core/Checkout/Cart/SalesChannel/CartOrderRoute.php
+index 4e3e88c110..3a14531be7 100644
+--- a/src/Core/Checkout/Cart/SalesChannel/CartOrderRoute.php
++++ b/src/Core/Checkout/Cart/SalesChannel/CartOrderRoute.php
+@@ -88,7 +88,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
+      *      path="/checkout/order",
+      *      summary="Create a new order from cart",
+      *      operationId="createOrder",
+-     *      tags={"Store API", "Cart"},
++     *      tags={"Store API", "Order"},
+      *      @OA\Response(
+      *          response="200",
+      *          description="Order",
+diff --git a/src/Core/Checkout/Customer/SalesChannel/ChangeCustomerProfileRoute.php b/src/Core/Checkout/Customer/SalesChannel/ChangeCustomerProfileRoute.php
+index 4efdc4236b..5548cb583b 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/ChangeCustomerProfileRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/ChangeCustomerProfileRoute.php
+@@ -72,9 +72,10 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/change-profile",
+-     *      summary="Change profile information",
++     *      summary="Change the customer's information",
++     *      description="Make changes to a customer's account, like changing their name, salutation or title.",
+      *      operationId="changeProfile",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Profile"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php b/src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php
+index ba48437e8b..b541220317 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php
+@@ -69,9 +69,10 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/change-email",
+-     *      summary="Change email",
++     *      summary="Change the customer's email address",
++     *      description="Changes a customer's email address to a new email address, using their current password as a validation.",
+      *      operationId="changeEmail",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Profile"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php b/src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
+index e1f9122657..7fb9e44ecb 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
+@@ -78,9 +78,10 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/change-password",
+-     *      summary="Change password",
++     *      summary="Change the customer's password",
++     *      description="Changes a customer's password using their current password as a validation.",
+      *      operationId="changePassword",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Profile"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Checkout/Customer/SalesChannel/ChangePaymentMethodRoute.php b/src/Core/Checkout/Customer/SalesChannel/ChangePaymentMethodRoute.php
+index f1a7819a91..363d76cea2 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/ChangePaymentMethodRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/ChangePaymentMethodRoute.php
+@@ -60,9 +60,10 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/change-payment-method/{paymentMethodId}",
+-     *      summary="Change payment method",
++     *      summary="Change the customer's default payment method",
++     *      description="Changes a customer's default (preselected) payment method.",
+      *      operationId="changePaymentMethod",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Profile"},
+      *      @OA\Parameter(
+      *        name="paymentMethodId",
+      *        in="path",
+diff --git a/src/Core/Checkout/Customer/SalesChannel/CustomerGroupRegistrationSettingsRoute.php b/src/Core/Checkout/Customer/SalesChannel/CustomerGroupRegistrationSettingsRoute.php
+index c603489ddf..4eaf29c894 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/CustomerGroupRegistrationSettingsRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/CustomerGroupRegistrationSettingsRoute.php
+@@ -37,9 +37,9 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
+      * @Since("6.3.1.0")
+      * @OA\Get(
+      *      path="/customer-group-registration/config/{customerGroupId}",
+-     *      summary="Change email",
++     *      summary="Fetch registration settings for customer group",
+      *      operationId="getCustomerGroupRegistrationInfo",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Login & Registration"},
+      *      @OA\Parameter(
+      *        name="customerGroupId",
+      *        in="path",
+diff --git a/src/Core/Checkout/Customer/SalesChannel/CustomerRoute.php b/src/Core/Checkout/Customer/SalesChannel/CustomerRoute.php
+index f77508afba..85a8164da1 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/CustomerRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/CustomerRoute.php
+@@ -41,9 +41,10 @@ class CustomerRoute extends AbstractCustomerRoute
+      * @Entity("customer")
+      * @OA\Post(
+      *      path="/account/customer",
+-     *      summary="Returns informations about the loggedin customer",
++     *      summary="Get information about current customer",
++     *      description="Returns information about the current customer.",
+      *      operationId="readCustomer",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Profile"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\Response(
+      *          response="200",
+diff --git a/src/Core/Checkout/Customer/SalesChannel/DeleteAddressRoute.php b/src/Core/Checkout/Customer/SalesChannel/DeleteAddressRoute.php
+index 997312b624..b110e79740 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/DeleteAddressRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/DeleteAddressRoute.php
+@@ -40,9 +40,10 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
+      * @Since("6.3.2.0")
+      * @OA\Delete(
+      *      path="/account/address/{addressId}",
+-     *      summary="Deletes a customer address",
++     *      summary="Delete an address of a customer",
++     *      description="Delete an address of customer.\n\nOnly addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.\n\n**A customer must have at least one address (which can be used for shipping and billing).**\n\nAn automatic fallback is not applied."
+      *      operationId="deleteCustomerAddress",
+-     *      tags={"Store API", "Account", "Address"},
++     *      tags={"Store API", "Address"},
+      *      @OA\Parameter(
+      *        name="addressId",
+      *        in="path",
+diff --git a/src/Core/Checkout/Customer/SalesChannel/DeleteCustomerRoute.php b/src/Core/Checkout/Customer/SalesChannel/DeleteCustomerRoute.php
+index 70120a5313..217dd7e386 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/DeleteCustomerRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/DeleteCustomerRoute.php
+@@ -47,9 +47,10 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
+      * @Since("6.3.2.0")
+      * @OA\Delete(
+      *      path="/account/customer",
+-     *      summary="Delete customer profile",
++     *      summary="Delete the customer's profile",
++     *      description="Deletes a customer profile along with their addresses, wishlists and associated data. Created orders and their payment/shipping information (addresses) and reviews are not deleted.",
+      *      operationId="deleteCustomer",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Profile"},
+      *      @OA\Response(
+      *          response="204",
+      *          description="Successfully deleted the customer",
+diff --git a/src/Core/Checkout/Customer/SalesChannel/ListAddressRoute.php b/src/Core/Checkout/Customer/SalesChannel/ListAddressRoute.php
+index 6e479db5e0..9ae3f143fd 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/ListAddressRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/ListAddressRoute.php
+@@ -48,9 +48,10 @@ class ListAddressRoute extends AbstractListAddressRoute
+      * @Entity("customer_address")
+      * @OA\Post(
+      *      path="/account/list-address",
+-     *      summary="List address",
++     *      summary="Fetch addresses of a customer",
++     *      description="Lists all addresses of the current customer and allows filtering them based on a criteria.",
+      *      operationId="listAddress",
+-     *      tags={"Store API", "Account", "Address"},
++     *      tags={"Store API", "Address"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\Response(
+      *          response="200",
+diff --git a/src/Core/Checkout/Customer/SalesChannel/LoginRoute.php b/src/Core/Checkout/Customer/SalesChannel/LoginRoute.php
+index aad36af4be..15bf797741 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/LoginRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/LoginRoute.php
+@@ -74,9 +74,10 @@ class LoginRoute extends AbstractLoginRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/login",
+-     *      summary="Login as customer using password",
++     *      summary="Log in a customer",
++     *      description="Logs in customers given their credentials.",
+      *      operationId="loginCustomer",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Login & Registration"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php b/src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php
+index c6d92b9bae..791155dd99 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php
+@@ -65,9 +65,10 @@ class LogoutRoute extends AbstractLogoutRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/logout",
+-     *      summary="Logouts current loggedin customer",
++     *      summary="Log out a customer",
++     *      description="Logs out a customer.",
+      *      operationId="logoutCustomer",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Login & Registration"},
+      *      @OA\Response(
+      *          response="200",
+      *          description=""
+diff --git a/src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php b/src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
+index f4064903e7..80f1ebfd8e 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
+@@ -71,9 +71,10 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/register-confirm",
+-     *      summary="Confirm double optin registration",
++     *      summary="Confirm a customer registration",
++     *      description="Confirms a customer registration when double opt-in is activated. Learn more about double opt-in registration in our guide "Register a customer".",
+      *      operationId="registerConfirm",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Login & Registration"},
+      *      @OA\Parameter(name="hash", description="Hash from Link in Mail", in="query", @OA\Schema(type="string")),
+      *      @OA\Parameter(name="em", description="em from Link in Mail", in="query", @OA\Schema(type="string")),
+      *      @OA\Response(
+diff --git a/src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php b/src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
+index ec9897d6ee..db0dc50e70 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
+@@ -121,9 +121,10 @@ class RegisterRoute extends AbstractRegisterRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/register",
+-     *      summary="Register",
++     *      summary="Register a customer",
++     *      description="Registers a customer. Used both for normal customers and guest customers. See the Guide "Register a customer" for more information on customer registration.",
+      *      operationId="register",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Login & Registration"},
+      *      @OA\Parameter(name="guest", description="Create guest user", in="query", @OA\Schema(type="boolean")),
+      *      @OA\Parameter(name="title", description="Title", in="query", @OA\Schema(type="string")),
+      *      @OA\Parameter(name="salutationId", description="Salutation", in="query", @OA\Schema(type="string")),
+diff --git a/src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php b/src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
+index 8f98f5ee0f..656d9c4743 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
+@@ -86,9 +86,10 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/recovery-password-confirm",
+-     *      summary="Resets password using recovery hash",
++     *      summary="Reset a password with recovery credentials",
++     *      description="This operation is Step 2 of the password reset flow. It is required to conduct Step 1 in order to obtain the required credentials for this step.\n\nResets a customer's password using credentials from a password recovery mail as a validation.",
+      *      operationId="recoveryPassword",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Profile"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php b/src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
+index 9e1bdfc113..fcf4234d7b 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
+@@ -83,9 +83,10 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/account/recovery-password",
+-     *      summary="Sends a recovery email for password recovery",
++     *      summary="Send a password recovery mail",
++     *      description="This operation is Step 1 of the password reset flow. Make sure to implement Step 2 Reset password with recovery credentials in order to allow for the complete flow in your application.\n\nSends a recovery mail containing a link with credentials that allows a customer to reset their password.",
+      *      operationId="sendRecoveryMail",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Profile"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Checkout/Customer/SalesChannel/SwitchDefaultAddressRoute.php b/src/Core/Checkout/Customer/SalesChannel/SwitchDefaultAddressRoute.php
+index e76ca673a9..66d31d009d 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/SwitchDefaultAddressRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/SwitchDefaultAddressRoute.php
+@@ -54,9 +54,10 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
+      * @Since("6.3.2.0")
+      * @OA\Patch(
+      *      path="/account/address/default-shipping/{addressId}",
+-     *      summary="Sets the default shipping address",
++     *      summary="Change a customer's default shipping address",
++     *      description="Updates the default (preselected) shipping addresses of a customer.",
+      *      operationId="defaultShippingAddress",
+-     *      tags={"Store API", "Account", "Address"},
++     *      tags={"Store API", "Address"},
+      *      @OA\Parameter(
+      *        name="addressId",
+      *        in="path",
+@@ -71,7 +72,8 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
+      * )
+      * @OA\Patch(
+      *      path="/account/address/default-billing/{addressId}",
+-     *      summary="Sets the default billing address",
++     *      summary="Change a customer's default billing address",
++     *      description="Updates the default (preselected) billing addresses of a customer.",
+      *      operationId="defaultBillingAddress",
+      *      tags={"Store API", "Account", "Address"},
+      *      @OA\Parameter(
+diff --git a/src/Core/Checkout/Customer/SalesChannel/UpsertAddressRoute.php b/src/Core/Checkout/Customer/SalesChannel/UpsertAddressRoute.php
+index 87fffa8106..cbeda91300 100644
+--- a/src/Core/Checkout/Customer/SalesChannel/UpsertAddressRoute.php
++++ b/src/Core/Checkout/Customer/SalesChannel/UpsertAddressRoute.php
+@@ -81,7 +81,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
+      * @Since("6.3.2.0")
+      * @OA\Post(
+      *      path="/account/address",
+-     *      summary="Create a new address",
++     *      summary="Create a new address for a customer",
++     *      description="Creates a new address for a customer.",
+      *      operationId="createCustomerAddress",
+      *      tags={"Store API", "Account", "Address"},
+      *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
+@@ -93,9 +94,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
+      * )
+      * @OA\Patch(
+      *      path="/account/address/{addressId}",
+-     *      summary="Update address",
++     *      summary="Modify an address of a customer",
++     *      description="Modifies an existing address of a customer.",
+      *      operationId="updateCustomerAddress",
+-     *      tags={"Store API", "Account", "Address"},
++     *      tags={"Store API", "Address"},
+      *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
+      *      @OA\Parameter(
+      *        name="addressId",
+diff --git a/src/Core/Checkout/Order/SalesChannel/SetPaymentOrderRoute.php b/src/Core/Checkout/Order/SalesChannel/SetPaymentOrderRoute.php
+index 01041c3c4e..8c5901fb5d 100644
+--- a/src/Core/Checkout/Order/SalesChannel/SetPaymentOrderRoute.php
++++ b/src/Core/Checkout/Order/SalesChannel/SetPaymentOrderRoute.php
+@@ -72,7 +72,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
+      *      path="/order/payment",
+      *      summary="set payment for an order",
+      *      operationId="orderSetPayment",
+-     *      tags={"Store API", "Account"},
++     *      tags={"Store API", "Order"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php b/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php
+index f0aa49834c..844966e663 100644
+--- a/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php
++++ b/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php
+@@ -50,7 +50,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
+      *      path="/handle-payment",
+      *      summary="Handles a payment for an order",
+      *      operationId="handlePaymentMethod",
+-     *      tags={"Store API", "Payment Method"},
++     *      tags={"Store API", "Payment & Shipping"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Checkout/Payment/SalesChannel/PaymentMethodRoute.php b/src/Core/Checkout/Payment/SalesChannel/PaymentMethodRoute.php
+index 449fdc665f..bf027943f9 100644
+--- a/src/Core/Checkout/Payment/SalesChannel/PaymentMethodRoute.php
++++ b/src/Core/Checkout/Payment/SalesChannel/PaymentMethodRoute.php
+@@ -43,7 +43,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
+      *      path="/payment-method",
+      *      summary="Loads all available payment methods",
+      *      operationId="readPaymentMethod",
+-     *      tags={"Store API", "Payment Method"},
++     *      tags={"Store API", "Payment & Shipping"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\RequestBody(
+      *          required=true,
+diff --git a/src/Core/Checkout/Shipping/SalesChannel/ShippingMethodRoute.php b/src/Core/Checkout/Shipping/SalesChannel/ShippingMethodRoute.php
+index e4bccc2295..00868afbec 100644
+--- a/src/Core/Checkout/Shipping/SalesChannel/ShippingMethodRoute.php
++++ b/src/Core/Checkout/Shipping/SalesChannel/ShippingMethodRoute.php
+@@ -44,7 +44,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
+      *      path="/shipping-method",
+      *      summary="Loads all available shipping methods",
+      *      operationId="readShippingMethod",
+-     *      tags={"Store API", "Shipping Method"},
++     *      tags={"Store API", "Payment & Shipping"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\RequestBody(
+      *          required=true,
+diff --git a/src/Core/Content/Category/SalesChannel/CategoryListRoute.php b/src/Core/Content/Category/SalesChannel/CategoryListRoute.php
+index 2a520b0918..03b0c50b5d 100644
+--- a/src/Core/Content/Category/SalesChannel/CategoryListRoute.php
++++ b/src/Core/Content/Category/SalesChannel/CategoryListRoute.php
+@@ -37,7 +37,8 @@ class CategoryListRoute extends AbstractCategoryListRoute
+      * @Entity("category")
+      * @OA\Post(
+      *      path="/category",
+-     *      summary="This route can be used to load categories",
++     *      summary="Fetch a list of categories by criteria",
++     *      description="Perform a filtered search for categories.",
+      *      operationId="readCategoryList",
+      *      tags={"Store API", "Category"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+diff --git a/src/Core/Content/Category/SalesChannel/CategoryRoute.php b/src/Core/Content/Category/SalesChannel/CategoryRoute.php
+index ec06f61da7..6b05404643 100644
+--- a/src/Core/Content/Category/SalesChannel/CategoryRoute.php
++++ b/src/Core/Content/Category/SalesChannel/CategoryRoute.php
+@@ -60,9 +60,10 @@ class CategoryRoute extends AbstractCategoryRoute
+      * @Since("6.2.0.0")
+      * @OA\Post(
+      *      path="/category/{categoryId}",
+-     *      summary="Loads a category with the resolved cms page",
++     *      summary="Fetch a single category",
++     *      descrition="This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
+      *      operationId="readCategory",
+-     *      tags={"Store API", "Content"},
++     *      tags={"Store API", "Category"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Content/Category/SalesChannel/NavigationRoute.php b/src/Core/Content/Category/SalesChannel/NavigationRoute.php
+index 8ef33b071b..a157c7979e 100644
+--- a/src/Core/Content/Category/SalesChannel/NavigationRoute.php
++++ b/src/Core/Content/Category/SalesChannel/NavigationRoute.php
+@@ -54,9 +54,10 @@ class NavigationRoute extends AbstractNavigationRoute
+      * @Entity("category")
+      * @OA\Post(
+      *      path="/navigation/{requestActiveId}/{requestRootId}",
+-     *      summary="Loads all available navigations",
++     *      summary="Fetch a navigation menu",
++     *      description="This endpoint returns a categories that can be used as a page navigation. You can either return them as a tree or as a flat list. You can also control the depth of the tree.",
+      *      operationId="readNavigation",
+-     *      tags={"Store API", "Navigation"},
++     *      tags={"Store API", "Category"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\Parameter(name="requestActiveId", description="Active Category ID", @OA\Schema(type="string"), in="path", required=true),
+      *      @OA\Parameter(name="requestRootId", description="Root Category ID", @OA\Schema(type="string"), in="path", required=true),
+diff --git a/src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php b/src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php
+index d983c57bec..922497c9ea 100644
+--- a/src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php
++++ b/src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php
+@@ -68,7 +68,7 @@ class ContactFormRoute extends AbstractContactFormRoute
+      *      path="/contact-form",
+      *      summary="Send message throught contact form",
+      *      operationId="sendContactMail",
+-     *      tags={"Store API", "Contact Mail"},
++     *      tags={"Store API", "Content"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php b/src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
+index 460ae514f9..f9b4e912f5 100644
+--- a/src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
++++ b/src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
+@@ -73,7 +73,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
+      * @Entity("product")
+      * @OA\Post(
+      *      path="/product/{productId}/cross-selling",
+-     *      summary="This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
++     *      summary="Fetch cross-selling groups of a product",
++     *      description="This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
+      *      operationId="readProductCrossSellings",
+      *      tags={"Store API","Product"},
+      *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
+diff --git a/src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php b/src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php
+index ded4bf4fa9..5ccc531e40 100644
+--- a/src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php
++++ b/src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php
+@@ -89,7 +89,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
+      * @Entity("product")
+      * @OA\Post(
+      *      path="/product/{productId}",
+-     *      summary="This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
++     *      summary="Fetch a single product",
++     *      description="This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
+      *      operationId="readProductDetail",
+      *      tags={"Store API","Product"},
+      *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
+diff --git a/src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php b/src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php
+index 3138ea141b..18587bf3b5 100644
+--- a/src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php
++++ b/src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php
+@@ -68,7 +68,7 @@ class ProductListingRoute extends AbstractProductListingRoute
+      * @Entity("product")
+      * @OA\Post(
+      *      path="/product-listing/{categoryId}",
+-     *      summary="Loads products from listing",
++     *      summary="Fetch a product listing by category",
+      *      operationId="readProductListing",
+      *      tags={"Store API","Product"},
+      *      @OA\Parameter(name="categoryId", description="Category ID", @OA\Schema(type="string"), in="path", required=true),
+diff --git a/src/Core/Content/Product/SalesChannel/ProductListRoute.php b/src/Core/Content/Product/SalesChannel/ProductListRoute.php
+index e63cde3c43..965662c523 100644
+--- a/src/Core/Content/Product/SalesChannel/ProductListRoute.php
++++ b/src/Core/Content/Product/SalesChannel/ProductListRoute.php
+@@ -37,7 +37,7 @@ class ProductListRoute extends AbstractProductListRoute
+      * @Entity("product")
+      * @OA\Post(
+      *      path="/product",
+-     *      summary="This route can be used to load the products by specific filters",
++     *      summary="Fetch a list of products by criteria",
+      *      operationId="readProduct",
+      *      tags={"Store API", "Product"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+diff --git a/src/Core/Content/Product/SalesChannel/Review/ProductReviewRoute.php b/src/Core/Content/Product/SalesChannel/Review/ProductReviewRoute.php
+index 6b77186c6f..79d83a22f3 100644
+--- a/src/Core/Content/Product/SalesChannel/Review/ProductReviewRoute.php
++++ b/src/Core/Content/Product/SalesChannel/Review/ProductReviewRoute.php
+@@ -40,7 +40,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
+      * @Entity("product_review")
+      * @OA\Post(
+      *      path="/product/{productId}/reviews",
+-     *      summary="",
++     *      summary="Fetch product reviews",
+      *      operationId="readProductReviews",
+      *      tags={"Store API","Product"},
+      *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
+diff --git a/src/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRoute.php b/src/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRoute.php
+index 30de56bda0..90772c6f96 100644
+--- a/src/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRoute.php
++++ b/src/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRoute.php
+@@ -68,7 +68,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
+      * @Since("6.3.2.0")
+      * @OA\Post(
+      *      path="/product/{productId}/review",
+-     *      summary="",
++     *      summary="Save product reviews",
+      *      operationId="saveProductReview",
+      *      tags={"Store API","Product"},
+      *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
+diff --git a/src/Core/Content/Product/SalesChannel/Search/ProductSearchRoute.php b/src/Core/Content/Product/SalesChannel/Search/ProductSearchRoute.php
+index ba524eed83..32498e9ca3 100644
+--- a/src/Core/Content/Product/SalesChannel/Search/ProductSearchRoute.php
++++ b/src/Core/Content/Product/SalesChannel/Search/ProductSearchRoute.php
+@@ -51,9 +51,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
+      * @Since("6.2.0.0")
+      * @OA\Get(
+      *      path="/search",
+-     *      summary="Search",
++     *      summary="Search for products",
+      *      operationId="searchPage",
+-     *      tags={"Store API","Search"},
++     *      tags={"Store API","Product"},
+      *      @OA\Parameter(
+      *          name="search",
+      *          description="Search term",
+diff --git a/src/Core/Content/Product/SalesChannel/Suggest/ProductSuggestRoute.php b/src/Core/Content/Product/SalesChannel/Suggest/ProductSuggestRoute.php
+index 749324036d..6473a19512 100644
+--- a/src/Core/Content/Product/SalesChannel/Suggest/ProductSuggestRoute.php
++++ b/src/Core/Content/Product/SalesChannel/Suggest/ProductSuggestRoute.php
+@@ -63,9 +63,9 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
+      * @Entity("product")
+      * @OA\Get(
+      *      path="/search-suggest",
+-     *      summary="Search suggests",
++     *      summary="Search for products (suggest)",
+      *      operationId="searchSuggest",
+-     *      tags={"Store API","Search"},
++     *      tags={"Store API","Product"},
+      *      @OA\Parameter(
+      *          name="search",
+      *          description="Search term",
+diff --git a/src/Core/Content/Seo/SalesChannel/SeoUrlRoute.php b/src/Core/Content/Seo/SalesChannel/SeoUrlRoute.php
+index 0aa903f8a7..8401472ec1 100644
+--- a/src/Core/Content/Seo/SalesChannel/SeoUrlRoute.php
++++ b/src/Core/Content/Seo/SalesChannel/SeoUrlRoute.php
+@@ -40,7 +40,7 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
+      *      path="/seo-url",
+      *      summary="Loads seo urls",
+      *      operationId="readSeoUrl",
+-     *      tags={"Store API", "Seo"},
++     *      tags={"Store API", "Seo Routes"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *     @OA\Response(
+      *          response="200",
+diff --git a/src/Core/System/Country/SalesChannel/CountryRoute.php b/src/Core/System/Country/SalesChannel/CountryRoute.php
+index 263cc8d904..84a55bdb62 100644
+--- a/src/Core/System/Country/SalesChannel/CountryRoute.php
++++ b/src/Core/System/Country/SalesChannel/CountryRoute.php
+@@ -35,7 +35,7 @@ class CountryRoute extends AbstractCountryRoute
+      *      path="/country",
+      *      summary="Loads all available countries",
+      *      operationId="readCountry",
+-     *      tags={"Store API", "Country"},
++     *      tags={"Store API", "System & Context"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\RequestBody(
+      *          required=true,
+diff --git a/src/Core/System/Currency/SalesChannel/CurrencyRoute.php b/src/Core/System/Currency/SalesChannel/CurrencyRoute.php
+index 5d05de416d..5bafb02017 100644
+--- a/src/Core/System/Currency/SalesChannel/CurrencyRoute.php
++++ b/src/Core/System/Currency/SalesChannel/CurrencyRoute.php
+@@ -41,7 +41,7 @@ class CurrencyRoute extends AbstractCurrencyRoute
+      *      path="/currency",
+      *      summary="Loads all available currency",
+      *      operationId="readCurrency",
+-     *      tags={"Store API", "Currency"},
++     *      tags={"Store API", "System & Context"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\Response(
+      *          response="200",
+diff --git a/src/Core/System/Language/SalesChannel/LanguageRoute.php b/src/Core/System/Language/SalesChannel/LanguageRoute.php
+index aa0dbc9d04..d6e02d450d 100644
+--- a/src/Core/System/Language/SalesChannel/LanguageRoute.php
++++ b/src/Core/System/Language/SalesChannel/LanguageRoute.php
+@@ -40,7 +40,7 @@ class LanguageRoute extends AbstractLanguageRoute
+      *      path="/language",
+      *      summary="Loads all available languages",
+      *      operationId="readLanguages",
+-     *      tags={"Store API","Language"},
++     *      tags={"Store API","System & Context"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\Response(
+      *          response="200",
+diff --git a/src/Core/System/SalesChannel/SalesChannel/ContextRoute.php b/src/Core/System/SalesChannel/SalesChannel/ContextRoute.php
+index 0fd4238a01..77009b9f88 100644
+--- a/src/Core/System/SalesChannel/SalesChannel/ContextRoute.php
++++ b/src/Core/System/SalesChannel/SalesChannel/ContextRoute.php
+@@ -25,7 +25,7 @@ class ContextRoute extends AbstractContextRoute
+      *      path="/context",
+      *      summary="Read the context",
+      *      operationId="readContext",
+-     *      tags={"Store API","Context"},
++     *      tags={"Store API","System & Context"},
+      *      @OA\Response(
+      *          response="200",
+      *          description="Context",
+diff --git a/src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php b/src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
+index 3bcaed42a9..d1ecce66a8 100644
+--- a/src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
++++ b/src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
+@@ -71,7 +71,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
+      *      path="/context",
+      *      summary="Update the context",
+      *      operationId="updateContext",
+-     *      tags={"Store API","Context"},
++     *      tags={"Store API","System & Context"},
+      *      @OA\RequestBody(
+      *          required=true,
+      *          @OA\JsonContent(
+diff --git a/src/Core/System/Salutation/SalesChannel/SalutationRoute.php b/src/Core/System/Salutation/SalesChannel/SalutationRoute.php
+index d8c55e3b98..cd19e176a0 100644
+--- a/src/Core/System/Salutation/SalesChannel/SalutationRoute.php
++++ b/src/Core/System/Salutation/SalesChannel/SalutationRoute.php
+@@ -41,7 +41,7 @@ class SalutationRoute extends AbstractSalutationRoute
+      *      path="/salutation",
+      *      summary="Salutations",
+      *      operationId="readSalutation",
+-     *      tags={"Store API", "Salutation"},
++     *      tags={"Store API", "System & Context"},
+      *      @OA\Parameter(name="Api-Basic-Parameters"),
+      *      @OA\Response(
+      *          response="200",

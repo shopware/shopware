@@ -76,9 +76,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
      * @Since("6.3.0.0")
      * @OA\Post(
      *      path="/checkout/order",
-     *      summary="Create a new order from cart",
+     *      summary="Create an order from a cart",
      *      operationId="createOrder",
-     *      tags={"Store API", "Cart"},
+     *      tags={"Store API", "Order"},
      *      @OA\Response(
      *          response="200",
      *          description="Order",

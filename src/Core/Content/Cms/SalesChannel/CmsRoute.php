@@ -37,7 +37,7 @@ class CmsRoute extends AbstractCmsRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/cms/{id}",
-     *      summary="Resolves a cms page",
+     *      summary="Fetch and resolve a CMS page",
      *      operationId="readCms",
      *      tags={"Store API", "Content"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

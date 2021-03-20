@@ -41,13 +41,14 @@ class CustomerRoute extends AbstractCustomerRoute
      * @Entity("customer")
      * @OA\Post(
      *      path="/account/customer",
-     *      summary="Returns informations about the loggedin customer",
+     *      summary="Get information about current customer",
+     *      description="Returns information about the current customer.",
      *      operationId="readCustomer",
-     *      tags={"Store API", "Account"},
+     *      tags={"Store API", "Profile"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          description="Loggedin customer",
+     *          description="Returns the logged in customer, also for guest sessions. Check for the value of `guest` field to see whether the customer is a guest.",
      *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
      *     )
      * )

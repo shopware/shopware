@@ -37,7 +37,7 @@ class ProductListRoute extends AbstractProductListRoute
      * @Entity("product")
      * @OA\Post(
      *      path="/product",
-     *      summary="This route can be used to load the products by specific filters",
+     *      summary="Fetch a list of products by criteria",
      *      operationId="readProduct",
      *      tags={"Store API", "Product"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

@@ -86,11 +86,11 @@ class OpenApiLoader
                         }
                     }
 
-                    preg_match($sinceRegex, $operation->_context->comment, $match);
+                    /*preg_match($sinceRegex, $operation->_context->comment, $match);
 
                     if (\array_key_exists(1, $match)) {
                         $operation->description = 'Available since: ' . $match[1];
-                    }
+                    }*/
 
                     $operation->tags = array_values($operation->tags);
                 }

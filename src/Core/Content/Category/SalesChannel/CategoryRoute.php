@@ -60,9 +60,10 @@ class CategoryRoute extends AbstractCategoryRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/category/{categoryId}",
-     *      summary="Loads a category with the resolved cms page",
+     *      summary="Fetch a single category",
+     *      description="This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
      *      operationId="readCategory",
-     *      tags={"Store API", "Content"},
+     *      tags={"Store API", "Category"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(

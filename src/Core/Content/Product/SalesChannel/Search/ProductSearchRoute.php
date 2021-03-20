@@ -49,11 +49,11 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/search",
-     *      summary="Search",
+     *      summary="Search for products",
      *      operationId="searchPage",
-     *      tags={"Store API","Search"},
+     *      tags={"Store API","Product"},
      *      @OA\Parameter(
      *          name="search",
      *          description="Search term",

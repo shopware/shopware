@@ -54,9 +54,10 @@ class NavigationRoute extends AbstractNavigationRoute
      * @Entity("category")
      * @OA\Post(
      *      path="/navigation/{requestActiveId}/{requestRootId}",
-     *      summary="Loads all available navigations",
+     *      summary="Fetch a navigation menu",
+     *      description="This endpoint returns a categories that can be used as a page navigation. You can either return them as a tree or as a flat list. You can also control the depth of the tree.",
      *      operationId="readNavigation",
-     *      tags={"Store API", "Navigation"},
+     *      tags={"Store API", "Category"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Parameter(name="requestActiveId", description="Active Category ID", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Parameter(name="requestRootId", description="Root Category ID", @OA\Schema(type="string"), in="path", required=true),

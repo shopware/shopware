@@ -39,9 +39,9 @@ class CurrencyRoute extends AbstractCurrencyRoute
      * @Entity("currency")
      * @OA\Post(
      *      path="/currency",
-     *      summary="Loads all available currency",
+     *      summary="Fetch currencies",
      *      operationId="readCurrency",
-     *      tags={"Store API", "Currency"},
+     *      tags={"Store API", "System & Context"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",

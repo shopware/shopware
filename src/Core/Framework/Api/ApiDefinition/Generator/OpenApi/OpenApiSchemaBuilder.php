@@ -71,7 +71,7 @@ class OpenApiSchemaBuilder
     {
         return new Info([
             'title' => 'Shopware ' . self::API[$api]['name'],
-            'version' => $version,
+            'version' => $version
         ]);
     }
 
@@ -341,17 +341,19 @@ class OpenApiSchemaBuilder
     {
         if (self::API[$api]['apiKey']) {
             return [
-                'ApiKey' => new SecurityScheme([
+                'Sales Channel Access Key' => new SecurityScheme([
                     'securityScheme' => 'ApiKey',
                     'type' => 'apiKey',
                     'in' => 'header',
                     'name' => PlatformRequest::HEADER_ACCESS_KEY,
+                    'description' => 'Identifies the sales channel you want to access the API through',
                 ]),
-                'ContextToken' => new SecurityScheme([
+                'User Context Token' => new SecurityScheme([
                     'securityScheme' => 'ContextToken',
                     'type' => 'apiKey',
                     'in' => 'header',
                     'name' => PlatformRequest::HEADER_CONTEXT_TOKEN,
+                    'description' => 'Identifies an anonymous or identified user session',
                 ]),
             ];
         }
@@ -388,9 +390,10 @@ class OpenApiSchemaBuilder
     {
         return [
             Response::HTTP_NOT_FOUND => $this->createErrorResponse(Response::HTTP_NOT_FOUND, 'Not Found', 'Resource with given parameter was not found.'),
+            Response::HTTP_FORBIDDEN => $this->createErrorResponse(Response::HTTP_FORBIDDEN, 'Forbidden', 'This operation is restricted to logged in users.'),
             Response::HTTP_UNAUTHORIZED => $this->createErrorResponse(Response::HTTP_UNAUTHORIZED, 'Unauthorized', 'Authorization information is missing or invalid.'),
             Response::HTTP_BAD_REQUEST => $this->createErrorResponse(Response::HTTP_BAD_REQUEST, 'Bad Request', 'Bad parameters for this endpoint. See documentation for the correct ones.'),
-            Response::HTTP_NO_CONTENT => new OpenApiResponse(['description' => 'The resource was deleted successfully.', 'response' => Response::HTTP_NO_CONTENT]),
+            Response::HTTP_NO_CONTENT => new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]),
         ];
     }
 

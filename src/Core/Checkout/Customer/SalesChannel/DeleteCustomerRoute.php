@@ -47,13 +47,13 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
      * @Since("6.3.2.0")
      * @OA\Delete(
      *      path="/account/customer",
-     *      summary="Delete customer profile",
+     *      summary="Delete the customer's profile",
+     *      description="Deletes a customer profile along with their addresses, wishlists and associated data. Created orders and their payment/shipping information (addresses) and reviews are not deleted.",
      *      operationId="deleteCustomer",
-     *      tags={"Store API", "Account"},
+     *      tags={"Store API", "Profile"},
      *      @OA\Response(
      *          response="204",
-     *          description="Successfully deleted the customer",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
+     *          description="Returns a no content response indicating a successful removal of the customer profile",
      *     )
      * )
      * @LoginRequired()

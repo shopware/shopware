@@ -38,9 +38,9 @@ class LanguageRoute extends AbstractLanguageRoute
      * @Entity("language")
      * @OA\Post(
      *      path="/language",
-     *      summary="Loads all available languages",
+     *      summary="Fetch languages",
      *      operationId="readLanguages",
-     *      tags={"Store API","Language"},
+     *      tags={"Store API","System & Context"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",

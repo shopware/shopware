@@ -58,9 +58,9 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/order/payment",
-     *      summary="set payment for an order",
+     *      summary="Update the payment method of an order",
      *      operationId="orderSetPayment",
-     *      tags={"Store API", "Account"},
+     *      tags={"Store API", "Order"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(

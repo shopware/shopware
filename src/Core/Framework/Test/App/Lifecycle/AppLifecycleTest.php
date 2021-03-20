@@ -713,6 +713,58 @@ class AppLifecycleTest extends TestCase
         static::assertCount(0, $apps);
     }
 
+    public function testDeleteAppDispatchedOnce(): void
+    {
+        $appId = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+
+        $this->appRepository->create([[
+            'id' => $appId,
+            'name' => 'Test',
+            'path' => __DIR__ . '/../Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'actionButtons' => [
+                [
+                    'entity' => 'order',
+                    'view' => 'detail',
+                    'action' => 'test',
+                    'label' => 'test',
+                    'url' => 'test.com',
+                ],
+            ],
+            'integration' => [
+                'label' => 'test',
+                'writeAccess' => false,
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'SwagApp',
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $appId,
+            'roleId' => $roleId,
+        ];
+
+        $countEventDispatched = 0;
+        $onAppDeleted = function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
+            ++$countEventDispatched;
+            static::assertEquals($appId, $event->getAppId());
+        };
+        $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
+
+        $this->appLifecycle->delete('Test', $app, $this->context);
+
+        $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
+
+        static::assertSame(1, $countEventDispatched);
+    }
+
     public function testDeleteWithCustomFields(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');

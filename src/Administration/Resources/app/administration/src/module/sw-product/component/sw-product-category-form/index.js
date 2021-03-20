@@ -1,7 +1,7 @@
 import template from './sw-product-category-form.html.twig';
 import './sw-product-category-form.scss';
 
-const { Component } = Shopware;
+const { Component, Context } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
@@ -49,6 +49,10 @@ Component.register('sw-product-category-form', {
                 return this.product.visibilities.length > 0;
             }
             return false;
+        },
+
+        productVisibilityRepository() {
+            return this.repositoryFactory.create(this.product.visibilities.entity);
         }
     },
 
@@ -72,6 +76,26 @@ Component.register('sw-product-category-form', {
 
         closeAdvancedVisibility() {
             this.displayVisibilityDetail = false;
+        },
+
+        visibilitiesRemoveInheritanceFunction(newValue) {
+            newValue.forEach(({ productVersionId, salesChannelId, salesChannel, visibility }) => {
+                const visibilities = this.productVisibilityRepository.create(Context.api);
+
+                Object.assign(visibilities, {
+                    productId: this.product.id,
+                    productVersionId,
+                    salesChannelId,
+                    salesChannel,
+                    visibility
+                });
+
+                this.product.visibilities.push(visibilities);
+            });
+
+            this.$refs.productVisibilitiesInheritance.forceInheritanceRemove = true;
+
+            return this.product.visibilities;
         }
     }
 });

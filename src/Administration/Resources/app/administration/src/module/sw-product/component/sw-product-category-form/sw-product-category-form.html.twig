@@ -19,7 +19,9 @@
                     class="sw-product-category-form__visibility_field"
                     :inheritedValue="parentProduct.visibilities"
                     :label="$tc('sw-product.visibility.labelVisibility')"
-                    isAssociation>
+                    :customRemoveInheritanceFunction="visibilitiesRemoveInheritanceFunction"
+                    isAssociation
+                    ref="productVisibilitiesInheritance">
                     <template #content="{ currentValue, isInherited, updateCurrentValue }">
                         <sw-product-visibility-select
                             v-if="!loading.product && !loading.parentProduct && multiSelectVisible"

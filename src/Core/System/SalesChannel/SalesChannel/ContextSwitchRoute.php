@@ -69,9 +69,9 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      * @Since("6.2.0.0")
      * @OA\Patch(
      *      path="/context",
-     *      summary="Update the context",
+     *      summary="Modify the current context",
      *      operationId="updateContext",
-     *      tags={"Store API","Context"},
+     *      tags={"Store API","System & Context"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(

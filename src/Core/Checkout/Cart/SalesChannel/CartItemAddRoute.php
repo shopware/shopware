@@ -64,7 +64,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      * @Since("6.3.0.0")
      * @OA\Post(
      *      path="/checkout/cart/line-item",
-     *      summary="Add new line item entries",
+     *      summary="Add items to the cart",
      *      operationId="addLineItem",
      *      tags={"Store API", "Cart"},
      *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CartItems")),

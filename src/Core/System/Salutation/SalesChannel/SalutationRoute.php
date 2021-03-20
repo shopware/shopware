@@ -39,9 +39,9 @@ class SalutationRoute extends AbstractSalutationRoute
      * @Entity("salutation")
      * @OA\Post(
      *      path="/salutation",
-     *      summary="Salutations",
+     *      summary="Fetch salutations",
      *      operationId="readSalutation",
-     *      tags={"Store API", "Salutation"},
+     *      tags={"Store API", "System & Context"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",

@@ -23,9 +23,9 @@ class ContextRoute extends AbstractContextRoute
      * @Since("6.3.0.0")
      * @OA\Get(
      *      path="/context",
-     *      summary="Read the context",
+     *      summary="Fetch the current context",
      *      operationId="readContext",
-     *      tags={"Store API","Context"},
+     *      tags={"Store API","System & Context"},
      *      @OA\Response(
      *          response="200",
      *          description="Context",

@@ -63,7 +63,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/newsletter/unsubscribe",
-     *      summary="Unsubscribe to newsletter",
+     *      summary="Remove a newsletter subscription",
      *      operationId="unsubscribeToNewsletter",
      *      tags={"Store API", "Newsletter"},
      *      @OA\Parameter(name="email", description="Email", in="query", @OA\Schema(type="string")),

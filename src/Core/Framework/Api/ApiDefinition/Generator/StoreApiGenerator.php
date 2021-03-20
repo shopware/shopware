@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use OpenApi\Annotations\OpenApi;
+use OpenApi\Annotations\Operation;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
@@ -14,6 +16,14 @@ use Symfony\Component\Finder\Finder;
 
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 {
+    private const OPERATION_KEYS = [
+        'get',
+        'post',
+        'put',
+        'patch',
+        'delete',
+    ];
+
     public const FORMAT = 'openapi-3';
 
     /**
@@ -83,6 +93,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $openApi->components->merge($schema);
         }
 
+        $this->addGeneralInformation($openApi);
+        $this->addContentTypeParamter($openApi);
+
         $data = json_decode($openApi->toJson(), true);
 
         $finder = (new Finder())->in($this->schemaPath)->name('*.json');
@@ -135,5 +148,57 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         }
 
         return false;
+    }
+
+    private function addGeneralInformation(OpenApi $openApi)
+    {
+        $openApi->info->description = 'This endpoint reference contains an overview of all endpoints comprising the Shopware Store API';
+    }
+
+    private function addContentTypeParamter(OpenApi $openApi)
+    {
+        $openApi->components->parameters = [
+            'contentType' => [
+                'name' => 'Content-Type',
+                'in' => 'header',
+                'required' => true,
+                'schema' => [
+                    'type' => 'string',
+                    'default' => 'application/json'
+                ],
+                'description' => 'Content type of the request'
+            ],
+            'accept' => [
+                'name' => 'Accept',
+                'in' => 'header',
+                'required' => true,
+                'schema' => [
+                    'type' => 'string',
+                    'default' => 'application/json'
+                ],
+                'description' => 'Accepted response content types'
+            ]
+        ];
+
+        foreach ($openApi->paths as $path) {
+            foreach (self::OPERATION_KEYS as $key) {
+                /** @var Operation $operation */
+                $operation = $path->$key;
+
+                if (!$operation instanceof Operation) {
+                    continue;
+                }
+
+                if (!is_array($operation->parameters)) {
+                    $operation->parameters = [];
+                };
+
+                array_push($operation->parameters, [
+                    '$ref' => '#/components/parameters/contentType'
+                ], [
+                    '$ref' => '#/components/parameters/accept'
+                ]);
+            }
+        }
     }
 }

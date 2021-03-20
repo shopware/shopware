@@ -34,9 +34,9 @@ class CountryRoute extends AbstractCountryRoute
      * @Since("6.3.0.0")
      * @OA\Post(
      *      path="/country",
-     *      summary="Loads all available countries",
+     *      summary="Fetch countries",
      *      operationId="readCountry",
-     *      tags={"Store API", "Country"},
+     *      tags={"Store API", "System & Context"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\RequestBody(
      *          required=true,

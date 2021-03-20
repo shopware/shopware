@@ -40,7 +40,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
      * @Entity("product_review")
      * @OA\Post(
      *      path="/product/{productId}/reviews",
-     *      summary="",
+     *      summary="Fetch product reviews",
      *      operationId="readProductReviews",
      *      tags={"Store API","Product"},
      *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),

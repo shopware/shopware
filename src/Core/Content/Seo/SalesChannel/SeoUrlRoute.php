@@ -38,9 +38,9 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      * @Entity("seo_url")
      * @OA\Post(
      *      path="/seo-url",
-     *      summary="Loads seo urls",
+     *      summary="Fetch SEO routes",
      *      operationId="readSeoUrl",
-     *      tags={"Store API", "Seo"},
+     *      tags={"Store API", "Sitemap & Routes"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *     @OA\Response(
      *          response="200",

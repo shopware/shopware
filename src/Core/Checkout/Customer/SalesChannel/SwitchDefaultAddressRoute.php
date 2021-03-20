@@ -54,9 +54,10 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      * @Since("6.3.2.0")
      * @OA\Patch(
      *      path="/account/address/default-shipping/{addressId}",
-     *      summary="Sets the default shipping address",
+     *      summary="Change a customer's default shipping address",
+     *      description="Updates the default (preselected) shipping addresses of a customer.",
      *      operationId="defaultShippingAddress",
-     *      tags={"Store API", "Account", "Address"},
+     *      tags={"Store API", "Address"},
      *      @OA\Parameter(
      *        name="addressId",
      *        in="path",
@@ -71,9 +72,10 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      * )
      * @OA\Patch(
      *      path="/account/address/default-billing/{addressId}",
-     *      summary="Sets the default billing address",
+     *      summary="Change a customer's default billing address",
+     *      description="Updates the default (preselected) billing addresses of a customer.",
      *      operationId="defaultBillingAddress",
-     *      tags={"Store API", "Account", "Address"},
+     *      tags={"Store API", "Address"},
      *      @OA\Parameter(
      *        name="addressId",
      *        in="path",

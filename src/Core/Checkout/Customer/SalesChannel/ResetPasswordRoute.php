@@ -86,21 +86,38 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/recovery-password-confirm",
-     *      summary="Resets password using recovery hash",
+     *      summary="Reset a password with recovery credentials",
+     *      description="This operation is Step 2 of the password reset flow. It is required to conduct Step 1 ""Send a password recovery mail"" in order to obtain the required credentials for this step.
+
+Resets a customer's password using credentials from a password recovery mail as a validation.",
      *      operationId="recoveryPassword",
-     *      tags={"Store API", "Account"},
+     *      tags={"Store API", "Profile"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="hash", description="Hash from confirmation mail", type="string"),
-     *              @OA\Property(property="newPassword", description="New password", type="string"),
-     *              @OA\Property(property="newPasswordConfirm", description="New password confirm", type="string"),
-     *              @OA\Property(property="storefrontUrl", description="BaseUrl for the url in mail", type="string")
+     *              required={
+     *                  "hash",
+     *                  "newPassword",
+     *                  "newPasswordConfirm"
+     *              },
+     *              @OA\Property(
+     *                  property="hash",
+     *                  description="Parameter from the link in the confirmation mail sent in Step 1",
+     *                  type="string"),
+     *              @OA\Property(
+     *                  property="newPassword",
+     *                  description="New password for the customer",
+     *                  type="string"),
+     *              @OA\Property(
+     *                  property="newPasswordConfirm",
+     *                  description="Confirmation of the new password",
+     *                  type="string")
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description=""
+     *          description="Returns a success response indicating a successful update.",
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route(path="/store-api/account/recovery-password-confirm", name="store-api.account.recovery.password", methods={"POST"})

@@ -48,15 +48,30 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/handle-payment",
-     *      summary="Handles a payment for an order",
+     *      summary="Initiate a payment for an order",
+     *      description="This generic endpoint is should be called to initiate a payment flow after an order has been created. The details of the payment flow can differ depending on the payment integration and might require calling additional operations or the setup of webhooks.
+
+The endpoint internally calls the payment handler of the payment method currently set for the order.",
      *      operationId="handlePaymentMethod",
-     *      tags={"Store API", "Payment Method"},
+     *      tags={"Store API", "Payment & Shipping"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="orderId", description="Order ID", type="string"),
-     *              @OA\Property(property="finishUrl", description="URL to which the external payment provider should redirect after successful payment", type="string"),
-     *              @OA\Property(property="errorUrl", description="URL to which the external payment provider should redirect after erroneous payment", type="string")
+     *              required={
+     *                  "orderId"
+     *              },
+     *              @OA\Property(
+     *                  property="orderId",
+     *                  type="string",
+     *                  description="Identifier of an order"),
+     *              @OA\Property(
+     *                  property="finishUrl",
+     *                  type="string",
+     *                  description="URL to which the client should be redirected after successful payment"),
+     *              @OA\Property(
+     *                  property="errorUrl",
+     *                  type="string",
+     *                  description="URL to which the client should be redirected after erroneous payment")
      *          )
      *      ),
      *      @OA\Response(

@@ -57,7 +57,7 @@ class OrderRoute extends AbstractOrderRoute
      * @Entity("order")
      * @OA\Post(
      *      path="/order",
-     *      summary="Listing orders",
+     *      summary="Fetch a list of orders",
      *      operationId="readOrder",
      *      tags={"Store API", "Order"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

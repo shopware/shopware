@@ -81,9 +81,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      * @Since("6.3.2.0")
      * @OA\Post(
      *      path="/account/address",
-     *      summary="Create a new address",
+     *      summary="Create a new address for a customer",
+     *      description="Creates a new address for a customer.",
      *      operationId="createCustomerAddress",
-     *      tags={"Store API", "Account", "Address"},
+     *      tags={"Store API", "Address"},
      *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
      *      @OA\Response(
      *          response="200",
@@ -93,9 +94,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      * )
      * @OA\Patch(
      *      path="/account/address/{addressId}",
-     *      summary="Update address",
+     *      summary="Modify an address of a customer",
+     *      description="Modifies an existing address of a customer.",
      *      operationId="updateCustomerAddress",
-     *      tags={"Store API", "Account", "Address"},
+     *      tags={"Store API", "Address"},
      *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
      *      @OA\Parameter(
      *        name="addressId",

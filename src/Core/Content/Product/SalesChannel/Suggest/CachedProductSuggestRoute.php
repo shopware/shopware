@@ -68,7 +68,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("product")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/search-suggest",
      *      summary="Search suggests",
      *      operationId="searchSuggest",

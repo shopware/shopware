@@ -37,7 +37,8 @@ class CategoryListRoute extends AbstractCategoryListRoute
      * @Entity("category")
      * @OA\Post(
      *      path="/category",
-     *      summary="This route can be used to load categories",
+     *      summary="Fetch a list of categories by criteria",
+     *      description="Perform a filtered search for categories.",
      *      operationId="readCategoryList",
      *      tags={"Store API", "Category"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

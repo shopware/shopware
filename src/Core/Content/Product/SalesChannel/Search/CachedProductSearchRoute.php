@@ -62,7 +62,7 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/search",
      *      summary="Search",
      *      operationId="searchPage",

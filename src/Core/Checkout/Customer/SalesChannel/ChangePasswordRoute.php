@@ -78,20 +78,35 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/change-password",
-     *      summary="Change password",
+     *      summary="Change the customer's password",
+     *      description="Changes a customer's password using their current password as a validation.",
      *      operationId="changePassword",
-     *      tags={"Store API", "Account"},
+     *      tags={"Store API", "Profile"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="password", description="Password", type="string"),
-     *              @OA\Property(property="newPassword", description="New Password", type="string"),
-     *              @OA\Property(property="newPasswordConfirm", description="New Password Confirm", type="string")
+     *              required={
+     *                  "password",
+     *                  "newPassword",
+     *                  "newPasswordConfirm"
+     *              },
+     *              @OA\Property(
+     *                  property="password",
+     *                  description="Current password of the customer",
+     *                  type="string"),
+     *              @OA\Property(
+     *                  property="newPassword",
+     *                  description="New Password for the customer",
+     *                  type="string"),
+     *              @OA\Property(
+     *                  property="newPasswordConfirm",
+     *                  description="Confirmation of the new password",
+     *                  type="string")
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Successfully changed the password",
+     *          description="Returns a success response indicating a successful update.",
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )

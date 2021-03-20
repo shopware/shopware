@@ -46,9 +46,9 @@ class SitemapRoute extends AbstractSitemapRoute
      * @Since("6.3.2.0")
      * @OA\Get(
      *      path="/sitemap",
-     *      summary="Sitemap",
+     *      summary="Fetch sitemaps",
      *      operationId="readSitemap",
-     *      tags={"Store API", "Sitemap"},
+     *      tags={"Store API", "Sitemap & Routes"},
      *      @OA\Response(
      *          response="200",
      *          description="",

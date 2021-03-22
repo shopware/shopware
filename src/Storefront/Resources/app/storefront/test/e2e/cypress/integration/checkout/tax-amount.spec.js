@@ -43,147 +43,139 @@ describe('Checkout: Use different taxes in products while checkout', () => {
             });
 
             it('@base @checkout: Run checkout', () => {
-                cy.window().then((win) => {
-                    const page = new CheckoutPageObject();
-                    const accountPage = new AccountPageObject();
-                    let productName = product.name;
+                const page = new CheckoutPageObject();
+                const accountPage = new AccountPageObject();
+                let productName = product.name;
 
-                    const taxSum = additionalProduct.name === '7% Product' ? 0.65 : 1.60;
-                    const additionalTaxSum = additionalProduct.name === 'Mixed Products' ? 0.65 : taxSum;
+                const taxSum = additionalProduct.name === '7% Product' ? 0.65 : 1.60;
+                const additionalTaxSum = additionalProduct.name === 'Mixed Products' ? 0.65 : taxSum;
 
-                    if (additionalProduct.productNumber === "RS-777") {
-                        productName = additionalProduct.name;
-                    }
+                if (additionalProduct.productNumber === "RS-777") {
+                    productName = additionalProduct.name;
+                }
 
-                    // Product detail - first product
-                    if (win.Feature.isActive('FEATURE_NEXT_10552')) {
-                        cy.get('.header-search-input')
-                            .should('be.visible')
-                            .type(productName);
-                    } else {
-                        cy.get('.header-search-input')
-                            .should('be.visible')
-                            .type(product.name);
-                    }
-                    cy.contains('.search-suggest-product-name', productName).click();
-                    cy.get('.product-detail-buy .btn-buy').click();
+                // Product detail - first product
+                cy.get('.header-search-input')
+                    .should('be.visible')
+                    .type(productName);
+                cy.contains('.search-suggest-product-name', productName).click();
+                cy.get('.product-detail-buy .btn-buy').click();
 
-                    // Off canvas
-                    cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
-                    cy.get(`${page.elements.cartItem}-label`).contains(productName);
-                    cy.get(`${page.elements.offCanvasCart} .offcanvas-close`).click();
+                // Off canvas
+                cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                cy.get(`${page.elements.cartItem}-label`).contains(productName);
+                cy.get(`${page.elements.offCanvasCart} .offcanvas-close`).click();
 
-                    // Product detail - Second product
-                    cy.get('.header-search-input')
-                        .should('be.visible')
-                        .type(additionalProduct.name);
-                    cy.contains('.search-suggest-product-name', additionalProduct.name).click();
-                    cy.get('.product-detail-buy .btn-buy').click();
+                // Product detail - Second product
+                cy.get('.header-search-input')
+                    .should('be.visible')
+                    .type(additionalProduct.name);
+                cy.contains('.search-suggest-product-name', additionalProduct.name).click();
+                cy.get('.product-detail-buy .btn-buy').click();
 
-                    // Off canvas
-                    cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
-                    cy.get(`${page.elements.cartItem}-label`).contains(additionalProduct.name);
+                // Off canvas
+                cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                cy.get(`${page.elements.cartItem}-label`).contains(additionalProduct.name);
 
-                    // Checkout
-                    cy.get('.offcanvas-cart-actions .btn-primary').click();
+                // Checkout
+                cy.get('.offcanvas-cart-actions .btn-primary').click();
 
-                    // Login
-                    cy.get('.checkout-main').should('be.visible');
-                    cy.get('.login-collapse-toggle').click();
-                    cy.get(accountPage.elements.loginCard).should('be.visible');
-                    cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
-                    cy.get('#loginPassword').typeAndCheckStorefront('shopware');
-                    cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
+                // Login
+                cy.get('.checkout-main').should('be.visible');
+                cy.get('.login-collapse-toggle').click();
+                cy.get(accountPage.elements.loginCard).should('be.visible');
+                cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+                cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+                cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
-                    // Confirm
-                    cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-                    cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-                    cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
-                    cy.get('.confirm-address').contains('Pep Eroni');
+                // Confirm
+                cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+                cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+                cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+                cy.get('.confirm-address').contains('Pep Eroni');
 
+                cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`)
+                    .contains(additionalProduct.name);
+
+                // We need to look at the calculation separately, for each test case
+                if (additionalProduct.name === '7% Product') {
+                    // 2x same products of 7% tax
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(`${taxSum * 2}`);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
+                        .contains(`${product.price[0].gross * 2}`);
+                    cy.get('.checkout-aside-summary-value:last-child').contains(`${taxSum * 2}`);
+                } else if (additionalProduct.name === 'Mixed Products') {
+                    // 2 separate product of differing taxes (e.g. 19% and 7%)
                     cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`)
-                        .contains(additionalProduct.name);
+                        .contains(productName);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(taxSum);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
+                        .contains(product.price[0].gross);
+                    cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(additionalTaxSum);
+                    cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
+                        .contains(product.price[0].gross);
+                    cy.get('.checkout-aside-summary-value:nth-of-type(5)').contains(taxSum);
+                    cy.get('.checkout-aside-summary-value:last-child').contains(additionalTaxSum);
+                } else {
+                    // 2 separate products of same tax (e.g. 19%)
+                    cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`)
+                        .contains(productName);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(taxSum);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
+                        .contains(product.price[0].gross);
+                    cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(taxSum);
+                    cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
+                        .contains(product.price[0].gross);
+                    cy.get('.checkout-aside-summary-value:last-child').contains(`${taxSum * 2}`);
+                }
+                cy.get('.checkout-aside-summary-total').contains(`${product.price[0].gross * 2}`);
 
-                    // We need to look at the calculation separately, for each test case
-                    if (additionalProduct.name === '7% Product') {
-                        // 2x same products of 7% tax
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(`${taxSum * 2}`);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
-                            .contains(`${product.price[0].gross * 2}`);
-                        cy.get('.checkout-aside-summary-value:last-child').contains(`${taxSum * 2}`);
-                    } else if (additionalProduct.name === 'Mixed Products') {
-                        // 2 separate product of differing taxes (e.g. 19% and 7%)
-                        cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`)
-                            .contains(productName);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(taxSum);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
-                            .contains(product.price[0].gross);
-                        cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(additionalTaxSum);
-                        cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
-                            .contains(product.price[0].gross);
-                        cy.get('.checkout-aside-summary-value:nth-of-type(5)').contains(taxSum);
-                        cy.get('.checkout-aside-summary-value:last-child').contains(additionalTaxSum);
-                    } else {
-                        // 2 separate products of same tax (e.g. 19%)
-                        cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`)
-                            .contains(productName);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(taxSum);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
-                            .contains(product.price[0].gross);
-                        cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(taxSum);
-                        cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
-                            .contains(product.price[0].gross);
-                        cy.get('.checkout-aside-summary-value:last-child').contains(`${taxSum * 2}`);
-                    }
-                    cy.get('.checkout-aside-summary-total').contains(`${product.price[0].gross * 2}`);
+                // Finish checkout
+                cy.get('#confirmFormSubmit').scrollIntoView();
+                cy.get('#confirmFormSubmit').click();
+                cy.get('.finish-header').contains('Thank you for your order with Demostore!');
 
-                    // Finish checkout
-                    cy.get('#confirmFormSubmit').scrollIntoView();
-                    cy.get('#confirmFormSubmit').click();
-                    cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+                // Let's check the calculation on /finish as well
+                cy.contains(additionalProduct.name);
 
-                    // Let's check the calculation on /finish as well
-                    cy.contains(additionalProduct.name);
-
-                    if (additionalProduct.name === '7% Product') {
-                        // 2x same products of 7% tax
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(`${taxSum * 2}`);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
-                            .contains(`${product.price[0].gross * 2}`);
-                        cy.get('.checkout-aside-summary-value:last-child').contains(`${taxSum * 2}`);
-                    } else if (additionalProduct.name === 'Mixed Products') {
-                        // 2 separate product of differing taxes (e.g. 19% and 7%)
-                        cy.contains(productName);
-                        cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(additionalTaxSum);
-                        cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
-                            .contains(product.price[0].gross);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(taxSum);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
-                            .contains(product.price[0].gross);
-                        cy.get('.checkout-aside-summary-value:nth-of-type(5)').contains(taxSum);
-                        cy.get('.checkout-aside-summary-value:last-child').contains(additionalTaxSum);
-                    } else {
-                        // 2 separate products of same tax (e.g. 19%)
-                        cy.contains(productName);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(taxSum);
-                        cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
-                            .contains(product.price[0].gross);
-                        cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
-                            .contains(taxSum);
-                        cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
-                            .contains(product.price[0].gross);
-                        cy.get('.checkout-aside-summary-value:last-child').contains(`${taxSum * 2}`);
-                    }
-                });
+                if (additionalProduct.name === '7% Product') {
+                    // 2x same products of 7% tax
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(`${taxSum * 2}`);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
+                        .contains(`${product.price[0].gross * 2}`);
+                    cy.get('.checkout-aside-summary-value:last-child').contains(`${taxSum * 2}`);
+                } else if (additionalProduct.name === 'Mixed Products') {
+                    // 2 separate product of differing taxes (e.g. 19% and 7%)
+                    cy.contains(productName);
+                    cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(additionalTaxSum);
+                    cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
+                        .contains(product.price[0].gross);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(taxSum);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
+                        .contains(product.price[0].gross);
+                    cy.get('.checkout-aside-summary-value:nth-of-type(5)').contains(taxSum);
+                    cy.get('.checkout-aside-summary-value:last-child').contains(additionalTaxSum);
+                } else {
+                    // 2 separate products of same tax (e.g. 19%)
+                    cy.contains(productName);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(taxSum);
+                    cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
+                        .contains(product.price[0].gross);
+                    cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
+                        .contains(taxSum);
+                    cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
+                        .contains(product.price[0].gross);
+                    cy.get('.checkout-aside-summary-value:last-child').contains(`${taxSum * 2}`);
+                }
             });
         });
     });

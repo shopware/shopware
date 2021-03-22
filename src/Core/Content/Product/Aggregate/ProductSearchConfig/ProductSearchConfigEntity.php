@@ -7,9 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageEntity;
 
-/**
- * @internal (flag:FEATURE_NEXT_10552)
- */
 class ProductSearchConfigEntity extends Entity
 {
     use EntityIdTrait;

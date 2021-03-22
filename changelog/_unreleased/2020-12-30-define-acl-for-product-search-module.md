@@ -1,7 +1,6 @@
 ---
 title: Define acl for product search module
 issue: NEXT-11966
-flag: FEATURE_NEXT_10552
 ---
 # Administration
 *  Added ACL definition for product search module.

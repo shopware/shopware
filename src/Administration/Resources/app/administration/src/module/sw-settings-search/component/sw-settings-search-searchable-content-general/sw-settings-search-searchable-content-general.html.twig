@@ -28,7 +28,7 @@
                 :isLoading="isLoading"
                 :items="searchConfigs"
                 :skeletonItemAmount="searchConfigs && searchConfigs.length"
-                :allowInlineEdit="feature.isActive('FEATURE_NEXT_10552') && acl.can('product_search_config.editor')"
+                :allowInlineEdit="acl.can('product_search_config.editor')"
                 @inline-edit-save="onInlineEditSave"
                 @inline-edit-cancel="onInlineEditCancel">
                 {% block sw_settings_search_searchable_content_general_field %}
@@ -127,7 +127,7 @@
                         {% block sw_settings_search_searchable_content_general_columns_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
-                                :disabled="feature.isActive('FEATURE_NEXT_10552') && !acl.can('product_search_config.editor')"
+                                :disabled="!acl.can('product_search_config.editor')"
                                 @click="onResetRanking(item)">
                                 {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
                             </sw-context-menu-item>

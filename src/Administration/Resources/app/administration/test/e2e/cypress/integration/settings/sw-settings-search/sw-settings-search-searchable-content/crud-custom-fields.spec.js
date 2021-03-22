@@ -13,7 +13,6 @@ describe('Product Search: Test crud operations of custom field', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
-                cy.onlyOnFeature('FEATURE_NEXT_10552');
             });
     });
 
@@ -49,7 +48,8 @@ describe('Product Search: Test crud operations of custom field', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        cy.get('.sw-settings-search__searchable-content-customfields .sw-empty-state__title').contains('No searchable content added yet.');
+        cy.get('.sw-settings-search__searchable-content-customfields .sw-empty-state__title')
+            .contains('No searchable content added yet.');
         cy.get('.sw-settings-search__searchable-content-add-button').should('exist');
         cy.get('.sw-settings-search__searchable-content-add-button').click();
 

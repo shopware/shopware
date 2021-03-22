@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -35,22 +34,16 @@ class ProductSuggestRouteTest extends TestCase
     private $ids;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @var SearchKeywordUpdater
      */
     private $searchKeywordUpdater;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @var EntityRepositoryInterface
      */
     private $productSearchConfigRepository;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @var string
      */
     private $productSearchConfigId;
@@ -58,13 +51,11 @@ class ProductSuggestRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
-            $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
-            $this->productSearchConfigId = $this->getProductSearchConfigId();
+        $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
+        $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
+        $this->productSearchConfigId = $this->getProductSearchConfigId();
 
-            $this->resetSearchKeywordUpdaterConfig();
-        }
+        $this->resetSearchKeywordUpdaterConfig();
 
         $this->createData();
 
@@ -74,18 +65,14 @@ class ProductSuggestRouteTest extends TestCase
         ]);
 
         $this->setVisibilities();
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $this->setupProductsForImplementSearch();
-        }
+        $this->setupProductsForImplementSearch();
     }
 
     public function testFindingProductsByTerm(): void
     {
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $this->productSearchConfigRepository->update([
-                ['id' => $this->productSearchConfigId, 'andLogic' => false],
-            ], $this->ids->context);
-        }
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], $this->ids->context);
 
         $this->browser->request(
             'POST',
@@ -107,11 +94,9 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testNotFindingProducts(): void
     {
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $this->productSearchConfigRepository->update([
-                ['id' => $this->productSearchConfigId, 'andLogic' => false],
-            ], $this->ids->context);
-        }
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], $this->ids->context);
 
         $this->browser->request(
             'POST',
@@ -142,14 +127,10 @@ class ProductSuggestRouteTest extends TestCase
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @dataProvider searchOrCases
      */
     public function testSearchOr(string $term, array $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
-
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
         ], $this->ids->context);
@@ -158,14 +139,10 @@ class ProductSuggestRouteTest extends TestCase
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @dataProvider searchAndCases
      */
     public function testSearchAnd(string $term, array $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
-
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => true],
         ], $this->ids->context);
@@ -173,9 +150,6 @@ class ProductSuggestRouteTest extends TestCase
         $this->proceedTestSearch($term, $expected);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     public function searchAndCases(): array
     {
         return [
@@ -232,9 +206,6 @@ class ProductSuggestRouteTest extends TestCase
         ];
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     public function searchOrCases(): array
     {
         return [
@@ -315,9 +286,6 @@ class ProductSuggestRouteTest extends TestCase
         ];
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function proceedTestSearch(string $term, array $expected): void
     {
         $this->browser->request(
@@ -412,9 +380,6 @@ class ProductSuggestRouteTest extends TestCase
             ->update($products, $this->ids->context);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function setupProductsForImplementSearch(): void
     {
         /** @var EntityRepositoryInterface $productRepository */
@@ -468,9 +433,6 @@ class ProductSuggestRouteTest extends TestCase
         ], $this->ids->context);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function getProductSearchConfigId(): string
     {
         $criteria = new Criteria();
@@ -481,9 +443,6 @@ class ProductSuggestRouteTest extends TestCase
         return $this->productSearchConfigRepository->searchIds($criteria, $this->ids->context)->firstId();
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function resetSearchKeywordUpdaterConfig(): void
     {
         $class = new \ReflectionClass($this->searchKeywordUpdater);

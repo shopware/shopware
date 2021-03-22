@@ -342,8 +342,6 @@ class LanguageEntity extends Entity
     protected $productSortingTranslations;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @var ProductSearchConfigEntity|null
      */
     protected $productSearchConfig;
@@ -923,17 +921,11 @@ class LanguageEntity extends Entity
         $this->productSortingTranslations = $productSortingTranslations;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     public function getProductSearchConfig(): ?ProductSearchConfigEntity
     {
         return $this->productSearchConfig;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     public function setProductSearchConfig(ProductSearchConfigEntity $productSearchConfig): void
     {
         $this->productSearchConfig = $productSearchConfig;

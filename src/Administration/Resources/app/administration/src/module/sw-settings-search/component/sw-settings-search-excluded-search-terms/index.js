@@ -8,8 +8,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
 
     inject: [
         'repositoryFactory',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [

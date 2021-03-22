@@ -11,7 +11,6 @@ describe('Search settings: Search Index', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
-                cy.onlyOnFeature('FEATURE_NEXT_10552');
             });
     });
 

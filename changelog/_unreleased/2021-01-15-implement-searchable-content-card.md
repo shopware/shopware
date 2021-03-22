@@ -1,7 +1,6 @@
 ---
 title: Implement searchable content card
 issue: NEXT-11990
-flag: FEATURE_NEXT_10552
 ---
 # Administration
 * Added new `sw-settings-search-searchable-content` component in `sw-settings-search` module.

@@ -6,8 +6,7 @@ Component.register('sw-settings-search-searchable-content-general', {
     template,
 
     inject: [
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [

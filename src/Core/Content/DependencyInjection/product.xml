@@ -123,22 +123,18 @@
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition">
             <tag name="shopware.entity.definition" entity="product_search_config"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition">
             <tag name="shopware.entity.definition" entity="product_search_config_field"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
@@ -152,7 +148,7 @@
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
@@ -345,7 +341,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
-            <argument type="service" id="product_search_config_field.repository" on-invalid="null"/>
+            <argument type="service" id="product_search_config_field.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater">
@@ -431,7 +427,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder">

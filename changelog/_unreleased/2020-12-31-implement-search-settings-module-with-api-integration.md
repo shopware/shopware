@@ -1,7 +1,6 @@
 ---
 title: Implement search settings module with api integration
 issue: NEXT-12994
-flag: FEATURE_NEXT_10552
 ---
 # Administration
 * Added `productSearchRepository` computed property in `src/module/sw-settings-search/page/sw-settings-search`.

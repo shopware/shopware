@@ -185,6 +185,8 @@ Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product_feature_set_translation Table
    product_sorting Table
    product_sorting_translation Table
+   product_search_config Table
+   product_search_config_field Table
    product_visibility Table
 }
 Table(ShopwareCoreSystemDeliveryTime, "Shopware\Core\System\DeliveryTime\n(Delivery time)") {

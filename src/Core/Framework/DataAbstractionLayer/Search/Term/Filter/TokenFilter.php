@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal (flag:FEATURE_NEXT_10552)
- */
 class TokenFilter extends AbstractTokenFilter
 {
     private const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
@@ -45,7 +42,6 @@ class TokenFilter extends AbstractTokenFilter
         if (empty($config)) {
             return $tokens;
         }
-
         $tokens = $this->searchTermLengthFilter($tokens, $config['min_search_length']);
         $tokens = $this->excludedTermsFilter($tokens, $config['excluded_terms']);
 

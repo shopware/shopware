@@ -8,8 +8,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
 
     inject: [
         'repositoryFactory',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [

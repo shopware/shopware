@@ -72,7 +72,7 @@ function createWrapper() {
                                     createdAt: '2020-06-02T13:03:33+00:00',
                                     updatedAt: null,
                                     translated: {
-                                        name: 'length',
+                                        name: 'Länge',
                                         description: null,
                                         position: 1,
                                         customFields: []
@@ -102,14 +102,14 @@ function createWrapper() {
                             for (let i = 0; i < count; i += 1) {
                                 response.push({
                                     groupId: '1c909198131346e299b93aa60dd40eeb',
-                                    name: 'darkbrown',
+                                    name: 'darkgreen',
                                     position: i + 1,
                                     colorHexCode: null,
                                     mediaId: null,
                                     customFields: null,
                                     createdAt: '2020-06-02T13:03:33+00:00',
                                     updatedAt: null,
-                                    translated: { name: 'darkbrown', position: 1, customFields: [] },
+                                    translated: { name: 'Dunkelgrün', position: 1, customFields: [] },
                                     id: `${i}66e8d9b5ce24916896d29e27a9e1763`,
                                     translations: [],
                                     group: {
@@ -296,5 +296,22 @@ describe('components/base/sw-property-search', () => {
 
         expect(wrapper.vm.optionPage).toBe(2);
         expect(groupOptions).toBe(2);
+    });
+
+    it('should display translated property groups and property group options', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.onFocusSearch();
+
+        await wrapper.vm.$nextTick();
+
+        const groupElement = wrapper.find('.group_grid__column-name');
+        await groupElement.trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        const groupOptionElement = wrapper.find('.sw-property-search__tree-selection__option_grid--option-value');
+
+        expect(groupElement.find('.sw-grid__cell-content').text()).toBe('Länge');
+        expect(groupOptionElement.find('.sw-grid__cell-content').text()).toBe('Dunkelgrün');
     });
 });

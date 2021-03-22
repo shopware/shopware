@@ -164,7 +164,7 @@ class InvoiceServiceTest extends TestCase
         $country->setCompanyTaxFree(true);
         $companyPhone = '123123123';
         $vatIds = ['VAT-123123'];
-        $order->getOrderCustomer()->getCustomer()->setVatIds($vatIds);
+        $order->getOrderCustomer()->setVatIds($vatIds);
 
         $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
             new DocumentConfiguration(),

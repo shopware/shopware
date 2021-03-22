@@ -37,8 +37,8 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% block document_recipient %}
     {{ parent() }}
 
-    {% if customer.customer.vatIds %}
-        {{ customer.customer.vatIds[0] }}
+    {% if customer.vatIds %}
+        {{ customer.vatIds|first }}
     {% endif %}
 {% endblock %}
 

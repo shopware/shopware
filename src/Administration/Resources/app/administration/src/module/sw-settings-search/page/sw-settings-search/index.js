@@ -8,8 +8,7 @@ Component.register('sw-settings-search', {
 
     inject: [
         'repositoryFactory',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [Mixin.getByName('notification')],

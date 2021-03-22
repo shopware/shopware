@@ -1,7 +1,6 @@
 ---
 title: Implement searchable content with api integration
 issue: NEXT-13010
-flag: FEATURE_NEXT_10552
 ---
 # Administration
 * Added some new props, data, computed, methods in `module/sw-settings-search/component/sw-settings-search-searchable-content-customfields/index.js`

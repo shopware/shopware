@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
@@ -45,9 +44,7 @@ class SearchKeywordUpdater
     private $analyzer;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
-     * @var EntityRepositoryInterface|null
+     * @var EntityRepositoryInterface
      */
     private $productSearchConfigFieldRepository;
 
@@ -61,13 +58,13 @@ class SearchKeywordUpdater
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $productRepository,
         ProductSearchKeywordAnalyzerInterface $analyzer,
-        ?EntityRepositoryInterface $productSearchConfigRepository
+        EntityRepositoryInterface $productSearchConfigFieldRepository
     ) {
         $this->connection = $connection;
         $this->languageRepository = $languageRepository;
         $this->productRepository = $productRepository;
         $this->analyzer = $analyzer;
-        $this->productSearchConfigFieldRepository = $productSearchConfigRepository;
+        $this->productSearchConfigFieldRepository = $productSearchConfigFieldRepository;
     }
 
     public function update(array $ids, Context $context): void
@@ -95,7 +92,7 @@ class SearchKeywordUpdater
     private function updateLanguage(array $ids, Context $context): void
     {
         $configFields = [];
-        if (Feature::isActive('FEATURE_NEXT_10552') && $this->productSearchConfigFieldRepository !== null) {
+        if ($this->productSearchConfigFieldRepository !== null) {
             $configFields = $this->getConfigFields($context->getLanguageId());
         }
 
@@ -152,12 +149,8 @@ class SearchKeywordUpdater
         $criteria = new Criteria($ids);
         $criteria->setLimit(50);
 
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $fields = $this->getAssociationFields(array_column($configFields, 'field'));
-            $criteria->addAssociations(array_filter(array_unique($fields)));
-        } else {
-            $criteria->addAssociation('manufacturer');
-        }
+        $fields = $this->getAssociationFields(array_column($configFields, 'field'));
+        $criteria->addAssociations(array_filter(array_unique($fields)));
 
         return new RepositoryIterator($this->productRepository, $context, $criteria);
     }

@@ -29,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -72,8 +71,6 @@ class ProductRepositoryTest extends TestCase
     private $context;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @var SearchKeywordUpdater
      */
     private $searchKeywordUpdater;
@@ -85,10 +82,8 @@ class ProductRepositoryTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
 
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
-            $this->resetSearchKeywordUpdaterConfig();
-        }
+        $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
+        $this->resetSearchKeywordUpdaterConfig();
     }
 
     public function testWritePrice(): void
@@ -2799,9 +2794,6 @@ class ProductRepositoryTest extends TestCase
         );
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function resetSearchKeywordUpdaterConfig(): void
     {
         $class = new \ReflectionClass($this->searchKeywordUpdater);

@@ -18,7 +18,7 @@
                         <sw-button
                             variant="ghost"
                             size="small"
-                            :disabled="feature.isActive('FEATURE_NEXT_10552') && !acl.can('product_search_config.creator')"
+                            :disabled="!acl.can('product_search_config.creator')"
                             @click="onAddField">
                             {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
                         </sw-button>
@@ -39,9 +39,9 @@
                 :showSelection="false"
                 :isLoading="isLoading"
                 :items="searchConfigs"
-                :allowInlineEdit="feature.isActive('FEATURE_NEXT_10552') && acl.can('product_search_config.editor')"
-                :allowEdit="feature.isActive('FEATURE_NEXT_10552') && acl.can('product_search_config.editor')"
-                :allowDelete="feature.isActive('FEATURE_NEXT_10552') && acl.can('product_search_config.deleter')"
+                :allowInlineEdit="acl.can('product_search_config.editor')"
+                :allowEdit="acl.can('product_search_config.editor')"
+                :allowDelete="acl.can('product_search_config.deleter')"
                 @inline-edit-save="onInlineEditSave"
                 @inline-edit-cancel="onInlineEditCancel">
                 {% block sw_settings_search_searchable_content_customfields_field %}
@@ -143,7 +143,7 @@
                         {% block sw_settings_search_searchable_content_customfields_columns_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
-                                :disabled="feature.isActive('FEATURE_NEXT_10552') && !acl.can('product_search_config.editor')"
+                                :disabled="!acl.can('product_search_config.editor')"
                                 @click="onResetRanking(item)">
                                 {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
                             </sw-context-menu-item>
@@ -152,7 +152,7 @@
                         {% block sw_settings_search_searchable_content_customfields_columns_actions_delete %}
                             <sw-context-menu-item
                                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-remove"
-                                :disabled="feature.isActive('FEATURE_NEXT_10552') && !acl.can('product_search_config.deleter')"
+                                :disabled="!acl.can('product_search_config.deleter')"
                                 @click="onRemove(item)">
                                 {{ $tc('sw-settings-search.generalTab.list.textRemove') }}
                             </sw-context-menu-item>

@@ -64,11 +64,6 @@ shopware:
             - name: FEATURE_NEXT_11917
               major: false
               description: "dynamic plugin acl privileges"
-            - name: FEATURE_NEXT_10552
-              default: false
-              major: true
-              description: "custom search index and ranking"
-              # issue: NEXT-13539
             - name: FEATURE_NEXT_12608
               default: false
               major: true

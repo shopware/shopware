@@ -1,7 +1,6 @@
 ---
 title: Implement the live search on custom search module
 issue: NEXT-11967
-flag: FEATURE_NEXT_10552
 ---
 # Administration
 * Added new `sw-settings-search-live-search` component in `sw-settings-search` module for display live search.

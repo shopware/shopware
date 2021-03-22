@@ -305,6 +305,26 @@ TranslationTable(ShopwareCoreContentProductSalesChannelSortingProductSortingTran
    primary_key(productSortingId) foreignKey
    primary_key(languageId) foreignKey
 }
+Table(ShopwareCoreContentProductAggregateProductSearchConfigProductSearchConfigDefinition, "product_search_config\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(languageId) foreignKey
+   not_null(andLogic) bool
+   not_null(minSearchLength) int
+   excludedTerms list
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentProductAggregateProductSearchConfigFieldProductSearchConfigFieldDefinition, "product_search_config_field\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(searchConfigId) foreignKey
+   customFieldId foreignKey
+   not_null(field) string
+   not_null(tokenize) bool
+   not_null(searchable) bool
+   not_null(ranking) int
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
 Table(ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition, "product_visibility\n(Visibility in sales channels)") {
    primary_key(id) id
    not_null(productId) foreignKey
@@ -349,6 +369,8 @@ ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreSystemCustomFieldCustomFieldDefinition, "custom_field") {
 }
 
 ' relationshipd
@@ -408,5 +430,8 @@ ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSet
 ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition --> ShopwareCoreContentProductSalesChannelSortingProductSortingDefinition
 ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductSearchConfigProductSearchConfigDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductSearchConfigFieldProductSearchConfigFieldDefinition --> ShopwareCoreContentProductAggregateProductSearchConfigProductSearchConfigDefinition
+ShopwareCoreContentProductAggregateProductSearchConfigFieldProductSearchConfigFieldDefinition --> ShopwareCoreSystemCustomFieldCustomFieldDefinition
 ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 @enduml

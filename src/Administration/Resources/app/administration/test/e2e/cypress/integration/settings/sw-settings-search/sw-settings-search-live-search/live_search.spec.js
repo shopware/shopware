@@ -16,7 +16,6 @@ describe('Search settings: Live Search', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index/live-search`);
-                cy.onlyOnFeature('FEATURE_NEXT_10552');
             });
     });
 

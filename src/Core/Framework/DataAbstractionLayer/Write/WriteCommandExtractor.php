@@ -150,9 +150,8 @@ class WriteCommandExtractor
             }
         }
 
-        if ($definition->getField('children') instanceof ChildrenAssociationField) {
-            $field = $definition->getField('children');
-
+        $field = $parameters->getDefinition()->getFields()->getChildrenAssociationField();
+        if ($field !== null) {
             try {
                 $data = $field->getSerializer()->normalize($field, $data, $parameters);
             } catch (WriteFieldException $e) {

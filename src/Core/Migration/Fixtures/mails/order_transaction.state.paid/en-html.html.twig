@@ -90,8 +90,8 @@ Order number: {{ order.orderNumber }}<br>
     {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
     {{ delivery.shippingOrderAddress.country.translated.name }}<br>
     <br>
-    {% if billingAddress.vatId %}
-        Your VAT-ID: {{ billingAddress.vatId }}
+    {% if order.orderCustomer.vatIds %}
+        Your VAT-ID: {{ order.orderCustomer.vatIds|first }}
         In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.<br>
     {% endif %}
     <br/>

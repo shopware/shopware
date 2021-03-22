@@ -54,8 +54,8 @@ Lieferadresse:
 {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
 {{ delivery.shippingOrderAddress.country.translated.name }}
 
-{% if billingAddress.vatId %}
-Ihre Umsatzsteuer-ID: {{ billingAddress.vatId }}
+{% if order.orderCustomer.vatIds %}
+Ihre Umsatzsteuer-ID: {{ order.orderCustomer.vatIds|first }}
 Bei erfolgreicher Prüfung und sofern Sie aus dem EU-Ausland
 bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit.
 {% endif %}

@@ -55,8 +55,8 @@ Shipping address:
 {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
 {{ delivery.shippingOrderAddress.country.translated.name }}
 
-{% if billingAddress.vatId %}
-Your VAT-ID: {{ billingAddress.vatId }}
+{% if order.orderCustomer.vatIds %}
+Your VAT-ID: {{ order.orderCustomer.vatIds|first }}
 In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.
 {% endif %}
 

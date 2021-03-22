@@ -65,7 +65,7 @@ shopware:
               major: false
               description: "dynamic plugin acl privileges"
             - name: FEATURE_NEXT_12608
-              default: false
+              default: true
               major: true
               description: "App System Store"
             # issue: NEXT-13469

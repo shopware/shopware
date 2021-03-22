@@ -25,7 +25,7 @@
                         v-tooltip.bottom="tooltipSave"
                         class="sw-settings-search__button-save"
                         variant="primary"
-                        :disabled="feature.isActive('FEATURE_NEXT_10552') && !allowSave"
+                        :disabled="!allowSave"
                         @click="onSaveSearchSettings">
                         {{ $tc('global.default.save') }}
                     </sw-button>

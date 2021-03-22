@@ -5,8 +5,7 @@ Shopware.Component.register('sw-settings-search-search-behaviour', {
     template,
 
     inject: [
-        'acl',
-        'feature'
+        'acl'
     ],
 
     props: {

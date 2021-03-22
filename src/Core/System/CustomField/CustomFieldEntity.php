@@ -42,8 +42,6 @@ class CustomFieldEntity extends Entity
     protected $customFieldSet;
 
     /**
-     * @internal (FEATURE_NEXT_10552)
-     *
      * @var ProductSearchConfigFieldCollection |null
      */
     protected $productSearchConfigFields;
@@ -108,17 +106,11 @@ class CustomFieldEntity extends Entity
         $this->customFieldSet = $attributeSet;
     }
 
-    /**
-     * @internal (FEATURE_NEXT_10552)
-     */
     public function getProductSearchConfigFields(): ?ProductSearchConfigFieldCollection
     {
         return $this->productSearchConfigFields;
     }
 
-    /**
-     * @internal (FEATURE_NEXT_10552)
-     */
     public function setProductSearchConfigFields(ProductSearchConfigFieldCollection $productSearchConfigFields): void
     {
         $this->productSearchConfigFields = $productSearchConfigFields;

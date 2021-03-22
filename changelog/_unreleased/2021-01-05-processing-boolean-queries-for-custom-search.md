@@ -1,7 +1,6 @@
 ---
 title: Processing boolean queries for Custom Search
 issue: NEXT-13055
-flag: FEATURE_NEXT_10552
 ---
 # Core
 *  Added new public constant property `BOOLEAN_CLAUSE_AND` in `Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern` to define possible value for `$booleanClause`

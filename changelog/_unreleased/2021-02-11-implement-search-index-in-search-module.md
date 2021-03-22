@@ -1,7 +1,6 @@
 ---
 title: Implement search index in search module
 issue: NEXT-11994
-flag: FEATURE_NEXT_10552
 ---
 # Administration
 * Added new `sw-settings-search-search-index` component in `sw-settings-search` module for display the rebuild search index section.

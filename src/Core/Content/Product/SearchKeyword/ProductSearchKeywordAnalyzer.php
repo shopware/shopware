@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
-use Shopware\Core\Framework\Feature;
 
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
 {
@@ -22,67 +21,34 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
      */
     private $tokenFilter;
 
-    public function __construct(TokenizerInterface $tokenizer, ?AbstractTokenFilter $tokenFilter = null)
+    public function __construct(TokenizerInterface $tokenizer, AbstractTokenFilter $tokenFilter)
     {
         $this->tokenizer = $tokenizer;
         $this->tokenFilter = $tokenFilter;
     }
 
-    /**@feature-deprecated (flag:FEATURE_NEXT_10552) tag:v6.4.0 - Parameter $configFields will be mandatory in future implementation */
-    public function analyze(ProductEntity $product, Context $context /*, ?array $configFields */): AnalyzedKeywordCollection
+    public function analyze(ProductEntity $product, Context $context, array $configFields): AnalyzedKeywordCollection
     {
         $keywords = new AnalyzedKeywordCollection();
 
-        if (Feature::isActive('FEATURE_NEXT_10552') && \func_num_args() === 3) {
-            $configFields = func_get_arg(2);
+        foreach ($configFields as $configField) {
+            $path = $configField['field'];
+            $isTokenize = (bool) $configField['tokenize'];
+            $ranking = (int) $configField['ranking'];
 
-            foreach ($configFields as $configField) {
-                $path = $configField['field'];
-                $isTokenize = (bool) $configField['tokenize'];
-                $ranking = (int) $configField['ranking'];
+            $values = array_filter($this->resolveEntityValue($product, $path));
 
-                $values = array_filter($this->resolveEntityValue($product, $path));
+            if ($isTokenize) {
+                $fieldValue = implode(' ', $values);
+                $values = $this->tokenizer->tokenize($fieldValue);
 
-                if ($isTokenize) {
-                    $fieldValue = implode(' ', $values);
-                    $values = $this->tokenizer->tokenize($fieldValue);
-
-                    if ($this->tokenFilter) {
-                        $values = $this->tokenFilter->filter($values, $context);
-                    }
-                }
-
-                foreach ($values as $value) {
-                    $keywords->add(new AnalyzedKeyword((string) $value, $ranking));
+                if ($this->tokenFilter) {
+                    $values = $this->tokenFilter->filter($values, $context);
                 }
             }
 
-            return $keywords;
-        }
-
-        $keywords->add(new AnalyzedKeyword($product->getProductNumber(), 1000));
-
-        $name = $product->getTranslation('name');
-        if ($name) {
-            $tokens = $this->tokenizer->tokenize((string) $name);
-
-            foreach ($tokens as $token) {
-                $keywords->add(new AnalyzedKeyword($token, 700));
-            }
-        }
-
-        if ($product->getManufacturer() && $product->getManufacturer()->getTranslation('name') !== null) {
-            $keywords->add(new AnalyzedKeyword((string) $product->getManufacturer()->getTranslation('name'), 500));
-        }
-        if ($product->getManufacturerNumber()) {
-            $keywords->add(new AnalyzedKeyword($product->getManufacturerNumber(), 500));
-        }
-        if ($product->getEan()) {
-            $keywords->add(new AnalyzedKeyword($product->getEan(), 500));
-        }
-        if (!empty($product->getCustomSearchKeywords())) {
-            foreach ($product->getCustomSearchKeywords() as $keyword) {
-                $keywords->add(new AnalyzedKeyword($keyword, 800));
+            foreach ($values as $value) {
+                $keywords->add(new AnalyzedKeyword((string) $value, $ranking));
             }
         }
 

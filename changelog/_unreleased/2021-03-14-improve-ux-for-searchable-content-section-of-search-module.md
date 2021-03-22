@@ -1,7 +1,6 @@
 ---
 title: Improve UX for searchable content section of Search module
 issue: NEXT-14244
-flag: FEATURE_NEXT_10552
 ---
 # Administration
 *  Changed the function `getProductSearchFieldColumns()` in `src/module/sw-settings-search/component/sw-settings-search-searchable-content/index.js` to enable the sorting function for searchable content grid data.

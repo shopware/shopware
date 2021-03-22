@@ -40,8 +40,6 @@ class IndexingController extends AbstractController
     }
 
     /**
-     * @internal (FEATURE_NEXT_10552)
-     *
      * @Since("6.4.0.0")
      * Iterates the indexer
      *

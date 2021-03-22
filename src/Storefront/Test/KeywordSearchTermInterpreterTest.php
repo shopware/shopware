@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,15 +32,11 @@ class KeywordSearchTermInterpreterTest extends TestCase
     private $interpreter;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @var EntityRepositoryInterface
      */
     private $productSearchConfigRepository;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     *
      * @var string
      */
     private $productSearchConfigId;
@@ -51,10 +46,8 @@ class KeywordSearchTermInterpreterTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->interpreter = $this->getContainer()->get(ProductSearchTermInterpreter::class);
 
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
-            $this->productSearchConfigId = $this->getProductSearchConfigId();
-        }
+        $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
+        $this->productSearchConfigId = $this->getProductSearchConfigId();
 
         $this->setupKeywords();
     }
@@ -64,7 +57,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     public function testMatching(string $term, array $expected): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
         $context = Context::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
@@ -83,7 +75,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     public function testMatchingWithTokenFilter(string $term, array $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
         $context = Context::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
@@ -102,7 +93,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     public function testMatchingTokenTerms(string $term, array $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
         $context = Context::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
@@ -123,14 +113,11 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     public function testMatchingBooleanClause(bool $andLogic, string $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
         $context = Context::createDefaultContext();
 
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $this->productSearchConfigRepository->update([
-                ['id' => $this->productSearchConfigId, 'andLogic' => $andLogic],
-            ], $context);
-        }
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => $andLogic],
+        ], $context);
 
         $matches = $this->interpreter->interpret('Random terms', $context);
 
@@ -144,14 +131,11 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     public function testMatchingSearchPatternTermLength(bool $andLogic, string $words): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
         $context = Context::createDefaultContext();
 
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $this->productSearchConfigRepository->update([
-                ['id' => $this->productSearchConfigId, 'andLogic' => $andLogic],
-            ], $context);
-        }
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => $andLogic],
+        ], $context);
 
         $matches = $this->interpreter->interpret($words, $context);
         $terms = array_map(function (SearchTerm $term) {
@@ -190,8 +174,8 @@ class KeywordSearchTermInterpreterTest extends TestCase
                 ['10000', '10001', '10002', '10007'],
             ],
             [
-                '1',
-                ['1', '10000', '10001', '10002', '10007'],
+                '10',
+                ['10', '10000', '10001', '10002', '10007'],
             ],
         ];
     }
@@ -416,19 +400,17 @@ class KeywordSearchTermInterpreterTest extends TestCase
             '10001',
             '10002',
             '10007',
-            '1',
+            '10',
             '2',
             '3',
         ];
 
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $keywords = array_merge($keywords, [
-                'between',
-                'against',
-                'betweencoffee',
-                'betweenbike',
-            ]);
-        }
+        $keywords = array_merge($keywords, [
+            'between',
+            'against',
+            'betweencoffee',
+            'betweenbike',
+        ]);
 
         $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
@@ -443,9 +425,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
         }
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function getProductSearchConfigId(): string
     {
         $criteria = new Criteria();

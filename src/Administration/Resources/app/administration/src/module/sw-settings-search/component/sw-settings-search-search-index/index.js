@@ -12,8 +12,7 @@ Component.register('sw-settings-search-search-index', {
     inject: [
         'productIndexService',
         'repositoryFactory',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [Mixin.getByName('notification')],

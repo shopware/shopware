@@ -16,7 +16,6 @@ import './acl';
 const { Module } = Shopware;
 
 Module.register('sw-settings-search', {
-    flag: 'FEATURE_NEXT_10552',
     type: 'core',
     name: 'settings-product-search-config',
     title: 'sw-settings-search.general.mainMenuItemGeneral',

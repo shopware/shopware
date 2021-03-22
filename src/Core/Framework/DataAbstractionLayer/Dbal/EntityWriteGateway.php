@@ -152,7 +152,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $context->getExceptions()->tryToThrow();
 
         $previous = null;
-        $mappingInserts = new MultiInsertQueryQueue($this->connection, $this->batchSize, false, true);
+        $mappings = new MultiInsertQueryQueue($this->connection, $this->batchSize, false, true);
         $inserts = new MultiInsertQueryQueue($this->connection, $this->batchSize);
 
         foreach ($commands as $command) {
@@ -161,8 +161,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
             $current = $command->getDefinition()->getEntityName();
 
-            if ($enableBatch && $current !== $previous) {
-                $mappingInserts->execute();
+            if ($current !== $previous) {
+                $mappings->execute();
                 $inserts->execute();
             }
             $previous = $current;
@@ -172,10 +172,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $table = $definition->getEntityName();
 
                 if ($command instanceof DeleteCommand) {
-                    if ($enableBatch) {
-                        $mappingInserts->execute();
-                        $inserts->execute();
-                    }
+                    $mappings->execute();
+                    $inserts->execute();
 
                     RetryableQuery::retryable(function () use ($command, $table): void {
                         $this->connection->delete(
@@ -188,30 +186,27 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 }
 
                 if ($command instanceof JsonUpdateCommand) {
+                    $mappings->execute();
+                    $inserts->execute();
+
                     $this->executeJsonUpdate($command);
 
                     continue;
                 }
 
                 if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
-                    if ($enableBatch) {
-                        $mappingInserts->addInsert($definition->getEntityName(), $command->getPayload());
+                    $mappings->addInsert($definition->getEntityName(), $command->getPayload());
 
-                        continue;
+                    if (!$enableBatch) {
+                        $mappings->execute();
                     }
-
-                    $queue = new MultiInsertQueryQueue($this->connection, 1, false, true);
-                    $queue->addInsert($definition->getEntityName(), $command->getPayload());
-                    $queue->execute();
 
                     continue;
                 }
 
                 if ($command instanceof UpdateCommand) {
-                    if ($enableBatch) {
-                        $mappingInserts->execute();
-                        $inserts->execute();
-                    }
+                    $mappings->execute();
+                    $inserts->execute();
 
                     RetryableQuery::retryable(function () use ($command, $table): void {
                         $this->connection->update(
@@ -225,16 +220,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 }
 
                 if ($command instanceof InsertCommand) {
-                    if ($enableBatch) {
-                        $inserts->addInsert($definition->getEntityName(), $command->getPayload());
+                    $inserts->addInsert($definition->getEntityName(), $command->getPayload());
 
-                        continue;
+                    if (!$enableBatch) {
+                        $inserts->execute();
                     }
-
-                    $this->connection->insert(
-                        EntityDefinitionQueryHelper::escape($table),
-                        $this->escapeColumnKeys($command->getPayload())
-                    );
 
                     continue;
                 }
@@ -251,10 +241,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
         }
 
-        if ($enableBatch) {
-            $mappingInserts->execute();
-            $inserts->execute();
-        }
+        $mappings->execute();
+        $inserts->execute();
 
         // throws exception on violation and then aborts/rollbacks this transaction
         $event = new PostWriteValidationEvent($context, $commands);

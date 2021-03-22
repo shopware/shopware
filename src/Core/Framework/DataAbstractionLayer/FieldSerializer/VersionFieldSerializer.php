@@ -12,6 +12,21 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class VersionFieldSerializer implements FieldSerializerInterface
 {
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        $value = $data[$field->getPropertyName()] ?? null;
+        if ($value === null) {
+            $value = $parameters->getContext()->getContext()->getVersionId();
+        }
+
+        //write version id of current object to write context
+        $parameters->getContext()->set($parameters->getDefinition()->getClass(), 'versionId', $value);
+
+        $data[$field->getPropertyName()] = $value;
+
+        return $data;
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -22,16 +37,13 @@ class VersionFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(VersionField::class, $field);
         }
 
-        $value = $data->getValue();
-        if ($value === null) {
-            $value = $parameters->getContext()->getContext()->getVersionId();
+        if ($data->getValue() === null) {
+            $result = $this->normalize($field, [$field->getPropertyName() => $data->getValue()], $parameters);
+            $data->setValue($result[$field->getPropertyName()]);
         }
 
-        //write version id of current object to write context
-        $parameters->getContext()->set($parameters->getDefinition()->getClass(), 'versionId', $value);
-
         /* @var VersionField $field */
-        yield $field->getStorageName() => Uuid::fromHexToBytes($value);
+        yield $field->getStorageName() => Uuid::fromHexToBytes($data->getValue());
     }
 
     public function decode(Field $field, $value): string

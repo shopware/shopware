@@ -84,6 +84,8 @@ class GroupByTest extends TestCase
         $this->definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $this->getContainer()->set(TestDefinition::class, $this->definition);
 
+        $this->getContainer()->get(DefinitionInstanceRegistry::class)->register($this->definition);
+
         $this->testData = new TestData();
 
         $data = [

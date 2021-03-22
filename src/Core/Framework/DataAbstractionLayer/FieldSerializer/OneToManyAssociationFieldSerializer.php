@@ -26,6 +26,57 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor = $writeExtractor;
     }
 
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        if (!$field instanceof OneToManyAssociationField) {
+            throw new InvalidSerializerFieldException(OneToManyAssociationField::class, $field);
+        }
+
+        $key = $field->getPropertyName();
+        $value = $data[$key] ?? null;
+        if ($value === null) {
+            return $data;
+        }
+
+        $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getLocalField());
+        $reference = $field->getReferenceDefinition();
+
+        $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());
+
+        // allows to reset the association for a none cascade delete
+        $fk = $fkField->getPropertyName();
+
+        foreach ($value as $keyValue => $subresources) {
+            $currentId = $id;
+            if (!\is_array($subresources)) {
+                throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
+            }
+
+            if (\array_key_exists($fk, $subresources) && $subresources[$fk] === null) {
+                $currentId = null;
+            }
+
+            $subresources[$fk] = $currentId;
+
+            $clonedParams = $parameters->cloneForSubresource(
+                $reference,
+                $parameters->getPath() . '/' . $key
+            );
+
+            $fkVersionField = $reference->getField($parameters->getDefinition()->getEntityName() . 'VersionId');
+            if ($fkVersionField !== null) {
+                $subresources = $fkVersionField->getSerializer()->normalize($fkVersionField, $subresources, $clonedParams);
+            }
+            $subresources = $this->writeExtractor->normalizeSingle($reference, $subresources, $clonedParams);
+
+            $value[$keyValue] = $subresources;
+        }
+
+        $data[$key] = $value;
+
+        return $data;
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -59,26 +110,9 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
 
     private function map(OneToManyAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void
     {
-        $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getLocalField());
         $reference = $field->getReferenceDefinition();
 
-        $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());
-
-        // allows to reset the association for a none cascade delete
-        $fk = $fkField->getPropertyName();
-
         foreach ($data->getValue() as $keyValue => $subresources) {
-            $currentId = $id;
-            if (!\is_array($subresources)) {
-                throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
-            }
-
-            if (\array_key_exists($fk, $subresources) && $subresources[$fk] === null) {
-                $currentId = null;
-            }
-
-            $subresources[$fk] = $currentId;
-
             $this->writeExtractor->extract(
                 $subresources,
                 $parameters->cloneForSubresource(

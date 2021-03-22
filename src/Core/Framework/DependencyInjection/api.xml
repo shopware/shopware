@@ -337,5 +337,9 @@
         </service>
 
         <service id="Nyholm\Psr7\Factory\Psr17Factory"/>
+
+        <service id="Shopware\Core\Framework\Validation\HappyPathValidator" decorates="validator">
+            <argument type="service" id="Shopware\Core\Framework\Validation\HappyPathValidator.inner"/>
+        </service>
     </services>
 </container>

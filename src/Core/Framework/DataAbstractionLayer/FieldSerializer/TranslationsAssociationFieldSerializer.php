@@ -30,6 +30,104 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor = $writeExtractor;
     }
 
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        if (!$field instanceof TranslationsAssociationField) {
+            throw new InvalidSerializerFieldException(TranslationsAssociationField::class, $field);
+        }
+
+        $key = $field->getPropertyName();
+        $value = $data[$key] ?? null;
+
+        $path = $parameters->getPath() . '/' . $key;
+        /** @var EntityTranslationDefinition $referenceDefinition */
+        $referenceDefinition = $field->getReferenceDefinition();
+
+        if ($value === null) {
+            $languageId = $parameters->getContext()->getContext()->getLanguageId();
+            $clonedParams = $parameters->cloneForSubresource(
+                $referenceDefinition,
+                $path . '/' . $languageId
+            );
+
+            $data[$key] = [
+                $languageId => $this->writeExtractor->normalizeSingle($referenceDefinition, [], $clonedParams),
+            ];
+
+            return $data;
+        }
+
+        $languageField = $referenceDefinition->getFields()->getByStorageName($field->getLanguageField());
+        $languagePropName = $languageField->getPropertyName();
+
+        foreach ($value as $identifier => $fields) {
+            /* Supported formats:
+                translations => [['property' => 'translation', 'languageId' => '{languageUuid}']] -> skip
+                translations => [['property' => 'translation', 'language' => ['id' => {languageUuid}'] ]] -> skip
+                translations => ['{languageUuid}' => ['property' => 'translation']] -> skip
+                translations => ['en-GB' => ['property' => 'translation']] -> proceed and use localeLanguageResolver
+            */
+            if (is_numeric($identifier) || Uuid::isValid($identifier)) {
+                continue;
+            }
+
+            $languageId = $parameters->getContext()->getLanguageId($identifier);
+
+            if ($languageId === null) {
+                unset($value[$identifier]);
+
+                continue;
+            }
+
+            if (!isset($value[$languageId])) {
+                $value[$languageId] = $fields;
+            } else {
+                $value[$languageId] = array_merge($value[$identifier], $value[$languageId]);
+            }
+
+            unset($value[$identifier]);
+        }
+
+        $translations = [];
+        foreach ($value as $keyValue => $subResources) {
+            if (!\is_array($subResources)) {
+                throw new ExpectedArrayException($path);
+            }
+
+            // See above for Supported formats
+            $languageId = $keyValue;
+            if (is_numeric($languageId) && $languageId >= 0 && $languageId < \count($value)) {
+                // languageId is a property of $subResources. Also see formats above
+                if (isset($subResources[$languagePropName])) {
+                    $languageId = $subResources[$languagePropName];
+                } elseif (isset($subResources['language']['id'])) {
+                    $languageId = $subResources['language']['id'];
+                } else {
+                    throw new MissingTranslationLanguageException($path, $keyValue);
+                }
+            } elseif ($languagePropName) {
+                // the key is the language id, also write it into $subResources
+                $subResources[$languagePropName] = $languageId;
+            }
+            $translations[$languageId] = $subResources;
+        }
+
+        foreach ($translations as $languageId => $translation) {
+            $clonedParams = $parameters->cloneForSubresource(
+                $referenceDefinition,
+                $path . '/' . $languageId
+            );
+
+            $translation = $this->writeExtractor->normalizeSingle($referenceDefinition, $translation, $clonedParams);
+
+            $translations[$languageId] = $translation;
+        }
+
+        $data[$key] = $translations;
+
+        return $data;
+    }
+
     /**
      * @throws ExpectedArrayException
      * @throws InvalidSerializerFieldException
@@ -47,6 +145,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         $value = $data->getValue();
+
         /* @var TranslationsAssociationField $field */
 
         if ($value === null) {
@@ -56,33 +155,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 
             return $this->map($field, $data, $parameters, $existence);
-        }
-
-        foreach ($value as $identifier => $fields) {
-            /* Supported formats:
-                translations => [['property' => 'translation', 'languageId' => '{languageUuid}']] -> skip
-                translations => [['property' => 'translation', 'language' => ['id' => {languageUuid}'] ]] -> skip
-                translations => ['{languageUuid}' => ['property' => 'translation']] -> skip
-                translations => ['en-GB' => ['property' => 'translation']] -> proceed and use localeLanguageResolver
-            */
-            if (is_numeric($identifier) || Uuid::isValid($identifier)) {
-                continue;
-            }
-
-            $languageId = $parameters->getContext()->getLanguageId($identifier);
-            if ($languageId === null) {
-                unset($value[$identifier]);
-
-                continue;
-            }
-
-            if (!isset($value[$languageId])) {
-                $value[$languageId] = $fields;
-            } else {
-                $value[$languageId] = array_merge($value[$identifier], $value[$languageId]);
-            }
-
-            unset($value[$identifier]);
         }
 
         $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
@@ -120,34 +192,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($path);
         }
 
-        $languageField = $referenceDefinition->getFields()->getByStorageName($field->getLanguageField());
-        $languagePropName = $languageField->getPropertyName();
-
-        $translations = [];
-        foreach ($value as $keyValue => $subResources) {
-            if (!\is_array($subResources)) {
-                throw new ExpectedArrayException($path);
-            }
-
-            // See above for Supported formats
-            $languageId = $keyValue;
-            if (is_numeric($languageId) && $languageId >= 0 && $languageId < \count($value)) {
-                // languageId is a property of $subResources. Also see formats above
-                if (isset($subResources[$languagePropName])) {
-                    $languageId = $subResources[$languagePropName];
-                } elseif (isset($subResources['language']['id'])) {
-                    $languageId = $subResources['language']['id'];
-                } else {
-                    throw new MissingTranslationLanguageException($path, $keyValue);
-                }
-            } elseif ($languagePropName) {
-                // the key is the language id, also write it into $subResources
-                $subResources[$languagePropName] = $languageId;
-            }
-            $translations[$languageId] = $subResources;
-        }
-
-        foreach ($translations as $languageId => $translation) {
+        foreach ($value as $languageId => $translation) {
             $clonedParams = $parameters->cloneForSubresource(
                 $referenceDefinition,
                 $path . '/' . $languageId
@@ -162,7 +207,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             return;
         }
 
-        $languageIds = array_keys($translations);
+        $languageIds = array_keys($value);
         // the translation in the system language is always required for new entities,
         // if there is at least one required translated field
         if ($referenceDefinition->hasRequiredField() && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {

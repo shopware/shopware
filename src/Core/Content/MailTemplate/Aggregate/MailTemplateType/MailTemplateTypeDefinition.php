@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 
 class MailTemplateTypeDefinition extends EntityDefinition
 {
@@ -49,16 +50,21 @@ class MailTemplateTypeDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()),
             new JsonField('available_entities', 'availableEntities'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
-
             (new TranslationsAssociationField(MailTemplateTypeTranslationDefinition::class, 'mail_template_type_id'))->addFlags(new ApiAware(), new Required()),
             (new OneToManyAssociationField('mailTemplates', MailTemplateDefinition::class, 'mail_template_type_id'))->addFlags(new SetNullOnDelete()),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_12654')) {
+            $collection->add(new JsonField('template_data', 'templateData'));
+        }
+
+        return $collection;
     }
 }

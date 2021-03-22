@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,9 +36,7 @@ class MailActionControllerTest extends TestCase
     {
         $data = $this->getTestData();
 
-        $this->getProfiler()->enable();
         $this->getBrowser()->request('POST', '/api/_action/mail-template/send', $data);
-        $this->getProfiler()->disable();
 
         // check response status code
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
@@ -78,9 +77,7 @@ class MailActionControllerTest extends TestCase
     {
         $data = $this->getTestDataWithAttachments();
 
-        $this->getProfiler()->enable();
         $this->getBrowser()->request('POST', '/api/_action/mail-template/send', $data);
-        $this->getProfiler()->disable();
 
         // check response status code
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
@@ -110,9 +107,7 @@ class MailActionControllerTest extends TestCase
     {
         $data = $this->getTestDataWithHeaderAndFooter();
 
-        $this->getProfiler()->enable();
         $this->getBrowser()->request('POST', '/api/_action/mail-template/send', $data);
-        $this->getProfiler()->disable();
 
         // check response status code
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
@@ -137,6 +132,17 @@ class MailActionControllerTest extends TestCase
         static::assertSame('<h1>Header</h1> <h1>This is HTML</h1> <h1>Footer</h1>', $partsByType['text/html']);
     }
 
+    public function testBuildingRenderedMailTemplate(): void
+    {
+        Feature::skipTestIfActive('FEATURE_NEXT_12654', $this);
+        $data = $this->getTestDataWithMailTemplateType();
+
+        $this->getBrowser()->request('POST', '/api/_action/mail-template/build', $data);
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame('<h1>This is HTML</h1>', json_decode($this->getBrowser()->getResponse()->getContent()));
+    }
+
     private function getTestData(): array
     {
         return [
@@ -148,6 +154,23 @@ class MailActionControllerTest extends TestCase
             'mediaIds' => [],
             'salesChannelId' => Defaults::SALES_CHANNEL,
         ];
+    }
+
+    private function getTestDataWithMailTemplateType(): array
+    {
+        $testData['mailTemplateType'] = [
+            'templateData' => [
+                'salesChannel' => [
+                    'id' => Defaults::SALES_CHANNEL,
+                ],
+            ],
+        ];
+        $testData['mailTemplate'] = [
+            'contentPlain' => 'This is plain text',
+            'contentHtml' => '<h1>This is HTML</h1>',
+        ];
+
+        return $testData;
     }
 
     private function getTestDataWithAttachments(): array

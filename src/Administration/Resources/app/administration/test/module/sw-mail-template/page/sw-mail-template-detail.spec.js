@@ -59,6 +59,9 @@ const repositoryMockFactory = () => {
 const createWrapper = (privileges = []) => {
     return shallowMount(Shopware.Component.build('sw-mail-template-detail'), {
         provide: {
+            feature: {
+                isActive: () => true
+            },
             repositoryFactory: {
                 create: () => repositoryMockFactory()
             },
@@ -107,6 +110,7 @@ const createWrapper = (privileges = []) => {
             'sw-code-editor': true,
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
+            'sw-tree': true,
             'sw-data-grid': {
                 props: ['dataSource'],
                 template: `

@@ -64,8 +64,12 @@
         "placeholderTestMail": "shop@example.com",
         "buttonTestMail": "Send",
         "labelTestMail": "Recipient address",
-        "titleTestMail": "Send test email"
+        "titleTestMail": "Send test email",
+        "titleShowPreview": "Show preview",
+        "titleShowAvailableVariables": "Variables",
+        "copyTooltip": "Copy to clipboard."
       },
+      "previewModalTitle": "Preview",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "textHeadline": "New email template",

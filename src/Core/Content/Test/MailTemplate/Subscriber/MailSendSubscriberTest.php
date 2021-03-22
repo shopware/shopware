@@ -78,7 +78,8 @@ class MailSendSubscriberTest extends TestCase
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get('logger'),
-            $this->getContainer()->get('event_dispatcher')
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get('mail_template_type.repository')
         );
 
         $mailFilterEvent = null;

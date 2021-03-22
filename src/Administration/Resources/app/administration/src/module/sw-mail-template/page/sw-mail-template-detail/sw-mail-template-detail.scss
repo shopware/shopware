@@ -8,6 +8,47 @@
         }
     }
 
+    .sw-mail-template-detail__available-variables-sidebar-container {
+        height: 100%;
+    }
+
+    .sw-tree {
+        .sw-tree__content {
+            max-height: 100%;
+        }
+
+        .icon--small-default-circle-small {
+            display: none;
+        }
+
+        .sw-mail-template-detail__copy_icon {
+            display: none;
+        }
+
+        .icon--multicolor-folder-tree {
+            display: none;
+        }
+
+        .icon--multicolor-folder-tree-open {
+            display: none;
+        }
+
+        .sw-tree-item__children {
+            .sw-mail-template-detail__copy_icon {
+                max-width: 15px;
+                display: block;
+
+                :hover {
+                    color: $color-shopware-brand-500;
+                }
+
+                :active {
+                    color: $color-shopware-brand-800;
+                }
+            }
+        }
+    }
+
     .sw-mail-template-detail__test-mail-sidebar {
         .sw-mail-template-detail__test-mail-sidebar-container {
             padding: 20px;

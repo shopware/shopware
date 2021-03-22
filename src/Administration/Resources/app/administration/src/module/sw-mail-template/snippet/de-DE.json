@@ -64,8 +64,12 @@
         "placeholderTestMail": "shop@beispiel.com",
         "buttonTestMail": "Senden",
         "labelTestMail": "Empfänger-Adresse",
-        "titleTestMail": "Test-Mail senden"
+        "titleTestMail": "Test-Mail senden",
+        "titleShowPreview": "Vorschau anzeigen",
+        "titleShowAvailableVariables": "Variablen",
+        "copyTooltip": "In die Zwischenablage kopieren."
       },
+      "previewModalTitle": "Vorschau",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "textHeadline": "Neues E-Mail-Template",

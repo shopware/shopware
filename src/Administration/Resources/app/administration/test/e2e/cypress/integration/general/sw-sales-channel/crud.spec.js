@@ -13,48 +13,46 @@ describe('Sales Channel: Test crud operations', () => {
             });
     });
 
-    Cypress._.times(100, () => {
-        it('@base @general: create and read sales channel', () => {
-            const page = new SalesChannelPageObject();
+    it('@base @general: create and read sales channel', () => {
+        const page = new SalesChannelPageObject();
 
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: `${Cypress.env('apiPath')}/sales-channel`,
-                method: 'post'
-            }).as('saveData');
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/sales-channel`,
+            method: 'post'
+        }).as('saveData');
 
-            // Open sales channel creation
-            cy.get('.sw-admin-menu__headline').contains('Sales Channel');
+        // Open sales channel creation
+        cy.get('.sw-admin-menu__headline').contains('Sales Channel');
 
-            cy.get('.sw-admin-menu__headline-action').click();
+        cy.get('.sw-admin-menu__headline-action').click();
 
-            cy.get('.sw-sales-channel-modal__title').contains('Add Sales Channel');
-            cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal-grid__item-name`).click();
-            cy.get('.sw-sales-channel-modal__title').contains('Storefront - details');
-            cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();
+        cy.get('.sw-sales-channel-modal__title').contains('Add Sales Channel');
+        cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal-grid__item-name`).click();
+        cy.get('.sw-sales-channel-modal__title').contains('Storefront - details');
+        cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();
 
-            // Fill in form and save new sales channel
-            page.fillInBasicSalesChannelData('1st Epic Sales Channel');
+        // Fill in form and save new sales channel
+        page.fillInBasicSalesChannelData('1st Epic Sales Channel');
 
-            cy.get(page.elements.salesChannelSaveAction).click();
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            // Verify creation
-            cy.get(page.elements.salesChannelNameInput).should('have.value', '1st Epic Sales Channel');
-
-            // Check if the sales channel can be used in other modules
-            cy.clickMainMenuItem({
-                targetPath: '#/sw/customer/index',
-                mainMenuId: 'sw-customer',
-                subMenuId: 'sw-customer-index'
-            });
-            cy.get('.smart-bar__actions a[href="#/sw/customer/create"]').click();
-            cy.get('.sw-customer-base-form__sales-channel-select')
-                .typeSingleSelectAndCheck('1st Epic Sales Channel', '.sw-customer-base-form__sales-channel-select');
+        cy.get(page.elements.salesChannelSaveAction).click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        // Verify creation
+        cy.get(page.elements.salesChannelNameInput).should('have.value', '1st Epic Sales Channel');
+
+        // Check if the sales channel can be used in other modules
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/customer/index',
+            mainMenuId: 'sw-customer',
+            subMenuId: 'sw-customer-index'
+        });
+        cy.get('.smart-bar__actions a[href="#/sw/customer/create"]').click();
+        cy.get('.sw-customer-base-form__sales-channel-select')
+            .typeSingleSelectAndCheck('1st Epic Sales Channel', '.sw-customer-base-form__sales-channel-select');
     });
 
     it('@base @general: update and read sales channel', () => {

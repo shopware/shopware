@@ -188,11 +188,6 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->appStateService->deactivateApp($app['id'], $context);
         }
 
-        // throw event before deleting app from db as it may be delivered via webhook to the deleted app
-        $this->eventDispatcher->dispatch(
-            new AppDeletedEvent($app['id'], $context)
-        );
-
         $this->removeAppAndRole($app['id'], $app['roleId'], $context);
     }
 

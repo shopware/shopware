@@ -212,6 +212,7 @@
           "labelNoReviews": "This extension hasn't received any ratings or reviews yet."
         },
         "sw-extension-review-creation-inputs": {
+          "title": "Rate extension",
           "labelHeadline": "Headline",
           "placeholderHeadline": "Enter a short headline...",
           "labelRating": "Rating",

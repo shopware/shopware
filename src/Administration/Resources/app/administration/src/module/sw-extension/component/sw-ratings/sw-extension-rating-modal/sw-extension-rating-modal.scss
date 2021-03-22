@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-.sw-extension-rating-modal {
+.sw-modal.sw-extension-rating-modal {
     font-size: $font-size-small;
     line-height: 22px;
 
@@ -13,7 +13,7 @@
         grid-auto-columns: initial;
         justify-content: unset;
 
-        .sw-gtc-checkbox {
+        .sw-gtc-checkbox .sw-field--checkbox {
             margin-bottom: 0;
         }
 

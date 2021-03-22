@@ -18,6 +18,7 @@
             <parameter key="app_generate_signature">/swplatform/generatesignature</parameter>
             <parameter key="cancel_license">/swplatform/pluginlicenses/%s/cancel</parameter>
             <parameter key="login">/swplatform/login</parameter>
+            <parameter key="create_rating">/swplatform/extensionstore/extensions/%s/ratings</parameter>
         </parameter>
     </parameters>
     <services>

@@ -50,7 +50,10 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
     public function testCreateRating(): void
     {
-        $this->extensionLicensesService->rateLicensedExtension(new ReviewStruct(), $this->getContextWithStoreToken());
+        $this->getRequestHandler()->append(new Response(200, [], null));
+        $review = new ReviewStruct();
+        $review->setExtensionId(5);
+        $this->extensionLicensesService->rateLicensedExtension($review, $this->getContextWithStoreToken());
     }
 
     private function getContextWithStoreToken(): Context

@@ -112,103 +112,19 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     public function execute(array $commands, WriteContext $context): void
     {
-        $this->connection->beginTransaction();
-
         try {
-            // throws exception on violation and then aborts/rollbacks this transaction
-            $event = new PreWriteValidationEvent($context, $commands);
-            $this->eventDispatcher->dispatch($event);
+            $this->connection->beginTransaction();
 
-            $this->generateChangeSets($commands);
+            try {
+                $this->executeCommands($commands, $context, true);
+            } catch (\Throwable $e) {
+                // retry with batch disabled
+                $this->connection->rollBack();
+                $this->connection->beginTransaction();
 
-            $context->getExceptions()->tryToThrow();
-
-            $previous = null;
-            $queue = new MultiInsertQueryQueue($this->connection, $this->batchSize, false, true);
-            $insert = new MultiInsertQueryQueue($this->connection, $this->batchSize);
-
-            foreach ($commands as $command) {
-                if (!$command->isValid()) {
-                    continue;
-                }
-                $current = $command->getDefinition()->getEntityName();
-
-                if ($current !== $previous) {
-                    $queue->execute();
-                    $insert->execute();
-                }
-                $previous = $current;
-
-                try {
-                    $definition = $command->getDefinition();
-                    $table = $definition->getEntityName();
-
-                    if ($command instanceof DeleteCommand) {
-                        $queue->execute();
-                        $insert->execute();
-
-                        RetryableQuery::retryable(function () use ($command, $table): void {
-                            $this->connection->delete(
-                                EntityDefinitionQueryHelper::escape($table),
-                                $command->getPrimaryKey()
-                            );
-                        });
-
-                        continue;
-                    }
-
-                    if ($command instanceof JsonUpdateCommand) {
-                        $this->executeJsonUpdate($command);
-
-                        continue;
-                    }
-
-                    if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
-                        $queue->addInsert($definition->getEntityName(), $command->getPayload());
-
-                        continue;
-                    }
-
-                    if ($command instanceof UpdateCommand) {
-                        $queue->execute();
-                        $insert->execute();
-
-                        RetryableQuery::retryable(function () use ($command, $table): void {
-                            $this->connection->update(
-                                EntityDefinitionQueryHelper::escape($table),
-                                $this->escapeColumnKeys($command->getPayload()),
-                                $command->getPrimaryKey()
-                            );
-                        });
-
-                        continue;
-                    }
-
-                    if ($command instanceof InsertCommand) {
-                        $insert->addInsert($definition->getEntityName(), $command->getPayload());
-
-                        continue;
-                    }
-
-                    throw new UnsupportedCommandTypeException($command);
-                } catch (\Exception $e) {
-                    $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
-                    if ($innerException instanceof \Exception) {
-                        $e = $innerException;
-                    }
-                    $context->getExceptions()->add($e);
-
-                    throw $e;
-                }
+                $context->resetExceptions();
+                $this->executeCommands($commands, $context, false);
             }
-
-            $queue->execute();
-            $insert->execute();
-
-            // throws exception on violation and then aborts/rollbacks this transaction
-            $event = new PostWriteValidationEvent($context, $commands);
-            $this->eventDispatcher->dispatch($event);
-            $context->getExceptions()->tryToThrow();
 
             //only commit if transaction is not already marked for rollback
             if (!$this->connection->isRollbackOnly()) {
@@ -221,6 +137,127 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             throw $e;
         }
+    }
+
+    private function executeCommands(array $commands, WriteContext $context, bool $enableBatch): void
+    {
+        // throws exception on violation and then aborts/rollbacks this transaction
+        $event = new PreWriteValidationEvent($context, $commands);
+        $this->eventDispatcher->dispatch($event);
+
+        $this->generateChangeSets($commands);
+
+        $context->getExceptions()->tryToThrow();
+
+        $previous = null;
+        $mappingInserts = new MultiInsertQueryQueue($this->connection, $this->batchSize, false, true);
+        $inserts = new MultiInsertQueryQueue($this->connection, $this->batchSize);
+
+        foreach ($commands as $command) {
+            if (!$command->isValid()) {
+                continue;
+            }
+            $current = $command->getDefinition()->getEntityName();
+
+            if ($enableBatch && $current !== $previous) {
+                $mappingInserts->execute();
+                $inserts->execute();
+            }
+            $previous = $current;
+
+            try {
+                $definition = $command->getDefinition();
+                $table = $definition->getEntityName();
+
+                if ($command instanceof DeleteCommand) {
+                    if ($enableBatch) {
+                        $mappingInserts->execute();
+                        $inserts->execute();
+                    }
+
+                    RetryableQuery::retryable(function () use ($command, $table): void {
+                        $this->connection->delete(
+                            EntityDefinitionQueryHelper::escape($table),
+                            $command->getPrimaryKey()
+                        );
+                    });
+
+                    continue;
+                }
+
+                if ($command instanceof JsonUpdateCommand) {
+                    $this->executeJsonUpdate($command);
+
+                    continue;
+                }
+
+                if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
+                    if ($enableBatch) {
+                        $mappingInserts->addInsert($definition->getEntityName(), $command->getPayload());
+
+                        continue;
+                    }
+
+                    $queue = new MultiInsertQueryQueue($this->connection, 1, false, true);
+                    $queue->addInsert($definition->getEntityName(), $command->getPayload());
+                    $queue->execute();
+
+                    continue;
+                }
+
+                if ($command instanceof UpdateCommand) {
+                    if ($enableBatch) {
+                        $mappingInserts->execute();
+                        $inserts->execute();
+                    }
+
+                    RetryableQuery::retryable(function () use ($command, $table): void {
+                        $this->connection->update(
+                            EntityDefinitionQueryHelper::escape($table),
+                            $this->escapeColumnKeys($command->getPayload()),
+                            $command->getPrimaryKey()
+                        );
+                    });
+
+                    continue;
+                }
+
+                if ($command instanceof InsertCommand) {
+                    if ($enableBatch) {
+                        $inserts->addInsert($definition->getEntityName(), $command->getPayload());
+
+                        continue;
+                    }
+
+                    $this->connection->insert(
+                        EntityDefinitionQueryHelper::escape($table),
+                        $this->escapeColumnKeys($command->getPayload())
+                    );
+
+                    continue;
+                }
+
+                throw new UnsupportedCommandTypeException($command);
+            } catch (\Exception $e) {
+                $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
+                if ($innerException instanceof \Exception) {
+                    $e = $innerException;
+                }
+                $context->getExceptions()->add($e);
+
+                throw $e;
+            }
+        }
+
+        if ($enableBatch) {
+            $mappingInserts->execute();
+            $inserts->execute();
+        }
+
+        // throws exception on violation and then aborts/rollbacks this transaction
+        $event = new PostWriteValidationEvent($context, $commands);
+        $this->eventDispatcher->dispatch($event);
+        $context->getExceptions()->tryToThrow();
     }
 
     private function prefetch(EntityDefinition $definition, array $pks, WriteParameterBag $parameters): void

@@ -265,9 +265,12 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private function prefetch(EntityDefinition $definition, array $pks, WriteParameterBag $parameters): void
     {
         $pkFields = [];
+        $versionField = null;
         /** @var StorageAware&Field $field */
         foreach ($definition->getPrimaryKeys() as $field) {
             if ($field instanceof VersionField) {
+                $versionField = $field;
+
                 continue;
             }
             if ($field instanceof StorageAware) {
@@ -294,6 +297,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         foreach ($pkFields as $storageName => $_) {
             $query->addSelect(EntityDefinitionQueryHelper::escape($storageName));
+        }
+        if ($versionField) {
+            $query->addSelect(EntityDefinitionQueryHelper::escape($versionField->getStorageName()));
         }
 
         $chunks = array_chunk($pks, 500, true);
@@ -333,7 +339,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
 
             $query->andWhere($columns . ' IN (' . $placeholders . ')');
-            if ($definition->getField('versionId')) {
+            if ($versionField) {
                 $query->andWhere('version_id = ?');
                 $params[] = Uuid::fromHexToBytes($parameters->getContext()->getContext()->getVersionId());
             }
@@ -349,6 +355,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 foreach ($pkFields as $storageKey => $field) {
                     $values[$field->getPropertyName()] = Uuid::fromBytesToHex($state[$storageKey]);
                 }
+                if ($versionField) {
+                    $values[$versionField->getPropertyName()] = $parameters->getContext()->getContext()->getVersionId();
+                }
+
                 $primaryKeyBag->addExistenceState($definition, $values, $state);
             }
 

@@ -277,4 +277,34 @@ class ProductApiTest extends TestCase
         static::assertCount(1, $products['included']);
         static::assertEquals('tax', $products['included'][0]['type']);
     }
+
+    public function testInvalidCrossSelling(): void
+    {
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'price test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/product', $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+
+        $crossSellingPatch = [
+            'crossSellings' => [
+                [
+                    'active' => true
+                ]
+            ]
+        ];
+
+        $this->getBrowser()->request('PATCH', '/api/product/' . $id, $crossSellingPatch);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+    }
 }

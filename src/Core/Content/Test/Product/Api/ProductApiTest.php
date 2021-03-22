@@ -298,9 +298,9 @@ class ProductApiTest extends TestCase
         $crossSellingPatch = [
             'crossSellings' => [
                 [
-                    'active' => true
-                ]
-            ]
+                    'active' => true,
+                ],
+            ],
         ];
 
         $this->getBrowser()->request('PATCH', '/api/product/' . $id, $crossSellingPatch);

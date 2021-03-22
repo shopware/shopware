@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
@@ -265,6 +267,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $pkFields = [];
         /** @var StorageAware&Field $field */
         foreach ($definition->getPrimaryKeys() as $field) {
+            if ($field instanceof VersionField) {
+                continue;
+            }
             if ($field instanceof StorageAware) {
                 $pkFields[$field->getStorageName()] = $field;
             }
@@ -291,55 +296,66 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $query->addSelect(EntityDefinitionQueryHelper::escape($storageName));
         }
 
-        $params = [];
-        $tupleCount = 0;
+        $chunks = array_chunk($pks, 500, true);
 
-        foreach ($pks as $pk) {
-            $newIds = [];
-            /** @var Field&StorageAware $field */
-            foreach ($pkFields as $field) {
-                $id = $pk[$field->getPropertyName()] ?? null;
-                if ($id === null) {
-                    continue 2;
+        foreach ($chunks as $pks) {
+            $query->resetQueryPart('where');
+
+            $params = [];
+            $tupleCount = 0;
+
+            foreach ($pks as $pk) {
+                $newIds = [];
+                /** @var Field&StorageAware $field */
+                foreach ($pkFields as $field) {
+                    $id = $pk[$field->getPropertyName()] ?? null;
+                    if ($id === null) {
+                        continue 2;
+                    }
+                    $newIds[] = Uuid::fromHexToBytes($id);
                 }
-                $newIds[] = Uuid::fromHexToBytes($id);
+
+                foreach ($newIds as $newId) {
+                    $params[] = $newId;
+                }
+
+                ++$tupleCount;
             }
 
-            foreach ($newIds as $newId) {
-                $params[] = $newId;
+            if ($tupleCount <= 0) {
+                continue;
             }
 
-            ++$tupleCount;
-        }
-
-        if ($tupleCount <= 0) {
-            return;
-        }
-
-        $placeholders = $this->getPlaceholders(\count($pkFields), $tupleCount);
-        $columns = '`' . implode('`,`', array_keys($pkFields)) . '`';
-        if (\count($pkFields) > 1) {
-            $columns = '(' . $columns . ')';
-        }
-
-        $query->andWhere($columns . ' IN (' . $placeholders . ')');
-        $query->setParameters($params);
-
-        $result = $query->execute()->fetchAllAssociative();
-
-        $primaryKeyBag = $parameters->getPrimaryKeyBag();
-
-        foreach ($result as $state) {
-            $values = [];
-            foreach ($pkFields as $storageKey => $field) {
-                $values[$field->getPropertyName()] = Uuid::fromBytesToHex($state[$storageKey]);
+            $placeholders = $this->getPlaceholders(\count($pkFields), $tupleCount);
+            $columns = '`' . implode('`,`', array_keys($pkFields)) . '`';
+            if (\count($pkFields) > 1) {
+                $columns = '(' . $columns . ')';
             }
-            $primaryKeyBag->addExistenceState($definition, $values, $state);
-        }
 
-        foreach ($pks as $pk) {
-            if (!$primaryKeyBag->hasExistence($definition, $pk)) {
-                $primaryKeyBag->addExistenceState($definition, $pk, []);
+            $query->andWhere($columns . ' IN (' . $placeholders . ')');
+            if ($definition->getField('versionId')) {
+                $query->andWhere('version_id = ?');
+                $params[] = Uuid::fromHexToBytes($parameters->getContext()->getContext()->getVersionId());
+            }
+
+            $query->setParameters($params);
+
+            $result = $query->execute()->fetchAllAssociative();
+
+            $primaryKeyBag = $parameters->getPrimaryKeyBag();
+
+            foreach ($result as $state) {
+                $values = [];
+                foreach ($pkFields as $storageKey => $field) {
+                    $values[$field->getPropertyName()] = Uuid::fromBytesToHex($state[$storageKey]);
+                }
+                $primaryKeyBag->addExistenceState($definition, $values, $state);
+            }
+
+            foreach ($pks as $pk) {
+                if (!$primaryKeyBag->hasExistence($definition, $pk)) {
+                    $primaryKeyBag->addExistenceState($definition, $pk, []);
+                }
             }
         }
     }

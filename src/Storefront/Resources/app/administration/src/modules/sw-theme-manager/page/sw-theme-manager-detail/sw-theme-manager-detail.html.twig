@@ -243,7 +243,7 @@
                                                                     </sw-field>
 
                                                                     <sw-form-field-renderer
-                                                                        v-else
+                                                                        v-else-if="themeConfig[fieldName].editable !== false"
                                                                         v-bind="getBind(field)"
                                                                         v-model="themeConfig[fieldName].value"
                                                                         :disabled="!acl.can('theme.editor')">

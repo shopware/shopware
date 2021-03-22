@@ -91,8 +91,8 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
     {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
     {{ delivery.shippingOrderAddress.country.translated.name }}<br>
     <br>
-    {% if billingAddress.vatId %}
-        Ihre Umsatzsteuer-ID: {{ billingAddress.vatId }}
+    {% if order.orderCustomer.vatIds %}
+        Ihre Umsatzsteuer-ID: {{ order.orderCustomer.vatIds|first }}
         Bei erfolgreicher Prüfung und sofern Sie aus dem EU-Ausland
         bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit. <br>
     {% endif %}

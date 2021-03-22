@@ -70,7 +70,7 @@ shopware:
               description: "custom search index and ranking"
               # issue: NEXT-13539
             - name: FEATURE_NEXT_12608
-              default: false
+              default: true
               major: true
               description: "App System Store"
             # issue: NEXT-13469

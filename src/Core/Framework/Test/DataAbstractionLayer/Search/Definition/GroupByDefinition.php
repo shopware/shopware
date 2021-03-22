@@ -18,6 +18,11 @@ class GroupByDefinition extends EntityDefinition
         return 'group_by_test';
     }
 
+    public function since(): string
+    {
+        return '6.1.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

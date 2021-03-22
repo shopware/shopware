@@ -98,6 +98,7 @@ class CategoryIndexer extends EntityIndexer
         }
 
         $ids = $categoryEvent->getIds();
+        $idsWithChangedParentIds = [];
         foreach ($categoryEvent->getWriteResults() as $result) {
             if (!$result->getExistence()) {
                 continue;
@@ -109,8 +110,11 @@ class CategoryIndexer extends EntityIndexer
             }
 
             $payload = $result->getPayload();
-            if (isset($payload['parentId'])) {
-                $ids[] = $payload['parentId'];
+            if (\array_key_exists('parentId', $payload)) {
+                if ($payload['parentId'] !== null) {
+                    $ids[] = $payload['parentId'];
+                }
+                $idsWithChangedParentIds[] = $payload['id'];
             }
         }
 
@@ -118,9 +122,12 @@ class CategoryIndexer extends EntityIndexer
             return null;
         }
 
-        // tree should be updated immediately
-        foreach ($ids as $id) {
-            $this->treeUpdater->update($id, CategoryDefinition::ENTITY_NAME, $event->getContext());
+        if ($idsWithChangedParentIds !== []) {
+            $this->treeUpdater->batchUpdate(
+                $idsWithChangedParentIds,
+                CategoryDefinition::ENTITY_NAME,
+                $event->getContext()
+            );
         }
 
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
@@ -146,10 +153,7 @@ class CategoryIndexer extends EntityIndexer
         // listen to parent id changes
         $this->childCountUpdater->update(CategoryDefinition::ENTITY_NAME, $ids, $context);
 
-        foreach ($ids as $id) {
-            // listen to parent id changes
-            $this->treeUpdater->update($id, CategoryDefinition::ENTITY_NAME, $context);
-        }
+        $this->treeUpdater->batchUpdate($ids, CategoryDefinition::ENTITY_NAME, $context);
 
         // listen to name changes
         $this->breadcrumbUpdater->update($ids, $context);

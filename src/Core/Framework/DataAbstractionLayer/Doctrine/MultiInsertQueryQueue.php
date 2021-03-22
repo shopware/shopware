@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 
 class MultiInsertQueryQueue
 {
@@ -44,16 +45,12 @@ class MultiInsertQueryQueue
         $this->useReplace = $useReplace;
     }
 
-    public function addInsert(string $table, array $data, ?array $types = null, bool $quoted = false): void
+    public function addInsert(string $table, array $data, ?array $types = null): void
     {
         $columns = [];
 
         foreach ($data as $key => &$value) {
             $columns[] = $key;
-
-            if ($quoted) {
-                continue;
-            }
 
             $type = ParameterType::STRING;
 
@@ -77,11 +74,15 @@ class MultiInsertQueryQueue
 
     public function execute(): void
     {
+        if (empty($this->inserts)) {
+            return;
+        }
+
         $grouped = $this->prepare();
 
         foreach ($grouped as $query) {
             RetryableQuery::retryable(function () use ($query): void {
-                $this->connection->executeUpdate($query);
+                $this->connection->executeStatement($query);
             });
         }
         unset($grouped);
@@ -106,11 +107,13 @@ class MultiInsertQueryQueue
             $columns = $this->prepareColumns($rows);
             $data = $this->prepareValues($columns, $rows);
 
+            $columns = array_map([EntityDefinitionQueryHelper::class, 'escape'], $columns);
+
             $chunks = array_chunk($data, $this->chunkSize);
             foreach ($chunks as $chunk) {
                 $queries[] = sprintf(
                     $template,
-                    $table,
+                    EntityDefinitionQueryHelper::escape($table),
                     implode(', ', $columns),
                     implode(', ', $chunk)
                 );

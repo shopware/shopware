@@ -235,6 +235,10 @@ class SyncServiceTest extends TestCase
 
     public function testFailOnErrorContinues(): void
     {
+        $this->stopTransactionAfter();
+        $this->disableNestTransactionsWithSavepointsForNextTest();
+        $this->startTransactionBefore();
+
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 

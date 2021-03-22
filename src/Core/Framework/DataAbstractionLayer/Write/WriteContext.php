@@ -129,6 +129,11 @@ class WriteContext
         });
     }
 
+    public function resetExceptions(): void
+    {
+        $this->exceptions = new WriteException();
+    }
+
     private function getLanguageCodeToIdMapping(): array
     {
         if ($this->languageCodeIdMapping !== null) {

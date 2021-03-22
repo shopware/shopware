@@ -55,6 +55,9 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
 
+    dal:
+        batch_size: 125
+
     feature:
         flags:
             - name: FEATURE_NEXT_1797

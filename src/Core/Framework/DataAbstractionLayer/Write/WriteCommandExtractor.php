@@ -4,6 +4,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -17,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
@@ -38,15 +45,14 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class WriteCommandExtractor
 {
-    /**
-     * @var EntityWriteGatewayInterface
-     */
-    private $entityExistenceGateway;
+    private EntityWriteGatewayInterface $entityExistenceGateway;
 
     /**
      * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
+
+    private array $fieldsForPrimaryKeyMapping = [];
 
     public function __construct(
         EntityWriteGatewayInterface $entityExistenceGateway,
@@ -56,13 +62,133 @@ class WriteCommandExtractor
         $this->definitionRegistry = $definitionRegistry;
     }
 
+    public function normalize(EntityDefinition $definition, array $rawData, WriteParameterBag $parameters): array
+    {
+        foreach ($rawData as $i => $row) {
+            $parameters->setPath('/' . $i);
+
+            $row = $this->normalizeSingle($definition, $row, $parameters);
+
+            $rawData[$i] = $row;
+        }
+
+        return $rawData;
+    }
+
+    public function normalizeSingle(EntityDefinition $definition, array $data, WriteParameterBag $parameters): array
+    {
+        $done = [];
+
+        foreach ($definition->getPrimaryKeys() as $pkField) {
+            $data = $pkField->getSerializer()->normalize($pkField, $data, $parameters);
+            $done[$pkField->getPropertyName()] = true;
+        }
+
+        $normalizedTranslations = false;
+        foreach ($data as $property => $_) {
+            if (\array_key_exists($property, $done)) {
+                continue;
+            }
+
+            $field = $definition->getFields()->get($property);
+            if ($field === null || $field instanceof AssociationField) {
+                continue;
+            }
+
+            if ($field instanceof TranslatedField) {
+                $normalizedTranslations = true;
+            }
+
+            try {
+                $data = $field->getSerializer()->normalize($field, $data, $parameters);
+            } catch (WriteFieldException $e) {
+                $parameters->getContext()->getExceptions()->add($e);
+            }
+            $done[$property] = true;
+        }
+
+        $translationsField = $definition->getFields()->get('translations');
+        if ($translationsField instanceof TranslationsAssociationField) {
+            $data = $this->normalizeTranslations($translationsField, $data, $parameters, $normalizedTranslations);
+        }
+
+        foreach ($data as $property => $value) {
+            if (\array_key_exists($property, $done)) {
+                continue;
+            }
+
+            if ($property === 'extensions') {
+                foreach ($value as $extensionName => $_) {
+                    $field = $definition->getFields()->get($extensionName);
+                    if ($field === null) {
+                        continue;
+                    }
+
+                    try {
+                        $value = $field->getSerializer()->normalize($field, $value, $parameters);
+                    } catch (WriteFieldException $e) {
+                        $parameters->getContext()->getExceptions()->add($e);
+                    }
+                }
+                $data[$property] = $value;
+
+                continue;
+            }
+
+            $field = $definition->getFields()->get($property);
+            if ($field instanceof ChildrenAssociationField) {
+                continue;
+            }
+            if ($field === null || !$field instanceof AssociationField) {
+                continue;
+            }
+
+            try {
+                $data = $field->getSerializer()->normalize($field, $data, $parameters);
+            } catch (WriteFieldException $e) {
+                $parameters->getContext()->getExceptions()->add($e);
+            }
+        }
+
+        $field = $parameters->getDefinition()->getFields()->getChildrenAssociationField();
+        if ($field !== null) {
+            try {
+                $data = $field->getSerializer()->normalize($field, $data, $parameters);
+            } catch (WriteFieldException $e) {
+                $parameters->getContext()->getExceptions()->add($e);
+            }
+        }
+
+        $pk = [];
+        foreach ($definition->getPrimaryKeys() as $pkField) {
+            $v = $data[$pkField->getPropertyName()] ?? null;
+            if ($v === null) {
+                $pk = null;
+
+                break;
+            }
+            $pk[$pkField->getPropertyName()] = $v;
+        }
+        // could be incomplete
+        if ($pk !== null) {
+            $parameters->getPrimaryKeyBag()->add($definition, $pk);
+        }
+
+        return $data;
+    }
+
     public function extract(array $rawData, WriteParameterBag $parameters): array
     {
         $definition = $parameters->getDefinition();
 
         $fields = $this->getFieldsInWriteOrder($definition);
 
-        $pkData = $this->getPrimaryKey($rawData, $parameters, $fields);
+        $pkData = $this->getPrimaryKey($rawData, $parameters);
+
+        /** @var Field&StorageAware $pkField */
+        foreach ($definition->getPrimaryKeys() as $pkField) {
+            $parameters->getContext()->set($parameters->getDefinition()->getClass(), $pkField->getPropertyName(), Uuid::fromBytesToHex($pkData[$pkField->getStorageName()]));
+        }
 
         if ($definition instanceof MappingEntityDefinition) {
             // gateway will execute always a replace into
@@ -116,13 +242,65 @@ class WriteCommandExtractor
         }
     }
 
+    private function normalizeTranslations(TranslationsAssociationField $translationsField, array $data, WriteParameterBag $parameters, bool $hasNormalizedTranslations): array
+    {
+        if (!$hasNormalizedTranslations) {
+            $definition = $parameters->getDefinition();
+            if (!$translationsField->is(Required::class)) {
+                return $data;
+            }
+
+            $parentField = $this->getParentField($definition);
+            if ($parentField && isset($data[$parentField->getPropertyName()])) {
+                // only normalize required translations if it's not a child
+                return $data;
+            }
+        }
+
+        try {
+            $data = $translationsField->getSerializer()->normalize($translationsField, $data, $parameters);
+        } catch (WriteFieldException $e) {
+            $parameters->getContext()->getExceptions()->add($e);
+        }
+
+        return $data;
+    }
+
+    private function getParentField(EntityDefinition $definition): ?FkField
+    {
+        if (!$definition->isInheritanceAware()) {
+            return null;
+        }
+
+        /** @var ManyToOneAssociationField|null $parent */
+        $parent = $definition->getFields()->get('parent');
+
+        if (!$parent) {
+            throw new ParentFieldNotFoundException($definition);
+        }
+
+        if (!$parent instanceof ManyToOneAssociationField) {
+            throw new InvalidParentAssociationException($definition, $parent);
+        }
+
+        $fk = $definition->getFields()->getByStorageName($parent->getStorageName());
+
+        if (!$fk) {
+            throw new CanNotFindParentStorageFieldException($definition);
+        }
+        if (!$fk instanceof FkField) {
+            throw new ParentFieldForeignKeyConstraintMissingException($definition, $fk);
+        }
+
+        return $fk;
+    }
+
     private function map(array $fields, array $rawData, EntityExistence $existence, WriteParameterBag $parameters): array
     {
         $stack = new DataStack($rawData);
 
         foreach ($fields as $field) {
             $kvPair = $this->getKeyValuePair($field, $stack, $existence);
-
             if ($kvPair === null) {
                 continue;
             }
@@ -145,6 +323,25 @@ class WriteCommandExtractor
         return $stack->getResultAsArray();
     }
 
+    private function skipField(Field $field, EntityExistence $existence): bool
+    {
+        if ($existence->isChild() && $field->is(Inherited::class)) {
+            //inherited field of a child is never required
+            return true;
+        }
+
+        $create = !$existence->exists() || $existence->childChangedToParent();
+
+        if (
+            (!$field instanceof UpdatedAtField && !$field instanceof CreatedByField && !$field instanceof UpdatedByField)
+            && (!$create || !$field->is(Required::class))
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     private function getKeyValuePair(Field $field, DataStack $stack, EntityExistence $existence): ?KeyValuePair
     {
         $kvPair = $stack->pop($field->getPropertyName());
@@ -158,60 +355,11 @@ class WriteCommandExtractor
             return new KeyValuePair($field->getPropertyName(), null, true);
         }
 
-        if ($field->is(Inherited::class) && $existence->isChild()) {
-            //inherited field of a child is never required
-            return null;
-        }
-
-        $create = !$existence->exists() || $existence->childChangedToParent();
-
-        if ($this->isUpdateAtFieldCase($create, $field)) {
-            //update statement
-            return null;
-        }
-
-        if ($this->isCreatedAtFieldCase($field)) {
-            //not required and childhood not changed
+        if ($this->skipField($field, $existence)) {
             return null;
         }
 
         return new KeyValuePair($field->getPropertyName(), null, true);
-    }
-
-    private function isUpdateAtFieldCase(bool $create, Field $field): bool
-    {
-        if ($create) {
-            return false;
-        }
-        if ($field instanceof UpdatedAtField) {
-            return false;
-        }
-        if ($field instanceof CreatedByField) {
-            return false;
-        }
-        if ($field instanceof UpdatedByField) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private function isCreatedAtFieldCase(Field $field): bool
-    {
-        if ($field->is(Required::class)) {
-            return false;
-        }
-        if ($field instanceof UpdatedAtField) {
-            return false;
-        }
-        if ($field instanceof CreatedByField) {
-            return false;
-        }
-        if ($field instanceof UpdatedByField) {
-            return false;
-        }
-
-        return true;
     }
 
     private function integrateDefaults(EntityDefinition $definition, array $rawData): array
@@ -289,33 +437,27 @@ class WriteCommandExtractor
         return $sorted;
     }
 
-    private function getPrimaryKey(array $rawData, WriteParameterBag $parameters, array $fields): array
+    private function getPrimaryKey(array $rawData, WriteParameterBag $parameters): array
     {
-        //filter all fields which are relevant to extract the full primary key data
-        //this function return additionally, to primary key flagged fields, foreign key fields and many to association
-        $mappingFields = $this->getFieldsForPrimaryKeyMapping($fields);
+        $pk = [];
 
-        $existence = new EntityExistence($parameters->getDefinition()->getEntityName(), [], false, false, false, []);
+        $pkFields = $parameters->getDefinition()->getPrimaryKeys();
+        /** @var StorageAware&Field $pkField */
+        foreach ($pkFields as $pkField) {
+            $id = $rawData[$pkField->getPropertyName()] ?? null;
 
-        //run data extraction for only this fields
-        $mapped = $this->map($mappingFields, $rawData, $existence, $parameters);
-
-        //after all fields extracted, filter fields to only primary key flagged fields
-        $primaryKeys = array_filter($mappingFields, static function (Field $field) {
-            return $field->is(PrimaryKey::class);
-        });
-
-        $primaryKey = [];
-
-        /** @var StorageAware|Field $field */
-        foreach ($primaryKeys as $field) {
-            //build new primary key data array which contains only the primary key data
-            if (\array_key_exists($field->getStorageName(), $mapped)) {
-                $primaryKey[$field->getStorageName()] = $mapped[$field->getStorageName()];
+            $values = $pkField->getSerializer()->encode(
+                $pkField,
+                new EntityExistence($parameters->getDefinition()->getEntityName(), [], false, false, false, []),
+                new KeyValuePair($pkField->getPropertyName(), $id, true),
+                $parameters
+            );
+            foreach ($values as $key => $value) {
+                $pk[$key] = $value;
             }
         }
 
-        return $primaryKey;
+        return $pk;
     }
 
     /**
@@ -341,11 +483,13 @@ class WriteCommandExtractor
      *
      * @return Field[]
      */
-    private function getFieldsForPrimaryKeyMapping(array $fields): array
+    private function getFieldsForPrimaryKeyMapping(array $fields, EntityDefinition $definition): array
     {
-        $primaryKeys = array_filter($fields, static function (Field $field) {
-            return $field->is(PrimaryKey::class);
-        });
+        if (isset($this->fieldsForPrimaryKeyMapping[$definition->getEntityName()])) {
+            return $this->fieldsForPrimaryKeyMapping[$definition->getEntityName()];
+        }
+
+        $primaryKeys = $definition->getPrimaryKeys()->getElements();
 
         $references = array_filter($fields, static function (Field $field) {
             return $field instanceof ManyToOneAssociationField;
@@ -366,7 +510,7 @@ class WriteCommandExtractor
             return $b->getExtractPriority() <=> $a->getExtractPriority();
         });
 
-        return $primaryKeys;
+        return $this->fieldsForPrimaryKeyMapping[$definition->getEntityName()] = $primaryKeys;
     }
 
     private function getAssociationByStorageName(string $name, array $fields): ?ManyToOneAssociationField

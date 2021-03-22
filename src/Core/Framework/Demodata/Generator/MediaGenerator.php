@@ -93,7 +93,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                 [
                     [
                         'id' => $mediaId,
-                        'name' => "File #{$i}: {$file}",
+                        'title' => "File #{$i}: {$file}",
                         'mediaFolderId' => $mediaFolderId,
                     ],
                 ],

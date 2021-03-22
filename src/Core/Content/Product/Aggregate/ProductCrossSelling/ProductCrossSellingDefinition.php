@@ -90,7 +90,7 @@ class ProductCrossSellingDefinition extends EntityDefinition
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class)),
             (new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class)),
             (new OneToManyAssociationField('assignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'cross_selling_id'))->addFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ProductCrossSellingTranslationDefinition::class, 'product_cross_selling_id'))->addFlags(new ApiAware()),
+            (new TranslationsAssociationField(ProductCrossSellingTranslationDefinition::class, 'product_cross_selling_id'))->addFlags(new ApiAware(), new Required()),
         ]);
     }
 }

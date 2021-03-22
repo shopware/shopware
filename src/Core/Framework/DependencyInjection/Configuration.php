@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSitemapSection())
                 ->append($this->createDeploymentSection())
                 ->append($this->createMediaSection())
+                ->append($this->createDalSection())
                 ->append($this->createFeatureSection())
                 ->append($this->createLoggerSection())
                 ->append($this->createCacheSection())
@@ -346,6 +347,23 @@ class Configuration implements ConfigurationInterface
                             ->prototype('scalar')->end()
                         ->end()
                     ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createDalSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('dal');
+
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->integerNode('batch_size')
+                    ->min(1)
+                    ->defaultValue(125)
                 ->end()
             ->end();
 

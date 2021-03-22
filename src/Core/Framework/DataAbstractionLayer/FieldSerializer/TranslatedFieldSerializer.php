@@ -13,39 +13,40 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 class TranslatedFieldSerializer implements FieldSerializerInterface
 {
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        if (!$field instanceof TranslatedField) {
+            throw new InvalidSerializerFieldException(TranslatedField::class, $field);
+        }
+        $key = $field->getPropertyName();
+        $value = $data[$key] ?? null;
+        if ($value === null) {
+            return $data;
+        }
+
+        $translatedField = EntityDefinitionQueryHelper::getTranslatedField($parameters->getDefinition(), $field);
+
+        if (\is_array($value) && $translatedField instanceof JsonField === false) {
+            foreach ($value as $translationKey => $translationValue) {
+                $data['translations'][$translationKey][$key] = $translationValue;
+            }
+
+            return $data;
+        }
+
+        // use the default language from the context
+        $data['translations'][$parameters->getContext()->getContext()->getLanguageId()][$key] = $value;
+
+        return $data;
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!$field instanceof TranslatedField) {
-            throw new InvalidSerializerFieldException(TranslatedField::class, $field);
-        }
-        $key = $data->getKey();
-        $value = $data->getValue();
-
-        $translatedField = EntityDefinitionQueryHelper::getTranslatedField($parameters->getDefinition(), $field);
-
-        if (\is_array($value) && $translatedField instanceof JsonField === false) {
-            foreach ($value as $translationKey => $translationValue) {
-                yield 'translations' => [
-                    $translationKey => [
-                        $key => $translationValue,
-                    ],
-                ];
-            }
-
-            return;
-        }
-
-        // use the default language from the context
-        /* @var TranslatedField $field */
-        yield 'translations' => [
-            $parameters->getContext()->getContext()->getLanguageId() => [
-                $key => $value,
-            ],
-        ];
+        yield from [];
     }
 
     public function decode(Field $field, $value): ?string

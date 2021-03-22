@@ -29,11 +29,7 @@ class TreeUpdater
      */
     private $connection;
 
-    private array $entities = [];
-
     private ?Statement $updateEntityStatement = null;
-
-    private array $updated = [];
 
     public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
@@ -48,8 +44,8 @@ class TreeUpdater
             return;
         }
 
-        $this->entities = [];
-        $this->updated = [];
+        $bag = new TreeUpdaterBag();
+
         $this->updateEntityStatement = null;
 
         $definition = $this->registry->getByEntityName($entity);
@@ -64,10 +60,10 @@ class TreeUpdater
         }
 
         // 1. fetch parents until all ids have reached parent_id === null
-        $this->loadAllParents($updateIds, $definition, $context);
+        $this->loadAllParents($updateIds, $definition, $context, $bag);
 
         // 2. set path and level
-        $this->updateLevelRecursively($updateIds, $definition, $context);
+        $this->updateLevelRecursively($updateIds, $definition, $context, $bag);
     }
 
     private function singleUpdate(string $parentId, string $entity, Context $context): array
@@ -239,18 +235,18 @@ class TreeUpdater
         return $query;
     }
 
-    private function loadAllParents(array $ids, EntityDefinition $definition, Context $context): void
+    private function loadAllParents(array $ids, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag): void
     {
         $levels = 100;
 
         $parentIds = $ids;
         do {
-            $ids = $this->fetchByColumn($parentIds, $definition, 'id', $context);
+            $ids = $this->fetchByColumn($parentIds, $definition, 'id', $context, $bag);
 
             $parentIds = [];
             foreach ($ids as $id) {
-                $parent = $this->entities[$id];
-                if ($parent['parent_id'] !== null) {
+                $parent = $bag->getEntity($id);
+                if ($parent !== null && $parent['parent_id'] !== null) {
                     $parentIds[$parent['parent_id']] = $parent['parent_id'];
                 }
             }
@@ -263,7 +259,7 @@ class TreeUpdater
         }
     }
 
-    private function fetchByColumn(array $ids, EntityDefinition $definition, string $column, Context $context): array
+    private function fetchByColumn(array $ids, EntityDefinition $definition, string $column, Context $context, TreeUpdaterBag $bag): array
     {
         if (empty($ids)) {
             return [];
@@ -280,14 +276,14 @@ class TreeUpdater
 
         $fetchedIds = [];
         foreach ($query->execute()->fetchAll() as $entity) {
-            $this->entities[$entity['id']] = $entity;
+            $bag->addEntity($entity['id'], $entity);
             $fetchedIds[$entity['id']] = $entity['id'];
         }
 
         return $fetchedIds;
     }
 
-    private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context): void
+    private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag): void
     {
         if (empty($updateIds)) {
             return;
@@ -300,20 +296,18 @@ class TreeUpdater
         $levelField = $definition->getFields()->filterInstance(TreeLevelField::class)->first();
 
         foreach ($updateIds as $updateId) {
-            $entity = $this->updatePath($updateId);
+            $entity = $this->updatePath($updateId, $bag);
             if ($entity !== null) {
-                $this->updateEntity($entity, $pathField, $levelField, $context);
+                $this->updateEntity($entity, $pathField, $levelField, $context, $bag);
             }
         }
 
-        $childIds = $this->fetchByColumn($updateIds, $definition, 'parent_id', $context);
-        $this->updateLevelRecursively($childIds, $definition, $context);
+        $childIds = $this->fetchByColumn($updateIds, $definition, 'parent_id', $context, $bag);
+
+        $this->updateLevelRecursively($childIds, $definition, $context, $bag);
     }
 
-    /**
-     * @param array{'id': string, 'path': string|null, 'level': int} $entity
-     */
-    private function updateEntity(array $entity, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context): void
+    private function updateEntity(array $entity, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context, TreeUpdaterBag $bag): void
     {
         if ($pathField === null && $levelField) {
             throw new \RuntimeException('`TreePathField` or `TreeLevelField` required.');
@@ -339,29 +333,29 @@ class TreeUpdater
             $this->updateEntityStatement = $this->connection->prepare($sql);
         }
 
-        if (!isset($this->updated[$entity['id']])) {
-            $update = [
-                'id' => $entity['id'],
-                'version' => Uuid::fromHexToBytes($context->getVersionId()),
-            ];
-            if ($pathField !== null) {
-                $update['path'] = $entity['path'];
-            }
-            if ($levelField !== null) {
-                $update['level'] = $entity['level'];
-            }
-
-            $this->updateEntityStatement->execute($update);
-            $this->updated[$entity['id']] = true;
+        if ($bag->alreadyUpdated($entity['id'])) {
+            return;
         }
+
+        $update = [
+            'id' => $entity['id'],
+            'version' => Uuid::fromHexToBytes($context->getVersionId()),
+        ];
+        if ($pathField !== null) {
+            $update['path'] = $entity['path'];
+        }
+        if ($levelField !== null) {
+            $update['level'] = $entity['level'];
+        }
+
+        $this->updateEntityStatement->execute($update);
+
+        $bag->addUpdated($entity['id']);
     }
 
-    /**
-     * @return array{'id': string, 'parent_id': string, 'path': string|null, 'level': int}|null
-     */
-    private function updatePath(string $id): ?array
+    private function updatePath(string $id, TreeUpdaterBag $bag): ?array
     {
-        $entity = $this->entities[$id] ?? null;
+        $entity = $bag->getEntity($id);
         if ($entity === null) {
             return null;
         }
@@ -371,15 +365,19 @@ class TreeUpdater
             $entity['path'] = null;
             $entity['level'] = 1;
 
-            return $this->entities[$id] = $entity;
+            $bag->addEntity($id, $entity);
+
+            return $entity;
         }
 
         // already computed
-        if (\array_key_exists('path', $this->entities)) {
-            return $this->entities[$id] = $entity;
+        if (\array_key_exists('path', $entity)) {
+            $bag->addEntity($id, $entity);
+
+            return $entity;
         }
 
-        $parent = $this->updatePath($entity['parent_id']);
+        $parent = $this->updatePath($entity['parent_id'], $bag);
 
         $entity['path'] = '';
         if ($parent !== null) {
@@ -391,6 +389,8 @@ class TreeUpdater
 
         $entity['level'] = ($parent['level'] ?? 0) + 1;
 
-        return $this->entities[$id] = $entity;
+        $bag->addEntity($id, $entity);
+
+        return $entity;
     }
 }

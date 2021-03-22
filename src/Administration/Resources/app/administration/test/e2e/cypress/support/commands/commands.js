@@ -468,3 +468,25 @@ Cypress.Commands.add(
         cy.wrap(subject);
     }
 );
+
+Cypress.Commands.add(
+    'clickMainMenuItem',
+    ({ targetPath, mainMenuId, subMenuId = null }) => {
+        const finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
+
+        cy.get('.sw-admin-menu')
+            .should('be.visible')
+            .then(() => {
+                if (subMenuId) {
+                    cy.get(finalMenuItem).click();
+                    cy.get(
+                        `.sw-admin-menu__item--${mainMenuId} .router-link-active`
+                    ).should('be.visible');
+                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).click();
+                } else {
+                    cy.get(finalMenuItem).should('be.visible').click();
+                }
+            });
+        cy.url().should('include', targetPath);
+    }
+);

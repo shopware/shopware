@@ -1,5 +1,6 @@
 {
     "name": "shopware/platform",
+    "version": "6.4.0.0-RC1",
     "description": "The Shopware e-commerce core",
     "type": "library",
     "keywords": [

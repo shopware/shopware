@@ -295,13 +295,14 @@ class TreeUpdater
 
         /** @var TreePathField $pathField */
         $pathField = $definition->getFields()->filterInstance(TreePathField::class)->first();
+
         /** @var TreeLevelField $levelField */
         $levelField = $definition->getFields()->filterInstance(TreeLevelField::class)->first();
 
         foreach ($updateIds as $updateId) {
             $entity = $this->updatePath($updateId);
             if ($entity !== null) {
-                $this->updateEntity($entity, $pathField, $levelField);
+                $this->updateEntity($entity, $pathField, $levelField, $context);
             }
         }
 
@@ -310,9 +311,9 @@ class TreeUpdater
     }
 
     /**
-     * @param array{'id': string, 'path': string, 'level': int} $entity
+     * @param array{'id': string, 'path': string|null, 'level': int} $entity
      */
-    private function updateEntity(array $entity, ?TreePathField $pathField, ?TreeLevelField $levelField): void
+    private function updateEntity(array $entity, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context): void
     {
         if ($pathField === null && $levelField) {
             throw new \RuntimeException('`TreePathField` or `TreeLevelField` required.');
@@ -333,7 +334,7 @@ class TreeUpdater
             }
 
             $sql .= implode(',', $sets);
-            $sql .= ' WHERE `id` = :id';
+            $sql .= ' WHERE `id` = :id AND `version_id` = :version';
 
             $this->updateEntityStatement = $this->connection->prepare($sql);
         }
@@ -341,6 +342,7 @@ class TreeUpdater
         if (!isset($this->updated[$entity['id']])) {
             $update = [
                 'id' => $entity['id'],
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ];
             if ($pathField !== null) {
                 $update['path'] = $entity['path'];
@@ -355,7 +357,7 @@ class TreeUpdater
     }
 
     /**
-     * @return array{'id': string, 'parent_id': string, 'path': string, 'level': int}|null
+     * @return array{'id': string, 'parent_id': string, 'path': string|null, 'level': int}|null
      */
     private function updatePath(string $id): ?array
     {
@@ -378,7 +380,15 @@ class TreeUpdater
         }
 
         $parent = $this->updatePath($entity['parent_id']);
-        $entity['path'] = $parent !== null ? ($parent['path'] . '|' . Uuid::fromBytesToHex($parent['id'])) : '';
+
+        $entity['path'] = '';
+        if ($parent !== null) {
+            $path = $parent['path'] ?? '';
+            $path = array_filter(explode('|', $path));
+            $path[] = Uuid::fromBytesToHex($parent['id']);
+            $entity['path'] = '|' . implode('|', $path) . '|';
+        }
+
         $entity['level'] = ($parent['level'] ?? 0) + 1;
 
         return $this->entities[$id] = $entity;

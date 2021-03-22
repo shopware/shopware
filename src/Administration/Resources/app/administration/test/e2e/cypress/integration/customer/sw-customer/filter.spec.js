@@ -282,6 +282,11 @@ describe('Customer: Test filter and reset filter', () => {
             method: 'post'
         }).as('getUserConfig');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/user-config/*`,
+            method: 'patch'
+        }).as('patchUserConfig');
+
         cy.get('.sw_sidebar__navigation-list li').eq(1).click();
         cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filters"]').should('exist');
         // Check if saved user filter is loaded
@@ -306,7 +311,7 @@ describe('Customer: Test filter and reset filter', () => {
         // Click Reset button to reset filter
         cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').click();
 
-        cy.wait('@getUserConfig').then((xhr) => {
+        cy.wait('@patchUserConfig').then((xhr) => {
             cy.get('.sw-filter-panel__item').eq(0).find('li.sw-select-selection-list__item-holder').should('not.exist');
         });
 

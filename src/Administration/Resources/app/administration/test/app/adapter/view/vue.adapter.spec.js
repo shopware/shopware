@@ -1,5 +1,7 @@
+import { shallowMount } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
+import ComponentFactory from 'src/core/factory/component.factory';
 
 jest.mock('vue-i18n', () => (function MockI18n() {}));
 Shopware.Service().register('localeHelper', () => {
@@ -22,6 +24,10 @@ describe('app/adapter/view/vue.adapter.js', () => {
 
         // mock localeHelper Service
         Shopware.Service('localeHelper').setLocaleWithId.mockReset();
+    });
+
+    afterEach(() => {
+        ComponentFactory.markComponentTemplatesAsNotResolved();
     });
 
     it('should be an class', async () => {
@@ -71,5 +77,121 @@ describe('app/adapter/view/vue.adapter.js', () => {
         });
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalledWith(expectedId);
+    });
+
+    it('should resolve mixins by string', () => {
+        Shopware.Mixin.register('foo', {
+            methods: {
+                fooBar() {
+                    return this.title;
+                }
+            }
+        });
+
+        Shopware.Component.register('test-component', {
+            template: '<div></div>',
+            name: 'test-component',
+            data() {
+                return {
+                    title: 'testComponent'
+                };
+            },
+            mixins: [
+                'foo'
+            ],
+            methods: {
+                bar() {}
+            }
+        });
+
+        const buildComp = vueAdapter.createComponent('test-component');
+        let wrapper = shallowMount(buildComp);
+
+        expect(buildComp.sealedOptions.methods.fooBar).toBeDefined();
+        expect(buildComp.sealedOptions.methods.bar).toBeDefined();
+        expect(wrapper.vm.fooBar()).toBe('testComponent');
+
+        Shopware.Component.override('test-component', {
+            data() {
+                return {
+                    title: 'testComponentOverride'
+                };
+            },
+            methods: {
+                buz() {}
+            }
+        });
+
+        const buildOverrideComp = vueAdapter.createComponent('test-component');
+        wrapper = shallowMount(buildOverrideComp);
+
+        expect(buildOverrideComp.sealedOptions.methods.fooBar).toBeDefined();
+        expect(buildOverrideComp.sealedOptions.methods.bar).toBeDefined();
+        expect(buildOverrideComp.sealedOptions.methods.buz).toBeDefined();
+        expect(wrapper.vm.fooBar()).toBe('testComponentOverride');
+    });
+
+    it('should extend mixins', () => {
+        Shopware.Mixin.register('swFoo', {
+            methods: {
+                fooBar() {
+                    return this.title;
+                }
+            }
+        });
+
+        Shopware.Mixin.register('swBar', {
+            methods: {
+                biz() {
+                    return this.title;
+                },
+                buz() {
+                    return 'mixin';
+                }
+            }
+        });
+
+        Shopware.Component.register('extendable-component', {
+            template: '{% block foo %}<div>aaaaa</div>{% endblock %}',
+            name: 'extendable-component',
+            data() {
+                return {
+                    title: 'testComponent'
+                };
+            },
+            mixins: [
+                'swFoo'
+            ],
+            methods: {
+                bar() {}
+            }
+        });
+
+        Shopware.Component.extend('sw-test-component-extended', 'extendable-component', {
+            template: '{% block foo %}<div>bbbbb</div>{% endblock %}',
+            mixins: [
+                'swBar'
+            ],
+            data() {
+                return {
+                    title: 'testComponentExtended'
+                };
+            },
+            methods: {
+                buz() {
+                    return 'component';
+                }
+            }
+        });
+
+        const buildExtendedComponent = vueAdapter.createComponent('sw-test-component-extended');
+        const wrapper = shallowMount(buildExtendedComponent);
+
+        expect(buildExtendedComponent.sealedOptions.methods.fooBar).toBeDefined();
+        expect(buildExtendedComponent.sealedOptions.methods.bar).toBeDefined();
+        expect(buildExtendedComponent.sealedOptions.methods.biz).toBeDefined();
+        expect(buildExtendedComponent.sealedOptions.methods.buz).toBeDefined();
+        expect(wrapper.vm.fooBar()).toBe('testComponentExtended');
+        expect(wrapper.vm.buz()).toBe('component');
     });
 });

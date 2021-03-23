@@ -23,6 +23,7 @@ Component.register('sw-cms-list', {
     data() {
         return {
             pages: [],
+            linkedLayouts: [],
             isLoading: false,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
@@ -33,7 +34,8 @@ Component.register('sw-cms-list', {
             currentPage: null,
             showDeleteModal: false,
             defaultMediaFolderId: null,
-            listMode: 'grid'
+            listMode: 'grid',
+            assignablePageTypes: ['categories', 'products']
         };
     },
 
@@ -84,6 +86,23 @@ Component.register('sw-cms-list', {
 
         sortingConCat() {
             return `${this.sortBy}:${this.sortDirection}`;
+        },
+
+        /**
+         * Returns a set of criteria/query objects which designate linked layouts.
+         *
+         * @internal
+         */
+        isLinkedCriteria() {
+            return [
+                {
+                    type: 'multi',
+                    operator: 'OR',
+                    queries: this.assignablePageTypes.map(
+                        name => Criteria.not('OR', [Criteria.equals(`${name}.id`, null)])
+                    )
+                }
+            ];
         }
     },
 
@@ -119,15 +138,43 @@ Component.register('sw-cms-list', {
                 criteria.addFilter(Criteria.equals('cms_page.type', this.currentPageType));
             }
 
+            this.addLinkedLayoutsAggregation(criteria);
+
             return this.pageRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
+
+                if (searchResult.aggregations && searchResult.aggregations.linkedLayouts) {
+                    this.linkedLayouts = searchResult.aggregations.linkedLayouts.entities;
+                }
+
                 this.isLoading = false;
 
                 return this.pages;
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        /**
+         * @internal
+         */
+        addLinkedLayoutsAggregation(criteria) {
+            const linkedLayoutsFilter = Criteria.filter('linkedLayoutsFilter', this.isLinkedCriteria, {
+                name: 'linkedLayouts',
+                type: 'entity',
+                definition: 'cms_page',
+                field: 'id'
+            });
+
+            criteria.addAggregation(linkedLayoutsFilter);
+        },
+
+        /**
+         * Determines whether a given CMS layout ("page") is in use already.
+         */
+        layoutIsLinked(pageId) {
+            return this.linkedLayouts.some(page => page.id === pageId);
         },
 
         resetList() {
@@ -312,14 +359,14 @@ Component.register('sw-cms-list', {
                 return {
                     showDelay: 300,
                     message: this.$tc('sw-cms.general.deleteDisabledProductToolTip'),
-                    disabled: page.products.length === 0
+                    disabled: !this.layoutIsLinked(page.id)
                 };
             }
 
             return {
                 showDelay: 300,
                 message: this.$tc('sw-cms.general.deleteDisabledToolTip'),
-                disabled: page.categories.length === 0
+                disabled: !this.layoutIsLinked(page.id)
             };
         }
     }

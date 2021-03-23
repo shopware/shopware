@@ -489,4 +489,72 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         expect(contextMenuItemDelete.props().disabled).toBe(false);
     });
+
+    it('should apply the necessary criteria when aggregating layouts already linked to pages', () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.vm.isLinkedCriteria).toBeDefined();
+        expect(wrapper.vm.assignablePageTypes).toBeDefined();
+
+        const criteria = wrapper.vm.isLinkedCriteria;
+
+        expect(criteria).toHaveLength(1);
+
+        const multiFilter = criteria.pop();
+
+        expect(multiFilter.type).toEqual('multi');
+        expect(multiFilter.operator).toEqual('OR');
+        expect(multiFilter.queries).toHaveLength(wrapper.vm.assignablePageTypes.length);
+    });
+
+    it('should indicate layouts already assigned to pages', async () => {
+        const wrapper = createWrapper();
+        const testData = {
+            isLoading: false,
+            pages: [
+                {
+                    id: '1a',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                },
+                {
+                    id: '2a',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 2'
+                    }
+                }
+            ],
+            linkedLayouts: [
+                {
+                    id: '2a'
+                }
+            ]
+        };
+
+        await wrapper.setData(testData);
+
+        expect(wrapper.vm.layoutIsLinked).toBeDefined();
+
+        expect(wrapper.vm.layoutIsLinked('1a')).toBeFalsy();
+        expect(wrapper.vm.layoutIsLinked('2a')).toBeTruthy();
+
+        const infoBoxes = wrapper.findAll('.sw-cms-list-item__info');
+
+        expect(infoBoxes).toHaveLength(2);
+
+        const unlinkedLayout = infoBoxes.filter(w => w.text() === 'CMS Page 1').at(0);
+        const linkedLayout = infoBoxes.filter(w => w.text() === 'CMS Page 2').at(0);
+
+        expect(() => unlinkedLayout.get('.sw-cms-list-item__status.is--active'))
+            .toThrow();
+        expect(linkedLayout.get('.sw-cms-list-item__status.is--active'))
+            .toBeTruthy();
+    });
 });

@@ -208,6 +208,7 @@
                                                                               :class="'sw-cms-list-item--' + index"
                                                                               :page="cmsPage"
                                                                               :key="cmsPage.id"
+                                                                              :active="layoutIsLinked(cmsPage.id)"
                                                                               @preview-image-change="onPreviewChange"
                                                                               @cms-page-delete="onDeleteCmsPage"
                                                                               @item-click="onListItemClick">

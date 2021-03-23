@@ -67,14 +67,14 @@ Component.register('sw-cms-list-item', {
 
         componentClasses() {
             return {
-                'is--active': this.isActive(),
+                'is--active': this.active,
                 'is--disabled': this.disabled
             };
         },
 
         statusClasses() {
             return {
-                'is--active': this.isActive()
+                'is--active': this.active
             };
         },
 
@@ -84,10 +84,9 @@ Component.register('sw-cms-list-item', {
     },
 
     methods: {
+        /* @deprecated tag:v6.5.0 isActive is superfluous since the component now relies on the "active" prop only */
         isActive() {
-            const { categories = [], products = [] } = this.page || {};
-
-            return categories.length > 0 || products.length > 0 || this.active;
+            return this.active;
         },
 
         onChangePreviewImage(page) {

@@ -3,6 +3,7 @@
         {% block sw_product_detail_specifications_measures_packaging %}
             <sw-card
                 v-show="showProductCard('measures_packaging')"
+                class="sw-product-detail-specification__measures-packaging"
                 :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_specifications_measures_packaging_content %}

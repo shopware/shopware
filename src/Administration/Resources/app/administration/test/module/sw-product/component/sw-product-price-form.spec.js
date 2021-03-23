@@ -1,8 +1,11 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-price-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/sw-list-price-field';
+import productStore from 'src/module/sw-product/page/sw-product-detail/state';
+
+const { Utils } = Shopware;
 
 const parentProductData = {
     id: 'productId',
@@ -19,6 +22,8 @@ const parentProductData = {
         net: 84.034
     }]
 };
+
+enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-price-form', () => {
     function createWrapper(productEntityOverride, parentProductOverride) {
@@ -49,14 +54,31 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 $store: new Vuex.Store({
                     modules: {
                         swProductDetail: {
-                            namespaced: true,
+                            ...productStore,
                             state: {
+                                ...productStore.state,
                                 product: productEntity,
-                                parentProduct
+                                parentProduct,
+                                advancedModeSetting: {
+                                    value: {
+                                        settings: [
+                                            {
+                                                key: 'prices',
+                                                label: 'sw-product.detailBase.cardTitlePrices',
+                                                enabled: true,
+                                                name: 'general'
+                                            }
+                                        ],
+                                        advancedMode: {
+                                            enabled: true,
+                                            label: 'sw-product.general.textAdvancedMode'
+                                        }
+                                    }
+                                }
                             },
                             getters: {
+                                ...productStore.getters,
                                 isLoading: () => false,
-                                showModeSetting: () => true,
                                 defaultCurrency: () => {
                                     return {
                                         id: '1',
@@ -104,10 +126,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     }
 
     let wrapper;
-
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
 
     it('should disable all price fields and toggle inheritance switch on if product price and purchase price are null', () => {
         wrapper = createWrapper();
@@ -201,5 +219,42 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         });
 
         expect(wrapper.vm.prices).toEqual({ price: [], purchasePrices: [] });
+    });
+
+    it('should show price item fields when advanced mode is on', () => {
+        wrapper = createWrapper();
+
+        const priceFieldsClassName = [
+            '.sw-purchase-price-field',
+            '.sw-list-price-field__list-price sw-price-field-stub'
+        ];
+
+        priceFieldsClassName.forEach(item => {
+            expect(wrapper.find(item).exists()).toBeTruthy();
+        });
+    });
+
+    it('should hide price item fields when advanced mode is off', async () => {
+        wrapper = createWrapper();
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
+
+        await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: false,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
+        });
+
+        const priceFieldsClassName = [
+            '.sw-purchase-price-field',
+            '.sw-list-price-field__list-price sw-price-field-stub'
+        ];
+
+        priceFieldsClassName.forEach(item => {
+            expect(wrapper.find(item).exists()).toBeFalsy();
+        });
     });
 });

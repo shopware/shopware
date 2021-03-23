@@ -6,7 +6,6 @@ use OpenApi\Annotations\Components;
 use OpenApi\Annotations\Info;
 use OpenApi\Annotations\MediaType;
 use OpenApi\Annotations\OpenApi;
-use OpenApi\Annotations\Property;
 use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\SecurityScheme;
@@ -179,30 +178,6 @@ class OpenApiSchemaBuilder
                     'relationships' => ['$ref' => '#/components/schemas/relationships'],
                     'links' => ['$ref' => '#/components/schemas/links'],
                     'meta' => ['$ref' => '#/components/schemas/meta'],
-                ],
-            ]),
-            'relationshipLinks' => new Schema([
-                'schema' => 'relationshipLinks',
-                'description' => 'A resource object **MAY** contain references to other resource objects ("relationships"). Relationships may be to-one or to-many. Relationships can be specified by including a member in a resource\'s links object.',
-                'type' => 'object',
-                'additionalProperties' => true,
-                'properties' => [
-                    new Property([
-                        'property' => 'self',
-                        'allOf' => [
-                            new Schema([
-                                'description' => 'A `self` member, whose value is a URL for the relationship itself (a "relationship URL"). This URL allows the client to directly manipulate the relationship. For example, it would allow a client to remove an `author` from an `article` without deleting the people resource itself.',
-                                'type' => 'array',
-                            ]),
-                            new Schema([
-                                'ref' => '#/components/schemas/link',
-                            ]),
-                        ],
-                    ]),
-                    new Property([
-                        'property' => 'related',
-                        'ref' => '#/components/schemas/link',
-                    ]),
                 ],
             ]),
             'links' => new Schema([

@@ -95,6 +95,8 @@ PHP Unit:
         -   name: elastic/elasticsearch:7.3.0
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+        -   name: swaggerapi/swagger-validator-v2:v2.0.5
+            alias: swagger
     rules:
       - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
         when: never

@@ -179,7 +179,7 @@ class KernelLifecycleManager
     /**
      * Shuts the kernel down if it was used in the test.
      */
-    private static function ensureKernelShutdown(): void
+    public static function ensureKernelShutdown(): void
     {
         if (static::$kernel === null) {
             return;

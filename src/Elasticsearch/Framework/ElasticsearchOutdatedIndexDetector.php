@@ -56,6 +56,21 @@ class ElasticsearchOutdatedIndexDetector
         return $indicesToBeDeleted;
     }
 
+    public function getAllUsedIndices(): array
+    {
+        $allIndices = $this->client->indices()->get(
+            ['index' => implode(',', $this->getPrefixes())]
+        );
+
+        if (empty($allIndices)) {
+            return [];
+        }
+
+        return array_map(function (array $index) {
+            return $index['settings']['index']['provided_name'];
+        }, $allIndices);
+    }
+
     private function getLanguages(): EntityCollection
     {
         return $this->languageRepository

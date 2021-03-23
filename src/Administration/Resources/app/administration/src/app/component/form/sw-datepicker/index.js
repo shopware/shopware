@@ -401,7 +401,10 @@ Component.register('sw-datepicker', {
         },
 
         createConfig() {
-            let dateFormat = 'Y-m-dTH:i:S+00:00';
+            /**
+             * Use user browser time or UTC based on dateType
+             */
+            let dateFormat = this.dateType === 'datetime-local' ? 'Z' : 'Y-m-dTH:i:S+00:00';
             let altFormat = 'Y-m-d H:i';
 
             if (this.dateType === 'time') {
@@ -422,6 +425,5 @@ Component.register('sw-datepicker', {
                 allowInput: true
             };
         }
-
     }
 });

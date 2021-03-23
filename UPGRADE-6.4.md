@@ -465,3 +465,26 @@ Storefront
 
 Refactorings
 ------------
+
+# new, please integrate this on merge conflict
+
+## TreeUpdater scaling
+
+We've replaced `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater::update` with `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater::batchUpdate`,
+because `update` scaled badly with the tree depth. The new method takes an array instead of a single id.
+
+## EntityWriteGatewayInterface
+
+We've added the new method `prefetchExistences` to the interface `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface`.
+The method is optional, and a valid implementation is to not prefetch anything. The method was added to allow fetching the existence of more than one primary key at once.
+
+## FieldSerializerInterface::normalize
+
+We've added the new method `normalize` to the interface `\Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface`.
+A valid implementation is to just return `$data`. The `AbstractFieldSerializer` does that already.
+The method should normalize the `$data` if it makes sense. For example, the core serializers do the following in the normalize step:
+- generate missing ids (`IdField`)
+- resolve foreign keys (`FkField` and `Association`)
+- normalize structure for example for translations (there are multiple ways to define them)
+- collect primary keys in `PrimaryKeyBag`
+

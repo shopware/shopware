@@ -263,6 +263,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14084 - Add cross selling and category route cache](/changelog/release-6-4-0-0/2021-03-18-add-cross-selling-and-category-route-cache.md)
 *  [NEXT-14372 - Add twig blocks to metatag template](/changelog/release-6-4-0-0/2021-03-18-add-twig-blocks-to-meta.md) ([Rune Laenen](https://github.com/runelaenen))
 *  [NEXT-14291 - Improve styling for product detail page](/changelog/release-6-4-0-0/2021-03-18-improve-styling-for-product-detail-page.md)
+*  [NEXT-13939 - Improve write performance](/changelog/release-6-4-0-0/2021-03-18-improve-write-performance.md)
 *  [NEXT-12948 - Add data bag to validation events](/changelog/release-6-4-0-0/2021-03-19-add-data-bag-to-validation-events.md)
 *  [NEXT-14294 - Improve app system proof check](/changelog/release-6-4-0-0/2021-03-19-improve-proof-check.md)
 *  [NEXT-13834 - Parameter "editable" in theme.json does not work as intended](/changelog/release-6-4-0-0/2021-03-19-parameter-editable-in-theme.json-does-not-work-as-intended.md)

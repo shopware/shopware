@@ -76,9 +76,9 @@ class OneToOneAssociationFieldTest extends TestCase
         $this->connection->rollBack();
 
         $this->connection->executeUpdate('
-DROP TABLE IF EXISTS `root`;
-DROP TABLE IF EXISTS `root_sub`;
 DROP TABLE IF EXISTS `root_sub_cascade`;
+DROP TABLE IF EXISTS `root_sub`;
+DROP TABLE IF EXISTS `root`;
 
 CREATE TABLE `root` (
   `id` binary(16) NOT NULL,

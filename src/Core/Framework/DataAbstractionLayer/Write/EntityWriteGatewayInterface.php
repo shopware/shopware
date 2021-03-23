@@ -8,10 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 
 interface EntityWriteGatewayInterface
 {
-    /**
-     * Used to validate if the provided primary key already exists in the storage.
-     * Also used to verify if the provided entity is a parent or child element.
-     */
+    public function prefetchExistences(WriteParameterBag $parameterBag): void;
+
     public function getExistence(EntityDefinition $definition, array $primaryKey, array $data, WriteCommandQueue $commandQueue): EntityExistence;
 
     /**

@@ -43,16 +43,20 @@ class WriteParameterBag
      */
     private $currentWriteLanguageId;
 
+    private PrimaryKeyBag $primaryKeyBag;
+
     public function __construct(
         EntityDefinition $definition,
         WriteContext $context,
         string $path,
-        WriteCommandQueue $commandQueue
+        WriteCommandQueue $commandQueue,
+        ?PrimaryKeyBag $primaryKeyBag = null
     ) {
         $this->definition = $definition;
         $this->context = $context;
         $this->path = $path;
         $this->commandQueue = $commandQueue;
+        $this->primaryKeyBag = $primaryKeyBag ?? new PrimaryKeyBag();
     }
 
     public function getDefinition(): EntityDefinition
@@ -86,7 +90,8 @@ class WriteParameterBag
             $definition,
             $this->context,
             $path,
-            $this->commandQueue
+            $this->commandQueue,
+            $this->primaryKeyBag
         );
     }
 
@@ -106,5 +111,15 @@ class WriteParameterBag
         }
 
         $this->currentWriteLanguageId = $languageId;
+    }
+
+    public function getPrimaryKeyBag(): PrimaryKeyBag
+    {
+        return $this->primaryKeyBag;
+    }
+
+    public function setPrimaryKeyBag(PrimaryKeyBag $primaryKeyBag): void
+    {
+        $this->primaryKeyBag = $primaryKeyBag;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -28,6 +27,58 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor = $writeExtractor;
     }
 
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        if (!$field instanceof OneToOneAssociationField) {
+            throw new InvalidSerializerFieldException(OneToOneAssociationField::class, $field);
+        }
+
+        $key = $field->getPropertyName();
+        $value = $data[$key] ?? null;
+        if ($value === null) {
+            return $data;
+        }
+
+        if (!\is_array($value)) {
+            throw new ExpectedArrayException($parameters->getPath());
+        }
+
+        $keyField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
+        $reference = $field->getReferenceDefinition();
+
+        if ($keyField instanceof FkField) {
+            $referenceField = $field->getReferenceField();
+            $pkField = $reference->getFields()->getByStorageName($referenceField);
+
+            //id provided? otherwise set new one to return it and yield the id into the FkField
+            if (isset($value[$pkField->getPropertyName()])) {
+                $id = $value[$pkField->getPropertyName()];
+            } else {
+                $id = Uuid::randomHex();
+                $value[$pkField->getPropertyName()] = $id;
+            }
+
+            $data[$keyField->getPropertyName()] = $id;
+        } else {
+            /* @var OneToOneAssociationField $field */
+            $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getStorageName());
+            $keyField = $reference->getFields()->getByStorageName($field->getReferenceField());
+
+            $value[$keyField->getPropertyName()] = $id;
+        }
+
+        $clonedParams = $parameters->cloneForSubresource(
+            $field->getReferenceDefinition(),
+            $parameters->getPath() . '/' . $key
+        );
+
+        $value = $this->writeExtractor->normalizeSingle($field->getReferenceDefinition(), $value, $clonedParams);
+
+        $data[$key] = $value;
+
+        return $data;
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -42,32 +93,8 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($parameters->getPath());
         }
 
-        $keyField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
         $reference = $field->getReferenceDefinition();
-
-        //owning side?
-        if ($keyField instanceof FkField) {
-            $id = $this->mapOwningSide($reference, $field->getReferenceField(), $data, $parameters);
-
-            yield $keyField->getPropertyName() => $id;
-
-            return;
-        }
-
-        /* @var OneToOneAssociationField $field */
-        $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getStorageName());
-
         $value = $data->getValue();
-
-        if (!\is_array($value)) {
-            throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
-        }
-
-        $keyField = $reference->getFields()->getByStorageName(
-            $field->getReferenceField()
-        );
-
-        $value[$keyField->getPropertyName()] = $id;
 
         $this->writeExtractor->extract(
             $value,
@@ -76,39 +103,12 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
                 $parameters->getPath() . '/' . $data->getKey()
             )
         );
+
+        yield from [];
     }
 
     public function decode(Field $field, $value): void
     {
         throw new DecodeByHydratorException($field);
-    }
-
-    private function mapOwningSide(
-        EntityDefinition $reference,
-        string $referenceField,
-        KeyValuePair $data,
-        WriteParameterBag $parameters
-    ) {
-        $value = $data->getValue();
-
-        $pkField = $reference->getFields()->getByStorageName($referenceField);
-
-        //id provided? otherwise set new one to return it and yield the id into the FkField
-        if (isset($value[$pkField->getPropertyName()])) {
-            $id = $value[$pkField->getPropertyName()];
-        } else {
-            $id = Uuid::randomHex();
-            $value[$pkField->getPropertyName()] = $id;
-        }
-
-        $this->writeExtractor->extract(
-            $value,
-            $parameters->cloneForSubresource(
-                $reference,
-                $parameters->getPath() . '/' . $data->getKey()
-            )
-        );
-
-        return $id;
     }
 }

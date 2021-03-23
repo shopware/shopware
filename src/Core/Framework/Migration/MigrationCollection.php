@@ -119,8 +119,8 @@ class MigrationCollection
     private function getMigrationData(string $className, MigrationStep $migrationStep): array
     {
         $default = [
-            '`class`' => $className,
-            '`creation_timestamp`' => $migrationStep->getCreationTimestamp(),
+            'class' => $className,
+            'creation_timestamp' => $migrationStep->getCreationTimestamp(),
         ];
 
         $oldName = $this->migrationSource->mapToOldName($className);
@@ -142,7 +142,7 @@ class MigrationCollection
             unset($row[$key]);
         }
 
-        $row['`class`'] = $className;
+        $row['class'] = $className;
 
         return $row;
     }

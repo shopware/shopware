@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -27,13 +29,44 @@ class TreeUpdater
      */
     private $connection;
 
+    private ?Statement $updateEntityStatement = null;
+
     public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
         $this->registry = $registry;
         $this->connection = $connection;
     }
 
-    public function update(string $parentId, string $entity, Context $context): array
+    public function batchUpdate(array $updateIds, string $entity, Context $context): void
+    {
+        $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
+        if (empty($updateIds)) {
+            return;
+        }
+
+        $bag = new TreeUpdaterBag();
+
+        $this->updateEntityStatement = null;
+
+        $definition = $this->registry->getByEntityName($entity);
+
+        // the batch update does not support versioning, so fallback to single updates
+        if ($definition->isVersionAware() && $context->getVersionId() !== Defaults::LIVE_VERSION) {
+            foreach ($updateIds as $id) {
+                $this->singleUpdate(Uuid::fromBytesToHex($id), $entity, $context);
+            }
+
+            return;
+        }
+
+        // 1. fetch parents until all ids have reached parent_id === null
+        $this->loadAllParents($updateIds, $definition, $context, $bag);
+
+        // 2. set path and level
+        $this->updateLevelRecursively($updateIds, $definition, $context, $bag);
+    }
+
+    private function singleUpdate(string $parentId, string $entity, Context $context): array
     {
         $definition = $this->registry->getByEntityName($entity);
 
@@ -200,5 +233,164 @@ class TreeUpdater
         $query->setParameter('id', $parentId);
 
         return $query;
+    }
+
+    private function loadAllParents(array $ids, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag): void
+    {
+        $levels = 100;
+
+        $parentIds = $ids;
+        do {
+            $ids = $this->fetchByColumn($parentIds, $definition, 'id', $context, $bag);
+
+            $parentIds = [];
+            foreach ($ids as $id) {
+                $parent = $bag->getEntity($id);
+                if ($parent !== null && $parent['parent_id'] !== null) {
+                    $parentIds[$parent['parent_id']] = $parent['parent_id'];
+                }
+            }
+
+            --$levels;
+        } while ($parentIds !== [] && $levels >= 0);
+
+        if ($levels <= 0) {
+            throw new \RuntimeException('Reached max depth, aborting');
+        }
+    }
+
+    private function fetchByColumn(array $ids, EntityDefinition $definition, string $column, Context $context, TreeUpdaterBag $bag): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $query = $this->connection->createQueryBuilder();
+        $escaped = EntityDefinitionQueryHelper::escape($definition->getEntityName());
+        $column = EntityDefinitionQueryHelper::escape($column);
+        $query->from($escaped);
+        $query->select('id', 'parent_id');
+        $query->andWhere($column . ' IN (:ids)');
+        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+        $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
+
+        $fetchedIds = [];
+        foreach ($query->execute()->fetchAll() as $entity) {
+            $bag->addEntity($entity['id'], $entity);
+            $fetchedIds[$entity['id']] = $entity['id'];
+        }
+
+        return $fetchedIds;
+    }
+
+    private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag): void
+    {
+        if (empty($updateIds)) {
+            return;
+        }
+
+        /** @var TreePathField $pathField */
+        $pathField = $definition->getFields()->filterInstance(TreePathField::class)->first();
+
+        /** @var TreeLevelField $levelField */
+        $levelField = $definition->getFields()->filterInstance(TreeLevelField::class)->first();
+
+        foreach ($updateIds as $updateId) {
+            $entity = $this->updatePath($updateId, $bag);
+            if ($entity !== null) {
+                $this->updateEntity($entity, $pathField, $levelField, $context, $bag);
+            }
+        }
+
+        $childIds = $this->fetchByColumn($updateIds, $definition, 'parent_id', $context, $bag);
+
+        $this->updateLevelRecursively($childIds, $definition, $context, $bag);
+    }
+
+    private function updateEntity(array $entity, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context, TreeUpdaterBag $bag): void
+    {
+        if ($pathField === null && $levelField) {
+            throw new \RuntimeException('`TreePathField` or `TreeLevelField` required.');
+        }
+
+        if ($this->updateEntityStatement === null) {
+            $sql = '
+                UPDATE `category`
+                SET ';
+
+            $sets = [];
+            if ($pathField !== null) {
+                $sets[] = EntityDefinitionQueryHelper::escape($pathField->getStorageName()) . ' = :path';
+            }
+
+            if ($levelField !== null) {
+                $sets[] = EntityDefinitionQueryHelper::escape($levelField->getStorageName()) . ' = :level';
+            }
+
+            $sql .= implode(',', $sets);
+            $sql .= ' WHERE `id` = :id AND `version_id` = :version';
+
+            $this->updateEntityStatement = $this->connection->prepare($sql);
+        }
+
+        if ($bag->alreadyUpdated($entity['id'])) {
+            return;
+        }
+
+        $update = [
+            'id' => $entity['id'],
+            'version' => Uuid::fromHexToBytes($context->getVersionId()),
+        ];
+        if ($pathField !== null) {
+            $update['path'] = $entity['path'];
+        }
+        if ($levelField !== null) {
+            $update['level'] = $entity['level'];
+        }
+
+        $this->updateEntityStatement->execute($update);
+
+        $bag->addUpdated($entity['id']);
+    }
+
+    private function updatePath(string $id, TreeUpdaterBag $bag): ?array
+    {
+        $entity = $bag->getEntity($id);
+        if ($entity === null) {
+            return null;
+        }
+
+        if ($entity['parent_id'] === null) {
+            // fix props
+            $entity['path'] = null;
+            $entity['level'] = 1;
+
+            $bag->addEntity($id, $entity);
+
+            return $entity;
+        }
+
+        // already computed
+        if (\array_key_exists('path', $entity)) {
+            $bag->addEntity($id, $entity);
+
+            return $entity;
+        }
+
+        $parent = $this->updatePath($entity['parent_id'], $bag);
+
+        $entity['path'] = '';
+        if ($parent !== null) {
+            $path = $parent['path'] ?? '';
+            $path = array_filter(explode('|', $path));
+            $path[] = Uuid::fromBytesToHex($parent['id']);
+            $entity['path'] = '|' . implode('|', $path) . '|';
+        }
+
+        $entity['level'] = ($parent['level'] ?? 0) + 1;
+
+        $bag->addEntity($id, $entity);
+
+        return $entity;
     }
 }

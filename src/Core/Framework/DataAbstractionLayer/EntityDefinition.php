@@ -244,6 +244,10 @@ abstract class EntityDefinition
             return $field->is(PrimaryKey::class);
         });
 
+        $fields->sort(static function (Field $a, Field $b) {
+            return $b->getExtractPriority() <=> $a->getExtractPriority();
+        });
+
         return $this->primaryKeys = $fields;
     }
 

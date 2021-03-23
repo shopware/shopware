@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class LongTextFieldTest extends TestCase
@@ -30,20 +31,21 @@ class LongTextFieldTest extends TestCase
     {
         $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
 
-        $data = new KeyValuePair('string', $input, false);
+        $name = 'string_' . Uuid::randomHex();
+        $data = new KeyValuePair($name, $input, false);
 
         if ($type === 'writeException') {
             $this->expectException(WriteConstraintViolationException::class);
 
             try {
                 $serializer->encode(
-                    $this->getLongTextField($flags),
+                    $this->getLongTextField($name, $flags),
                     $this->getEntityExisting(),
                     $data,
                     $this->getWriteParameterBagMock()
                 )->current();
             } catch (WriteConstraintViolationException $e) {
-                static::assertSame('/string', $e->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/' . $name, $e->getViolations()->get(0)->getPropertyPath());
                 /* Unexpected language has to be fixed NEXT-9419 */
                 //static::assertSame($expected, $e->getViolations()->get(0)->getMessage());
 
@@ -55,7 +57,7 @@ class LongTextFieldTest extends TestCase
             static::assertSame(
                 $expected,
                 $serializer->encode(
-                    $this->getLongTextField($flags),
+                    $this->getLongTextField($name, $flags),
                     $this->getEntityExisting(),
                     $data,
                     $this->getWriteParameterBagMock()
@@ -101,9 +103,9 @@ class LongTextFieldTest extends TestCase
     /**
      * @param Flag[] $flags
      */
-    private function getLongTextField(array $flags = []): LongTextField
+    private function getLongTextField(string $name, array $flags = []): LongTextField
     {
-        $field = new LongTextField('string', 'string');
+        $field = new LongTextField($name, $name);
 
         if ($flags) {
             $field->addFlags(new ApiAware(), ...$flags);

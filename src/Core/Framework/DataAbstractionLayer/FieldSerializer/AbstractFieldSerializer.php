@@ -29,10 +29,20 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
      */
     protected $definitionRegistry;
 
+    /**
+     * @var array<Constraint[]>
+     */
+    private array $cachedConstraints = [];
+
     public function __construct(ValidatorInterface $validator, DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->validator = $validator;
         $this->definitionRegistry = $definitionRegistry;
+    }
+
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        return $data;
     }
 
     protected function validate(
@@ -127,7 +137,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
             return;
         }
 
-        $constraints = $this->getConstraints($field);
+        $constraints = $this->getCachedConstraints($field);
 
         $this->validate($constraints, $data, $parameters->getPath());
     }
@@ -138,5 +148,19 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     protected function getConstraints(Field $field): array
     {
         return [];
+    }
+
+    /**
+     * @return Constraint[]
+     */
+    protected function getCachedConstraints(Field $field): array
+    {
+        $key = $field->getPropertyName() . spl_object_id($field);
+
+        if (\array_key_exists($key, $this->cachedConstraints)) {
+            return $this->cachedConstraints[$key];
+        }
+
+        return $this->cachedConstraints[$key] = $this->getConstraints($field);
     }
 }

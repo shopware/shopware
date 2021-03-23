@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -53,13 +53,13 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     private $appStateService;
 
     /**
-     * @var AppLoader
+     * @var AbstractAppLoader
      */
     private $appLoader;
 
     public function __construct(
         StoreClient $storeClient,
-        AppLoader $appLoader,
+        AbstractAppLoader $appLoader,
         AbstractAppLifecycle $appLifecycle,
         EntityRepositoryInterface $appRepository,
         EntityRepositoryInterface $salesChannelRepository,

@@ -27,11 +27,18 @@ Component.register('sw-order-list', {
             filterLoading: false,
             showDeleteModal: false,
             availableAffiliateCodes: [],
-            affiliateCodeFilter: [],
             availableCampaignCodes: [],
+
+            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
+            affiliateCodeFilter: [],
+
+            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
             campaignCodeFilter: [],
+
             filterCriteria: [],
             defaultFilters: [
+                'affiliate-code-filter',
+                'campaign-code-filter',
                 'document-filter',
                 'order-date-filter',
                 'status-filter',
@@ -71,12 +78,6 @@ Component.register('sw-order-list', {
             const criteria = new Criteria(this.page, this.limit);
 
             criteria.setTerm(this.term);
-            if (this.affiliateCodeFilter.length > 0) {
-                criteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
-            }
-            if (this.campaignCodeFilter.length > 0) {
-                criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
-            }
 
             this.sortBy.split(',').forEach(sortBy => {
                 criteria.addSorting(Criteria.sort(sortBy, this.sortDirection));
@@ -113,6 +114,24 @@ Component.register('sw-order-list', {
 
         listFilters() {
             return this.filterFactory.create('order', {
+                'affiliate-code-filter': {
+                    property: 'affiliateCode',
+                    type: 'multi-select-filter',
+                    label: this.$tc('sw-order.filters.affiliateCodeFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.affiliateCodeFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    options: this.availableAffiliateCodes
+                },
+                'campaign-code-filter': {
+                    property: 'campaignCode',
+                    type: 'multi-select-filter',
+                    label: this.$tc('sw-order.filters.campaignCodeFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.campaignCodeFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    options: this.availableCampaignCodes
+                },
                 'document-filter': {
                     property: 'documents',
                     label: this.$tc('sw-order.filters.documentFilter.label'),
@@ -364,11 +383,13 @@ Component.register('sw-order-list', {
             });
         },
 
+        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
         onChangeAffiliateCodeFilter(value) {
             this.affiliateCodeFilter = value;
             this.getList();
         },
 
+        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
         onChangeCampaignCodeFilter(value) {
             this.campaignCodeFilter = value;
             this.getList();

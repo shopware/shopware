@@ -33,7 +33,9 @@ Component.register('sw-existence-filter', {
                 return;
             }
 
-            let filterCriteria = [Criteria.equals(`${this.filter.property}.${this.filter.schema.localField}`, null)];
+            const fieldName = this.filter.property.concat(this.filter.schema ? `.${this.filter.schema.localField}` : '');
+
+            let filterCriteria = [Criteria.equals(fieldName, null)];
 
             if (newValue === 'true') {
                 filterCriteria = [Criteria.not('AND', filterCriteria)];

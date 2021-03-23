@@ -2,6 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/filter/sw-multi-select-filter';
 import 'src/app/component/filter/sw-base-filter';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
+import 'src/app/component/form/select/base/sw-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -39,6 +40,7 @@ function createWrapper(customOptions) {
         stubs: {
             'sw-base-filter': Shopware.Component.build('sw-base-filter'),
             'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
+            'sw-multi-select': Shopware.Component.build('sw-multi-select'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
@@ -221,5 +223,75 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-select-result-list__item-list').text()).toBe('List item');
+    });
+
+    it('should display sw-multi-select if filter has options', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            filter: {
+                name: 'category-filter',
+                property: 'category',
+                placeholder: 'placeholder',
+                labelProperty: 'key',
+                valueProperty: 'key',
+                label: 'Test',
+                value: null,
+                filterCriteria: null,
+                options: [
+                    { key: 'option1' },
+                    { key: 'option2' }
+                ]
+            }
+        });
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        expect(wrapper.find('.sw-multi-select').exists()).toBeTruthy();
+        expect(list.at(0).text()).toEqual('option1');
+        expect(list.at(1).text()).toEqual('option2');
+    });
+
+    it('should emit filter-update with correct value when filter is sw-multi-select', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            filter: {
+                name: 'category-filter',
+                property: 'category',
+                placeholder: 'placeholder',
+                labelProperty: 'key',
+                valueProperty: 'key',
+                label: 'Test',
+                value: null,
+                filterCriteria: null,
+                options: [
+                    { key: 'option1' },
+                    { key: 'option2' }
+                ]
+            }
+        });
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+            'category-filter',
+            [Criteria.equalsAny('category', ['option1'])],
+            ['option1']
+        ]);
     });
 });

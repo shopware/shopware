@@ -319,7 +319,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         // Check if Reset All button shows up
         cy.get('.sw-sidebar-item__headline a').should('exist');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
+        cy.get('.sw-filter-panel__item').eq(2).find('.sw-base-filter__reset').should('exist');
 
         cy.get('.sw-filter-panel').should('exist');
 
@@ -330,13 +330,13 @@ describe('Order: Testing filter and reset filter', () => {
         });
 
         // Filter results with single criteria
-        cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
+        cy.get('.sw-filter-panel__item').eq(2).find('select').select('true');
         cy.wait('@filterOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-page__smart-bar-amount').contains('0');
 
-        cy.get('.sw-filter-panel__item').eq(0).find('select').select('false');
+        cy.get('.sw-filter-panel__item').eq(2).find('select').select('false');
         cy.wait('@filterOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -347,8 +347,8 @@ describe('Order: Testing filter and reset filter', () => {
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '1');
 
         // Combine multiple filter criterias
-        cy.get('.sw-filter-panel__item:nth-child(3) .sw-entity-multi-select').scrollIntoView();
-        cy.get('.sw-filter-panel__item:nth-child(3) .sw-entity-multi-select').typeMultiSelectAndCheck('order state 1', { searchTerm: 'order state 1' });
+        cy.get('.sw-filter-panel__item:nth-child(5) .sw-entity-multi-select').scrollIntoView();
+        cy.get('.sw-filter-panel__item:nth-child(5) .sw-entity-multi-select').typeMultiSelectAndCheck('order state 1', { searchTerm: 'order state 1' });
 
         cy.get('.sw-page__smart-bar-amount').contains('1');
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '2');
@@ -385,19 +385,19 @@ describe('Order: Testing filter and reset filter', () => {
         });
 
         // Check Reset button when filter is active
-        cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
+        cy.get('.sw-filter-panel__item').eq(2).find('select').select('true');
+        cy.get('.sw-filter-panel__item').eq(2).find('.sw-base-filter__reset').should('exist');
 
         // Click Reset button to reset filter
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').click();
+        cy.get('.sw-filter-panel__item').eq(2).find('.sw-base-filter__reset').click();
         cy.wait('@filterOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-page__smart-bar-amount').contains('9');
 
         // Reset All button should show up when there is active filter
-        cy.get('.sw-filter-panel__item:nth-child(3) .sw-entity-multi-select').scrollIntoView();
-        cy.get('.sw-filter-panel__item:nth-child(3) .sw-entity-multi-select').typeMultiSelectAndCheck('order state 2', { searchTerm: 'order state 2' });
+        cy.get('.sw-filter-panel__item:nth-child(5) .sw-entity-multi-select').scrollIntoView();
+        cy.get('.sw-filter-panel__item:nth-child(5) .sw-entity-multi-select').typeMultiSelectAndCheck('order state 2', { searchTerm: 'order state 2' });
 
         cy.get('.sw-sidebar-item__headline a').should('exist');
 

@@ -25,12 +25,22 @@ Component.register('sw-customer-list', {
             showDeleteModal: false,
             filterLoading: false,
             availableAffiliateCodes: [],
-            affiliateCodeFilter: [],
             availableCampaignCodes: [],
+
+            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
+            affiliateCodeFilter: [],
+
+            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
             campaignCodeFilter: [],
+
+            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
             showOnlyCustomerGroupRequests: false,
+
             filterCriteria: [],
             defaultFilters: [
+                'affiliate-code-filter',
+                'campaign-code-filter',
+                'customer-group-request-filter',
                 'salutation-filter',
                 'account-status-filter',
                 'default-payment-method-filter',
@@ -64,16 +74,6 @@ Component.register('sw-customer-list', {
             this.naturalSorting = this.sortBy === 'customerNumber';
 
             defaultCriteria.setTerm(this.term);
-            if (this.affiliateCodeFilter.length > 0) {
-                defaultCriteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
-            }
-            if (this.campaignCodeFilter.length > 0) {
-                defaultCriteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
-            }
-
-            if (this.showOnlyCustomerGroupRequests) {
-                defaultCriteria.addFilter(Criteria.not('OR', [Criteria.equals('requestedGroupId', null)]));
-            }
 
             this.sortBy.split(',').forEach(sortBy => {
                 defaultCriteria.addSorting(Criteria.sort(sortBy, this.sortDirection, this.naturalSorting));
@@ -106,6 +106,32 @@ Component.register('sw-customer-list', {
 
         listFilters() {
             return this.filterFactory.create('customer', {
+                'affiliate-code-filter': {
+                    property: 'affiliateCode',
+                    type: 'multi-select-filter',
+                    label: this.$tc('sw-customer.filter.affiliateCode.label'),
+                    placeholder: this.$tc('sw-customer.filter.affiliateCode.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    options: this.availableAffiliateCodes
+                },
+                'campaign-code-filter': {
+                    property: 'campaignCode',
+                    type: 'multi-select-filter',
+                    label: this.$tc('sw-customer.filter.campaignCode.label'),
+                    placeholder: this.$tc('sw-customer.filter.campaignCode.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    options: this.availableCampaignCodes
+                },
+                'customer-group-request-filter': {
+                    property: 'requestedGroupId',
+                    type: 'existence-filter',
+                    label: this.$tc('sw-customer.filter.customerGroupRequest.label'),
+                    placeholder: this.$tc('sw-customer.filter.customerGroupRequest.placeholder'),
+                    optionHasCriteria: this.$tc('sw-customer.filter.customerGroupRequest.textHasCriteria'),
+                    optionNoCriteria: this.$tc('sw-customer.filter.customerGroupRequest.textNoCriteria')
+                },
                 'salutation-filter': {
                     property: 'salutation',
                     label: this.$tc('sw-customer.filter.salutation.label'),
@@ -304,16 +330,19 @@ Component.register('sw-customer-list', {
                 });
         },
 
+        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
         onChangeAffiliateCodeFilter(value) {
             this.affiliateCodeFilter = value;
             this.getList();
         },
 
+        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
         onChangeCampaignCodeFilter(value) {
             this.campaignCodeFilter = value;
             this.getList();
         },
 
+        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
         onChangeRequestedGroupFilter(value) {
             this.showOnlyCustomerGroupRequests = value;
             this.getList();

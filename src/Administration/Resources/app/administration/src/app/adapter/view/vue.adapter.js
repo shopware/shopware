@@ -137,6 +137,15 @@ export default class VueAdapter extends ViewAdapter {
             return false;
         }
 
+        // Mixins got extended? Move up one level
+        if (componentConfig.extends && componentConfig.extends.mixins && componentConfig.extends.mixins.length) {
+            if (componentConfig.mixins && componentConfig.mixins.length) {
+                componentConfig.mixins = [...componentConfig.extends.mixins, ...componentConfig.mixins];
+            } else {
+                componentConfig.mixins = componentConfig.extends.mixins;
+            }
+        }
+
         // If the mixin is a string, use our mixin registry
         if (componentConfig.mixins && componentConfig.mixins.length) {
             componentConfig.mixins = componentConfig.mixins.map((mixin) => {

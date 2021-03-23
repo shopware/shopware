@@ -106,6 +106,11 @@ Component.register('sw-promotion-v2-list', {
 
         updateTotal({ total }) {
             this.total = total;
+        },
+
+        onDeletePromotion(columnActionDelete, id) {
+            columnActionDelete(id);
+            Shopware.State.commit('swPromotionDetail/setDiscounts', null);
         }
     }
 });

@@ -237,6 +237,7 @@ Component.register('sw-promotion-v2-detail', {
                 })
                 .then(() => {
                     Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
+                    Shopware.State.commit('swPromotionDetail/setDiscounts', null);
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {

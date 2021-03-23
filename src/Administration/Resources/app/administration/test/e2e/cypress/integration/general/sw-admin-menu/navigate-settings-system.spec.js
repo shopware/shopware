@@ -130,37 +130,6 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-custom-field-set-list__card').should('be.visible');
     });
 
-    it('@base @navigation: navigate to plugin module', () => {
-        cy.skipOnFeature('FEATURE_NEXT_12608');
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/plugin/refresh`,
-            method: 'post'
-        }).as('refresh');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/plugin`,
-            method: 'post'
-        }).as('getData');
-
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
-        });
-        cy.get('.sw-settings__tab-system').click();
-        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
-        cy.get('#sw-settings__content-grid-system').should('be.visible');
-
-        cy.get('a[href="#/sw/plugin/index"]').should('be.visible');
-        cy.get('a[href="#/sw/plugin/index"]').click();
-        cy.wait('@refresh').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-plugin-list').should('be.visible');
-    });
-
     it('@navigation: navigate to integrations module', () => {
         cy.server();
         cy.route({

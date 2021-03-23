@@ -3,10 +3,10 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 
 ## 6.4.0.0
 *  [NEXT-11082 - Fix wrong time setting in datepicker component](/changelog/release-6-4-0-0/2021-03-15-fix-wrong-time-setting-in-datepicker-component.md)
-*  [NEXT-13789 - Allow null type in ProductConfiguratorSettingEntity mediaId](/changelog/release-6-4-0-0/2020-02-16-Allow-Null-Type-In-ProductConfiguratorSettingEntity-MediaId.md) ([Sebastian Diez](https://github.com/s-diez))
-*  [NEXT-13790 - Fix date time filtering on promotions](/changelog/release-6-4-0-0/2020-02-21-fix-date-time-filtering-on-promotions.md) ([Leon Rustmeier](https://github.com/leonrustmeier))
-*  [NEXT-13709 - Pagination Error on the Generate variants](/changelog/release-6-4-0-0/2020-02-22-pagination-error-on-the-generate-variants.md)
-*  [NEXT-13774 - A variant filter not working](/changelog/release-6-4-0-0/2020-02-23-fix-variant-filter-not-working.md)
+*  [NEXT-13789 - Allow null type in ProductConfiguratorSettingEntity mediaId](/changelog/release-6-4-0-0/2021-02-16-Allow-Null-Type-In-ProductConfiguratorSettingEntity-MediaId.md) ([Sebastian Diez](https://github.com/s-diez))
+*  [NEXT-13790 - Fix date time filtering on promotions](/changelog/release-6-4-0-0/2021-02-21-fix-date-time-filtering-on-promotions.md) ([Leon Rustmeier](https://github.com/leonrustmeier))
+*  [NEXT-13709 - Pagination Error on the Generate variants](/changelog/release-6-4-0-0/2021-02-22-pagination-error-on-the-generate-variants.md)
+*  [NEXT-13774 - A variant filter not working](/changelog/release-6-4-0-0/2021-02-23-fix-variant-filter-not-working.md)
 *  [NEXT-10272 - Changed Store-API Response from Collection to Search Result](/changelog/release-6-4-0-0/2020-09-02-store-api-result-changed.md)
 *  [NEXT-10706 - Removed Sales Channel API](/changelog/release-6-4-0-0/2020-09-10-removed-sales-channel-api.md)
 *  [NEXT-10383 - remove deprecated verifyUserToken() method](/changelog/release-6-4-0-0/2020-09-22-remove-deprecated-verifyusertoken()-method.md)
@@ -268,6 +268,8 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-13834 - Parameter "editable" in theme.json does not work as intended](/changelog/release-6-4-0-0/2021-03-19-parameter-editable-in-theme.json-does-not-work-as-intended.md)
 *  [NEXT-14338 - Shipping Country option also filters by Billing address](/changelog/release-6-4-0-0/2021-03-19-shipping-country-option-also-filters-by-billing-address.md)
 *  [NEXT-13475 - Use reference id in line item rules](/changelog/release-6-4-0-0/2021-03-19-use-reference-id-in-line-item-rules.md)
+*  [NEXT-13821 - Deprecate the plugin manager module](/changelog/release-6-4-0-0/2021-03-17-deprecate-the-plugin-manager-module.md)
+*  [NEXT-13821 - Remove the plugin manager from the administration](/changelog/release-6-4-0-0/2021-03-16-remove-the-plugin-manager-from-the-administration.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

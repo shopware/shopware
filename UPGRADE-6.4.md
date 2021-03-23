@@ -431,6 +431,9 @@ The `shopware.theme.breakpoint` config value is no more available, please use th
 Deprecated method `downloadPlugin` if you're using it to install **and** update a plugin then use `downloadAndUpdatePlugin`.
 In the future `downloadPlugin` will only download plugins.
 
+## Removed plugin manager
+The plugin manager in the administration is removed with all of its components and replaced by the `sw-extension` module.
+
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 

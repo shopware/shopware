@@ -20,4 +20,6 @@ abstract class AbstractAppLoader
     abstract public function getIcon(Manifest $app): ?string;
 
     abstract public function getConfiguration(AppEntity $app): ?array;
+
+    abstract public function deleteApp(string $technicalName): void;
 }

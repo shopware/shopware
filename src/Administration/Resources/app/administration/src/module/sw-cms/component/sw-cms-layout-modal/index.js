@@ -52,8 +52,6 @@ Component.register('sw-cms-layout-modal', {
 
             criteria
                 .addAssociation('previewMedia')
-                .addAssociation('sections')
-                .addAssociation('categories')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.cmsPageTypes.length) {

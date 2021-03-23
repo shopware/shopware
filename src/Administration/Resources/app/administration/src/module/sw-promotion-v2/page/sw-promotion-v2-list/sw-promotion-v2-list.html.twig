@@ -113,7 +113,7 @@
                                         <sw-context-menu-item
                                             variant="danger"
                                             :disabled="(item && item.orderCount > 0) || !acl.can('promotion.deleter')"
-                                            @click="showDelete(item.id)">
+                                            @click="onDeletePromotion(showDelete, item.id)">
                                             {{ $tc('global.default.delete') }}
                                         </sw-context-menu-item>
                                     </template>

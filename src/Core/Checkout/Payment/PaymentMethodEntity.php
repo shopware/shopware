@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -115,6 +116,11 @@ class PaymentMethodEntity extends Entity
      * @var string|null
      */
     protected $shortName;
+
+    /**
+     * @var AppPaymentMethodEntity|null
+     */
+    protected $appPaymentMethod;
 
     public function getPluginId(): ?string
     {
@@ -314,5 +320,15 @@ class PaymentMethodEntity extends Entity
     public function setShortName(?string $shortName): void
     {
         $this->shortName = $shortName;
+    }
+
+    public function getAppPaymentMethod(): ?AppPaymentMethodEntity
+    {
+        return $this->appPaymentMethod;
+    }
+
+    public function setAppPaymentMethod(?AppPaymentMethodEntity $appPaymentMethod): void
+    {
+        $this->appPaymentMethod = $appPaymentMethod;
     }
 }

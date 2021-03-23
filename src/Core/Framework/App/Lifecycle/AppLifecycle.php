@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -88,6 +90,13 @@ class AppLifecycle extends AbstractAppLifecycle
     private $webhookPersister;
 
     /**
+     * @internal (flag:FEATURE_NEXT_14357) make persister not nullable on removal
+     *
+     * @var PaymentMethodPersister|null
+     */
+    private $paymentMethodPersister;
+
+    /**
      * @var EntityRepositoryInterface
      */
     private $languageRepository;
@@ -114,6 +123,7 @@ class AppLifecycle extends AbstractAppLifecycle
         ActionButtonPersister $actionButtonPersister,
         TemplatePersister $templatePersister,
         WebhookPersister $webhookPersister,
+        ?PaymentMethodPersister $paymentMethodPersister,
         AbstractAppLoader $appLoader,
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
@@ -127,6 +137,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->permissionPersister = $permissionPersister;
         $this->customFieldPersister = $customFieldPersister;
         $this->webhookPersister = $webhookPersister;
+        $this->paymentMethodPersister = $paymentMethodPersister;
         $this->appLoader = $appLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->registrationService = $registrationService;
@@ -228,6 +239,10 @@ class AppLifecycle extends AbstractAppLifecycle
         if ($app->getAppSecret()) {
             $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
             $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
+            if (Feature::isActive('FEATURE_NEXT_14357') && $this->paymentMethodPersister !== null) {
+                // on removal of FEATURE_NEXT_14357: Make paymentMethodPersister not nullable
+                $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
+            }
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
 

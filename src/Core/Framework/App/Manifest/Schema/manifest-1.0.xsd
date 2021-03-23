@@ -75,6 +75,17 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <xs:element name="payments" type="payments" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register payment methods your app provides.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniquePaymentMethodName">
+                        <xs:selector xpath="payment-method"/>
+                        <xs:field xpath="@identifier"/>
+                    </xs:unique>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -378,6 +389,27 @@
             <xs:element type="xs:string" name="snippet-name"/>
             <xs:element type="xs:string" name="snippet-description" minOccurs="0"/>
             <xs:element name="entries" type="cookie-entries" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="payments">
+        <xs:sequence>
+            <xs:element name="payment-method" type="payment-method" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="payment-method">
+        <xs:sequence>
+            <xs:element type="xs:string" name="identifier"/>
+            <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
+            <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element type="xs:anyURI" name="pay-url" minOccurs="0"/>
+            <xs:element type="xs:anyURI" name="finalize-url" minOccurs="0"/>
+            <xs:element type="xs:string" name="icon" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Path to local image file.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

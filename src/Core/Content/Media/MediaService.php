@@ -76,10 +76,11 @@ class MediaService
         string $filename,
         Context $context,
         ?string $folder = null,
-        ?string $mediaId = null
+        ?string $mediaId = null,
+        bool $private = true
     ): string {
         if (!$mediaId) {
-            $mediaId = $this->createMediaInFolder($folder, $context);
+            $mediaId = $this->createMediaInFolder($folder, $context, $private);
         }
 
         $this->fileSaver->persistFileToMedia($mediaFile, $filename, $mediaId, $context);

@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
@@ -26,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -125,6 +128,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCustomFields($apps->first()->getId());
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
     public function testInstallRollbacksRegistrationFailure(): void
@@ -248,10 +252,10 @@ class AppLifecycleTest extends TestCase
 
         $this->appRepository->create([[
             'id' => $id,
-            'name' => 'SwagApp',
+            'name' => 'test',
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
             'version' => '0.0.1',
-            'label' => 'test',
+            'label' => 'Swag App',
             'accessToken' => 'test',
             'appSecret' => 's3cr3t',
             'modules' => [
@@ -291,7 +295,7 @@ class AppLifecycleTest extends TestCase
             ],
             'aclRole' => [
                 'id' => $roleId,
-                'name' => 'SwagApp',
+                'name' => 'test',
             ],
             'webhooks' => [
                 [
@@ -318,6 +322,35 @@ class AppLifecycleTest extends TestCase
                 ],
             ],
         ]], Context::createDefaultContext());
+
+        if (Feature::isActive('FEATURE_NEXT_14357')) {
+            $this->appRepository->update([[
+                'id' => $id,
+                'paymentMethods' => [
+                    [
+                        'paymentMethod' => [
+                            'handlerIdentifier' => 'app\\test\\myMethod',
+                            'name' => 'My method',
+                            'active' => false,
+                            'media' => [
+                                'private' => true,
+                            ],
+                        ],
+                        'appName' => 'test',
+                        'identifier' => 'myMethod',
+                    ],
+                    [
+                        'paymentMethod' => [
+                            'handlerIdentifier' => 'app\\test\\toBeRemoved',
+                            'name' => 'This method shall be removed',
+                            'active' => false,
+                        ],
+                        'appName' => 'test',
+                        'identifier' => 'toBeRemoved',
+                    ],
+                ],
+            ]], Context::createDefaultContext());
+        }
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
@@ -363,6 +396,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
     public function testUpdateActiveApp(): void
@@ -372,10 +406,10 @@ class AppLifecycleTest extends TestCase
 
         $this->appRepository->create([[
             'id' => $id,
-            'name' => 'SwagApp',
+            'name' => 'test',
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
             'version' => '0.0.1',
-            'label' => 'test',
+            'label' => 'Swag App',
             'accessToken' => 'test',
             'appSecret' => 's3cr3t',
             'active' => true,
@@ -416,7 +450,7 @@ class AppLifecycleTest extends TestCase
             ],
             'aclRole' => [
                 'id' => $roleId,
-                'name' => 'SwagApp',
+                'name' => 'test',
             ],
             'webhooks' => [
                 [
@@ -443,6 +477,35 @@ class AppLifecycleTest extends TestCase
                 ],
             ],
         ]], Context::createDefaultContext());
+
+        if (Feature::isActive('FEATURE_NEXT_14357')) {
+            $this->appRepository->update([[
+                'id' => $id,
+                'paymentMethods' => [
+                    [
+                        'paymentMethod' => [
+                            'handlerIdentifier' => 'app\\test\\myMethod',
+                            'name' => 'My method',
+                            'active' => true,
+                            'media' => [
+                                'private' => false,
+                            ],
+                        ],
+                        'appName' => 'test',
+                        'identifier' => 'myMethod',
+                    ],
+                    [
+                        'paymentMethod' => [
+                            'handlerIdentifier' => 'app\\test\\toBeRemoved',
+                            'name' => 'This method shall be removed',
+                            'active' => true,
+                        ],
+                        'appName' => 'test',
+                        'identifier' => 'toBeRemoved',
+                    ],
+                ],
+            ]], Context::createDefaultContext());
+        }
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
@@ -488,6 +551,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
     public function testUpdateDoesNotInstallElementsNeedingAppSecretIfItIsMissing(): void
@@ -497,10 +561,10 @@ class AppLifecycleTest extends TestCase
 
         $this->appRepository->create([[
             'id' => $id,
-            'name' => 'SwagApp',
+            'name' => 'test',
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
             'version' => '0.0.1',
-            'label' => 'test',
+            'label' => 'Swag App',
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
@@ -515,7 +579,7 @@ class AppLifecycleTest extends TestCase
             ],
             'aclRole' => [
                 'id' => $roleId,
-                'name' => 'SwagApp',
+                'name' => 'test',
             ],
             'templates' => [
                 [
@@ -550,6 +614,9 @@ class AppLifecycleTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('actionButtons');
         $criteria->addAssociation('webhooks');
+        if (Feature::isActive('FEATURE_NEXT_14357')) {
+            $criteria->addAssociation('paymentMethods');
+        }
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
@@ -558,6 +625,9 @@ class AppLifecycleTest extends TestCase
         static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
         static::assertCount(0, $apps->first()->getWebhooks());
+        if (Feature::isActive('FEATURE_NEXT_14357')) {
+            static::assertCount(0, $apps->first()->getPaymentMethods());
+        }
     }
 
     public function testUpdateSetsConfiguration(): void
@@ -581,7 +651,7 @@ class AppLifecycleTest extends TestCase
             ],
             'aclRole' => [
                 'id' => $roleId,
-                'name' => 'SwagApp',
+                'name' => 'withConfig',
             ],
         ]], Context::createDefaultContext());
 
@@ -628,7 +698,7 @@ class AppLifecycleTest extends TestCase
             ],
             'aclRole' => [
                 'id' => $roleId,
-                'name' => 'SwagApp',
+                'name' => 'withConfig',
             ],
         ]], Context::createDefaultContext());
 
@@ -723,7 +793,7 @@ class AppLifecycleTest extends TestCase
             ],
             'aclRole' => [
                 'id' => $roleId,
-                'name' => 'SwagApp',
+                'name' => 'Test',
             ],
         ]], Context::createDefaultContext());
 
@@ -786,7 +856,7 @@ class AppLifecycleTest extends TestCase
             ],
             'aclRole' => [
                 'id' => $roleId,
-                'name' => 'SwagApp',
+                'name' => 'Test',
             ],
         ]], Context::createDefaultContext());
 
@@ -822,7 +892,7 @@ class AppLifecycleTest extends TestCase
             'roleId' => $apps->first()->getAclRoleId(),
         ];
 
-        $this->appLifecycle->delete('SwagApp', $app, $this->context);
+        $this->appLifecycle->delete('test', $app, $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -978,6 +1048,39 @@ class AppLifecycleTest extends TestCase
             $template->getTemplate()
         );
         static::assertTrue($template->isActive());
+    }
+
+    private function assertDefaultPaymentMethods(string $appId): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_14357')) {
+            return;
+        }
+
+        /** @var EntityRepositoryInterface $paymentMethodRepository */
+        $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('appPaymentMethod');
+        $criteria->addFilter(new EqualsFilter('appPaymentMethod.appId', $appId));
+
+        $paymentMethods = $paymentMethodRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(2, $paymentMethods);
+
+        /** @var PaymentMethodEntity|null $paymentMethod */
+        $paymentMethod = $paymentMethods->filterByProperty('name', 'The app payment method')->first();
+        static::assertNotNull($paymentMethod);
+        static::assertSame('The app payment method', $paymentMethod->getName());
+        static::assertSame('handler_app_test_mymethod', $paymentMethod->getFormattedHandlerIdentifier());
+        static::assertNotNull($paymentMethod->getMediaId());
+        $fileLoader = $this->getContainer()->get(FileLoader::class);
+        static::assertNotEmpty($fileLoader->loadMediaFile($paymentMethod->getMediaId(), $this->context));
+        $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
+        static::assertNotNull($appPaymentMethod);
+        static::assertSame('test', $appPaymentMethod->getAppName());
+        static::assertSame('myMethod', $appPaymentMethod->getIdentifier());
+        static::assertSame('https://payment.app/payment/process', $appPaymentMethod->getPayUrl());
+        static::assertSame('https://payment.app/payment/finalize', $appPaymentMethod->getFinalizeUrl());
     }
 
     private function setNewSystemLanguage(string $iso): void

@@ -360,7 +360,12 @@ Cypress.Commands.add('sortListingViaColumn', (
  * @param {boolean} changesUrl - wheter changing the sorting or page updates the URL
 
  */
-Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefined, text: undefined, propertyName: undefined, sortDirection: undefined }, page, limit, changesUrl = true }) => {
+Cypress.Commands.add('testListing', ({ searchTerm, sorting = {
+    location: undefined,
+    text: undefined,
+    propertyName: undefined,
+    sortDirection: undefined
+}, page, limit, changesUrl = true }) => {
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-data-grid__skeleton').should('not.exist');
 
@@ -392,7 +397,8 @@ Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefin
 
     // check sorting
     cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).contains(sorting.text);
-    cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).get(iconClass).should('be.visible');
+    cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).get(iconClass)
+        .should('be.visible');
 
     // check page
     cy.get(`:nth-child(${page}) > .sw-pagination__list-button`).should('have.class', 'is-active');
@@ -404,7 +410,8 @@ Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefin
 });
 
 
-// TODO: this should be moved into the "e2e-testsuite-platform" plugin (open MR: https://github.com/shopware/e2e-testsuite-platform/pull/99 )
+// TODO: this should be moved into the "e2e-testsuite-platform" plugin
+//  (open MR: https://github.com/shopware/e2e-testsuite-platform/pull/99 )
 /**
  * Types in a sw-multi-select field all the specified values and checks if the content was correctly set.
  * @memberOf Cypress.Chainable#
@@ -448,7 +455,9 @@ Cypress.Commands.add(
             });
 
             // select the value
-            cy.contains('.sw-select-result-list__content .sw-select-result', values[i]).should('be.visible').click();
+            cy.contains('.sw-select-result-list__content .sw-select-result', values[i])
+                .should('be.visible')
+                .click();
         }
 
         // close search results
@@ -466,5 +475,30 @@ Cypress.Commands.add(
         // return same element as the one this command works on so it can be chained with other commands.
         // otherwise it will return the last element which is in this case a '.sw-select-selection-list' element.
         cy.wrap(subject);
+    }
+);
+
+Cypress.Commands.add(
+    'clickMainMenuItem',
+    ({ targetPath, mainMenuId, subMenuId = null }) => {
+        const finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
+
+        cy.get('.sw-admin-menu')
+            .should('be.visible')
+            .then(() => {
+                if (subMenuId) {
+                    cy.get(finalMenuItem).click();
+                    cy.get(
+                        `.sw-admin-menu__item--${mainMenuId} .router-link-active`
+                    ).should('be.visible');
+
+                    cy.wait(500);
+                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible');
+                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).click();
+                } else {
+                    cy.get(finalMenuItem).should('be.visible').click();
+                }
+            });
+        cy.url().should('include', targetPath);
     }
 );

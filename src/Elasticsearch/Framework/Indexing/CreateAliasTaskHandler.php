@@ -85,7 +85,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
             $this->client->indices()->refresh(['index' => $index]);
 
-            if ($count <= 0) {
+            if ($count > 0) {
                 continue;
             }
 

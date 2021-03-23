@@ -14,12 +14,12 @@ Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
                     name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.last-updated')
                 },
                 {
-                    value: 'name-desc',
-                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-desc')
-                },
-                {
                     value: 'name-asc',
                     name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-asc')
+                },
+                {
+                    value: 'name-desc',
+                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-desc')
                 }
             ]
         };

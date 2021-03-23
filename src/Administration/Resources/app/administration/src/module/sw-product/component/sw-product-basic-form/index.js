@@ -8,7 +8,7 @@ const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-basic-form', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('placeholder')

@@ -3,6 +3,7 @@
         {% block sw_product_detail_base_basic_info_card %}
             <sw-card
                 v-show="showProductCard('general_information')"
+                class="sw-product-detail-base__info"
                 :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_base_basic_info_form %}
@@ -18,6 +19,7 @@
         {% block sw_product_detail_base_price_card %}
             <sw-card
                 v-show="showProductCard('prices')"
+                class="sw-product-detail-base__prices"
                 :title="$tc('sw-product.detailBase.cardTitlePrices')"
                 :isLoading="loading.product">
                 {% block sw_product_detail_base_price_form %}
@@ -43,6 +45,7 @@
         {% block sw_product_detail_deliverability_info_card %}
             <sw-card
                 v-show="showProductCard('deliverability')"
+                class="sw-product-detail-base__deliverability"
                 :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_deliverability_info_form %}
@@ -57,6 +60,7 @@
         {% block sw_product_detail_base_category_card %}
             <sw-card
                 v-show="showProductCard('visibility_structure')"
+                class="sw-product-detail-base__visibility-structure"
                 :title="$tc('sw-product.detailBase.cardTitleAssignment')"
                 :isLoading="loading.product">
                 {% block sw_product_detail_base_category_form %}

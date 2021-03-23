@@ -3,8 +3,9 @@ import Vuex from 'vuex';
 import 'src/module/sw-product/view/sw-product-detail-specifications';
 import 'src/module/sw-product/component/sw-product-packaging-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
+import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
-const { Component, State } = Shopware;
+const { Component, State, Utils } = Shopware;
 
 const packagingItemClassName = [
     '.sw-product-packaging-form__purchase-unit-field',
@@ -26,9 +27,6 @@ function createWrapper(privileges = []) {
             $store: State._store
         },
         provide: {
-            feature: {
-                isActive: () => true
-            },
             acl: {
                 can: (identifier) => {
                     if (!identifier) {
@@ -46,7 +44,16 @@ function createWrapper(privileges = []) {
             'sw-product-feature-set-form': true,
             'sw-custom-field-set-renderer': true,
             'sw-container': true,
-            'sw-inherit-wrapper': Component.build('sw-inherit-wrapper'),
+            'sw-entity-single-select': true,
+            'sw-inherit-wrapper': {
+                template:
+                        `<div class="sw-inherit-wrapper">
+                        <slot name="content" v-bind="{ updateCurrentValue }"></slot>
+                    </div>`,
+                methods: {
+                    updateCurrentValue: () => {}
+                }
+            },
             'sw-field': true,
             'sw-text-editor': true
         }
@@ -56,11 +63,18 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     beforeAll(() => {
         State.registerModule('swProductDetail', {
-            namespaced: true,
+            ...productStore,
             state: {
+                ...productStore.state,
                 product: {},
                 parentProduct: {},
                 customFieldSets: [],
+                modeSettings: [
+                    'measures_packaging',
+                    'properties',
+                    'essential_characteristics',
+                    'custom_fields'
+                ],
                 advancedModeSetting: {
                     value: {
                         settings: [
@@ -83,12 +97,6 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                                 name: 'specifications'
                             },
                             {
-                                key: 'custom_products',
-                                label: 'sw-product.specifications.cardTitleCustomProduct',
-                                enabled: true,
-                                name: 'specifications'
-                            },
-                            {
                                 key: 'custom_fields',
                                 label: 'sw-product.specifications.cardTitleCustomFields',
                                 enabled: true,
@@ -99,181 +107,210 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                             enabled: true,
                             label: 'sw-product.general.textAdvancedMode'
                         }
-
                     }
                 }
             },
             getters: {
-                isLoading: () => false,
-                showProductCard: () => () => {
-                    return true;
-                }
+                ...productStore.getters,
+                isLoading: () => false
             }
         });
     });
 
     it('should be a Vue.JS component', () => {
         const wrapper = createWrapper();
-
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be visible field items in Measures Packaging card ', async () => {
+    it('should show item fields in Measures Packaging card ', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
 
-        await wrapper.vm.$nextTick(() => {
-            // expect the some item fields in Packaging exist
-            packagingItemClassName.forEach(item => {
-                expect(wrapper.find(item).exists()).toBe(true);
-            });
+        // expect the some item fields in Packaging is not hidden by css display none
+        packagingItemClassName.forEach(item => {
+            const inheritedField = wrapper.find('.sw-inherit-wrapper');
 
-            expect(showModeSetting).toBe(true);
+            if (!inheritedField.find(item).exists()) {
+                return;
+            }
+
+            expect(inheritedField.attributes().style).toBeFalsy();
         });
     });
 
-    it('should be not visible field items in Measures Packaging card when commit setModeSettings with falsy value',
-        async () => {
-            const wrapper = createWrapper();
-            wrapper.vm.feature = {
-                isActive: () => true
-            };
-            await wrapper.vm.$nextTick();
-            const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
+    it('should hide item fields in Measures Packaging card when advanced mode is off', async () => {
+        const wrapper = createWrapper();
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-            Shopware.State.commit('swProductDetail/setModeSettings', []);
-
-            await wrapper.vm.$nextTick(() => {
-                // expect the some item fields in Packaging not exist
-                packagingItemClassName.forEach(item => {
-                    expect(wrapper.find(item).exists()).toBe(false);
-                });
-
-                expect(showProductCard('measures_packaging')).toBe(false);
-            });
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: false,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
         });
 
-    it('should be visible Properties card', async () => {
-        const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
+        // expect the some item fields in Packaging hidden by css display none
+        packagingItemClassName.forEach(item => {
+            const inheritedField = wrapper.find('.sw-inherit-wrapper');
 
-        await wrapper.vm.$nextTick(() => {
-            expect(wrapper.find('.sw-product-detail-properties').exists()).toBe(true);
-            expect(showModeSetting).toBe(true);
+            if (!inheritedField.find(item).exists()) {
+                return;
+            }
+
+            expect(inheritedField.attributes().style).toBe('display: none;');
         });
     });
 
-    it('should be not visible Properties card when commit showModeSetting with falsy value', async () => {
+    it('should hide Measures Packaging card when measures_packaging mode is unchecked', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'measures_packaging')
+        ]);
 
-        await wrapper.vm.$nextTick(() => {
-            expect(wrapper.find('.sw-product-detail-properties').exists()).toBe(false);
-            expect(showProductCard('properties')).toBe(false);
-        });
+        expect(wrapper.find('.sw-product-detail-specification__measures-packaging').attributes().style).toBe('display: none;');
     });
 
-    it('should be visible Essential Characteristics card', async () => {
+    it('should show Properties card even advanced mode is off', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        await wrapper.vm.$nextTick(() => {
-            expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').exists()).toBe(true);
-            expect(showModeSetting).toBe(true);
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: false,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
         });
+
+        expect(wrapper.find('sw-product-detail-properties-stub').attributes().style).toBeFalsy();
     });
 
-    it('should be not visible Essential Characteristics card when commit showModeSetting with falsy value', async () => {
+    it('should hide Properties card when properties mode is unchecked', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'properties')
+        ]);
 
-        await wrapper.vm.$nextTick(() => {
-            expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').exists()).toBe(false);
-            expect(showProductCard('essential_characteristics')).toBe(false);
-        });
+        expect(wrapper.find('sw-product-detail-properties-stub').attributes().style).toBe('display: none;');
     });
 
-    it('should be visible Custom Product card', async () => {
+    it('should show Essential Characteristics card when advanced mode is on', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        await wrapper.vm.$nextTick(() => {
-            expect(wrapper.find('.sw-product-detail-specification__custom-product').exists()).toBe(true);
-            expect(showModeSetting).toBe(true);
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
         });
+
+        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').attributes().style).toBeFalsy();
     });
 
-    it('should be not visible Custom Product card when commit showModeSetting with falsy value', async () => {
+    it('should hide Essential Characteristics card when advanced mode is off', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
-
-        await wrapper.vm.$nextTick(() => {
-            expect(wrapper.find('.sw-product-detail-specification__custom-product').exists()).toBe(true);
-            expect(showProductCard('custom_products')).toBe(false);
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: false,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
         });
+
+        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').attributes().style).toBe('display: none;');
     });
 
-    it('should be visible Custom Fields card', async () => {
+    it('should hide Essential Characteristics card when essential_characteristics mode is unchecked', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        await wrapper.vm.$nextTick(() => {
-            expect(wrapper.find('.sw-product-detail-specification__custom-fields').exists()).toBe(true);
-            expect(showModeSetting).toBe(true);
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
         });
+
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'essential_characteristics')
+        ]);
+
+        expect(wrapper.find('sw-product-detail-properties-stub').attributes().style).toBe('display: none;');
     });
 
-    it('should be not visible Custom Fields card when commit setModeSettingVisible with falsy value', async () => {
+    it('should show Custom Fields card advanced mode is on', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
-
-        await wrapper.vm.$nextTick(() => {
-            expect(wrapper.find('.sw-product-detail-specification__custom-fields').exists()).toBe(false);
-            expect(showProductCard('custom_fields')).toBe(false);
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
         });
+
+        expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBeFalsy();
+    });
+
+    it('should hide Custom Fields card when advanced mode is off', async () => {
+        const wrapper = createWrapper();
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
+
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: false,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
+        });
+
+        expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBe('display: none;');
+    });
+
+    it('should hide Custom Fields card when custom_fields mode is unchecked', async () => {
+        const wrapper = createWrapper();
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
+
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
+        });
+
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'custom_fields')
+        ]);
+
+        expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBe('display: none;');
     });
 });

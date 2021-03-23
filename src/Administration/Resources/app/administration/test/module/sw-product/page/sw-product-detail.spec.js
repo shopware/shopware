@@ -2,51 +2,45 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/page/sw-product-detail';
 import 'src/module/sw-product/component/sw-product-settings-mode';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/module/sw-product/component/sw-product-basic-form';
-import 'src/app/component/structure/sw-card-view';
-import 'src/app/component/form/sw-switch-field';
 
-const mockSettings = {
-    modeSettings: {
-        value: {
-            advancedMode: {
-                label: 'sw-product.general.textAdvancedMode',
-                enabled: true
+const advancedModeSettings = {
+    value: {
+        advancedMode: {
+            label: 'sw-product.general.textAdvancedMode',
+            enabled: true
+        },
+        settings: [
+            {
+                key: 'general_information',
+                label: 'sw-product.detailBase.cardTitleProductInfo',
+                enabled: true,
+                name: 'general'
             },
-            settings: [
-                {
-                    key: 'general_information',
-                    label: 'sw-product.detailBase.cardTitleProductInfo',
-                    enabled: true,
-                    name: 'general'
-                },
-                {
-                    key: 'prices',
-                    label: 'sw-product.detailBase.cardTitlePrices',
-                    enabled: true,
-                    name: 'general'
-                },
-                {
-                    key: 'deliverability',
-                    label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
-                    enabled: true,
-                    name: 'general'
-                },
-                {
-                    key: 'visibility_structure',
-                    label: 'sw-product.detailBase.cardTitleVisibilityStructure',
-                    enabled: true,
-                    name: 'general'
-                },
-                {
-                    key: 'labelling',
-                    label: 'sw-product.detailBase.cardTitleSettings',
-                    enabled: true,
-                    name: 'general'
-                }
-            ]
-        }
+            {
+                key: 'prices',
+                label: 'sw-product.detailBase.cardTitlePrices',
+                enabled: true,
+                name: 'general'
+            },
+            {
+                key: 'deliverability',
+                label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                enabled: true,
+                name: 'general'
+            },
+            {
+                key: 'visibility_structure',
+                label: 'sw-product.detailBase.cardTitleVisibilityStructure',
+                enabled: true,
+                name: 'general'
+            },
+            {
+                key: 'labelling',
+                label: 'sw-product.detailBase.cardTitleSettings',
+                enabled: true,
+                name: 'general'
+            }
+        ]
     }
 };
 
@@ -79,18 +73,15 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 numberRangeService: {},
                 seoUrlService: {},
                 mediaService: {},
-                feature: {
-                    isActive: () => true
-                },
                 repositoryFactory: {
                     create: () => ({
                         create: () => {
-                            return Promise.resolve();
+                            return {};
                         },
-                        search: async () => {
-                            return Promise.resolve(mockSettings);
+                        search: () => {
+                            return Promise.resolve({});
                         },
-                        get: async () => {
+                        get: () => {
                             return Promise.resolve({
                                 variation: []
                             });
@@ -121,25 +112,23 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 'sw-icon': true,
                 'sw-context-menu-item': true,
                 'sw-language-switch': true,
-                'sw-card-view': Shopware.Component.build('sw-card-view'),
+                'sw-card-view': {
+                    template: '<div class="sw-card-view"><slot></slot></div>'
+                },
                 'sw-language-info': true,
                 'router-view': true,
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+                'sw-switch-field': true,
                 'sw-context-menu-divider': true,
-                'sw-field-error': true,
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-                'sw-product-basic-form': Shopware.Component.build('sw-product-basic-form'),
-                'sw-base-field': true,
+                'sw-checkbox-field': true,
                 'sw-product-settings-mode': Shopware.Component.build('sw-product-settings-mode'),
-                'sw-sidebar': true,
-                'sw-sidebar-media-item': true,
                 'sw-loader': true,
                 'sw-tabs': true,
-                'sw-tabs-item': true
+                'sw-tabs-item': true,
+                'sw-inheritance-warning': true,
+                'router-link': true
             },
-
             propsData: {
-                mockSettings
+                productId: '1234'
             }
         });
     }
@@ -167,29 +156,12 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show advanced mode settings', async () => {
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-
-        await wrapper.setProps(mockSettings);
-
-        await wrapper.vm.$nextTick();
-
+    it('should show advanced mode settings', () => {
         const contextButton = wrapper.find('.sw-product-settings-mode');
         expect(contextButton.exists()).toBe(true);
     });
 
-    it('should be visible item tabs ', async () => {
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-
-        await wrapper.setProps({
-            ...mockSettings,
-            productId: '1234'
-        });
-
+    it('should show item tabs ', () => {
         const tabItemClassName = [
             '.sw-product-detail__tab-advanced-prices',
             '.sw-product-detail__tab-variants',
@@ -202,26 +174,17 @@ describe('module/sw-product/page/sw-product-detail', () => {
         tabItemClassName.forEach(item => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
-        expect(wrapper.vm.$store.getters['swProductDetail/showModeSetting']).toBe(true);
     });
 
-    it('should be not visible item tabs when advanced mode deactivate', async () => {
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
+    it('should show item tabs when advanced mode deactivate', async () => {
         wrapper.vm.userModeSettingsRepository.save = jest.fn(() => Promise.resolve());
 
-        await wrapper.setProps({
-            ...mockSettings,
-            productId: '1234'
-        });
-
-        Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
             value: {
+                ...advancedModeSettings.value,
                 advancedMode: {
                     enabled: false
-                },
-                settings: []
+                }
             }
         });
 
@@ -232,26 +195,37 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-cross-selling',
             '.sw-product-detail__tab-reviews'
         ];
-        await wrapper.vm.$nextTick(() => {
-            tabItemClassName.forEach(item => {
-                expect(wrapper.find(item).attributes().style).toBe('display: none;');
-            });
+
+        tabItemClassName.forEach(item => {
+            expect(wrapper.find(item).attributes().style).toBe('display: none;');
         });
-        expect(wrapper.vm.$store.getters['swProductDetail/showModeSetting']).toBe(false);
     });
 
-    it('should be not visible Advance mode setting on the variant product page', async () => {
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-
-        Shopware.State.commit('swProductDetail/setProduct', {
+    it('should show Advance mode setting on the variant product page', async () => {
+        await Shopware.State.commit('swProductDetail/setProduct', {
             parentId: '1234'
         });
 
         const contextButton = wrapper.find('.sw-product-settings-mode');
-        await wrapper.vm.$nextTick(() => {
-            expect(contextButton.exists()).toBe(false);
+        expect(contextButton.exists()).toBeFalsy();
+
+        const visibleTabItem = [
+            '.sw-product-detail__tab-seo',
+            '.sw-product-detail__tab-reviews'
+        ];
+
+        const invisibleTabItem = [
+            '.sw-product-detail__tab-variants',
+            '.sw-product-detail__tab-layout',
+            '.sw-product-detail__tab-cross-selling'
+        ];
+
+        visibleTabItem.forEach(item => {
+            expect(wrapper.find(item).attributes().style).toBeFalsy();
+        });
+
+        invisibleTabItem.forEach(item => {
+            expect(wrapper.find(item).attributes().style).toBe('display: none;');
         });
     });
 });

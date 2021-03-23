@@ -12,7 +12,7 @@ const type = Shopware.Utils.types;
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService', 'acl', 'feature'],
+    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),

@@ -347,7 +347,7 @@ E2E:
         -   if: '$cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
         -   if: '$cypress_grep && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
             when: never
-        -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(master|6\..+)$/)'
+        -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/)'
         -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
             when: manual
             allow_failure: true

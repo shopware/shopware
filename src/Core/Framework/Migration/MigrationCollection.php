@@ -137,11 +137,6 @@ class MigrationCollection
             return $default;
         }
 
-        foreach ($row as $key => $_) {
-            $row['`' . $key . '`'] = $row[$key];
-            unset($row[$key]);
-        }
-
         $row['class'] = $className;
 
         return $row;

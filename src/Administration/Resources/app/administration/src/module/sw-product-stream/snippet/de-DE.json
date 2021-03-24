@@ -75,7 +75,7 @@
         "option": "Option",
         "packUnit": "Verpackungseinheit",
         "packUnitPlural": "Verpackungseinheit Mehrzahl",
-        "price": "Preis",
+        "cheapestPrice": "Preis",
         "product": "Produkt",
         "productNumber": "Produktnummer",
         "purchasePrice": "Verkaufspreis",

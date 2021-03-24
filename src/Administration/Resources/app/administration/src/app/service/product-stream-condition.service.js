@@ -43,7 +43,7 @@ export default function conditionService() {
             'name',
             'description',
             'ratingAverage',
-            'price',
+            'cheapestPrice',
             'productNumber',
             'stock',
             'availableStock',

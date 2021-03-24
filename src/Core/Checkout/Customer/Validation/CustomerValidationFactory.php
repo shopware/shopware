@@ -31,11 +31,11 @@ class CustomerValidationFactory implements DataValidationFactoryInterface
     {
         $definition = new DataValidationDefinition('customer.create');
 
-        $this->addConstraints($definition);
-
         $profileDefinition = $this->profileValidation->create($context);
 
         $this->merge($definition, $profileDefinition);
+
+        $this->addConstraints($definition);
 
         return $definition;
     }
@@ -57,7 +57,7 @@ class CustomerValidationFactory implements DataValidationFactoryInterface
     {
         $definition
             ->add('email', new NotBlank(), new Email())
-            ->add('active', new Type(['type' => 'boolean']));
+            ->add('active', new Type('boolean'));
     }
 
     /**
@@ -66,11 +66,7 @@ class CustomerValidationFactory implements DataValidationFactoryInterface
     private function merge(DataValidationDefinition $definition, DataValidationDefinition $profileDefinition): void
     {
         foreach ($profileDefinition->getProperties() as $key => $constraints) {
-            $parameters = [];
-            $parameters[] = $key;
-            $parameters = array_merge($parameters, $constraints);
-
-            \call_user_func_array([$definition, 'add'], $parameters);
+            $definition->add($key, ...$constraints);
         }
     }
 }

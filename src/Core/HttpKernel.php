@@ -176,9 +176,11 @@ class HttpKernel
         }
 
         if (InstalledVersions::isInstalled('shopware/platform')) {
-            $shopwareVersion = InstalledVersions::getVersion('shopware/platform');
+            $shopwareVersion = InstalledVersions::getVersion('shopware/platform')
+                . '@' . InstalledVersions::getReference('shopware/platform');
         } else {
-            $shopwareVersion = InstalledVersions::getVersion('shopware/core');
+            $shopwareVersion = InstalledVersions::getVersion('shopware/core')
+                . '@' . InstalledVersions::getReference('shopware/core');
         }
 
         $connection = self::getConnection();

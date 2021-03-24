@@ -216,4 +216,33 @@ describe('Product: Visual tests', () => {
         // Take snapshot for visual testing
         cy.takeSnapshot('Product - Cross Selling in Storefront', '.product-slider-item');
     });
+
+    it('@catalogue @percy: check product variants media upload appearance', () => {
+        const page = new ProductPageObject();
+
+        cy.onlyOnFeature('FEATURE_NEXT_6544');
+
+        // Edit base data of product
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-detail__tab-variants').should('be.visible');
+        cy.get('.sw-product-detail__tab-variants').click();
+
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
+            .should('be.visible')
+            .click();
+
+        page.generateVariants('Color', [0], 1);
+
+        cy.get('.sw-product-variants-overview').should('be.visible');
+        cy.get('.sw-data-grid__row.sw-data-grid__row--0');
+
+        cy.takeSnapshot('Media upload', '.sw-media-upload-v2');
+        cy.takeSnapshot('Product variants media upload', '.sw-product-variants-media-upload');
+    });
 });

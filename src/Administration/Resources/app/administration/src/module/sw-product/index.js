@@ -21,6 +21,7 @@ import './component/sw-product-variants/sw-product-variants-delivery/sw-product-
 import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing';
 import './component/sw-product-variants/sw-product-variants-overview';
 import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field';
+import './component/sw-product-variants/sw-product-variants-media-upload';
 import './component/sw-product-cross-selling-form';
 import './component/sw-product-variant-modal';
 import './component/sw-product-cross-selling-assignment';

@@ -318,6 +318,7 @@
       "generatedListColumnVariation": "Name",
       "generatedListColumnPrice": "Price (gross / net)",
       "generatedListColumnProductNumber": "Product number",
+      "generatedListColumnMedia": "Media",
       "generatedListColumnActive": "Active",
       "generatedListColumnStock": "Stock",
       "generatedListContextMenuEdit": "Edit",

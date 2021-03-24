@@ -22,9 +22,8 @@
         </div>
 
         {% block sw_product_price_form_purchase_price_field %}
-            <div
-                v-if="purchasePrices && purchasePrices.length && showSettingPrice"
-                class="sw-list-price-field__price">
+            <div v-if="purchasePrices && purchasePrices.length && showSettingPrice"
+                 class="sw-list-price-field__price">
                 {% block sw_product_price_form_purchase_price_field_content %}
                     <sw-price-field
                         class="sw-purchase-price-field"

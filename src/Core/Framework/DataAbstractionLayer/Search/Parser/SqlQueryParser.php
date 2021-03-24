@@ -259,14 +259,15 @@ class SqlQueryParser
             return $result;
         }
 
-        if ($query->getValue() === null) {
-            $result->addWhere($select . ' IS NULL');
+        $result->addWhere($select . ' <=> :' . $key);
+
+        $value = $query->getValue();
+        if ($value === null) {
+            $result->addParameter($key, null);
 
             return $result;
         }
-        $result->addWhere($select . ' = :' . $key);
 
-        $value = $query->getValue();
         if ($field instanceof IdField || $field instanceof FkField) {
             $value = Uuid::fromHexToBytes($value);
         }

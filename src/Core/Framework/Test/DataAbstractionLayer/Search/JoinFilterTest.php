@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NorFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -170,7 +171,7 @@ class JoinFilterTest extends TestCase
 
         static::assertTrue(\count($media->getIds()) > 0);
         static::assertContains($ids->get('with-avatar'), $media->getIds());
-        static::assertNotContains($ids->get('without-avatar'), $media->getIds());
+        static::assertContains($ids->get('without-avatar'), $media->getIds());
     }
 
     /**
@@ -512,9 +513,10 @@ class JoinFilterTest extends TestCase
     {
         $criteria = new Criteria($ids->prefixed('product-'));
         $criteria->addFilter(
-            new NandFilter([
+            new NorFilter([
+                new EqualsFilter('product.manufacturer.id', null),
                 new EqualsFilter('product.manufacturer.name', 'test'),
-            ])
+            ]),
         );
 
         $result = $this->getContainer()->get('product.repository')
@@ -602,10 +604,11 @@ class JoinFilterTest extends TestCase
                 ->searchIds($criteria, $context);
         });
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertEquals(3, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertTrue($result->has($ids->get('product-1-variant')));
+        static::assertTrue($result->has($ids->get('product-3')));
     }
 
     /**

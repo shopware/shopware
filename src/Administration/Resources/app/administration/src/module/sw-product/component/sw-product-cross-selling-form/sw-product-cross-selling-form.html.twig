@@ -135,7 +135,7 @@
                     {% block sw_product_detail_cross_selling_modal_preview_modal %}
                         <sw-product-stream-modal-preview
                             v-if="showModalPreview"
-                            :filters="productStreamFilter"
+                            :filters="productStreamFilterTree"
                             ref="modalPreview"
                             @modal-close="closeModalPreview">
                         </sw-product-stream-modal-preview>
@@ -176,6 +176,20 @@
                     </template>
                 {% endblock %}
             </sw-modal>
+        {% endblock %}
+
+        {% block sw_product_cross_selling_form_condition_tree_invisibly %}
+            <sw-condition-tree
+                v-show="false"
+                associationField="productStreamId"
+                childAssociationField="queries"
+                :initialConditions="productStreamFilter"
+                :conditionRepository="productStreamFilterRepository"
+                :conditionDataProviderService="productStreamConditionService"
+                :associationValue="associationValue"
+                :rootCondition="null"
+                @conditions-changed="updateProductStreamFilterTree">
+            </sw-condition-tree>
         {% endblock %}
     </div>
 {% endblock %}

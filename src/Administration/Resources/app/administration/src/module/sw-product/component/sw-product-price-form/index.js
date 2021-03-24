@@ -7,8 +7,6 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-product-price-form', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('placeholder')
     ],
@@ -23,8 +21,7 @@ Component.register('sw-product-price-form', {
 
     data() {
         return {
-            displayMaintainCurrencies: false,
-            limitPricesItem: 2
+            displayMaintainCurrencies: false
         };
     },
 
@@ -60,39 +57,61 @@ Component.register('sw-product-price-form', {
             });
         },
 
-        prices() {
-            const prices = [];
+        prices: {
+            get() {
+                const prices = {
+                    price: [],
+                    purchasePrices: []
+                };
 
-            if (this.product && this.product.price) {
-                prices.push(this.product.price);
+                if (this.product && this.product.price) {
+                    prices.price = [...this.product.price];
+                }
+
+                if (this.product && this.product.purchasePrices) {
+                    prices.purchasePrices = [...this.product.purchasePrices];
+                }
+
+                return prices;
+            },
+
+            set(newValue) {
+                this.product.price = (newValue && newValue.price) || null;
+                this.product.purchasePrices = (newValue && newValue.purchasePrices) || null;
             }
-
-            if (this.product && this.product.purchasePrices) {
-                prices.push(this.product.purchasePrices);
-            }
-
-            return prices;
         },
 
         parentPrices() {
-            return [this.product.price || this.parentProduct.price, this.product.purchasePrices || this.parentProduct.purchasePrices];
+            return {
+                price: this.product.price || this.parentProduct.price,
+                purchasePrices: this.product.purchasePrices || this.parentProduct.purchasePrices
+            };
         }
     },
 
     methods: {
         removePriceInheritation(refPrice) {
-            const defaultRefPrice = refPrice.find((price) => price.currencyId === this.defaultCurrency.id);
+            const defaultRefPrice = refPrice.price.find((price) => price.currencyId === this.defaultCurrency.id);
+            const defaultRefPurchasePrice = refPrice.purchasePrices.find((price) => price.currencyId === this.defaultCurrency.id);
 
-            return [{
-                currencyId: defaultRefPrice.currencyId,
-                gross: defaultRefPrice.gross,
-                net: defaultRefPrice.net,
-                linked: defaultRefPrice.linked
-            }];
+            return {
+                price: [{
+                    currencyId: defaultRefPrice.currencyId,
+                    gross: defaultRefPrice.gross,
+                    net: defaultRefPrice.net,
+                    linked: defaultRefPrice.linked
+                }],
+                purchasePrices: [{
+                    currencyId: defaultRefPurchasePrice.currencyId,
+                    gross: defaultRefPurchasePrice.gross,
+                    net: defaultRefPurchasePrice.net,
+                    linked: defaultRefPurchasePrice.linked
+                }]
+            };
         },
 
         inheritationCheckFunction() {
-            return this.prices.length < this.limitPricesItem;
+            return !this.prices.price.length && !this.prices.purchasePrices.length;
         },
 
         onMaintainCurrenciesClose(prices) {

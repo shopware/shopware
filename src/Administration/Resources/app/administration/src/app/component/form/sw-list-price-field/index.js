@@ -6,8 +6,6 @@ const { Component } = Shopware;
 Component.register('sw-list-price-field', {
     template,
 
-    inject: ['feature'],
-
     inheritAttrs: false,
 
     props: {

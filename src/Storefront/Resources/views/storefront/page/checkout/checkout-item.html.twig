@@ -5,7 +5,7 @@
 
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
-    {% set childTemplate = '@Storefront/storefront/page/checkout/checkout-item.html.twig' %}
+    {% set childrenTemplate = '@Storefront/storefront/page/checkout/checkout-item-children.html.twig' %}
     {% set deliveryPosition = null %}
 
     {% if page.cart.deliveries.count > 0 %}
@@ -15,16 +15,21 @@
     {% endif %}
 
     {% block page_checkout_item_container %}
-        <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %}">
+        <div class="cart-item cart-item-{{ lineItem.type }} {% if isDiscount %} is-discount{% endif %}">
             <div class="row cart-item-row">
+
                 {% block page_checkout_item_info %}
                     <div class="col-10 col-md-5 cart-item-info">
+
                         {% block page_checkout_item_info_inner %}
                             <div class="row cart-item-row">
+
                                 {% block page_checkout_item_info_image %}
                                     <div class="col-auto cart-item-info-img">
+
                                         {% block page_checkout_item_info_image_container %}
                                             <div class="cart-item-img-container">
+
                                                 {% block page_checkout_item_info_image_link %}
                                                     {% if isDiscount %}
                                                         <div class="cart-item-img cart-item-discount-icon">
@@ -67,18 +72,23 @@
                                                                     } %}
                                                                 {% endif %}
                                                             {% endblock %}
+
                                                         </a>
                                                     {% endif %}
                                                 {% endblock %}
+
                                             </div>
                                         {% endblock %}
+
                                     </div>
                                 {% endblock %}
 
                                 {% block page_checkout_item_info_details %}
                                     <div class="col cart-item-details">
+
                                         {% block page_checkout_item_info_details_inner %}
                                             <div class="cart-item-details-container">
+
                                                 {% block page_checkout_item_info_label %}
                                                     {% if lineItem.type == 'product' %}
                                                         <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
@@ -101,6 +111,7 @@
 
                                                 {% block page_checkout_item_info_variant_characteristics %}
                                                     <div class="cart-item-details-characteristics">
+
                                                         {% for option in lineItem.payload.options %}
                                                             {{ option.group }}:
                                                             <span class="cart-item-details-characteristics-option">{{ option.option }}</span>
@@ -109,6 +120,7 @@
                                                                 {{ " | " }}
                                                             {% endif %}
                                                         {% endfor %}
+
                                                     </div>
                                                 {% endblock %}
 
@@ -141,7 +153,6 @@
 
                                                 {% block page_checkout_item_wishlist %}
                                                     {% if config('core.cart.wishlistEnabled') and lineItem.type == 'product' %}
-
                                                         {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                                             showText: true,
                                                             size: 'sm',
@@ -149,19 +160,23 @@
                                                         } %}
                                                     {% endif %}
                                                 {% endblock %}
+
                                             </div>
                                         {% endblock %}
 
                                     </div>
                                 {% endblock %}
+
                             </div>
                         {% endblock %}
+
                     </div>
                 {% endblock %}
 
                 {% block page_checkout_item_quantity %}
                     <div class="col-12 col-sm-4 col-md-2 cart-item-quantity">
                         <div class="row cart-item-quantity-row">
+
                             {% block page_checkout_item_quantity_label %}
                                 <div class="col-8 col-sm-12 cart-item-quantity-label">
                                     {{ "checkout.cartHeaderQuantity"|trans|sw_sanitize }}
@@ -170,6 +185,7 @@
 
                             {% block page_checkout_item_quantity_select %}
                                 <div class="col-4 col-sm-12">
+
                                     {% block page_checkout_item_quantity_form %}
                                         {% if lineItem.quantityInformation and lineItem.stackable and not isChild %}
                                             <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
@@ -198,14 +214,17 @@
                                                 {% block page_product_detail_buy_quantity %}
                                                     <select name="quantity"
                                                             class="custom-select quantity-select">
+
                                                         {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
                                                             <option value="{{ quantity }}"
                                                                 {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
                                                                 {{ quantity }}
                                                             </option>
                                                         {% endfor %}
+
                                                     </select>
                                                 {% endblock %}
+
                                             </form>
                                         {% elseif lineItem.type != "promotion" %}
                                             {% block page_checkout_item_quantity_number %}
@@ -215,16 +234,19 @@
                                             {% endblock %}
                                         {% endif %}
                                     {% endblock %}
+
                                 </div>
                             {% endblock %}
+
                         </div>
                     </div>
                 {% endblock %}
 
                 {% block page_checkout_item_unit_price %}
                     <div class="col-12 col-sm-4 col-md-2 cart-item-unit-price">
+
                         {% block page_checkout_item_unit_price_wrapper %}
-                            {% if not isDiscount and not isNested %}
+                            {% if not isDiscount %}
                                 {% block page_checkout_item_unit_price_label %}
                                     <div class="cart-item-unit-price-label">
                                         {{ "checkout.cartHeaderUnitPrice"|trans|sw_sanitize }}
@@ -236,11 +258,13 @@
                                 {% endblock %}
                             {% endif %}
                         {% endblock %}
+
                     </div>
                 {% endblock %}
 
                 {% block page_checkout_item_total_price %}
                     <div class="col-12 col-sm-4 col-md-2 cart-item-total-price">
+
                         {% block page_checkout_item_total_price_wrapper %}
                             {% block page_checkout_item_total_price_label %}
                                 <div class="cart-item-total-price-label">
@@ -252,11 +276,13 @@
                                 {{ lineItem.price.totalPrice|currency }}{% block page_checkout_item_total_price_tax_symbol %}{{ "general.star"|trans|sw_sanitize }}{% endblock %}
                             {% endblock %}
                         {% endblock %}
+
                     </div>
                 {% endblock %}
 
                 {% block page_checkout_item_remove %}
                     <div class="col-2 col-md-1 cart-item-remove">
+
                         {% block page_checkout_item_remove_form %}
                             {% if lineItem.removable %}
                                 <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.id}) }}"
@@ -281,22 +307,23 @@
                                             {% sw_icon 'x' style { 'size': 'sm' } %}
                                         </button>
                                     {% endblock %}
+
                                 </form>
                             {% endif %}
                         {% endblock %}
+
                     </div>
                 {% endblock %}
+
+                {% block page_checkout_item_children_template %}
+                    {% if isNested %}
+                        {% sw_include childrenTemplate with {
+                            'isChild': true
+                        } %}
+                    {% endif %}
+                {% endblock %}
+
             </div>
         </div>
-    {% endblock %}
-
-    {% block page_checkout_item_children %}
-        {% for lineItem in lineItem.children %}
-            {% block page_checkout_item_child %}
-                {% sw_include childTemplate with {
-                    'isChild': true
-                } %}
-            {% endblock %}
-        {% endfor %}
     {% endblock %}
 {% endblock %}

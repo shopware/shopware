@@ -324,6 +324,8 @@
     "removeLineItem": "Produkt entfernen",
     "subtotalAmount": "Zwischensumme",
     "summaryHeader": "Zusammenfassung",
+    "lineItemContainerHeadline": "Enthält",
+    "lineItemContainerChangeLink": "ändern",
     "cartEmpty": "Ihr Warenkorb ist leer.",
     "cartHeaderInfo": "Produkt",
     "cartHeaderQuantity": "Anzahl",

@@ -70,7 +70,7 @@ class AppEntity extends Entity
     protected $mainModule;
 
     /**
-     * @var array|null
+     * @var array
      */
     protected $cookies;
 
@@ -262,12 +262,12 @@ class AppEntity extends Entity
         $this->mainModule = $mainModule;
     }
 
-    public function getCookies(): ?array
+    public function getCookies(): array
     {
         return $this->cookies;
     }
 
-    public function setCookies(?array $cookies): void
+    public function setCookies(array $cookies): void
     {
         $this->cookies = $cookies;
     }

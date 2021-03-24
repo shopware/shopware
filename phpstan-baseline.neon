@@ -2126,11 +2126,6 @@ parameters:
 			path: src/Core/Framework/App/Command/AppPrinter.php
 
 		-
-			message: "#^Cannot call method getModules\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
 			message: "#^Cannot call method getActionButtons\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Lifecycle/Persister/ActionButtonPersister.php

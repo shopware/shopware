@@ -19,7 +19,6 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\Module;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
@@ -208,6 +207,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['id'] = $id;
         $metadata['modules'] = [];
         $metadata['iconRaw'] = $this->appLoader->getIcon($manifest);
+        $metadata['cookies'] = $manifest->getCookies() !== null ? $manifest->getCookies()->getCookies() : [];
 
         $this->updateMetadata($metadata, $context);
         $this->permissionPersister->updatePrivileges($manifest->getPermissions(), $roleId);
@@ -229,13 +229,10 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
             $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
             $this->updateModules($manifest, $id, $defaultLocale, $context);
-            $this->updateMainModule($manifest, $id, $context);
         }
 
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
-
-        $this->updateCookies($manifest, $id, $context);
 
         $config = $this->appLoader->getConfiguration($app);
         if ($config) {
@@ -325,13 +322,20 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private function updateModules(Manifest $manifest, string $id, string $defaultLocale, Context $context): void
     {
-        if (!$manifest->getAdmin()) {
-            return;
-        }
-
         $payload = [
             'id' => $id,
-            'modules' => array_reduce(
+            'mainModule' => [],
+            'modules' => [],
+        ];
+
+        if ($manifest->getAdmin() !== null) {
+            if ($manifest->getAdmin()->getMainModule() !== null) {
+                $payload['mainModule'] = [
+                    'source' => $manifest->getAdmin()->getMainModule()->getSource(),
+                ];
+            }
+
+            $payload['modules'] = array_reduce(
                 $manifest->getAdmin()->getModules(),
                 static function (array $modules, Module $module) use ($defaultLocale) {
                     $modules[] = $module->toArray($defaultLocale);
@@ -339,38 +343,8 @@ class AppLifecycle extends AbstractAppLifecycle
                     return $modules;
                 },
                 []
-            ),
-        ];
-
-        $this->appRepository->update([$payload], $context);
-    }
-
-    private function updateMainModule(Manifest $manifest, string $id, Context $context): void
-    {
-        $payload = [
-            'id' => $id,
-            'mainModule' => [],
-        ];
-
-        if ($manifest->getAdmin() !== null && $manifest->getAdmin()->getMainModule() !== null) {
-            $payload['mainModule'] = [
-                'source' => $manifest->getAdmin()->getMainModule()->getSource(),
-            ];
+            );
         }
-
-        $this->appRepository->update([$payload], $context);
-    }
-
-    private function updateCookies(Manifest $manifest, string $id, Context $context): void
-    {
-        if (!($manifest->getCookies() instanceof Cookies)) {
-            return;
-        }
-
-        $payload = [
-            'id' => $id,
-            'cookies' => $manifest->getCookies()->getCookies(),
-        ];
 
         $this->appRepository->update([$payload], $context);
     }

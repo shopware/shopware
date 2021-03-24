@@ -650,6 +650,50 @@ class AppLifecycleTest extends TestCase
         ], $systemConfigService->getDomain('withConfig.config'));
     }
 
+    public function testUpdateDoesClearJsonFieldsIfTheyAreNotPresentInManifest(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+        $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'withConfig',
+            'path' => $path,
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'modules' => [['test']],
+            'cookies' => [['test']],
+            'integration' => [
+                'label' => 'test',
+                'writeAccess' => false,
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'SwagApp',
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
+
+        $this->appLifecycle->update($manifest, $app, $this->context);
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        static::assertEmpty($apps->first()->getModules());
+        static::assertEmpty($apps->first()->getCookies());
+    }
+
     public function testDelete(): void
     {
         $appId = Uuid::randomHex();

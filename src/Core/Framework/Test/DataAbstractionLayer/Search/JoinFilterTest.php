@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NorFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class JoinFilterTest extends TestCase
 {
@@ -88,12 +90,88 @@ class JoinFilterTest extends TestCase
         $this->getContainer()->get('product.repository')
             ->create($products, $ids->getContext());
 
+        $userId = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM `user`');
+
+        $ids->set('user-id', $userId);
+
+        $media = [
+            ['id' => $ids->create('with-avatar')],
+            ['id' => $ids->create('without-avatar')],
+        ];
+
+        $this->getContainer()->get('media.repository')
+            ->create($media, $ids->getContext());
+
+        $avatar = [
+            'id' => $userId,
+            'avatarId' => $ids->get('with-avatar'),
+        ];
+
+        $this->getContainer()->get('user.repository')
+            ->update([$avatar], $ids->getContext());
+
         $result = $this->getContainer()->get('product.repository')
             ->searchIds(new Criteria($ids->prefixed('product-')), $ids->getContext());
 
         static::assertEquals(\count($products), $result->getTotal());
 
         return $ids;
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testOneToOne(IdsCollection $ids): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new NandFilter([new EqualsFilter('avatarUser.id', null)])
+        );
+
+        $media = $this->getContainer()->get('media.repository')
+            ->searchIds($criteria, $ids->getContext());
+
+        static::assertCount(1, $media->getIds());
+        static::assertContains($ids->get('with-avatar'), $media->getIds());
+        static::assertNotContains($ids->get('without-avatar'), $media->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('avatarUser.id', null));
+
+        $media = $this->getContainer()->get('media.repository')
+            ->searchIds($criteria, $ids->getContext());
+
+        static::assertTrue(\count($media->getIds()) > 0);
+        static::assertContains($ids->get('without-avatar'), $media->getIds());
+        static::assertNotContains($ids->get('with-avatar'), $media->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new OrFilter([
+                new EqualsFilter('avatarUser.id', null),
+                new NandFilter([new EqualsFilter('avatarUser.id', Uuid::randomHex())]),
+            ])
+        );
+
+        $media = $this->getContainer()->get('media.repository')
+            ->searchIds($criteria, $ids->getContext());
+
+        static::assertTrue(\count($media->getIds()) > 0);
+        static::assertContains($ids->get('with-avatar'), $media->getIds());
+        static::assertContains($ids->get('without-avatar'), $media->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new NandFilter([new EqualsFilter('avatarUser.id', Uuid::randomHex())])
+        );
+
+        $media = $this->getContainer()->get('media.repository')
+            ->searchIds($criteria, $ids->getContext());
+
+        static::assertTrue(\count($media->getIds()) > 0);
+        static::assertContains($ids->get('with-avatar'), $media->getIds());
+        static::assertContains($ids->get('without-avatar'), $media->getIds());
     }
 
     /**
@@ -435,9 +513,10 @@ class JoinFilterTest extends TestCase
     {
         $criteria = new Criteria($ids->prefixed('product-'));
         $criteria->addFilter(
-            new NandFilter([
+            new NorFilter([
+                new EqualsFilter('product.manufacturer.id', null),
                 new EqualsFilter('product.manufacturer.name', 'test'),
-            ])
+            ]),
         );
 
         $result = $this->getContainer()->get('product.repository')
@@ -525,10 +604,11 @@ class JoinFilterTest extends TestCase
                 ->searchIds($criteria, $context);
         });
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertEquals(3, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertTrue($result->has($ids->get('product-1-variant')));
+        static::assertTrue($result->has($ids->get('product-3')));
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Finder\Finder;
@@ -27,13 +27,13 @@ class AssetService
      */
     private $pluginCollection;
 
-    private CacheInvalidationLogger $logger;
+    private CacheInvalidator $logger;
 
     public function __construct(
         FilesystemInterface $filesystem,
         KernelInterface $kernel,
         KernelPluginCollection $pluginCollection,
-        CacheInvalidationLogger $logger
+        CacheInvalidator $logger
     ) {
         $this->filesystem = $filesystem;
         $this->kernel = $kernel;
@@ -58,7 +58,7 @@ class AssetService
 
         $this->copy($originDir, $targetDirectory);
 
-        $this->logger->log(['asset-metaData'], true);
+        $this->logger->invalidate(['asset-metaData'], true);
     }
 
     /**

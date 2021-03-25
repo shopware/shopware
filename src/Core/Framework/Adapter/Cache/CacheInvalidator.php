@@ -9,7 +9,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class CacheInvalidationLogger extends ScheduledTaskHandler
+class CacheInvalidator extends ScheduledTaskHandler
 {
     private const CACHE_KEY = 'invalidation';
 
@@ -52,36 +52,36 @@ class CacheInvalidationLogger extends ScheduledTaskHandler
     {
         try {
             if ($this->delay <= 0) {
-                $this->invalidate(null);
+                $this->invalidateExpired(null);
 
                 return;
             }
 
             $time = new \DateTime();
             $time->modify(sprintf('-%s second', $this->delay));
-            $this->invalidate($time);
+            $this->invalidateExpired($time);
         } catch (\Throwable $e) {
         }
     }
 
-    public function log(array $logs, bool $force = false): void
+    public function invalidate(array $tags, bool $force = false): void
     {
-        $keys = array_filter(array_unique($logs));
+        $tags = array_filter(array_unique($tags));
 
-        if (empty($keys)) {
+        if (empty($tags)) {
             return;
         }
 
         if ($this->delay > 0 && !$force) {
-            $this->logToStorage($logs);
+            $this->log($tags);
 
             return;
         }
 
-        $this->purge($keys);
+        $this->purge($tags);
     }
 
-    public function invalidate(?\DateTime $time): void
+    public function invalidateExpired(?\DateTime $time): void
     {
         $item = $this->cache->getItem(self::CACHE_KEY);
 
@@ -109,7 +109,7 @@ class CacheInvalidationLogger extends ScheduledTaskHandler
         $this->purge($invalidate);
     }
 
-    private function logToStorage(array $logs): void
+    private function log(array $logs): void
     {
         $item = $this->cache->getItem(self::CACHE_KEY);
 

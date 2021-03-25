@@ -6,7 +6,6 @@ use OpenApi\Annotations as OA;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheTagsEvent;
-use Shopware\Core\Content\Product\SalesChannel\CachedProductRouteInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -162,7 +161,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $ids = array_unique(array_filter($ids));
 
-        return array_map([CachedProductRouteInvalidator::class, 'buildStreamTag'], $ids);
+        return array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $ids);
     }
 
     private function extractProductIds(ProductCrossSellingRouteResponse $response): array
@@ -175,6 +174,6 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $ids = array_unique(array_filter($ids));
 
-        return array_map([CachedProductRouteInvalidator::class, 'buildProductTag'], $ids);
+        return array_map([EntityCacheKeyGenerator::class, 'buildProductTag'], $ids);
     }
 }

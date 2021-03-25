@@ -9,7 +9,6 @@ author_github: OliverSkroblin
 * Added `CategoryRouteCacheKeyEvent` which is used to generate the cache key for the category route
 * Added `CategoryRouteCacheTagsEvent` which is used to generate the cache tags for the category route
 * Added `CachedCategoryRoute` which adds a cache layer around the `store-api.category` route
-* Added `CachedCategoryRouteInvalidator` which is responsible for the cache invalidation of the category route
 * Added `ProductStreamMappingDefinition` which contains a mapping, which product is affected by which product stream
 * Added `ProductStreamMappingIndexingMessage` which is used to generate the mapping between products and the affected product streams
 * Added `ProductStreamUpdater` which updates the mapping between products and the affected product streams
@@ -18,7 +17,6 @@ author_github: OliverSkroblin
 * Added `ProductChangedEventInterface` which is used to use the same event listener for different product events. 
 * Added `ProductNoLongerAvailableEvent` which is triggered when the `product.available` flag switched to false
 * Added `CachedProductCrossSellingRoute` which adds a cache layer around the `store-api.cross-selling` route
-* Added `CachedProductRouteInvalidator` which contains all invalidation logic for the different store api routes of the product domain
 * Added `ProductSliderStruct.php::streamId` property
 * Added `ProductEntity::streams` property
 * Added `CrossSellingElement.php::streamId` property

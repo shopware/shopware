@@ -80,11 +80,6 @@
             <argument type="service" id="logger"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactoryInvalidator">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>

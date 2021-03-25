@@ -5,6 +5,9 @@
 
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
+
+    {# @deprecated tag:v6.5.0 - var will be removed - use 'childrenTemplate' instead #}
+    {% set childTemplate = '@Storefront/storefront/page/checkout/checkout-item.html.twig' %}
     {% set childrenTemplate = '@Storefront/storefront/page/checkout/checkout-item-children.html.twig' %}
     {% set deliveryPosition = null %}
 
@@ -14,8 +17,19 @@
         {% set deliveryPosition = delivery.positions.get(lineItem.id) %}
     {% endif %}
 
+    {# @deprecated tag:v6.5.0 - var will be removed with no replacement #}
+    {% set cartItemClasses = '' %}
+    {% if not feature('FEATURE_NEXT_12635') %}
+        {% if isNested %}
+            {% set cartItemClasses = cartItemClasses ~ ' is-nested' %}
+        {% endif %}
+        {% if isChild %}
+            {% set cartItemClasses = cartItemClasses ~ ' is-child' %}
+        {% endif %}
+    {% endif %}
+
     {% block page_checkout_item_container %}
-        <div class="cart-item cart-item-{{ lineItem.type }} {% if isDiscount %} is-discount{% endif %}">
+        <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{{ cartItemClasses }}">
             <div class="row cart-item-row">
 
                 {% block page_checkout_item_info %}
@@ -48,9 +62,9 @@
                                                            class="cart-item-img-link"
                                                            title="{{ lineItem.label }}"
                                                            {% if controllerAction is same as('confirmPage') %}
-                                                           data-toggle="modal"
-                                                           data-modal-class="quickview-modal"
-                                                           data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
+                                                               data-toggle="modal"
+                                                               data-modal-class="quickview-modal"
+                                                               data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
                                                         >
                                                             {% block page_checkout_item_info_image_element %}
@@ -95,9 +109,9 @@
                                                            class="cart-item-label"
                                                            title="{{ lineItem.label }}"
                                                            {% if controllerAction is same as('confirmPage') %}
-                                                           data-toggle="modal"
-                                                           data-modal-class="quickview-modal"
-                                                           data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
+                                                               data-toggle="modal"
+                                                               data-modal-class="quickview-modal"
+                                                               data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
                                                         >
                                                             {{ lineItem.label|u.truncate(60, '...', false) }}
@@ -246,7 +260,7 @@
                     <div class="col-12 col-sm-4 col-md-2 cart-item-unit-price">
 
                         {% block page_checkout_item_unit_price_wrapper %}
-                            {% if not isDiscount %}
+                            {% if not isDiscount and ((not isNested) or feature('FEATURE_NEXT_12635')) %}
                                 {% block page_checkout_item_unit_price_label %}
                                     <div class="cart-item-unit-price-label">
                                         {{ "checkout.cartHeaderUnitPrice"|trans|sw_sanitize }}
@@ -315,15 +329,33 @@
                     </div>
                 {% endblock %}
 
-                {% block page_checkout_item_children_template %}
-                    {% if isNested %}
-                        {% sw_include childrenTemplate with {
-                            'isChild': true
-                        } %}
-                    {% endif %}
-                {% endblock %}
+                {% if feature('FEATURE_NEXT_12635') %}
+                    {% block page_checkout_item_children_template %}
+                        {% if isNested %}
+                            {% sw_include childrenTemplate with {
+                                'isChild': true
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                {% endif %}
 
             </div>
         </div>
     {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/page/checkout/checkout-item-children.html.twig` instead #}
+    {% if not feature('FEATURE_NEXT_12635') %}
+        {# @deprecated tag:v6.5.0 - block will be moved to `@Storefront/storefront/page/checkout/checkout-item-children.html.twig` #}
+        {% block page_checkout_item_children %}
+            {% for lineItem in lineItem.children %}
+                {# @deprecated tag:v6.5.0 - block will be removed #}
+                {% block page_checkout_item_child %}
+                    {% sw_include childTemplate with {
+                        'isChild': true
+                    } %}
+                {% endblock %}
+            {% endfor %}
+        {% endblock %}
+    {% endif %}
 {% endblock %}
+

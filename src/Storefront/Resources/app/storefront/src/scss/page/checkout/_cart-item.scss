@@ -1,6 +1,9 @@
 .cart-item {
     margin-bottom: $spacer;
 
+    /* ------------------------------------
+     * @deprecated tag:v6.5.0 - Will be removed
+     * ------------------------------------ */
     &.is-nested,
     &.is-child {
         border-left: 3px solid $border-color;
@@ -8,6 +11,9 @@
         padding-left: $spacer;
     }
 
+    /* ------------------------------------
+     * @deprecated tag:v6.5.0 - Will be removed
+     * ------------------------------------ */
     &.is-child {
         padding-right: $spacer;
     }
@@ -169,6 +175,9 @@
 
 @include media-breakpoint-up(md) {
     .cart-item {
+        /* ------------------------------------
+         * @deprecated tag:v6.5.0 - Will be removed
+         * ------------------------------------ */
         &.is-nested,
         &.is-child {
             padding-left: 0;

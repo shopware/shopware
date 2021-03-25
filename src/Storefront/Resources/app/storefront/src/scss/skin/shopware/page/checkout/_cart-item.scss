@@ -3,6 +3,9 @@
     padding: 20px 0;
     border-bottom: 1px solid $border-color;
 
+    /* ------------------------------------
+     * @deprecated tag:v6.5.0 - Will be removed
+     * ------------------------------------ */
     &.is-child {
         background-color: $gray-100;
     }

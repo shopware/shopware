@@ -2,24 +2,24 @@
     {% set isChangeable = false %}
     {% set nestingLevel = 0 %}
 
-    <div class="checkout-item-children">
+    <div class="cart-item-children">
 
         {% block page_checkout_item_children_header %}
-            <div class="container">
-                <div class="row checkout-item-collapse">
+            <div class="container cart-item-collapse-container">
+                <div class="row cart-item-collapse">
 
                     {% block page_checkout_item_children_header_content %}
-                        <div class="col checkout-item-headline">
+                        <div class="col cart-item-headline">
 
                             {% block page_checkout_item_children_header_content_text %}
-                                <span class="checkout-item-headline-text">
+                                <span class="cart-item-headline-text">
                                     {{ 'checkout.lineItemContainerHeadline'|trans }}
                                 </span>
                             {% endblock %}
 
                             {% block page_checkout_item_children_header_content_change_button %}
                                 {% if isChangeable %}
-                                    <button class="children-item-change-button">
+                                    <button class="cart-item-change-button">
                                         {{ 'checkout.lineItemContainerChangeLink'|trans }}
                                     </button>
                                 {% endif %}
@@ -29,17 +29,17 @@
                     {% endblock %}
 
                     {% block page_checkout_item_children_header_collapse %}
-                        <div class="col-1 checkout-item-collapse-icon-container">
+                        <div class="col-1 cart-item-collapse-icon-container">
 
                             {% block page_checkout_item_children_header_collapse_button %}
-                                <button class="collapsed checkout-item-collapse-button"
+                                <button class="collapsed cart-item-collapse-button"
                                         data-toggle="collapse"
                                         data-target="#collapse-line-item-contains-{{ lineItem.id }}"
                                         aria-controls="collapse-line-item-contains-{{ lineItem.id }}"
                                         aria-expanded="false">
 
                                     {% block page_checkout_item_children_header_collapse_button_icon %}
-                                        <div class="checkout-item-collapse-icon">
+                                        <div class="cart-item-collapse-icon">
                                             {% sw_icon 'arrow-down' style {
                                                 'color': 'primary',
                                                 'pack':'solid'
@@ -58,36 +58,39 @@
         {% endblock %}
 
         {% block page_checkout_item_children_elements %}
-            <div class="container collapse checkout-item-children-elements"
+            <div class="container collapse cart-item-children-elements"
                  id="collapse-line-item-contains-{{ lineItem.id }}">
 
                 {% for nestedLineItem in lineItem.children %}
                     {% block page_checkout_item_children_element %}
                         {% block page_checkout_item_children_element_content %}
-                            <div class="row checkout-item-children-element{% if nestingLevel is same as(0) %} first-level-item{% endif %}">
+                            <div class="row cart-item-children-element{% if nestingLevel is same as(0) %} nesting-level-0{% endif %}">
 
                                 {% block page_checkout_item_child %}
                                     {% block page_checkout_item_child_headline %}
-                                        <div class="col checkout-item-child-label"
-                                             style="margin-left: calc({{ nestingLevel }} * 18px)">
-                                            <div class="checkout-item-child-label-bullet">
-                                                {{ nestedLineItem.label }}
-                                            </div>
+                                        <div class="col cart-item-child-label{% if nestingLevel > 0 %} nesting-level-{{ nestingLevel }}{% endif %}">
+
+                                            {% block page_checkout_item_child_headline_label %}
+                                                <div class="cart-item-child-label-bullet">
+                                                    {{ nestedLineItem.label }}
+                                                </div>
+                                            {% endblock %}
+
                                         </div>
                                     {% endblock %}
 
                                     {% block page_checkout_item_child_total_price %}
-                                        <div class="col-3 checkout-item-child-total-price">
+                                        <div class="col-3 cart-item-child-total-price">
                                             {{ nestedLineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                                         </div>
                                     {% endblock %}
 
                                     {% block page_checkout_item_child_remove %}
-                                        <div class="d-md-block col-md-1 checkout-item-child-remove-icon-container {% if nestedLineItem.removable %}col-1{% else %}d-none{% endif %}">
+                                        <div class="d-md-block col-md-1 cart-item-child-remove-icon-container {% if nestedLineItem.removable %}col-1{% else %}d-none{% endif %}">
 
                                             {% block page_checkout_item_remove_icon %}
                                                 {% if nestedLineItem.removable %}
-                                                    <button class="checkout-item-child-remove-icon">
+                                                    <button class="cart-item-child-remove-icon">
                                                         {% sw_icon 'x' style {
                                                             'color': 'primary',
                                                             'size': 'xs'
@@ -114,7 +117,7 @@
                     {% endblock %}
 
                     {% block page_checkout_item_children_element_divider %}
-                        <hr class="checkout-item-children-element-divider"/>
+                        <hr class="cart-item-children-element-divider"/>
                     {% endblock %}
                 {% endfor %}
 

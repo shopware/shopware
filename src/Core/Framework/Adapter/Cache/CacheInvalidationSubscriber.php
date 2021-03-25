@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core;
+namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
@@ -31,7 +31,7 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Seo\CachedSeoResolver;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -66,10 +66,10 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 {
     private Connection $connection;
 
-    private CacheInvalidationLogger $logger;
+    private CacheInvalidator $logger;
 
     public function __construct(
-        CacheInvalidationLogger $logger,
+        CacheInvalidator $logger,
         Connection $connection
     ) {
         $this->logger = $logger;
@@ -101,7 +101,6 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateStreamsAfterIndexing', 2005],
             ],
             EntityWrittenContainerEvent::class => [
-                ['invalidateStreamsBeforeIndexing', 2013],
                 ['invalidateCmsPageIds', 2001],
                 ['invalidateCurrencyRoute', 2002],
                 ['invalidateLanguageRoute', 2003],
@@ -114,7 +113,8 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateContext', 2010],
                 ['invalidateShippingMethodRoute', 2011],
                 ['invalidateSnippets', 2012],
-                ['invalidateStreamIds', 2013],
+                ['invalidateStreamsBeforeIndexing', 2013],
+                ['invalidateStreamIds', 2014],
             ],
             SeoUrlUpdateEvent::class => [
                 ['invalidateSeoUrls', 2000],
@@ -151,7 +151,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateConfig(): void
     {
         // invalidates the complete cached config
-        $this->logger->log([
+        $this->logger->invalidate([
             CachedSystemConfigLoader::CACHE_TAG,
         ]);
     }
@@ -159,7 +159,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateConfigKey(SystemConfigChangedEvent $event): void
     {
         // invalidates the complete cached config and routes which access a specific key
-        $this->logger->log([
+        $this->logger->invalidate([
             SystemConfigService::buildName($event->getKey()),
             CachedSystemConfigLoader::CACHE_TAG,
         ]);
@@ -180,7 +180,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 $tags[] = Translator::buildName($payload['translationKey']);
             }
         }
-        $this->logger->log($tags);
+        $this->logger->invalidate($tags);
     }
 
     public function invalidateShippingMethodRoute(EntityWrittenContainerEvent $event): void
@@ -191,7 +191,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             $this->getChangedShippingAssignments($event)
         );
 
-        $this->logger->log($logs);
+        $this->logger->invalidate($logs);
     }
 
     public function invalidateSeoUrls(SeoUrlUpdateEvent $event): void
@@ -201,19 +201,19 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         $pathInfo = array_column($urls, 'pathInfo');
 
-        $this->logger->log(array_map([CachedSeoResolver::class, 'buildName'], $pathInfo));
+        $this->logger->invalidate(array_map([CachedSeoResolver::class, 'buildName'], $pathInfo));
     }
 
     public function invalidateRules(): void
     {
         // invalidates the rule loader each time a rule changed or a plugin install state changed
-        $this->logger->log([CachedRuleLoader::CACHE_KEY]);
+        $this->logger->invalidate([CachedRuleLoader::CACHE_KEY]);
     }
 
     public function invalidateCmsPageIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes and http cache pages where a cms page was loaded, the id is assigned as tag
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([EntityCacheKeyGenerator::class, 'buildCmsTag'], $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME))
         );
     }
@@ -221,7 +221,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateProductIds(ProductChangedEventInterface $event): void
     {
         // invalidates all routes which loads products in nested unknown objects, like cms listing elements or cross selling elements
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([EntityCacheKeyGenerator::class, 'buildProductTag'], $event->getIds())
         );
     }
@@ -229,7 +229,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME))
         );
     }
@@ -237,7 +237,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateCategoryRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the category route cache when a category changed
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedCategoryRoute::class, 'buildName'], $event->getIds())
         );
     }
@@ -245,7 +245,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateListingRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the product listing route each time a category changed
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedProductListingRoute::class, 'buildName'], $event->getIds())
         );
     }
@@ -253,7 +253,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedLandingPageRoute::class, 'buildName'], $event->getIds())
         );
     }
@@ -261,7 +261,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateCurrencyRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the currency route when a currency changed or an assignment between the sales channel and currency changed
-        $this->logger->log(array_merge(
+        $this->logger->invalidate(array_merge(
             $this->getChangedCurrencyAssignments($event),
             $this->getChangedCurrencies($event)
         ));
@@ -270,7 +270,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateLanguageRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the language route when a language changed or an assignment between the sales channel and language changed
-        $this->logger->log(array_merge(
+        $this->logger->invalidate(array_merge(
             $this->getChangedLanguageAssignments($event),
             $this->getChangedLanguages($event)
         ));
@@ -284,7 +284,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             $this->getChangedEntryPoints($event)
         );
 
-        $this->logger->log($logs);
+        $this->logger->invalidate($logs);
     }
 
     public function invalidatePaymentMethodRoute(EntityWrittenContainerEvent $event): void
@@ -295,13 +295,13 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             $this->getChangedPaymentAssignments($event)
         );
 
-        $this->logger->log($logs);
+        $this->logger->invalidate($logs);
     }
 
     public function invalidateSearch(): void
     {
         // invalidates the search and suggest route each time a product changed
-        $this->logger->log([
+        $this->logger->invalidate([
             'product-suggest-route',
             'product-search-route',
         ]);
@@ -310,7 +310,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateDetailRoute(ProductChangedEventInterface $event): void
     {
         //invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedProductDetailRoute::class, 'buildName'], $event->getIds())
         );
     }
@@ -322,7 +322,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         $ids = array_column($ids, 'categoryId');
 
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedProductListingRoute::class, 'buildName'], $ids)
         );
     }
@@ -367,7 +367,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->logger->log($keys);
+        $this->logger->invalidate($keys);
     }
 
     public function invalidateManufacturerFilters(EntityWrittenContainerEvent $event): void
@@ -389,7 +389,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedProductListingRoute::class, 'buildName'], $ids)
         );
     }
@@ -414,7 +414,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedProductListingRoute::class, 'buildName'], $ids)
         );
     }
@@ -432,7 +432,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedProductListingRoute::class, 'buildName'], $ids)
         );
     }
@@ -456,7 +456,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $ids)
         );
     }
@@ -473,7 +473,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $ids)
         );
     }
@@ -493,7 +493,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->logger->log(
+        $this->logger->invalidate(
             array_map([CachedProductCrossSellingRoute::class, 'buildName'], $ids)
         );
     }

@@ -173,9 +173,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
             return [];
         }
 
-        $ids = [
-            EntityCacheKeyGenerator::buildCmsTag($page->getId()),
-        ];
+        $ids = [];
 
         $slots = $page->getElementsOfType('product-slider');
         /** @var CmsSlotEntity $slot */
@@ -213,6 +211,9 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
         $ids = array_values(array_unique(array_filter($ids)));
 
-        return array_map([EntityCacheKeyGenerator::class, 'buildProductTag'], $ids);
+        return array_merge(
+            array_map([EntityCacheKeyGenerator::class, 'buildProductTag'], $ids),
+            [EntityCacheKeyGenerator::buildCmsTag($page->getId())]
+        );
     }
 }

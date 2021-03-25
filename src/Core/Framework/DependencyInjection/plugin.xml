@@ -187,7 +187,7 @@
             <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
         <!-- Requirement -->

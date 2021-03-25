@@ -13,64 +13,64 @@
     "my-extensions": {
       "listing": {
         "initialSearchType": "Erweiterungen",
-        "placeholderSearchBar": "Durchsuche alle Erweiterungen…",
+        "placeholderSearchBar": "Durchsuche alle Erweiterungen ...",
         "controls": {
           "labelActiveStateSwitch": "Inaktive Erweiterungen ausblenden",
           "filterOptions": {
             "last-updated": "Zuletzt aktualisiert",
-            "name-asc": "Name, aufsteigend",
-            "name-desc": "Name, absteigend"
+            "name-asc": "Name A - Z",
+            "name-desc": "Name Z - A"
           }
         },
         "version": "Version",
-        "update": "Update"
+        "update": "Aktualisierung"
       },
       "account": {
         "headline": "Shopware Account",
-        "isLoggedIn": "Das Konto wurde erfolgreich verbunden. Gehe auf die Registerkarte \"App\" oder \"Themes\" und prüfe, ob deine gekauften Erweiterungen aufgeführt sind. Wenn nicht, gehe zu deinem Showare-Konto und stelle sicher, dass die richtige Domain für Erweiterungen eingestellt wurde.",
-        "login": "Login",
-        "logout": "Logout",
-        "loginMessage": "Melde dich mit deinem Shopware-Konto an, um auf die Erweiterungen zuzugreifen, die du auf store.shopware.com gekauft hast",
-        "register": "Registriere dich und werde Teil der Shopware-Community!",
+        "isLoggedIn": "Du hast Dich erfolgreich mit dem Shopware Account verbunden. Gehe zur Registerkarte \"Apps\" oder \"Themes\" und prüfe, ob Deine gekauften Erweiterungen aufgeführt sind. Wenn nicht, gehe in den Shopware Account und stelle sicher, dass die richtige Domain für Erweiterungen eingestellt wurde.",
+        "login": "Anmelden",
+        "logout": "Abmelden",
+        "loginMessage": "Melde Dich im Shopware Account an, um auf die Erweiterungen zuzugreifen, die Du auf store.shopware.com gekauft hast.",
+        "register": "Registriere Dich jetzt und werde Teil der Shopware-Community!",
         "registerNow": "Jetzt registrieren",
         "registerUrl": "https://account.shopware.com/register?lang=de",
-        "mailLabel": "E-Mail Adresse",
-        "mailPlaceholder": "Gebe deine E-Mail Adresse ein…",
+        "mailLabel": "E-Mail-Adresse",
+        "mailPlaceholder": "Gib Deine E-Mail-Adresse ein ...",
         "passwordLabel": "Passwort",
-        "passwordPlaceholder": "Gebe dein Passwort ein…",
+        "passwordPlaceholder": "Gib Dein Passwort ein ...",
         "recoveryUrl": "https://account.shopware.com/recovery?lang=de",
-        "passwordForgot": "Hast du dein Passwort vergessen?",
-        "loginNotificationMessage": "Du bist im Shopware Konto eingeloggt."
+        "passwordForgot": "Hast Du Dein Passwort vergessen?",
+        "loginNotificationMessage": "Du bist im Shopware Account angemeldet."
       },
       "tabs": {
         "app": "Apps",
-        "theme": "Theme",
+        "theme": "Themes",
         "recommendation": "Empfehlungen",
         "shopwareAccount": "Shopware Account"
       },
       "fileUpload": {
         "buttonFileUpload": "Erweiterung hochladen",
-        "messageUploadSuccess": "Die Erweiterung wurde hochgeladen."
+        "messageUploadSuccess": "Erweiterung hochgeladen."
       }
     },
     "errors": {
-      "messageToTheShopwareDocumentation": "<a href=\"{documentationLink}\" target=\"_blank\">Zur Shopware Dokumentation</a>",
+      "messageToTheShopwareDocumentation": "<a href=\"{documentationLink}\" target=\"_blank\">Zur Shopware-Dokumentation</a>",
       "messageGenericFailure": "Das hat nicht funktioniert.",
       "messageUploadFailureNotAZipFile": "Die hochgeladenen Datei ist keine Zip-Datei.",
       "messageUploadFailureUnzipFailed": "Die Zip-Datei konnte nicht entpackt werden.",
-      "messageUploadFailureNoPluginFoundInZipFile": "In der hochgeladenen Zip-Datei wurde kein Plugin gefunden.",
-      "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben.",
+      "messageUploadFailureNoPluginFoundInZipFile": "In der hochgeladenen Zip-Datei wurde keine Erweiterung gefunden.",
+      "messageLoginDataInvalid": "Anmeldedaten unvollständig.",
       "messageStoreLicenseDomainMissing": "Um Dich erfolgreich anmelden zu können, musst Du zunächst in \"Einstellungen/Shopware Account\" Deine Lizenzdomain angeben.",
       "messageStoreNotAvailable": "Der Shopware Store ist nicht erreichbar.",
-      "messagePluginBaseClassNotFound": "Der Plugin-Einstiegspunkt konnte nicht geladen werden. Stelle sicher, dass die Basisklasse korrekt geladen werden kann",
-      "messagePluginInstallationFailed": "Das Plugin konnte aufgrund der Fehlermeldung \"{message}\" nicht installiert werden",
-      "messagePluginUninstallationFailed": "Das Plugin konnte aufgrund der Fehlermeldung \"{message}\" nicht deinstalliert werden",
-      "messagePluginActivationFailed": "Das Plugin konnte aufgrund der Fehlermeldung \"{message}\" nicht aktiviert werden",
-      "messagePluginDeactivationFailed": "Das Plugin konnte aufgrund der Fehlermeldung \"{message}\" nicht deaktiviert werden",
-      "messageDeactivationFailedDependencies": "Das Plugin \"{dependency}\" kann nicht deaktiviert werden, da es noch aktive Plugins gibt, die von ihm abhängig sind. Bitte deaktiviere zuerst folgende Plugins, bevor du das Update erneut startest: {dependantNames}",
+      "messagePluginBaseClassNotFound": "Der Einstiegspunkt der Erweiterung konnte nicht geladen werden. Stelle sicher, dass die Basisklasse korrekt geladen werden kann.",
+      "messagePluginInstallationFailed": "Die Erweiterung konnte nicht installiert werden: \"{message}\".",
+      "messagePluginUninstallationFailed": "Die Erweiterung konnte nicht deinstalliert werden: \"{message}\".",
+      "messagePluginActivationFailed": "Die Erweiterung konnte nicht aktiviert werden: \"{message}\".",
+      "messagePluginDeactivationFailed": "Die Erweiterung konnte nicht deaktiviert werden: \"{message}\".",
+      "messageDeactivationFailedDependencies": "Die Erweiterung \"{dependency}\" konnte nicht deaktiviert werden, da es noch aktive Erweiterungen gibt, die von ihr abhängig sind. Bitte deaktiviere zuerst folgende Erweiterungen, bevor Du die Aktualisierung erneut startest: {dependantNames}",
       "messageDeactivationFailedThemeAssignment": "Das Theme \"{themeName}\" konnte nicht deaktiviert werden. Bitte entferne die folgenden Theme-Zuweisungen: {assignments}",
-      "messagePluginUpdateFailed": "Das Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht aktualisiert werden. {pluginDeactivatedHint}",
-      "pluginDeactivatedHint": "Das Plugin wurde deaktiviert."
+      "messagePluginUpdateFailed": "Die Erweiterung konnte nicht aktualisiert werden: \"{message}\". {pluginDeactivatedHint}",
+      "pluginDeactivatedHint": "Erweiterung deaktiviert."
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Erweiterungen",
@@ -81,9 +81,9 @@
   },
   "sw-extension-store": {
     "landing-page": {
-      "enablingShopwareStore": "Aktivieren des Shopware-Stores ...",
-      "takeMinutes": "This may take a few minutes.",
-      "activationErrorTitle": "Dies kann ein paar Minuten dauern",
+      "enablingShopwareStore": "Aktivieren des Shopware Stores ...",
+      "takeMinutes": "Dies kann ein paar Minuten dauern",
+      "activationErrorTitle": "Bei der Aktivierung ist ein Fehler aufgetreten.",
       "activationErrorDescription": "Versuche es noch einmal. Wenn es nicht funktioniert, bitte Deinen Administrator um Hilfe.",
       "retryButton": "Wiederholen",
       "activationSuccessTitle": "Erfolgreich aktiviert",
@@ -91,7 +91,7 @@
       "label": "Jetzt verfügbar",
       "activationDescriptionTitleFirst": "Erweiterungen einfach entdecken und kaufen -",
       "activationDescriptionTitleSecond": "direkt aus Ihrem eigenen Shopware-Shop heraus.",
-      "activationDescriptionTitleDescription": "Aktiviere den neuen Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die du nahtlos in deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse.",
+      "activationDescriptionTitleDescription": "Aktiviere den neuen Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die Du nahtlos in Deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse.",
       "activate": "Aktivieren"
     },
     "title": "Store",
@@ -108,12 +108,12 @@
       "placeHolderCategories": "Alle Kategorien",
       "placeholderRatings": "Alle Bewertungen",
       "sorting": {
-        "releaseDateAsc": "Veröffentlichung Älteste - Neueste",
-        "releaseDateDesc": "Veröffentlichung Neueste - Älteste",
+        "releaseDateAsc": "Veröffentlichung älteste - neueste",
+        "releaseDateDesc": "Veröffentlichung neueste - älteste",
         "nameAsc": "Name A - Z",
         "nameDesc": "Name Z - A",
-        "ratingAsc": "Bewertung Niedrigste - Höchste",
-        "ratingDesc": "Bewertung Höchste - Niedrigste"
+        "ratingAsc": "Bewertung niedrigste - höchste",
+        "ratingDesc": "Bewertung höchste - niedrigste"
       }
     },
     "detail": {
@@ -123,7 +123,7 @@
       "labelBy": "von",
       "numberOfRatings": "{count} Bewertung | {count} Bewertungen",
       "noRatings": "Noch keine Bewertungen",
-      "cardTitleInformation": "Information",
+      "cardTitleInformation": "Informationen",
       "labelButtonReadMore": "Weiterlesen",
       "cardTitleDetails": "Details",
       "details": {
@@ -131,11 +131,11 @@
         "labelVersion": "Version",
         "labelUpdatedAt": "Zuletzt aktualisiert",
         "labelLanguages": "Sprachen",
-        "labelWebsite": "Entwicklerwebsite",
+        "labelWebsite": "Entwicklerwebseite",
         "labelPrivacy": "Datenschutzbestimmungen"
       },
-      "cardTitleFAQ": "FAQ",
-      "cardTitleChangelog": "Changelog",
+      "cardTitleFAQ": "Häufig gestellte Fragen",
+      "cardTitleChangelog": "Änderungsprotokoll",
       "labelButtonShowPermissions": "Berechtigungen anzeigen",
       "labelDiscountInfo": "Angebot endet am {endDate}",
       "labelDiscountPeriod": "*Für den ersten Monat - | *Für die ersten {months} Monate - "
@@ -146,8 +146,8 @@
       },
       "sw-extension-buy-modal": {
         "title": "Erweiterung hinzufügen",
-        "labelAcceptPermissions": "Ich bin mir bewusst, dass diese Erweiterung Berechtigungen benötigt",
-        "labelAcceptPrivacyExtensions": "Ich bin mir bewusst, dass ich meine Datenschutzhinweise erweitern muss",
+        "labelAcceptPermissions": "Mir ist bewusst, dass diese Erweiterung zusätzliche Berechtigungen benötigt",
+        "labelAcceptPrivacyExtensions": "Mir ist bewusst, dass ich meine Datenschutzhinweise erweitern muss",
         "buttonShowPrivacyExtensions": "Details anzeigen",
         "variantCard": {
           "free": "Verwende die kostenlose Version",
@@ -156,7 +156,7 @@
           "hasTrialPhase": "Probemonat inbegriffen"
         },
         "variantSummary": {
-          "labelVat": "Zzgl. Mehrwertsteuer",
+          "labelVat": "zzgl. Mehrwertsteuer",
           "labelPrice": "Preis",
           "renewal": "Erneuert sich am {renewalDate}"
         },
@@ -167,21 +167,21 @@
         },
         "successNotification": {
           "titleSuccess": "Erweiterung erfolgreich hinzugefügt!",
-          "subtitleSuccess": "Du kannst jetzt deine neue Erweiterung ausprobieren.",
+          "subtitleSuccess": "Du kannst jetzt Deine neue Erweiterung ausprobieren.",
           "labelButtonBack": "Zurück zur Detailseite"
         },
         "alertCanNotBuy": {
-          "text": "Du musst eingeloggt sein um diese Aktion zutätigen",
+          "text": "Du musst eingeloggt sein, um diese Aktion auszuführen",
           "linkChoosePLan": "Wähle einen Plan aus"
         }
       },
       "sw-extension-adding-failed": {
         "titleFailure": "Hinzufügen fehlgeschlagen",
-        "textProblem": "Beim Hinzufügen Deiner Erweiterung ist ein Problem aufgetreten.",
+        "textProblem": "Beim Hinzufügen der Erweiterung ist ein Problem aufgetreten.",
         "installationFailed": {
           "titleFailure": "Installation fehlgeschlagen",
           "textProblem": "Beim Installieren Deiner Erweiterung ist ein Problem aufgetreten. Der Hersteller wird von uns informiert.",
-          "notificationLicense": "Beachte, dass das Abo dieser App bzw. des Themes weiterhin aktiv bleibt.",
+          "notificationLicense": "Beachte, dass die Miete dieser App bzw. des Themes weiterhin aktiv bleibt.",
           "textSupport": "Bei Fragen zur Lizenz wende Dich bitte an die Shopware Financial Services. Erreichbar per E-Mail unter {0} oder per Telefon unter {1}",
           "supportEmail": "financial.services@shopware.com",
           "supportPhone": "+49 (0)2555 / 9288510"
@@ -193,7 +193,7 @@
       },
       "sw-extension-ratings": {
         "sw-review-reply": {
-          "labelCreationDate": "antwortete am {creationDate}"
+          "labelCreationDate": "beantwortet am {creationDate}"
         },
         "sw-extension-review-creation": {
           "submitBtn": "Abschicken"
@@ -225,13 +225,13 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Miete:",
         "inactiveLabel": "(inaktiv)",
-        "purchasedLabel": "Gekauft: ",
-        "installedLabel": "Installiert: ",
+        "purchasedLabel": "Gekauft am ",
+        "installedLabel": "Installiert am ",
         "openExtensionLabel": "App öffnen",
         "installExtensionLabel": "App installieren",
         "labelAcceptAndInstall": "Akzeptieren und installieren",
         "contextMenu": {
-          "getHelpLabel": "Hilfe bekommen",
+          "getHelpLabel": "Hilfe anfragen",
           "seeDetailsLabel": "Details ansehen",
           "config": "Konfiguration",
           "privacyAndSafetyLabel": "Datenschutz & Datensicherheit",
@@ -268,12 +268,12 @@
       },
       "sw-extension-my-extensions-listing": {
         "apps": {
-          "noActivePlugins": "Es wurden keine aktiven Erweiterungen gefunden",
+          "noActivePlugins": "Keine aktiven Erweiterungen gefunden",
           "titleEmptyState": "Noch keine Apps installiert",
           "textEmptyState": "Wenn Du Apps installierst, werden sie hier aufgelistet."
         },
         "themes": {
-          "noActivePlugins": "Es wurden keine aktiven Themes gefunden",
+          "noActivePlugins": "Keine aktiven Themes gefunden.",
           "titleEmptyState": "Noch keine Themes installiert",
           "textEmptyState": "Wenn Du Themes installierst, werden sie hier aufgelistet."
         },
@@ -282,7 +282,7 @@
       "sw-extension-removal-modal": {
         "titleCancel": "\"{extensionName}\" kündigen und entfernen",
         "titleRemove": "\"{extensionName}\" entfernen",
-        "description": "Wenn du die Erweiterung entfernst, kannst Du sie nicht mehr nutzen.",
+        "description": "Wenn Du die Erweiterung entfernst, kannst Du sie nicht mehr nutzen.",
         "alertCancel": "Möchtest Du die Erweiterung wirklich kündigen und entfernen?",
         "alertRemove": "Möchtest Du die Erweiterung wirklich entfernen?",
         "labelCancel": "Kündigen und entfernen",
@@ -290,10 +290,10 @@
       },
       "sw-extension-uninstall-modal": {
         "title": "\"{extensionName}\" deinstallieren",
-        "description": "Wenn Sie die Erweiterung deinstallieren, können Sie sie nicht mehr verwenden.",
-        "alert": "Sind Sie sicher, dass Sie die Erweiterung deinstallieren möchten?",
+        "description": "Wenn Du die Erweiterung deinstallierst, kannst Du sie nicht mehr verwenden.",
+        "alert": "Bist Du sicher, dass Du die Erweiterung deinstallieren möchtest?",
         "buttonLabel": "Deinstallieren",
-        "labelRemovePluginData": "Alle Daten entfernen",
+        "labelRemovePluginData": "Alle App-Daten entgültig entfernen",
         "helpTextRemovePluginData": "Warnung: Alle Daten der App werden dauerhaft entfernt. Dieser Vorgang ist nicht umkehrbar."
       },
       "sw-extension-listing-card": {
@@ -301,7 +301,7 @@
         "labelLicensed": "Erworben"
       },
       "sw-extension-config": {
-        "messageSaveSuccess": "Die Konfiguration wurde gespeichert."
+        "messageSaveSuccess": "Konfiguration gespeichert."
       }
     },
     "errors": {
@@ -351,8 +351,8 @@
         "message": "Das gewählte Preismodell der Erweiterung ist nicht erlaubt."
       },
       "SAAS_EXTENSION_ORDER__NO_DEFAULT_PAYMENT_MEAN": {
-        "message": "Es ist kein Standardzahlungsmittel verfügbar.",
-        "labelLink": "Standardzahlungsmittel einrichten"
+        "message": "Es ist keine Standardzahlungsart verfügbar.",
+        "labelLink": "Standardzahlungsart einrichten"
       },
       "SAAS_EXTENSION_ORDER__INSUFFICIENT_BALANCE": {
         "message": "Es ist nicht ausreichend Guthaben vorhanden."
@@ -383,7 +383,7 @@
   },
   "entityCategories": {
     "admin_user": {
-      "title": "Admin Nutzer",
+      "title": "Administrations-Nutzer",
       "entities": {
         "integration": "Integration",
         "user": "Nutzer",
@@ -427,7 +427,7 @@
         "customer_address": "Adresse",
         "customer_group": "Kundengruppe",
         "customer_group_translation": "Kundengruppen-Übersetzung",
-        "customer_group_registration_sales_channels": "Registrierungsverkaufskanal von Kundengruppen",
+        "customer_group_registration_sales_channels": "Verkaufskanal für die Registrierung von Kundengruppen",
         "customer_recovery": "Wiederherstellung",
         "customer_tag": "Tag"
       }
@@ -453,11 +453,11 @@
     "google_shopping": {
       "title": "Google Shopping",
       "entities": {
-        "swag_google_shopping_account": "Account",
-        "swag_google_shopping_ads_account": "Ads Account",
-        "swag_google_shopping_list_ads_account": "Liste Ads Account",
+        "swag_google_shopping_account": "Konto",
+        "swag_google_shopping_ads_account": "Ads-Konto",
+        "swag_google_shopping_list_ads_account": "Ads-Konten auflisten",
         "swag_google_shopping_category": "Kategorie",
-        "swag_google_shopping_merchant_account": "Händler Account"
+        "swag_google_shopping_merchant_account": "Händler-Konto"
       }
     },
     "import_export": {
@@ -472,8 +472,8 @@
     "mail_templates": {
       "title": "E-Mail-Vorlagen",
       "entities": {
-        "mail_header_footer": "Header & Footer",
-        "mail_header_footer_translation": "Header & Footer Übersetzung",
+        "mail_header_footer": "Kopf- und Fußzeile",
+        "mail_header_footer_translation": "Kopf- und Fußzeilen-Übersetzung",
         "mail_template": "E-Mail-Vorlage",
         "mail_template_translation": "E-Mail-Vorlage-Übersetzung",
         "mail_template_media": "Medien",
@@ -519,20 +519,20 @@
     "other": {
       "title": "Sonstige",
       "entities": {
-        "acl_role": "ACL Rolle",
-        "acl_user_role": "ACL Nutzerrolle",
+        "acl_role": "ACL-Rolle",
+        "acl_user_role": "ACL-Nutzerrolle",
         "dead_message": "Tote Nachricht",
         "event_action": "Event-Aktion",
         "message_queue_stats": "Statistiken der Nachrichtenwarteschlange",
         "plugin": "Plugin",
-        "scheduled_task": "Geplante Aufgabe"
+        "scheduled_task": "Geplante Aufgaben"
       }
     },
     "payment": {
       "title": "Zahlungen",
       "entities": {
-        "payment_method": "Zahlungsmethode",
-        "payment_method_translation": "Zahlungsmethodenübersetzung"
+        "payment_method": "Zahlungsart",
+        "payment_method_translation": "Zahlungsart-Übersetzung"
       }
     },
     "product": {
@@ -579,8 +579,8 @@
         "promotion_persona_customer": "Persona-Kunde",
         "promotion_persona_rule": "Persona-Regel",
         "promotion_sales_channel": "Verkaufskanal",
-        "promotion_setgroup": "Promotion-Set Gruppe",
-        "promotion_setgroup_rule": "Promotion-Set Gruppenregel"
+        "promotion_setgroup": "Promotion-Set-Gruppe",
+        "promotion_setgroup_rule": "Promotion-Set-Gruppenregel"
       }
     },
     "rules": {
@@ -601,7 +601,7 @@
         "sales_channel_language": "Sprache",
         "sales_channel_payment_method": "Zahlungsart",
         "sales_channel_shipping_method": "Versandart",
-        "sales_channel_translation": "Verkaufkanal-Übersetzung",
+        "sales_channel_translation": "Verkaufskanal-Übersetzung",
         "sales_channel_type": "Verkaufskanaltyp",
         "sales_channel_type_translation": "Verkaufskanaltyp-Übersetzung"
       }
@@ -622,8 +622,8 @@
         "number_range_type": "Nummernkreis-Typ",
         "salutation": "Anrede",
         "salutation_translation": "Anrede-Übersetzung",
-        "seo_url": "SEO URL",
-        "seo_url_template": "SEO URL Template",
+        "seo_url": "SEO-URL",
+        "seo_url_template": "SEO-URL-Template",
         "state_machine": "Zustandsautomat",
         "state_machine_history": "Zustandsautomaten-Historie",
         "state_machine_state": "Zustandsautomat-Zustand",

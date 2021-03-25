@@ -98,7 +98,7 @@ class AccountOverviewPageLoader
 
         $apiRequest = new Request();
 
-        $event = new OrderRouteRequestEvent($request, $apiRequest, $context);
+        $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
         $responseStruct = $this->orderRoute

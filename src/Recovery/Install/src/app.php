@@ -557,7 +557,7 @@ $app->any('/finish/', function (ServerRequestInterface $request, ResponseInterfa
             'url' => $schema . '://' . $_SERVER['HTTP_HOST'] . $basepath,
             'loginTokenData' => $loginTokenData,
             'basePath' => $basepath,
-            'host' => $_SERVER['HTTP_HOST'],
+            'host' => explode(':', $_SERVER['HTTP_HOST'])[0],
         ]
     );
 })->setName('finish');

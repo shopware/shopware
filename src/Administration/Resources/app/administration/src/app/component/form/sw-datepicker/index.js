@@ -66,9 +66,9 @@ Component.register('sw-datepicker', {
         dateType: {
             type: String,
             default: 'date',
-            validValues: ['time', 'date', 'datetime', 'datetime-local'],
+            validValues: ['time', 'time-local', 'date', 'datetime', 'datetime-local'],
             validator(value) {
-                return ['time', 'date', 'datetime', 'datetime-local'].includes(value);
+                return ['time', 'time-local', 'date', 'datetime', 'datetime-local'].includes(value);
             }
         },
 
@@ -131,7 +131,7 @@ Component.register('sw-datepicker', {
         },
 
         noCalendar() {
-            return this.dateType === 'time';
+            return this.dateType === 'time' || this.dateType === 'time-local';
         },
 
         enableTime() {
@@ -409,6 +409,16 @@ Component.register('sw-datepicker', {
 
             if (this.dateType === 'time') {
                 dateFormat = 'H:i:S+00:00';
+                altFormat = 'H:i';
+            }
+
+            if (this.dateType === 'time-local') {
+                const currentOffset = -1 * new Date().getTimezoneOffset();
+                const hours = Math.floor(currentOffset / 60);
+                const minutes = currentOffset - (hours * 60);
+                const offsetString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+                dateFormat = `H:i:S+${offsetString}`;
                 altFormat = 'H:i';
             }
 

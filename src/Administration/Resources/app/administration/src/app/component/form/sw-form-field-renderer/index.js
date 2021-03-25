@@ -152,12 +152,20 @@ Component.register('sw-form-field-renderer', {
                 return { type: 'date', dateType: 'datetime' };
             }
 
+            if (this.type === 'datetime-local') {
+                return { type: 'date', dateType: 'datetime-local' };
+            }
+
             if (this.type === 'date') {
                 return { type: 'date', dateType: 'date' };
             }
 
             if (this.type === 'time') {
                 return { type: 'date', dateType: 'time' };
+            }
+
+            if (this.type === 'time-local') {
+                return { type: 'date', dateType: 'time-local' };
             }
 
             return { type: this.type };

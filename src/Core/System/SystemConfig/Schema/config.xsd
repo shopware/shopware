@@ -54,8 +54,10 @@
             <xs:enumeration value="bool"/>
             <xs:enumeration value="checkbox"/>
             <xs:enumeration value="datetime"/>
+            <xs:enumeration value="datetime-local"/>
             <xs:enumeration value="date"/>
             <xs:enumeration value="time"/>
+            <xs:enumeration value="time-local"/>
             <xs:enumeration value="colorpicker"/>
             <xs:enumeration value="single-select"/>
             <xs:enumeration value="multi-select"/>

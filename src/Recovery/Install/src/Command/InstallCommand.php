@@ -57,7 +57,7 @@ class InstallCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->IOHelper = new IOHelper(
             $input,
@@ -151,6 +151,8 @@ class InstallCommand extends Command
         if ($this->IOHelper->isInteractive()) {
             $this->IOHelper->writeln('<info>Shop successfully installed.</info>');
         }
+
+        return 0;
     }
 
     protected function checkRequirements(Container $container): void
@@ -692,7 +694,10 @@ EOT;
         /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->offsetGet('migration.collection.loader');
 
-        $coreMigrations = $migrationCollectionLoader->collect('core');
+        $coreMigrations = $migrationCollectionLoader->collectAllForVersion(
+            $this->container->offsetGet('shopware.version'),
+            MigrationCollectionLoader::VERSION_SELECTION_ALL
+        );
 
         $coreMigrations->sync();
 

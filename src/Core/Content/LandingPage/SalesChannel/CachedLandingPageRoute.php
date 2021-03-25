@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Category\SalesChannel;
+namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Category\Event\CategoryRouteCacheKeyEvent;
-use Shopware\Core\Content\Category\Event\CategoryRouteCacheTagsEvent;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
+use Shopware\Core\Content\LandingPage\Event\LandingPageRouteCacheKeyEvent;
+use Shopware\Core\Content\LandingPage\Event\LandingPageRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -24,9 +24,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class CachedCategoryRoute extends AbstractCategoryRoute
+class CachedLandingPageRoute extends AbstractLandingPageRoute
 {
-    private AbstractCategoryRoute $decorated;
+    private AbstractLandingPageRoute $decorated;
 
     private TagAwareAdapterInterface $cache;
 
@@ -41,7 +41,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
     private LoggerInterface $logger;
 
     public function __construct(
-        AbstractCategoryRoute $decorated,
+        AbstractLandingPageRoute $decorated,
         TagAwareAdapterInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
@@ -60,33 +60,28 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
     public static function buildName(string $id): string
     {
-        return 'category-route-' . $id;
+        return 'landing-page-route-' . $id;
     }
 
-    public function getDecorated(): AbstractCategoryRoute
+    public function getDecorated(): AbstractLandingPageRoute
     {
         return $this->decorated;
     }
 
     /**
-     * @Since("6.2.0.0")
+     * @Since("6.4.0.0")
      * @OA\Post(
-     *      path="/category/{categoryId}",
-     *      summary="Loads a category with the resolved cms page",
-     *      operationId="readCategory",
+     *      path="/landing-page/{landingPageId}",
+     *      summary="Loads a landing page with the resolved cms page",
+     *      operationId="readLandingPage",
      *      tags={"Store API", "Content"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(property="categoryId", description="Id of the category", type="string", format="uuid")
-     *          )
-     *      ),
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(name="categoryId", description="Category ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(name="landingPageId", description="LandingPage ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(name="slots", description="Slots of the resolved cms page", @OA\Schema(type="string"), in="query", required=false),
      *      @OA\Response(
      *          response="200",
-     *          description="The loaded category with cms page",
-     *          @OA\JsonContent(ref="#/components/schemas/category_flat")
+     *          description="The loaded landing page with cms page",
+     *          @OA\JsonContent(ref="#/components/schemas/landing_page_flat")
      *     ),
      *     @OA\Response(
      *          response="404",
@@ -94,23 +89,23 @@ class CachedCategoryRoute extends AbstractCategoryRoute
      *     ),
      * )
      *
-     * @Route("/store-api/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
+     * @Route("/store-api/landing-page/{landingPageId}", name="store-api.landing-page.detail", methods={"POST"})
      */
-    public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
+    public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . self::buildName($navigationId));
+            $this->logger->info('cache-miss: ' . self::buildName($landingPageId));
 
-            return $this->getDecorated()->load($navigationId, $request, $context);
+            return $this->getDecorated()->load($landingPageId, $request, $context);
         }
 
         $item = $this->cache->getItem(
-            $this->generateKey($navigationId, $request, $context)
+            $this->generateKey($landingPageId, $request, $context)
         );
 
         try {
             if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::buildName($navigationId));
+                $this->logger->info('cache-hit: ' . self::buildName($landingPageId));
 
                 return CacheCompressor::uncompress($item);
             }
@@ -118,56 +113,56 @@ class CachedCategoryRoute extends AbstractCategoryRoute
             $this->logger->error($e->getMessage());
         }
 
-        $this->logger->info('cache-miss: ' . self::buildName($navigationId));
+        $this->logger->info('cache-miss: ' . self::buildName($landingPageId));
 
-        $name = self::buildName($navigationId);
-        $response = $this->tracer->trace($name, function () use ($navigationId, $request, $context) {
-            return $this->getDecorated()->load($navigationId, $request, $context);
+        $name = self::buildName($landingPageId);
+        $response = $this->tracer->trace($name, function () use ($landingPageId, $request, $context) {
+            return $this->getDecorated()->load($landingPageId, $request, $context);
         });
 
         $item = CacheCompressor::compress($item, $response);
 
-        $item->tag($this->generateTags($navigationId, $response, $request, $context));
+        $item->tag($this->generateTags($landingPageId, $response, $request, $context));
 
         $this->cache->save($item);
 
         return $response;
     }
 
-    private function generateKey(string $navigationId, Request $request, SalesChannelContext $context): string
+    private function generateKey(string $landingPageId, Request $request, SalesChannelContext $context): string
     {
         $parts = array_merge(
             $request->query->all(),
             $request->request->all(),
             [
-                self::buildName($navigationId),
+                self::buildName($landingPageId),
                 $this->generator->getSalesChannelContextHash($context),
             ]
         );
 
-        $event = new CategoryRouteCacheKeyEvent($navigationId, $parts, $request, $context, null);
+        $event = new LandingPageRouteCacheKeyEvent($landingPageId, $parts, $request, $context, null);
         $this->dispatcher->dispatch($event);
 
         return md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
-    private function generateTags(string $navigationId, CategoryRouteResponse $response, Request $request, SalesChannelContext $context): array
+    private function generateTags(string $landingPageId, LandingPageRouteResponse $response, Request $request, SalesChannelContext $context): array
     {
         $tags = array_merge(
-            $this->tracer->get(self::buildName($navigationId)),
-            $this->extractProductIds($response),
-            [self::buildName($navigationId)]
+            $this->tracer->get(self::buildName($landingPageId)),
+            $this->extractIds($response),
+            [self::buildName($landingPageId)]
         );
 
-        $event = new CategoryRouteCacheTagsEvent($navigationId, $tags, $request, $response, $context, null);
+        $event = new LandingPageRouteCacheTagsEvent($landingPageId, $tags, $request, $response, $context, null);
         $this->dispatcher->dispatch($event);
 
         return array_unique(array_filter($event->getTags()));
     }
 
-    private function extractProductIds(CategoryRouteResponse $response): array
+    private function extractIds(LandingPageRouteResponse $response): array
     {
-        $page = $response->getCategory()->getCmsPage();
+        $page = $response->getLandingPage()->getCmsPage();
 
         if ($page === null) {
             return [];

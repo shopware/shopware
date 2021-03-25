@@ -8,6 +8,21 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class EntityCacheKeyGenerator
 {
+    public static function buildCmsTag(string $id): string
+    {
+        return 'cms-page-' . $id;
+    }
+
+    public static function buildProductTag(string $id): string
+    {
+        return 'product-' . $id;
+    }
+
+    public static function buildStreamTag(string $id): string
+    {
+        return 'product-stream-' . $id;
+    }
+
     public function getSalesChannelContextHash(SalesChannelContext $context): string
     {
         return md5(json_encode([

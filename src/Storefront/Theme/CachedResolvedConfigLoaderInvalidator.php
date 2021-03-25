@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -10,9 +10,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 {
-    private CacheInvalidationLogger $logger;
+    private CacheInvalidator $logger;
 
-    public function __construct(CacheInvalidationLogger $logger)
+    public function __construct(CacheInvalidator $logger)
     {
         $this->logger = $logger;
     }
@@ -35,16 +35,16 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
             $tags[] = ThemeConfigValueAccessor::buildName($key);
         }
 
-        $this->logger->log($tags);
+        $this->logger->invalidate($tags);
     }
 
     public function assigned(ThemeAssignedEvent $event): void
     {
-        $this->logger->log([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
+        $this->logger->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
     }
 
     public function reset(ThemeConfigResetEvent $event): void
     {
-        $this->logger->log([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
+        $this->logger->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
     }
 }

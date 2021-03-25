@@ -229,11 +229,6 @@ base-uri 'self';
             <tag name="monolog.logger"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Translation\CachedTranslatorInvalidator">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Adapter\Translation\TranslatorCacheInvalidate">
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -476,7 +471,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger">
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator">
             <argument>%shopware.cache.invalidation.delay%</argument>
             <argument>%shopware.cache.invalidation.count%</argument>
             <argument type="collection">
@@ -583,6 +578,12 @@ base-uri 'self';
 
             <tag name="console.command"/>
             <tag name="console.command" command="administration:dump:features"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

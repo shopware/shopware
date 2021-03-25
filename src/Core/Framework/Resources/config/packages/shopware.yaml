@@ -111,5 +111,6 @@ shopware:
             shipping_method_route: []
             navigation_route: []
             category_route: []
+            landing_page_route: []
             language_route: []
             currency_route: []

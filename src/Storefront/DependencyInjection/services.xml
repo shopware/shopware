@@ -22,7 +22,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

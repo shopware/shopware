@@ -89,7 +89,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context->getContext())->first();
 
-        $this->extendCriteria($context, $criteria, $category);
+        $streamId = $this->extendCriteria($context, $criteria, $category);
 
         $result = $this->listingLoader->load($criteria, $context);
 
@@ -101,10 +101,12 @@ class ProductListingRoute extends AbstractProductListingRoute
             new ProductListingResultEvent($request, $result, $context)
         );
 
+        $result->setStreamId($streamId);
+
         return new ProductListingRouteResponse($result);
     }
 
-    private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, CategoryEntity $category): void
+    private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, CategoryEntity $category): ?string
     {
         if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && $category->getProductStreamId() !== null) {
             $filters = $this->productStreamBuilder->buildFilters(
@@ -114,11 +116,13 @@ class ProductListingRoute extends AbstractProductListingRoute
 
             $criteria->addFilter(...$filters);
 
-            return;
+            return $category->getProductStreamId();
         }
 
         $criteria->addFilter(
             new EqualsFilter('product.categoriesRo.id', $category->getId())
         );
+
+        return null;
     }
 }

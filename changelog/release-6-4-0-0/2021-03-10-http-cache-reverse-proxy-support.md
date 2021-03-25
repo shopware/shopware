@@ -3,11 +3,6 @@ title: Http Cache Reverse Proxy support
 issue: NEXT-12958
 ---
 
-# Core
-
-* Added new method `Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger:cleanup`
-
-___
 # Storefront
 
 * Added following new classes:

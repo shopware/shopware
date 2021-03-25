@@ -230,7 +230,7 @@ class CrossSellingRouteTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(0, $result->count());
+        static::assertEquals(1, $result->count());
     }
 
     public function testLoadForProductWithProductCrossSellingAssignedProducts(): void

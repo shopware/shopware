@@ -25,7 +25,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
             <argument type="service" id="media.repository"/>
             <argument type="tagged" tag="shopware.asset"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>
@@ -66,7 +66,7 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

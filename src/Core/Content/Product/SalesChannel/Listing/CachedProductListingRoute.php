@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -138,10 +137,13 @@ class CachedProductListingRoute extends AbstractProductListingRoute
         return md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
-    private function generateTags(string $categoryId, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
+    private function generateTags(string $categoryId, Request $request, ProductListingRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
+        $streamId = $response->getResult()->getStreamId();
+
         $tags = array_merge(
             $this->tracer->get(self::buildName($categoryId)),
+            [$streamId ? EntityCacheKeyGenerator::buildStreamTag($streamId) : null],
             [self::buildName($categoryId)]
         );
 

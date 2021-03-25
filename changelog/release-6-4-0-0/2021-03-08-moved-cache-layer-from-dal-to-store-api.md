@@ -10,7 +10,6 @@ author_github: OliverSkroblin
 * Added cache layer for rule loading
     * Added `AbstractRuleLoader`, which is the base class for the `RuleLoader`
     * Added `CachedRuleLoader`, which adds a cache around the rule loading
-    * Added `CachedRuleLoaderInvalidator`, which invalidates the cache of the cached rules
 * Added cache layer for request domain resolving
     * Added `AbstractDomainLoader`, which is the base class for the `DomainLoader`
     * Added `CachedDomainLoader`, which adds a cache around the domain loading
@@ -18,7 +17,6 @@ author_github: OliverSkroblin
     * Added `DomainLoader`, which is responsible to provide all existing domains. This domains are used to detect which domain is requested in an incoming request
 * Added cache layer for shipping method store api route
     * Added `CachedShippingMethodRoute`, which adds a cache around the shipping method loading
-    * Added `CachedShippingMethodRouteInvalidator`, which invalidates the cache for the shipping method loading
     * Added `ShippingMethodRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `ShippingMethodRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined 
 * Added cache layer for product suggest store api route
@@ -41,40 +39,33 @@ author_github: OliverSkroblin
     * Added `ProductDetailRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
 * Added cache layer for payment method store api route
     * Added `CachedPaymentMethodRoute`, which adds a cache around the payment method loading of a sales channel 
-    * Added `CachedPaymentMethodRouteInvalidator`, which invalidates the cache for the route
     * Added `PaymentMethodRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `PaymentMethodRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
 * Added cache layer for navigation store api route
     * Added `CachedNavigationRoute`, which adds a cache around the navigation loading
-    * Added `CachedNavigationRouteInvalidator`, which invalidates the cache for the route
     * Added `NavigationRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `NavigationRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
 * Added cache layer for language store api route
     * Added `CachedLanguageRoute`, which adds a cache around the language loading of a sales channel
-    * Added `CachedLanguageRouteInvalidator`, which invalidates the cache for the route
     * Added `LanguageRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `LanguageRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
 * Added cache layer for currency store api route
     * Added `CachedCurrencyRoute`, which adds a cache around the currency loading of a sales channel 
-    * Added `CachedCurrencyRouteInvalidator`, which invalidates the cache for the route
-      Added `CurrencyRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
+    * Added `CurrencyRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `CurrencyRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
 * Added cache layer for system config loading
     * Added `AbstractSystemConfigLoader`, which is the base class for the `SystemConfigLoader` service
     * Added `CachedSystemConfigLoader`, adds a cache around the system config loading
-    * Added `CachedSystemConfigLoaderInvalidator`, invalidates the cached system configs
     * Added `SystemConfigChangedEvent`, which is triggered when a system config value is changed. This event is used to invalidate the cache 
     * Added `SystemConfigLoader`, which is responsible to load the system configuration for a provided sales channel id. 
 * Added cache layer for seo url resoling
     * Added `AbstractSeoResolver` which is the base class for the seo url resolving
     * Added `CachedSeoResolver` which adds a cache around the seo url resolving
-    * Added `CachedSeoResolverInvalidator` which invalidates the cache of the cached seo resolver
     * Added `EmptyPathInfoResolver` which handles empty path infos inside before the real seo url resolver is triggered
     * Added `SeoUrlUpdateEvent` which is triggered when a seo url changed
 * Added cache layer for sales channel creation
     * Added `AbstractSalesChannelContextFactory` which is the base class for the context factory
     * Added `CachedSalesChannelContextFactory` which adds a cache around the context factory 
-    * Added `CachedSalesChannelContextFactoryInvalidator` which invalidates the cache for the context factory
 * Added cache layer for theme config loading
     * Added `AbstractResolvedConfigLoader` which is the service base class to load theme configurations for a sales channel
     * Added `CachedResolvedConfigLoader` which caches the access to a sales channel theme config
@@ -86,9 +77,8 @@ author_github: OliverSkroblin
 * Added cache tracer services which allows tracing config access while a service is called
     * Added `AbstractCacheTracer` which is the base class for the cache tracer
     * Added `AbstractTranslator` which is a new base class for the translator component. Additionally, it allows to trace the accessed snippets inside a request
-    * Added `CachedTranslatorInvalidator` which triggers an invalidation for each changed snippet
     * Added `CacheTracer` which is a composition of different traces
-* Added new `CacheInvalidationLogger` which is used to invalidate the cache or to log the invalidation for a delayed invalidation.
+* Added new `CacheInvalidator` which is used to invalidate the cache or to log the invalidation for a delayed invalidation.
     * Added `InvalidateCacheEvent` which is triggered when the cache will be invalidated
     * Added `InvalidateCacheTask` which triggers the logger to invalidate the delayed cache invalidation
 * Added `shopware.cache` configuration in `shopware.yaml` file for cache configuration
@@ -118,8 +108,8 @@ author_github: OliverSkroblin
 * Added `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory::$domainId`
 * Added `SalesChannelContextServiceParameters` which is used as context service parameter to prevent signature changes in the future
 * Added cache for `SwSanitizeTwigFilter`
-* Removed `\Shopware\Core\Framework\Adapter\Cache\CacheClearer::invalidateIds`, use `\Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger::log` instead
-* Removed `\Shopware\Core\Framework\Adapter\Cache\CacheClearer::invalidateTags`, use `\Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger::log` instead
+* Removed `\Shopware\Core\Framework\Adapter\Cache\CacheClearer::invalidateIds`, use `\Shopware\Core\Framework\Adapter\Cache\CacheInvalidator::invalidate` instead
+* Removed `\Shopware\Core\Framework\Adapter\Cache\CacheClearer::invalidateTags`, use `\Shopware\Core\Framework\Adapter\Cache\CacheInvalidator::invalidate` instead
 * Removed `BlacklistRuleField`, because it leads to performance problems
 * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator`
 * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader`

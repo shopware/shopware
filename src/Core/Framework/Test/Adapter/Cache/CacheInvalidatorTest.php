@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\Test\Adapter\Cache;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
-class CacheInvalidationLoggerTest extends TestCase
+class CacheInvalidatorTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -38,7 +38,7 @@ class CacheInvalidationLoggerTest extends TestCase
             ->method('getItem')
             ->willReturn($item);
 
-        $logger = new CacheInvalidationLogger(
+        $logger = new CacheInvalidator(
             $delay,
             150,
             [$adapter],
@@ -47,7 +47,7 @@ class CacheInvalidationLoggerTest extends TestCase
             $this->getContainer()->get('scheduled_task.repository')
         );
 
-        $logger->invalidate($time);
+        $logger->invalidateExpired($time);
 
         $invalidated = $adapter->getInvalidated();
 

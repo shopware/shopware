@@ -7,20 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 class ProductListingResult extends EntitySearchResult
 {
-    /**
-     * @var string|null
-     */
-    protected $sorting;
+    protected ?string $sorting = null;
 
-    /**
-     * @var array
-     */
-    protected $currentFilters = [];
+    protected array $currentFilters = [];
 
-    /**
-     * @var ProductSortingCollection
-     */
-    protected $availableSortings;
+    protected ProductSortingCollection $availableSortings;
+
+    protected ?string $streamId = null;
 
     public function addCurrentFilter(string $key, $value): void
     {
@@ -60,5 +53,15 @@ class ProductListingResult extends EntitySearchResult
     public function getApiAlias(): string
     {
         return 'product_listing';
+    }
+
+    public function setStreamId(?string $streamId): void
+    {
+        $this->streamId = $streamId;
+    }
+
+    public function getStreamId(): ?string
+    {
+        return $this->streamId;
     }
 }

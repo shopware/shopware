@@ -75,6 +75,7 @@ Component.register('sw-cms-el-config-product-listing', {
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
             criteria.addFilter(Criteria.equals('filterable', true));
+            criteria.setLimit(null);
 
             return criteria;
         },

@@ -273,6 +273,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-13821 - Deprecate the plugin manager module](/changelog/release-6-4-0-0/2021-03-17-deprecate-the-plugin-manager-module.md)
 *  [NEXT-13821 - Remove the plugin manager from the administration](/changelog/release-6-4-0-0/2021-03-16-remove-the-plugin-manager-from-the-administration.md)
 *  [NEXT-14418 - Component overrides now consider mixins](/changelog/release-6-4-0-0/2021-03-23-component-overrides-now-consider-mixins.md)
+*  [NEXT-13838 - Use sql null safe equals operator](/changelog/release-6-4-0-0/2021-03-24-use-sql-null-safe-equals-operator.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

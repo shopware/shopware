@@ -880,6 +880,75 @@ class WebhookDispatcherTest extends TestCase
         );
     }
 
+    public function testItDoesDispatchAppLifecycleEventForInactiveApp(): void
+    {
+        $aclRoleId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => false,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'writeAccess' => false,
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $aclRoleId,
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'name' => 'hook1',
+                    'eventName' => AppDeletedEvent::NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new AppDeletedEvent($appId, Context::createDefaultContext());
+
+        /** @var EventDispatcherInterface $eventDispatcher */
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher->dispatch($event);
+
+        /** @var Request $request */
+        $request = $this->getLastRequest();
+
+        static::assertEquals('POST', $request->getMethod());
+        $body = $request->getBody()->getContents();
+        static::assertJson($body);
+
+        $data = json_decode($body, true);
+
+        static::assertEquals([
+            'data' => [
+                'payload' => [],
+                'event' => AppDeletedEvent::NAME,
+            ],
+            'source' => [
+                'url' => $this->shopUrl,
+                'appVersion' => '0.0.1',
+                'shopId' => $this->shopIdProvider->getShopId(),
+            ],
+        ], $data);
+
+        static::assertEquals(
+            hash_hmac('sha256', $body, 's3cr3t'),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
+    }
+
     private function getEntityWrittenEvent(string $entityId): EntityWrittenContainerEvent
     {
         $context = Context::createDefaultContext();

@@ -7,7 +7,7 @@
       "title": "Settings",
       "tabShop": "Shop",
       "tabSystem": "System",
-      "tabPlugins": "Plugins"
+      "tabPlugins": "Extensions"
     },
     "system-config": {
       "labelSalesChannelSelect": "Sales Channel",

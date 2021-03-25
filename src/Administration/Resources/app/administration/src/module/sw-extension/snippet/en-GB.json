@@ -13,13 +13,13 @@
     "my-extensions": {
       "listing": {
         "initialSearchType": "Extensions",
-        "placeholderSearchBar": "Search extensions…",
+        "placeholderSearchBar": "Search extensions...",
         "controls": {
           "labelActiveStateSwitch": "Hide inactive extensions",
           "filterOptions": {
             "last-updated": "Last updated",
-            "name-asc": "Extension name, asc.",
-            "name-desc": "Extension name, desc."
+            "name-asc": "Name A - Z.",
+            "name-desc": "Name Z - A."
           }
         },
         "version": "Version",
@@ -27,30 +27,30 @@
       },
       "account": {
         "headline": "Shopware Account",
-        "isLoggedIn": "Account succesfully connected. Go to the \"App\" or \"Themes\" tab and check if your purchased extensions are listed. If not, check head over to your Showare Account and make sure the correct domain for extensions has been set.",
+        "isLoggedIn": "Shopware Account succesfully connected. Go to the \"App\" or \"Themes\" tab and check if your purchased extensions are listed. If not, check head over to your Showare Account and make sure the correct domain for extensions has been set.",
         "login": "Login",
         "logout": "Logout",
-        "loginMessage": "Login with you Shopware Account to access the extensions you bought on store.shopware.com",
-        "register": "Register and become part of the Shopware community!",
-        "registerNow": "Register now",
+        "loginMessage": "Login with you Shopware Account to access extensions you bought on store.shopware.com",
+        "register": "Sign up now and become part of the Shopware community!",
+        "registerNow": "Sign up now",
         "registerUrl": "https://account.shopware.com/register?lang=en",
         "mailLabel": "Email address",
-        "mailPlaceholder": "Enter your Email address…",
+        "mailPlaceholder": "Enter your email address...",
         "passwordLabel": "Password",
-        "passwordPlaceholder": "Enter your password…",
+        "passwordPlaceholder": "Enter your password...",
         "recoveryUrl": "https://account.shopware.com/recovery?lang=en",
-        "passwordForgot": "Did you forgot your password?",
+        "passwordForgot": "Did you forget your password?",
         "loginNotificationMessage": "You are logged in to the Shopware Account."
       },
       "tabs": {
         "app": "Apps",
-        "theme": "Theme",
+        "theme": "Themes",
         "recommendation": "Recommendations",
         "shopwareAccount": "Shopware Account"
       },
       "fileUpload": {
         "buttonFileUpload": "Upload extension",
-        "messageUploadSuccess": "The extension has been uploaded."
+        "messageUploadSuccess": "Extension uploaded."
       }
     },
     "errors": {
@@ -58,19 +58,19 @@
       "messageGenericFailure": "That didn't work.",
       "messageUploadFailureNotAZipFile": "Uploaded file is not a ZIP file.",
       "messageUploadFailureUnzipFailed": "Unable to extract ZIP file.",
-      "messageUploadFailureNoPluginFoundInZipFile": "No plugin found in ZIP file.",
+      "messageUploadFailureNoPluginFoundInZipFile": "No extension found in ZIP file.",
       "messageLoginDataInvalid": "Login data incomplete.",
       "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct license domain from your Shopware Account in \"Settings/Shopware Account\"?",
-      "messageStoreNotAvailable": "Shopware Store is not available.",
-      "messagePluginBaseClassNotFound": "The plugin base class could not be loaded. Check your plugin composer.json regarding the class autoloading",
-      "messagePluginInstallationFailed": "Plugin could not be installed due to error message \"{message}\"",
-      "messagePluginUninstallationFailed": "Plugin could not be uninstalled due to error message \"{message}\"",
-      "messagePluginActivationFailed": "Plugin could not be activated due to error message \"{message}\"",
-      "messagePluginDeactivationFailed": "Plugin could not be deactivated due to error message \"{message}\"",
-      "messageDeactivationFailedDependencies": "The plugin \"{dependency}\" cannot be deactivated, because there are other plugins depending on it. Please deactivate the following plugins before restarting the update: {dependantNames}",
+      "messageStoreNotAvailable": "The Shopware Store is not available.",
+      "messagePluginBaseClassNotFound": "The extension base class could not be loaded. Check your plugin composer.json regarding the class autoloading.",
+      "messagePluginInstallationFailed": "The extension could not be installed: \"{message}\".",
+      "messagePluginUninstallationFailed": "The extension could not be uninstalled: \"{message}\".",
+      "messagePluginActivationFailed": "The extension could not be activated: \"{message}\".",
+      "messagePluginDeactivationFailed": "The extension could not be deactivated: \"{message}\".",
+      "messageDeactivationFailedDependencies": "The extension \"{dependency}\" cannot be deactivated, because there are other extensions depending on it. Please deactivate the following extensions before restarting the update: {dependantNames}",
       "messageDeactivationFailedThemeAssignment": "Unable to deactivate or uninstall theme \"{themeName}\". Please remove the following theme assignments: {assignments}.",
-      "messagePluginUpdateFailed": "Plugin could not be updated due to error message \"{message}\". {pluginDeactivatedHint}",
-      "pluginDeactivatedHint": "Plugin was deactivated."
+      "messagePluginUpdateFailed": "The extension could not be updated: \"{message}\". {pluginDeactivatedHint}",
+      "pluginDeactivatedHint": "Extension deactivated."
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Extensions",
@@ -81,10 +81,10 @@
   },
   "sw-extension-store": {
     "landing-page": {
-      "enablingShopwareStore": "Enabling the Shopware Store ...",
+      "enablingShopwareStore": "Activating the Shopware Store...",
       "takeMinutes": "This may take a few minutes.",
-      "activationErrorTitle": "Error at activation",
-      "activationErrorDescription": "Retry again. If this don't work ask you administrator for help.",
+      "activationErrorTitle": "Error during activation",
+      "activationErrorDescription": "Please try again. If that doesn't work, ask your administrator for help.",
       "retryButton": "Retry",
       "activationSuccessTitle": "Activated successfully",
       "activationSuccessDescription": "Have fun exploring the Shopware Store.",
@@ -112,8 +112,8 @@
         "releaseDateDesc": "Release date newest - oldest",
         "nameAsc": "Name A - Z",
         "nameDesc": "Name Z - A",
-        "ratingAsc": "Rating Low - High",
-        "ratingDesc": "Rating High - Low"
+        "ratingAsc": "Rating low - high",
+        "ratingDesc": "Rating high - low"
       }
     },
     "detail": {
@@ -121,7 +121,7 @@
       "labelButtonOpenExtension": "Open extension",
       "labelButtonInstallExtension": "Install extension",
       "labelBy": "by",
-      "numberOfRatings": "{count} Review | {count} Reviews",
+      "numberOfRatings": "{count} review | {count} reviews",
       "noRatings": "No ratings yet",
       "cardTitleInformation": "Information",
       "labelButtonReadMore": "Read more",
@@ -132,7 +132,7 @@
         "labelUpdatedAt": "Last updated",
         "labelLanguages": "Languages",
         "labelWebsite": "Developer website",
-        "labelPrivacy": "Privacylink"
+        "labelPrivacy": "Privacy policy"
       },
       "cardTitleFAQ": "FAQ",
       "cardTitleChangelog": "Changelog",
@@ -146,7 +146,7 @@
       },
       "sw-extension-buy-modal": {
         "title": "Add extension",
-        "labelAcceptPermissions": "I am aware this extension needs permissions",
+        "labelAcceptPermissions": "I am aware that this extension needs additional permissions",
         "labelAcceptPrivacyExtensions": "I am aware that I need to extend my privacy policy",
         "buttonShowPrivacyExtensions": "Show details",
         "variantCard": {
@@ -158,7 +158,7 @@
         "variantSummary": {
           "labelVat": "plus VAT",
           "labelPrice": "Price",
-          "renewal": "Renewal {renewalDate}"
+          "renewal": "Renewal on {renewalDate}"
         },
         "purchaseButtonsLabels": {
           "free": "Add extension for free",
@@ -166,23 +166,23 @@
           "buy": "Buy extension now"
         },
         "successNotification": {
-          "titleSuccess": "Extensions successfully added!",
+          "titleSuccess": "Extension successfully added!",
           "subtitleSuccess": "You can now try out your new extension.",
           "labelButtonBack": "Back to details"
         },
         "alertCanNotBuy": {
-          "text": "You need to be logged-in in the Store to do this",
+          "text": "You need to be logged in to the Store to do this",
           "linkChoosePLan": "Choose a plan"
         }
       },
       "sw-extension-adding-failed": {
-        "titleFailure": "Adding extension failed",
-        "textProblem": "A problem occurred while adding your extension.",
+        "titleFailure": "Failed adding the extension ",
+        "textProblem": "A problem occurred while adding the extension.",
         "installationFailed": {
           "titleFailure": "Installation failed",
           "textProblem": "A problem occurred while installing your extension. We will inform the manufacturer.",
-          "notificationLicense": "Please note that the subscription to this app or theme remains active.",
-          "textSupport": "If you have any questions about the licence, please contact Shopware Financial Services. Available by email at {0} or by phone at {1}.",
+          "notificationLicense": "Please note that the subscription to this extension remains active.",
+          "textSupport": "If you have any questions about the licence, please contact Shopware Financial Services. Available via email at {0} or via phone at {1}.",
           "supportEmail": "financial.services@shopware.com",
           "supportPhone": "+49 (0)2555 / 9288510"
         }
@@ -199,7 +199,7 @@
           "submitBtn": "Submit"
         },
         "sw-extension-ratings-summary": {
-          "labelRating": "No ratings | {numberOfRatings} Rating | {numberOfRatings} Ratings"
+          "labelRating": "No ratings | {numberOfRatings} rating | {numberOfRatings} ratings"
         },
         "sw-extension-review": {
           "labelLastChangeDate": "By {author} on {lastChangeDate}",
@@ -225,8 +225,8 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Subscription:",
         "inactiveLabel": "(inactive)",
-        "purchasedLabel": "Purchased: ",
-        "installedLabel": "Installed: ",
+        "purchasedLabel": "Purchased on ",
+        "installedLabel": "Installed on ",
         "openExtensionLabel": "Open app",
         "installExtensionLabel": "Install app",
         "labelAcceptAndInstall": "Accept and install",
@@ -234,7 +234,7 @@
           "getHelpLabel": "Get help",
           "seeDetailsLabel": "See details",
           "config": "Configuration",
-          "privacyAndSafetyLabel": "Privacy & safety",
+          "privacyAndSafetyLabel": "Data privacy & safety",
           "removeLabel": "Remove",
           "cancelAndRemoveLabel": "Cancel and remove",
           "uninstallLabel": "Uninstall",
@@ -247,18 +247,18 @@
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deactivate \"{extensionName}\"",
         "description": "The \"{extensionName}\" extension has a monthly subscription fee.<br>Deactivating the extension <b>will not</b> cancel the subscription and fees will continue to be collected!",
-        "descriptionCancel": "If you want to cancel the subscription instead, you can remove it in the context menu under \"{removeLabel}\".",
+        "descriptionCancel": "If you want to cancel the subscription, you can remove it via \"{removeLabel}\" in the context menu.",
         "alertDeactivate": "Do you still want to deactivate the extension?",
         "deactivateLabel": "Deactivate"
       },
       "sw-extension-permissions-modal": {
         "title": "{extensionLabel} permissions",
-        "description": "{extensionLabel} will get access to the following components. Click the link next to the component to show the entity details.",
+        "description": "{extensionLabel} will have access to the following components. Click the link next to the component to show the entity details.",
         "textEntities": "Show permissions"
       },
       "sw-extension-privacy-policy-extensions-modal": {
         "title": "{extensionLabel}: privacy policy extensions",
-        "intro": "This app processes personal information. The manufacturer gives following advice for the adjustments of your privacy policy:"
+        "intro": "This app processes personal information. The manufacturer recommends the adjustments of your privacy policy:"
       },
       "sw-extension-permissions-details-modal": {
         "operationRead": "View",
@@ -268,12 +268,12 @@
       },
       "sw-extension-my-extensions-listing": {
         "apps": {
-          "noActivePlugins": "There are no active extensions.",
+          "noActivePlugins": "No active extensions found.",
           "titleEmptyState": "No apps installed yet",
           "textEmptyState": "If you install apps, they will be listed here."
         },
         "themes": {
-          "noActivePlugins": "There are no active themes.",
+          "noActivePlugins": "No active themes found.",
           "titleEmptyState": "No themes installed yet",
           "textEmptyState": "If you install themes, they will be listed here."
         },
@@ -283,7 +283,7 @@
         "titleCancel": "\"{extensionName}\" cancel and remove",
         "titleRemove": "\"{extensionName}\" remove",
         "description": "If you remove the extension, you can no longer use it.",
-        "alertCancel": "Are you sure you want to remove the extension?",
+        "alertCancel": "Are you sure you want to cancel and remove the extension?",
         "alertRemove": "Are you sure you want to remove the extension?",
         "labelCancel": "Cancel and remove",
         "labelRemove": "Remove"
@@ -301,7 +301,7 @@
         "labelLicensed": "Purchased"
       },
       "sw-extension-config": {
-        "messageSaveSuccess": "Configuration has been saved."
+        "messageSaveSuccess": "Configuration saved."
       }
     },
     "errors": {
@@ -309,7 +309,7 @@
         "message": "You have to accept our terms and conditions to proceed."
       },
       "FRAMEWORK__EXTENSION_THEME_STILL_IN_USE": {
-        "message": "The theme is currently still used in one or more sales channels."
+        "message": "The theme is currently in use by one or more Sales Channels."
       },
       "FRAMEWORK__INVALID_EXTENSION_ID": {
         "message": "The extension identification number is invalid."
@@ -336,7 +336,7 @@
         "message": "The extension cannot be canceled."
       },
       "SAAS_EXTENSION_CANCELLATION__STILL_IN_USE": {
-        "message": "The extension cannot be canceled because it is still in use."
+        "message": "The extension cannot be canceled, because it is still in use."
       },
       "SAAS_EXTENSION_RATING__ALREADY_RATED": {
         "message": "The extension has already been rated."
@@ -351,39 +351,39 @@
         "message": "The selected price model is not allowed for the extension."
       },
       "SAAS_EXTENSION_ORDER__NO_DEFAULT_PAYMENT_MEAN": {
-        "message": "There is no default payment mean available.",
-        "labelLink": "Set up default payment"
+        "message": "There is no default payment method available.",
+        "labelLink": "Set up default payment method"
       },
       "SAAS_EXTENSION_ORDER__INSUFFICIENT_BALANCE": {
-        "message": "There is insufficient balance available."
+        "message": "Insufficient balance."
       },
       "SAAS_EXTENSION_REQUEST__INVALID_CONTENT": {
         "message": "Required request data is missing or invalid."
       },
       "SAAS_EXTENSION_INVALID_BASKET__MULTIPLE_LICENSES_OR_LICENSE_ALREADY_OWNED": {
-        "message": "The basket is invalid because it contains multiple licenses or it contains an already owned license."
+        "message": "The shopping cart is invalid, because it contains multiple licenses or it contains an already owned license."
       },
       "SAAS_EXTENSION_INVALID_BASKET__INVALID_ORDER_POSITION": {
-        "message": "The basket is invalid because of an invalid order position."
+        "message": "The shopping cart is invalid, because of an invalid order position."
       },
       "SAAS_EXTENSION_INVALID_BASKET__GENERAL": {
-        "message": "The basket is invalid."
+        "message": "The shopping cart is invalid."
       },
       "SAAS_EXTENSION_INVALID_BASKET__INVALID_COMPANY": {
-        "message": "The basket is invalid because your company has no country assigned."
+        "message": "The shopping cart is invalid, because your company has no country assigned."
       },
       "SAAS_EXTENSION_RATING__INVALID_EXTENSION": {
-        "message": "Your rating could not be saved because the related extension is invalid."
+        "message": "Your rating could not be saved, because the related extension is invalid."
       },
       "SAAS_COMPANY__MISSING": {
-        "message": "Required company is missing.",
+        "message": "Required company statement is missing.",
         "labelLink": "Assign company"
       }
     }
   },
   "entityCategories": {
     "admin_user": {
-      "title": "Admin user",
+      "title": "Administration user",
       "entities": {
         "integration": "Integration",
         "user": "User",
@@ -427,7 +427,7 @@
         "customer_address": "Address",
         "customer_group": "Customer group",
         "customer_group_translation": "Customer group translation",
-        "customer_group_registration_sales_channels": "Customer group registration sales channel",
+        "customer_group_registration_sales_channels": "Sales Channel for customer group registrations",
         "customer_recovery": "Recovery",
         "customer_tag": "Tag"
       }
@@ -444,8 +444,8 @@
       "title": "Documents",
       "entities": {
         "document": "Document",
-        "document_base_config": "Base config",
-        "document_base_config_sales_channel": "Base config for sales channels",
+        "document_base_config": "Basic config",
+        "document_base_config_sales_channel": "Basic config for Sales Channels",
         "document_type": "Type",
         "document_type_translation": "Type translation"
       }
@@ -485,8 +485,8 @@
     "media": {
       "title": "Media",
       "entities": {
-        "media": "Media",
-        "media_translation": "Media translation",
+        "media": "Medium",
+        "media_translation": "Medium translation",
         "media_default_folder": "Default folder",
         "media_folder": "Folder",
         "media_folder_configuration": "Folder configuration",
@@ -540,11 +540,11 @@
       "entities": {
         "product": "Product",
         "product_category": "Category",
-        "product_category_tree": "Category Tree",
+        "product_category_tree": "Category tree",
         "product_configurator_setting": "Configurator setting",
-        "product_cross_selling": "Cross selling",
-        "product_cross_selling_translation": "Cross selling translation",
-        "product_cross_selling_assigned_products": "Cross selling assigned translation",
+        "product_cross_selling": "Cross Selling",
+        "product_cross_selling_translation": "Cross Selling translation",
+        "product_cross_selling_assigned_products": "Cross Selling assigned translation",
         "product_export": "Product export",
         "product_keyword_dictionary": "Keyword dictionary",
         "product_manufacturer": "Manufacturer",
@@ -578,7 +578,7 @@
         "promotion_order_rule": "Order rule",
         "promotion_persona_customer": "Persona customer",
         "promotion_persona_rule": "Persona rule",
-        "promotion_sales_channel": "Sales channel",
+        "promotion_sales_channel": "Sales Channel",
         "promotion_setgroup": "Promotion set group",
         "promotion_setgroup_rule": "Promotion set group rule"
       }
@@ -602,15 +602,15 @@
         "sales_channel_payment_method": "Payment method",
         "sales_channel_shipping_method": "Shipping method",
         "sales_channel_translation": "Sales Channel translation",
-        "sales_channel_type": "Type",
-        "sales_channel_type_translation": "Type translation"
+        "sales_channel_type": "Sales Channel type",
+        "sales_channel_type_translation": "Sales Channel type translation"
       }
     },
     "settings": {
       "title": "Settings",
       "entities": {
         "country": "Country",
-        "country_state": "Country state",
+        "country_state": "State/province",
         "currency": "Currency",
         "delivery_time": "Delivery time",
         "language": "Language",
@@ -634,7 +634,7 @@
         "tax": "Tax",
         "tax_rule": "Tax rule",
         "tax_rule_type": "Tax rule type",
-        "unit": "Unit",
+        "unit": "Scale unit",
         "version": "Version"
       }
     },

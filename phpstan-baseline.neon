@@ -1421,11 +1421,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
 
 		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
-
-		-
 			message: "#^Parameter \\#1 \\$productId of method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationLoader\\:\\:load\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Detail/ProductConfiguratorLoader.php

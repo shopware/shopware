@@ -99,9 +99,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
                 $element = $this->loadByIds($crossSelling, $context, $clone);
             }
 
-            if ($element && $element->getTotal() > 0) {
-                $elements->add($element);
-            }
+            $elements->add($element);
         }
 
         $this->eventDispatcher->dispatch(new ProductCrossSellingsLoadedEvent($elements, $context));
@@ -159,10 +157,15 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return $element;
     }
 
-    private function loadByIds(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): ?CrossSellingElement
+    private function loadByIds(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): CrossSellingElement
     {
+        $element = new CrossSellingElement();
+        $element->setCrossSelling($crossSelling);
+        $element->setProducts(new ProductCollection());
+        $element->setTotal(0);
+
         if (!$crossSelling->getAssignedProducts()) {
-            return null;
+            return $element;
         }
 
         $crossSelling->getAssignedProducts()->sortByPosition();
@@ -175,7 +178,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         );
 
         if (!\count($ids)) {
-            return null;
+            return $element;
         }
 
         $criteria->setIds($ids);
@@ -195,10 +198,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $products->sortByIdArray($ids);
 
-        $element = new CrossSellingElement();
-        $element->setCrossSelling($crossSelling);
         $element->setProducts($products);
-        $element->setTotal($crossSelling->getAssignedProducts()->count());
+        $element->setTotal(\count($products));
 
         return $element;
     }

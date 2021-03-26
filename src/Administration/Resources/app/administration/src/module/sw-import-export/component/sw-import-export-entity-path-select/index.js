@@ -168,7 +168,12 @@ Component.register('sw-import-export-entity-path-select', {
                     return false;
                 }
 
-                return !(part === 'translations' || part === 'visibilities' || part === 'price');
+                return !(
+                    part === 'translations' ||
+                    part === 'visibilities' ||
+                    part === 'price' ||
+                    part === 'purchasePrices'
+                );
             });
         },
 
@@ -402,7 +407,7 @@ Component.register('sw-import-export-entity-path-select', {
 
             // Remove visibility property
             const filteredProperties = properties.filter(propertyName => {
-                return propertyName !== 'price';
+                return propertyName !== 'price' && propertyName !== 'purchasePrices';
             });
 
             return {
@@ -414,11 +419,18 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         getPriceProperties(path) {
+            return [
+                ...this.generatePriceProperties('price', path),
+                ...this.generatePriceProperties('purchasePrices', path)
+            ];
+        },
+
+        generatePriceProperties(priceType, path) {
             const options = [];
 
             this.currencies.forEach((currency) => {
                 this.priceProperties.forEach(propertyName => {
-                    const name = `${path}price.${currency.isoCode}.${propertyName}`;
+                    const name = `${path}${priceType}.${currency.isoCode}.${propertyName}`;
                     options.push({ label: name, value: name });
                 });
             });

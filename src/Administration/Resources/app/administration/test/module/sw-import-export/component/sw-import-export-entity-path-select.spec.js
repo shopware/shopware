@@ -188,7 +188,17 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'price.USD.gross', value: 'price.USD.gross' },
             { label: 'price.USD.currencyId', value: 'price.USD.currencyId' },
             { label: 'price.USD.linked', value: 'price.USD.linked' },
-            { label: 'price.USD.listPrice', value: 'price.USD.listPrice' }
+            { label: 'price.USD.listPrice', value: 'price.USD.listPrice' },
+            { label: 'purchasePrices.EUR.net', value: 'purchasePrices.EUR.net' },
+            { label: 'purchasePrices.EUR.gross', value: 'purchasePrices.EUR.gross' },
+            { label: 'purchasePrices.EUR.currencyId', value: 'purchasePrices.EUR.currencyId' },
+            { label: 'purchasePrices.EUR.linked', value: 'purchasePrices.EUR.linked' },
+            { label: 'purchasePrices.EUR.listPrice', value: 'purchasePrices.EUR.listPrice' },
+            { label: 'purchasePrices.USD.net', value: 'purchasePrices.USD.net' },
+            { label: 'purchasePrices.USD.gross', value: 'purchasePrices.USD.gross' },
+            { label: 'purchasePrices.USD.currencyId', value: 'purchasePrices.USD.currencyId' },
+            { label: 'purchasePrices.USD.linked', value: 'purchasePrices.USD.linked' },
+            { label: 'purchasePrices.USD.listPrice', value: 'purchasePrices.USD.listPrice' }
         ];
 
         expect(actual).toEqual(expected);
@@ -213,7 +223,17 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'parent.price.USD.gross', value: 'parent.price.USD.gross' },
             { label: 'parent.price.USD.currencyId', value: 'parent.price.USD.currencyId' },
             { label: 'parent.price.USD.linked', value: 'parent.price.USD.linked' },
-            { label: 'parent.price.USD.listPrice', value: 'parent.price.USD.listPrice' }
+            { label: 'parent.price.USD.listPrice', value: 'parent.price.USD.listPrice' },
+            { label: 'parent.purchasePrices.EUR.net', value: 'parent.purchasePrices.EUR.net' },
+            { label: 'parent.purchasePrices.EUR.gross', value: 'parent.purchasePrices.EUR.gross' },
+            { label: 'parent.purchasePrices.EUR.currencyId', value: 'parent.purchasePrices.EUR.currencyId' },
+            { label: 'parent.purchasePrices.EUR.linked', value: 'parent.purchasePrices.EUR.linked' },
+            { label: 'parent.purchasePrices.EUR.listPrice', value: 'parent.purchasePrices.EUR.listPrice' },
+            { label: 'parent.purchasePrices.USD.net', value: 'parent.purchasePrices.USD.net' },
+            { label: 'parent.purchasePrices.USD.gross', value: 'parent.purchasePrices.USD.gross' },
+            { label: 'parent.purchasePrices.USD.currencyId', value: 'parent.purchasePrices.USD.currencyId' },
+            { label: 'parent.purchasePrices.USD.linked', value: 'parent.purchasePrices.USD.linked' },
+            { label: 'parent.purchasePrices.USD.listPrice', value: 'parent.purchasePrices.USD.listPrice' }
         ];
 
         expect(actual).toEqual(expected);
@@ -226,7 +246,12 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'price.DEFAULT.gross', value: 'price.DEFAULT.gross' },
             { label: 'price.DEFAULT.currencyId', value: 'price.DEFAULT.currencyId' },
             { label: 'price.DEFAULT.linked', value: 'price.DEFAULT.linked' },
-            { label: 'price.DEFAULT.listPrice', value: 'price.DEFAULT.listPrice' }
+            { label: 'price.DEFAULT.listPrice', value: 'price.DEFAULT.listPrice' },
+            { label: 'purchasePrices.DEFAULT.net', value: 'purchasePrices.DEFAULT.net' },
+            { label: 'purchasePrices.DEFAULT.gross', value: 'purchasePrices.DEFAULT.gross' },
+            { label: 'purchasePrices.DEFAULT.currencyId', value: 'purchasePrices.DEFAULT.currencyId' },
+            { label: 'purchasePrices.DEFAULT.linked', value: 'purchasePrices.DEFAULT.linked' },
+            { label: 'purchasePrices.DEFAULT.listPrice', value: 'purchasePrices.DEFAULT.listPrice' }
         ];
 
         expect(actual).toEqual(expected);
@@ -370,6 +395,26 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'parent.parent.price.DEFAULT.net',
                 value: 'parent.parent.price.DEFAULT.net'
+            },
+            {
+                label: 'parent.parent.purchasePrices.DEFAULT.currencyId',
+                value: 'parent.parent.purchasePrices.DEFAULT.currencyId'
+            },
+            {
+                label: 'parent.parent.purchasePrices.DEFAULT.gross',
+                value: 'parent.parent.purchasePrices.DEFAULT.gross'
+            },
+            {
+                label: 'parent.parent.purchasePrices.DEFAULT.linked',
+                value: 'parent.parent.purchasePrices.DEFAULT.linked'
+            },
+            {
+                label: 'parent.parent.purchasePrices.DEFAULT.listPrice',
+                value: 'parent.parent.purchasePrices.DEFAULT.listPrice'
+            },
+            {
+                label: 'parent.parent.purchasePrices.DEFAULT.net',
+                value: 'parent.parent.purchasePrices.DEFAULT.net'
             }
         ];
 
@@ -427,7 +472,12 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'price.DEFAULT.gross', value: 'price.DEFAULT.gross' },
             { label: 'price.DEFAULT.currencyId', value: 'price.DEFAULT.currencyId' },
             { label: 'price.DEFAULT.linked', value: 'price.DEFAULT.linked' },
-            { label: 'price.DEFAULT.listPrice', value: 'price.DEFAULT.listPrice' }
+            { label: 'price.DEFAULT.listPrice', value: 'price.DEFAULT.listPrice' },
+            { label: 'purchasePrices.DEFAULT.net', value: 'purchasePrices.DEFAULT.net' },
+            { label: 'purchasePrices.DEFAULT.gross', value: 'purchasePrices.DEFAULT.gross' },
+            { label: 'purchasePrices.DEFAULT.currencyId', value: 'purchasePrices.DEFAULT.currencyId' },
+            { label: 'purchasePrices.DEFAULT.linked', value: 'purchasePrices.DEFAULT.linked' },
+            { label: 'purchasePrices.DEFAULT.listPrice', value: 'purchasePrices.DEFAULT.listPrice' }
         ]);
     });
 

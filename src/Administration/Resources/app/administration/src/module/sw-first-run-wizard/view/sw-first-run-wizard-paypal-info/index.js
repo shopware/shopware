@@ -65,7 +65,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
         },
 
         installPayPal() {
-            return this.storeService.downloadPlugin(this.pluginName, true)
+            return this.storeService.downloadPlugin(this.pluginName, true, true)
                 .then(() => {
                     return this.pluginService.install(this.pluginName);
                 });

@@ -92,7 +92,7 @@ Component.register('sw-first-run-wizard-data-import', {
             this.isInstallingPlugin = true;
             this.installationError = false;
 
-            return this.storeService.downloadPlugin(plugin.name, true)
+            return this.storeService.downloadPlugin(plugin.name, true, true)
                 .then(() => {
                     return this.pluginService.install(plugin.name);
                 })

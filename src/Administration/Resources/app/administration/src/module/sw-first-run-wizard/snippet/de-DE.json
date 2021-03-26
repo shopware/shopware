@@ -20,12 +20,12 @@
             "switchLanguageModalTitle": "Wähle die Sprache der Benutzeroberfläche",
             "confirmLanguageSwitch": "Sprache wechseln",
             "cancelLanguageSwitch": "Abbrechen",
-            "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest Du die Sprache der Benutzeroberfläche ändern?",
-            "pluginsInstalled": "Sprachplugin{plural} Installiert",
-            "pluginsInstalledMessage": "Sprachplugin installiert: | Sprachplugins für folgende Sprachen wurden installiert: ",
-            "pluginNotFoundMessage": "Das Sprachplugin {languageName} konnte nicht gefunden werden.",
-            "pluginInstallationFailedMessage": "Plugin konnte nicht installiert werden: ",
-            "pluginActivationFailedMessage": "Plugin konnte nicht aktiviert werden: ",
+            "switchLanguageMessage": "Die Sprach-Erweiterung \"{pluginName}\" wurde erfolgreich installiert. Möchtest Du die Sprache der Benutzeroberfläche ändern?",
+            "pluginsInstalled": "Sprach-Erweiterung Installiert",
+            "pluginsInstalledMessage": "Sprach-Erweiterung installiert: | Sprach-Erweiterung für folgende Sprachen wurden installiert: ",
+            "pluginNotFoundMessage": "Die Sprach-Erweiterung {languageName} konnte nicht gefunden werden.",
+            "pluginInstallationFailedMessage": "Erweiterung konnte nicht installiert werden: ",
+            "pluginActivationFailedMessage": "Erweiterung konnte nicht aktiviert werden: ",
             "tryAgainLater": "Bitte versuche es später erneut.",
             "noConnectionMessage": "Verbindungsprobleme, die gewünschte Sprache kann derzeit nicht installiert werden."
         },
@@ -37,7 +37,7 @@
             "headlineMigration": "Eigenen Shop migrieren",
             "messageMigration": "Der Migrations-Assistent hilft Dir, Dein Shopsystem mit Shopware 6 zu verbinden und vorhandene Daten zu übertragen.",
             "buttonInstallMigration": "Migrations-Assistenten installieren",
-            "loadingMessage": "Installiere Plugin<br>Das könnte eine Weile dauern ..."
+            "loadingMessage": "Installiere Erweiterung<br>Das könnte eine Weile dauern ..."
         },
         "mailerSelection": {
             "headline": "Einrichtung der E-Mail-Kommunikation",
@@ -74,7 +74,7 @@
         },
         "recommendedPlugins": {
             "headline": "Unsere Empfehlungen",
-            "modalTitle": "Plugins",
+            "modalTitle": "Erweiterungen",
             "message": "Hier findest Du eine Auswahl empfohlener Erweiterungen für Deinen Shop. Wähle zunächst die für Dich relevantesten aus. Du kannst später weiter in unterschiedlichen Erweiterungs-Kategorien stöbern.",
             "availableInRegion": "Verfügbar in Region",
             "category": "Kategorie",
@@ -140,7 +140,7 @@
             "dataImport": "Daten-Import",
             "mailer": "Mailer-Einstellungen",
             "setupPaypal": "PayPal einrichten",
-            "plugins": "Plugins",
+            "plugins": "Erweiterungen",
             "shopware": "Shopware Account",
             "store": "Shopware Store",
             "markets": "Shopware Markets"

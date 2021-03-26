@@ -16,16 +16,16 @@
             "modalTitle": "Welcome",
             "headlineWelcome": "Welcome in the Shopware 6 Administration",
             "messageWelcome": "This wizard guides you through the setup and tries to be helpful with the most important settings.<br>Do you want to use your shop in a different language and reach customers in other countries? Then simply install the desired language packs here.",
-            "headlineChangeLanguage": "Install additional language plugins",
+            "headlineChangeLanguage": "Install additional languages",
             "switchLanguageModalTitle": "Select the interface language",
             "confirmLanguageSwitch": "Change language",
             "cancelLanguageSwitch": "Cancel",
             "switchLanguageMessage": "\"{pluginName}\" has been installed successfully. Would you like to change your interface language?",
-            "pluginsInstalled": "Plugin installed | Plugins installed",
-            "pluginsInstalledMessage": "Language plugin has been installed: | These language plugins have been installed: ",
-            "pluginNotFoundMessage": "The language plugin {languageName} could not be found.",
-            "pluginInstallationFailedMessage": "Plugin could not be installed: ",
-            "pluginActivationFailedMessage": "Plugin could not be activated: ",
+            "pluginsInstalled": "Extension installed | Extensions installed",
+            "pluginsInstalledMessage": "Language extension has been installed: | These language extensions have been installed: ",
+            "pluginNotFoundMessage": "The language extension {languageName} could not be found.",
+            "pluginInstallationFailedMessage": "Extension could not be installed: ",
+            "pluginActivationFailedMessage": "Extension could not be activated: ",
             "tryAgainLater": "Please try again later.",
             "noConnectionMessage": "There seem to be connection issues, the language could not be installed."
         },
@@ -37,7 +37,7 @@
             "headlineMigration": "Migrate your shop data",
             "messageMigration": "The Migration Assistant helps you connect to and transfer data from a previous shop system right into your new Shopware 6 environment.",
             "buttonInstallMigration": "Install Migration Assistant",
-            "loadingMessage": "Installing plugin<br>This may take a while..."
+            "loadingMessage": "Installing extension<br>This may take a while..."
         },
         "mailerSelection": {
             "headline": "Establishing email communication",
@@ -74,7 +74,7 @@
         },
         "recommendedPlugins": {
             "headline": "Our recommendations",
-            "modalTitle": "Plugins",
+            "modalTitle": "Extensions",
             "message": "Here is a selection of useful extensions for your shop. Select a region that is relevant for you, first. Then you can browse through different categories.",
             "availableInRegion": "Available in region",
             "category": "Category",
@@ -140,7 +140,7 @@
             "dataImport": "Data import",
             "mailer": "Mailer configuration",
             "setupPaypal": "PayPal setup",
-            "plugins": "Plugins",
+            "plugins": "Extensions",
             "shopware": "Shopware Account",
             "store": "Shopware Store",
             "markets": "Shopware Markets"

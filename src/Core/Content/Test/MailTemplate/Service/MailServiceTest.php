@@ -28,7 +28,7 @@ class MailServiceTest extends TestCase
         return [
             ['basic@example.com', 'basic@example.com', null, null],
             ['config@example.com', null, 'config@example.com', null],
-            ['basic@example.com', 'basic@example.com', 'config@example.com', null],
+            ['config@example.com', 'basic@example.com', 'config@example.com', null],
             ['data@example.com', 'basic@example.com', 'config@example.com', 'data@example.com'],
             ['data@example.com', 'basic@example.com', null, 'data@example.com'],
             ['data@example.com', null, 'config@example.com', 'data@example.com'],

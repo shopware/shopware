@@ -226,11 +226,11 @@ class MailService extends AbstractMailService
         $senderEmail = $data['senderEmail'] ?? null;
 
         if ($senderEmail === null || trim($senderEmail) === '') {
-            $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+            $senderEmail = $this->systemConfigService->get('core.mailerSettings.senderAddress', $salesChannelId);
         }
 
         if ($senderEmail === null || trim($senderEmail) === '') {
-            $senderEmail = $this->systemConfigService->get('core.mailerSettings.senderAddress', $salesChannelId);
+            $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
         }
 
         if ($senderEmail === null || trim($senderEmail) === '') {

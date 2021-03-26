@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\MigrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
 
@@ -22,6 +23,7 @@ use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
 class Migration1610523548FixCustomerColumnsTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use MigrationTestBehaviour;
 
     /**
      * @var Connection
@@ -38,29 +40,17 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
         parent::setUp();
         $this->connection = $this->getContainer()->get(Connection::class);
 
-        $sql = '
-            SELECT *
-            FROM `migration`
-            WHERE `class` = :class
-            AND `update_destructive` IS NOT NULL
-        ';
-
-        $result = $this->connection->executeQuery(
-            $sql,
-            ['class' => 'Shopware\Core\Migration\V6_4\Migration1610523548FixCustomerColumns']
-        );
-
-        // Skip test if destructive update was executed
-        if ($result->rowCount() > 0) {
-            static::markTestSkipped();
-        }
-
         $this->repository = $this->getContainer()->get('customer.repository');
 
         $this->connection->rollBack();
         $this->rollback();
         $this->migrate();
         $this->connection->beginTransaction();
+    }
+
+    public function getMigrationClass(): string
+    {
+        return \Shopware\Core\Migration\V6_4\Migration1610523548FixCustomerColumns::class;
     }
 
     public function testColumns(): void

@@ -93,6 +93,10 @@ shopware:
               major: false
               description: "Captcha Integration"
               # issue: NEXT-12455
+            - name: FEATURE_NEXT_14357
+              default: false
+              major: false
+              description: "App System 3.0 - Payments"
 
     logger:
         file_rotation_count: 14

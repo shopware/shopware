@@ -6,9 +6,11 @@ use Shopware\Core\Framework\App\Manifest\Xml\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\Metadata;
+use Shopware\Core\Framework\App\Manifest\Xml\Payments;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -59,6 +61,13 @@ class Manifest
      */
     private $cookies;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_14357)
+     *
+     * @var Payments|null
+     */
+    private $payments;
+
     private function __construct(
         string $path,
         Metadata $metadata,
@@ -67,7 +76,8 @@ class Manifest
         ?Permissions $permissions,
         ?CustomFields $customFields,
         ?Webhooks $webhooks,
-        ?Cookies $cookies
+        ?Cookies $cookies,
+        ?Payments $payments
     ) {
         $this->path = $path;
         $this->metadata = $metadata;
@@ -77,6 +87,7 @@ class Manifest
         $this->customFields = $customFields;
         $this->webhooks = $webhooks;
         $this->cookies = $cookies;
+        $this->payments = $payments;
     }
 
     public static function createFromXmlFile(string $xmlFile): self
@@ -99,11 +110,17 @@ class Manifest
             $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
             $cookies = $doc->getElementsByTagName('cookies')->item(0);
             $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
+            if (Feature::isActive('FEATURE_NEXT_14357')) {
+                $payments = $doc->getElementsByTagName('payments')->item(0);
+                $payments = $payments === null ? null : Payments::fromXml($payments);
+            } else {
+                $payments = null;
+            }
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
 
-        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies);
+        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies, $payments);
     }
 
     public function getPath(): string
@@ -149,5 +166,13 @@ class Manifest
     public function getCookies(): ?Cookies
     {
         return $this->cookies;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14357)
+     */
+    public function getPayments(): ?Payments
+    {
+        return $this->payments;
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -158,6 +159,11 @@ class AppEntity extends Entity
      * @var WebhookCollection|null
      */
     protected $webhooks;
+
+    /**
+     * @var AppPaymentMethodCollection|null
+     */
+    protected $paymentMethods;
 
     public function getId(): string
     {
@@ -440,5 +446,15 @@ class AppEntity extends Entity
     public function setPrivacyPolicyExtensions(?string $privacyPolicyExtensions): void
     {
         $this->privacyPolicyExtensions = $privacyPolicyExtensions;
+    }
+
+    public function getPaymentMethods(): ?AppPaymentMethodCollection
+    {
+        return $this->paymentMethods;
+    }
+
+    public function setPaymentMethods(AppPaymentMethodCollection $paymentMethods): void
+    {
+        $this->paymentMethods = $paymentMethods;
     }
 }

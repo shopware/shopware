@@ -5,10 +5,12 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Payment\PaymentMethodStateService;
 use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -36,16 +38,25 @@ class AppStateService
      */
     private $templateStateService;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_14357) make state service not nullable on removal
+     *
+     * @var PaymentMethodStateService|null
+     */
+    private $paymentMethodStateService;
+
     public function __construct(
         EntityRepositoryInterface $appRepo,
         EventDispatcherInterface $eventDispatcher,
         ActiveAppsLoader $activeAppsLoader,
-        TemplateStateService $templateStateService
+        TemplateStateService $templateStateService,
+        ?PaymentMethodStateService $paymentMethodStateService
     ) {
         $this->appRepo = $appRepo;
         $this->eventDispatcher = $eventDispatcher;
         $this->activeAppsLoader = $activeAppsLoader;
         $this->templateStateService = $templateStateService;
+        $this->paymentMethodStateService = $paymentMethodStateService;
     }
 
     public function activateApp(string $appId, Context $context): void
@@ -62,6 +73,10 @@ class AppStateService
 
         $this->appRepo->update([['id' => $appId, 'active' => true]], $context);
         $this->templateStateService->activateAppTemplates($appId, $context);
+        if (Feature::isActive('FEATURE_NEXT_14357') && $this->paymentMethodStateService !== null) {
+            // on removal of FEATURE_NEXT_14357: Make paymentMethodStateService not nullable
+            $this->paymentMethodStateService->activatePaymentMethods($appId, $context);
+        }
         $this->activeAppsLoader->resetActiveApps();
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
@@ -87,5 +102,9 @@ class AppStateService
 
         $this->appRepo->update([['id' => $appId, 'active' => false]], $context);
         $this->templateStateService->deactivateAppTemplates($appId, $context);
+        if (Feature::isActive('FEATURE_NEXT_14357') && $this->paymentMethodStateService !== null) {
+            // on removal of FEATURE_NEXT_14357: Make paymentMethodStateService not nullable
+            $this->paymentMethodStateService->deactivatePaymentMethods($appId, $context);
+        }
     }
 }

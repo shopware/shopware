@@ -180,7 +180,7 @@ describe('Minimal install', () => {
         // @frw: plugins
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Plugins');
+        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Extensions');
         cy.get('.sw-button span').contains('Next').click();
 
         // @frw: skip account login

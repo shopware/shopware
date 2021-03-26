@@ -8,15 +8,16 @@ use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class QuantityPriceCalculatorTest extends TestCase
@@ -29,13 +30,14 @@ class QuantityPriceCalculatorTest extends TestCase
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition
     ): void {
+        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
+
         $taxCalculator = new TaxCalculator();
         $priceDefinition->setIsCalculated(false);
 
         $calculator = new QuantityPriceCalculator(
             new GrossPriceCalculator($taxCalculator, new CashRounding()),
-            new NetPriceCalculator($taxCalculator, new CashRounding()),
-            Generator::createGrossPriceDetector()
+            new NetPriceCalculator($taxCalculator, new CashRounding())
         );
 
         $context = Generator::createSalesChannelContext();
@@ -53,16 +55,13 @@ class QuantityPriceCalculatorTest extends TestCase
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition
     ): void {
-        $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->willReturn(false);
-        $detector->method('isNetDelivery')->willReturn(false);
+        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
 
         $taxCalculator = new TaxCalculator();
 
         $calculator = new QuantityPriceCalculator(
             new GrossPriceCalculator($taxCalculator, new CashRounding()),
-            new NetPriceCalculator($taxCalculator, new CashRounding()),
-            $detector
+            new NetPriceCalculator($taxCalculator, new CashRounding())
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -82,9 +81,7 @@ class QuantityPriceCalculatorTest extends TestCase
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition
     ): void {
-        $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->willReturn(false);
-        $detector->method('isNetDelivery')->willReturn(true);
+        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
 
         $priceRounding = new CashRounding();
 
@@ -92,14 +89,14 @@ class QuantityPriceCalculatorTest extends TestCase
 
         $calculator = new QuantityPriceCalculator(
             new GrossPriceCalculator($taxCalculator, $priceRounding),
-            new NetPriceCalculator($taxCalculator, $priceRounding),
-            $detector
+            new NetPriceCalculator($taxCalculator, $priceRounding)
         );
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->expects(static::any())
             ->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_FREE);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 

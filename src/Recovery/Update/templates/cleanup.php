@@ -6,7 +6,7 @@ echo $renderer->fetch('_header.php', ['tab' => 'cleanup']); ?>
 </div>
 
 <form name="cleanupForm" action="<?= $router->pathFor('cleanup'); ?>" method="post">
-    <div class="card__body">
+    <div class="card__body scrollable">
         <p>
             <?= $error ? $language['cleanup_error'] : $language['cleanup_disclaimer']; ?>;
         </p>

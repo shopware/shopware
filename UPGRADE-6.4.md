@@ -1,27 +1,136 @@
+UPGRADE FROM 6.3.x.x to 6.4
+=======================
+
 # 6.4.0.0
-## Confirm checkout page / account edit order page
-- On the `confirm checkout page` and `account edit order page`, the modal to change the payment or shipping method was removed.
-- Instead, a maximum of `5` per default payment and shipping methods will be shown instantly.
-- All other methods will be hidden under a JavaScript controlled collapse and may be triggered to appear by user interaction.
-## Minimum PHP version increased
+
+## Breaking changes
+For a complete list of breaking changes please refer to the [bc changelog](`./changelog/release-6-4-0-0/2021-03-18-6.4-breaking-changes.md`) changelog file.
+
+---
+
+## Minimum PHP version increased to 7.4
 The minimum required PHP version for Shopware 6.4.0.0 is now PHP 7.4.
 Please make sure, that your system has at least this PHP version activated.
+
+---
+
+## Sodium is now a requirement
+The PHP extension `sodium` is now a requirement for Shopware 6.4.0.0.
+
+---
+
+## Composer 2
+With Shopware 6.4 we are now requiring the `composer-runtime-api` with version 2.0.
+These means that Shopware is now only installable with Composer 2.
+Installation with Composer 1 is no longer possible and supported.
+
+---
+
+## Symfony 5
+Symfony was upgraded to 5.2.x. It is now locked to the minor 5.2 version.
+
+---
+
+## API versioning change
+Corresponding to the semantic versioning strategy of Shopware, we changed the API versioning to match the major versions of Shopware. 
+As the API stays backward compatible for the life cycle of the whole major version, there is no need for a separate versioning. 
+Therefore we also removed the unnecessary version from the URL pattern.
+
+```
+- /[store-]api/v{version}/...
++ /[store-]api/...
+```
+
+### Upgrade flow for external API services
+With Shopware **6.3.5.0** we already made the new URL pattern available as an additional alias. 
+This enables you to test your application with the new URL pattern within the 6.3 major cycle, before updating to the 6.4 version.
+
+### Detecting the current used Shopware / API
+Of course, it is still important for an external service to know, which version of Shopware is used. 
+Therefore we added a new information endpoint, which provides this information. 
+The new endpoint is also available with Shopware **6.3.5.0**, so you can switch to this pattern in the 6.3 major cycle.
+
+```http request
+GET /api/_info/version
+```
+
+### API expectations
+To have the version within the URL pattern offered the advantage of telling Shopware which version requirement you expect with the request. 
+To still fulfill this need, we extended the possibilities even further. 
+You can send additional expectations via headers within your request, which is not only limited to the version.
+
+```http request
+GET /api/test
+sw-expect-packages: shopware/core:~6.4,swag/paypal:*
+```
+
+This example expects that the Shopware version is at least 6.4, and the PayPal extension is installed in any version. 
+If the conditions are not met, the backend will respond with a 417 HTTP error.
+
+### Since flag on entities / fields
+During the life cycle of a major version, there still might be non-breaking changes to the API. 
+To make this information available, every new field will have a `since` flag, which indicates, when the new field was added to the API. 
+All new fields will be included in the response. 
+You can still remove unwanted fields from the response by using the `includes` property to [reduce the output](https://shopware.gitbook.io/docs/guides/integrations-api/general-concepts/search-criteria#includes-apialias).
+
+The information is shown in the Swagger documentation, in the description of the route in the schema if the request / response.
+
+```http request
+/api/_info/swagger.html
+```
+
+Also deprecated fields, which will be removed with the next major version, are marked in the schema with a `deprecated` flag. 
+This enables you to react to upcoming changes as early as possible.
+
+---
+
 ## Currency filter
 The default of the currency filter in the administration changed.
 It will now display by default 2 fraction digits and up to 20, if available.
+
 ### Before
 * value is 15.123456 -> output is 15.12
 * value is 15.12345678913245 -> output is 15.12
+
 ### After
 * value is 15.123456 -> output is 15.123456
 * value is 15.12345678913245 -> output is 15.12345678913245
-In case you've been creating empty feature sets using the current faulty behaviour, please make sure to at least include
-a name for any new feature set from now on.
-System and plugin configurations made with `config.xml` can now have less than 4
-characters as configuration key but are not allowed anymore to start with a
-number.
-## Changed the loading of storefront SCSS files in plugins
+  In case you've been creating empty feature sets using the current faulty behaviour, please make sure to at least include
+  a name for any new feature set from now on.
+  System and plugin configurations made with `config.xml` can now have less than 4
+  characters as configuration key but are not allowed anymore to start with a
+  number.
 
+---
+
+## CMS entities version aware
+This change updates the primary key of `cms_page`, `cms_slot`, `cms_block` and `cms_section` and the corresponding translation tables. 
+If your plugin incorporates foreign keys to these tables you will need to update your migrations and dal entity definitions.
+
+Use `bin/console dal:validate` to see if you have to adjust your plugins anywhere.
+
+---
+
+## Removed plugin manager
+The plugin manager in the administration is removed with all of its components and replaced by the `sw-extension` module.
+
+---
+
+## New ApiAware flag
+The new `ApiAware` flag replaces the current `ReadProtected` flag for entity definitions.
+See [NEXT-13371 - Added api aware flag](../release-6-3-5-1/2021-01-25-added-api-aware-flag.md)
+
+---
+
+## OAuth2 upgrade
+The `league/oauth2-server` and `lcobucci/jwt` dependencies were upgraded to their next respective major versions.
+This comes with a break in our current oauth2 core implementation.
+
+See [the commit on GitHub](https://github.com/shopware/platform/commit/656c82d5232c87b75e1d6b42bd6493d674807791) for details.
+
+---
+
+## Changed the loading of storefront SCSS files in plugins
 Previously all Storefront relevant SCSS files (`*.scss`) of a plugin have automatically been loaded and compiled by shopware when placed inside the directory `src/Resources/app/storefront/src/scss`.
 Because all SCSS files have been loaded automatically it could have let to inconsistent results when dealing with custom SCSS variables in separate files for example.
 
@@ -63,41 +172,37 @@ The `base.scss` for the previous example directory would look like this in order
 @import 'product-detail';
 @import 'custom-component';
 ```
-## prepare the exchange of Swift_Mailer with Symfony/Mailer in 6.4.0
-We will exchange the current default mailer `Swift_Mailer` with the `Symfony\Mailer` in 6.4.0.
-If this concerns your own code changes, you can already implement your changes behind this feature flag to minimize your work on the release of the 6.4.0. Please refer to [feature flag handling on docs.shopware.com](https://docs.shopware.com/en/shopware-platform-dev-en/references-internals/core/feature-flag-handling) about the handling of feature flags.
+
+---
+
+## Swift_Mailer exchanged with Symfony/Mailer
+The current default mailer `Swift_Mailer` was exchanged with `Symfony\Mailer`.
+
+---
+
 ## context.salesChannel.countries removed
-Previously, the sales channel object in the context contained all countries assigned to the sales channel. This data has now been removed. The access via `$context->getSalesChannel()->getCountries()` therefore no longer returns the previous result.
+Previously, the sales channel object in the context contained all countries assigned to the sales channel. This data has now been removed. 
+The access via `$context->getSalesChannel()->getCountries()` therefore no longer returns the previous result.
 To load the countries of a sales channel, the class `\Shopware\Core\System\Country\SalesChannel\CountryRoute` should be used.
-If you're using the `api.custom.store.download` route, be aware that its behaviour will change when `platform` >=
-v6.4.0.0  is in use. The route will no longer trigger a plugin update. 
+
+---
+
+## Separated plugin download and update
+If you're using the `api.custom.store.download` route, be aware that its behaviour was changed.
+The route will no longer trigger a plugin update.
 In case you'd like to trigger a plugin update, you'll need to dispatch another request to the
 `api.action.plugin.update` route.
-## Migration system changes
 
-We've changed the migration system to add the following features:
+---
 
-### 1. Defining migrations that are released in the next major
+## Removed deprecated database columns
+* Removed the column `currency`.`decimal_precision`. The rounding is now controlled by the `CashRoundingConfig` in the `SalesChannelContext`
+* Removed the column `product`.`purchase_price`. Replaced by `product`.`purchase_prices`
+* Removed the column `customer_wishlist_product`. This column was never used, and the feature still requires a feature flag.
 
-We're switching to a trunk based development in combination with feature flags. New breaking features that are intended 
-for the next major are also developed on the trunk. To reduce the chance of unintended breaks in minor and patch releases, 
-we should not execute the migration for new major features until its necessary. This also allows us to change the migration if necessary.
+---
 
-### 2. Defining destructive changes that can automatically and safely be executed in accordance with blue-green deployment
-
-Currently, it's impossible to define destructive changes in a sane way.
-
-An Example:
-- create migration that adds a new column `newData` which replaces `oldData`
-- add a trigger in this migration, which synchronizes the data in the columns, to make the change blue-green compatible
-- the old field is deprecated for the next major
-
-Problems:
-1. When do we remove the deprecated column/trigger? It's not safe to remove them with the next major, because it prevents a rollback and is not blue-green compatible. 
-   The first safe option would be the first update from major to the next minor.
-2. It's not possible to define destructive changes in the same migration. Currently, these migrations have to be created manually, after it's safe to execute.
-
-### Migration system upgrade guide
+## Migration system upgrade guide
 
 We've grouped the migrations into major versions. By default, all non-destructive migrations are executed up to the current major. 
 In contrast, all destructive migrations are executed up to a "safe" point. This can be configured with the mode.
@@ -146,23 +251,26 @@ To run the destructive migrations as early as possible but still blue-green, run
 
 We've changed the updater to only execute safe destructive migrations. It used to execute **ALL** destructive changes.
 
-## Creating core migrations
+### Creating core migrations
 
 To allow implementing this feature with a feature flag, we've to create a legacy migration in `src/Core/Migraiton`, 
 which simply extends from the real migration in `src/Core/Migration/$MAJOR`. All migrations have been changed in that way.
 The `bin/console database:create-migration` command automatically creates a legacy migration.
 Due to the way that `img`'s `object-fit` works, it is not possible to mimic the 'Auto' setting of the block background. This means that elements that currently have 'Auto' set as their background mode will look different.
-## Cms entities version aware
 
-### Plugin updates
+---
+
+## CMS entities version aware
 
 This change update the primary key of `cms_page`, `cms_slot`, `cms_block` and `cms_section` and the corresponding translation tables. If your plugin incorporates foreign keys to these tables you will need to update your migrations and dal entity definitions.
 
 Please use `bin/console dal:validate` to see if you have to adjust your plugins anywhere.
 
-#### Update
+### Update
 
-If your plugin is already installed the shopware core migration will take care of adjusting the foreign key. A new column `{TABLE_NAME}_version_id` is created, and the constraint widened. You will just have to add a version reference field in your definitions.
+If your plugin is already installed the shopware core migration will take care of adjusting the foreign key.
+A new column `{TABLE_NAME}_version_id` is created, and the constraint widened. 
+You will just have to add a version reference field in your definitions.
 
 For a `cms_page` relation this would make these lines mandatory in your field definition like this:
 
@@ -173,132 +281,43 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 new ReferenceVersionField(CmsPageDefinition::class);
 ```
 
-#### Install
+### Install
 
-If your plugin is newly installed you should add a combined foreign key to your create table statement.
+If your plugin is newly installed you should add a combined foreign key to your `CREATE TABLE` statement.
 
 ```sql
 CREATE TABLE _TABLE_ IF NOT EXISTS
     `cms_page_id` binary(16) DEFAULT NULL, # the existing column
-    `cms_page_version_id` binary(16) NOT NULL',# from noe on mandatory
-    [....]
+    `cms_page_version_id` binary(16) NOT NULL, # from now on mandatory
+    # [...]
     KEY `_NAME_` (`cms_page_id`,`cms_page_version_id`),
     CONSTRAINT `_NAME_` FOREIGN KEY (`cms_page_id`, `cms_page_version_id`) REFERENCES `cms_page` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE # notice the two column on two column key
 );
-
 ```
 
+---
+
 ### Deployment notice
-
 Due to the migration changing the product table as well, the update process might be slower than usual.
-## Removed deprecated columns
 
-* Removed the column `currency`.`decimal_precision`. The rounding is now controlled by the `CashRoundingConfig` in the `SalesChannelContext`
-* Removed the column `product`.`purchase_price`. Replaced by `product`.`purchase_prices`
-* Removed the column `customer_wishlist_product`. This column was never used, and the feature still requires a feature flag.
-## Storefront
+---
 
-### `CustomerEntity` is now required in account related methods and routes
-
-If you need the `CustomerEntity` of the logged-in customer, just add the annotation `@LoginRequired()` 
-and add a `CustomerEntity $customer` parameter to your controller action. 
-
-### Routing changes
-
-The accessibility of a route in maintenance mode, is now exclusively controlled by the request attribute `allow_maintenance`. 
-You can use `defaults={"allow_maintenance"=true}` in your route definition.
-
-Removed the parameter `swagShopId` from `StorefrontRenderEvent`, Use `appShopId` instead.
-
-
-### System-Config
-
+## System-Config
 Removed default for `detail.showReviews`, use `core.listing.showReview` instead.
 
-### Changed classes
+---
 
-The classes in `Shopware\Storefront\Page\Product\CrossSelling` moved into the core `Shopware\Core\Content\Product\SalesChannel\CrossSelling`
-
-The class `\Shopware\Storefront\Page\Product\ProductLoader` was removed, use `\Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute` instead.
-
-The methods  `StorefrontPluginConfigurationFactory::createPluginConfig` and `StorefrontPluginConfigurationFactory::createThemeConfig` 
-were removed from public api, use `StorefrontPluginConfigurationFactory::createFromBundle` or `StorefrontPluginConfigurationFactory::createFromApp` instead. 
-
-### API
-
-We've removed the route `/api/_action/theme/{themeId}/fields` (`api.action.theme.fields`), use `/api/_action/theme/{themeId}/structured-field` (`api.action.theme.structuredFields`) instead.
-
-
-## Core
-
-* `ReadProtected` replaced by `ApiAware`, See [NEXT-13371 - Added api aware flag](../release-6-3-5-1/2021-01-25-added-api-aware-flag.md)
-* `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` replaced by `RegisterRoute` and `RegisterConfirmRoute`
-* `CustomerEntity` is now required in account related routes
-
-
-### Events
-
-All events that are dispatched in a sales channel context now implement `ShopwareSalesChannelEvent`. The return type `getContext` may have changed from `SalesChannelContext`
-to `Context`. To get the sales channel context, use `getSalesChannelContext`.
-
-## Administration 
-
-### Removed deprecated SCSS color variables
-
-We've removed a lot of deprecated colors.
-
-### Changed methods and events
-
-* stopped emitting `paginate` event in `src/app/component/entity/sw-entity-listing/index.js`, use `page-change` instead.
-* removed method `generateDocumentPreviewLink` in `src/core/service/api/document.api.service.js`
-* removed method `onChangeDisplayNoteDelivery` in `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
-* removed data `discardChanges` in `src/module/sw-category/page/sw-category-detail/index.js`
-* removed method `generateDocumentLink` in `src/core/service/api/document.api.service.js` use `getDocument` instead
-
-### Removed blocks
-
-- `sw_cms_slot_component` replaced by `sw_cms_slot_content_component`
-- `sw_cms_slot_preview_overlay` replaced by `sw_cms_slot_content_preview_overlay`
-- `sw_cms_slot_overlay` replaced by `sw_cms_slot_content_overlay`
-- `sw_cms_slot_overlay_content` replaced by `sw_cms_slot_content_overlay_content`
-- `sw_cms_slot_overlay_action_settings` replaced by `sw_cms_slot_content_overlay_action_settings`
-- `sw_cms_slot_overlay_action_swap` replaced by `sw_cms_slot_content_overlay_action_swap`
-- `sw_cms_slot_settings_modal` replaced by `sw_cms_slot_content_settings_modal`
-- `sw_cms_slot_settings_modal_component` replaced by `sw_cms_slot_content_settings_modal_component`
-- `sw_cms_slot_settings_modal_footer` replaced by `sw_cms_slot_content_settings_modal_footer`
-- `sw_cms_slot_settings_modal_action_confirm` replaced by `sw_cms_slot_content_settings_modal_action_confirm`
-- `sw_cms_slot_element_modal` replaced by `sw_cms_slot_content_element_modal`
-- `sw_cms_slot_element_modal_selection` replaced by `sw_cms_slot_content_element_modal_selection`
-- `sw_cms_slot_element_modal_selection_element` replaced by `sw_cms_slot_content_element_modal_selection_element`
-- `sw_cms_slot_element_modal_selection_element_component` replaced by `sw_cms_slot_content_element_modal_selection_element_component`
-- `sw_cms_slot_element_modal_selection_element_overlay` replaced by `sw_cms_slot_content_element_modal_selection_element_overlay`
-- `sw_cms_slot_element_modal_selection_element_label` replaced by `sw_cms_slot_content_element_modal_selection_element_label`
-- `sw_cms_slot_element_modal_footer` replaced by `sw_cms_slot_content_element_modal_footer`
-- `sw_cms_slot_element_modal_action_abort` replaced by `sw_cms_slot_content_element_modal_action_abort`
-- `sw_cms_toolbar_slot_language_swtich` replaced by `sw_cms_toolbar_slot_language_switch`
-Some database columns were renamed in the `customer` table to follow the `snake_case` naming convention.
-The old database columns will be dropped in 6.5.0.0.
-
-These changes only apply to hard-coded SQL (e.g. in Migrations). 
-The DAL already works properly with the new fields.
-The parameter signature of `src/Core/Framework/Api/OAuth/ClientRepository::getClientEntity` changed due to the major update of the oauth2-server dependency.
-OAuth2-Clients should be validated separately in the new `validateClient` method.
-See: https://github.com/thephpleague/oauth2-server/pull/938
-
-The parameter signature of `src/Core/Checkout/Payment/Cart/Token/JWTFactoryV2` changed.
-It uses the injected configuration object rather than a private key.
-
-The parameter signature of `src/Core/Framework/Api/OAuth/BearerTokenValidator` changed.
-The injected configuration object was added as parameter.
 ## Guzzle major version upgrade
 We upgraded the guzzle dependency to a new major version v7. Please refer to the [guzzle upgrade guide](https://github.com/guzzle/guzzle/blob/master/UPGRADING.md#60-to-70) to make sure your plugins are compatible.
-## Elasticsearch Refactoring
 
+---
+
+## Elasticsearch Refactoring
 To improve the performance and reliability of Elasticsearch, we have decided to refactor Elasticsearch in the first iteration in the Storefront only for Product listing and Product searches.
 This allows us to create a optimized Elasticsearch index with only required fields selected by an single sql to make the indexing fast as possible.
 This also means for extensions, they need to extend the indexing to make their fields searchable.
 
-Here is an simple decoration to add a new random field named `myNewField` to the index. 
+Here is an simple decoration to add a new random field named `myNewField` to the index.
 For adding more information from the Database you should execute a single query with all document ids (`array_column($documents, 'id'')`) and map the values
 
 ```xml
@@ -402,81 +421,29 @@ $context->addState(\Shopware\Core\Framework\Context::STATE_ELASTICSEARCH_AWARE);
 
 $repository->search($criteria, $context);
 ```
+
+---
+
 ## LineItems rules behaviour changed
 The rules for line items are now considering also nested line items.
 Before the change, only the first level of line items was taken into account.
 Check your rules, if they still take effect as intended.
-## NPM package copy-webpack-plugin update
-This plugin has now version `6.4.1`, take a look at the [github changelog](https://github.com/webpack-contrib/copy-webpack-plugin/releases/tag/v6.0.0) for breaking changes.
 
-## NPM package node-sass replacement
-Removed `node-sass` package because it is deprecated. Added the `sass` package as replacement. For more information take a look [deprecation page](https://sass-lang.com/blog/libsass-is-deprecated).
-## Twig system config access
-The `shopware.config` variable was removed. To access a system config value inside twig, use `config('my_config_key')`.
-
-## Twig theme config access
-The `shopware.theme` variable was removed. To access the theme config value inside twig, use `theme_config('my_config_key')`.
-
-## Theme breakpoint config array
-The `shopware.theme.breakpoint` config value is no more available, please use the corresponding sizes. If you need to restore the array, you can use the following code:
-```
-{% set breakpoint = {
-    'xs': theme_config('breakpoint.sm'),
-    'sm': theme_config('breakpoint.md'),
-    'md': theme_config('breakpoint.lg'),
-    'lg': theme_config('breakpoint.xl')
-} %}
-```
-## Store api service
-Deprecated method `downloadPlugin` if you're using it to install **and** update a plugin then use `downloadAndUpdatePlugin`.
-In the future `downloadPlugin` will only download plugins.
-
-## Removed plugin manager
-The plugin manager in the administration is removed with all of its components and replaced by the `sw-extension` module.
-
-UPGRADE FROM 6.3.x.x to 6.4
-=======================
-
-Table of contents
-----------------
-
-* [Core](#core)
-* [Administration](#administration)
-* [Storefront](#storefront)
-* [Refactorings](#refactorings)
-
-Core
-----
-
-* Implementations of `\Shopware\Core\Framework\Api\Sync\SyncServiceInterface::sync` need to change the type of the first argument `$operations` to `iterable`.
-
-Administration
---------------
-* `StateDeprecated` needs to be replaced with `State`
-* `DataDeprecated`  needs to be replaced with `Data` (https://docs.shopware.com/en/shopware-platform-dev-en/developer-guide/administration/fetching-and-handling-data?category=shopware-platform-dev-en/developer-guide/administration)
-* Rename folder in `platform/src/Administration/Resources/app/administration/src/core` from `data-new`
-to `data`. You need to rewrite the imports.
-* Removed deprecated data handling and all its usages. See in the changelog if you
-extend or override them. If yes, then you need to rewrite your code to support the 
-actual data handling.
-
-Storefront
---------------
-
-Refactorings
-------------
-
-# new, please integrate this on merge conflict
+---
 
 ## TreeUpdater scaling
 
 We've replaced `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater::update` with `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater::batchUpdate`,
 because `update` scaled badly with the tree depth. The new method takes an array instead of a single id.
 
+---
+
 ## EntityWriteGatewayInterface
 
 We've added the new method `prefetchExistences` to the interface `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface`.
 The method is optional, and a valid implementation is to not prefetch anything. The method was added to allow fetching the existence of more than one primary key at once.
+
+---
 
 ## FieldSerializerInterface::normalize
 
@@ -488,3 +455,118 @@ The method should normalize the `$data` if it makes sense. For example, the core
 - normalize structure for example for translations (there are multiple ways to define them)
 - collect primary keys in `PrimaryKeyBag`
 
+---
+
+## Events
+
+All events that are dispatched in a sales channel context now implement `ShopwareSalesChannelEvent`. The return type `getContext` may have changed from `SalesChannelContext`
+to `Context`. To get the sales channel context, use `getSalesChannelContext`.
+
+---
+
+## Cheapest price implementation
+We've added a new implementation to calculate product prices. `product.cheapestPrice` replaces `product.listingPrices`.
+Update your queries accordingly.
+
+---
+
+## BlacklistRuleField / WhitelistRuleField dropped
+The `BlacklistRuleField` and `WhitelistRuleField` implementations were dropped.
+Create an own many-to-many association to achieve this functionality
+
+---
+
+## DAL cache removed
+The DAL cache was removed. 
+Therefore, calling `Shopware\Core\Framework\Context::disableCache` has no more effect.
+
+---
+
+## ExecuteQuery throws execption on write operations
+The following SQL operations will throw an exception, if called with `Doctrine\DBAL\Connection\::executeQuery`:
+`UPDATE`, `ALTER`, `BACKUP`, `CREATE`, `DELETE`, `DROP`, `EXEC`, `INSERT`, `TRUNCATE`
+
+---
+
+## AntiJoinFilter removed
+We've enhanced the DAL to automatically detect a pattern following the `AntiJoinFilter`. 
+Therefore, it was removed.
+
+---
+
+## ProductPriceDefinitionBuilder replaced
+We've replaced the `ProductPriceDefinitionBuilder` by the `ProductPriceCalculator`
+
+---
+
+## Routing changes
+Removed the parameter `swagShopId` from `StorefrontRenderEvent`, Use `appShopId` instead.
+
+---
+
+## Payment / Shipping method selection modal removed
+The modal to select payment or shipping methods was removed entirely.
+Instead, the payment and shipping methods will be shown instantly up to a default maximum of `5` methods.
+All other methods will be hidden inside a JavaScript controlled collapse.
+
+The changes especially apply to the `confirm checkout` and `edit order` pages.
+
+We refactored most of the payment and shipping method storefront templates and split the content up into multiple templates to raise the usability.
+
+---
+
+## Datepicker component
+According to document of flatpickr (https://flatpickr.js.org/formatting/), ISO Date format is now supported for the datepicker component.
+With `datetime-local` dateType, the datepicker will display the user's browser time.
+The value will be converted to UTC value.
+
+### Before
+* Both dateType `datetime` and `datetime-local` use UTC timezone `(GMT+00:00)`.
+* If user selects date `2021-03-22` and time `12:30`, the output is `2021-03-22T12:30:000+00:00`.
+
+### After
+* With dateType `datetime`, user selects date `2021-03-22` and time `12:30`, the output is `2021-03-22T12:30:000+00:00`.
+* With dateType `datetime-local`, user selects date `2021-03-22` and time `12:30` and timezone of user is `GMT+07:00`, the output is `2021-03-22T05:30.00.000Z`.
+
+---
+
+## Removed deprecated SCSS color variables
+We removed the following deprecated color / gradient variables:
+
+```scss
+$color-biscay
+$color-cadet-blue
+$color-crimson
+$color-contrast
+$color-deep-cove
+$color-emerald
+$color-gray
+$color-gutenberg
+$color-kashmir
+$color-iron
+$color-light-gray
+$color-link-water
+$color-pumpkin-spice
+$color-purple
+$color-shopware-blue
+$color-steam-cloud
+
+$color-gradient-dark-gray-start
+$color-gradient-dark-gray-end
+$gradient-dark-gray
+```
+---
+
+## NPM package copy-webpack-plugin update
+This package has now version `6.4.1`, take a look at the [github changelog](https://github.com/webpack-contrib/copy-webpack-plugin/releases/tag/v6.0.0) for breaking changes.
+
+---
+
+## NPM package node-sass replacement
+Removed `node-sass` package because it is deprecated. Added the `sass` package as replacement. For more information take a look [deprecation page](https://sass-lang.com/blog/libsass-is-deprecated).
+
+---
+
+## Twig system config /theme access
+The `shopware.config` variable was removed. To access a system config value inside twig, use `config('my_config_key')`.
+The `shopware.theme` variable was removed. To access the theme config value inside twig, use `theme_config('my_config_key')`.

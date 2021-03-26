@@ -13,12 +13,15 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
@@ -26,14 +29,14 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     private const STATIC_SEARCH_KEY = 'product-slider';
     private const FALLBACK_LIMIT = 50;
 
-    /**
-     * @var ProductStreamBuilder
-     */
-    private $productStreamBuilder;
+    private ProductStreamBuilder $productStreamBuilder;
 
-    public function __construct(ProductStreamBuilder $productStreamBuilder)
+    private SystemConfigService $systemConfigService;
+
+    public function __construct(ProductStreamBuilder $productStreamBuilder, SystemConfigService $systemConfigService)
     {
         $this->productStreamBuilder = $productStreamBuilder;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function getType(): string
@@ -82,13 +85,13 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($productConfig->isStatic()) {
-            $this->enrichFromSearch($slider, $result, self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier());
+            $this->enrichFromSearch($slider, $result, self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), $resolverContext->getSalesChannelContext());
         }
 
         if ($productConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
             $products = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getValue());
             if (!$products) {
-                $this->enrichFromSearch($slider, $result, self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier());
+                $this->enrichFromSearch($slider, $result, self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier(), $resolverContext->getSalesChannelContext());
             } else {
                 $slider->setProducts($products);
             }
@@ -103,7 +106,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         }
     }
 
-    private function enrichFromSearch(ProductSliderStruct $slider, ElementDataCollection $result, string $searchKey): void
+    private function enrichFromSearch(ProductSliderStruct $slider, ElementDataCollection $result, string $searchKey, SalesChannelContext $saleschannelContext): void
     {
         $searchResult = $result->get($searchKey);
         if (!$searchResult) {
@@ -115,8 +118,26 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         if (!$products) {
             return;
         }
+        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $saleschannelContext->getSalesChannel()->getId())) {
+            $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
+        }
 
         $slider->setProducts($products);
+    }
+
+    private function filterOutOutOfStockHiddenCloseoutProducts($products)
+    {
+        $products = $products->filter(function (ProductEntity $product) {
+            if ($product->getIsCloseout()) {
+                if ($product->getAvailableStock() <= 0) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        return $products;
     }
 
     private function collectByEntity(EntityResolverContext $resolverContext, FieldConfig $config): ?Criteria

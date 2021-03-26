@@ -131,7 +131,6 @@ class LineItemReleaseDateRule extends Rule
     private function buildDate(string $dateString): \DateTime
     {
         $dateTime = new \DateTime($dateString);
-        $dateTime->setTime(0, 0);
 
         return $dateTime;
     }

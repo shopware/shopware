@@ -51,7 +51,9 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             },
             set(fromDate) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, fromDate };
+
+                const date = (fromDate && this.isDateTime) ? fromDate.replace('.000Z', '+00:00') : fromDate;
+                this.condition.value = { ...this.condition.value, fromDate: date };
             }
         },
 
@@ -62,12 +64,14 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             },
             set(toDate) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, toDate };
+
+                const date = (toDate && this.isDateTime) ? toDate.replace('.000Z', '+00:00') : toDate;
+                this.condition.value = { ...this.condition.value, toDate: date };
             }
         },
 
         isDateTime() {
-            return this.useTime ? 'datetime' : 'date';
+            return this.useTime ? 'datetime-local' : 'date';
         },
 
         ...mapPropertyErrors('condition', ['value.useTime', 'value.fromDate', 'value.toDate']),

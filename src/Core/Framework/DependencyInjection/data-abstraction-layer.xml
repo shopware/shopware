@@ -120,7 +120,10 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>
             <argument type="service" id="Shopware\Core\System\Language\LanguageLoader"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory"/>
         </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>

@@ -2446,29 +2446,14 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/KeyValuePair.php
 
 		-
-			message: "#^Cannot call method getSerializer\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
-
-		-
-			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\FieldSerializerInterface\\:\\:decode\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getStorageName\\(\\)\\.$#"
 			count: 5
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
+			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriteResultFactory.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getPropertyName\\(\\)\\.$#"
 			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
+			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriteResultFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriterInterface\\:\\:insert\\(\\) has no return typehint specified\\.$#"

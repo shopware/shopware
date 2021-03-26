@@ -230,7 +230,7 @@ Component.register('sw-first-run-wizard-welcome', {
             let errMessage = null;
 
             try {
-                await this.storeService.downloadPlugin(pluginName, true);
+                await this.storeService.downloadPlugin(pluginName, true, true);
             } catch (e) {
                 errCode = 'downloadFailed';
                 catchedError = e;

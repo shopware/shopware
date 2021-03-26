@@ -70,21 +70,21 @@ class LineItemReleaseDateRuleTest extends TestCase
     public function getMatchValues(): array
     {
         return [
-            'EQ - positive 1' => [true, '2020-02-06 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
+            'EQ - positive 1' => [true, '2020-02-06 02:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
             'EQ - positive 2' => [true, '2020-02-06', '2020-02-06', Rule::OPERATOR_EQ],
             'EQ - negative' => [false, '2020-02-05 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
             'NEQ - positive 1' => [true, '2020-02-05 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_NEQ],
             'NEQ - positive 2' => [true, '2020-02-05', '2020-02-06', Rule::OPERATOR_NEQ],
-            'NEQ - negative' => [false, '2020-02-06 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_NEQ],
+            'NEQ - negative' => [false, '2020-02-06 00:00:00', '2020-02-06 00:00:00', Rule::OPERATOR_NEQ],
             'GT - positive' => [true, '2020-02-07 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_GT],
             'GT - negative' => [false, '2020-02-06 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_GT],
             'GTE - positive 1' => [true, '2020-02-07 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_GTE],
-            'GTE - positive 2' => [true, '2020-02-06 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_GTE],
+            'GTE - positive 2' => [true, '2020-02-06 02:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_GTE],
             'GTE - negative' => [false, '2020-02-05 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_GTE],
             'LT - positive' => [true, '2020-02-05 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LT],
-            'LT - negative' => [false, '2020-02-06 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LT],
+            'LT - negative' => [false, '2020-02-06 03:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LT],
             'LTE - positive 1' => [true, '2020-02-05 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LTE],
-            'LTE - positive 2' => [true, '2020-02-06 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LTE],
+            'LTE - positive 2' => [true, '2020-02-06 02:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LTE],
             'LTE - negative' => [false, '2020-02-07 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LTE],
         ];
     }
@@ -152,13 +152,13 @@ class LineItemReleaseDateRuleTest extends TestCase
      * @dataProvider getCartRuleScopeTestData
      */
     public function testMultipleLineItemsInCartRuleScope(
-        string $ruleCreationDate,
+        string $ruleReleaseDate,
         string $lineItemReleaseDate1,
         string $lineItemReleaseDate2,
         bool $expected
     ): void {
         $this->rule->assign([
-            'lineItemReleaseDate' => $ruleCreationDate,
+            'lineItemReleaseDate' => $ruleReleaseDate,
             'operator' => Rule::OPERATOR_EQ,
         ]);
 
@@ -180,13 +180,13 @@ class LineItemReleaseDateRuleTest extends TestCase
      * @dataProvider getCartRuleScopeTestData
      */
     public function testMultipleLineItemsInCartRuleScopeNested(
-        string $ruleCreationDate,
+        string $ruleReleaseDate,
         string $lineItemReleaseDate1,
         string $lineItemReleaseDate2,
         bool $expected
     ): void {
         $this->rule->assign([
-            'lineItemReleaseDate' => $ruleCreationDate,
+            'lineItemReleaseDate' => $ruleReleaseDate,
             'operator' => Rule::OPERATOR_EQ,
         ]);
 
@@ -209,8 +209,8 @@ class LineItemReleaseDateRuleTest extends TestCase
     {
         return [
             'no match' => ['2020-02-06 00:00:00', '2020-01-01 12:30:00', '2020-01-01 18:00:00', false],
-            'one matching' => ['2020-02-06 00:00:00', '2020-02-06 12:30:00', '2020-01-01 18:00:00', true],
-            'all matching' => ['2020-02-06 00:00:00', '2020-02-06 12:30:00', '2020-02-06 18:00:00', true],
+            'one matching' => ['2020-02-06 00:00:00', '2020-02-06 00:00:00', '2020-01-01 18:00:00', true],
+            'all matching' => ['2020-02-06 00:00:00', '2020-02-06 00:00:00', '2020-02-06 00:00:00', true],
         ];
     }
 

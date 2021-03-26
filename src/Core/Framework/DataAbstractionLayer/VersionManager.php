@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -40,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DeleteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -103,10 +102,7 @@ class VersionManager
      */
     private $registry;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private EntityWriteResultFactory $factory;
 
     public function __construct(
         EntityWriterInterface $entityWriter,
@@ -119,7 +115,7 @@ class VersionManager
         VersionCommitDefinition $versionCommitDefinition,
         VersionCommitDataDefinition $versionCommitDataDefinition,
         VersionDefinition $versionDefinition,
-        Connection $connection
+        EntityWriteResultFactory $factory
     ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
@@ -131,16 +127,16 @@ class VersionManager
         $this->versionCommitDataDefinition = $versionCommitDataDefinition;
         $this->versionDefinition = $versionDefinition;
         $this->registry = $registry;
-        $this->connection = $connection;
+        $this->factory = $factory;
     }
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
         $writeResults = $this->entityWriter->upsert($definition, $rawData, $writeContext);
 
-        $mappings = $this->resolveRelations($definition, $rawData, $writeResults);
+        $mappings = $this->factory->resolveRelations($definition, $rawData, $writeResults);
 
-        $writeResults = $this->addParentResults($writeResults, $mappings);
+        $writeResults = $this->factory->addParentResults($writeResults, $mappings);
 
         $this->writeAuditLog($writeResults, $writeContext);
 
@@ -152,9 +148,9 @@ class VersionManager
         /** @var EntityWriteResult[] $writeResults */
         $writeResults = $this->entityWriter->insert($definition, $rawData, $writeContext);
 
-        $mappings = $this->resolveRelations($definition, $rawData, $writeResults);
+        $mappings = $this->factory->resolveRelations($definition, $rawData, $writeResults);
 
-        $writeResults = $this->addParentResults($writeResults, $mappings);
+        $writeResults = $this->factory->addParentResults($writeResults, $mappings);
 
         $this->writeAuditLog($writeResults, $writeContext);
 
@@ -165,9 +161,9 @@ class VersionManager
     {
         $writeResults = $this->entityWriter->update($definition, $rawData, $writeContext);
 
-        $mappings = $this->resolveRelations($definition, $rawData, $writeResults);
+        $mappings = $this->factory->resolveRelations($definition, $rawData, $writeResults);
 
-        $writeResults = $this->addParentResults($writeResults, $mappings);
+        $writeResults = $this->factory->addParentResults($writeResults, $mappings);
 
         $this->writeAuditLog($writeResults, $writeContext);
 
@@ -176,13 +172,13 @@ class VersionManager
 
     public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
-        $parents = $this->resolveParents($definition, $ids);
+        $parents = $this->factory->resolveParents($definition, $ids);
 
         $deleteEvent = $this->entityWriter->delete($definition, $ids, $writeContext);
 
         $deleted = $deleteEvent->getDeleted();
 
-        $deleted = $this->addParentResults($deleted, $parents);
+        $deleted = $this->factory->addParentResults($deleted, $parents);
 
         $this->writeAuditLog($deleted, $writeContext);
 
@@ -735,188 +731,6 @@ class VersionManager
         }
     }
 
-    private function addParentResults(array $writeResults, array $parents): array
-    {
-        foreach ($parents as $entity => $primaryKeys) {
-            $primaryKeys = array_unique($primaryKeys);
-            if (!isset($writeResults[$entity])) {
-                $writeResults[$entity] = [];
-            }
-
-            foreach ($primaryKeys as $primaryKey) {
-                if ($this->hasResult($entity, $primaryKey, $writeResults)) {
-                    continue;
-                }
-                $writeResults[$entity][] = new EntityWriteResult($primaryKey, [], $entity, EntityWriteResult::OPERATION_UPDATE);
-            }
-        }
-
-        return $writeResults;
-    }
-
-    /**
-     * @param string|array          $primaryKey
-     * @param EntityWriteResult[][] $results
-     */
-    private function hasResult(string $entity, $primaryKey, array $results): bool
-    {
-        if (!isset($results[$entity])) {
-            return false;
-        }
-
-        foreach ($results[$entity] as $result) {
-            if ($result->getPrimaryKey() === $primaryKey) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function resolveParents(EntityDefinition $definition, array $rawData): array
-    {
-        if ($definition instanceof MappingEntityDefinition) {
-            return $this->resolveMappingParents($definition, $rawData);
-        }
-
-        $parentIds = [];
-        if ($definition->isInheritanceAware()) {
-            $parentIds = $this->fetchParentIds($definition, $rawData);
-        }
-
-        $parent = $definition->getParentDefinition();
-
-        if (!$parent) {
-            return $parentIds;
-        }
-
-        $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
-            if (!$field instanceof FkField || $field instanceof ReferenceVersionField) {
-                return false;
-            }
-
-            return $field->getReferenceDefinition()->getClass() === $parent->getClass();
-        });
-
-        $fkField = $fkField->first();
-        if (!$fkField instanceof FkField) {
-            throw new \RuntimeException(sprintf('Can not detect foreign key for parent definition %s', $parent->getClass()));
-        }
-
-        $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $rawData, $fkField);
-
-        $mapped = array_map(function ($id) {
-            return ['id' => $id];
-        }, $primaryKeys);
-
-        $nested = $this->resolveParents($parent, $mapped);
-
-        $entity = $parent->getEntityName();
-
-        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys, $parentIds[$entity] ?? []);
-
-        return $nested;
-    }
-
-    private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
-    {
-        $fkFields = $definition->getFields()->filter(function (Field $field) {
-            return $field instanceof FkField && !$field instanceof ReferenceVersionField;
-        });
-
-        $mapping = [];
-
-        /** @var FkField $fkField */
-        foreach ($fkFields as $fkField) {
-            $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $rawData, $fkField);
-
-            $entity = $fkField->getReferenceDefinition()->getEntityName();
-            $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
-
-            $mapped = array_map(function ($id) {
-                return ['id' => $id];
-            }, $primaryKeys);
-
-            $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped);
-
-            foreach ($nested as $entity => $primaryKeys) {
-                $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
-            }
-        }
-
-        return $mapping;
-    }
-
-    private function fetchForeignKey(EntityDefinition $definition, array $rawData, FkField $fkField): string
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(
-            'LOWER(HEX(' . EntityDefinitionQueryHelper::escape($fkField->getStorageName()) . '))'
-        );
-        $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
-
-        foreach ($definition->getPrimaryKeys() as $index => $primaryKey) {
-            $property = $primaryKey->getPropertyName();
-
-            if ($primaryKey instanceof VersionField || $primaryKey instanceof ReferenceVersionField) {
-                continue;
-            }
-
-            if (!isset($rawData[$property])) {
-                throw new \RuntimeException(
-                    sprintf('Missing primary key %s for definition %s', $property, $definition->getClass())
-                );
-            }
-            if (!$primaryKey instanceof StorageAware) {
-                continue;
-            }
-            $key = 'primaryKey' . $index;
-
-            $query->andWhere(
-                EntityDefinitionQueryHelper::escape($primaryKey->getStorageName()) . ' = :' . $key
-            );
-
-            $query->setParameter($key, Uuid::fromHexToBytes($rawData[$property]));
-        }
-
-        $fk = $query->execute()->fetchColumn();
-
-        if (!$fk) {
-            throw new \RuntimeException('Fk can not be detected');
-        }
-
-        return (string) $fk;
-    }
-
-    private function getPrimaryKeysOfFkField(EntityDefinition $definition, array $rawData, FkField $fkField): array
-    {
-        $parent = $fkField->getReferenceDefinition();
-
-        $referenceField = $parent->getFields()->getByStorageName($fkField->getReferenceField());
-        if (!$referenceField) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Can not detect reference field with storage name %s in definition %s',
-                    $fkField->getReferenceField(),
-                    $parent->getClass()
-                )
-            );
-        }
-
-        $primaryKeys = [];
-        foreach ($rawData as $row) {
-            if (\array_key_exists($fkField->getPropertyName(), $row)) {
-                $fk = $row[$fkField->getPropertyName()];
-            } else {
-                $fk = $this->fetchForeignKey($definition, $row, $fkField);
-            }
-
-            $primaryKeys[] = $fk;
-        }
-
-        return $primaryKeys;
-    }
-
     private function translationHasParent(VersionCommitEntity $commit, VersionCommitDataEntity $translationData): bool
     {
         $translationDefinition = $this->registry->getByEntityName($translationData->getEntityName());
@@ -991,64 +805,5 @@ class VersionManager
         $parentPropertyName = array_map('ucfirst', $parentPropertyName);
 
         return lcfirst(implode('', $parentPropertyName)) . 'Id';
-    }
-
-    private function resolveRelations(EntityDefinition $definition, array $rawData, array $writeResults): array
-    {
-        $parents = $this->resolveParents($definition, $rawData);
-
-        /** @var EntityWriteResult[] $result */
-        foreach ($writeResults as $entity => $result) {
-            $definition = $this->registry->getByEntityName($entity);
-
-            if (!$definition instanceof MappingEntityDefinition) {
-                continue;
-            }
-
-            $ids = array_map(function (EntityWriteResult $result) {
-                return $result->getPrimaryKey();
-            }, $result);
-
-            if (empty($ids)) {
-                continue;
-            }
-
-            $fkFields = $definition->getFields()->filterInstance(FkField::class);
-
-            if ($fkFields->count() <= 0) {
-                continue;
-            }
-
-            /** @var FkField $field */
-            foreach ($fkFields as $field) {
-                $reference = $field->getReferenceDefinition()->getEntityName();
-
-                $parents[$reference] = array_merge($parents[$reference] ?? [], array_column($ids, $field->getPropertyName()));
-            }
-        }
-
-        return $parents;
-    }
-
-    private function fetchParentIds(EntityDefinition $definition, array $rawData): array
-    {
-        $fetchQuery = sprintf(
-            'SELECT DISTINCT LOWER(HEX(parent_id)) as id FROM %s WHERE id IN (:ids)',
-            EntityDefinitionQueryHelper::escape($definition->getEntityName())
-        );
-
-        $parentIds = $this->connection->fetchAll(
-            $fetchQuery,
-            ['ids' => Uuid::fromHexToBytesList(array_column($rawData, 'id'))],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        $ids = array_unique(array_filter(array_column($parentIds, 'id')));
-
-        if (\count($ids) === 0) {
-            return [];
-        }
-
-        return [$definition->getEntityName() => $ids];
     }
 }

@@ -1,4 +1,5 @@
 import template from './sw-extension-config.html.twig';
+import './sw-extension-config.scss';
 
 const { Component, Mixin } = Shopware;
 
@@ -35,7 +36,6 @@ Component.register('sw-extension-config', {
         onSave() {
             this.$refs.systemConfig.saveAll().then(() => {
                 this.createNotificationSuccess({
-                    // eslint-disable-next-line max-len
                     message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess')
                 });
             }).catch((err) => {

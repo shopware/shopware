@@ -65,6 +65,7 @@ class ListAddressRoute extends AbstractListAddressRoute
     {
         $criteria
             ->addAssociation('country')
+            ->addAssociation('salutation')
             ->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));
 
         $this->eventDispatcher->dispatch(

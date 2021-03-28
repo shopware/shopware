@@ -462,6 +462,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $mappedData = $addressData->only(
             'firstName',
             'lastName',
+            'title',
             'salutationId',
             'street',
             'zipcode',

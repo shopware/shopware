@@ -432,8 +432,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria->setTitle('context-factory::customer');
         $criteria->addAssociation('salutation');
         $criteria->addAssociation('defaultPaymentMethod');
+        $criteria->addAssociation('defaultBillingAddress.salutation');
         $criteria->addAssociation('defaultBillingAddress.country');
         $criteria->addAssociation('defaultBillingAddress.countryState');
+        $criteria->addAssociation('defaultShippingAddress.salutation');
         $criteria->addAssociation('defaultShippingAddress.country');
         $criteria->addAssociation('defaultShippingAddress.countryState');
 
@@ -459,6 +461,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $criteria = new Criteria($addressIds);
         $criteria->setTitle('context-factory::addresses');
+        $criteria->addAssociation('salutation');
         $criteria->addAssociation('country');
         $criteria->addAssociation('countryState');
 

@@ -23,7 +23,7 @@ class ResponseExceptionListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::EXCEPTION => [
-                ['onKernelException'],
+                ['onKernelException', -1],
             ],
         ];
     }

@@ -9,3 +9,4 @@ author_github: OliverSkroblin
 * Added `\Shopware\Core\System\Country\SalesChannel\CachedCountryRoute`, which adds a cache for the store api country route
 * Added `\Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute`, which adds a cache for the store api salutation route
 * Added `Request $request` parameter to `\Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute::load`
+* Added `\Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute`, which adds a cache for the store api product review route

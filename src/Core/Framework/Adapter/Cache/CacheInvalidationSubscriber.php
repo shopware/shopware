@@ -26,6 +26,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
@@ -96,6 +97,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateProductIds', 2002],
                 ['invalidateDetailRoute', 2004],
                 ['invalidateStreamsAfterIndexing', 2005],
+                ['invalidateReviewRoute', 2006],
             ],
             ProductNoLongerAvailableEvent::class => [
                 ['invalidateSearch', 2000],
@@ -103,6 +105,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateProductIds', 2002],
                 ['invalidateDetailRoute', 2004],
                 ['invalidateStreamsAfterIndexing', 2005],
+                ['invalidateReviewRoute', 2006],
             ],
             EntityWrittenContainerEvent::class => [
                 ['invalidateCmsPageIds', 2001],
@@ -439,6 +442,13 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         $this->logger->invalidate(
             array_map([CachedProductListingRoute::class, 'buildName'], $ids)
+        );
+    }
+
+    public function invalidateReviewRoute(ProductChangedEventInterface $event): void
+    {
+        $this->logger->invalidate(
+            array_map([CachedProductReviewRoute::class, 'buildName'], $event->getIds())
         );
     }
 

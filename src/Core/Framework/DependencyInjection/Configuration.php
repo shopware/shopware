@@ -355,6 +355,9 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('salutation_route')
                             ->prototype('scalar')->end()
                         ->end()
+                        ->arrayNode('product_review_route')
+                            ->prototype('scalar')->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end();

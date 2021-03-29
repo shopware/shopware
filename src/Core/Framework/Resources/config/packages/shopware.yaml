@@ -113,6 +113,7 @@ shopware:
             http_cache: ['logged-in', 'cart-filled']
             product_listing_route: []
             product_detail_route: []
+            product_review_route: []
             product_search_route: [ ]
             product_suggest_route: [ ]
             product_cross_selling_route: [ ]

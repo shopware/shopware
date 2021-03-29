@@ -6,12 +6,13 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Event\AppChangedEvent;
+use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -177,7 +178,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         foreach ($webhooksForEvent as $webhook) {
             if ($webhook->getApp()) {
-                if (!$this->isEventDispatchingAllowed($webhook, $event, $affectedRoleIds)) {
+                if (!$this->isEventDispatchingAllowed($webhook->getApp(), $event, $affectedRoleIds)) {
                     continue;
                 }
             }
@@ -231,11 +232,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
 
         $criteria = new Criteria();
-        $criteria->addAssociation('app')
-            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('app.active', true),
-                new EqualsFilter('appId', null),
-            ]));
+        $criteria->addAssociation('app');
 
         if (!$this->container->has('webhook.repository')) {
             throw new ServiceNotFoundException('webhook.repository');
@@ -246,16 +243,21 @@ class WebhookDispatcher implements EventDispatcherInterface
         return $this->webhooks = $webhooks;
     }
 
-    private function isEventDispatchingAllowed(WebhookEntity $webhook, Hookable $event, array $affectedRoles): bool
+    private function isEventDispatchingAllowed(AppEntity $app, Hookable $event, array $affectedRoles): bool
     {
+        // Only app lifecycle hooks can be received if app is deactivated
+        if (!$app->isActive() && !($event instanceof AppChangedEvent || $event instanceof AppDeletedEvent)) {
+            return false;
+        }
+
         if (!($this->privileges[$event->getName()] ?? null)) {
             $this->loadPrivileges($event->getName(), $affectedRoles);
         }
 
-        $privileges = $this->privileges[$event->getName()][$webhook->getApp()->getAclRoleId()]
+        $privileges = $this->privileges[$event->getName()][$app->getAclRoleId()]
             ?? new AclPrivilegeCollection([]);
 
-        if (!$event->isAllowed($webhook->getAppId(), $privileges)) {
+        if (!$event->isAllowed($app->getId(), $privileges)) {
             return false;
         }
 

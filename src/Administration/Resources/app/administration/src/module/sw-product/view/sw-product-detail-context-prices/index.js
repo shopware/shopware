@@ -23,6 +23,19 @@ Component.register('sw-product-detail-context-prices', {
         };
     },
 
+    watch: {
+        'product.prices': {
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.isInherited = this.isChild && !this.product.prices.total;
+            },
+            immediate: true
+        }
+    },
+
     computed: {
         ...mapState('swProductDetail', [
             'repositoryFactory',

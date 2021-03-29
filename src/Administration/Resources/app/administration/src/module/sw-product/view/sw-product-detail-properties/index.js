@@ -17,6 +17,19 @@ Component.register('sw-product-detail-properties', {
         };
     },
 
+    watch: {
+        'product.options': {
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.isInherited = this.isChild && !this.product.options.total;
+            },
+            immediate: true
+        }
+    },
+
     computed: {
         ...mapState('swProductDetail', [
             'product',

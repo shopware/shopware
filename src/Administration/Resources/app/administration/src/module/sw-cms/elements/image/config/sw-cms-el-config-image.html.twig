@@ -28,9 +28,11 @@
         {% endblock %}
 
         {% block sw_cms_element_image_config_display_mode %}
-            <sw-select-field :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-                             v-model="element.config.displayMode.value"
-                             @change="onChangeDisplayMode">
+            <sw-select-field
+                class="sw-cms-el-config-image__display-mode"
+                :label="$tc('sw-cms.elements.general.config.label.displayMode')"
+                v-model="element.config.displayMode.value"
+                @change="onChangeDisplayMode">
                 <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
                 <option value="cover">{{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}</option>
                 <option value="stretch">{{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}</option>

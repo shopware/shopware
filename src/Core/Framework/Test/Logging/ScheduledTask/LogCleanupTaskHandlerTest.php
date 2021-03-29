@@ -8,7 +8,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -72,6 +76,22 @@ class LogCleanupTaskHandlerTest extends TestCase
     {
         $year = 60 * 60 * 24 * 31 * 12;
         $this->runWithOptions((int) ($year * 1.5), 2, ['test1']);
+    }
+
+    public function testIsRegistered(): void
+    {
+        $registry = $this->getContainer()->get(TaskRegistry::class);
+        $registry->registerTasks();
+
+        $scheduledTaskRepository = $this->getContainer()->get('scheduled_task.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', LogCleanupTask::getTaskName()));
+        /** @var ScheduledTaskEntity|null $task */
+        $task = $scheduledTaskRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertNotNull($task);
+        static::assertSame(LogCleanupTask::getDefaultInterval(), $task->getRunInterval());
     }
 
     private function runWithOptions(int $age, int $maxEntries, array $expectedMessages): void

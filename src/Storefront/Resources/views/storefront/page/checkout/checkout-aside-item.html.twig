@@ -1,11 +1,25 @@
 {% block page_checkout_aside_item %}
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
+    {% set childrenTemplate = '@Storefront/storefront/page/checkout/checkout-aside-item-children.html.twig' %}
+
+    {# @deprecated tag:v6.5.0 - `cartItemClasses` & `isChild` will be removed with no replacement #}
+    {% set cartItemClasses = '' %}
+    {% if not feature('FEATURE_NEXT_12635') %}
+        {% if isNested %}
+            {% set cartItemClasses = cartItemClasses ~ ' is-nested' %}
+        {% endif %}
+        {% if isChild %}
+            {% set cartItemClasses = cartItemClasses ~ ' is-child' %}
+        {% endif %}
+    {% endif %}
 
     {% block page_checkout_aside_item_container %}
-        <div class="row checkout-aside-item cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %}">
+        <div class="row checkout-aside-item cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{{ cartItemClasses }}">
+
             {% block page_checkout_aside_item_image %}
                 <div class="col-4 checkout-aside-item-image">
+
                     {% block page_checkout_aside_item_image_inner %}
                         {% if isDiscount %}
                             <div class="cart-item-discount-icon cart-item-img">
@@ -19,7 +33,7 @@
                                     'color': 'light'
                                 } %}
                             </div>
-                        {%  else %}
+                        {% else %}
                             {% if lineItem.cover.url %}
                                 {% sw_thumbnails 'cart-item-img-thumbnails' with {
                                     media: lineItem.cover,
@@ -39,11 +53,13 @@
                             {% endif %}
                         {% endif %}
                     {% endblock %}
+
                 </div>
             {% endblock %}
 
             {% block page_checkout_aside_item_data %}
                 <div class="col-8 checkout-aside-item-data">
+
                     {% block page_checkout_aside_item_title %}
                         <div class="checkout-aside-item-title">
                             {{ lineItem.label|u.truncate(60) }}
@@ -52,6 +68,7 @@
 
                     {% block page_checkout_aside_item_variant_characteristics %}
                         <div class="checkout-aside-item-characteristics">
+
                             {% for option in lineItem.payload.options %}
                                 {{ option.group }}:
                                 <span class="checkout-aside-item-characteristics-option">{{ option.option }}</span>
@@ -60,6 +77,7 @@
                                     {{ " | " }}
                                 {% endif %}
                             {% endfor %}
+
                         </div>
                     {% endblock %}
 
@@ -73,9 +91,11 @@
 
                     {% block page_checkout_aside_item_quantity %}
                         <div class="checkout-aside-item-link-quantity">
+
                             {% if lineItem.quantity and lineItem.type != "promotion" %}
                                 {{ "checkout.cartHeaderQuantity"|trans }}: {{ lineItem.quantity }}
                             {% endif %}
+
                         </div>
                     {% endblock %}
 
@@ -84,18 +104,33 @@
                             {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                         </div>
                     {% endblock %}
+
                 </div>
             {% endblock %}
+
+            {% if feature('FEATURE_NEXT_12635') %}
+                {% block page_checkout_aside_item_children_template %}
+                    {% if isNested %}
+                        {% sw_include childrenTemplate %}
+                    {% endif %}
+                {% endblock %}
+            {% endif %}
+
         </div>
     {% endblock %}
 
-    {% block page_checkout_aside_item_children %}
-        {% for lineItem in lineItem.children %}
-            {% block page_checkout_aside_item_child %}
-                {% sw_include '@Storefront/storefront/page/checkout/checkout-aside-item.html.twig' with {
-                    "isChild": true
-                } %}
-            {% endblock %}
-        {% endfor %}
-    {% endblock %}
+    {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/page/checkout/checkout-aside-item-children.html.twig` instead #}
+    {% if not feature('FEATURE_NEXT_12635') %}
+        {# @deprecated tag:v6.5.0 - block will be moved to `@Storefront/storefront/page/checkout/checkout-aside-item-children.html.twig` #}
+        {% block page_checkout_aside_item_children %}
+            {% for lineItem in lineItem.children %}
+                {# @deprecated tag:v6.5.0 - block will be removed #}
+                {% block page_checkout_aside_item_child %}
+                    {% sw_include '@Storefront/storefront/page/checkout/checkout-aside-item.html.twig' with {
+                        "isChild": true
+                    } %}
+                {% endblock %}
+            {% endfor %}
+        {% endblock %}
+    {% endif %}
 {% endblock %}

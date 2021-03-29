@@ -73,14 +73,12 @@
         padding: 8px 4px 0;
     }
 
-    .cart-item-children-element.nesting-level-0 {
-        padding-top: 0;
+    .cart-item-children-element > .nesting-level-0 {
         list-style: none;
     }
 
     .cart-item-children-element:last-child,
-    .cart-item-children-element-divider:last-child,
-    .cart-item-children-element:not(.nesting-level-0) {
+    .cart-item-children-element-divider:last-child {
         border-style: none;
     }
 

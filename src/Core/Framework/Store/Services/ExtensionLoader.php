@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Store\Struct\StoreCategoryCollection;
 use Shopware\Core\Framework\Store\Struct\StoreCollection;
 use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Storefront\Framework\ThemeInterface;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
 
@@ -109,6 +110,8 @@ class ExtensionLoader
                 /** @var ExtensionStruct $registeredApp */
                 $registeredApp = $registeredApps->get($name);
 
+                $registeredApp->setIsTheme($app->isTheme());
+
                 // Set version of local app to registered app if newer
                 if (version_compare((string) $app->getVersion(), (string) $registeredApp->getVersion(), '>')) {
                     $registeredApp->setLatestVersion($app->getVersion());
@@ -168,7 +171,15 @@ class ExtensionLoader
 
     private function loadFromPlugin(Context $context, PluginEntity $plugin): ExtensionStruct
     {
-        $installedThemeNames = $this->getInstalledThemeNames($context);
+        $isTheme = false;
+
+        if (interface_exists(ThemeInterface::class) && class_exists($plugin->getBaseClass())) {
+            $implementedInterfaces = class_implements($plugin->getBaseClass());
+
+            if (\is_array($implementedInterfaces)) {
+                $isTheme = \array_key_exists(ThemeInterface::class, $implementedInterfaces);
+            }
+        }
 
         $data = [
             'localId' => $plugin->getId(),
@@ -183,7 +194,7 @@ class ExtensionLoader
             'installedAt' => $plugin->getInstalledAt(),
             'active' => $plugin->getActive(),
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
-            'isTheme' => \in_array($plugin->getName(), $installedThemeNames, true),
+            'isTheme' => $isTheme,
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
         ];
@@ -235,7 +246,7 @@ class ExtensionLoader
                 'installedAt' => null,
                 'active' => false,
                 'type' => ExtensionStruct::EXTENSION_TYPE_APP,
-                'isTheme' => false,
+                'isTheme' => is_file($app->getPath() . '/Resources/theme.json'),
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $languageWithMinus, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
             ];

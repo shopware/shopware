@@ -12,6 +12,7 @@
             <argument type="string">%env(APP_URL)%</argument>
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">

@@ -64,6 +64,8 @@ class ExecutorTest extends TestCase
             hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
     public function testExecutorIgnoresFailedRequests(): void
@@ -115,6 +117,8 @@ class ExecutorTest extends TestCase
             hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
     public function testContentIsCorrect(): void
@@ -172,6 +176,8 @@ class ExecutorTest extends TestCase
             hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
     private function parseSchemaErrors(ValidationResult $result): string

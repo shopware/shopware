@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -213,7 +214,8 @@ class WebhookDispatcherTest extends TestCase
             $clientMock,
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->dispatch($event);
@@ -247,7 +249,8 @@ class WebhookDispatcherTest extends TestCase
             $clientMock,
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->dispatch($event);
@@ -265,7 +268,8 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('shopware.app_system.guzzle'),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->addSubscriber(new MockSubscriber());
@@ -283,7 +287,8 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('shopware.app_system.guzzle'),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->removeSubscriber(new MockSubscriber());
@@ -356,6 +361,8 @@ class WebhookDispatcherTest extends TestCase
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
     public function testDoesNotDispatchBusinessEventIfAppIsInactive(): void
@@ -416,7 +423,8 @@ class WebhookDispatcherTest extends TestCase
             $clientMock,
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->dispatch($event);
@@ -469,7 +477,8 @@ class WebhookDispatcherTest extends TestCase
             $clientMock,
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->dispatch($event);
@@ -556,6 +565,8 @@ class WebhookDispatcherTest extends TestCase
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
     public function testDoesNotDispatchBusinessEventIfAppUrlChangeWasDetected(): void
@@ -619,7 +630,8 @@ class WebhookDispatcherTest extends TestCase
             $clientMock,
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->dispatch($event);
@@ -670,7 +682,8 @@ class WebhookDispatcherTest extends TestCase
             $clientMock,
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->dispatch($event);
@@ -805,7 +818,8 @@ class WebhookDispatcherTest extends TestCase
             $clientMock,
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(HookableEventFactory::class)
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $webhookDispatcher->dispatch($event);
@@ -878,6 +892,8 @@ class WebhookDispatcherTest extends TestCase
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
     public function testItDoesDispatchAppLifecycleEventForInactiveApp(): void

@@ -26,6 +26,7 @@
             <argument type="service" id="app.repository"/>
             <argument>%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Validation\TranslationValidator">
@@ -114,12 +115,14 @@
             <argument type="service" id="app.repository"/>
             <argument type="string">%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
             <argument type="string">%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
@@ -179,6 +182,7 @@
         <service id="Shopware\Core\Framework\App\ActionButton\Executor">
             <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="logger"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\AppActionLoader">

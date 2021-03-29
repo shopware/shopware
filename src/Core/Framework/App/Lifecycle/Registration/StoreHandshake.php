@@ -13,38 +13,26 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
  */
 class StoreHandshake implements AppHandshakeInterface
 {
-    /**
-     * @var string
-     */
-    private $shopUrl;
+    private string $shopUrl;
 
-    /**
-     * @var string
-     */
-    private $appEndpoint;
+    private string $appEndpoint;
 
-    /**
-     * @var string
-     */
-    private $appName;
+    private string $appName;
 
-    /**
-     * @var string
-     */
-    private $shopId;
+    private string $shopId;
 
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
+    private StoreClient $storeClient;
 
-    public function __construct(string $shopUrl, string $appEndpoint, string $appName, string $shopId, StoreClient $storeClient)
+    private string $shopwareVersion;
+
+    public function __construct(string $shopUrl, string $appEndpoint, string $appName, string $shopId, StoreClient $storeClient, string $shopwareVersion)
     {
         $this->shopUrl = $shopUrl;
         $this->appEndpoint = $appEndpoint;
         $this->appName = $appName;
         $this->shopId = $shopId;
         $this->storeClient = $storeClient;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function assembleRequest(): RequestInterface
@@ -65,6 +53,7 @@ class StoreHandshake implements AppHandshakeInterface
             $uri,
             [
                 'shopware-app-signature' => $signature,
+                'sw-version' => $this->shopwareVersion,
             ]
         );
     }

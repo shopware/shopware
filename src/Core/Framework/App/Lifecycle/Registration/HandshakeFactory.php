@@ -13,26 +13,24 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
  */
 final class HandshakeFactory
 {
-    /**
-     * @var string
-     */
-    private $shopUrl;
+    private string $shopUrl;
 
-    /**
-     * @var ShopIdProvider
-     */
-    private $shopIdProvider;
+    private ShopIdProvider $shopIdProvider;
 
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
+    private StoreClient $storeClient;
 
-    public function __construct(string $shopUrl, ShopIdProvider $shopIdProvider, StoreClient $storeClient)
-    {
+    private string $shopwareVersion;
+
+    public function __construct(
+        string $shopUrl,
+        ShopIdProvider $shopIdProvider,
+        StoreClient $storeClient,
+        string $shopwareVersion
+    ) {
         $this->shopUrl = $shopUrl;
         $this->shopIdProvider = $shopIdProvider;
         $this->storeClient = $storeClient;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function create(Manifest $manifest): AppHandshakeInterface
@@ -62,7 +60,8 @@ final class HandshakeFactory
                 $privateSecret,
                 $setup->getRegistrationUrl(),
                 $metadata->getName(),
-                $shopId
+                $shopId,
+                $this->shopwareVersion
             );
         }
 
@@ -71,7 +70,8 @@ final class HandshakeFactory
             $setup->getRegistrationUrl(),
             $metadata->getName(),
             $shopId,
-            $this->storeClient
+            $this->storeClient,
+            $this->shopwareVersion
         );
     }
 }

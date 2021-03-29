@@ -20,29 +20,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
  */
 class ModuleLoader
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    /**
-     * @var string
-     */
-    private $shopUrl;
+    private string $shopUrl;
 
-    /**
-     * @var ShopIdProvider
-     */
-    private $shopIdProvider;
+    private ShopIdProvider $shopIdProvider;
+
+    private string $shopwareVersion;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
         string $shopUrl,
-        ShopIdProvider $shopIdProvider
+        ShopIdProvider $shopIdProvider,
+        string $shopwareVersion
     ) {
         $this->appRepository = $appRepository;
         $this->shopUrl = $shopUrl;
         $this->shopIdProvider = $shopIdProvider;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function loadModules(Context $context): array
@@ -147,11 +142,11 @@ class ModuleLoader
         $secret = $app->getAppSecret();
         $signature = hash_hmac('sha256', $uri->getQuery(), $secret);
 
-        return Uri::withQueryValue(
+        return (string) Uri::withQueryValue(
             $uri,
             'shopware-shop-signature',
             $signature
-        )->__toString();
+        );
     }
 
     private function generateQueryString(string $uri, string $shopId): UriInterface
@@ -163,6 +158,7 @@ class ModuleLoader
             'shop-id' => $shopId,
             'shop-url' => $this->shopUrl,
             'timestamp' => $date->getTimestamp(),
+            'sw-version' => $this->shopwareVersion,
         ]);
     }
 }

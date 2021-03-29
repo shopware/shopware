@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle\Registration;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Kernel;
 
 class PrivateHandshakeTest extends TestCase
 {
@@ -15,7 +16,7 @@ class PrivateHandshakeTest extends TestCase
         $appEndpoint = 'https://test.com/install';
         $shopId = Random::getAlphanumericString(12);
 
-        $handshake = new PrivateHandshake($shopUrl, $secret, $appEndpoint, '', $shopId);
+        $handshake = new PrivateHandshake($shopUrl, $secret, $appEndpoint, '', $shopId, Kernel::SHOPWARE_FALLBACK_VERSION);
 
         $request = $handshake->assembleRequest();
         static::assertStringStartsWith($appEndpoint, (string) $request->getUri());
@@ -37,6 +38,8 @@ class PrivateHandshakeTest extends TestCase
             hash_hmac('sha256', $request->getUri()->getQuery(), $secret),
             $request->getHeaderLine('shopware-app-signature')
         );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
     public function testAppProof(): void
@@ -47,7 +50,7 @@ class PrivateHandshakeTest extends TestCase
         $appName = 'testapp';
         $shopId = Random::getAlphanumericString(12);
 
-        $handshake = new PrivateHandshake($shopUrl, $secret, $appEndpoint, $appName, $shopId);
+        $handshake = new PrivateHandshake($shopUrl, $secret, $appEndpoint, $appName, $shopId, Kernel::SHOPWARE_FALLBACK_VERSION);
 
         $appProof = $handshake->fetchAppProof();
 

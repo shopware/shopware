@@ -349,6 +349,9 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('currency_route')
                             ->prototype('scalar')->end()
                         ->end()
+                        ->arrayNode('country_route')
+                            ->prototype('scalar')->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end();

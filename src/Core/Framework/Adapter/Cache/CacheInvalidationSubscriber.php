@@ -42,10 +42,12 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\System\Country\SalesChannel\CachedCountryRoute;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\SalesChannel\CachedCurrencyRoute;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
@@ -115,6 +117,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateSnippets', 2012],
                 ['invalidateStreamsBeforeIndexing', 2013],
                 ['invalidateStreamIds', 2014],
+                ['invalidateCountryRoute', 2015],
             ],
             SeoUrlUpdateEvent::class => [
                 ['invalidateSeoUrls', 2000],
@@ -273,6 +276,15 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $this->logger->invalidate(array_merge(
             $this->getChangedLanguageAssignments($event),
             $this->getChangedLanguages($event)
+        ));
+    }
+
+    public function invalidateCountryRoute(EntityWrittenContainerEvent $event): void
+    {
+        // invalidates the language route when a language changed or an assignment between the sales channel and language changed
+        $this->logger->invalidate(array_merge(
+            $this->getChangedCountryAssignments($event),
+            $this->getChangedCountries($event),
         ));
     }
 
@@ -576,6 +588,38 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         }
 
         return [CachedNavigationRoute::ALL_TAG];
+    }
+
+    private function getChangedCountries(EntityWrittenContainerEvent $event): array
+    {
+        $ids = $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME);
+        if (empty($ids)) {
+            return [];
+        }
+
+        //Used to detect changes to the country itself and invalidate the route for all sales channels in which the country is assigned.
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_country WHERE country_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $tags = [];
+        if ($event->getDeletedPrimaryKeys(CountryDefinition::ENTITY_NAME)) {
+            $tags[] = CachedCountryRoute::ALL_TAG;
+        }
+
+        return array_merge($tags, array_map([CachedCountryRoute::class, 'buildName'], $ids));
+    }
+
+    private function getChangedCountryAssignments(EntityWrittenContainerEvent $event): array
+    {
+        //Used to detect changes to the country assignment of a sales channel
+        $ids = $event->getPrimaryKeys(SalesChannelCountryDefinition::ENTITY_NAME);
+
+        $ids = array_column($ids, 'salesChannelId');
+
+        return array_map([CachedCountryRoute::class, 'buildName'], $ids);
     }
 
     private function getChangedLanguages(EntityWrittenContainerEvent $event): array

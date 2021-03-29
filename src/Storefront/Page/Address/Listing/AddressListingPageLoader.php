@@ -127,7 +127,7 @@ class AddressListingPageLoader
             ->addAssociation('states');
 
         $countries = $this->countryRoute
-            ->load($criteria, $salesChannelContext)
+            ->load(new Request(), $criteria, $salesChannelContext)
             ->getCountries();
 
         $countries->sortCountryAndStates();

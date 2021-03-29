@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -49,10 +50,10 @@ class CountryRoute extends AbstractCountryRoute
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/country_flat"))
      *     )
      * )
-     * @Entity(value="country")
+     * @Entity("country")
      * @Route("/store-api/country", name="store-api.country", methods={"GET", "POST"})
      */
-    public function load(Criteria $criteria, SalesChannelContext $context): CountryRouteResponse
+    public function load(Request $request, Criteria $criteria, SalesChannelContext $context): CountryRouteResponse
     {
         $criteria->addFilter(new EqualsFilter('active', true));
 

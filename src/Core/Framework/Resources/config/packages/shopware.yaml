@@ -123,3 +123,4 @@ shopware:
             landing_page_route: []
             language_route: []
             currency_route: []
+            country_route: []

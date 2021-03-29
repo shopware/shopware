@@ -114,7 +114,7 @@ class AddressDetailPageLoader
             ->addFilter(new EqualsFilter('country.active', true))
             ->addAssociation('states');
 
-        $countries = $this->countryRoute->load($criteria, $salesChannelContext)->getCountries();
+        $countries = $this->countryRoute->load(new Request(), $criteria, $salesChannelContext)->getCountries();
 
         $countries->sortCountryAndStates();
 

@@ -352,6 +352,9 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('country_route')
                             ->prototype('scalar')->end()
                         ->end()
+                        ->arrayNode('salutation_route')
+                            ->prototype('scalar')->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end();

@@ -7,4 +7,5 @@ author_github: OliverSkroblin
 ---
 # Core
 * Added `\Shopware\Core\System\Country\SalesChannel\CachedCountryRoute`, which adds a cache for the store api country route
+* Added `\Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute`, which adds a cache for the store api salutation route
 * Added `Request $request` parameter to `\Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute::load`

@@ -54,6 +54,8 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesC
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
@@ -118,6 +120,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateStreamsBeforeIndexing', 2013],
                 ['invalidateStreamIds', 2014],
                 ['invalidateCountryRoute', 2015],
+                ['invalidateSalutationRoute', 2016],
             ],
             SeoUrlUpdateEvent::class => [
                 ['invalidateSeoUrls', 2000],
@@ -281,10 +284,18 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
     public function invalidateCountryRoute(EntityWrittenContainerEvent $event): void
     {
-        // invalidates the language route when a language changed or an assignment between the sales channel and language changed
+        // invalidates the country route when a country changed or an assignment between the sales channel and country changed
         $this->logger->invalidate(array_merge(
             $this->getChangedCountryAssignments($event),
             $this->getChangedCountries($event),
+        ));
+    }
+
+    public function invalidateSalutationRoute(EntityWrittenContainerEvent $event): void
+    {
+        // invalidates the salutation route when a salutation changed
+        $this->logger->invalidate(array_merge(
+            $this->getChangedSalutations($event),
         ));
     }
 
@@ -620,6 +631,16 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $ids = array_column($ids, 'salesChannelId');
 
         return array_map([CachedCountryRoute::class, 'buildName'], $ids);
+    }
+
+    private function getChangedSalutations(EntityWrittenContainerEvent $event): array
+    {
+        $ids = $event->getPrimaryKeys(SalutationDefinition::ENTITY_NAME);
+        if (empty($ids)) {
+            return [];
+        }
+
+        return [CachedSalutationRoute::ALL_TAG];
     }
 
     private function getChangedLanguages(EntityWrittenContainerEvent $event): array

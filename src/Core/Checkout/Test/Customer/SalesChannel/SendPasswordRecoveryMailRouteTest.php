@@ -103,6 +103,30 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
     }
 
+    public function testResetWithDisabledAccount(): void
+    {
+        $email = 'test-disabled@test.de';
+
+        $this->createCustomer('shopware1234', $email, false);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/recovery-password?validateStorefrontUrl=false',
+                [
+                    'email' => $email,
+                    'storefrontUrl' => 'http://localhost',
+                    'validateStorefrontUrl' => false,
+                ]
+            );
+
+        static::assertSame(404, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('CHECKOUT__CUSTOMER_NOT_FOUND', $response['errors'][0]['code']);
+    }
+
     /**
      * @dataProvider sendMailWithDomainAndLeadingSlashProvider
      */
@@ -172,7 +196,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             ->create([$domain], Context::createDefaultContext());
     }
 
-    private function createCustomer(string $password, ?string $email = null): string
+    private function createCustomer(string $password, ?string $email = null, bool $active = true): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -180,6 +204,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->customerRepository->create([
             [
                 'id' => $customerId,
+                'active' => $active,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,

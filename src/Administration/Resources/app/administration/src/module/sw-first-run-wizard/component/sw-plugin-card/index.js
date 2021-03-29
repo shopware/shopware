@@ -8,6 +8,8 @@ Component.register('sw-plugin-card', {
 
     inject: ['storeService', 'pluginService', 'cacheApiService', 'extensionHelperService'],
 
+    mixins: ['sw-extension-error'],
+
     props: {
         plugin: {
             type: Object,
@@ -47,6 +49,9 @@ Component.register('sw-plugin-card', {
             return this.extensionHelperService.downloadAndActivateExtension(pluginName)
                 .then(() => {
                     this.pluginIsSaveSuccessful = true;
+                })
+                .catch(error => {
+                    this.showExtensionErrors(error);
                 })
                 .finally(() => {
                     this.pluginIsLoading = false;

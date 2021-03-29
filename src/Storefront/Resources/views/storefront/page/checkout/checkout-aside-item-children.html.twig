@@ -1,0 +1,102 @@
+{% block page_checkout_aside_item_children %}
+    {% set nestingLevel = 0 %}
+
+    <div class="cart-aside-item-children">
+
+        {% block page_checkout_aside_item_children_header %}
+            <div class="container cart-aside-item-collapse-container">
+                <div class="row cart-aside-item-collapse">
+
+                    {% block page_checkout_aside_item_children_header_content %}
+                        <div class="col cart-aside-item-headline">
+
+                            {% block page_checkout_aside_item_children_header_content_text %}
+                                <span class="cart-aside-item-headline-text">
+                                    {{ 'checkout.lineItemContainerHeadline'|trans }}
+                                </span>
+                            {% endblock %}
+
+                        </div>
+                    {% endblock %}
+
+                    {% block page_checkout_aside_item_children_header_collapse %}
+                        <div class="col-1 cart-aside-item-collapse-icon-container">
+
+                            {% block page_checkout_aside_item_children_header_collapse_button %}
+                                <button class="collapsed cart-aside-item-collapse-button"
+                                        data-toggle="collapse"
+                                        data-target="#collapse-aside-line-item-contains-{{ lineItem.id }}"
+                                        aria-controls="collapse-aside-line-item-contains-{{ lineItem.id }}"
+                                        aria-expanded="false">
+
+                                    {% block page_checkout_aside_item_children_header_collapse_button_icon %}
+                                        <div class="cart-aside-item-collapse-icon">
+                                            {% sw_icon 'arrow-down' style {
+                                                'color': 'primary',
+                                                'pack':'solid'
+                                            } %}
+                                        </div>
+                                    {% endblock %}
+
+                                </button>
+                            {% endblock %}
+
+                        </div>
+                    {% endblock %}
+
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_aside_item_children_elements %}
+            <div class="container collapse cart-aside-item-children-elements"
+                 id="collapse-aside-line-item-contains-{{ lineItem.id }}">
+
+                {% for nestedLineItem in lineItem.children %}
+                    {% block page_checkout_aside_item_children_element %}
+                        {% block page_checkout_aside_item_children_element_content %}
+                            <div class="row cart-aside-item-children-element">
+
+                                {% block page_checkout_aside_item_child %}
+                                    {% block page_checkout_aside_item_child_headline %}
+                                        <div class="col cart-aside-item-child-label nesting-level-{{ nestingLevel }}">
+
+                                            {% block page_checkout_aside_item_child_headline_label %}
+                                                <div class="cart-aside-item-child-label-bullet">
+                                                    {{ nestedLineItem.label }}
+                                                </div>
+                                            {% endblock %}
+
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_checkout_aside_item_child_total_price %}
+                                        <div class="col-3 cart-aside-item-child-total-price">
+                                            {{ nestedLineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                        </div>
+                                    {% endblock %}
+                                {% endblock %}
+
+                            </div>
+                        {% endblock %}
+
+                        {% block page_checkout_aside_item_children_element_children %}
+                            {% if nestedLineItem.children.count > 0 %}
+                                {% set nestingLevel = nestingLevel + 1 %}
+                                {% for nestedLineItem in nestedLineItem.children %}
+                                    {{ block('page_checkout_aside_item_children_element') }}
+                                {% endfor %}
+                            {% endif %}
+                        {% endblock %}
+                    {% endblock %}
+
+                    {% block page_checkout_aside_item_children_element_divider %}
+                        <hr class="cart-aside-item-children-element-divider"/>
+                    {% endblock %}
+                {% endfor %}
+
+            </div>
+        {% endblock %}
+
+    </div>
+{% endblock %}

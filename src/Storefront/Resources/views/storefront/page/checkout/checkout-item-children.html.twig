@@ -64,11 +64,11 @@
                 {% for nestedLineItem in lineItem.children %}
                     {% block page_checkout_item_children_element %}
                         {% block page_checkout_item_children_element_content %}
-                            <div class="row cart-item-children-element{% if nestingLevel is same as(0) %} nesting-level-0{% endif %}">
+                            <div class="row cart-item-children-element">
 
                                 {% block page_checkout_item_child %}
                                     {% block page_checkout_item_child_headline %}
-                                        <div class="col cart-item-child-label{% if nestingLevel > 0 %} nesting-level-{{ nestingLevel }}{% endif %}">
+                                        <div class="col cart-item-child-label nesting-level-{{ nestingLevel }}">
 
                                             {% block page_checkout_item_child_headline_label %}
                                                 <div class="cart-item-child-label-bullet">

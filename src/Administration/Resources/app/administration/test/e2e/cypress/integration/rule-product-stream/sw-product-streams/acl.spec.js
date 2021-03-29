@@ -20,9 +20,9 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 key: 'product_stream',
                 role: 'viewer'
             }
-        ]);
-
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        ]).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        });
 
         cy.get('.smart-bar__actions .sw-button.sw-button--primary')
             .should('to.have.class', 'sw-button--disabled', true);
@@ -89,7 +89,9 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 key: 'product_stream',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        });
 
         cy.server();
         cy.route({
@@ -98,8 +100,6 @@ describe('Dynamic product group: Test ACL privileges', () => {
         }).as('updateData');
 
         cy.createProductFixture().then(() => {
-            cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
-
             // go to detail page of product stream
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name a').click();
 
@@ -157,9 +157,9 @@ describe('Dynamic product group: Test ACL privileges', () => {
                     key: 'product_stream',
                     role: 'creator'
                 }
-            ]);
-
-            cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            ]).then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            });
 
             cy.get('.smart-bar__actions .sw-button--primary').click();
 
@@ -203,7 +203,9 @@ describe('Dynamic product group: Test ACL privileges', () => {
                     key: 'product_stream',
                     role: 'deleter'
                 }
-            ]);
+            ]).then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            });
 
             cy.server();
             cy.route({
@@ -215,8 +217,6 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 url: '/api/_action/sync',
                 method: 'post'
             }).as('deleteMultipleData');
-
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
 
             // open context menu
             cy.get('.sw-data-grid__row--0 .sw-context-button__button').click();

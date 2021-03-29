@@ -20,10 +20,10 @@ describe('Snippets: Test acl privileges', () => {
                 key: 'snippet',
                 role: 'viewer'
             }
-        ]);
-
-        // visiting settings page to prove that snippets element is visible
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+        ]).then(() => {
+            // visiting settings page to prove that snippets element is visible
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+        });
 
         // go to snippet list
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-content > a').click();
@@ -60,16 +60,16 @@ describe('Snippets: Test acl privileges', () => {
                 key: 'snippet',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            // visiting settings page to prove that snippets element is visible
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+        });
 
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/snippet/*`,
             method: 'patch'
         }).as('saveData');
-
-        // visiting settings page to prove that snippets element is visible
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
 
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-content > a').click();
 
@@ -99,15 +99,16 @@ describe('Snippets: Test acl privileges', () => {
                 key: 'snippet',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            // visiting settings page to prove that snippets element is visible
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+        });
 
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/snippet`,
             method: 'post'
         }).as('saveData');
-
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
 
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-content > a').click();
 
@@ -144,15 +145,16 @@ describe('Snippets: Test acl privileges', () => {
                 key: 'snippet',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            // visiting settings page to prove that snippets element is visible
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+        });
 
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/snippet-set`,
             method: 'post'
         }).as('saveData');
-
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
 
         cy.get('.sw-settings-snippet-set-list__action-add')
             .should('be.visible')

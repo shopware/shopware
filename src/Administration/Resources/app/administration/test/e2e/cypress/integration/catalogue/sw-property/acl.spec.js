@@ -25,7 +25,7 @@ describe('Property: Test ACL privileges', () => {
                 role: 'viewer'
             }
         ]).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/property/index`);
+            cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
         });
 
         // open property without permissions

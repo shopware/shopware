@@ -24,12 +24,9 @@ describe('Integration: Test acl privileges', () => {
                 key: 'integration',
                 role: 'viewer'
             }
-        ]);
-
-        // go to integration module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('.sw-settings__tab-system').click();
-        cy.get('#sw-integration').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
+        });
 
         // assert that there is an available list of integration
         cy.get(`${page.elements.integrationListContent}`).should('be.visible');
@@ -49,7 +46,9 @@ describe('Integration: Test acl privileges', () => {
                 key: 'integration',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -57,11 +56,6 @@ describe('Integration: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/integration`,
             method: 'post'
         }).as('createIntegration');
-
-        // go to integration module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('.sw-settings__tab-system').click();
-        cy.get('#sw-integration').click();
 
         // go to create page
         cy.get('.sw-integration-list__add-integration-action').click();
@@ -92,7 +86,9 @@ describe('Integration: Test acl privileges', () => {
                 key: 'integration',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -100,11 +96,6 @@ describe('Integration: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/integration/*`,
             method: 'patch'
         }).as('editIntegration');
-
-        // go to integration module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('.sw-settings__tab-system').click();
-        cy.get('#sw-integration').click();
 
         // click on the first element in grid
         cy.get(`${page.elements.dataGridRow}--0`).contains('chat-key').click();
@@ -135,7 +126,9 @@ describe('Integration: Test acl privileges', () => {
                 key: 'integration',
                 role: 'deleter'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -143,11 +136,6 @@ describe('Integration: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/integration/*`,
             method: 'delete'
         }).as('deleteIntegration');
-
-        // go to integration module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('.sw-settings__tab-system').click();
-        cy.get('#sw-integration').click();
 
         // click on the first element in grid
         cy.clickContextMenuItem(

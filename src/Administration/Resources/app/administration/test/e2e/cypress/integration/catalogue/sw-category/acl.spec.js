@@ -35,10 +35,9 @@ describe('Category: Test ACL privileges', () => {
                 key: 'category',
                 role: 'viewer'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        });
 
         cy.get('.sw-empty-state__title').contains('No category selected');
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
@@ -46,7 +45,8 @@ describe('Category: Test ACL privileges', () => {
 
         cy.get('#categoryName').should('have.value', 'Home');
 
-        // 'home' category should be have 'main navigation' as entry point, so there are more things that should be visible not disabled
+        // 'home' category should be have 'main navigation' as entry point, so there are more things
+        // that should be visible not disabled
         cy.get('.sw-category-entry-point-card__entry-point-selection')
             .should('be.visible')
             .should('have.class', 'is--disabled');
@@ -106,10 +106,9 @@ describe('Category: Test ACL privileges', () => {
                 key: 'category',
                 role: 'editor'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        });
 
         cy.get('.sw-empty-state__title').contains('No category selected');
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
@@ -157,10 +156,9 @@ describe('Category: Test ACL privileges', () => {
                 key: 'category',
                 role: 'creator'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        });
 
         const page = new CategoryPageObject();
 
@@ -212,15 +210,14 @@ describe('Category: Test ACL privileges', () => {
                 key: 'category',
                 role: 'deleter'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        });
 
         cy.route({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'delete'
         }).as('deleteData');
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
 
         const page = new CategoryPageObject();
 

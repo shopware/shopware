@@ -23,7 +23,7 @@ describe('Review: Test ACL privileges', () => {
                 role: 'viewer'
             }
         ]).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index`);
+            cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
         });
 
         // open review without permissions

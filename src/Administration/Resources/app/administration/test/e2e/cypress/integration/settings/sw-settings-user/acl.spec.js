@@ -17,9 +17,10 @@ describe('User: Test acl privileges', () => {
                 key: 'users_and_permissions',
                 role: 'viewer'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        });
 
-        cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
         cy.get('.sw-users-permissions-user-listing')
             .should('be.visible');
 
@@ -48,9 +49,9 @@ describe('User: Test acl privileges', () => {
                 key: 'users_and_permissions',
                 role: 'editor'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        });
 
         cy.get('.sw-users-permissions-user-listing__toolbar .sw-simple-search-field input')
             .clearTypeAndCheck('maxmuster');
@@ -118,9 +119,9 @@ describe('User: Test acl privileges', () => {
                 key: 'users_and_permissions',
                 role: 'editor'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        });
 
         cy.get('.sw-users-permissions-user-listing__toolbar .sw-simple-search-field input')
             .clearTypeAndCheck('maxmuster');
@@ -196,10 +197,9 @@ describe('User: Test acl privileges', () => {
                 key: 'users_and_permissions',
                 role: 'creator'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
-
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        });
 
         // Requests we want to wait for later
         cy.server();
@@ -286,9 +286,9 @@ describe('User: Test acl privileges', () => {
                 key: 'users_and_permissions',
                 role: 'deleter'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        });
 
         // Requests we want to wait for later
         cy.server();

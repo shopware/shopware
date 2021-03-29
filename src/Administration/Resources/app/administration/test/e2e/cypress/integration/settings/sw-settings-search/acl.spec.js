@@ -31,11 +31,9 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'viewer'
             }
-        ]);
-
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
         // assert that there is an available settings for search module
         cy.get('.sw-settings-search__view-general').should('be.visible');
@@ -70,7 +68,9 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -78,10 +78,6 @@ describe('Search: Test ACL privileges', () => {
             url: `${Cypress.env('apiPath')}/search/*`,
             method: 'post'
         }).as('editSearchConfigs');
-
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
 
         // search behaviour should not be allowed to edit
         cy.get('.sw-settings-search__search-behaviour-condition').find('label').eq(0).click();
@@ -111,11 +107,10 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -158,7 +153,10 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
+
         const page = new SettingsPageObject();
         // Request we want to wait for later
         cy.server();
@@ -166,10 +164,6 @@ describe('Search: Test ACL privileges', () => {
             url: '/api/product-search-config-field/*',
             method: 'patch'
         }).as('updateSearchConfig');
-
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
 
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
 
@@ -217,11 +211,11 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'creator'
             }
-        ]);
-        const page = new SettingsPageObject();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
+        const page = new SettingsPageObject();
 
         // Request we want to wait for later
         cy.server();
@@ -286,10 +280,9 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'creator'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
         const page = new SettingsPageObject();
 
@@ -369,10 +362,9 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'deleter'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
         const page = new SettingsPageObject();
 
@@ -443,11 +435,9 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'creator'
             }
-        ]);
-
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
         const page = new SettingsPageObject();
         cy.server();
@@ -485,11 +475,9 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'creator'
             }
-        ]);
-
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
         const page = new SettingsPageObject();
         cy.server();
@@ -521,11 +509,9 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'deleter'
             }
-        ]);
-
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
         const page = new SettingsPageObject();
         cy.server();
@@ -572,7 +558,9 @@ describe('Search: Test ACL privileges', () => {
                 key: 'product_search_config',
                 role: 'viewer'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -580,10 +568,6 @@ describe('Search: Test ACL privileges', () => {
             url: `${Cypress.env('apiPath')}/_action/indexing/product.indexer`,
             method: 'post'
         }).as('buildSearchIndex');
-
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
 
         cy.get('.sw-settings-search__general-tab').scrollIntoView();
         cy.get('.sw-settings-search__live-search-tab').should('be.visible').click();

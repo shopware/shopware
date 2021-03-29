@@ -55,7 +55,6 @@ Component.register('sw-product-stream-modal-preview', {
                 }, {
                     property: 'price',
                     label: this.$tc('sw-product-stream.filter.values.price')
-
                 }, {
                     property: 'stock',
                     label: this.$tc('sw-product-stream.filter.values.stock'),

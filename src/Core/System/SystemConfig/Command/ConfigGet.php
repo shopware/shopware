@@ -34,17 +34,30 @@ class ConfigGet extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $configKey = $input->getArgument('key');
         $value = $this->systemConfigService->get(
-            $input->getArgument('key'),
+            $configKey,
             $input->getOption('salesChannelId')
         );
 
-        if (\is_array($value)) {
-            $output->writeln($value);
-        } else {
-            $output->writeln((string) $value);
+        if (!\is_array($value)) {
+            $value = [$configKey => $value];
         }
 
+        $this->writeConfig($output, $value);
+
         return 0;
+    }
+
+    private function writeConfig(OutputInterface $output, array $config, int $level = 0): void
+    {
+        foreach ($config as $key => $entry) {
+            if (\is_array($entry)) {
+                $output->writeln($key);
+                $this->writeConfig($output, $entry, $level + 1);
+            } else {
+                $output->writeln(str_repeat(' ', $level * 2) . "{$key} => {$entry}");
+            }
+        }
     }
 }

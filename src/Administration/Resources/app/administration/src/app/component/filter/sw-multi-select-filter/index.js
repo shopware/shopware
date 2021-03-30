@@ -36,10 +36,14 @@ Component.register('sw-multi-select-filter', {
                 return;
             }
 
-            const filterCriteria = [Criteria.equalsAny(
-                `${this.filter.property}.${this.filter.schema.referenceField}`,
-                newValues.map(newValue => newValue[this.filter.schema.referenceField])
-            )];
+            const filterCriteria = [
+                this.filter.schema
+                    ? Criteria.equalsAny(
+                        `${this.filter.property}.${this.filter.schema.referenceField}`,
+                        newValues.map(newValue => newValue[this.filter.schema.referenceField])
+                    )
+                    : Criteria.equalsAny(this.filter.property, newValues)
+            ];
 
             this.$emit('filter-update', this.filter.name, filterCriteria, newValues);
         },

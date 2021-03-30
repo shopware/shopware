@@ -4,13 +4,16 @@
                     :active="active"
                     @filter-reset="resetFilter">
         {% block sw_multi_select_filter_content %}
-            <sw-entity-multi-select
-                :labelProperty="filter.labelProperty"
-                :placeholder="filter.placeholder"
-                :criteria="filter.criteria"
-                :entityName="filter.schema.entity"
-                :entityCollection="values"
-                @change="changeValue">
+
+            {% block sw_multi_select_filter_content_entity_select %}
+                <sw-entity-multi-select
+                    v-if="!filter.options"
+                    :labelProperty="filter.labelProperty"
+                    :placeholder="filter.placeholder"
+                    :criteria="filter.criteria"
+                    :entityName="filter.schema.entity"
+                    :entityCollection="values"
+                    @change="changeValue">
                     {% block sw_multi_select_filter_content_slot_selection_label_property %}
                         <template #selection-label-property="{ item, index }">
                             <slot name="selection-label-property" v-bind="{ item, index }"></slot>
@@ -22,7 +25,21 @@
                             <slot name="result-item" v-bind="{ item, index }"></slot>
                         </template>
                     {% endblock %}
-            </sw-entity-multi-select>
+                </sw-entity-multi-select>
+            {% endblock %}
+
+            {% block sw_multi_select_filter_content_option_select %}
+                <sw-multi-select
+                    v-if="filter.options"
+                    :labelProperty="filter.labelProperty"
+                    :valueProperty="filter.valueProperty"
+                    :placeholder="filter.placeholder"
+                    :options="filter.options"
+                    :value="values"
+                    @change="changeValue"
+                >
+                </sw-multi-select>
+            {% endblock %}
         {% endblock %}
     </sw-base-filter>
 {% endblock %}

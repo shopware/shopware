@@ -24,10 +24,9 @@ describe('Product: Test ACL privileges', () => {
                 key: 'product',
                 role: 'viewer'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-product').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        });
 
         // open product
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`)
@@ -85,10 +84,9 @@ describe('Product: Test ACL privileges', () => {
                 key: 'product',
                 role: 'editor'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-product').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        });
 
         // open product
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`)
@@ -139,10 +137,9 @@ describe('Product: Test ACL privileges', () => {
                 key: 'product',
                 role: 'creator'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-product').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        });
 
         // create new product
         cy.get('a[href="#/sw/product/create"]').click();
@@ -206,10 +203,9 @@ describe('Product: Test ACL privileges', () => {
                 key: 'product',
                 role: 'deleter'
             }
-        ]);
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-product').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        });
 
         // Delete product
         cy.clickContextMenuItem(

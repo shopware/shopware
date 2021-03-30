@@ -20,7 +20,7 @@ describe('Media: Test ACL privileges', () => {
                 role: 'viewer'
             }
         ]).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
         });
 
         // open media-payment without permissions

@@ -21,13 +21,11 @@ describe('Salutation: Test acl privileges', () => {
                 key: 'salutation',
                 role: 'viewer'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
+        });
 
-        // go to salutaion module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-salutation').click();
-
-        // assert that there is an available list of salutaions
+        // assert that there is an available list of salutations
         cy.get(`${page.elements.salutationListContent}`).should('be.visible');
     });
 
@@ -43,7 +41,9 @@ describe('Salutation: Test acl privileges', () => {
                 key: 'salutation',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -51,11 +51,6 @@ describe('Salutation: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/salutation`,
             method: 'post'
         }).as('createSalutation');
-
-
-        // go to salutaion module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-salutation').click();
 
         // go to create salutation page
         cy.get('.sw-settings-salutation-list__create').click();
@@ -102,7 +97,9 @@ describe('Salutation: Test acl privileges', () => {
                 key: 'salutation',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -110,10 +107,6 @@ describe('Salutation: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/salutation/*`,
             method: 'patch'
         }).as('editSalutation');
-
-        // go to salutaion module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-salutation').click();
 
         // click on the first element in grid
         cy.get(`${page.elements.dataGridRow}--1`).contains('mr').click();
@@ -151,20 +144,16 @@ describe('Salutation: Test acl privileges', () => {
                 key: 'salutation',
                 role: 'deleter'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
+        });
 
-        // repare api to delete salutation
+        // Prepare api to delete salutation
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/salutation/*`,
             method: 'delete'
         }).as('deleteSalutation');
-
-
-        // go to salutaion module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-salutation').click();
-
 
         // click on first element in grid
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('mr');

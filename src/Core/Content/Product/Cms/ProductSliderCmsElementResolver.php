@@ -125,13 +125,11 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $slider->setProducts($products);
     }
 
-    private function filterOutOutOfStockHiddenCloseoutProducts($products)
+    private function filterOutOutOfStockHiddenCloseoutProducts(ProductCollection $products): ProductCollection
     {
         $products = $products->filter(function (ProductEntity $product) {
-            if ($product->getIsCloseout()) {
-                if ($product->getAvailableStock() <= 0) {
-                    return false;
-                }
+            if ($product->getIsCloseout() && $product->getAvailableStock() <= 0) {
+                return false;
             }
 
             return true;

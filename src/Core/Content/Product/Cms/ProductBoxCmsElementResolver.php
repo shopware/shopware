@@ -61,10 +61,9 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
         if ($resolverContext instanceof EntityResolverContext && $productConfig->isMapped()) {
             /** @var SalesChannelProductEntity $product */
             $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getValue());
-            if ($product) {
-                $productBox->setProduct($product);
-                $productBox->setProductId($product->getId());
-            }
+
+            $productBox->setProduct($product);
+            $productBox->setProductId($product->getId());
         }
 
         if ($productConfig->isStatic()) {

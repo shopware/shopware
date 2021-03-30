@@ -111,7 +111,7 @@ describe('components/sw-existence-filter', () => {
     it('should emit `filter-update` event when user changes from `false` to `true`', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.setData({ value: 'false' });
+        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'false' } });
 
         const options = wrapper.find('select').findAll('option');
 
@@ -146,5 +146,29 @@ describe('components/sw-existence-filter', () => {
         await wrapper.setProps({ active: true });
 
         expect(wrapper.emitted()['filter-reset']).toBeFalsy();
+    });
+
+    it('should emit `filter-update` event with correct value when filter has no entity', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.setProps({
+            filter: {
+                property: 'media',
+                name: 'media',
+                label: 'Product without images',
+                optionHasCriteria: 'Has media',
+                optionNoCriteria: 'No media'
+            }
+        });
+
+        const options = wrapper.find('select').findAll('option');
+
+        options.at(0).setSelected();
+
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+            'media',
+            [Criteria.not('AND', [Criteria.equals('media', null)])],
+            'true'
+        ]);
     });
 });

@@ -380,6 +380,14 @@
         "label": "Produkte",
         "placeholder": "Produkte auswählen ..."
       },
+      "affiliateCodeFilter": {
+        "label": "Affiliate-Code",
+        "placeholder": "Affiliate-Code auswählen..."
+      },
+      "campaignCodeFilter": {
+        "label": "Kampagnen-Code",
+        "placeholder": "Kampagnen-Code auswählen..."
+      },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
     }

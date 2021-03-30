@@ -252,6 +252,20 @@
         "label": "Tags",
         "placeholder": "Tags auswählen ..."
       },
+      "affiliateCode": {
+        "label": "Affiliate-Code",
+        "placeholder": "Affiliate-Code auswählen..."
+      },
+      "campaignCode": {
+        "label": "Kampagnen-Code",
+        "placeholder": "Kampagnen-Code auswählen..."
+      },
+      "customerGroupRequest": {
+        "label": "Kundengruppen-Anfragen",
+        "placeholder": "Wähle einen Anfragestatus ...",
+        "textHasCriteria": "Offenen Kundengruppen-Anfragen",
+        "textNoCriteria": "Keine Kundengruppen-Anfragen"
+      },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
     }

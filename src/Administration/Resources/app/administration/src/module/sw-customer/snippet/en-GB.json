@@ -252,6 +252,20 @@
         "label": "Tags",
         "placeholder": "Select tags..."
       },
+      "affiliateCode": {
+        "label": "Affiliate code",
+        "placeholder": "Select affiliate code..."
+      },
+      "campaignCode": {
+        "label": "Campaign code",
+        "placeholder": "Select campaign code..."
+      },
+      "customerGroupRequest": {
+        "label": "Customer group requests",
+        "placeholder": "Select request status...",
+        "textHasCriteria": "Open customer groups requests",
+        "textNoCriteria": "No customer group requests"
+      },
       "messageEmptyTitle": "Nothing found",
       "messageEmptySubline": "Edit your filters to find results."
     }

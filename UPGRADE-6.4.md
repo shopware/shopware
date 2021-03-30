@@ -130,11 +130,11 @@ See [the commit on GitHub](https://github.com/shopware/platform/commit/656c82d52
 
 ---
 
-## Changed the loading of storefront SCSS files in plugins
-Previously all Storefront relevant SCSS files (`*.scss`) of a plugin have automatically been loaded and compiled by shopware when placed inside the directory `src/Resources/app/storefront/src/scss`.
+## Changed the loading of storefront SCSS files in extensions
+Previously all Storefront relevant SCSS files (`*.scss`) of an extension have automatically been loaded and compiled by shopware when placed inside the directory `src/Resources/app/storefront/src/scss`.
 Because all SCSS files have been loaded automatically it could have let to inconsistent results when dealing with custom SCSS variables in separate files for example.
 
-This behaviour has been changed and now only a single entry file will be used by plugins which is the `YourPlugin/src/Resources/app/storefront/src/scss/base.scss`.
+This behaviour has been changed and now only a single entry file will be used by extensions which is the `YourPlugin/src/Resources/app/storefront/src/scss/base.scss` or `YourApp/Resources/app/storefront/src/scss/base.scss`.
 
 ### Before
 

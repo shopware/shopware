@@ -4,7 +4,7 @@ UPGRADE FROM 6.3.x.x to 6.4
 # 6.4.0.0
 
 ## Breaking changes
-For a complete list of breaking changes please refer to the [bc changelog](`./changelog/release-6-4-0-0/2021-03-18-6.4-breaking-changes.md`) changelog file.
+For a complete list of breaking changes please refer to the [bc changelog](/changelog/release-6-4-0-0/2021-03-18-6.4-breaking-changes.md) changelog file.
 
 ---
 
@@ -118,7 +118,7 @@ The plugin manager in the administration is removed with all of its components a
 
 ## New ApiAware flag
 The new `ApiAware` flag replaces the current `ReadProtected` flag for entity definitions.
-See [NEXT-13371 - Added api aware flag](../release-6-3-5-1/2021-01-25-added-api-aware-flag.md)
+See [NEXT-13371 - Added api aware flag](/changelog/release-6-3-5-1/2021-01-25-added-api-aware-flag.md)
 
 ---
 

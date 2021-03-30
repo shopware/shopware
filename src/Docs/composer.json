@@ -1,6 +1,6 @@
 {
     "name": "shopware/docs",
-    "version": "6.4.0.0-RC1",
+    "version": "6.4.0.0",
     "description": "Docs for the Shopware Core",
     "type": "library",
     "license": "MIT",

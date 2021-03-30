@@ -447,6 +447,18 @@ base-uri 'self';
             <argument type="service" id="monolog.logger.business_events"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
@@ -509,6 +521,7 @@ base-uri 'self';
 
             <tag name="messenger.message_handler"/>
         </service>
+
 
         <!-- Changelog -->
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator" public="false">

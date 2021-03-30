@@ -3881,16 +3881,6 @@ parameters:
 			path: src/Core/Framework/Webhook/WebhookCollection.php
 
 		-
-			message: "#^Cannot call method getAclRoleId\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/WebhookDispatcher.php
-
-		-
-			message: "#^Parameter \\#1 \\$appId of method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable\\:\\:isAllowed\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/WebhookDispatcher.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$catch with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/HttpKernel.php

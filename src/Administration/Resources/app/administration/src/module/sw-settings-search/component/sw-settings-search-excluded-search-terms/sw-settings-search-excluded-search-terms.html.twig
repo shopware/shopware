@@ -46,15 +46,30 @@
                                 </sw-card-filter>
                             {% endblock %}
 
-                            {% block sw_settings_search_excluded_search_terms_add_button %}
-                                <sw-button
-                                    variant="ghost"
-                                    class="sw-settings-search__insert-button"
-                                    size="small"
-                                    :disabled="!acl.can('product_search_config.creator')"
-                                    @click="onInsertTerm">
-                                    {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
-                                </sw-button>
+                            {% block sw_settings_search_excluded_search_terms_actions %}
+                                <div class="sw-settings-search-excluded-search-terms-group-actions">
+                                    {% block sw_settings_search_excluded_search_terms_add_button %}
+                                        <sw-button
+                                            class="sw-settings-search-excluded-search-terms__insert-button"
+                                            variant="ghost"
+                                            size="small"
+                                            :disabled="!acl.can('product_search_config.creator')"
+                                            @click="onInsertTerm">
+                                            {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_settings_search_excluded_search_terms_reset_button %}
+                                        <sw-button
+                                            class="sw-settings-search-excluded-search-terms__reset-button"
+                                            size="small"
+                                            :disabled="!acl.can('product_search_config.creator')"
+                                            :isLoading="isLoading"
+                                            @click="onResetExcludedSearchTermDefault">
+                                            {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </div>
                             {% endblock %}
                         </sw-container>
                     {% endblock %}
@@ -65,7 +80,7 @@
                                 v-if="items.length !== 0"
                                 :dataSource="items"
                                 :allowInlineEdit="acl.can('product_search_config.editor')"
-                                :isLoading="isLoading"
+                                :isLoading="isLoading || isExcludedTermsLoading"
                                 :columns="getSearchableGeneralColumns"
                                 @inline-edit-save="onSaveEdit"
                                 @inline-edit-cancel="onCancelEdit"

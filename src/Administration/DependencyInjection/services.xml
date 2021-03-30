@@ -11,6 +11,9 @@
             <argument type="service" id="Shopware\Administration\Snippet\SnippetFinder"/>
             <argument>%kernel.supported_api_versions%</argument>
             <argument type="service" id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

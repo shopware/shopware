@@ -2,19 +2,26 @@ import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Context } = Shopware;
+const { Component, Context, Utils } = Shopware;
 const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'productStreamConditionService'],
+
+    provide() {
+        return {
+            productCustomFields: {}
+        };
+    },
 
     props: {
         crossSelling: {
             type: Object,
             required: true
         },
+
         allowEdit: {
             type: Boolean,
             required: false,
@@ -28,6 +35,7 @@ Component.register('sw-product-cross-selling-form', {
             showModalPreview: false,
             productStream: null,
             productStreamFilter: [],
+            productStreamFilterTree: null,
             optionSearchTerm: '',
             useManualAssignment: false,
             sortBy: 'name',
@@ -57,6 +65,26 @@ Component.register('sw-product-cross-selling-form', {
 
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
+        },
+
+        productStreamFilterRepository() {
+            if (!this.productStream) {
+                return null;
+            }
+
+            const { entity, source } = this.productStream.filters;
+
+            return this.repositoryFactory.create(entity, source);
+        },
+
+        productStreamFilterCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(
+                Criteria.equals('productStreamId', this.crossSelling.productStreamId)
+            );
+
+            return criteria;
         },
 
         crossSellingAssigmentRepository() {
@@ -102,6 +130,10 @@ Component.register('sw-product-cross-selling-form', {
 
         disablePositioning() {
             return (!!this.term) || (this.sortBy !== 'position');
+        },
+
+        associationValue() {
+            return Utils.get(this.crossSelling, 'productStreamId') || '';
         }
     },
 
@@ -145,7 +177,6 @@ Component.register('sw-product-cross-selling-form', {
                 return;
             }
 
-            this.loadStreamPreview();
             this.showModalPreview = true;
         },
 
@@ -154,22 +185,22 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         loadStreamPreview() {
-            this.productStreamRepository.get(this.crossSelling.productStreamId, Shopware.Context.api)
-                .then((searchResult) => {
-                    this.productStream = searchResult;
-
-                    const filterRepository = this.repositoryFactory.create(
-                        this.productStream.filters.entity,
-                        this.productStream.filters.source
-                    );
-
-                    const criteria = new Criteria();
-                    criteria.addFilter(Criteria.equals('productStreamId', this.crossSelling.productStreamId));
-
-                    return filterRepository.search(criteria, Context.api).then((productFilter) => {
-                        this.productStreamFilter = productFilter;
-                    });
+            this.productStreamRepository.get(this.crossSelling.productStreamId, Context.api)
+                .then((productStream) => {
+                    this.productStream = productStream;
+                    this.getProductStreamFilter();
                 });
+        },
+
+        getProductStreamFilter() {
+            return this.productStreamFilterRepository.search(this.productStreamFilterCriteria, Context.api)
+                .then((productStreamFilter) => {
+                    this.productStreamFilter = productStreamFilter;
+                });
+        },
+
+        updateProductStreamFilterTree({ conditions }) {
+            this.productStreamFilterTree = conditions;
         },
 
         onSortingChanged(value) {

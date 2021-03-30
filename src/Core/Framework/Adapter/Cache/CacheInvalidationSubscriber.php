@@ -32,6 +32,8 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Seo\CachedSeoResolver;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
+use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
+use Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -154,7 +156,17 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             SystemConfigChangedEvent::class => [
                 ['invalidateConfigKey', 2000],
             ],
+            SitemapGeneratedEvent::class => [
+                ['invalidateSitemap', 2000],
+            ],
         ];
+    }
+
+    public function invalidateSitemap(SitemapGeneratedEvent $event): void
+    {
+        $this->logger->invalidate([
+            CachedSitemapRoute::buildName($event->getSalesChannelContext()->getSalesChannelId()),
+        ]);
     }
 
     public function invalidateConfig(): void

@@ -126,3 +126,4 @@ shopware:
             currency_route: []
             country_route: []
             salutation_route: []
+            sitemap_route: []

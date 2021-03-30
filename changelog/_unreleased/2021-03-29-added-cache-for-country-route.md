@@ -10,3 +10,5 @@ author_github: OliverSkroblin
 * Added `\Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute`, which adds a cache for the store api salutation route
 * Added `Request $request` parameter to `\Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute::load`
 * Added `\Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute`, which adds a cache for the store api product review route
+* Added `\Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute`, which adds a cache for the store api sitemap route
+* Added `\Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent`, which is dispatched when a sitemap was generated

@@ -1,0 +1,102 @@
+{% block page_account_order_item_detail_list_item_children %}
+    {% set nestingLevel = 0 %}
+
+    <div class="account-item-children">
+
+        {% block page_account_order_item_children_header %}
+            <div class="container account-item-collapse-container">
+                <div class="row account-item-collapse">
+
+                    {% block page_account_order_item_children_header_content %}
+                        <div class="col account-item-headline">
+
+                            {% block page_account_order_item_children_header_content_text %}
+                                <span class="account-item-headline-text">
+                                    {{ 'checkout.lineItemContainerHeadline'|trans }}
+                                </span>
+                            {% endblock %}
+
+                        </div>
+                    {% endblock %}
+
+                    {% block page_account_order_item_children_header_collapse %}
+                        <div class="col-1 account-item-collapse-icon-container">
+
+                            {% block page_account_order_item_children_header_collapse_button %}
+                                <button class="collapsed account-item-collapse-button"
+                                        data-toggle="collapse"
+                                        data-target="#collapse-line-item-contains-{{ lineItem.id }}"
+                                        aria-controls="collapse-line-item-contains-{{ lineItem.id }}"
+                                        aria-expanded="false">
+
+                                    {% block page_account_order_item_children_header_collapse_button_icon %}
+                                        <div class="account-item-collapse-icon">
+                                            {% sw_icon 'arrow-down' style {
+                                                'color': 'primary',
+                                                'pack':'solid'
+                                            } %}
+                                        </div>
+                                    {% endblock %}
+
+                                </button>
+                            {% endblock %}
+
+                        </div>
+                    {% endblock %}
+
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block page_account_order_item_children_elements %}
+            <div class="container collapse account-item-children-elements"
+                 id="collapse-line-item-contains-{{ lineItem.id }}">
+
+                {% for nestedLineItem in lineItem.children %}
+                    {% block page_account_order_item_children_element %}
+                        {% block page_account_order_item_children_element_content %}
+                            <div class="row account-item-children-element">
+
+                                {% block page_account_order_item_child %}
+                                    {% block page_account_order_item_child_headline %}
+                                        <div class="col account-item-child-label nesting-level-{{ nestingLevel }}">
+
+                                            {% block page_checkout_item_child_headline_label %}
+                                                <div class="account-item-child-label-bullet">
+                                                    {{ nestedLineItem.label }}
+                                                </div>
+                                            {% endblock %}
+
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_account_order_item_child_total_price %}
+                                        <div class="col-3 account-item-child-total-price">
+                                            {{ nestedLineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                        </div>
+                                    {% endblock %}
+                                {% endblock %}
+
+                            </div>
+                        {% endblock %}
+
+                        {% block page_account_order_item_children_element_children %}
+                            {% if nestedLineItem.children.count > 0 %}
+                                {% set nestingLevel = nestingLevel + 1 %}
+                                {% for nestedLineItem in nestedLineItem.children %}
+                                    {{ block('page_account_order_item_children_element') }}
+                                {% endfor %}
+                            {% endif %}
+                        {% endblock %}
+                    {% endblock %}
+
+                    {% block page_account_order_item_children_element_divider %}
+                        <hr class="account-item-children-element-divider"/>
+                    {% endblock %}
+                {% endfor %}
+
+            </div>
+        {% endblock %}
+
+    </div>
+{% endblock %}

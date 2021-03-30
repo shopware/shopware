@@ -1,7 +1,7 @@
 {% block page_account_order_item_detail_body %}
     <div class="order-detail-content-body">
         {% block page_account_order_item_detail_line_items %}
-            {% for lineItem in order.lineItems %}
+            {% for lineItem in order.nestedLineItems %}
                 {% block page_account_order_item_detail_line_item %}
                     {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-list-item.html.twig' %}
                 {% endblock %}

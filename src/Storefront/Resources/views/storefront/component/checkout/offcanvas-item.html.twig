@@ -7,9 +7,21 @@
     {% set type = lineItem.type %}
     {% set quantity = lineItem.quantity %}
     {% set id = lineItem.id %}
+    {% set childrenTemplate = '@Storefront/storefront/component/checkout/offcanvas-item-children.html.twig' %}
+
+    {# @deprecated tag:v6.5.0 - var will be removed with no replacement #}
+    {% set cartItemClasses = '' %}
+    {% if not feature('FEATURE_NEXT_12635') %}
+        {% if isNested %}
+            {% set cartItemClasses = cartItemClasses ~ ' is-nested' %}
+        {% endif %}
+        {% if isChild %}
+            {% set cartItemClasses = cartItemClasses ~ ' is-child' %}
+        {% endif %}
+    {% endif %}
 
     {% block component_offcanvas_cart_item_container %}
-        <div class="cart-item cart-item-{{ type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %} js-cart-item">
+        <div class="cart-item cart-item-{{ type }}{% if isDiscount %} is-discount{% endif %}{{ cartItemClasses }} js-cart-item">
             <div class="row cart-item-row">
                 {% block component_offcanvas_product_image %}
                     <div class="col-auto">
@@ -189,17 +201,31 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
+
+                {% if feature('FEATURE_NEXT_12635') %}
+                    {% block component_offcanvas_children %}
+                        {% if isNested %}
+                            {% sw_include childrenTemplate %}
+                        {% endif %}
+                    {% endblock %}
+                {% endif %}
+
             </div>
         </div>
     {% endblock %}
 
-    {% block component_offcanvas_cart_item_children %}
-        {% for lineItem in lineItem.children %}
-            {% block component_offcanvas_cart_item_child %}
-                {% sw_include '@Storefront/storefront/component/checkout/offcanvas-item.html.twig' with {
-                    'isChild': true
-                } %}
-            {% endblock %}
-        {% endfor %}
-    {% endblock %}
+    {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/checkout/offcanvas-item-children.html.twig` instead #}
+    {% if not feature('FEATURE_NEXT_12635') %}
+        {# @deprecated tag:v6.5.0 - block will be moved to `@Storefront/storefront/component/checkout/offcanvas-item-children.html.twig` #}
+        {% block component_offcanvas_cart_item_children %}
+            {% for lineItem in lineItem.children %}
+                {# @deprecated tag:v6.5.0 - block will be removed #}
+                {% block component_offcanvas_cart_item_child %}
+                    {% sw_include '@Storefront/storefront/component/checkout/offcanvas-item.html.twig' with {
+                        'isChild': true
+                    } %}
+                {% endblock %}
+            {% endfor %}
+        {% endblock %}
+    {% endif %}
 {% endblock %}

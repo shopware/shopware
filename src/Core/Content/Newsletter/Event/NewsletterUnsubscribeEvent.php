@@ -11,14 +11,14 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.5.0 will be removed as it was not thrown
- */
-class NewsletterUpdateEvent extends Event implements MailActionInterface, SalesChannelAware
+class NewsletterUnsubscribeEvent extends Event implements MailActionInterface, SalesChannelAware
 {
-    public const EVENT_NAME = NewsletterEvents::NEWSLETTER_UPDATE_EVENT;
+    use JsonSerializableTrait;
+
+    public const EVENT_NAME = NewsletterEvents::NEWSLETTER_UNSUBSCRIBE_EVENT;
 
     /**
      * @var Context
@@ -47,12 +47,6 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface, SalesC
         $this->salesChannelId = $salesChannelId;
     }
 
-    public static function getAvailableData(): EventDataCollection
-    {
-        return (new EventDataCollection())
-            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
-    }
-
     public function getName(): string
     {
         return self::EVENT_NAME;
@@ -61,6 +55,12 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface, SalesC
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
     }
 
     public function getNewsletterRecipient(): NewsletterRecipientEntity

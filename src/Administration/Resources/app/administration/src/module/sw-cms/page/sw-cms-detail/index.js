@@ -17,6 +17,7 @@ Component.register('sw-cms-detail', {
         'cmsService',
         'cmsDataResolverService',
         'acl',
+        'appCmsService',
     ],
 
     mixins: [

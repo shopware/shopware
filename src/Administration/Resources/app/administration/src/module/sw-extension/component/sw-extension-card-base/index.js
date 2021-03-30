@@ -191,14 +191,16 @@ Component.register('sw-extension-card-base', {
             this.isLoading = true;
 
             try {
-                if (this.extension.updateSource === 'remote') {
+                if (this.extension.updateSource === 'store') {
                     await this.extensionStoreActionService.downloadExtension(this.extension.name);
                 }
 
-                await this.shopwareExtensionService.updateExtension(
-                    this.extension.name,
-                    this.extension.type
-                );
+                if (this.extension.installedAt) {
+                    await this.shopwareExtensionService.updateExtension(
+                        this.extension.name,
+                        this.extension.type
+                    );
+                }
                 this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);

@@ -199,7 +199,7 @@ describe('Customer: Test filter and reset filter', () => {
         cy.get('.sw-sidebar-item__headline a').click();
 
         // Filter results with single criteria
-        cy.get('.sw-filter-panel__item').eq(0).find('input').click();
+        cy.get('.sw-filter-panel__item').eq(3).find('input').click();
         cy.get('.sw-select-result-list__item-list li').contains('Mr.').click();
 
         cy.wait('@filterCustomer').then((xhr) => {
@@ -238,19 +238,19 @@ describe('Customer: Test filter and reset filter', () => {
         });
 
         // Combine multiple filters criteria
-        cy.get('.sw-filter-panel__item').eq(1).find('select').select('true');
+        cy.get('.sw-filter-panel__item').eq(4).find('select').select('true');
         cy.wait('@filterCustomer').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-page__smart-bar-amount').contains('26');
 
-        cy.get('.sw-filter-panel__item').eq(1).find('select').select('false');
+        cy.get('.sw-filter-panel__item').eq(4).find('select').select('false');
         cy.wait('@filterCustomer').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-page__smart-bar-amount').contains('1');
 
-        cy.get('.sw-filter-panel__item').eq(2).find('input').click();
+        cy.get('.sw-filter-panel__item').eq(5).find('input').click();
         cy.wait('@getPaymentMethod').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -303,20 +303,20 @@ describe('Customer: Test filter and reset filter', () => {
         });
 
         // Check Reset button when filter is active
-        cy.get('.sw-filter-panel__item:nth-child(1) .sw-entity-multi-select').scrollIntoView();
-        cy.get('.sw-filter-panel__item:nth-child(1) .sw-entity-multi-select').typeMultiSelectAndCheck('Mr.', { searchTerm: 'Mr.' });
+        cy.get('.sw-filter-panel__item:nth-child(4) .sw-entity-multi-select').scrollIntoView();
+        cy.get('.sw-filter-panel__item:nth-child(4) .sw-entity-multi-select').typeMultiSelectAndCheck('Mr.', { searchTerm: 'Mr.' });
 
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
+        cy.get('.sw-filter-panel__item').eq(3).find('.sw-base-filter__reset').should('exist');
 
         // Click Reset button to reset filter
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').click();
+        cy.get('.sw-filter-panel__item').eq(3).find('.sw-base-filter__reset').click();
 
         cy.wait('@patchUserConfig').then((xhr) => {
-            cy.get('.sw-filter-panel__item').eq(0).find('li.sw-select-selection-list__item-holder').should('not.exist');
+            cy.get('.sw-filter-panel__item').eq(3).find('li.sw-select-selection-list__item-holder').should('not.exist');
         });
 
         // Reset All button should show up when there is active filter
-        cy.get('.sw-filter-panel__item').eq(1).find('select').select('true');
+        cy.get('.sw-filter-panel__item').eq(4).find('select').select('true');
         cy.wait('@filterCustomer').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });

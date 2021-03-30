@@ -49,7 +49,7 @@
       "placeholderTrackingUrl": "Tracking-URL hier eingeben ...",
       "helpTextTrackingUrl": "Hier kannst du die Tracking-URL des Versanddienstleisters eintragen. Statt der tatsächlichen Sendungsnummer, nutze bitte '%s' als Platzhalter. Shopware wird dann automatisch den korrekten Code für jede Bestellung an dieser Stelle einfügen, wenn dieser in der Bestelldetails gepflegt ist.",
       "tax": {
-        "fieldName": "Tax calculation",
+        "fieldName": "Steuerberechnung",
         "labelTaxType": "Steuer-Typ",
         "labelTaxRate": "Steuersatz",
         "placeholderTaxType": "Wähle einen Steuer-Typ...",

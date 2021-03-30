@@ -99,7 +99,6 @@
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="order.repository"/>
-            <argument type="service" id="order_customer.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>

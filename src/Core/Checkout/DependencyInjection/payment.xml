@@ -39,7 +39,6 @@
             <argument type="service" id="order.repository"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
-            <argument type="service" id="order_customer.repository"/>
         </service>
 
         <service id="shopware.jwt_signer" class="Lcobucci\JWT\Signer\Rsa\Sha256"/>

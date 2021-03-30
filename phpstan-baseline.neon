@@ -426,21 +426,6 @@ parameters:
 			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
 
 		-
-			message: "#^Cannot access offset \\(int\\|string\\) on array\\<Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\AsynchronousPaymentHandlerInterface\\>\\|Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\SynchronousPaymentHandlerInterface\\.$#"
-			count: 2
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\\:\\:getHandler\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\<Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\AsynchronousPaymentHandlerInterface\\>\\|Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\SynchronousPaymentHandlerInterface given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
 			message: "#^Parameter \\#1 \\$paymentMethodId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentService\\:\\:getPaymentHandlerById\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/PaymentService.php

@@ -4,9 +4,11 @@ namespace Shopware\Core\Content\Test\Newsletter\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 class NewsletterUnsubscribeRouteTest extends TestCase
@@ -48,6 +50,12 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(1, $count);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher->addListener(NewsletterUnsubscribeEvent::class, $listener);
 
         $this->browser
             ->request(

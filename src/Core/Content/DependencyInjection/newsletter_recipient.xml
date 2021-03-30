@@ -42,6 +42,7 @@
         <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute" public="true">
             <argument type="service" id="newsletter_recipient.repository" />
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

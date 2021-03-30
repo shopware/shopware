@@ -30,15 +30,13 @@ class RequirementStackExceptionTest extends TestCase
             $converted[] = $exception;
         }
 
-        $convertedMissingRequirement = iterator_to_array($missingRequirementException->getErrors())[0];
         $convertedVersionMismatch = iterator_to_array($versionMismatchException->getErrors())[0];
 
-        static::assertCount(3, $converted);
+        static::assertCount(2, $converted);
 
         static::assertEquals('424', $converted[0]['status']);
-        static::assertEquals('FRAMEWORK__PLUGIN_REQUIREMENTS_FAILED', $converted[0]['code']);
+        static::assertEquals('FRAMEWORK__PLUGIN_REQUIREMENT_MISSING', $converted[0]['code']);
 
-        static::assertEquals($convertedMissingRequirement, $converted[1]);
-        static::assertEquals($convertedVersionMismatch, $converted[2]);
+        static::assertEquals($convertedVersionMismatch, $converted[1]);
     }
 }

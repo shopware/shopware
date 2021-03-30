@@ -46,8 +46,6 @@ class RequirementStackException extends ShopwareHttpException
 
     public function getErrors(bool $withTrace = false): \Generator
     {
-        yield from parent::getErrors($withTrace);
-
         foreach ($this->requirements as $exception) {
             yield from $exception->getErrors($withTrace);
         }

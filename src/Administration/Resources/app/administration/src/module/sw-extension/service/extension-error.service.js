@@ -40,7 +40,7 @@ export default class ExtensionErrorService {
         return {
             title: translator.$tc(notification.title),
             message: translator.$tc(notification.message),
-            autoClose: notification.autoClose
+            autoClose: notification.autoClose || true
         };
     }
 }

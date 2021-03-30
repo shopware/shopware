@@ -24,11 +24,9 @@ describe('Country: Test acl privileges', () => {
                 key: 'country',
                 role: 'viewer'
             }
-        ]);
-
-        // go to countries module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-country').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
 
         // assert that there is an available list of countries
         cy.get(`${page.elements.countryListContent}`).should('be.visible');
@@ -46,7 +44,9 @@ describe('Country: Test acl privileges', () => {
                 key: 'country',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
 
         // prepare api to update a country
         cy.server();
@@ -54,10 +54,6 @@ describe('Country: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/country/*`,
             method: 'patch'
         }).as('saveCountry');
-
-        // go to countries module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-country').click();
 
         // click on first element in grid
         cy.get(`
@@ -112,7 +108,9 @@ describe('Country: Test acl privileges', () => {
                 key: 'country',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
 
         // prepare api to create a new country
         cy.server();
@@ -120,10 +118,6 @@ describe('Country: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/country`,
             method: 'post'
         }).as('saveCountry');
-
-        // go to countries module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-country').click();
 
         // click on "Add country" button
         cy.get('a[href="#/sw/settings/country/create"]').click();
@@ -171,7 +165,9 @@ describe('Country: Test acl privileges', () => {
                 key: 'country',
                 role: 'deleter'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
 
         // prepare api to delete a country
         cy.server();
@@ -179,10 +175,6 @@ describe('Country: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/country/*`,
             method: 'delete'
         }).as('deleteCountry');
-
-        // go to countries module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-country').click();
 
         // find a country with the name is "Zimbabwe"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Zimbabwe');
@@ -219,11 +211,9 @@ describe('Country: Test acl privileges', () => {
                 key: 'country',
                 role: 'viewer'
             }
-        ]);
-
-        // go to countries module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-country').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
 
         // find a country with the name is "Germany"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
@@ -247,7 +237,9 @@ describe('Country: Test acl privileges', () => {
                 key: 'country',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
 
         // prepare api to update a state
         cy.server();
@@ -255,10 +247,6 @@ describe('Country: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/country/*/states/*`,
             method: 'patch'
         }).as('saveCountryState');
-
-        // go to countries module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-country').click();
 
         // find a country with the name is "Germany"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
@@ -321,7 +309,9 @@ describe('Country: Test acl privileges', () => {
                 key: 'country',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
 
         // prepare api to create a state
         cy.server();
@@ -329,10 +319,6 @@ describe('Country: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/country/*/states`,
             method: 'post'
         }).as('saveCountryState');
-
-        // go to countries module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-country').click();
 
         // find a country with the name is "Germany"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');

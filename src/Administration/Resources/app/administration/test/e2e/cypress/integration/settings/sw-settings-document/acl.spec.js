@@ -11,9 +11,10 @@ describe('Settings Documents: Test crud operations with ACL', () => {
     });
 
     it('@general: read documents with ACL, but without rights', () => {
-        cy.loginAsUserWithPermissions([]);
+        cy.loginAsUserWithPermissions([]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+        });
 
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/document/detail/e350641b0d1c417d8d10b34821d2d827`);
@@ -26,9 +27,10 @@ describe('Settings Documents: Test crud operations with ACL', () => {
 
     it('@general: read document with ACL', () => {
         const page = new DocumentPageObject();
-        cy.loginAsUserWithPermissions([{ key: 'document', role: 'viewer' }]);
+        cy.loginAsUserWithPermissions([{ key: 'document', role: 'viewer' }]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+        });
 
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
         cy.get('.sw-settings-document-list__add-document').contains('Add document');
 
@@ -55,9 +57,10 @@ describe('Settings Documents: Test crud operations with ACL', () => {
             { key: 'document', role: 'viewer' },
             { key: 'document', role: 'editor' },
             { key: 'document', role: 'creator' }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+        });
 
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
         // Request we want to wait for later
@@ -98,13 +101,14 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.loginAsUserWithPermissions([
             { key: 'document', role: 'viewer' },
             { key: 'document', role: 'editor' }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
         cy.route({ url: `${Cypress.env('apiPath')}/document-base-config/**`, method: 'patch' }).as('saveData');
 
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
 
@@ -136,9 +140,10 @@ describe('Settings Documents: Test crud operations with ACL', () => {
             { key: 'document', role: 'viewer' },
             { key: 'document', role: 'editor' },
             { key: 'document', role: 'creator' }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+        });
 
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
         // Request we want to wait for later
@@ -202,8 +207,9 @@ describe('Settings Documents: Test crud operations with ACL', () => {
             { key: 'document', role: 'viewer' },
             { key: 'document', role: 'editor' },
             { key: 'document', role: 'deleter' }
-        ]);
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+        });
 
         // Request we want to wait for later
         cy.server();

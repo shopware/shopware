@@ -66,10 +66,6 @@ describe('Landing pages: Test ACL privileges', () => {
         // Request for loading landing pages
         cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
 
-        // Navigate to category page
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
-
         // Collapse category and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
@@ -111,10 +107,6 @@ describe('Landing pages: Test ACL privileges', () => {
                 role: 'creator'
             }
         ]);
-
-        // Open category detail page
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
 
         // Request for save landing page
         cy.server();
@@ -168,10 +160,6 @@ describe('Landing pages: Test ACL privileges', () => {
         // Request for loading landing pages
         cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
 
-        // Navigate to category page
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
-
         // Collapse category and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
@@ -216,10 +204,6 @@ describe('Landing pages: Test ACL privileges', () => {
 
         // Request for loading landing pages
         cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
-
-        // Navigate to category page
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
 
         // Collapse category and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
@@ -282,9 +266,6 @@ describe('Landing pages: Test ACL privileges', () => {
 
         // Request for loading landing pages
         cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
-
-        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
 
         // Collapse category and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();

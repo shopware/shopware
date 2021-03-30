@@ -18,7 +18,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
             })
             .then(() => {
                 cy.viewport(1920, 1080);
-                cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
             });
     });
 

@@ -21,7 +21,7 @@ describe('Theme: Test ACL privileges', () => {
                 role: 'viewer'
             }
         ]).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+            cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
         });
 
         // open property without permissions
@@ -39,11 +39,9 @@ describe('Theme: Test ACL privileges', () => {
                 key: 'theme',
                 role: 'viewer'
             }
-        ]);
-
-        // Navigate to theme manager
-        cy.get('.sw-admin-menu__item--sw-content').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-theme-manager').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+        });
 
         // Ensure theme name
         cy.get('.sw-theme-list-item')
@@ -107,11 +105,9 @@ describe('Theme: Test ACL privileges', () => {
                 key: 'theme',
                 role: 'editor'
             }
-        ]);
-
-        // Navigate to theme manager
-        cy.get('.sw-admin-menu__item--sw-content').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-theme-manager').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+        });
 
         // Open theme
         cy.get('.sw-theme-list-item')
@@ -153,7 +149,9 @@ describe('Theme: Test ACL privileges', () => {
                 key: 'theme',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+        });
 
         // Navigate to theme manager
         cy.get('.sw-admin-menu__item--sw-content').click();
@@ -209,11 +207,9 @@ describe('Theme: Test ACL privileges', () => {
                     role: 'deleter'
                 }
             ]);
+        }).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
         });
-
-        // Navigate to theme manager
-        cy.get('.sw-admin-menu__item--sw-content').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-theme-manager').click();
 
         // Open theme actions of desired theme
         cy.get('.sw-theme-list__list-grid-content')

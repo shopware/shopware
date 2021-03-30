@@ -38,9 +38,9 @@ describe('Promotion: Test ACL privileges', () => {
                 key: 'promotion',
                 role: 'viewer'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
+        });
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Thunder Tuesday');
         cy.clickContextMenuItem(
@@ -78,9 +78,9 @@ describe('Promotion: Test ACL privileges', () => {
                 key: 'promotion',
                 role: 'editor'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
+        });
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Thunder Tuesday');
         cy.clickContextMenuItem(
@@ -149,9 +149,9 @@ describe('Promotion: Test ACL privileges', () => {
                 key: 'promotion',
                 role: 'deleter'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
+        });
 
         // Delete product
         cy.clickContextMenuItem(

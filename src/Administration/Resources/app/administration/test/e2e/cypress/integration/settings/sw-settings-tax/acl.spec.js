@@ -32,7 +32,10 @@ describe('Tax: Test acl privileges', () => {
                 key: 'tax',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            // visiting settings page to prove that snippets element is visible
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -41,9 +44,6 @@ describe('Tax: Test acl privileges', () => {
             method: 'post'
         }).as('saveData');
 
-        // Go to tax module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-tax').click();
 
         // Create tax
         cy.get('.sw-settings-tax-list-grid').should('be.visible');
@@ -77,7 +77,10 @@ describe('Tax: Test acl privileges', () => {
                 key: 'tax',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            // visiting settings page to prove that snippets element is visible
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -85,10 +88,6 @@ describe('Tax: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/tax/*`,
             method: 'patch'
         }).as('saveData');
-
-        // Go to tax module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-tax').click();
 
         // Edit tax
         cy.get('.sw-settings-tax-list-grid').should('be.visible');
@@ -123,7 +122,10 @@ describe('Tax: Test acl privileges', () => {
                 key: 'tax',
                 role: 'deleter'
             }
-        ]);
+        ]).then(() => {
+            // visiting settings page to prove that snippets element is visible
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -131,10 +133,6 @@ describe('Tax: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/tax/*`,
             method: 'delete'
         }).as('deleteData');
-
-        // Go to tax module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-tax').click();
 
         // Delete tax
         cy.get('.sw-settings-tax-list-grid').should('be.visible');

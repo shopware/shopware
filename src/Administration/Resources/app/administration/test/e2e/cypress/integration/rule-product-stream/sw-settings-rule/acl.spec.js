@@ -22,9 +22,9 @@ describe('Rule builder: Test crud operations', () => {
                 key: 'rule',
                 role: 'viewer'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        });
 
         const page = new RulePageObject();
 
@@ -46,9 +46,9 @@ describe('Rule builder: Test crud operations', () => {
                 key: 'rule',
                 role: 'editor'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        });
 
         const page = new RulePageObject();
 
@@ -74,7 +74,7 @@ describe('Rule builder: Test crud operations', () => {
                     cy.wrap(conditionTypeSelect).click();
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
 
-                    cy.get('.sw-select-result-list-popover-wrapper',).contains('Time range')
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Time range')
                         .click();
                 });
         });
@@ -100,9 +100,9 @@ describe('Rule builder: Test crud operations', () => {
                 key: 'rule',
                 role: 'creator'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        });
 
         const page = new RulePageObject();
 
@@ -148,7 +148,7 @@ describe('Rule builder: Test crud operations', () => {
                     cy.wrap(conditionTypeSelect).click();
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
 
-                    cy.get('.sw-select-result-list-popover-wrapper',).contains('Time range')
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Time range')
                         .click();
                 });
         });
@@ -175,9 +175,9 @@ describe('Rule builder: Test crud operations', () => {
                 key: 'rule',
                 role: 'deleter'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        });
 
         const page = new RulePageObject();
 

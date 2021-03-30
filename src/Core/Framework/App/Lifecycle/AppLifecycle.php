@@ -339,7 +339,7 @@ class AppLifecycle extends AbstractAppLifecycle
     {
         $payload = [
             'id' => $id,
-            'mainModule' => [],
+            'mainModule' => null,
             'modules' => [],
         ];
 

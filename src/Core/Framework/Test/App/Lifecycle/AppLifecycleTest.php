@@ -735,6 +735,8 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'modules' => [['test']],
             'cookies' => [['test']],
+            'mainModule' => ['test'],
+            'appSecret' => 'iamsecret',
             'integration' => [
                 'label' => 'test',
                 'writeAccess' => false,
@@ -762,6 +764,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $apps);
         static::assertEmpty($apps->first()->getModules());
         static::assertEmpty($apps->first()->getCookies());
+        static::assertNull($apps->first()->getMainModule());
     }
 
     public function testDelete(): void

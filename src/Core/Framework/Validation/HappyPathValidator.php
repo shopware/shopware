@@ -154,7 +154,7 @@ class HappyPathValidator implements ValidatorInterface
                     if ($value > $constraint->max) {
                         return false;
                     }
-                } elseif ($constraint->min !== null || $constraint->max === null) {
+                } elseif ($constraint->min !== null && $constraint->max === null) {
                     if ($value < $constraint->min) {
                         return false;
                     }

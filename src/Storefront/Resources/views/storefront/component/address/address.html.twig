@@ -5,57 +5,67 @@
                 <p>
                 {% if address.company %}
                     {% block component_address_company_name %}
-                    {{ address.company }}{% if address.department %} - {{ address.department }}{% endif %}
+                        {{ address.company }}{% if address.department %} - {{ address.department }}{% endif %}
                     {% endblock %}
                     <br/>
                 {% endif %}
                 </p>
             {% endblock %}
         {% endif %}
+
         <p>
             {% if address.salutation.salutationKey != 'not_specified' %}
                 {% block component_address_salutation %}
                     {{ address.salutation.translated.displayName }}
                 {% endblock %}
             {% endif %}
+
             {% if address.title %}
                 {% block component_address_title %}
                     {{ address.title }}<br/>
                 {% endblock %}
             {% endif %}
+
             {% block component_address_name %}
                 {{ address.firstName }} {{ address.lastName }}<br/>
             {% endblock %}
+
             {% block component_address_street %}
                 {{ address.street }}<br/>
             {% endblock %}
+
             {% if address.additionalAddressLine1 %}
                 {% block component_address_additional_address_line_1 %}
                     {{ address.additionalAddressLine1 }}<br/>
                 {% endblock %}
             {% endif %}
+
             {% if address.additionalAddressLine2 %}
                 {% block component_address_additional_address_line_2 %}
                     {{ address.additionalAddressLine2 }}<br/>
                 {% endblock %}
             {% endif %}
+
             {% if address.phoneNumber %}
                 {% block component_address_phone_number %}
                     {{ address.phoneNumber }}<br/>
                 {% endblock %}
             {% endif %}
+
             {% block component_address_zipcode_city %}
                 {% if config('core.address.showZipcodeInFrontOfCity') %}
                     {{ address.zipcode }} {{ address.city }}<br/>
                 {% else %}
-                    {{ address.zipcode }} {{ address.city }}<br/>
+                    {{ address.city }} {{ address.zipcode }}<br/>
                 {% endif %}
             {% endblock %}
+
             {% if address.countryState %}
                 {% block component_address_state %}
                     {{ address.countryState.translated.name }}<br/>
                 {% endblock %}
             {% endif %}
+
             {% block component_address_country %}
                 {{ address.country.translated.name }}
             {% endblock %}

@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\Struct;
 
 class TransactionTransformer
 {
@@ -27,9 +30,21 @@ class TransactionTransformer
         Context $context
     ): array {
         return [
+            'id' => self::getId($transaction),
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),
             'stateId' => $stateId,
         ];
+    }
+
+    private static function getId(Struct $struct): ?string
+    {
+        /** @var IdStruct|null $idStruct */
+        $idStruct = $struct->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class);
+        if ($idStruct !== null) {
+            return $idStruct->getId();
+        }
+
+        return null;
     }
 }

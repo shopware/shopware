@@ -187,19 +187,29 @@ class StoreController extends AbstractStoreController
     {
         $language = $request->query->get('language', '');
 
-        /** @var PluginCollection $plugins */
-        $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        if ($this->extensionDataProvider) {
+            $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
 
-        try {
-            $storeToken = $this->getUserStoreToken($context);
-        } catch (StoreTokenMissingException $e) {
-            $storeToken = null;
-        }
+            try {
+                $updatesList = $this->storeClient->getExtensionUpdateList($extensions, $context);
+            } catch (ClientException $exception) {
+                throw new StoreApiException($exception);
+            }
+        } else {
+            /** @var PluginCollection $plugins */
+            $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
-        try {
-            $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $language, $request->getHost(), $context);
-        } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            try {
+                $storeToken = $this->getUserStoreToken($context);
+            } catch (StoreTokenMissingException $e) {
+                $storeToken = null;
+            }
+
+            try {
+                $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $language, $request->getHost(), $context);
+            } catch (ClientException $exception) {
+                throw new StoreApiException($exception);
+            }
         }
 
         return new JsonResponse([

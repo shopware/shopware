@@ -53,7 +53,7 @@ class ExtensionDataProviderTest extends TestCase
         $this->getRequestHandler()->reset();
         $this->getRequestHandler()->append(new Response(200, [], '[]'));
 
-        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
+        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, false);
         $installedExtension = $installedExtensions->get('TestApp');
 
         static::assertInstanceOf(ExtensionStruct::class, $installedExtension);
@@ -93,6 +93,7 @@ class ExtensionDataProviderTest extends TestCase
     {
         $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
         $this->getRequestHandler()->reset();
+        $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
         $this->getRequestHandler()->append(new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);

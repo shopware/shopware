@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
@@ -23,6 +25,7 @@ class ExtensionListingLoader
 
     public function load(ExtensionCollection $localCollection, Context $context): ExtensionCollection
     {
+        $this->addUpdateInformation($localCollection, $context);
         $this->addStoreInformation($localCollection, $context);
 
         return $this->sortCollection($localCollection);
@@ -98,5 +101,25 @@ class ExtensionListingLoader
         }
 
         return $sortedCollection;
+    }
+
+    private function addUpdateInformation(ExtensionCollection $localCollection, Context $context): void
+    {
+        try {
+            $updates = $this->client->getExtensionUpdateList($localCollection, $context);
+        } catch (StoreApiException | ClientException $e) {
+            return;
+        }
+
+        foreach ($updates as $update) {
+            $extension = $localCollection->get($update->getName());
+
+            if (!$extension) {
+                continue;
+            }
+
+            $extension->setLatestVersion($update->getVersion());
+            $extension->setUpdateSource(ExtensionStruct::SOURCE_STORE);
+        }
     }
 }

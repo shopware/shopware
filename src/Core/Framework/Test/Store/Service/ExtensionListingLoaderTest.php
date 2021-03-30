@@ -47,6 +47,7 @@ class ExtensionListingLoaderTest extends TestCase
     public function testExternalAreAdded(): void
     {
         $this->getRequestHandler()->reset();
+        $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $collection = new ExtensionCollection();
@@ -62,6 +63,7 @@ class ExtensionListingLoaderTest extends TestCase
     public function testExternalAreMerged(): void
     {
         $this->getRequestHandler()->reset();
+        $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $collection = new ExtensionCollection();

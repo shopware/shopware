@@ -48,4 +48,39 @@ class StoreUpdateStruct extends Struct
     {
         return 'store_update';
     }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function getIconPath(): string
+    {
+        return $this->iconPath;
+    }
+
+    public function getVersion(): string
+    {
+        return $this->version;
+    }
+
+    public function getChangelog(): string
+    {
+        return $this->changelog;
+    }
+
+    public function getReleaseDate(): \DateTimeInterface
+    {
+        return $this->releaseDate;
+    }
+
+    public function isIntegrated(): bool
+    {
+        return $this->integrated;
+    }
 }

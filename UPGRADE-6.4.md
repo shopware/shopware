@@ -2,6 +2,7 @@ UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
 # 6.4.0.0
+
 ## Breaking changes
 For a complete list of breaking changes please refer to the [bc changelog](/changelog/release-6-4-0-0/2021-03-18-6.4-breaking-changes.md) changelog file.
 
@@ -116,14 +117,6 @@ url that is relative to the `app.css` that points to the asset folder.
 
 As a side effect, the fonts are now loaded from the theme folder instead of the bundle asset folder. This should work out of the box,
 because all assets of the theme are also copied into the theme folder.
-
----
-
-## CMS entities version aware
-This change updates the primary key of `cms_page`, `cms_slot`, `cms_block` and `cms_section` and the corresponding translation tables. 
-If your plugin incorporates foreign keys to these tables you will need to update your migrations and dal entity definitions.
-
-Use `bin/console dal:validate` to see if you have to adjust your plugins anywhere.
 
 ---
 

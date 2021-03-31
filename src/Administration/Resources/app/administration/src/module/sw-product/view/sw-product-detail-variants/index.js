@@ -12,6 +12,7 @@ Component.register('sw-product-detail-variants', {
 
     data() {
         return {
+            // @deprecated tag:v6.5.0 - will be removed completely. Please use Vuex binding `contextLanguageId` instead.
             languageId: null,
             variantListHasContent: false,
             activeModal: '',
@@ -27,6 +28,10 @@ Component.register('sw-product-detail-variants', {
         ...mapState('swProductDetail', [
             'product'
         ]),
+
+        ...mapState('context', {
+            contextLanguageId: state => state.api.languageId
+        }),
 
         ...mapGetters('swProductDetail', {
             isStoreLoading: 'isLoading'
@@ -62,6 +67,12 @@ Component.register('sw-product-detail-variants', {
                 if (this.isStoreLoading === false) {
                     this.loadData();
                 }
+            }
+        },
+
+        contextLanguageId: {
+            handler() {
+                this.$refs.generatedVariants.getList();
             }
         }
     },

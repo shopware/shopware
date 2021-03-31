@@ -144,12 +144,6 @@ Extends the basic offcanvas component with additional cart styles.
 
 @include media-breakpoint-down(xs) {
     .cart-offcanvas {
-        width: 100%;
-    }
-}
-
-@include media-breakpoint-down(xs) {
-    .cart-offcanvas {
         .cart-item-price {
             order: 4;
         }

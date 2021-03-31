@@ -24,6 +24,7 @@ import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
+import ViewportDetection from 'src/helper/viewport-detection.helper';
 
 // this event will be published via a global (document) EventEmitter
 export const COOKIE_CONFIGURATION_UPDATE = 'CookieConfiguration_Update';
@@ -166,10 +167,11 @@ export default class CookieConfiguration extends Plugin {
     openOffCanvas(callback) {
         const { offCanvasPosition } = this.options;
         const url = window.router['frontend.cookie.offcanvas'];
+        const isFullwidth = ViewportDetection.isXS();
 
         this._hideCookieBar();
 
-        AjaxOffCanvas.open(url, false, this._onOffCanvasOpened.bind(this, callback), offCanvasPosition);
+        AjaxOffCanvas.open(url, false, this._onOffCanvasOpened.bind(this, callback), offCanvasPosition, null, null, isFullwidth);
     }
 
     /**

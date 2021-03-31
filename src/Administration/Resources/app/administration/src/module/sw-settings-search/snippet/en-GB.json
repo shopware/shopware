@@ -92,7 +92,8 @@
         "started": "Building product indexes.",
         "success": "Product indexes built."
       },
-      "loadError": "An error occurred while loading your configuration."
+      "loadError": "An error occurred while loading your configuration.",
+      "notSupportedLanguageError": "The selected language is not available in the selected Sales Channel"
     },
     "liveSearchTab": {
       "titleCard": "Sales Channel live search",

@@ -92,7 +92,8 @@
         "started": "Erstellen der Produkt-Indizes.",
         "success": "Produkt-Indizes erstellt."
       },
-      "loadError": "Beim Laden der Konfiguration ist ein Fehler aufgetreten."
+      "loadError": "Beim Laden der Konfiguration ist ein Fehler aufgetreten.",
+      "notSupportedLanguageError": "Die ausgewählte Sprache ist im ausgewählten Verkaufskanal nicht verfügbar"
     },
     "liveSearchTab": {
       "titleCard": "Verkaufskanal-Echtzeitsuche",

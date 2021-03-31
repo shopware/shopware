@@ -381,6 +381,16 @@
             <argument type="service" id="product_review.repository"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.invalidation.product_review_route%</argument>
+            <argument type="service" id="logger" />
+        </service>
+
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader">
             <argument type="service" id="product_configurator_setting.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader"/>

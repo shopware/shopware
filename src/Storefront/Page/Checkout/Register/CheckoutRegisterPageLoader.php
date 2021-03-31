@@ -132,7 +132,7 @@ class CheckoutRegisterPageLoader
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('country.states');
 
-        $countries = $this->countryRoute->load($criteria, $salesChannelContext)->getCountries();
+        $countries = $this->countryRoute->load(new Request(), $criteria, $salesChannelContext)->getCountries();
 
         $countries->sortCountryAndStates();
 

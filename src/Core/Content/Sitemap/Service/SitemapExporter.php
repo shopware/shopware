@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Provider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SitemapExporter implements SitemapExporterInterface
 {
@@ -32,18 +34,22 @@ class SitemapExporter implements SitemapExporterInterface
 
     private array $sitemapHandles;
 
+    private EventDispatcherInterface $dispatcher;
+
     public function __construct(
         iterable $urlProvider,
         CacheItemPoolInterface $cache,
         int $batchSize,
         FilesystemInterface $filesystem,
-        SitemapHandleFactoryInterface $sitemapHandleFactory
+        SitemapHandleFactoryInterface $sitemapHandleFactory,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->urlProvider = $urlProvider;
         $this->cache = $cache;
         $this->batchSize = $batchSize;
         $this->filesystem = $filesystem;
         $this->sitemapHandleFactory = $sitemapHandleFactory;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -71,6 +77,8 @@ class SitemapExporter implements SitemapExporterInterface
         } finally {
             $this->unlock($context);
         }
+
+        $this->dispatcher->dispatch(new SitemapGeneratedEvent($context));
 
         return new SitemapGenerationResult(
             true,

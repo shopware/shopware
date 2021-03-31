@@ -123,7 +123,7 @@ class CheckoutCartPageLoader
 
     private function getCountries(SalesChannelContext $context): CountryCollection
     {
-        $countries = $this->countryRoute->load(new Criteria(), $context)->getCountries();
+        $countries = $this->countryRoute->load(new Request(), new Criteria(), $context)->getCountries();
         $countries->sortByPositionAndName();
 
         return $countries;

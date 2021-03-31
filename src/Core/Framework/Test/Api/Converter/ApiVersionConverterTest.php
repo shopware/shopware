@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -378,7 +379,8 @@ class ApiVersionConverterTest extends TestCase
         $searchCriteriaBuilder = new RequestCriteriaBuilder(
             new AggregationParser(),
             $this->apiVersionConverter,
-            $this->getContainer()->getParameter('shopware.api.max_limit')
+            $this->getContainer()->getParameter('shopware.api.max_limit'),
+            $this->getContainer()->get(ApiCriteriaValidator::class)
         );
 
         $query = [
@@ -427,7 +429,8 @@ class ApiVersionConverterTest extends TestCase
         $searchCriteriaBuilder = new RequestCriteriaBuilder(
             new AggregationParser(),
             $this->apiVersionConverter,
-            $this->getContainer()->getParameter('shopware.api.max_limit')
+            $this->getContainer()->getParameter('shopware.api.max_limit'),
+            $this->getContainer()->get(ApiCriteriaValidator::class)
         );
 
         $query = [

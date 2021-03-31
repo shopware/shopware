@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -443,7 +444,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $parser = $this->getContainer()->get(AggregationParser::class);
         $apiVersionConverter = $this->getContainer()->get(ApiVersionConverter::class);
-        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit);
+        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit, $this->getContainer()->get(ApiCriteriaValidator::class));
         $context = Context::createDefaultContext();
         $definition = $this->getContainer()->get(ProductDefinition::class);
 

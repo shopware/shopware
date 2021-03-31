@@ -64,6 +64,7 @@ describe('Account: Register via account menu', () => {
         cy.get(page.elements.registerCard).should('be.visible');
 
         const accountTypeSelector = 'select[name="accountType"]';
+        const accountTypeSelectorForDifferentAddress = 'select[name="shippingAddress[accountType]"]';
 
         cy.get(accountTypeSelector).should('be.visible');
         cy.get(accountTypeSelector).typeAndSelect('Commercial');
@@ -85,6 +86,9 @@ describe('Account: Register via account menu', () => {
 
         cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
 
+        cy.get(accountTypeSelectorForDifferentAddress).should('be.visible');
+        cy.get(accountTypeSelectorForDifferentAddress).typeAndSelect('Private');
+
         cy.get('#shippingAddresspersonalSalutation').select('Mr.');
         cy.get('#shippingAddresspersonalFirstName').type('John');
         cy.get('#shippingAddresspersonalLastName').type('Doe');
@@ -104,6 +108,245 @@ describe('Account: Register via account menu', () => {
 
         cy.visit('/account/profile');
         cy.get(`.account-profile-personal ${accountTypeSelector}`).should('have.value', 'business');
+
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`
+                },
+                method: 'post',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.loginRegistration.showAccountTypeSelection': false
+                    }
+                }
+            };
+
+            return cy.request(requestConfig);
+        });
+    });
+
+    it('@base @login: Company field at different commercial address section should be required', () => {
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`
+                },
+                method: 'post',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
+            };
+
+            return cy.request(requestConfig);
+        });
+
+        const page = new AccountPageObject();
+        cy.visit('/account/login');
+        cy.get(page.elements.registerCard).should('be.visible');
+
+        const accountTypeSelector = 'select[name="accountType"]';
+        const accountTypeSelectorForDifferentAddress = 'select[name="shippingAddress[accountType]"]';
+
+        cy.get(accountTypeSelector).should('be.visible');
+
+        cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
+
+        cy.get(accountTypeSelectorForDifferentAddress).should('be.visible');
+        cy.get(accountTypeSelectorForDifferentAddress).typeAndSelect('Commercial');
+
+        cy.get('#shippingAddresscompany').should('be.visible');
+
+        cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
+
+        cy.get('#shippingAddresscompany:invalid').should('be.visible');
+
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`
+                },
+                method: 'post',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.loginRegistration.showAccountTypeSelection': false
+                    }
+                }
+            };
+
+            return cy.request(requestConfig);
+        });
+    });
+
+    it('@base @login: Register commercial customer with different commercial address', () => {
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`
+                },
+                method: 'post',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
+            };
+
+            return cy.request(requestConfig);
+        });
+
+        const page = new AccountPageObject();
+        cy.visit('/account/login');
+        cy.get(page.elements.registerCard).should('be.visible');
+
+        const accountTypeSelector = 'select[name="accountType"]';
+        const accountTypeSelectorForDifferentAddress = 'select[name="shippingAddress[accountType]"]';
+
+        cy.get(accountTypeSelector).should('be.visible');
+        cy.get(accountTypeSelector).typeAndSelect('Commercial');
+
+        cy.get('select[name="salutationId"]').select('Mr.');
+        cy.get('input[name="firstName"]').type('John');
+        cy.get('input[name="lastName"]').type('Doe');
+
+        cy.get('#billingAddresscompany').type('Company ABC');
+        cy.get('#billingAddressdepartment').type('ABC Department');
+        cy.get('#personalMail').type('testvat@gmail.com');
+        cy.get('#personalPassword').type('password@123456');
+
+        cy.get('#billingAddressAddressStreet').type('ABC Ansgarstr 4');
+        cy.get('#billingAddressAddressZipcode').type('49134');
+        cy.get('#billingAddressAddressCity').type('Wallenhorst');
+        cy.get('#billingAddressAddressCountry').select('Germany');
+        cy.get('#billingAddressAddressCountryState').select('Berlin');
+
+        cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
+
+        cy.get(accountTypeSelectorForDifferentAddress).should('be.visible');
+        cy.get(accountTypeSelectorForDifferentAddress).typeAndSelect('Commercial');
+
+        cy.get('#billingAddresscompany').should('be.visible');
+
+        cy.get('#shippingAddresspersonalSalutation').select('Mr.');
+        cy.get('#shippingAddresspersonalFirstName').type('John');
+        cy.get('#shippingAddresspersonalLastName').type('Doe');
+        cy.get('#shippingAddresscompany').type('Company XYZ');
+        cy.get('#shippingAddressdepartment').type('XYZ Department');
+        cy.get('#shippingAddressAddressStreet').type('XYZ Ansgarstr 20');
+        cy.get('#shippingAddressAddressZipcode').type('67890');
+        cy.get('#shippingAddressAddressCity').type('Newland');
+        cy.get('#shippingAddressAddressCountry').select('Germany');
+
+        cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
+
+        cy.url().should('not.include', '/register');
+        cy.url().should('include', '/account');
+
+        cy.get('.account-welcome h1').should((element) => {
+            expect(element).to.contain('Overview');
+        });
+
+        cy.get('.js-account-overview-addresses').contains('Company ABC - ABC Department');
+        cy.get('.js-account-overview-addresses').contains('Company XYZ - XYZ Department');
+
+        cy.visit('/account/profile');
+        cy.get(`.account-profile-personal ${accountTypeSelector}`).should('have.value', 'business');
+
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`
+                },
+                method: 'post',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.loginRegistration.showAccountTypeSelection': false
+                    }
+                }
+            };
+
+            return cy.request(requestConfig);
+        });
+    });
+
+    it('@base @login: Register non-commercial customer with different commercial address', () => {
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`
+                },
+                method: 'post',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
+            };
+
+            return cy.request(requestConfig);
+        });
+
+        const page = new AccountPageObject();
+        cy.visit('/account/login');
+        cy.get(page.elements.registerCard).should('be.visible');
+
+        const accountTypeSelector = 'select[name="accountType"]';
+        const accountTypeSelectorForDifferentAddress = 'select[name="shippingAddress[accountType]"]';
+
+        cy.get(accountTypeSelector).should('be.visible');
+        cy.get(accountTypeSelector).typeAndSelect('Private');
+
+        cy.get('select[name="salutationId"]').select('Mr.');
+        cy.get('input[name="firstName"]').type('John');
+        cy.get('input[name="lastName"]').type('Doe');
+
+        cy.get('#personalMail').type('testvat@gmail.com');
+        cy.get('#personalPassword').type('password@123456');
+
+        cy.get('#billingAddressAddressStreet').type('ABC Ansgarstr 4');
+        cy.get('#billingAddressAddressZipcode').type('49134');
+        cy.get('#billingAddressAddressCity').type('Wallenhorst');
+        cy.get('#billingAddressAddressCountry').select('Germany');
+        cy.get('#billingAddressAddressCountryState').select('Berlin');
+
+        cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
+
+        cy.get(accountTypeSelectorForDifferentAddress).should('be.visible');
+        cy.get(accountTypeSelectorForDifferentAddress).typeAndSelect('Commercial');
+
+        cy.get('#billingAddresscompany').should('not.be.visible');
+
+        cy.get('#shippingAddresspersonalSalutation').select('Mr.');
+        cy.get('#shippingAddresspersonalFirstName').type('John');
+        cy.get('#shippingAddresspersonalLastName').type('Doe');
+        cy.get('#shippingAddresscompany').type('Company XYZ');
+        cy.get('#shippingAddressdepartment').type('XYZ Department');
+        cy.get('#shippingAddressAddressStreet').type('XYZ Ansgarstr 20');
+        cy.get('#shippingAddressAddressZipcode').type('67890');
+        cy.get('#shippingAddressAddressCity').type('Newland');
+        cy.get('#shippingAddressAddressCountry').select('Germany');
+
+        cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
+
+        cy.url().should('not.include', '/register');
+        cy.url().should('include', '/account');
+
+        cy.get('.account-welcome h1').should((element) => {
+            expect(element).to.contain('Overview');
+        });
+
+        cy.get('.js-account-overview-addresses').contains('Company XYZ - XYZ Department');
+
+        cy.visit('/account/profile');
+        cy.get(`.account-profile-personal ${accountTypeSelector}`).should('have.value', 'private');
 
         cy.authenticate().then((result) => {
             const requestConfig = {

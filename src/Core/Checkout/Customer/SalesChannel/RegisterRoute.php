@@ -298,7 +298,8 @@ class RegisterRoute extends AbstractRegisterRoute
         $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, true, $context));
 
         if ($data->has('shippingAddress')) {
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, false, $context));
+            $shippingAccountType = $data->get('shippingAddress')->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, true, $context));
         }
 
         $billingAddress = $addressData->all();

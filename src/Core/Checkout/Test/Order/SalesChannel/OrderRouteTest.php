@@ -13,22 +13,28 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @group slow
@@ -37,6 +43,7 @@ class OrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use MailTemplateTestBehaviour;
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
@@ -103,8 +110,20 @@ class OrderRouteTest extends TestCase
      */
     private $password;
 
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var string
+     */
+    private $defaultPaymentMethodId;
+
     protected function setUp(): void
     {
+        $this->context = Context::createDefaultContext();
+
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => Defaults::SALES_CHANNEL,
         ]);
@@ -118,6 +137,7 @@ class OrderRouteTest extends TestCase
         $this->email = Uuid::randomHex() . '@example.com';
         $this->password = 'shopware';
         $this->customerId = Uuid::randomHex();
+        $this->defaultPaymentMethodId = $this->getValidPaymentMethods()->first()->getId();
         $this->orderId = $this->createOrder($this->customerId, $this->email, $this->password);
 
         $this->browser
@@ -262,14 +282,13 @@ class OrderRouteTest extends TestCase
 
     public function testSetPaymentOrder(): void
     {
-        $paymentMethodId = $this->getValidPaymentMethodId();
         $this->browser
             ->request(
                 'POST',
                 '/store-api/order/payment',
                 [
                     'orderId' => $this->orderId,
-                    'paymentMethodId' => $paymentMethodId,
+                    'paymentMethodId' => $this->defaultPaymentMethodId,
                 ]
             );
 
@@ -282,9 +301,82 @@ class OrderRouteTest extends TestCase
         $criteria->addAssociation('transactions');
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->context)->first();
 
-        static::assertEquals($paymentMethodId, $order->getTransactions()->last()->getPaymentMethodId());
+        static::assertEquals($this->defaultPaymentMethodId, $order->getTransactions()->last()->getPaymentMethodId());
+    }
+
+    public function testSetAnotherPaymentMethodToOrder(): void
+    {
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $phpunit = $this;
+        $eventDidRun = false;
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+            $eventDidRun = true;
+            $phpunit->assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+        };
+
+        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+
+        $defaultPaymentMethodId = $this->defaultPaymentMethodId;
+        $newPaymentMethodId = $this->getValidPaymentMethods()->filter(function (PaymentMethodEntity $paymentMethod) use ($defaultPaymentMethodId) {
+            return $paymentMethod->getId() !== $defaultPaymentMethodId;
+        })->first()->getId();
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/order/payment',
+                [
+                    'orderId' => $this->orderId,
+                    'paymentMethodId' => $newPaymentMethodId,
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('success', $response, print_r($response, true));
+        static::assertTrue($response['success'], print_r($response, true));
+
+        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+    }
+
+    public function testSetSamePaymentMethodToOrder(): void
+    {
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $phpunit = $this;
+        $eventDidRun = false;
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+            $eventDidRun = true;
+            $phpunit->assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+        };
+
+        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/order/payment',
+                [
+                    'orderId' => $this->orderId,
+                    'paymentMethodId' => $this->defaultPaymentMethodId,
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('success', $response, print_r($response, true));
+        static::assertTrue($response['success'], print_r($response, true));
+
+        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertFalse($eventDidRun, 'The mail.sent did not run');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -340,7 +432,7 @@ class OrderRouteTest extends TestCase
                 'id' => $testOrder,
                 'salesChannelId' => $testChannel['id'],
             ],
-        ], Context::createDefaultContext());
+        ], $this->context);
 
         $this->browser
             ->request(
@@ -360,25 +452,23 @@ class OrderRouteTest extends TestCase
         static::assertEquals(Defaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
     }
 
-    protected function getValidPaymentMethodId(): string
+    protected function getValidPaymentMethods(): EntitySearchResult
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
-            ->setLimit(1)
             ->addFilter(new EqualsFilter('availabilityRuleId', null))
             ->addFilter(new EqualsFilter('active', true));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        return $repository->search($criteria, $this->context);
     }
 
     private function createOrder(string $customerId, string $email, string $password): string
     {
         $orderId = Uuid::randomHex();
-        $defaultContext = Context::createDefaultContext();
-        $orderData = $this->getOrderData($orderId, $customerId, $email, $password, $defaultContext);
-        $this->orderRepository->create($orderData, $defaultContext);
+        $orderData = $this->getOrderData($orderId, $customerId, $email, $password, $this->context);
+        $this->orderRepository->create($orderData, $this->context);
 
         return $orderId;
     }
@@ -397,10 +487,27 @@ class OrderRouteTest extends TestCase
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 'stateId' => $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId(),
-                'paymentMethodId' => $this->getValidPaymentMethodId(),
+                'paymentMethodId' => $this->defaultPaymentMethodId,
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
+                'transactions' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'paymentMethodId' => $this->defaultPaymentMethodId,
+                        'amount' => [
+                            'unitPrice' => 5.0,
+                            'totalPrice' => 15.0,
+                            'quantity' => 3,
+                            'calculatedTaxes' => [],
+                            'taxRules' => [],
+                        ],
+                        'stateId' => $this->stateMachineRegistry->getInitialState(
+                            OrderTransactionStates::STATE_MACHINE,
+                            $this->context
+                        )->getId(),
+                    ],
+                ],
                 'deliveries' => [
                     [
                         'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),
@@ -517,8 +624,6 @@ class OrderRouteTest extends TestCase
 
     private function createDocument(string $orderId, bool $showInCustomerAccount = true, bool $sent = true): void
     {
-        $defaultContext = Context::createDefaultContext();
-
         $documentRepository = $this->getContainer()->get('document.repository');
 
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
@@ -527,7 +632,7 @@ class OrderRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteGenerator::DELIVERY_NOTE));
 
         /** @var DocumentTypeEntity $documentType */
-        $documentType = $documentTypeRepository->search($criteria, $defaultContext)->first();
+        $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
 
         $documentRepository->create(
             [
@@ -542,7 +647,7 @@ class OrderRouteTest extends TestCase
                     'static' => false,
                 ],
             ],
-            $defaultContext
+            $this->context
         );
     }
 }

@@ -44,7 +44,6 @@ function createWrapper(privileges = []) {
             'sw-product-feature-set-form': true,
             'sw-custom-field-set-renderer': true,
             'sw-container': true,
-            'sw-entity-single-select': true,
             'sw-inherit-wrapper': {
                 template:
                         `<div class="sw-inherit-wrapper">
@@ -55,7 +54,8 @@ function createWrapper(privileges = []) {
                 }
             },
             'sw-field': true,
-            'sw-text-editor': true
+            'sw-text-editor': true,
+            'sw-entity-single-select': true
         }
     });
 }
@@ -115,6 +115,10 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 isLoading: () => false
             }
         });
+    });
+
+    beforeEach(async () => {
+        await Shopware.State.commit('swProductDetail/setAttributeSet', []);
     });
 
     it('should be a Vue.JS component', () => {
@@ -263,10 +267,12 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             .attributes().style).toBe('display: none;');
     });
 
-    it('should show Custom Fields card advanced mode is on', async () => {
+    it('should show Custom Fields card advanced mode is on and custom fields set length is greater than 0', async () => {
         const wrapper = createWrapper();
-        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
+        await Shopware.State.commit('swProductDetail/setAttributeSet', [1, 2]);
+
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
             value: {
                 ...advancedModeSetting.value,
@@ -319,5 +325,19 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
         expect(wrapper.find('.sw-product-detail-specification__custom-fields')
             .attributes().style).toBe('display: none;');
+    });
+
+    it('should not show Custom Fields card when custom fields length is smaller than 1', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+
+        const customFieldsLength = wrapper.vm.customFieldSets.length;
+        expect(customFieldsLength).toBe(0);
+
+        const cardElement = wrapper.find('.sw-product-detail-specification__custom-fields');
+        const cardStyles = cardElement.attributes('style');
+
+        expect(cardStyles).toBe('display: none;');
     });
 });

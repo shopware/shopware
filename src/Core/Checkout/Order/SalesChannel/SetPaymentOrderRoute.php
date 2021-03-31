@@ -29,25 +29,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var AbstractPaymentMethodRoute
-     */
-    private $paymentRoute;
+    private AbstractPaymentMethodRoute $paymentRoute;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private StateMachineRegistry $stateMachineRegistry;
 
-    /**
-     * @var OrderService
-     */
-    private $orderService;
+    private OrderService $orderService;
 
     public function __construct(
         OrderService $orderService,
@@ -127,18 +115,32 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $context->scope(
             Context::SYSTEM_SCOPE,
             function () use ($order, $initialState, $orderId, $paymentMethodId, $context): void {
+                $isSamePaymentMethod = false;
                 if ($order->getTransactions() !== null && $order->getTransactions()->count() >= 1) {
                     foreach ($order->getTransactions() as $transaction) {
                         if ($transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED) {
+                            if ($transaction->getPaymentMethodId() === $paymentMethodId) {
+                                $isSamePaymentMethod = true;
+
+                                break;
+                            }
+
                             $this->orderService->orderTransactionStateTransition(
                                 $transaction->getId(),
                                 'cancel',
                                 new ParameterBag(),
                                 $context
                             );
+
+                            break;
                         }
                     }
                 }
+
+                if ($isSamePaymentMethod) {
+                    return;
+                }
+
                 $transactionId = Uuid::randomHex();
                 $transactionAmount = new CalculatedPrice(
                     $order->getPrice()->getTotalPrice(),

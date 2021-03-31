@@ -50,7 +50,7 @@ class SalesChannelApiControllerTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
-        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
+        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__ACCESSOR_NOT_ALLOWED');
     }
 
     public function testPostFilterRestrictedAssociation(): void
@@ -64,7 +64,7 @@ class SalesChannelApiControllerTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
-        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
+        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__ACCESSOR_NOT_ALLOWED');
     }
 
     public function testLoadManyToManyAssociation(): void
@@ -106,7 +106,7 @@ class SalesChannelApiControllerTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
+        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__ACCESSOR_NOT_ALLOWED');
     }
 
     public function testAggregateRestrictedField(): void
@@ -122,7 +122,7 @@ class SalesChannelApiControllerTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('FRAMEWORK__READ_PROTECTED', $response['errors'][0]['code']);
+        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
     }
 
     public function testRestrictedFilterForAssociation(): void

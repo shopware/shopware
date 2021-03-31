@@ -103,14 +103,6 @@ It will now display by default 2 fraction digits and up to 20, if available.
 
 ---
 
-## CMS entities version aware
-This change updates the primary key of `cms_page`, `cms_slot`, `cms_block` and `cms_section` and the corresponding translation tables. 
-If your plugin incorporates foreign keys to these tables you will need to update your migrations and dal entity definitions.
-
-Use `bin/console dal:validate` to see if you have to adjust your plugins anywhere.
-
----
-
 ## Removed plugin manager
 The plugin manager in the administration is removed with all of its components and replaced by the `sw-extension` module.
 

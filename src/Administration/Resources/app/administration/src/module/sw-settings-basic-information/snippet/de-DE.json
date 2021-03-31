@@ -9,7 +9,15 @@
     },
     "captcha": {
       "label": {
-        "honeypot": "Honeypot Captcha"
+        "honeypot": "Honeypot Captcha",
+        "googleReCaptchaV2": "Google reCaptcha V2",
+        "googleReCaptchaV2SiteKey": "Google reCaptcha V2 Site Key",
+        "googleReCaptchaV2SecretKey": "Google reCaptcha V2 Secret Key",
+        "googleReCaptchaV2Invisible": "Google reCaptcha V2 Invisible",
+        "googleReCaptchaV3": "Google reCaptcha V3",
+        "googleReCaptchaV3SiteKey": "Google reCaptcha V3 Site Key",
+        "googleReCaptchaV3SecretKey": "Google reCaptcha V3 Secret Key",
+        "googleReCaptchaV3ThresholdScore": "Google reCaptcha V3 Threshold Score"
       }
     }
   }

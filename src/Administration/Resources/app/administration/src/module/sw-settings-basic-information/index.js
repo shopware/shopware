@@ -1,6 +1,7 @@
 import CaptchaService from './service/captcha.service';
 import './page/sw-settings-basic-information';
 import './component/sw-settings-captcha-select';
+import './component/sw-settings-captcha-select-v2';
 
 const { Module } = Shopware;
 

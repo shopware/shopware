@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class GoogleReCaptchaV3 extends AbstractCaptcha
 {
-    public const CAPTCHA_NAME = 'google-re-captcha-v3';
+    public const CAPTCHA_NAME = 'googleReCaptchaV3';
 
     /**
      * @var SystemConfigService

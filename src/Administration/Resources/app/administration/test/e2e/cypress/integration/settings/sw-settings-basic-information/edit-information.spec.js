@@ -131,4 +131,31 @@ describe('Basic Informaion: Edit assignments', () => {
 
         cy.get('.content-main h1').contains('Maintenance mode');
     });
+
+    it('@settings: change active captcha and test input field show when google recaptcha selected', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12455');
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
+            method: 'post'
+        }).as('saveData');
+
+        cy.get('.sw-card.sw-system-config__card--3').should('be.visible');
+        cy.get('.sw-card.sw-system-config__card--3 .sw-card__title').contains('Captcha');
+        cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
+        cy.get('.sw-settings-captcha-select-v2').should('be.visible');
+
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select')
+            .typeMultiSelectAndCheck('Google reCaptcha V3');
+
+        cy.get('.smart-bar__content .sw-button--primary').click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+        cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
+        cy.get('.sw-settings-captcha-select-v2 .sw-settings-captcha-select-v2__google-recaptcha-v3')
+            .should('be.visible');
+    });
 });

@@ -1,8 +1,8 @@
-import template from './sw-settings-captcha-select.html.twig';
+import template from './sw-settings-captcha-select-v2.html.twig';
 
 const { Component, Mixin } = Shopware;
 
-Component.register('sw-settings-captcha-select', {
+Component.register('sw-settings-captcha-select-v2', {
     template,
 
     inject: ['feature', 'captchaService'],
@@ -13,7 +13,7 @@ Component.register('sw-settings-captcha-select', {
 
     props: {
         value: {
-            type: Array,
+            type: Object,
             required: false,
             default: null
         }
@@ -26,19 +26,11 @@ Component.register('sw-settings-captcha-select', {
     },
 
     computed: {
-        captchas() {
-            return this.availableCaptchas;
-        },
-
         attributes() {
             return {
                 ...this.$attrs,
-                ...this.translations
+                ...this.getTranslations()
             };
-        },
-
-        translations() {
-            return this.getTranslations();
         },
 
         currentValue: {
@@ -47,19 +39,47 @@ Component.register('sw-settings-captcha-select', {
             },
 
             set(val) {
-                if (val !== this.value) {
-                    this.$emit('input', val);
+                this.$emit('input', val);
+            }
+        },
+
+        activeCaptchaSelect: {
+            get() {
+                const captchaSelected = [];
+                Object.keys(this.currentValue).forEach(key => {
+                    if (this.currentValue[key].isActive) {
+                        captchaSelected.push(key);
+                    }
+                });
+
+                return captchaSelected;
+            },
+
+            set(val) {
+                if (val !== this.activeCaptchaSelect) {
+                    Object.keys(this.currentValue).forEach(key => {
+                        this.currentValue[key].isActive = val.includes(key);
+                    });
                 }
             }
         }
     },
 
-    mounted() {
-        this.mountedComponent();
+    watch: {
+        currentValue: {
+            deep: true,
+            handler(val) {
+                this.$emit('input', val);
+            }
+        }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
-        mountedComponent() {
+        createdComponent() {
             this.captchaService.list(this.setCaptchaOptions);
         },
 
@@ -78,8 +98,8 @@ Component.register('sw-settings-captcha-select', {
             return ['label', 'placeholder', 'helpText']
                 .filter(name => !!this.$attrs[name])
                 .reduce((translations, name) => ({
-                    [name]: this.getInlineSnippet(this.$attrs[name]),
-                    ...translations
+                    ...translations,
+                    [name]: this.getInlineSnippet(this.$attrs[name])
                 }), {});
         }
     }

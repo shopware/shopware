@@ -131,6 +131,8 @@ describe('components/sw-filter-panel', () => {
     it('should update filter with updated values', async () => {
         const wrapper = createWrapper();
 
+        await wrapper.vm.$nextTick();
+
         const options = wrapper.find('.sw-boolean-filter').findAll('option');
 
         options.at(1).setSelected();
@@ -177,6 +179,8 @@ describe('components/sw-filter-panel', () => {
 
     it('should reset all filters when `Reset All` button is clicked', async () => {
         const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
 
         wrapper.find('.sw-boolean-filter').findAll('option').at(1).setSelected();
 

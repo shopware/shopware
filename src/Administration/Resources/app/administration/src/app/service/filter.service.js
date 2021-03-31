@@ -1,4 +1,6 @@
 const { Criteria } = Shopware.Data;
+const { types } = Shopware.Utils;
+const { cloneDeep } = Shopware.Utils.object;
 
 /**
 * @module app/filter-service
@@ -16,10 +18,6 @@ export default class FilterService {
     }
 
     getStoredFilters(storeKey) {
-        if (this._filterEntity && !this._filterEntity._isNew && this._filterEntity.key === storeKey) {
-            return Promise.resolve(this._filterEntity.value);
-        }
-
         const criteria = this._getUserConfigCriteria(storeKey);
 
         return this._userConfigRepository.search(criteria, Shopware.Context.api).then(response => {
@@ -32,6 +30,15 @@ export default class FilterService {
                 this._filterEntity.key = storeKey;
                 this._filterEntity.userId = currentUser && currentUser.id;
                 this._filterEntity.value = {};
+            }
+
+            const queryFilterValue = this._getQueryFilterValue(storeKey);
+
+            if (queryFilterValue) {
+                this._filterEntity.value = JSON.parse(decodeURIComponent(queryFilterValue));
+                this._filterEntity.value = this._filterEntity.value || {};
+            } else {
+                this._pushFiltersToUrl();
             }
 
             return Promise.resolve(this._filterEntity.value);
@@ -56,8 +63,8 @@ export default class FilterService {
         const savedCriteria = [];
 
         Object.keys(filters).forEach(name => {
-            filterValues[name] = { ...filters[name] };
-            if (filterValues[name].criteria) {
+            if (filters[name].criteria) {
+                filterValues[name] = { ...filters[name] };
                 savedCriteria.push(...filterValues[name].criteria);
             }
         });
@@ -65,17 +72,18 @@ export default class FilterService {
         this._filterEntity.value = filterValues;
         this._storedFilters[storeKey] = savedCriteria;
 
-        return this._userConfigRepository.save(this._filterEntity, Shopware.Context.api).then(() => {
-            return this.getStoredFilters(storeKey).then(() => {
-                return Promise.resolve(this._filterEntity.value);
-            });
+        this._pushFiltersToUrl();
+        this._userConfigRepository.save(this._filterEntity, Shopware.Context.api).then(() => {
+            this.getStoredFilters(storeKey);
         });
+
+        return Promise.resolve(this._filterEntity.value);
     }
 
     async mergeWithStoredFilters(storeKey, listCriteria) {
-        if (!this._storedFilters[storeKey]) {
-            this._storedFilters[storeKey] = await this.getStoredCriteria(storeKey);
-        }
+        this._storedFilters[storeKey] = await this.getStoredCriteria(storeKey);
+
+        const mergedCriteria = cloneDeep(listCriteria);
 
         this._storedFilters[storeKey].forEach(el1 => {
             const match = listCriteria.filters.find(el2 => {
@@ -89,11 +97,11 @@ export default class FilterService {
             });
 
             if (!match) {
-                listCriteria.addFilter(el1);
+                mergedCriteria.addFilter(el1);
             }
         });
 
-        return listCriteria;
+        return mergedCriteria;
     }
 
     _getUserConfigCriteria(storeKey) {
@@ -104,5 +112,31 @@ export default class FilterService {
         criteria.addFilter(Criteria.equals('userId', currentUser && currentUser.id));
 
         return criteria;
+    }
+
+    _pushFiltersToUrl() {
+        const urlFilterValue = types.isEmpty(this._filterEntity.value) ? null : this._filterEntity.value;
+        const urlEncodedValue = encodeURIComponent(JSON.stringify(urlFilterValue));
+
+        const router = Shopware.Application.view.router;
+        const route = router && router.currentRoute;
+
+        const query = { ...route.query };
+        delete query[this._filterEntity.key];
+
+        router.push({
+            name: route.name,
+            query: {
+                ...query,
+                [this._filterEntity.key]: urlEncodedValue
+            }
+        });
+    }
+
+    _getQueryFilterValue(storeKey) {
+        const router = Shopware.Application.view.router;
+        const route = router && router.currentRoute;
+
+        return route && route.query[storeKey];
     }
 }

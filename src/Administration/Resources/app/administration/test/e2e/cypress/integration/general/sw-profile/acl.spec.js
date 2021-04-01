@@ -20,7 +20,7 @@ describe('Review: Test ACL privileges', () => {
                 role: 'viewer'
             }
         ]).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
+            cy.visit(`${Cypress.env('admin')}#/sw/profile/index`);
         });
 
         // open review without permissions
@@ -43,7 +43,7 @@ describe('Review: Test ACL privileges', () => {
                 role: 'update_profile'
             }
         ]).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
+            cy.visit(`${Cypress.env('admin')}#/sw/profile/index`);
         });
 
         cy.get('#sw-field--email')

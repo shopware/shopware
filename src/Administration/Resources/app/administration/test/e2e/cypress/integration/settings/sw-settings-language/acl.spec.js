@@ -32,7 +32,9 @@ describe('Language: Test acl privileges', () => {
                 key: 'language',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/language/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -40,10 +42,6 @@ describe('Language: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/language`,
             method: 'post'
         }).as('saveData');
-
-        // Go to languages module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-language').click();
 
         cy.get('.sw-settings-language-list').should('be.visible');
         cy.get('a[href="#/sw/settings/language/create"]').click();
@@ -81,7 +79,9 @@ describe('Language: Test acl privileges', () => {
                 key: 'language',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/language/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -89,10 +89,6 @@ describe('Language: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/language/*`,
             method: 'patch'
         }).as('saveData');
-
-        // Go to languages module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-language').click();
 
         cy.get('.sw-settings-language-list').should('be.visible');
         cy.clickContextMenuItem(
@@ -124,7 +120,9 @@ describe('Language: Test acl privileges', () => {
                 key: 'language',
                 role: 'deleter'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/language/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -132,10 +130,6 @@ describe('Language: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/language/*`,
             method: 'delete'
         }).as('deleteData');
-
-        // Go to languages module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-language').click();
 
         cy.get('.sw-settings-language-list').should('be.visible');
         cy.clickContextMenuItem(

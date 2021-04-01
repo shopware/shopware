@@ -24,11 +24,9 @@ describe('Delivery time: Test acl privileges', () => {
                 key: 'delivery_times',
                 role: 'viewer'
             }
-        ]);
-
-        // go to delivery times module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-delivery-time').click();
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+        });
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
 
@@ -56,7 +54,9 @@ describe('Delivery time: Test acl privileges', () => {
                 key: 'delivery_times',
                 role: 'editor'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -64,10 +64,6 @@ describe('Delivery time: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'patch'
         }).as('updateDeliveryTime');
-
-        // go to delivery times module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-delivery-time').click();
 
         // click on third element in grid
         cy.get(`${page.elements.dataGridRow}--0`)
@@ -114,7 +110,9 @@ describe('Delivery time: Test acl privileges', () => {
                 key: 'delivery_times',
                 role: 'creator'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -122,10 +120,6 @@ describe('Delivery time: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/delivery-time`,
             method: 'post'
         }).as('createDeliveryTime');
-
-        // go to delivery times module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-delivery-time').click();
 
         // Create delivery time
         cy.get('a[href="#/sw/settings/delivery/time/create"]').click();
@@ -161,7 +155,9 @@ describe('Delivery time: Test acl privileges', () => {
                 key: 'delivery_times',
                 role: 'deleter'
             }
-        ]);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+        });
 
         // Request we want to wait for later
         cy.server();
@@ -169,10 +165,6 @@ describe('Delivery time: Test acl privileges', () => {
             url: `${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'delete'
         }).as('deleteDeliveryTime');
-
-        // go to delivery times module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-delivery-time').click();
 
         // filter delivery time via search bar
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Express');

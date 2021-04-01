@@ -36,9 +36,9 @@ describe('Order: Test ACL privileges', () => {
                 key: 'order',
                 role: 'viewer'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        });
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
@@ -83,9 +83,9 @@ describe('Order: Test ACL privileges', () => {
                 key: 'order',
                 role: 'editor'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        });
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
@@ -144,9 +144,9 @@ describe('Order: Test ACL privileges', () => {
                 key: 'order',
                 role: 'deleter'
             }
-        ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        });
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(

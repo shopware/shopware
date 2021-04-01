@@ -19,7 +19,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
-use Twig\Error\Error;
 use Twig\Error\SyntaxError;
 use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
@@ -150,7 +149,7 @@ class SeoUrlGenerator
     {
         try {
             return trim($this->twig->render('template', $mapping->getSeoPathInfoContext()));
-        } catch (Error $error) {
+        } catch (\Throwable $error) {
             if (!$config->getSkipInvalid()) {
                 throw $error;
             }

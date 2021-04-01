@@ -17,7 +17,7 @@ function createWrapper() {
             'sw-icon': true
         },
         provide: {
-            extensionApiService: {
+            extensionStoreActionService: {
                 upload: uploadSpy
             },
             repositoryFactory: {

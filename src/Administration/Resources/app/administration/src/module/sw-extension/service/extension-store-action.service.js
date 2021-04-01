@@ -1,14 +1,14 @@
 import ApiService from 'src/core/service/api.service';
 
 export default class ExtensionStoreActionService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'plugin') {
+    constructor(httpClient, loginService, apiEndpoint = 'extension') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'extensionStoreActionService';
     }
 
     downloadExtension(technicalName) {
         return this.httpClient
-            .post(`_action/extension/download/${technicalName}`, {}, {
+            .post(`_action/${this.getApiBasePath()}/download/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
                 version: 3
             });
@@ -16,7 +16,7 @@ export default class ExtensionStoreActionService extends ApiService {
 
     installExtension(technicalName, type) {
         return this.httpClient
-            .post(`_action/extension/install/${type}/${technicalName}`, {}, {
+            .post(`_action/${this.getApiBasePath()}/install/${type}/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
                 version: 3
             });
@@ -24,7 +24,7 @@ export default class ExtensionStoreActionService extends ApiService {
 
     updateExtension(technicalName, type) {
         return this.httpClient
-            .post(`_action/extension/update/${type}/${technicalName}`, {}, {
+            .post(`_action/${this.getApiBasePath()}/update/${type}/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
                 version: 3
             });
@@ -32,7 +32,7 @@ export default class ExtensionStoreActionService extends ApiService {
 
     activateExtension(technicalName, type) {
         return this.httpClient
-            .put(`_action/extension/activate/${type}/${technicalName}`, {}, {
+            .put(`_action/${this.getApiBasePath()}/activate/${type}/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
                 version: 3
             });
@@ -40,7 +40,7 @@ export default class ExtensionStoreActionService extends ApiService {
 
     deactivateExtension(technicalName, type) {
         return this.httpClient
-            .put(`_action/extension/deactivate/${type}/${technicalName}`, {}, {
+            .put(`_action/${this.getApiBasePath()}/deactivate/${type}/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
                 version: 3
             });
@@ -48,7 +48,7 @@ export default class ExtensionStoreActionService extends ApiService {
 
     uninstallExtension(technicalName, type, removeData) {
         return this.httpClient
-            .post(`_action/extension/uninstall/${type}/${technicalName}`, { keepUserData: !removeData }, {
+            .post(`_action/${this.getApiBasePath()}/uninstall/${type}/${technicalName}`, { keepUserData: !removeData }, {
                 headers: this.basicHeaders(),
                 version: 3
             });
@@ -56,7 +56,7 @@ export default class ExtensionStoreActionService extends ApiService {
 
     removeExtension(technicalName, type) {
         return this.httpClient
-            .delete(`_action/extension/remove/${type}/${technicalName}`, {
+            .delete(`_action/${this.getApiBasePath()}/remove/${type}/${technicalName}`, {
                 headers: this.basicHeaders(),
                 version: 3
             });
@@ -96,5 +96,40 @@ export default class ExtensionStoreActionService extends ApiService {
         }
 
         return headers;
+    }
+
+    async getMyExtensions() {
+        const headers = this.getBasicHeaders();
+
+        const { data } = await this.httpClient.get(`/_action/${this.getApiBasePath()}/installed`, {
+            headers,
+            version: 3
+        });
+
+        return data;
+    }
+
+    upload(formData) {
+        const additionalHeaders = { 'Content-Type': 'application/zip' };
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.post(
+            `/_action/${this.getApiBasePath()}/upload`,
+            formData,
+            { headers }
+        )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    refresh() {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .post(`/_action/${this.getApiBasePath()}/refresh`, {}, { params: { }, headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }

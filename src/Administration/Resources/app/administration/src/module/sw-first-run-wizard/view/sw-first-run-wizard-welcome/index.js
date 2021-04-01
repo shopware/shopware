@@ -1,11 +1,10 @@
 import template from './sw-first-run-wizard-welcome.html.twig';
 import './sw-first-run-wizard-welcome.scss';
 
-
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const cacheApiService = Shopware.Service('cacheApiService');
-const pluginService = Shopware.Service('pluginService');
+const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
 
 Component.register('sw-first-run-wizard-welcome', {
     template,
@@ -237,7 +236,7 @@ Component.register('sw-first-run-wizard-welcome', {
             }
 
             try {
-                await pluginService.install(pluginName);
+                await extensionStoreActionService.installExtension(pluginName, 'plugin');
             } catch (e) {
                 if (errCode !== 'downloadFailed') {
                     errCode = 'installationFailed';
@@ -247,7 +246,7 @@ Component.register('sw-first-run-wizard-welcome', {
             }
 
             try {
-                await pluginService.activate(pluginName);
+                await extensionStoreActionService.activateExtension(pluginName, 'plugin');
             } catch (e) {
                 if (errCode === 'noErrors') {
                     errCode = 'activationFailed';

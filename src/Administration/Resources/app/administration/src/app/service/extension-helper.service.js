@@ -1,11 +1,10 @@
 export default class ExtensionHelperService {
-    constructor({ storeService, pluginService, extensionApiService }) {
+    constructor({ storeService, extensionStoreActionService }) {
         this.storeService = storeService;
-        this.pluginService = pluginService;
-        this.extensionApiService = extensionApiService;
+        this.extensionStoreActionService = extensionStoreActionService;
     }
 
-    async downloadAndActivateExtension(extensionName) {
+    async downloadAndActivateExtension(extensionName, type = 'plugin') {
         const extensionStatus = await this.getStatusOfExtension(extensionName);
 
         if (!extensionStatus.downloaded) {
@@ -13,11 +12,11 @@ export default class ExtensionHelperService {
         }
 
         if (!extensionStatus.installedAt) {
-            await this.installStoreExtension(extensionName);
+            await this.installStoreExtension(extensionName, type);
         }
 
         if (!extensionStatus.active) {
-            await this.activateStoreExtension(extensionName);
+            await this.activateStoreExtension(extensionName, type);
         }
     }
 
@@ -25,16 +24,16 @@ export default class ExtensionHelperService {
         return this.storeService.downloadPlugin(extensionName, true, true);
     }
 
-    installStoreExtension(extensionName) {
-        return this.pluginService.install(extensionName);
+    installStoreExtension(extensionName, type) {
+        return this.extensionStoreActionService.installExtension(extensionName, type);
     }
 
-    activateStoreExtension(extensionName) {
-        return this.pluginService.activate(extensionName);
+    activateStoreExtension(extensionName, type) {
+        return this.extensionStoreActionService.activateExtension(extensionName, type);
     }
 
     async getStatusOfExtension(extensionName) {
-        const extensions = await this.extensionApiService.getMyExtensions();
+        const extensions = await this.extensionStoreActionService.getMyExtensions();
         const extension = extensions.find(e => e && e.name === extensionName);
 
         if (!extension) {

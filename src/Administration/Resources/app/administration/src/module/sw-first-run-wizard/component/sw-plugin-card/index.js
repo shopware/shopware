@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-plugin-card', {
     template,
 
-    inject: ['storeService', 'pluginService', 'cacheApiService', 'extensionHelperService'],
+    inject: ['cacheApiService', 'extensionHelperService'],
 
     mixins: ['sw-extension-error'],
 

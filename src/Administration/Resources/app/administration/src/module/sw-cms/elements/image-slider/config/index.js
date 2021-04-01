@@ -151,8 +151,6 @@ Component.register('sw-cms-el-config-image-slider', {
         onChangeDisplayMode(value) {
             if (value === 'cover') {
                 this.element.config.verticalAlign.value = null;
-            } else {
-                this.element.config.minHeight.value = '';
             }
 
             this.$emit('element-update', this.element);

@@ -18,7 +18,7 @@ const mediaDataMock = [
     }
 ];
 
-function createWrapper() {
+function createWrapper(activeTab = 'content') {
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-cms-el-config-image-gallery'), {
@@ -49,9 +49,8 @@ function createWrapper() {
         },
         stubs: {
             'sw-tabs': {
-                props: ['defaultItem'],
                 data() {
-                    return { active: this.defaultItem || '' };
+                    return { active: activeTab };
                 },
                 template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>'
             },
@@ -61,7 +60,11 @@ function createWrapper() {
             'sw-media-list-selection-v2': true,
             'sw-field': true,
             'sw-switch-field': true,
-            'sw-select-field': true,
+            'sw-select-field': {
+                template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
+                props: ['value', 'options']
+            },
+            'sw-text-field': true,
             'sw-alert': true,
             'sw-cms-mapping-field': Shopware.Component.build('sw-cms-mapping-field')
         },
@@ -71,6 +74,38 @@ function createWrapper() {
                     sliderItems: {
                         source: 'static',
                         value: []
+                    },
+                    navigationArrows: {
+                        source: 'static',
+                        value: 'inside'
+                    },
+                    navigationDots: {
+                        source: 'static',
+                        value: null
+                    },
+                    galleryPosition: {
+                        source: 'static',
+                        value: 'left'
+                    },
+                    displayMode: {
+                        source: 'static',
+                        value: 'standard'
+                    },
+                    minHeight: {
+                        source: 'static',
+                        value: '340px'
+                    },
+                    verticalAlign: {
+                        source: 'static',
+                        value: null
+                    },
+                    zoom: {
+                        source: 'static',
+                        value: false
+                    },
+                    fullScreen: {
+                        source: 'static',
+                        value: false
                     }
                 },
                 data: {}
@@ -139,5 +174,19 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(mediaList.exists()).toBeFalsy();
         expect(mappingValue.exists()).toBeTruthy();
         expect(mappingPreview.exists()).toBeTruthy();
+    });
+
+    it('should keep minHeight value when changing display mode', () => {
+        const wrapper = createWrapper('settings');
+        const displayModeSelect = wrapper.find('.sw-cms-el-config-image-gallery__setting-display-mode');
+
+        displayModeSelect.setValue('cover');
+
+        expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+
+        displayModeSelect.setValue('standard');
+
+        // Should still have the previous value
+        expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
     });
 });

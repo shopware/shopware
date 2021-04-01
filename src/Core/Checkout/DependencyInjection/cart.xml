@@ -32,6 +32,17 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.cart.expire_days%</argument>
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
 
         <service id="Shopware\Core\Checkout\Cart\CartPersister">

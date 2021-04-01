@@ -20,6 +20,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createCdnSection())
                 ->append($this->createApiSection())
                 ->append($this->createStoreSection())
+                ->append($this->createCartSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
                 ->append($this->createSitemapSection())
@@ -379,6 +380,23 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('batch_size')
                     ->min(1)
                     ->defaultValue(125)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createCartSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('cart');
+
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->integerNode('expire_days')
+                    ->min(1)
+                    ->defaultValue(120)
                 ->end()
             ->end();
 

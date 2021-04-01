@@ -17,18 +17,20 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductBoxTypeDataResolverTest extends TestCase
 {
-    /**
-     * @var ProductBoxCmsElementResolver
-     */
-    private $productBoxResolver;
+    private ProductBoxCmsElementResolver $productBoxResolver;
+
+    private $systemConfig;
 
     protected function setUp(): void
     {
-        $this->productBoxResolver = new ProductBoxCmsElementResolver();
+        $this->systemConfig = $this->createMock(SystemConfigService::class);
+        $this->productBoxResolver = new ProductBoxCmsElementResolver($this->systemConfig);
     }
 
     public function testType(): void
@@ -106,12 +108,30 @@ class ProductBoxTypeDataResolverTest extends TestCase
         static::assertNull($productBoxStruct->getProduct());
     }
 
-    public function testEnrichWithStaticConfig(): void
+    /**
+     * @dataProvider EnrichWithStaticConfigProvider
+     */
+    public function testEnrichWithStaticConfig(bool $closeout, bool $hidden, int $availableStock): void
     {
+        if ($hidden) {
+            $this->systemConfig->method('get')->willReturn(true);
+        }
+
+        $salesChannelId = 'f3489c46df62422abdea4aa1bb03511c';
+
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
+        $product->setAvailableStock($availableStock);
+        $product->setIsCloseout($closeout);
 
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $salesChannel = $this->createMock(SalesChannelEntity::class);
+        $salesChannel->method('getId')->willReturn($salesChannelId);
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
+        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
+
+        $resolverContext = new ResolverContext($salesChannelContext, new Request());
         $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
             'product',
@@ -131,12 +151,19 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $slot->setFieldConfig($fieldConfig);
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
-
         /** @var ProductBoxStruct|null $productBoxStruct */
         $productBoxStruct = $slot->getData();
         static::assertInstanceOf(ProductBoxStruct::class, $productBoxStruct);
-        static::assertSame($product->getId(), $productBoxStruct->getProductId());
-        static::assertSame($product, $productBoxStruct->getProduct());
+
+        /*
+         * conditional assertions depending on if an product should be returned or not
+         */
+        if ($closeout && $hidden && $availableStock === 0) {
+            static::assertNull($productBoxStruct->getProductId());
+        } else {
+            static::assertSame($productBoxStruct->getProductId(), $product->getId());
+            static::assertSame($product, $productBoxStruct->getProduct());
+        }
     }
 
     public function testEnrichWithStaticConfigButNoResult(): void
@@ -235,5 +262,20 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $criteriaCollection = $this->productBoxResolver->collect($slot, $resolverContext);
 
         static::assertNull($criteriaCollection);
+    }
+
+    /**
+     * @return array[] closeout, hidden, availableStock
+     *                 This sets if an product can be backordered, if it should be hidden if it can not an is no longer available and the available products
+     */
+    public function EnrichWithStaticConfigProvider(): array
+    {
+        return [
+            [false, false, 1],
+            [false, true, 1],
+            [true, false, 1],
+            [true, true, 1],
+            [true, true, 0],
+        ];
     }
 }

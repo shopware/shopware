@@ -171,6 +171,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <tag name="shopware.cms.data_resolver" />
         </service>
 
@@ -181,6 +182,7 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <tag name="shopware.cms.data_resolver"/>
         </service>
 

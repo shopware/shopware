@@ -2,6 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
 ## 6.4.0.0
+*  [NEXT-14548 - Fix missing close button of offcanvas on cms product page](/changelog/release-6-4-0-0/2021-04-01-fix-missing-close-button-of-offcanvas-on-cms-product-page.md)
 *  [NEXT-14415 - Set local time configuration for date range rule builder](/changelog/release-6-4-0-0/2021-03-29-set-local-time-configuration-for-date-range-rule-builder.md)
 *  [NEXT-14348 - Fix change variant price on detail page](/changelog/release-6-4-0-0/2021-03-23-fix-change-variant-price-on-detail-page.md)
 *  [NEXT-11082 - Fix wrong time setting in datepicker component](/changelog/release-6-4-0-0/2021-03-15-fix-wrong-time-setting-in-datepicker-component.md)

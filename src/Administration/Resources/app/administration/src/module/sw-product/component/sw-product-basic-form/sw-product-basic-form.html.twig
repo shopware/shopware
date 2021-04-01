@@ -3,6 +3,7 @@
         {% block sw_product_basic_form_title_field %}
             <sw-inherit-wrapper
                 v-model="product.name"
+                :hasParent="!!parentProduct.id"
                 :inheritedValue="getInheritValue('translated', 'name')">
                 <template #content="props">
 
@@ -27,6 +28,7 @@
             {% block sw_product_basic_form_manufacturer_field %}
                 <sw-inherit-wrapper
                     v-model="product.manufacturerId"
+                    :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.manufacturerId"
                     :label="$tc('sw-product.basicForm.labelManufacturer')">
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
@@ -51,6 +53,7 @@
                 <sw-field
                     v-model="product.productNumber"
                     type="text"
+                    :error="productProductNumberError"
                     :disabled="!allowEdit"
                     :label="$tc('sw-product.basicForm.labelProductNumber')"
                     :helpText="productNumberHelpText">
@@ -61,6 +64,8 @@
         {% block sw_product_basic_form_description_field %}
             <sw-inherit-wrapper
                 v-model="product.description"
+                class="sw-product-basic-form__inheritance-wrapper-description"
+                :hasParent="!!parentProduct.id"
                 :inheritedValue="getInheritValue('translated', 'description')"
                 :label="$tc('sw-product.basicForm.labelDescription')">
                 <template #content="{ currentValue, updateCurrentValue, isInherited }">

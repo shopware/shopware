@@ -23,7 +23,7 @@ class XmlElement extends Struct
 
     protected static function mapTranslatedTag(\DOMElement $child, array $values): array
     {
-        if (!\array_key_exists($child->tagName, $values)) {
+        if (!\array_key_exists(self::kebabCaseToCamelCase($child->tagName), $values)) {
             $values[self::kebabCaseToCamelCase($child->tagName)] = [];
         }
 

@@ -59,6 +59,8 @@ class ProductBuilder
 
     protected array $translations = [];
 
+    protected array $reviews = [];
+
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
         $this->ids = $ids;
@@ -271,6 +273,19 @@ class ProductBuilder
     public function translation(string $currencyId, string $key, $value): self
     {
         $this->translations[$currencyId][$key] = $value;
+
+        return $this;
+    }
+
+    public function review(string $title, string $content, float $points = 3, string $salesChannelId = Defaults::SALES_CHANNEL, string $languageId = Defaults::LANGUAGE_SYSTEM): self
+    {
+        $this->reviews[] = [
+            'title' => $title,
+            'content' => $content,
+            'points' => $points,
+            'languageId' => $languageId,
+            'salesChannelId' => $salesChannelId,
+        ];
 
         return $this;
     }

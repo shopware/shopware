@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class SitemapExporterTest extends TestCase
 {
@@ -38,7 +39,8 @@ class SitemapExporterTest extends TestCase
             $cache,
             10,
             $this->createMock(FilesystemInterface::class),
-            $this->createMock(SitemapHandleFactoryInterface::class)
+            $this->createMock(SitemapHandleFactoryInterface::class),
+            $this->createMock(EventDispatcher::class)
         );
 
         $result = $exporter->generate($this->context, false, null, null);
@@ -56,7 +58,8 @@ class SitemapExporterTest extends TestCase
             $cache,
             10,
             $this->createMock(FilesystemInterface::class),
-            $this->createMock(SitemapHandleFactoryInterface::class)
+            $this->createMock(SitemapHandleFactoryInterface::class),
+            $this->createMock(EventDispatcher::class)
         );
 
         $this->expectException(AlreadyLockedException::class);
@@ -73,7 +76,8 @@ class SitemapExporterTest extends TestCase
             $cache,
             10,
             $this->createMock(FilesystemInterface::class),
-            $this->createMock(SitemapHandleFactoryInterface::class)
+            $this->createMock(SitemapHandleFactoryInterface::class),
+            $this->createMock(EventDispatcher::class)
         );
 
         $result = $exporter->generate($this->context, true, null, null);
@@ -112,7 +116,8 @@ class SitemapExporterTest extends TestCase
             $cache,
             10,
             $this->createMock(FilesystemInterface::class),
-            $this->createMock(SitemapHandleFactoryInterface::class)
+            $this->createMock(SitemapHandleFactoryInterface::class),
+            $this->createMock(EventDispatcher::class)
         );
 
         $result = $exporter->generate($this->context, false, null, null);

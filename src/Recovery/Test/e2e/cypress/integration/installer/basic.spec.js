@@ -220,8 +220,10 @@ describe('Minimal install', () => {
         }, { responseTimeout: 60000 });
 
         cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/');
             expect(loc.pathname).to.eq(`${Cypress.env('admin')}`);
         });
+
+        // Verify dashboard module
+        cy.get('.sw-dashboard-index__intro').should('be.visible');
     });
 });

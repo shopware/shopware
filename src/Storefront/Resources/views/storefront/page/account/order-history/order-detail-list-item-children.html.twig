@@ -1,7 +1,7 @@
 {% block page_account_order_item_detail_list_item_children %}
     {% set nestingLevel = 0 %}
 
-    <div class="account-item-children">
+    <div class="account-item-children" data-fading="true">
 
         {% block page_account_order_item_children_header %}
             <div class="container account-item-collapse-container">
@@ -63,7 +63,11 @@
 
                                             {% block page_checkout_item_child_headline_label %}
                                                 <div class="account-item-child-label-bullet">
-                                                    {{ nestedLineItem.label }}
+                                                    <div class="swag-fade-container swag-fade-container-shrinked">
+                                                        {{ nestedLineItem.label }}
+                                                    </div>
+                                                    <a href="#" class="swag-fading-link-more swag-fade-link-hidden">more</a>
+                                                    <a href="#" class="swag-fading-link-less swag-fade-link-hidden">less</a>
                                                 </div>
                                             {% endblock %}
 

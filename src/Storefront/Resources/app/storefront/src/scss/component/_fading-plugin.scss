@@ -1,0 +1,31 @@
+.swag-fade-container-shrinked {
+    height: 3em;
+}
+
+.swag-fade-container-collapsed {
+    height: auto;
+}
+
+.swag-fade-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.swag-fading-link-more,
+.swag-fading-link-less {
+    color: $link-color;
+    text-align: right;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 4.5em;
+    height: 1.5em;
+}
+
+.swag-fading-link-more {
+    background: linear-gradient(90deg, transparent, $gray-100 60%);
+}
+
+.swag-fade-link-hidden {
+    display: none;
+}

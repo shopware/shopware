@@ -226,7 +226,7 @@
                                                                             :ref="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
                                                                             :defaultFolder="themeRepository.schema.entity"
                                                                             :allowMultiSelect="false"
-                                                                            :disabled="!acl.can('theme.editor')"
+                                                                            :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                             @media-drop="onDropMedia($event, themeConfig[fieldName])"
                                                                             @media-upload-sidebar-open="openMediaSidebar()"
                                                                             @media-upload-remove-image="removeMediaItem(themeConfig[fieldName])">
@@ -238,7 +238,7 @@
                                                                         :type="mapSwFieldTypes(field.type)"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
-                                                                        :disabled="!acl.can('theme.editor')"
+                                                                        :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 

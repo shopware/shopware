@@ -1,13 +1,12 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import 'src/module/sw-product/view/sw-product-detail-base';
 import 'src/module/sw-product/component/sw-product-basic-form';
-import 'src/module/sw-product/component/sw-product-price-form';
-import 'src/module/sw-product/component/sw-product-deliverability-form';
-import 'src/module/sw-product/component/sw-product-category-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/sw-field';
 import Vuex from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
+
+const { Utils } = Shopware;
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -34,11 +33,9 @@ function createWrapper(privileges = []) {
                         </template>
                     </div>`
             },
-            'sw-product-packaging-form': true,
-            'sw-product-seo-form': true,
-            'sw-product-category-form': Shopware.Component.build('sw-product-category-form'),
-            'sw-product-deliverability-form': Shopware.Component.build('sw-product-deliverability-form'),
-            'sw-product-price-form': Shopware.Component.build('sw-product-price-form'),
+            'sw-product-category-form': true,
+            'sw-product-deliverability-form': true,
+            'sw-product-price-form': true,
             'sw-product-basic-form': Shopware.Component.build('sw-product-basic-form'),
             'sw-product-feature-set-form': true,
             'sw-product-settings-form': true,
@@ -56,16 +53,10 @@ function createWrapper(privileges = []) {
             'sw-product-media-form': true,
             'sw-entity-single-select': true,
             'sw-help-text': true,
-            'sw-price-field': true,
-            'sw-list-price-field': true,
             'sw-icon': true,
-            'sw-number-field': true,
             'sw-text-field': true,
             'sw-select-field': true,
-            'sw-product-visibility-select': true,
-            'sw-category-tree-field': true,
-            'sw-multi-tag-select': true,
-            'sw-entity-tag-select': true
+            'router-link': true
         },
         mocks: {
             $tc: snippetPath => snippetPath,
@@ -83,8 +74,17 @@ function createWrapper(privileges = []) {
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve('bar'),
-                    searchIds: () => Promise.resolve()
+                    search: () => Promise.resolve({
+                        first: () => {
+                            return {
+                                folder: {}
+                            };
+                        }
+                    }),
+                    get: () => Promise.resolve({}),
+                    searchIds: () => Promise.resolve({
+                        data: []
+                    })
                 })
             },
             acl: {
@@ -95,24 +95,19 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => false
             }
         }
     });
 }
 
-describe('src/module/sw-product/view/sw-product-detail-base', () => {
-    Shopware.State.registerModule('swProductDetail', productStore);
+enableAutoDestroy(afterEach);
 
+describe('src/module/sw-product/view/sw-product-detail-base', () => {
     beforeAll(() => {
         Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-            getters: {
-                isLoading: () => false
-            },
+            ...productStore,
             state: {
+                ...productStore.state,
                 parentProduct: {
                     media: [],
                     reviews: [{
@@ -132,6 +127,18 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                         customerId: 'd4c3b2a1',
                         productId: 'd4c3b2a1',
                         salesChannelId: 'd4c3b2a1'
+                    }],
+                    purchasePrices: [{
+                        currencyId: '1',
+                        linked: true,
+                        gross: 0,
+                        net: 0
+                    }],
+                    price: [{
+                        currencyId: '1',
+                        linked: true,
+                        gross: 100,
+                        net: 84.034
                     }]
                 },
                 loading: {
@@ -144,11 +151,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     'deliverability',
                     'visibility_structure',
                     'media',
-                    'labelling',
-                    'measures_packaging',
-                    'properties',
-                    'essential_characteristics',
-                    'custom_fields'
+                    'labelling'
                 ],
                 advancedModeSetting: {
                     value: {
@@ -188,19 +191,14 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                             enabled: true,
                             label: 'sw-product.general.textAdvancedMode'
                         }
-
                     }
                 }
-            },
-            mutations: {
-                setLoading: () => true
             }
         });
     });
 
     it('should be a Vue.JS component', () => {
         const wrapper = createWrapper();
-
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -298,265 +296,120 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(wrapper.vm.product.coverId).toBe(media.id);
     });
 
-    it('should be visible Promotion Switch ', async () => {
+    it('should show Promotion Switch of General card when advanced mode is on', () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
 
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
         const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
-
-        expect(promotionSwitch.exists()).toBe(true);
-        expect(showModeSetting).toBe(true);
+        expect(promotionSwitch.attributes().style).toBeFalsy();
     });
 
-    it('should be visible Labelling card', async () => {
+    it('should show Labelling card when advanced mode is on', () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
 
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
         const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
-
-        expect(labellingCardElement.exists()).toBe(true);
-        expect(showModeSetting).toBe(true);
+        expect(labellingCardElement.attributes().style).toBeFalsy();
     });
 
-    it('should be visible Media card', async () => {
+    it('should show Media card when media mode is checked', () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
 
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
         const mediaCardElement = wrapper.find('.sw-product-detail-base__media');
-
-        await wrapper.vm.$nextTick(() => {
-            expect(mediaCardElement.exists()).toBe(true);
-            expect(showProductCard('media')).toBe(true);
-        });
+        expect(mediaCardElement.attributes().style).toBeFalsy();
     });
 
-    it('should be visible price item fields', async () => {
+    it('should hide Promotion Switch when advanced mode is off', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
-        const priceFieldsClassName = [
-            '.sw-purchase-price-field',
-            '.sw-price-field.sw-list-price-field__list-price'
-        ];
-
-        await wrapper.vm.$nextTick(() => {
-            priceFieldsClassName.forEach(item => {
-                expect(wrapper.find(item).exists()).toBe(true);
-            });
-            expect(showModeSetting).toBe(true);
-        });
-    });
-
-    it('should be visible Deliverability item fields', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
-        const deliveryFieldsClassName = [
-            '.product-deliverability-form__delivery-time',
-            '.sw-product-deliverability__restock-field',
-            '.sw-product-deliverability__shipping-free',
-            '.sw-product-deliverability__min-purchase',
-            '.sw-product-deliverability__purchase-step',
-            '.sw-product-deliverability__max-purchase'
-        ];
-
-        await wrapper.vm.$nextTick(() => {
-            deliveryFieldsClassName.forEach(item => {
-                expect(wrapper.find(item).exists()).toBe(true);
-            });
-            expect(showModeSetting).toBe(true);
-        });
-    });
-
-    it('should be visible Structure item fields', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
-        const structureFieldsClassName = [
-            '.sw-product-category-form__tag-field-wrapper',
-            '.sw-product-category-form__search-keyword-field'
-        ];
-
-        await wrapper.vm.$nextTick(() => {
-            structureFieldsClassName.forEach(item => {
-                expect(wrapper.find(item).exists()).toBe(true);
-            });
-            expect(showModeSetting).toBe(true);
-        });
-    });
-
-    it('should be not visible Promotion Switch when commit setAdvancedModeSetting with falsy value', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-
-        Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
             value: {
-                settings: [
-                    {
-                        key: 'general_information',
-                        label: 'sw-product.detailBase.cardTitleProductInfo',
-                        enabled: false,
-                        name: 'general'
-                    }
-                ],
+                ...advancedModeSetting.value,
                 advancedMode: {
-                    enabled: true,
+                    enabled: false,
                     label: 'sw-product.general.textAdvancedMode'
                 }
             }
         });
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
 
-
-        wrapper.vm.$nextTick(() => {
-            const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
-
-            expect(promotionSwitch.attributes().style).toBe('display: none;');
-            expect(showProductCard('general_information')).toBe(false);
-        });
+        const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
+        expect(promotionSwitch.attributes().style).toBe('display: none;');
     });
 
-    it('should be not visible Labelling card when commit setModeSettings with falsy value', async () => {
+    it('should hide Labelling card when commit when advanced mode is off', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
+        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: false,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
+        });
 
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
-        await wrapper.vm.$nextTick();
         const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
-
         expect(labellingCardElement.attributes().style).toBe('display: none;');
-        expect(showProductCard('labelling')).toBe(false);
     });
 
-    it('should be not visible price item fields when commit setModeSettings with falsy value', async () => {
+    it('should hide Media card when media mode is unchecked', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
-        const priceFieldsClassName = [
-            '.sw-purchase-price-field',
-            '.sw-price-field.sw-list-price-field__list-price'
-        ];
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'media')
+        ]);
 
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
-
-        await wrapper.vm.$nextTick(() => {
-            priceFieldsClassName.forEach(item => {
-                expect(wrapper.find(item).exists()).toBe(false);
-            });
-            expect(showProductCard('prices')).toBe(false);
-        });
-    });
-
-    it('should be not visible Deliverability item fields when commit setModeSettings with falsy value', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
-        const deliveryFieldsClassName = [
-            '.product-deliverability-form__delivery-time',
-            '.sw-product-deliverability__restock-field',
-            '.sw-product-deliverability__shipping-free',
-            '.sw-product-deliverability__min-purchase',
-            '.sw-product-deliverability__purchase-step',
-            '.sw-product-deliverability__max-purchase'
-        ];
-
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
-
-        await wrapper.vm.$nextTick(() => {
-            deliveryFieldsClassName.forEach(item => {
-                expect(wrapper.find(item).exists()).toBe(false);
-            });
-            expect(showProductCard('deliverability')).toBe(false);
-        });
-    });
-
-    it('should be not visible Structure item fields when commit setAdvancedModeSetting with falsy value', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-        await wrapper.vm.$nextTick();
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
-        const structureFieldsClassName = [
-            '.sw-product-category-form__tag-field-wrapper',
-            '.sw-product-category-form__search-keyword-field'
-        ];
-
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
-
-        await wrapper.vm.$nextTick(() => {
-            structureFieldsClassName.forEach(item => {
-                expect(wrapper.find(item).exists()).toBe(false);
-            });
-            expect(showProductCard('visibility_structure')).toBe(false);
-        });
-    });
-
-    it('should be not visible Media card when commit setModeSettings with falsy value', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        wrapper.vm.feature = {
-            isActive: () => true
-        };
-
-        Shopware.State.commit('swProductDetail/setModeSettings', []);
-        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
-        await wrapper.vm.$nextTick();
         const mediaCardElement = wrapper.find('.sw-product-detail-base__media');
-
         expect(mediaCardElement.attributes().style).toBe('display: none;');
-        expect(showProductCard('media')).toBe(false);
+    });
+
+    it('should hide General card when general_information mode is unchecked', async () => {
+        const wrapper = createWrapper();
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'general_information')
+        ]);
+
+        const infoCardElement = wrapper.find('.sw-product-detail-base__info');
+        expect(infoCardElement.attributes().style).toBe('display: none;');
+    });
+
+    it('should hide Prices card when prices mode is unchecked', async () => {
+        const wrapper = createWrapper();
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'prices')
+        ]);
+
+        const infoCardElement = wrapper.find('.sw-product-detail-base__prices');
+        expect(infoCardElement.attributes().style).toBe('display: none;');
+    });
+
+    it('should hide Deliverability card when deliverability mode is unchecked', async () => {
+        const wrapper = createWrapper();
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'deliverability')
+        ]);
+
+        const infoCardElement = wrapper.find('.sw-product-detail-base__deliverability');
+        expect(infoCardElement.attributes().style).toBe('display: none;');
+    });
+
+    it('should hide Visibility Structure card when prices mode is unchecked', async () => {
+        const wrapper = createWrapper();
+        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+
+        await Shopware.State.commit('swProductDetail/setModeSettings', [
+            ...modeSettings.filter(item => item !== 'visibility_structure')
+        ]);
+
+        const infoCardElement = wrapper.find('.sw-product-detail-base__visibility-structure');
+        expect(infoCardElement.attributes().style).toBe('display: none;');
     });
 });

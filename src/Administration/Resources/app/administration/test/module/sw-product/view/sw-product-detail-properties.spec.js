@@ -58,6 +58,9 @@ describe('src/module/sw-product/view/sw-product-detail-properties', () => {
 
                         return {};
                     }
+                },
+                acl: {
+                    can: () => true
                 }
             }
         });

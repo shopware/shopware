@@ -6,8 +6,6 @@ const { mapState, mapPropertyErrors, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-product-deliverability-form', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('placeholder')
     ],

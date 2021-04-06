@@ -4,17 +4,14 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 abstract class ScheduledTask
 {
-    /**
-     * @var string
-     */
-    protected $taskId;
+    protected ?string $taskId = null;
 
     final public function __construct()
     {
         // needs to be empty
     }
 
-    public function getTaskId(): string
+    public function getTaskId(): ?string
     {
         return $this->taskId;
     }

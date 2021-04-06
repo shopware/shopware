@@ -52,6 +52,7 @@ Component.register('sw-product-seo-form', {
         },
 
         'product.id': {
+            // eslint-disable-next-line func-names
             handler: function (value) {
                 if (!value) {
                     return;

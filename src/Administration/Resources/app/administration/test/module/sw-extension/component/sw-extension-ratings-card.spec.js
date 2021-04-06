@@ -83,6 +83,9 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
     it('should display empty state when there are no ratings', () => {
         wrapper = createWrapper(true);
 
-        expect(wrapper.text()).toBe('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews');
+        expect(wrapper.text())
+            .toBe(
+                'sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews'
+            );
     });
 });

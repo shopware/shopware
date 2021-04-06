@@ -22,6 +22,7 @@ function createWrapper({ permissions, modalTitle, selectedEntity }) {
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-modal': {
                 props: ['title'],
+                // eslint-disable-next-line max-len
                 template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>'
             },
             'sw-extension-permissions-details-modal': true,
@@ -74,10 +75,14 @@ describe('sw-extension-permissions-details-modal', () => {
 
         const thead = wrapper.findAll('.sw-extension-permissions-details-modal__operation-header');
 
-        expect(thead.at(0).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationRead');
-        expect(thead.at(1).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationUpdate');
-        expect(thead.at(2).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationCreate');
-        expect(thead.at(3).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationDelete');
+        expect(thead.at(0).text())
+            .toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationRead');
+        expect(thead.at(1).text())
+            .toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationUpdate');
+        expect(thead.at(2).text())
+            .toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationCreate');
+        expect(thead.at(3).text())
+            .toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationDelete');
 
         const categoryHeader = wrapper.findAll('.sw-extension-permissions-details-modal__category');
 
@@ -91,7 +96,8 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(entityLabels.at(1).text()).toBe('entityCategories.product.entities.product_visibility');
         expect(entityLabels.at(2).text()).toBe('entityCategories.promotion.entities.promotion');
 
-        const allIcons = wrapper.findAll('.sw-extension-permissions-details-modal__operation').wrappers.map(td => td.find('.icon').text());
+        const allIcons = wrapper.findAll('.sw-extension-permissions-details-modal__operation')
+            .wrappers.map(td => td.find('.icon').text());
 
         expect(allIcons).toStrictEqual([
             'name:small-default-checkmark-line-medium small:true color:#37D046',
@@ -129,10 +135,14 @@ describe('sw-extension-permissions-details-modal', () => {
 
         const thead = wrapper.findAll('.sw-extension-permissions-details-modal__operation-header');
 
-        expect(thead.at(0).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationRead');
-        expect(thead.at(1).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationUpdate');
-        expect(thead.at(2).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationCreate');
-        expect(thead.at(3).text()).toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationDelete');
+        expect(thead.at(0).text())
+            .toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationRead');
+        expect(thead.at(1).text())
+            .toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationUpdate');
+        expect(thead.at(2).text())
+            .toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationCreate');
+        expect(thead.at(3).text())
+            .toBe('sw-extension-store.component.sw-extension-permissions-details-modal.operationDelete');
 
         const categoryHeader = wrapper.findAll('.sw-extension-permissions-details-modal__category');
 
@@ -145,9 +155,11 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(entityLabels.at(0).text()).toBe('entityCategories.product.entities.product');
         expect(entityLabels.at(1).text()).toBe('entityCategories.product.entities.product_visibility');
         expect(entityLabels.at(2).text()).toBe('entityCategories.promotion.entities.promotion');
-        expect(entityLabels.at(3).text()).toBe('entityCategories.promotion.entities.promotion_individual_code');
+        expect(entityLabels.at(3).text())
+            .toBe('entityCategories.promotion.entities.promotion_individual_code');
 
-        const allIcons = wrapper.findAll('.sw-extension-permissions-details-modal__operation').wrappers.map(td => td.find('.icon').text());
+        const allIcons = wrapper.findAll('.sw-extension-permissions-details-modal__operation')
+            .wrappers.map(td => td.find('.icon').text());
         expect(allIcons).toStrictEqual([
             'name:small-default-checkmark-line-medium small:true color:#37D046',
             'name:small-default-checkmark-line-medium small:true color:#37D046',

@@ -340,7 +340,9 @@ Component.register('sw-users-permissions-user-detail', {
                             this.isLoading = true;
                             const titleSaveError = this.$tc('global.default.error');
                             const messageSaveError = this.$tc(
-                                'sw-users-permissions.users.user-detail.notification.saveError.message', 0, { name: this.fullName }
+                                'sw-users-permissions.users.user-detail.notification.saveError.message',
+                                0,
+                                { name: this.fullName }
                             );
 
                             return this.userRepository.save(this.user, context).then(() => {
@@ -365,7 +367,9 @@ Component.register('sw-users-permissions-user-detail', {
                         }
 
                         this.createNotificationError({
-                            message: this.$tc('sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage')
+                            message: this.$tc(
+                                'sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage'
+                            )
                         });
 
                         return Promise.resolve();

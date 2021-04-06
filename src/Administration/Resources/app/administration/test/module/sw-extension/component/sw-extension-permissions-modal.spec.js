@@ -22,6 +22,7 @@ function createWrapper({ permissions, extensionLabel, actionLabel }) {
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-modal': {
                 props: ['title'],
+                // eslint-disable-next-line max-len
                 template: '<div><div class="sw-modal__title">{{ title }}</div><slot/><slot name="modal-footer"></slot></div>'
             },
             'sw-extension-permissions-details-modal': true,
@@ -58,7 +59,9 @@ describe('sw-extension-permissions-modal', () => {
         });
 
         expect(wrapper.find('.sw-modal__title').text()).toBe(JSON.stringify([
-            'sw-extension-store.component.sw-extension-permissions-modal.title', { extensionLabel: 'Sample Extension Label' }
+            'sw-extension-store.component.sw-extension-permissions-modal.title', {
+                extensionLabel: 'Sample Extension Label'
+            }
         ]));
 
         expect(wrapper.find('.sw-extension-permissions-modal__description').text()).toBe(JSON.stringify([
@@ -66,7 +69,8 @@ describe('sw-extension-permissions-modal', () => {
             { extensionLabel: 'Sample Extension Label' }
         ]));
 
-        expect(wrapper.find('.sw-extension-permissions-modal__image').attributes().src).toBe('/administration/static/img/extension-store/permissions.svg');
+        expect(wrapper.find('.sw-extension-permissions-modal__image')
+            .attributes().src).toBe('/administration/static/img/extension-store/permissions.svg');
     });
 
     it('should display two detail links and open the correct detail page', () => {

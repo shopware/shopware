@@ -171,7 +171,8 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             ...modeSettings.filter(item => item !== 'measures_packaging')
         ]);
 
-        expect(wrapper.find('.sw-product-detail-specification__measures-packaging').attributes().style).toBe('display: none;');
+        expect(wrapper.find('.sw-product-detail-specification__measures-packaging')
+            .attributes().style).toBe('display: none;');
     });
 
     it('should show Properties card even advanced mode is off', async () => {
@@ -199,7 +200,8 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             ...modeSettings.filter(item => item !== 'properties')
         ]);
 
-        expect(wrapper.find('sw-product-detail-properties-stub').attributes().style).toBe('display: none;');
+        expect(wrapper.find('sw-product-detail-properties-stub')
+            .attributes().style).toBe('display: none;');
     });
 
     it('should show Essential Characteristics card when advanced mode is on', async () => {
@@ -216,7 +218,8 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             }
         });
 
-        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').attributes().style).toBeFalsy();
+        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics')
+            .attributes().style).toBeFalsy();
     });
 
     it('should hide Essential Characteristics card when advanced mode is off', async () => {
@@ -233,7 +236,8 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             }
         });
 
-        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').attributes().style).toBe('display: none;');
+        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics')
+            .attributes().style).toBe('display: none;');
     });
 
     it('should hide Essential Characteristics card when essential_characteristics mode is unchecked', async () => {
@@ -255,7 +259,8 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             ...modeSettings.filter(item => item !== 'essential_characteristics')
         ]);
 
-        expect(wrapper.find('sw-product-detail-properties-stub').attributes().style).toBe('display: none;');
+        expect(wrapper.find('sw-product-detail-properties-stub')
+            .attributes().style).toBe('display: none;');
     });
 
     it('should show Custom Fields card advanced mode is on', async () => {
@@ -289,7 +294,8 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             }
         });
 
-        expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBe('display: none;');
+        expect(wrapper.find('.sw-product-detail-specification__custom-fields')
+            .attributes().style).toBe('display: none;');
     });
 
     it('should hide Custom Fields card when custom_fields mode is unchecked', async () => {
@@ -311,6 +317,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             ...modeSettings.filter(item => item !== 'custom_fields')
         ]);
 
-        expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBe('display: none;');
+        expect(wrapper.find('.sw-product-detail-specification__custom-fields')
+            .attributes().style).toBe('display: none;');
     });
 });

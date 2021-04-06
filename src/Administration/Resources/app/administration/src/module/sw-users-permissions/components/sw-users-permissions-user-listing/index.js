@@ -137,8 +137,12 @@ Component.register('sw-users-permissions-user-listing', {
                 verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
             } catch (e) {
                 this.createNotificationError({
-                    title: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                    title: this.$tc(
+                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'
+                    ),
+                    message: this.$tc(
+                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage'
+                    )
                 });
             } finally {
                 this.confirmPassword = '';

@@ -23,9 +23,11 @@ let cookieStorageMock = '';
 describe('core/service/login.service.js', () => {
     beforeAll(() => {
         Object.defineProperty(document, 'cookie', {
+            // eslint-disable-next-line func-names
             set: function (value) {
                 cookieStorageMock = value;
             },
+            // eslint-disable-next-line func-names
             get: function () {
                 return cookieStorageMock;
             }

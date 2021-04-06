@@ -44,8 +44,12 @@ Component.register('sw-verify-user-modal', {
                 this.$emit('verified', context);
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                    title: this.$tc(
+                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'
+                    ),
+                    message: this.$tc(
+                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage'
+                    )
                 });
             }).finally(() => {
                 this.confirmPassword = '';

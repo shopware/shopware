@@ -21,6 +21,7 @@ function createWrapper(props) {
         stubs: {
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-modal': {
+                // eslint-disable-next-line max-len
                 template: '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
                 props: ['title']
             }
@@ -52,7 +53,8 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
             extensionName: 'Tes11Test'
 
         });
-        expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__text').text()).toBe('a privacy notice');
+        expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__text')
+            .text()).toBe('a privacy notice');
         expect(wrapper.find('.title').text()).toBe(JSON.stringify({
             path: 'sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.title',
             choice: 0,
@@ -61,7 +63,8 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
             }
         }));
 
-        expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__close-button').text()).toBe('global.default.confirm');
+        expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__close-button')
+            .text()).toBe('global.default.confirm');
     });
 
     it('should close the modal', async () => {

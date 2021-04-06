@@ -134,12 +134,19 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             }
         }, true);
 
-        expect(wrapper.find('.sw-extension-card-bought__info-price-subscription').text()).toBe('sw-extension-store.component.sw-extension-card-base.subscriptionLabel');
-        expect(wrapper.find('.sw-extension-card-bought__info-price-per-month').text()).toBe('sw-extension-store.general.labelPrice');
-        expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-card-base__info-description').text()).toBe('Sample Extension description');
-        expect(wrapper.find('.sw-extension-card-base__icon').attributes().src).toBe('https://example.com');
-        expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe('sw-extension-store.component.sw-extension-card-base.installedLabel02/01/2021');
+        expect(wrapper.find('.sw-extension-card-bought__info-price-subscription')
+            .text()).toBe('sw-extension-store.component.sw-extension-card-base.subscriptionLabel');
+        expect(wrapper.find('.sw-extension-card-bought__info-price-per-month')
+            .text()).toBe('sw-extension-store.general.labelPrice');
+        expect(wrapper.find('.sw-extension-card-base__info-name')
+            .text()).toBe('Sample Extension Label');
+        expect(wrapper.find('.sw-extension-card-base__info-description')
+            .text()).toBe('Sample Extension description');
+        expect(wrapper.find('.sw-extension-card-base__icon')
+            .attributes().src).toBe('https://example.com');
+        expect(wrapper.find('.sw-extension-card-base__meta-info')
+            .text().replace(/\s/g, ''))
+            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel02/01/2021');
     });
 
     it('should display a placeholder icon and the rent price', () => {
@@ -172,10 +179,15 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             }
         }, true);
 
-        expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-card-base__info-description').text()).toBe('Sample Extension description');
-        expect(wrapper.find('.sw-extension-card-base__icon').attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
-        expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe('sw-extension-store.component.sw-extension-card-base.installedLabel02/01/2021');
+        expect(wrapper.find('.sw-extension-card-base__info-name')
+            .text()).toBe('Sample Extension Label');
+        expect(wrapper.find('.sw-extension-card-base__info-description')
+            .text()).toBe('Sample Extension description');
+        expect(wrapper.find('.sw-extension-card-base__icon')
+            .attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
+        expect(wrapper.find('.sw-extension-card-base__meta-info')
+            .text().replace(/\s/g, ''))
+            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel02/01/2021');
     });
 
     it('should link to the detail page', () => {
@@ -208,7 +220,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             }
         }, true);
 
-        expect(wrapper.find('.sw-extension-card-bought__detail-link').props().routerLink).toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '1' } });
+        expect(wrapper.find('.sw-extension-card-bought__detail-link').props().routerLink)
+            .toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '1' } });
     });
 
     it('should link to the detail page with a store extension', () => {
@@ -244,14 +257,17 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             }
         }, true);
 
-        expect(wrapper.find('.sw-extension-card-bought__detail-link').text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel');
-        expect(wrapper.find('.sw-extension-card-bought__detail-link').props().routerLink).toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '5' } });
+        expect(wrapper.find('.sw-extension-card-bought__detail-link')
+            .text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel');
+        expect(wrapper.find('.sw-extension-card-bought__detail-link')
+            .props().routerLink).toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '5' } });
     });
 
     it('should open the rating modal', () => {
         expect(wrapper.vm.showRatingModal).toEqual(false);
 
-        expect(wrapper.find('.sw-extension-card-bought__rate-link').text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel');
+        expect(wrapper.find('.sw-extension-card-bought__rate-link')
+            .text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel');
         wrapper.find('.sw-extension-card-bought__rate-link').trigger('click');
 
         expect(wrapper.vm.showRatingModal).toEqual(true);

@@ -81,9 +81,15 @@
                                              :placeholder="$tc('sw-cms.elements.general.config.label.alignment')">
 
                                 {% block sw_cms_element_product_box_config_alignment_options %}
-                                    <option value="flex-start">{{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}</option>
-                                    <option value="center">{{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}</option>
-                                    <option value="flex-end">{{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}</option>
+                                    <option value="flex-start">
+                                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
+                                    </option>
+                                    <option value="center">
+                                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
+                                    </option>
+                                    <option value="flex-end">
+                                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
+                                    </option>
                                 {% endblock %}
 
                             </sw-select-field>

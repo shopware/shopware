@@ -59,11 +59,12 @@ Component.register('sw-cms-el-config-buy-box', {
                 this.$set(this.element.data, 'productId', null);
                 this.$set(this.element.data, 'product', null);
             } else {
-                this.productRepository.get(productId, this.productSelectContext, this.selectedProductCriteria).then((product) => {
-                    this.element.config.product.value = productId;
-                    this.$set(this.element.data, 'productId', productId);
-                    this.$set(this.element.data, 'product', product);
-                });
+                this.productRepository.get(productId, this.productSelectContext, this.selectedProductCriteria)
+                    .then((product) => {
+                        this.element.config.product.value = productId;
+                        this.$set(this.element.data, 'productId', productId);
+                        this.$set(this.element.data, 'product', product);
+                    });
             }
 
             this.$emit('element-update', this.element);

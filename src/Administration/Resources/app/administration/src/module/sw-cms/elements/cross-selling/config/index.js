@@ -58,10 +58,11 @@ Component.register('sw-cms-el-config-cross-selling', {
                 this.element.config.product.value = null;
                 this.$set(this.element.data, 'product', null);
             } else {
-                this.productRepository.get(productId, this.productSelectContext, this.selectedProductCriteria).then((product) => {
-                    this.element.config.product.value = productId;
-                    this.$set(this.element.data, 'product', product);
-                });
+                this.productRepository.get(productId, this.productSelectContext, this.selectedProductCriteria)
+                    .then((product) => {
+                        this.element.config.product.value = productId;
+                        this.$set(this.element.data, 'product', product);
+                    });
             }
 
             this.$emit('element-update', this.element);

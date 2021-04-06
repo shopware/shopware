@@ -754,7 +754,9 @@ Component.register('sw-product-detail', {
                         if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
                             const titleSaveError = this.$tc('global.default.error');
                             const messageSaveError = this.$t(
-                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists', { productNo: response.response.data.errors[0].meta.parameters.number }
+                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
+                                    productNo: response.response.data.errors[0].meta.parameters.number
+                                }
                             );
 
                             this.createNotificationError({

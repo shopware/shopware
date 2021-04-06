@@ -20,6 +20,7 @@ function createWrapper() {
     localVue.use(VueRouter);
 
     const adminMenuComponent = Shopware.Component.build('sw-admin-menu');
+    // eslint-disable-next-line func-names
     adminMenuComponent.provide = function () {
         return { acl: { can: () => true } };
     };
@@ -214,7 +215,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             }]
         };
 
-        expect(wrapper.vm.getPolygonFromMenuItem(element, entry)).toStrictEqual([[0, 0], [0, 0], [0, 0], [0, 0]]);
+        expect(wrapper.vm.getPolygonFromMenuItem(element, entry))
+            .toStrictEqual([[0, 0], [0, 0], [0, 0], [0, 0]]);
     });
 
     it('should render correct admin menu entries', async () => {

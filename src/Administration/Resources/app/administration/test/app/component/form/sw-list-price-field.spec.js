@@ -125,7 +125,8 @@ describe('components/form/sw-list-price-field', () => {
     it('should not display gross help text when not in vertical mode', async () => {
         const wrapper = setup();
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBeUndefined();
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
+            .attributes().grosshelptext).toBeUndefined();
     });
 
     it('should display gross help text when in vertical mode', async () => {
@@ -133,7 +134,8 @@ describe('components/form/sw-list-price-field', () => {
             vertical: true
         });
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBe('global.sw-list-price-field.helpTextListPriceGross');
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
+            .attributes().grosshelptext).toBe('global.sw-list-price-field.helpTextListPriceGross');
     });
 
     it('should not display gross help text when in compact mode', async () => {
@@ -142,6 +144,7 @@ describe('components/form/sw-list-price-field', () => {
             compact: true
         });
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBeUndefined();
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
+            .attributes().grosshelptext).toBeUndefined();
     });
 });

@@ -96,17 +96,27 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
         expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation')
             .exists())
             .toBe(false);
-        expect(wrapper.find('h3').text()).toEqual('sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure');
-        expect(wrapper.find('p').text()).toEqual('sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem');
+        expect(wrapper.find('h3').text())
+            .toEqual(
+                'sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure'
+            );
+        expect(wrapper.find('p').text())
+            .toEqual(
+                'sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem'
+            );
     });
 
+    // eslint-disable-next-line max-len
     it('does not render additional information about licenses and uses general failure text if extension is not licensed', () => {
         Shopware.State.commit('shopwareExtensions/myExtensions', []);
 
         wrapper = createWrapper(true);
 
-        expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation').exists()).toBe(false);
-        expect(wrapper.find('h3').text()).toEqual('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
-        expect(wrapper.find('p').text()).toEqual('sw-extension-store.component.sw-extension-adding-failed.textProblem');
+        expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation')
+            .exists()).toBe(false);
+        expect(wrapper.find('h3')
+            .text()).toEqual('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
+        expect(wrapper.find('p')
+            .text()).toEqual('sw-extension-store.component.sw-extension-adding-failed.textProblem');
     });
 });

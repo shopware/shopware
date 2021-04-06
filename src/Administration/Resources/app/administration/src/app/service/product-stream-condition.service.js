@@ -219,7 +219,9 @@ export default function conditionService() {
      */
     function isPropertyInAllowList(definition, property) {
         return allowedProperties.includes(property)
-            || (entityAllowedProperties.hasOwnProperty(definition) && entityAllowedProperties[definition].includes(property));
+            || (entityAllowedProperties.hasOwnProperty(definition)
+                && entityAllowedProperties[definition].includes(property)
+            );
     }
 
     /**

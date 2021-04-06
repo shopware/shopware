@@ -43,6 +43,7 @@ function createWrapper() {
             'sw-pagination': Shopware.Component.build('sw-pagination'),
             'sw-icon': true,
             'sw-field': true,
+            // eslint-disable-next-line max-len
             'sw-extension-my-extensions-listing-controls': Shopware.Component.build('sw-extension-my-extensions-listing-controls'),
             'sw-switch-field': Shopware.Component.build('sw-switch-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
@@ -275,7 +276,12 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const inactiveExtensions = Array(5).fill().map((_, i) => {
             const index = i + activeExtensions.length;
 
-            return { name: `extension card number ${index}`, installedAt: `foo-${index}`, active: false, updatedAt: null };
+            return {
+                name: `extension card number ${index}`,
+                installedAt: `foo-${index}`,
+                active: false,
+                updatedAt: null
+            };
         });
 
         Shopware.State.commit('shopwareExtensions/setExtensions', [...activeExtensions, ...inactiveExtensions]);

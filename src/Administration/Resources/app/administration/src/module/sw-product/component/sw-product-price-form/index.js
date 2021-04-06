@@ -92,7 +92,9 @@ Component.register('sw-product-price-form', {
     methods: {
         removePriceInheritation(refPrice) {
             const defaultRefPrice = refPrice.price.find((price) => price.currencyId === this.defaultCurrency.id);
-            const defaultRefPurchasePrice = refPrice.purchasePrices.find((price) => price.currencyId === this.defaultCurrency.id);
+            const defaultRefPurchasePrice = refPrice.purchasePrices.find(
+                (price) => price.currencyId === this.defaultCurrency.id
+            );
 
             return {
                 price: [{

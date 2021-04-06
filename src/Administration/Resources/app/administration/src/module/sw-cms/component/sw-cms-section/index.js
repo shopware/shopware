@@ -110,12 +110,14 @@ Component.register('sw-cms-section', {
         },
 
         sideBarBlocks() {
-            const sideBarBlocks = this.section.blocks.filter((block => this.blockTypeExists(block.type) && block.sectionPosition === 'sidebar'));
+            const sideBarBlocks = this.section.blocks.filter((block => this.blockTypeExists(block.type)
+                && block.sectionPosition === 'sidebar'));
             return sideBarBlocks.sort((a, b) => a.position - b.position);
         },
 
         mainContentBlocks() {
-            const mainContentBlocks = this.section.blocks.filter((block => this.blockTypeExists(block.type) && block.sectionPosition !== 'sidebar'));
+            const mainContentBlocks = this.section.blocks.filter((block => this.blockTypeExists(block.type)
+                && block.sectionPosition !== 'sidebar'));
             return mainContentBlocks.sort((a, b) => a.position - b.position);
         },
 

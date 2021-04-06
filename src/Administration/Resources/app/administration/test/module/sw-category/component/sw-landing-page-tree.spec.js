@@ -68,7 +68,8 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
     let oldSystemLanguageId = null;
     beforeEach(async () => {
-        // this is normally set by the shopware runtime but needed for this unit tests because the component relies on this value.
+        // this is normally set by the shopware runtime
+        // but needed for this unit tests because the component relies on this value.
         oldSystemLanguageId = Shopware.Context.api.systemLanguageId;
         Shopware.Context.api.systemLanguageId = '1a2b3c';
     });

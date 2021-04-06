@@ -78,7 +78,8 @@ class StoreApiService extends ApiService {
 
     /**
      * @deprecated tag:v6.5.0 for updating and installing plugins use downloadAndUpdatePlugin
-     * TODO: remove param onlyDownload with removing deprecation and remove the source code after the if statement "onlyDownload". It should now only download the plugin and do not trigger a update.
+     * TODO: remove param onlyDownload with removing deprecation and remove the source code after
+     * the if statement "onlyDownload". It should now only download the plugin and do not trigger a update.
      */
     downloadPlugin(pluginName, unauthenticated = false, onlyDownload = false) {
         const headers = this.getBasicHeaders();

@@ -279,7 +279,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         // Change warning should appear because one new category has already an assigned layout
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts')
+            .exists()).toBeTruthy();
 
         // Confirm changes
         wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
@@ -773,7 +774,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         // Change warning should appear because one new category has already an assigned layout
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-products-assigned-layouts').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-products-assigned-layouts')
+            .exists()).toBeTruthy();
 
         // Confirm changes
         wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
@@ -930,7 +932,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const wrapper = createWrapper('landingpage');
 
         expect(wrapper.vm.previousLandingPages).toEqual(mockLandingPages);
-        expect(wrapper.vm.previousLandingPageIds).toEqual(expect.arrayContaining(['uuidLand1', 'uuidLand2', 'uuidLand3']));
+        expect(wrapper.vm.previousLandingPageIds)
+            .toEqual(expect.arrayContaining(['uuidLand1', 'uuidLand2', 'uuidLand3']));
     });
 
     it('should add landing pages', async () => {

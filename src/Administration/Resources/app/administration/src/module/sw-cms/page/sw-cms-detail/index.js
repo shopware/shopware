@@ -466,7 +466,8 @@ Component.register('sw-cms-detail', {
                 ? { ...Shopware.Context.api, inheritance: true }
                 : Shopware.Context.api;
 
-            const demoCriteria = this.cmsPageState.currentMappingEntity === 'product' ? this.demoProductCriteria : new Criteria();
+            const demoCriteria = this.cmsPageState.currentMappingEntity === 'product'
+                ? this.demoProductCriteria : new Criteria();
 
             this.currentMappingEntityRepo.get(demoEntityId, demoContext, demoCriteria).then((entity) => {
                 if (!entity) {
@@ -608,7 +609,10 @@ Component.register('sw-cms-detail', {
             Object.entries(foundProductPageElements).forEach(([key, value]) => {
                 if (value > 1) {
                     warningMessages.push(
-                        this.$tc('sw-cms.detail.notification.messageRedundantElements', 0, { name: this.$tc(`sw-cms.elements.${key}.label`) })
+                        this.$tc('sw-cms.detail.notification.messageRedundantElements',
+                            0, {
+                                name: this.$tc(`sw-cms.elements.${key}.label`)
+                            })
                     );
                 }
             });

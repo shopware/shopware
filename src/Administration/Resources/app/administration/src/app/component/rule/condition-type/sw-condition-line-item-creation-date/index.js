@@ -8,6 +8,9 @@ Component.extend('sw-condition-line-item-creation-date', 'sw-condition-base', {
 
     data() {
         return {
+            /**
+             * @deprecated tag:v6.5.0 - will be removed without replacement
+             */
             datepickerConfig: {
                 enableTime: true,
                 dateFormat: 'H:i',

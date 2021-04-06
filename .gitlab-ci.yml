@@ -71,7 +71,8 @@ default:
         - ./psh.phar cache --APP_ENV=test
         - chown -R application:application .
         - curl http://docker.vm:8000/admin
-        - if [[ $FEATURE_ALL == 'major' && $DEV_IMAGE =~ 'shopware/development:7.4' ]]; then COVERAGE=true; else COVERAGE=""; fi
+        # the coverage generation writes too much to the disks which causes timeouts if the bandwidth is throttled
+        #- if [[ $FEATURE_ALL == 'major' && $DEV_IMAGE =~ 'shopware/development:7.4' ]]; then COVERAGE=true; else COVERAGE=""; fi
         - echo "Coverage $COVERAGE, feature $FEATURE_ALL"
         - ./psh.phar unit --APP_ENV=test --PHP_TEST_COVERAGE="$COVERAGE"
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'

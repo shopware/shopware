@@ -2851,6 +2851,44 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(3, $result->getConfiguratorSettings());
     }
 
+    public function testUpdateDescriptionToBeNull(): void
+    {
+        $id = Uuid::randomHex();
+        $description = 'My name is Product Test';
+
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'description' => $description,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->repository->create([$data], $this->context);
+
+        /** @var ProductEntity $product */
+        $product = $this->repository
+            ->search(new Criteria([$id]), $this->context)
+            ->get($id);
+
+        static::assertSame($description, $product->getDescription());
+
+        $this->repository->update([
+            ['description' => null, 'id' => $id],
+        ], $this->context);
+
+        $product = $this->repository
+            ->search(new Criteria([$id]), $this->context)
+            ->get($id);
+
+        static::assertNull($product->getDescription());
+    }
+
     private function createLanguageContext(array $languages, bool $inheritance)
     {
         return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);

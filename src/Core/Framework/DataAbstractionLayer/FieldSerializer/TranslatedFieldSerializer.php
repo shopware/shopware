@@ -19,10 +19,11 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(TranslatedField::class, $field);
         }
         $key = $field->getPropertyName();
-        $value = $data[$key] ?? null;
-        if ($value === null) {
+        if (!\array_key_exists($key, $data)) {
             return $data;
         }
+
+        $value = $data[$key];
 
         $translatedField = EntityDefinitionQueryHelper::getTranslatedField($parameters->getDefinition(), $field);
 

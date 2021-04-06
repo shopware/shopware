@@ -167,4 +167,56 @@ describe('Product: Test crud operations', () => {
 
         cy.get('.sw-product-settings-mode').should('be.visible');
     });
+
+    it('@base @catalogue: Text field could be updated to null', () => {
+        const page = new ProductPageObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/product/*`,
+            method: 'patch'
+        }).as('saveData');
+
+        // Edit base data of product
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
+
+        cy.get('.sw-text-editor__content-editor')
+            .clear()
+            .type('Some random description');
+
+        cy.get(page.elements.productSaveAction).click();
+
+        // Verify updated product
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.get('.sw-text-editor__content-editor')
+            .invoke('text')
+            .then(text => {
+                expect(text).to.equal('Some random description');
+            });
+
+        cy.get('.sw-text-editor__content-editor').clear();
+
+        cy.get(page.elements.productSaveAction).click();
+
+        // Verify updated product
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.get('.sw-text-editor__content-editor')
+            .invoke('text')
+            .then(text => {
+                expect(text).to.equal('');
+            });
+    });
 });

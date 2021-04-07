@@ -253,8 +253,16 @@
       },
       "sw-extension-permissions-modal": {
         "title": "{extensionLabel} permissions",
-        "description": "{extensionLabel} will have access to the following components. Click the link next to the component to show the entity details.",
-        "textEntities": "Show permissions"
+        "description": "{extensionLabel} will get access to the components below. Click the link next to the component to show the entity details.",
+        "furtherDescription": "Some data will also be shared to with other domains. Click the link next to domains for more details.",
+        "textEntities": "Show permissions",
+        "domains": "Domains",
+        "showDomains": "Show Domains"
+      },
+      "sw-extension-domains-modal": {
+        "modalTitle": "{extensionLabel} - Domains",
+        "description": "Some data will be shared / transferred to the domains listed below.",
+        "listTitle": "Domain"
       },
       "sw-extension-privacy-policy-extensions-modal": {
         "title": "{extensionLabel}: privacy policy extensions",

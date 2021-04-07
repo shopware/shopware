@@ -57,28 +57,13 @@
                 {% endblock %}
 
                 {% block component_product_box_delivery_time %}
-                    <p class="product-wishlist-info-item product-wishlist-info-delivery-time">
-                        {% if product.availableStock >= product.minPurchase and product.deliveryTime %}
-                            <span class="delivery-status-indicator bg-success product-wishlist-info-status"></span>
-
-                            {{ "wishlist.deliveryTimeAvailable"|trans({
-                                '%name%': product.deliveryTime.translated.name
-                            })|sw_sanitize }}
-                        {% endif %}
-                    </p>
+                    <div class="product-wishlist-info-item product-wishlist-info-delivery-time">
+                        {% sw_include '@Storefront/storefront/component/wishlist/delivery-information.html.twig' %}
+                    </div>
                 {% endblock %}
 
-                {% block component_product_box_currently_not_available %}
-                    {% set noLongerAvailable = product.isCloseout and product.availableStock < product.minPurchase %}
-
-                    <p class="product-wishlist-info-item product-wishlist-info-not-available">
-                        {% if not product.available or noLongerAvailable %}
-                            <span class="delivery-status-indicator bg-danger product-wishlist-info-status"></span>
-
-                            {{ "wishlist.currentlyNotAvailable"|trans|sw_sanitize }}
-                        {% endif %}
-                    </p>
-                {% endblock %}
+                {# @deprecated tag:v6.5.0 - Will be removed. The "Not available" case is now handled by include template delivery-information.html.twig #}
+                {% block component_product_box_currently_not_available %}{% endblock %}
 
                 {{ block('component_product_box_price') }}
 

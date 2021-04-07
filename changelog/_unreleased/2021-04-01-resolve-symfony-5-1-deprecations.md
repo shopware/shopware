@@ -1,6 +1,6 @@
 ---
 title: Resolve Symfony 5.1 deprecations
-issue: NEXT-14586
+issue: NEXT-14633
 author: Dominik Brader
 author_email: dominik@brader.co.at
 author_github: @TheKeymaster

@@ -13,6 +13,11 @@
                                 $t('sw-extension-store.component.sw-extension-permissions-modal.description',
                                 { extensionLabel: extensionLabel })
                             }}
+
+                            <span v-if="domainsList.length > 0">
+                                <br><br>
+                                {{ $t('sw-extension-store.component.sw-extension-permissions-modal.furtherDescription') }}
+                            </span>
                         </p>
                     {% endblock %}
                 </div>
@@ -36,6 +41,21 @@
                                     </sw-button>
                                 {% endblock %}
                             {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_extension_permissions_modal_category_domains %}
+                        <div class="sw-extension-permissions-modal__category" v-if="domainsList.length > 0">
+                            <span class="sw-extension-permissions-modal__category-label">
+                                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domains') }}
+                            </span>
+
+                            <sw-button class="sw-extension-permissions-modal__link"
+                                       @click="toggleDomainsModal(true)">
+                                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.showDomains') }}
+
+                                <sw-icon name="default-arrow-simple-right" size="12"></sw-icon>
+                            </sw-button>
                         </div>
                     {% endblock %}
                 </div>
@@ -68,6 +88,15 @@
                 :selectedEntity="selectedEntity"
                 @modal-close="closeDetailsModal">
             </sw-extension-permissions-details-modal>
+        {% endblock %}
+
+        {% block sw_extension_permissions_modal_domains %}
+            <sw-extension-domains-modal
+                v-if="showDomainsModal"
+                :extensionLabel="extensionLabel"
+                :domains="domainsList"
+                @modal-close="toggleDomainsModal(false)">
+            </sw-extension-domains-modal>
         {% endblock %}
     </sw-modal>
 {% endblock %}

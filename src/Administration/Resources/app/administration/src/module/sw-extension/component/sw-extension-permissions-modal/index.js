@@ -11,6 +11,11 @@ Component.register('sw-extension-permissions-modal', {
             type: Object,
             required: true
         },
+        domains: {
+            type: Array,
+            required: false,
+            default: () => []
+        },
         extensionLabel: {
             type: String,
             required: true
@@ -25,6 +30,7 @@ Component.register('sw-extension-permissions-modal', {
     data() {
         return {
             showDetailsModal: false,
+            showDomainsModal: false,
             selectedEntity: ''
         };
     },
@@ -48,6 +54,14 @@ Component.register('sw-extension-permissions-modal', {
                     }, {});
                     return [category, permissions];
                 }));
+        },
+
+        domainsList() {
+            if (this.domains && Array.isArray(this.domains)) {
+                return this.domains;
+            }
+
+            return [];
         }
     },
 
@@ -72,6 +86,10 @@ Component.register('sw-extension-permissions-modal', {
         closeDetailsModal() {
             this.selectedEntity = '';
             this.showDetailsModal = false;
+        },
+
+        toggleDomainsModal(shouldOpen) {
+            this.showDomainsModal = !!shouldOpen;
         }
     }
 });

@@ -9,7 +9,7 @@ const { isEmpty } = Utils.types;
 Component.register('sw-product-detail-base', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')

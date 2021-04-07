@@ -16,6 +16,7 @@
             {% block sw_product_category_form_visibility_field %}
                 <sw-inherit-wrapper
                     v-model="product.visibilities"
+                    :hasParent="!!parentProduct.id"
                     class="sw-product-category-form__visibility_field"
                     :inheritedValue="parentProduct.visibilities"
                     :label="$tc('sw-product.visibility.labelVisibility')"
@@ -94,6 +95,7 @@
                 <sw-inherit-wrapper
                     v-model="product.categories"
                     isAssociation
+                    :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.categories"
                     :label="$tc('sw-product.categoryForm.labelCategory')">
                     <template #content="{ currentValue, isInherited }">
@@ -115,6 +117,7 @@
                 class="sw-product-category-form__tag-field-wrapper"
                 v-model="product.tags"
                 :inheritedValue="parentProduct.tags"
+                :hasParent="!!parentProduct.id"
                 isAssociation
                 :helpText="$tc('sw-product.categoryForm.helpTextTags')"
                 :label="$tc('global.sw-tag-field.title')">
@@ -139,6 +142,7 @@
                                 v-model="product.customSearchKeywords"
                                 :helpText="$tc('sw-product.categoryForm.helpTextSearchKeyword')"
                                 :inheritedValue="parentProduct.customSearchKeywords"
+                                :hasParent="!!parentProduct.id"
                                 :label="$tc('sw-product.categoryForm.labelSearchKeyword')">
                 <template #content="{ currentValue, isInherited, updateCurrentValue }">
                     <sw-multi-tag-select

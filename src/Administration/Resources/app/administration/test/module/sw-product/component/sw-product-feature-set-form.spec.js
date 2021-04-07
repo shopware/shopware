@@ -111,7 +111,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
             },
             computed: {
                 product: () => productMock({ featureSetId: featureSetMock.id }),
-                parentProduct: () => productMock({ featureSetId: featureSetMock.id }),
+                parentProduct: () => productMock({ featureSetId: featureSetMock.id, id: 'a12b3c' }),
                 loading: () => {}
             }
         });

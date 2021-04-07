@@ -221,6 +221,7 @@
       "columnInStock": "Lagerbestand",
       "columnAvailableStock": "Verfügbar",
       "columnActions": "Aktion(en)",
+      "columnMedia": "Medien",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",

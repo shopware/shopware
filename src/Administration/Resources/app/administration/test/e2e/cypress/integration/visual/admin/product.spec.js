@@ -245,4 +245,17 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('Media upload', '.sw-media-upload-v2');
         cy.takeSnapshot('Product variants media upload', '.sw-product-variants-media-upload');
     });
+
+    it('@catalogue @percy: check product variants media upload in modal', () => {
+        const page = new ProductPageObject();
+
+        cy.onlyOnFeature('FEATURE_NEXT_6544');
+
+        cy.get(`${page.elements.dataGridRow}--0 .sw-product-list__variant-indicator`).click();
+
+        cy.get('.sw-product-variant-modal').should('be.visible');
+
+        cy.takeSnapshot('Media upload', '.sw-media-upload-v2');
+        cy.takeSnapshot('Product variants media upload', '.sw-product-variants-media-upload');
+    });
 });

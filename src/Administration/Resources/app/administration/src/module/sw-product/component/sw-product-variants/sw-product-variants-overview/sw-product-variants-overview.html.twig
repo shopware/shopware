@@ -240,8 +240,8 @@
                                 <sw-inheritance-switch :isInherited="isMediaFieldInherited(item)"
                                                        :disabled="!isInlineEdit"
                                                        class="sw-product-variants-overview_media__inherited-icon"
-                                                       @inheritance-restore="isInlineEdit ? onMediaInheritanceRestore(item) : ''"
-                                                       @inheritance-remove="isInlineEdit ? onMediaInheritanceRemove(item): ''">
+                                                       @inheritance-restore="onMediaInheritanceRestore(item, isInlineEdit)"
+                                                       @inheritance-remove="onMediaInheritanceRemove(item, isInlineEdit)">
                                 </sw-inheritance-switch>
                             {% endblock %}
 

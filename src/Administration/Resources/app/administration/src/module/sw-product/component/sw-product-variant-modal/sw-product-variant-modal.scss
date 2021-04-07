@@ -24,6 +24,18 @@
     .sw-data-grid {
         display: grid;
         grid-template-rows: 1fr auto;
+
+        .sw-data-grid__body {
+            .sw-data-grid__cell--media {
+                .sw-data-grid__cell-content {
+                    height: auto;
+                }
+            }
+
+            .sw-media-preview-v2 {
+                @include square(32px);
+            }
+        }
     }
 
     .sw-product-variant-modal__label {
@@ -85,5 +97,13 @@
 
     &__variant-options:hover span {
         color: $color-shopware-brand-500 !important;
+    }
+
+    &__media-inherited-icon {
+        margin-right: 8px;
+    }
+
+    .sw-product-variants-media-upload__preview-images img {
+        object-fit: contain;
     }
 }

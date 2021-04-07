@@ -98,6 +98,9 @@ function createWrapper() {
             },
             acl: {
                 can: () => true
+            },
+            feature: {
+                isActive: () => true
             }
         },
         stubs: {

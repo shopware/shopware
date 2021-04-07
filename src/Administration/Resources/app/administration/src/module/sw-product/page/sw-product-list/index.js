@@ -8,6 +8,7 @@ Component.register('sw-product-list', {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'numberRangeService',
         'acl',
@@ -95,6 +96,10 @@ Component.register('sw-product-list', {
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
+
+            if (this.feature.isActive('FEATURE_NEXT_6544')) {
+                productCriteria.addAssociation('media');
+            }
 
             this.filterCriteria.forEach(filter => {
                 productCriteria.addFilter(filter);

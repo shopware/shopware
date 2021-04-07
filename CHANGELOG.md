@@ -278,6 +278,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14418 - Component overrides now consider mixins](/changelog/release-6-4-0-0/2021-03-23-component-overrides-now-consider-mixins.md)
 *  [NEXT-13838 - Use sql null safe equals operator](/changelog/release-6-4-0-0/2021-03-24-use-sql-null-safe-equals-operator.md)
 *  [NEXT-14498 - Remove plugin manager dependencies](/changelog/release-6-4-0-0/2021-04-01-remove-plugin-manager-dependencies.md)
+*  [NEXT-14342 - Fix change box size of wishlist items in storefront](/changelog/release-6-4-0-0/2021-04-12-fix-change-box-size-wishlist-in-storefront.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

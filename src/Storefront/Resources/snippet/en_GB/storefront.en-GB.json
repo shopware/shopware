@@ -540,7 +540,8 @@
     "noLongerAvailableTooltip": "The product is no longer available.",
     "wishlistMergeHint": "Your wishlist might contain products that have been added and saved during a previous visit.",
     "wishlistEmptyHeader": "Your wishlist is empty",
-    "wishlistEmptyDescription": "Keep an eye on products you like by adding them to your wishlist."
+    "wishlistEmptyDescription": "Keep an eye on products you like by adding them to your wishlist.",
+    "deliveryTimeRestock": "{1} Available in 1 day, delivery time %name%|]1,Inf[ Available in %restockTime% days, delivery time %name%"
   },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",

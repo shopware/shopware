@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -110,7 +111,13 @@ class ProductController extends StorefrontController
         $options = $request->query->get('options');
         $newOptions = $options !== null ? json_decode($options, true) : [];
 
-        $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $salesChannelContext);
+        try {
+            $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $salesChannelContext);
+
+            $productId = $redirect->getVariantId();
+        } catch (ProductNotFoundException $productNotFoundException) {
+            //nth
+        }
 
         $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
             . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
@@ -118,7 +125,7 @@ class ProductController extends StorefrontController
         $url = $this->seoUrlPlaceholderHandler->replace(
             $this->seoUrlPlaceholderHandler->generate(
                 'frontend.detail.page',
-                ['productId' => $redirect->getVariantId()]
+                ['productId' => $productId]
             ),
             $host,
             $salesChannelContext

@@ -185,7 +185,7 @@ class ProductIndexer extends EntityIndexer
 
         $this->streamUpdater->updateProducts(array_merge($ids, $parentIds, $childrenIds), $context);
 
-        $this->searchKeywordUpdater->update($ids, $context);
+        $this->searchKeywordUpdater->update(array_merge($ids, $childrenIds), $context);
 
         $this->connection->commit();
 

@@ -2,29 +2,18 @@
     <div class="product-deliverability-form">
         <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
             {% block sw_product_deliverability_form_stock_field %}
-                <sw-inherit-wrapper
+                <sw-field
+                    type="number"
+                    name="sw-field--product-stock"
+                    numberType="int"
+                    :min="0"
+                    :disabled="!allowEdit"
+                    :label="$tc('sw-product.settingsForm.labelStock')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+                    required
                     v-model="product.stock"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.stock">
-                    <template #content="props">
-
-                        <sw-field
-                            type="number"
-                            name="sw-field--product-stock"
-                            :mapInheritance="props"
-                            numberType="int"
-                            :min="0"
-                            :disabled="props.isInherited || !allowEdit"
-                            :label="$tc('sw-product.settingsForm.labelStock')"
-                            :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
-                            required
-                            :value="props.currentValue"
-                            :error="productStockError"
-                            @change="props.updateCurrentValue">
-                        </sw-field>
-
-                    </template>
-                </sw-inherit-wrapper>
+                    :error="productStockError">
+                </sw-field>
             {% endblock %}
 
             {% block sw_product_deliverability_form_available_stock_field %}
@@ -68,6 +57,7 @@
                     v-if="showModeSetting"
                     v-model="product.deliveryTimeId"
                     :inheritedValue="parentProduct.deliveryTimeId"
+                    :hasParent="!!parentProduct.id"
                     :label="$tc('sw-product.settingsForm.labelDeliveryTime')">
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
 

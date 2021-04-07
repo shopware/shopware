@@ -190,7 +190,12 @@ export default {
         setTaxes(state, newTaxes) {
             state.taxes = newTaxes;
 
-            if (state.product && state.product.taxId === null) {
+            if (
+                state.product &&
+                state.product.taxId === null &&
+                !state.parentProduct &&
+                !state.parentProduct.id
+            ) {
                 state.product.taxId = state.taxes[0].id;
             }
         },

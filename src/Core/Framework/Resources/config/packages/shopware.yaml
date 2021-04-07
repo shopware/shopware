@@ -103,6 +103,11 @@ shopware:
               major: false
               description: "App System 3.0 - Payments"
               # issue: NEXT-14357
+            - name: FEATURE_NEXT_13992
+              default: false
+              major: false
+              description: "App System 3.0"
+              # issue: NEXT-13992
 
     logger:
         file_rotation_count: 14

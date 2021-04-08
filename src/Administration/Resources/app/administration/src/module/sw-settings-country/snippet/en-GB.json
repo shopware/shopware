@@ -1,5 +1,9 @@
 {
   "sw-settings-country": {
+    "page": {
+      "generalTab": "General",
+      "stateTab": "State / province"
+    },
     "general": {
       "mainMenuItemGeneral": "Countries",
       "placeholderSearchBar": "Search countries..."
@@ -21,7 +25,7 @@
     },
     "detail": {
       "textHeadline": "New country",
-      "titleCard": "Settings",
+      "titleCard": "General",
       "messageSaveSuccess": "Country \"{name}\" has been saved.",
       "messageSaveError": "Country \"{name}\" could not be saved.",
       "labelName": "Name",
@@ -45,9 +49,12 @@
       "editAction": "Edit",
       "columnStateNameLabel": "Name",
       "columnStateShortCodeLabel": "Shorthand",
-      "taxFreeFrom": "Tax free from",
-      "taxFreeFromHelpText": "If the shopping cart total is higher than the value set in \"Tax free from\", the whole shopping cart will be tax-free.",
-      "labelVatIdRequired": "VAT ID field required"
+      "taxFreeFrom": "Min. cart value (Net)",
+      "baseCurrency": "Base currency",
+      "taxFreeFromHelpText": "If the shopping cart total is higher than the value set in \"Min. cart value (Net)\", the whole shopping cart will be tax-free.",
+      "labelVatIdRequired": "VAT ID field required",
+      "titleOptions": "Options",
+      "currencyDependentValues": "Currency dependent values"
     }
   },
   "sw-country-state-detail": {

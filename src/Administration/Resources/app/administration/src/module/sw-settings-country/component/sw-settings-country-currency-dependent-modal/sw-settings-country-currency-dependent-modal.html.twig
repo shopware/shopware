@@ -1,0 +1,103 @@
+{% block sw_settings_country_currency_dependent_modal %}
+<sw-modal
+    class="sw-settings-country-currency-dependent-modal"
+    :title="$tc('sw-settings-country.detail.currencyDependentValues')"
+    @modal-close="closeModal"
+>
+
+    {% block sw_settings_country_currency_dependent_modal_content %}
+    <sw-data-grid
+        class="sw-settings-country-currency-dependent-modal__grid"
+        :data-source="currencyDependsValue"
+        :is-loading="isLoading"
+        :show-selection="false"
+        :plain-appearance="true"
+        :columns="countryCurrencyColumns"
+    >
+
+        {% block sw_settings_country_currency_dependent_modal_content_hamburger_menu %}
+        <template #customSettings>
+            <sw-settings-country-currency-hamburger-menu
+                :options="menuOptions"
+                @currency-change="changeCurrencyDependentRow"
+            />
+        </template>
+        {% endblock %}
+
+        {% block  sw_settings_country_currency_dependent_modal_content_currency_name %}
+        <template #column-currencyId="{ item }">
+            <div class="sw-settings-country-currency-dependent-modal__inheritance-wrapper">
+                <label>{{ getCurrencyNameById(item.currencyId) }}</label>
+            </div>
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_country_currency_dependent_grid_column_value %}
+        <template #column-amount="{ item }">
+            <sw-number-field
+                v-model="item.amount"
+                class="sw-settings-country-currency-dependent-modal__input"
+                :min="0"
+                :disabled="!item.enabled || !acl.can('country.editor')"
+                @change="reCalculatorInherited(item)"
+            />
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_country_currency_dependent_grid_column_is_base_currency %}
+        <template #column-enabled="{ item }">
+            <sw-radio-field
+                :value="checkBox"
+                :name="radioButtonName"
+                :options="[{ value: item.enabled }]"
+                :disabled="!acl.can('country.editor')"
+                @change="onChangeBaseCurrency(item)"
+            />
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_country_currency_dependent_column_actions %}
+        <template #actions="{ item }">
+
+            {% block sw_settings_country_currency_dependent_grid_column_action_delete %}
+            <sw-context-menu-item
+                variant="danger"
+                :disabled="item.enabled || !acl.can('country.editor')"
+                @click="changeCurrencyDependentRow(item.currencyId, false)"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+        </template>
+        {% endblock %}
+
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_settings_country_currency_dependent_modal_footer %}
+    <template #modal-footer>
+        {% block sw_settings_country_currency_dependent_modal_close %}
+        <sw-button
+            class="sw-settings-country-currency-dependent-modal__cancel-button"
+            size="small"
+            :disabled="!acl.can('country.editor')"
+            @click="closeModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+
+        <sw-button
+            class="sw-settings-country-currency-dependent-modal__save-button"
+            variant="primary"
+            size="small"
+            :disabled="!acl.can('country.editor')"
+            @click="saveModal"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

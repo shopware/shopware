@@ -82,7 +82,7 @@
                     :repository="countryRepository"
                     :full-page="false"
                     detail-route="sw.settings.country.detail"
-                    :show-selection="false"
+                    :show-selection="showSelection"
                     :is-loading="isLoading"
                     :allow-view="acl.can('country.viewer')"
                     :allow-edit="acl.can('country.editor')"

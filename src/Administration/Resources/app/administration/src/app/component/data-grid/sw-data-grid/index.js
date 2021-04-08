@@ -30,7 +30,8 @@ Component.register('sw-data-grid', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'feature'
     ],
 
     props: {

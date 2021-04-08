@@ -9,7 +9,9 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'country_state:read',
                 'custom_field_set:read',
                 'custom_field:read',
-                'custom_field_set_relation:read'
+                'custom_field_set_relation:read',
+                'currency:read',
+                'user_config:read'
             ],
             dependencies: []
         },

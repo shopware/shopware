@@ -204,6 +204,12 @@
                                 </template>
                                 {% endblock %}
                             </sw-data-grid-settings>
+
+                            {% block sw_data_grid_settings_custom_settings %}
+                            <slot v-if="feature.isActive('FEATURE_NEXT_14114')" name="customSettings">
+                                {% block sw_data_grid_settings_custom_settings_slot %}{% endblock %}
+                            </slot>
+                            {% endblock %}
                             {% endblock %}
                         </div>
                         {% endblock %}

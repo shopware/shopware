@@ -1,0 +1,255 @@
+{% block sw_settings_country_general %}
+<div>
+    {% block sw_settings_country_general_card %}
+    <sw-card
+        :title="$tc('sw-settings-country.detail.titleCard')"
+        :is-loading="isLoading"
+    >
+        <sw-container
+            columns="repeat(auto-fit, minmax(250px, 1fr))"
+            gap="0px 30px"
+        >
+
+            {% block sw_settings_country_general_content_field_name %}
+            <sw-text-field
+                v-model="country.name"
+                required
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelName')"
+                :placeholder="placeholder(country, 'name', $tc('sw-settings-country.detail.placeholderName'))"
+                :error="countryNameError"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_general_content_field_position %}
+            <sw-number-field
+                v-model="country.position"
+                number-type="int"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelPosition')"
+                :placeholder="placeholder(country, 'position', $tc('sw-settings-country.detail.placeholderPosition'))"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_general_content_field_iso %}
+            <sw-text-field
+                v-model="country.iso"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelIso')"
+                :placeholder="placeholder(country, 'iso', $tc('sw-settings-country.detail.placeholderIso'))"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_general_content_field_iso3 %}
+            <sw-text-field
+                v-model="country.iso3"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelIso3')"
+                :placeholder="placeholder(country, 'iso3', $tc('sw-settings-country.detail.placeholderIso3'))"
+            />
+            {% endblock %}
+        </sw-container>
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_settings_country_general_options_card %}
+    <sw-card
+        :title="$tc('sw-settings-country.detail.titleOptions')"
+        :is-loading="isLoading"
+    >
+        <sw-container
+            columns="repeat(1, minmax(300px, 350px))"
+            gap="0px 0px"
+        >
+            {% block sw_settings_country_general_content_field_active %}
+            <sw-switch-field
+                v-model="country.active"
+                class="sw-settings-country-general__option-items"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelActive')"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_general_content_field_shipping_available %}
+            <sw-switch-field
+                v-model="country.shippingAvailable"
+                class="sw-settings-country-general__option-items"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelShippingAvailable')"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_general_content_field_tax_free %}
+            <sw-switch-field
+                v-model="country.customerTax.enabled"
+                class="sw-settings-country-general__option-items switch-field-customer-tax-free"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelTaxFree')"
+            />
+            {% endblock %}
+
+            <sw-container
+                v-if="feature.isActive('FEATURE_NEXT_14114') && country.customerTax.enabled"
+                class="sw-settings-country-general-customer-tax"
+            >
+
+                {% block sw_settings_country_general_content_field_tax_free_from_customer %}
+
+                {% block sw_settings_country_general_content_field_tax_free_from_customer_value %}
+                <sw-number-field
+                    v-model="country.customerTax.amount"
+                    class="sw-settings-country-general__input-amount customer-tax-amount"
+                    :min="0"
+                    :label="$tc('sw-settings-country.detail.taxFreeFrom')"
+                    :help-text="$tc('sw-settings-country.detail.taxFreeFromHelpText')"
+                    :disabled="!acl.can('country.editor')"
+                >
+                    <template #suffix>
+                        <sw-entity-single-select
+                            v-model="country.customerTax.currencyId"
+                            entity="currency"
+                            value-property="id"
+                            label-property="isoCode"
+                            class="sw-settings-country-general__customer-select-currency
+                            sw-settings-country-general__select"
+                            :disabled="!acl.can('country.editor')"
+                        />
+                    </template>
+                </sw-number-field>
+                {% endblock %}
+
+                {% endblock %}
+
+                {% block sw_settings_country_general_content_show_tax_free_currency_dependent_values %}
+                <sw-container
+                    columns="1fr"
+                    justify="end"
+                >
+                    <a
+                        class="sw-settings-country-general__currency-dependent-modal"
+                        @click="openCustomerTaxModal"
+                    >
+                        {{ $tc('sw-settings-country.detail.currencyDependentValues') }}
+                        <sw-icon
+                            name="default-arrow-simple-right"
+                            small
+                        />
+                    </a>
+                </sw-container>
+                {% endblock %}
+
+            </sw-container>
+
+            {% block sw_settings_country_general_content_field_tax_free_companies %}
+            <sw-switch-field
+                v-model="country.companyTax.enabled"
+                class="sw-settings-country-general__option-items switch-field-company-tax-free"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelCompanyTaxFree')"
+            />
+            {% endblock %}
+
+            <sw-container
+                v-if="feature.isActive('FEATURE_NEXT_14114') && country.companyTax.enabled"
+                class="sw-settings-country-general-company-tax"
+            >
+
+                {% block sw_settings_country_general_content_field_tax_free_from_companies %}
+
+                {% block sw_settings_country_general_content_field_tax_free_from_companies_value %}
+                <sw-number-field
+                    v-model="country.companyTax.amount"
+                    class="sw-settings-country-general__input-amount"
+                    :min="0"
+                    :label="$tc('sw-settings-country.detail.taxFreeFrom')"
+                    :help-text="$tc('sw-settings-country.detail.taxFreeFromHelpText')"
+                    :disabled="!acl.can('country.editor')"
+                >
+                    <template #suffix>
+                        <sw-entity-single-select
+                            v-model="country.companyTax.currencyId"
+                            entity="currency"
+                            value_property="id"
+                            label_property="isoCode"
+                            class="sw-settings-country-general__company-select-currency
+                            sw-settings-country-general__select"
+                            :disabled="!acl.can('country.editor')"
+                        />
+                    </template>
+                </sw-number-field>
+                {% endblock %}
+
+                {% endblock %}
+
+                {% block sw_settings_country_general_content_show_company_tax_free_currency_dependent_values %}
+                <sw-container
+                    columns="1fr"
+                    justify="end"
+                >
+                    <a
+                        class="sw-settings-country-general__currency-dependent-modal"
+                        @click="openCompanyTaxModal"
+                    >
+                        {{ $tc('sw-settings-country.detail.currencyDependentValues') }}
+                        <sw-icon
+                            name="default-arrow-simple-right"
+                            small
+                        />
+                    </a>
+                </sw-container>
+                {% endblock %}
+            </sw-container>
+
+            {% block sw_settings_country_general_content_show_currency_dependent_modal %}
+            <sw-settings-country-currency-dependent-modal
+                v-if="showCurrencyModal"
+                :currency-depends-value="currencyDependsValue"
+                :country-id="countryId"
+                :is-loading="isLoading"
+                :menu-options="menuOptions"
+                :user-config="userConfig"
+                :user-config-values="userConfigValues"
+                :tax-free-type="taxFreeType"
+                @modal-close="onToggleCurrencyModal"
+                @modal-save="saveCountryCurrencyDependent"
+                @base-item-change="changeBaseItem"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_general_content_field_check_vat_id_format %}
+            <sw-switch-field
+                v-model="country.checkVatIdPattern"
+                class="sw-settings-country-general__field-check-vatid-format
+                sw-settings-country-general__option-items"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelCheckVatIdFormat')"
+                :help-text="$tc('sw-settings-country.detail.helpTextCheckVatIdFormat')"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_general_content_field_vat_id_required %}
+            <sw-switch-field
+                v-if="feature.isActive('FEATURE_NEXT_14114')"
+                v-model="country.vatIdRequired"
+                class="sw-settings-country-general__vat-id-required
+                sw-settings-country-general__option-items"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelVatIdRequired')"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_general_content_field_force_state_on_registration %}
+            <sw-switch-field
+                v-model="country.forceStateInRegistration"
+                class="sw-settings-country-general__option-items"
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
+            />
+            {% endblock %}
+
+        </sw-container>
+    </sw-card>
+    {% endblock %}
+
+</div>
+{% endblock %}

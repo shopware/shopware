@@ -1,5 +1,9 @@
 {
   "sw-settings-country": {
+    "page": {
+      "generalTab": "General",
+      "stateTab": "State / province"
+    },
     "general": {
       "mainMenuItemGeneral": "Länder",
       "placeholderSearchBar": "Durchsuche alle Länder ..."
@@ -46,8 +50,11 @@
       "columnStateNameLabel": "Name",
       "columnStateShortCodeLabel": "Kürzel",
       "taxFreeFrom": "Steuerfrei ab",
+      "baseCurrency": "Base currency",
       "taxFreeFromHelpText": "Wenn die Gesamtsumme des Warenkorbs größer ist als der Wert in \"Steuerfrei ab\", ist der gesamte Warenkorb steuerfrei.",
-      "labelVatIdRequired": "Umsatzsteuer-ID als Pflichtfeld behandeln"
+      "labelVatIdRequired": "Umsatzsteuer-ID als Pflichtfeld behandeln",
+      "titleOptions": "Options",
+      "currencyDependentValues": "Currency dependent values"
     }
   },
   "sw-country-state-detail": {

@@ -7,7 +7,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-country-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature'
+    ],
 
     mixins: [
         Mixin.getByName('listing')
@@ -21,7 +25,8 @@ Component.register('sw-settings-country-list', {
             isLoading: false,
             sortDirection: 'ASC',
             naturalSorting: true,
-            showDeleteModal: false
+            showDeleteModal: false,
+            showSelection: false
         };
     },
 
@@ -55,7 +60,11 @@ Component.register('sw-settings-country-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.countryRepository.search(criteria).then((items) => {
+            if (this.feature.isActive('FEATURE_NEXT_14114')) {
+                this.showSelection = true;
+            }
+
+            this.countryRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.country = items;
                 this.isLoading = false;

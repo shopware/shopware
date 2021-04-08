@@ -50,18 +50,18 @@ class ErrorPageLoader implements ErrorPageLoaderInterface
      * @throws MissingRequestParameterException
      * @throws PageNotFoundException
      */
-    public function load(string $cmsErrorLayoutId, Request $request, SalesChannelContext $context): ErrorPage
+    public function load(?string $cms404ErrorLayoutId, Request $request, SalesChannelContext $context): ErrorPage
     {
         $page = $this->genericLoader->load($request, $context);
         $page = ErrorPage::createFrom($page);
 
-        $pages = $this->cmsPageLoader->load($request, new Criteria([$cmsErrorLayoutId]), $context);
+        if ($cms404ErrorLayoutId) {
+            $pages = $this->cmsPageLoader->load($request, new Criteria([$cms404ErrorLayoutId]), $context);
 
-        if (!$pages->has($cmsErrorLayoutId)) {
-            throw new PageNotFoundException($cmsErrorLayoutId);
+            if ($pages->has($cms404ErrorLayoutId)) {
+                $page->setCmsPage($pages->get($cms404ErrorLayoutId));
+            }
         }
-
-        $page->setCmsPage($pages->get($cmsErrorLayoutId));
 
         $this->eventDispatcher->dispatch(new ErrorPageLoadedEvent($page, $context, $request));
 

@@ -11,5 +11,5 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface ErrorPageLoaderInterface
 {
-    public function load(string $cmsErrorLayoutId, Request $request, SalesChannelContext $context): ErrorPage;
+    public function load(?string $cms404ErrorLayoutId, Request $request, SalesChannelContext $context): ErrorPage;
 }

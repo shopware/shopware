@@ -66,24 +66,20 @@ class ErrorController extends StorefrontController
             $request->attributes->set('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
             $salesChannelId = $context->getSalesChannel()->getId();
-            $cmsErrorLayoutId = $this->systemConfigService->getString('core.basicInformation.http404Page', $salesChannelId);
-            if ($cmsErrorLayoutId !== '' && $is404StatusCode) {
-                $errorPage = $this->errorPageLoader->load($cmsErrorLayoutId, $request, $context);
+            $cms404ErrorLayoutId = $this->systemConfigService->getString('core.basicInformation.http404Page', $salesChannelId);
 
-                $response = $this->renderStorefront(
-                    '@Storefront/storefront/page/content/index.html.twig',
-                    ['page' => $errorPage]
-                );
+            if ($cms404ErrorLayoutId !== '' ) {
+                $errorPage = $this->errorPageLoader->load($cms404ErrorLayoutId, $request, $context);
+                $errorTemplate = '@Storefront/storefront/page/content/index.html.twig';
             } else {
-                $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
-
-                if (!$request->isXmlHttpRequest()) {
-                    $header = $this->headerPageletLoader->load($request, $context);
-                    $errorTemplate->setHeader($header);
-                }
-
-                $response = $this->renderStorefront($errorTemplate->getTemplateName(), ['page' => $errorTemplate]);
+                $errorPage = $this->errorPageLoader->load(null, $request, $context);
+                $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request)->getTemplateName();
             }
+
+            $response = $this->renderStorefront(
+                $errorTemplate,
+                ['page' => $errorPage]
+            );
 
             if ($exception instanceof HttpException) {
                 $response->setStatusCode($exception->getStatusCode());

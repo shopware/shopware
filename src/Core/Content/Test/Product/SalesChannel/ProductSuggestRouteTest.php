@@ -138,6 +138,181 @@ class ProductSuggestRouteTest extends TestCase
         $this->proceedTestSearch($term, $expected);
     }
 
+    public function testFindingProductAlreadyHaveVariantsWithCustomSearchKeywords(): void
+    {
+        $productRepository = $this->getContainer()->get('product.repository');
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], $this->ids->context);
+
+        $parentProductData = $this->generateProductData();
+        $products = [$parentProductData];
+        for ($i = 0; $i < 3; ++$i) {
+            $products[] = $this->generateProductData($parentProductData['id']);
+        }
+
+        $productRepository->create($products, $this->ids->context);
+        $productRepository->update([
+            ['id' => $parentProductData['id'], 'customSearchKeywords' => ['bmw']],
+        ], $this->ids->context);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/search?search=bmw',
+            [
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertSame(1, $response['total']);
+        static::assertSame('product_listing', $response['apiAlias']);
+        // Limited to max 10 entries
+        static::assertCount(1, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    public function testFindingProductWhenAddedVariantsAfterSettingCustomSearchKeywords(): void
+    {
+        $productRepository = $this->getContainer()->get('product.repository');
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], $this->ids->context);
+
+        $parentProductData = $this->generateProductData();
+        $productRepository->create([$parentProductData], $this->ids->context);
+        $productRepository->update([
+            ['id' => $parentProductData['id'], 'customSearchKeywords' => ['bmw']],
+        ], $this->ids->context);
+
+        $products = [];
+        for ($i = 0; $i < 3; ++$i) {
+            $products[] = $this->generateProductData($parentProductData['id']);
+        }
+
+        $productRepository->create($products, $this->ids->context);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/search?search=bmw',
+            [
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertSame(1, $response['total']);
+        static::assertSame('product_listing', $response['apiAlias']);
+        // Limited to max 10 entries
+        static::assertCount(1, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    public function testFindingProductAlreadySetCustomSearchKeywordsWhenRemovedVariants(): void
+    {
+        $productRepository = $this->getContainer()->get('product.repository');
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], $this->ids->context);
+
+        $parentProductData = $this->generateProductData();
+        $products = [$parentProductData];
+        for ($i = 0; $i < 3; ++$i) {
+            $products[] = $this->generateProductData($parentProductData['id']);
+        }
+
+        $productRepository->create($products, $this->ids->context);
+        $productRepository->update([
+            ['id' => $parentProductData['id'], 'customSearchKeywords' => ['bmw']],
+        ], $this->ids->context);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/search?search=bmw',
+            [
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertSame(1, $response['total']);
+        static::assertSame('product_listing', $response['apiAlias']);
+        // Limited to max 10 entries
+        static::assertCount(1, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+
+        $products = array_filter($products, fn ($product) => $product['parentId']);
+        $products = array_map(fn ($product) => ['id' => $product['id']], $products);
+
+        $productRepository->delete([$products], $this->ids->context);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/search?search=bmw',
+            [
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertSame(1, $response['total']);
+        static::assertSame('product_listing', $response['apiAlias']);
+        // Limited to max 10 entries
+        static::assertCount(1, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    public function testFindingProductWithVariantsHaveDifferentKeyword(): void
+    {
+        $productRepository = $this->getContainer()->get('product.repository');
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], $this->ids->context);
+
+        $parentProductData = $this->generateProductData();
+        $products = [$parentProductData];
+        for ($i = 0; $i < 3; ++$i) {
+            $products[] = $this->generateProductData($parentProductData['id']);
+        }
+
+        $productRepository->create($products, $this->ids->context);
+        $productRepository->update([
+            ['id' => $parentProductData['id'], 'customSearchKeywords' => ['bmw']],
+        ], $this->ids->context);
+
+        $productRepository->update([
+            ['id' => $products[1]['id'], 'customSearchKeywords' => ['mercedes']],
+        ], $this->ids->context);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/search?search=bmw',
+            [
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertSame(1, $response['total']);
+        static::assertSame('product_listing', $response['apiAlias']);
+        // Limited to max 10 entries
+        static::assertCount(1, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/search?search=mercedes',
+            [
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertSame(1, $response['total']);
+        static::assertSame('product_listing', $response['apiAlias']);
+        // Limited to max 10 entries
+        static::assertCount(1, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
     /**
      * @dataProvider searchAndCases
      */
@@ -457,5 +632,25 @@ class ProductSuggestRouteTest extends TestCase
             $searchKeywordUpdaterInner,
             []
         );
+    }
+
+    private function generateProductData(?string $parentId = null): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'Car',
+            'active' => true,
+            'stock' => 10,
+            'parentId' => $parentId,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false],
+            ],
+            'tax' => ['name' => 'Car Tax', 'taxRate' => 15],
+            'manufacturer' => ['name' => 'Car Manufacture'],
+            'visibilities' => [
+                ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
     }
 }

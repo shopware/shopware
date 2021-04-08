@@ -187,6 +187,7 @@
                     v-if="showPermissionsModal"
                     :extensionLabel="extension.label"
                     :permissions="permissions"
+                    :domains="extension.domains"
                     :actionLabel="permissionModalActionLabel"
                     @modal-close="closePermissionsModal"
                     @close-with-action="closePermissionsModalAndInstallExtension">

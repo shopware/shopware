@@ -16,6 +16,7 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './component/sw-self-maintained-extension-card');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-my-extensions-listing-controls');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-permissions-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-domains-modal');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-privacy-policy-extensions-modal');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-deactivation-modal');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-removal-modal');

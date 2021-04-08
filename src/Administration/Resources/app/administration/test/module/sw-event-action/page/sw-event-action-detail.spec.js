@@ -20,7 +20,8 @@ function mockEventAction(id) {
         active: false,
         config: {
             mail_template_id: '555',
-            mail_template_type_id: 'b926ca5d4ace4efbae2d8474a04ead20'
+            mail_template_type_id: 'b926ca5d4ace4efbae2d8474a04ead20',
+            recipients: { 'mail1@example.com': 'Mail 1' }
         }
     };
 }
@@ -283,6 +284,44 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
         // Verify recipients array gets converted and assigned to recipients key in config
         const expectedRecipients = { 'test@example.com': 'Example', 'info@domain.tld': 'Info' };
         expect(wrapper.vm.eventAction.config.recipients).toEqual(expectedRecipients);
+    });
+
+    it('should detect recipients are not be changed', async () => {
+        const wrapper = createWrapper('54321');
+
+        await wrapper.vm.$forceUpdate();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.recipients).toEqual([
+            {
+                email: 'mail1@example.com',
+                name: 'Mail 1'
+            }
+        ]);
+
+        // Execute safe method
+        wrapper.vm.onSave();
+
+        await wrapper.vm.$nextTick();
+        // Verify recipients array gets converted and assigned to recipients key in config
+        expect(wrapper.vm.eventAction.config.recipients).toEqual({
+            'mail1@example.com': 'Mail 1'
+        });
+    });
+
+    it('should update recipients when local variable recipients is changed', async () => {
+        const wrapper = createWrapper('54321');
+
+        await wrapper.vm.$forceUpdate();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onUpdateRecipientsList([]);
+        // Execute safe method
+        wrapper.vm.onSave();
+
+        await wrapper.vm.$nextTick();
+        // Verify recipients array gets converted and assigned to recipients key in config
+        expect(wrapper.vm.eventAction.config.recipients).toBeUndefined();
     });
 
     it('should disable all interactive buttons and fields with viewer privileges', async () => {

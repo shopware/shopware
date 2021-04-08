@@ -142,6 +142,8 @@ Component.register('sw-event-action-detail', {
 
                     this.isLoading = false;
 
+                    this.buildRecipients();
+
                     return Promise.resolve([businessEvents, eventAction]);
                 })
                 .catch((exception) => {
@@ -210,6 +212,7 @@ Component.register('sw-event-action-detail', {
                         });
                         return Promise.resolve(this.eventAction);
                     }
+                    this.recipients = [];
                     this.loadData();
                     this.isSaveSuccessful = true;
 
@@ -254,6 +257,17 @@ Component.register('sw-event-action-detail', {
 
         snakeCaseEventName(value) {
             return snakeCase(value);
+        },
+
+        buildRecipients() {
+            if (this.eventAction.config.recipients) {
+                Object.entries(this.eventAction.config.recipients).forEach(([key, value]) => {
+                    this.recipients.push({
+                        email: key,
+                        name: value
+                    });
+                });
+            }
         }
     }
 });

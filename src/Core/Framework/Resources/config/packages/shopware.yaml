@@ -58,6 +58,9 @@ shopware:
     dal:
         batch_size: 125
 
+    cart:
+        expire_days: 120
+
     feature:
         flags:
             - name: FEATURE_NEXT_1797

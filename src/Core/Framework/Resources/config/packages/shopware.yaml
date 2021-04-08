@@ -57,6 +57,8 @@ shopware:
 
     dal:
         batch_size: 125
+        versioning:
+            expire_days: 30
 
     feature:
         flags:

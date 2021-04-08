@@ -380,6 +380,13 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(125)
                 ->end()
+                ->arrayNode('versioning')
+                    ->children()
+                        ->integerNode('expire_days')
+                            ->min(1)
+                            ->defaultValue(30)
+                            ->end()
+                ->end()
             ->end();
 
         return $rootNode;

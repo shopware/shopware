@@ -99,6 +99,23 @@ class AppRegistrationServiceTest extends TestCase
         );
     }
 
+    public function testRegistrationConfirmFails(): void
+    {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $appSecret = 'dont_tell';
+        $appResponseBody = $this->buildAppResponse($manifest, $appSecret);
+
+        $this->appendNewResponse(new Response(200, [], $appResponseBody));
+        $this->appendNewResponse(new Response(500, []));
+
+        static::expectException(AppRegistrationException::class);
+        $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+    }
+
     public function testRegistrationFailsWithWrongProof(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');

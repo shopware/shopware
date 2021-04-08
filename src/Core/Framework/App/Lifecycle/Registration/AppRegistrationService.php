@@ -112,12 +112,16 @@ class AppRegistrationService
 
         $signature = $this->signPayload($payload, $secret);
 
-        $this->httpClient->post($confirmationUrl, [
-            'headers' => [
-                'shopware-shop-signature' => $signature,
-            ],
-            'json' => $payload,
-        ]);
+        try {
+            $this->httpClient->post($confirmationUrl, [
+                'headers' => [
+                    'shopware-shop-signature' => $signature,
+                ],
+                'json' => $payload,
+            ]);
+        } catch (GuzzleException $e) {
+            throw new AppRegistrationException($e->getMessage(), 0, $e);
+        }
     }
 
     /**

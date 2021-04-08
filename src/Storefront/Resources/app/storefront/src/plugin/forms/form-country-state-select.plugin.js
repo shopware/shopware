@@ -1,6 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
+import Feature from 'src/helper/feature.helper';
 
 export default class CountryStateSelectPlugin extends Plugin {
 
@@ -9,7 +10,9 @@ export default class CountryStateSelectPlugin extends Plugin {
         initialCountryAttribute: 'initial-country-id',
         countryStateSelectSelector: '.country-state-select',
         initialCountryStateAttribute: 'initial-country-state-id',
-        countryStatePlaceholderSelector: '[data-placeholder-option="true"]'
+        countryStatePlaceholderSelector: '[data-placeholder-option="true"]',
+        vatIdFieldInput: '#vatIds',
+        vatIdRequired: 'vat-id-required'
     };
 
     init() {
@@ -39,6 +42,13 @@ export default class CountryStateSelectPlugin extends Plugin {
         const countryId = event.target.value;
 
         this.requestStateData(countryId);
+        if (Feature.isActive('FEATURE_NEXT_14114')) {
+            const countrySelect = event.target.options[event.target.selectedIndex];
+            const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
+            const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
+
+            this._updateRequiredVatId(vatIdInput, vatIdRequired);
+        }
     }
 
     requestStateData(countryId, countryStateId = null) {
@@ -53,6 +63,26 @@ export default class CountryStateSelectPlugin extends Plugin {
                 updateStateSelect(responseData, countryStateId, this.el, CountryStateSelectPlugin.options)
             }
         );
+    }
+
+    _updateRequiredVatId(vatIdFieldInput, vatIdRequired) {
+        const label = vatIdFieldInput.parentNode.querySelector('label');
+
+        if (vatIdRequired) {
+            vatIdFieldInput.setAttribute('required', 'required');
+
+            if (label.innerText.substr(-1, 1) !== '*') {
+                label.innerText = `${label.innerText}*`;
+            }
+
+            return;
+        }
+
+        if (label.innerText.substr(-1, 1) === '*') {
+            label.innerText = label.innerText.substr(0, label.innerText.length -1);
+        }
+
+        vatIdFieldInput.removeAttribute('required');
     }
 }
 

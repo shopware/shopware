@@ -26,32 +26,41 @@ function createWrapper(privileges = []) {
 
         provide: {
             repositoryFactory: {
-                create: () => ({
+                create: (entity) => ({
                     get: () => {
+                        if (entity === 'country') {
+                            return Promise.resolve({
+                                isNew: () => false,
+                                active: true,
+                                apiAlias: null,
+                                createdAt: '2020-08-12T02:49:39.974+00:00',
+                                customFields: null,
+                                customerAddresses: [],
+                                displayStateInRegistration: false,
+                                forceStateInRegistration: false,
+                                id: '44de136acf314e7184401d36406c1e90',
+                                iso: 'AL',
+                                iso3: 'ALB',
+                                name: 'Albania',
+                                orderAddresses: [],
+                                position: 10,
+                                salesChannelDefaultAssignments: [],
+                                salesChannels: [],
+                                shippingAvailable: true,
+                                states: [],
+                                taxFree: false,
+                                taxRules: [],
+                                translated: {},
+                                translations: [],
+                                updatedAt: '2020-08-16T06:57:40.559+00:00',
+                                vatIdRequired: false
+                            });
+                        }
+
                         return Promise.resolve({
-                            isNew: () => false,
-                            active: true,
-                            apiAlias: null,
-                            createdAt: '2020-08-12T02:49:39.974+00:00',
-                            customFields: null,
-                            customerAddresses: [],
-                            displayStateInRegistration: false,
-                            forceStateInRegistration: false,
-                            id: '44de136acf314e7184401d36406c1e90',
-                            iso: 'AL',
-                            iso3: 'ALB',
-                            name: 'Albania',
-                            orderAddresses: [],
-                            position: 10,
-                            salesChannelDefaultAssignments: [],
-                            salesChannels: [],
-                            shippingAvailable: true,
-                            states: [],
-                            taxFree: false,
-                            taxRules: [],
-                            translated: {},
-                            translations: [],
-                            updatedAt: '2020-08-16T06:57:40.559+00:00'
+                            systemCurrency: {
+                                symbol: '€'
+                            }
                         });
                     }
                 })
@@ -62,6 +71,9 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
 
@@ -93,6 +105,7 @@ function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-simple-search-field': true,
             'sw-context-menu-item': true,
+            'sw-number-field': true,
             'sw-one-to-many-grid': {
                 props: ['columns', 'allowDelete'],
                 template: `
@@ -163,6 +176,12 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const countryForceStateInRegistrationField = wrapper.find(
             'sw-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
         );
+        const countryTaxFreeFromField = wrapper.find(
+            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]'
+        );
+        const countryVatIdRequiredField = wrapper.find(
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]'
+        );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
         expect(countryNameField.attributes().disabled).toBeUndefined();
@@ -175,6 +194,8 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         expect(countryCompaniesTaxFreeField.attributes().disabled).toBeUndefined();
         expect(countryCheckVatIdFormatField.attributes().disabled).toBeUndefined();
         expect(countryForceStateInRegistrationField.attributes().disabled).toBeUndefined();
+        expect(countryTaxFreeFromField.attributes().disabled).toBeDefined();
+        expect(countryVatIdRequiredField.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to save the country', async () => {
@@ -214,6 +235,12 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const countryForceStateInRegistrationField = wrapper.find(
             'sw-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
         );
+        const countryTaxFreeFromField = wrapper.find(
+            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]'
+        );
+        const countryVatIdRequiredField = wrapper.find(
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]'
+        );
 
         expect(saveButton.attributes().disabled).toBeTruthy();
         expect(countryNameField.attributes().disabled).toBeTruthy();
@@ -226,6 +253,8 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         expect(countryCompaniesTaxFreeField.attributes().disabled).toBeTruthy();
         expect(countryCheckVatIdFormatField.attributes().disabled).toBeTruthy();
         expect(countryForceStateInRegistrationField.attributes().disabled).toBeTruthy();
+        expect(countryTaxFreeFromField.attributes().disabled).toBeDefined();
+        expect(countryVatIdRequiredField.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to create a new country state', async () => {

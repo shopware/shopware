@@ -16,10 +16,10 @@
                id="vatIds"
                placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
                name="vatIds[]"
-               {% if editMode == false and config('core.loginRegistration.vatIdFieldRequired') %}
-               required="required"
-               data-form-validation-equal="vatIds"
-               {% endif %}
+            {% if editMode == false and config('core.loginRegistration.vatIdFieldRequired') and not feature('FEATURE_NEXT_14114') %}
+                required="required"
+                data-form-validation-equal="vatIds"
+            {% endif %}
                value="{{ activeRoute == 'frontend.account.profile.page' ? vatIds[0] : vatIds.get(0) }}">
     {% endblock %}
 

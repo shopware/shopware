@@ -155,6 +155,32 @@
                                         :helpText="$tc('sw-settings-country.detail.helpTextCheckVatIdFormat')">
                                     </sw-switch-field>
                                 {% endblock %}
+
+                                {% block sw_settings_country_detail_content_field_tax_free_from %}
+                                    <sw-number-field
+                                        v-if="feature.isActive('FEATURE_NEXT_14114')"
+                                        v-model="country.taxFreeFrom"
+                                        :min="0"
+                                        :label="$tc('sw-settings-country.detail.taxFreeFrom')"
+                                        :helpText="$tc('sw-settings-country.detail.taxFreeFromHelpText')"
+                                        :disabled="!acl.can('country.editor') || (!country.taxFree && !country.companyTaxFree)">
+                                        <template #suffix>
+                                            {{ systemCurrency.symbol }}
+                                        </template>
+                                    </sw-number-field>
+                                {% endblock %}
+
+
+                                {% block sw_settings_country_detail_content_field_vat_id_required %}
+                                    <sw-switch-field
+                                        v-if="feature.isActive('FEATURE_NEXT_14114')"
+                                        v-model="country.vatIdRequired"
+                                        class="sw-settings-country-detail__vat-id-required"
+                                        bordered
+                                        :disabled="!acl.can('country.editor')"
+                                        :label="$tc('sw-settings-country.detail.labelVatIdRequired')">
+                                    </sw-switch-field>
+                                {% endblock %}
                             </sw-container>
                         </sw-card>
                     {% endblock %}

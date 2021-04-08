@@ -44,7 +44,10 @@
       "buttonAddCountryState": "Add state/province",
       "editAction": "Edit",
       "columnStateNameLabel": "Name",
-      "columnStateShortCodeLabel": "Shorthand"
+      "columnStateShortCodeLabel": "Shorthand",
+      "taxFreeFrom": "Tax free from",
+      "taxFreeFromHelpText": "If the shopping cart total is higher than the value set in \"Tax free from\", the whole shopping cart will be tax-free.",
+      "labelVatIdRequired": "VAT ID field required"
     }
   },
   "sw-country-state-detail": {

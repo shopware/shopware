@@ -347,7 +347,10 @@
                                 <option {% if country.id == data.get('countryId') %}
                                         selected="selected"
                                         {% endif %}
-                                        value="{{ country.id }}">
+                                        value="{{ country.id }}"
+                                        {% if feature('FEATURE_NEXT_14114') %}
+                                        data-vat-id-required="{{ country.vatIdRequired }}"
+                                        {% endif %}>
                                     {{ country.translated.name }}
                                 </option>
                             {% endfor %}

@@ -129,6 +129,7 @@
             <label lang="de-DE">Datenschutzbestimmungen müssen über eine Checkbox akzeptiert werden</label>
         </input-field>
 
+        <!-- @internal (FEATURE_NEXT_14114) remove this entry -->
         <input-field type="bool">
             <name>vatIdFieldRequired</name>
             <label>VAT Reg.No. required</label>

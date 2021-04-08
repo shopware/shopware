@@ -55,7 +55,9 @@
       },
       "emptyCountryRoundings": "Hinzufügen von Nachkommastellen und Rundungsfaktoren für verschiedene Länder.",
       "emptyCountryRoundingsNewCurrency": "Pflege die Basisinformationen, speichere die Währung und füge dann Länderspezifische Einstellungen hinzu.",
-      "buttonAddCountry": "Land hinzufügen"
+      "buttonAddCountry": "Land hinzufügen",
+      "taxFreeFrom": "Steuerfrei ab",
+      "taxFreeFromHelpText": "Wenn die Gesamtsumme des Warenkorbs größer ist als der Wert in \"Steuerfrei ab\", ist der gesamte Warenkorb steuerfrei. Gilt nur für Warenkörbe in der Währung \"{currencyName}\"."
     },
     "currency-country-modal": {
       "labelCountrySelect": "Land",

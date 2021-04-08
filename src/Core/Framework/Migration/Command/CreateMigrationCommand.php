@@ -90,13 +90,19 @@ class CreateMigrationCommand extends Command
             }
 
             if (\count($pluginBundles) > 1) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'More than one pluginname starting with "%s" was found: %s',
-                        $pluginName,
-                        implode(';', array_keys($pluginBundles))
-                    )
-                );
+                $pluginBundles = array_filter($pluginBundles, static function (Plugin $value) use ($pluginName) {
+                    return $pluginName === $value->getName();
+                });
+
+                if (\count($pluginBundles) > 1) {
+                    throw new \RuntimeException(
+                        sprintf(
+                            'More than one pluginname starting with "%s" was found: %s',
+                            $pluginName,
+                            implode(';', array_keys($pluginBundles))
+                        )
+                    );
+                }
             }
 
             $pluginBundle = array_values($pluginBundles)[0];

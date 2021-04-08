@@ -1,7 +1,9 @@
 {% set currentPage = ((searchResult.criteria.offset + 1) / searchResult.criteria.limit )|round(0, 'ceil') %}
 {% set paginationConfig = { page: currentPage }|json_encode %}
 
-{% set disableEmptyFilter = config('core.listing.disableEmptyFilterOptions') %}
+{% if disableEmptyFilter is not defined %}
+    {% set disableEmptyFilter = config('core.listing.disableEmptyFilterOptions') %}
+{% endif %}
 
 {% set listingPagination = {
     sidebar: sidebar,

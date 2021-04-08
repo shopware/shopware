@@ -117,6 +117,7 @@ class MailService extends AbstractMailService
     {
         $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
         $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
+        $data = $mailBeforeValidateEvent->getData();
 
         if ($mailBeforeValidateEvent->isPropagationStopped()) {
             return null;

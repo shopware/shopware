@@ -3,16 +3,14 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-extension-permissions-modal';
 import 'src/app/component/base/sw-button';
 
-function createWrapper({ permissions, extensionLabel, actionLabel }) {
+function createWrapper(propsData) {
     const localVue = createLocalVue();
     localVue.filter('asset', v => v);
 
     return shallowMount(Shopware.Component.build('sw-extension-permissions-modal'), {
         localVue,
         propsData: {
-            permissions,
-            extensionLabel,
-            actionLabel
+            ...propsData
         },
         mocks: {
             $t: (...args) => JSON.stringify([...args]),
@@ -30,9 +28,14 @@ function createWrapper({ permissions, extensionLabel, actionLabel }) {
     });
 }
 
+
 describe('sw-extension-permissions-modal', () => {
     /** @type Wrapper */
     let wrapper;
+
+    afterEach(() => {
+        if (wrapper) wrapper.destroy();
+    });
 
     it('should be a Vue.JS component', async () => {
         wrapper = createWrapper({
@@ -111,5 +114,86 @@ describe('sw-extension-permissions-modal', () => {
         category.at(1).find('.sw-button__content').trigger('click');
         expect(wrapper.vm.selectedEntity).toBe('promotion');
         expect(wrapper.vm.showDetailsModal).toBe(true);
+    });
+
+    [
+        ['http://www.google.com'],
+        ['http://www.google.com', 'https://www.facebook.com'],
+        ['http://www.google.com', 'https://www.facebook.com', 'https://www.amazon.com']
+    ].forEach(domains => {
+        it(`should display domains hint with domain length of ${domains.length}`, () => {
+            wrapper = createWrapper({
+                extensionLabel: 'Sample Extension Label',
+                permissions: {
+                    product: [{}],
+                    promotion: [{}]
+                },
+                domains: domains
+            });
+
+            expect(wrapper.text()).toContain('sw-extension-store.component.sw-extension-permissions-modal.domainHint');
+        });
+    });
+
+    [
+        ['http://www.google.com'],
+        ['http://www.google.com', 'https://www.facebook.com'],
+        ['http://www.google.com', 'https://www.facebook.com', 'https://www.amazon.com']
+    ].forEach(domains => {
+        it('should display category domains', () => {
+            wrapper = createWrapper({
+                extensionLabel: 'Sample Extension Label',
+                permissions: {
+                    product: [{}],
+                    promotion: [{}]
+                },
+                domains
+            });
+
+            // check for show domains entry
+            expect(wrapper.text()).toContain('sw-extension-store.component.sw-extension-permissions-modal.domains');
+
+            // check for button text
+            expect(wrapper.text()).toContain('sw-extension-store.component.sw-extension-permissions-modal.showDomains');
+        });
+    });
+
+    [
+        [],
+        null,
+        undefined
+    ].forEach(domains => {
+        it(`should not display domains hint when prop domains contains ${domains}`, () => {
+            wrapper = createWrapper({
+                extensionLabel: 'Sample Extension Label',
+                permissions: {
+                    product: [{}],
+                    promotion: [{}]
+                },
+                domains
+            });
+
+            expect(wrapper.text()).not.toContain('sw-extension-store.component.sw-extension-permissions-modal.domainHint');
+        });
+    });
+
+
+    [
+        [],
+        null,
+        undefined
+    ].forEach(domains => {
+        it('should not display category domains', () => {
+            wrapper = createWrapper({
+                extensionLabel: 'Sample Extension Label',
+                permissions: {
+                    product: [{}],
+                    promotion: [{}]
+                },
+                domains
+            });
+
+            expect(wrapper.text()).not.toContain('sw-extension-store.component.sw-extension-permissions-modal.showDomains');
+        });
     });
 });

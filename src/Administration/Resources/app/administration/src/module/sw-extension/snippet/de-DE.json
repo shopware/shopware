@@ -254,7 +254,7 @@
       "sw-extension-permissions-modal": {
         "title": "{extensionLabel} Berechtigungen",
         "description": "{extensionLabel} erhält Zugang zu den folgenden Komponenten. Klicke auf den Link neben der Komponente, um die Entitätsdetails anzuzeigen.",
-        "furtherDescription": "Einige Daten werden auch mit anderen Domains geteilt. Klicke auf den Link neben den Domains für weitere Details.",
+        "domainHint": "Einige Daten werden auch mit anderen Domains geteilt. Klicke auf den Link neben den Domains für weitere Details.",
         "textEntities": "Berechtigungen anzeigen",
         "domains": "Domains",
         "showDomains": "Domains anzeigen"

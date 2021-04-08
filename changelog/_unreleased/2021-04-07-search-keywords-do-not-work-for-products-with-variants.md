@@ -1,5 +1,5 @@
 ---
-title: Search keywords do not work for articles with variants
+title: Search keywords do not work for products with variants
 issue: NEXT-13455
 ---
 # Core

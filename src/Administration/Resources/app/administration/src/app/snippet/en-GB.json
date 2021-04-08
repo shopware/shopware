@@ -389,6 +389,7 @@
     },
     "sw-media-upload-v2": {
       "buttonFileUpload": "Upload file",
+      "buttonFilesUpload": "Upload files",
       "buttonUrlUpload": "Upload file from URL",
       "buttonSwitchToFileUpload": "Upload file from your computer",
       "buttonSwitchToUrlUpload": "Upload file from url",

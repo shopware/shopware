@@ -389,6 +389,7 @@
     },
     "sw-media-upload-v2": {
       "buttonFileUpload": "Dateien hochladen",
+      "buttonFilesUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen",
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
       "buttonSwitchToUrlUpload": "Datei von URL hochladen",

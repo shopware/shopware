@@ -19,8 +19,7 @@
         {% block sw_extension_domains_modal_list %}
             <ul class="sw-extension-domains-modal__list">
                 {% block sw_extension_domains_modal_list_entry %}
-                    <li
-                        v-for="(domain, i) in domains"
+                    <li v-for="(domain, i) in domains"
                         :key="`domain-${i}`"
                         class="sw-extension-domains-modal__list-item">
                         {{ domain }}

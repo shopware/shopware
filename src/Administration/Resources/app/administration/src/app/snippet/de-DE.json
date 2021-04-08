@@ -726,6 +726,7 @@
       "mail_sent": "E-Mail wurde gesendet",
       "newsletter_confirm": "Newsletteranmeldung wurde bestätigt",
       "newsletter_register": "Newsletteranmeldung wurde registriert",
+      "newsletter_unsubscribe": "Newsletter wurde abbestellt",
       "newsletter_update": "Newsletteranmeldung wurde aktualisiert",
       "product_export_log": "Produktexport wurde aufgeführt",
       "state_enter_order_state_cancelled": "Bestellung erreicht Status abgebrochen",

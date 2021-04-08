@@ -21,6 +21,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
@@ -133,7 +134,14 @@ final class BusinessEvents
     public const NEWSLETTER_REGISTER = NewsletterRegisterEvent::EVENT_NAME;
 
     /**
+     * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent")
+     */
+    public const NEWSLETTER_UNSUBSCRIBE = NewsletterUnsubscribeEvent::EVENT_NAME;
+
+    /**
      * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent")
+     *
+     * @deprecated tag:v6.5.0 will be removed as it was not thrown
      */
     public const NEWSLETTER_UPDATE = NewsletterUpdateEvent::EVENT_NAME;
 

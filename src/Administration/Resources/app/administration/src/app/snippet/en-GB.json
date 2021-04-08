@@ -726,6 +726,7 @@
       "mail_sent": "Email sent",
       "newsletter_confirm": "Newsletter sign-up confirmed",
       "newsletter_register": "Newsletter sign-up registered",
+      "newsletter_unsubscribe": "Newsletter unsubscribed",
       "newsletter_update": "Newsletter sign-up updated",
       "product_export_log": "Product export executed",
       "state_enter_order_state_cancelled": "Order enters status cancelled",

@@ -176,7 +176,7 @@
                                             {% block sw_order_detail_base_line_items_summary_amount_free_tax %}
                                                 <template v-if="taxStatus === 'tax-free'">
                                                     <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                                                    <dd><strong>{{ order.positionPrice | currency(order.currency.translated.shortName) }}</strong></dd>
+                                                    <dd><strong>{{ order.price.totalPrice | currency(order.currency.translated.shortName) }}</strong></dd>
                                                 </template>
                                             {% endblock %}
                                         {% endblock %}

@@ -4,8 +4,12 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
@@ -13,48 +17,37 @@ class CartRuleLoader
 {
     private const MAX_ITERATION = 7;
 
-    /**
-     * @var CartPersisterInterface
-     */
-    private $cartPersister;
+    private CartPersisterInterface $cartPersister;
+
+    private ?RuleCollection $rules = null;
+
+    private Processor $processor;
+
+    private LoggerInterface $logger;
+
+    private TagAwareAdapterInterface $cache;
+
+    private AbstractRuleLoader $ruleLoader;
 
     /**
-     * @var RuleCollection|null
+     * @internal (FEATURE_NEXT_14114)
      */
-    private $rules;
-
-    /**
-     * @var Processor
-     */
-    private $processor;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var TagAwareAdapterInterface
-     */
-    private $cache;
-
-    /**
-     * @var AbstractRuleLoader
-     */
-    private $ruleLoader;
+    private TaxDetector $taxDetector;
 
     public function __construct(
         CartPersisterInterface $cartPersister,
         Processor $processor,
         LoggerInterface $logger,
         TagAwareAdapterInterface $cache,
-        AbstractRuleLoader $loader
+        AbstractRuleLoader $loader,
+        TaxDetector $taxDetector
     ) {
         $this->cartPersister = $cartPersister;
         $this->processor = $processor;
         $this->logger = $logger;
         $this->cache = $cache;
         $this->ruleLoader = $loader;
+        $this->taxDetector = $taxDetector;
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
@@ -124,6 +117,19 @@ class CartRuleLoader
             ++$iteration;
         } while ($recalculate);
 
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $taxState = $this->getCartTaxType($context, $cart->getPrice()->getNetPrice());
+            $previous = $context->getTaxState();
+
+            $context->setTaxState($taxState);
+            $cart->setData(null);
+
+            $cart = $this->processor->process($cart, $context, $behaviorContext);
+            if ($previous !== CartPrice::TAX_STATE_FREE) {
+                $context->setTaxState($previous);
+            }
+        }
+
         $index = 0;
         foreach ($rules as $rule) {
             ++$index;
@@ -161,5 +167,38 @@ class CartRuleLoader
             || $previousLineItems->getKeys() !== $currentLineItems->getKeys()
             || $previousLineItems->getTypes() !== $currentLineItems->getTypes()
         ;
+    }
+
+    /**
+     * @internal (FEATURE_NEXT_14114)
+     */
+    private function getCartTaxType(SalesChannelContext $context, float $cartNetAmount = 0): string
+    {
+        $currency = $context->getCurrency();
+        $currencyTaxFreeAmount = $currency->getTaxFreeFrom();
+        $isReachedCurrencyTaxFreeAmount = $currencyTaxFreeAmount > 0 && $cartNetAmount >= $currencyTaxFreeAmount;
+
+        if ($isReachedCurrencyTaxFreeAmount) {
+            return CartPrice::TAX_STATE_FREE;
+        }
+
+        $countryTaxFreeFrom = $context->getShippingLocation()->getCountry()->getTaxFreeFrom();
+
+        if ($currency->getId() !== Defaults::CURRENCY) {
+            $cartNetAmount /= $context->getCurrency()->getFactor();
+        }
+
+        // $currencyTaxFreeAmount === 0.0 mean currency taxFreeFrom is disabled
+        $isReachedCountryTaxFreeAmount = $currencyTaxFreeAmount === 0.0 && $cartNetAmount >= $countryTaxFreeFrom;
+
+        if ($this->taxDetector->isNetDelivery($context) && $isReachedCountryTaxFreeAmount) {
+            return CartPrice::TAX_STATE_FREE;
+        }
+
+        if ($this->taxDetector->useGross($context)) {
+            return CartPrice::TAX_STATE_GROSS;
+        }
+
+        return CartPrice::TAX_STATE_NET;
     }
 }

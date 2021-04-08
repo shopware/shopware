@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/form/sw-checkbox-field';
@@ -6,13 +6,27 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/form/select/entity/sw-entity-single-select';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/select/base/sw-select-result-list';
+import 'src/app/component/form/select/base/sw-select-result';
+import 'src/app/component/utils/sw-popover';
 
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid', () => {
     const customFieldRelations = [];
-    const customFields = [{ name: 'my_first_custom_field' }];
+    const customFields = [{
+        name: 'my_first_custom_field',
+        config: {
+            label: { 'en-GB': 'asperiores sint dolore' }
+        }
+    }];
+    const localVue = createLocalVue();
+
+    localVue.directive('popover', {});
 
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-settings-listing-option-criteria-grid'), {
+            localVue,
             mocks: {
                 $tc: translationKey => translationKey,
                 $te: translationKey => translationKey,
@@ -28,11 +42,17 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         }
 
                         if (repository === 'custom_field') {
-                            return { search: () => Promise.resolve(customFields) };
+                            return {
+                                search: () => Promise.resolve(customFields),
+                                get: () => Promise.resolve()
+                            };
                         }
 
                         return { search: () => Promise.resolve() };
                     }
+                },
+                feature: {
+                    isActive: () => {}
                 }
             },
             stubs: {
@@ -50,7 +70,13 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
                 'sw-block-field': Shopware.Component.build('sw-block-field'),
                 'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-context-button': Shopware.Component.build('sw-context-button')
+                'sw-context-button': Shopware.Component.build('sw-context-button'),
+                'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
+                'sw-select-base': Shopware.Component.build('sw-select-base'),
+                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+                'sw-select-result': Shopware.Component.build('sw-select-result'),
+                'sw-popover': Shopware.Component.build('sw-popover'),
+                'sw-loader': true
             },
             propsData: {
                 productSortingEntity: {
@@ -152,5 +178,71 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
 
         wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should return custom fields name', async () => {
+        await wrapper.setProps({
+            productSortingEntity: {
+                ...{ fields: [{
+                    field: 'customFields.custom_sports_necessitatibus_rerum_fugiat',
+                    name: '8d863f0747d84544a767ea77a239b0ec',
+                    naturalSorting: 0,
+                    order: 'asc',
+                    priority: 1
+                }, {
+                    field: 'customFields.custom_movies_aspernatur_enim_error',
+                    name: '300d8964173b47d79cf4e348b09fce08',
+                    naturalSorting: 0,
+                    order: 'asc',
+                    priority: 1
+                }] }
+            }
+        });
+
+        let getProductSortingFieldsByName = wrapper.vm.getProductSortingFieldsByName();
+
+        expect(getProductSortingFieldsByName).toEqual([
+            '8d863f0747d84544a767ea77a239b0ec',
+            '300d8964173b47d79cf4e348b09fce08'
+        ]);
+
+        await wrapper.vm.$nextTick();
+
+        getProductSortingFieldsByName = wrapper.vm.getProductSortingFieldsByName({
+            field: 'customFields.custom_movies_aspernatur_enim_error'
+        });
+
+        expect(getProductSortingFieldsByName).toEqual([
+            '8d863f0747d84544a767ea77a239b0ec'
+        ]);
+    });
+
+    it('should change productSortingEntity when add custom field', async () => {
+        await wrapper.setProps({
+            productSortingEntity: {
+                ...{ fields: [{
+                    field: 'customField',
+                    naturalSorting: 0,
+                    order: 'asc',
+                    priority: 1
+                }] }
+            }
+        });
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const results = wrapper.findAll('.sw-select-result').at(0);
+        await results.trigger('click');
+
+        expect(wrapper.vm.productSortingEntity.fields).toEqual([
+            {
+                field: 'customFields.my_first_custom_field',
+                name: undefined,
+                naturalSorting: 0,
+                order: 'asc',
+                priority: 1
+            }
+        ]);
     });
 });

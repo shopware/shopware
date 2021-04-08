@@ -35,17 +35,16 @@
                     <template #column-field="{item, isInlineEdit}">
 
                         {% block sw_settings_listing_option_criteria_card_grid_column_field_select %}
-                            <sw-single-select v-if="item.field === 'customField' || (isItemACustomField(item.field) && isInlineEdit)"
-                                v-model="item.field"
-                                :options="unusedCustomFields"
-                                labelProperty="name"
-                                valueProperty="name"
-                                :placeholder="$tc('global.sw-single-select.valuePlaceholder')">
-
-                                <template #result-label-property="{ item }">
-                                    {{ getCustomFieldName(item) }}
-                                </template>
-                            </sw-single-select>
+                            <sw-entity-single-select
+                                v-if="item.field === 'customField' || (isItemACustomField(item.field) && isInlineEdit)"
+                                v-model="item.name"
+                                :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
+                                :criteria="customFieldCriteriaSingleSelect(item)"
+                                @change="changeCustomField"
+                                :labelCallback="getCustomFieldName"
+                                entity="custom_field"
+                                ref="customFieldSelection">
+                            </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_settings_listing_option_criteria_card_grid_column_field_custom_field %}

@@ -37,7 +37,7 @@ Component.register('sw-extension-permissions-modal', {
 
     computed: {
         modalTitle() {
-            return this.$t(
+            return this.$tc(
                 'sw-extension-store.component.sw-extension-permissions-modal.title',
                 { extensionLabel: this.extensionLabel }
             );

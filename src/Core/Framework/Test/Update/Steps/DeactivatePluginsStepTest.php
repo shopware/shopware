@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Update\Steps\DeactivatePluginsStep;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 
@@ -82,7 +83,7 @@ class DeactivatePluginsStepTest extends TestCase
         $exceptions = [
             new \Exception('foo'),
             null,
-            new ThemeAssignmentException('foo', [], []),
+            new ThemeAssignmentException('foo', [], [], new SalesChannelCollection()),
         ];
 
         $args['pluginCompatibility'] = $this->createConfiguredMock(PluginCompatibility::class, $this->getPluginsToDeactivateDefaultConfiguration());

@@ -8,10 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePluginWithoutCompilation\SimplePluginWithoutCompilation;
+use Shopware\Storefront\Test\Theme\fixtures\SimpleTheme\SimpleTheme;
+use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
@@ -110,12 +114,43 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
     }
 
-    private function assignThemeToDefaultSalesChannel(): void
+    public function testHandleThemeUninstallWillThrowExceptionIfThemeIsStillInUse(): void
+    {
+        $uninstalledConfig = $this->configFactory->createFromBundle(new SimpleTheme());
+        $uninstalledConfig->setStyleFiles(new FileCollection());
+        $uninstalledConfig->setScriptFiles(new FileCollection());
+
+        $configs = new StorefrontPluginConfigurationCollection([
+            $this->configFactory->createFromBundle(new Storefront()),
+            $uninstalledConfig,
+        ]);
+
+        $this->themeLifecycleHandler->handleThemeInstallOrUpdate($uninstalledConfig, $configs, Context::createDefaultContext());
+        $this->assignThemeToDefaultSalesChannel('SimpleTheme');
+
+        $wasThrown = false;
+
+        try {
+            $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
+        } catch (ThemeAssignmentException $e) {
+            static::assertEquals([Defaults::SALES_CHANNEL], array_values($e->getStillAssignedSalesChannels()->getIds()));
+            $wasThrown = true;
+        }
+
+        static::assertTrue($wasThrown);
+    }
+
+    private function assignThemeToDefaultSalesChannel(?string $themeName = null): void
     {
         $themeRepository = $this->getContainer()->get('theme.repository');
         $context = Context::createDefaultContext();
 
-        $themeId = $themeRepository->searchIds(new Criteria(), $context)->firstId();
+        $criteria = new Criteria();
+        if ($themeName) {
+            $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
+        }
+
+        $themeId = $themeRepository->searchIds($criteria, $context)->firstId();
 
         $themeRepository->update([
             [

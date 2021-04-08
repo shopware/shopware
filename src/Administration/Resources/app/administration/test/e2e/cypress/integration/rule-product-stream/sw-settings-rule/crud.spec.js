@@ -107,4 +107,20 @@ describe('Rule builder: Test crud operations', () => {
 
         cy.get(page.elements.modal).should('not.exist');
     });
+
+    it('@base @rule: should show the condition select upwards', () => {
+        cy.get('a[href="#/sw/settings/rule/create"]').click();
+        cy.get('.sw-settings-rule-detail__condition_container').scrollIntoView();
+
+        cy.get('.sw-condition').then((conditionElement) => {
+            cy.get('.sw-condition-type-select', { withinSubject: conditionElement })
+                .then((conditionTypeSelect) => {
+                    cy.wrap(conditionTypeSelect).click();
+                    const popover = cy.get('.sw-select-result-list-popover-wrapper');
+
+                    popover.should('be.visible');
+                    popover.should('have.class', '--placement-bottom-outside');
+                });
+        });
+    });
 });

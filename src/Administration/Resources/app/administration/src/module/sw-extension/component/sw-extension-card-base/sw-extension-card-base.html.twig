@@ -91,7 +91,7 @@
                     </span>
 
                     <span v-else-if="canBeOpened" class="sw-extension-card-base__open-extension" @click="openExtension">
-                        {{ $tc('sw-extension-store.component.sw-extension-card-base.openExtensionLabel') }}
+                        {{ $tc(openLinkInformation.label || 'sw-extension-store.component.sw-extension-card-base.openExtensionLabel') }}
                     </span>
                 {% endblock %}
             </div>

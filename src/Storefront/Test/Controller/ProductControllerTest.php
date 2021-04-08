@@ -5,6 +5,7 @@ namespace Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,9 +13,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ProductControllerTest extends TestCase
 {
@@ -41,6 +44,31 @@ class ProductControllerTest extends TestCase
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
         static::assertInstanceOf(ReviewLoaderResult::class, $response->getData()['reviews']);
+    }
+
+    public function testSwitchOptionsToLoadOptionDefault(): void
+    {
+        $productId = $this->createProduct();
+
+        $productRepository = $this->createMock(ProductCombinationFinder::class);
+        $productRepository->method('find')->willThrowException(
+            new ProductNotFoundException($productId)
+        );
+
+        $response = $this->request(
+            'GET',
+            '/detail/' . $productId . '/switch',
+            $this->tokenize('frontend.detail.switch', [
+                'productId' => $productId,
+            ])
+        );
+
+        $responseContent = $response->getContent();
+        $content = (array) json_decode($responseContent);
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertInstanceOf(JsonResponse::class, $response);
+        static::assertStringContainsString($productId, $content['url']);
     }
 
     private function createProduct(array $config = []): string

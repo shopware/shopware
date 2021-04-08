@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\MailTemplate\Service;
+namespace Shopware\Core\Content\Test\Mail\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailFactory;
+use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -54,7 +56,7 @@ class MailServiceTest extends TestCase
 
         $mailSender = $this->createMock(AbstractMailSender::class);
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $mailService = new \Shopware\Core\Content\Mail\Service\MailService(
+        $mailService = new MailService(
             $this->createMock(DataValidator::class),
             $this->createMock(StringTemplateRenderer::class),
             $this->getContainer()->get(MailFactory::class),
@@ -88,6 +90,54 @@ class MailServiceTest extends TestCase
                 $from = $mail->getFrom();
                 $this->assertCount(1, $from);
                 $this->assertSame($expected, $from[0]->getAddress());
+
+                return true;
+            }));
+        $mailService->send($data, Context::createDefaultContext());
+    }
+
+    public function testItAllowsManipulationOfDataInBeforeValidateEvent(): void
+    {
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(MailBeforeValidateEvent::class, static function (MailBeforeValidateEvent $event): void {
+            $data = $event->getData();
+            $data['senderEmail'] = 'test@email.com';
+
+            $event->setData($data);
+        });
+        $mailSender = $this->createMock(AbstractMailSender::class);
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $mailService = new MailService(
+            $this->createMock(DataValidator::class),
+            $this->createMock(StringTemplateRenderer::class),
+            $this->getContainer()->get(MailFactory::class),
+            $mailSender,
+            $this->createMock(EntityRepositoryInterface::class),
+            $salesChannelRepository->getDefinition(),
+            $salesChannelRepository,
+            $this->getContainer()->get(SystemConfigService::class),
+            $eventDispatcher,
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(UrlGeneratorInterface::class)
+        );
+
+        $salesChannel = $this->createSalesChannel();
+
+        $data = [
+            'senderName' => 'Foo Bar',
+            'recipients' => ['baz@example.com' => 'Baz'],
+            'salesChannelId' => $salesChannel['id'],
+            'contentHtml' => '<h1>Test</h1>',
+            'contentPlain' => 'Test',
+            'subject' => 'Test subject',
+        ];
+
+        $mailSender->expects(static::once())
+            ->method('send')
+            ->with(static::callback(function (Email $mail): bool {
+                $from = $mail->getFrom();
+                $this->assertCount(1, $from);
+                $this->assertSame('test@email.com', $from[0]->getAddress());
 
                 return true;
             }));

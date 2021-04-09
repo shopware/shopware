@@ -545,7 +545,12 @@ class VersionManager
         if ($writeContext->getContext()->hasState(self::DISABLE_AUDIT_LOG)) {
             return;
         }
+
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
+        if ($versionId === Defaults::LIVE_VERSION) {
+            return;
+        }
+
         $commitId = Uuid::randomBytes();
 
         $date = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);

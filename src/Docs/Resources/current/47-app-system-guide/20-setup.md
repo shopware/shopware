@@ -119,6 +119,8 @@ Once the app is installed the shop will send a GET request to the endpoint given
 A request is sent there, with the first part of the data needed to register the shop. The data comes as a query parameters:
 `https://my.example.com/registration?shop-id=KIPf0Fz6BUkN&shop-url=http%3A%2F%2Fmy.shop.com&timestamp=1592397288`
 
+The current shopware version will be sent as a `sw-version` header.
+
 Your app can verify by checking that the header `shopware-app-signature` contains the sha256 hmac of the query string
 signed with the secret defined in your manifest.
 
@@ -158,6 +160,8 @@ Once the shop has validated your response it will create an api user and send it
   "shopId":"sqX6cqHi6hbj"
 }
 ```
+
+The current shopware version will be sent as a `sw-version` header.
 
 Your app needs to save both the apiKey as well as the secretKey in relation to the shopId. With these keys
 you can authenticate your request against the shop api.

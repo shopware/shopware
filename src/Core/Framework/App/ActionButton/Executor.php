@@ -13,20 +13,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Executor
 {
-    /**
-     * @var Client
-     */
-    private $guzzleClient;
+    private Client $guzzleClient;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    public function __construct(Client $guzzle, LoggerInterface $logger)
+    private string $shopwareVersion;
+
+    public function __construct(Client $guzzle, LoggerInterface $logger, string $shopwareVersion)
     {
         $this->guzzleClient = $guzzle;
         $this->logger = $logger;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function execute(AppAction $action, Context $context): void
@@ -48,6 +45,7 @@ class Executor
                             (string) json_encode($payload),
                             $action->getAppSecret()
                         ),
+                        'sw-version' => $this->shopwareVersion,
                     ],
                     'json' => $payload,
                 ]

@@ -19,43 +19,32 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class AppRegistrationService
 {
-    /**
-     * @var HandshakeFactory
-     */
-    private $handshakeFactory;
+    private HandshakeFactory $handshakeFactory;
 
-    /**
-     * @var Client
-     */
-    private $httpClient;
+    private Client $httpClient;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    /**
-     * @var string
-     */
-    private $shopUrl;
+    private string $shopUrl;
 
-    /**
-     * @var ShopIdProvider
-     */
-    private $shopIdProvider;
+    private ShopIdProvider $shopIdProvider;
+
+    private string $shopwareVersion;
 
     public function __construct(
         HandshakeFactory $handshakeFactory,
         Client $httpClient,
         EntityRepositoryInterface $appRepository,
         string $shopUrl,
-        ShopIdProvider $shopIdProvider
+        ShopIdProvider $shopIdProvider,
+        string $shopwareVersion
     ) {
         $this->handshakeFactory = $handshakeFactory;
         $this->httpClient = $httpClient;
         $this->appRepository = $appRepository;
         $this->shopUrl = $shopUrl;
         $this->shopIdProvider = $shopIdProvider;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void
@@ -116,6 +105,7 @@ class AppRegistrationService
             $this->httpClient->post($confirmationUrl, [
                 'headers' => [
                     'shopware-shop-signature' => $signature,
+                    'sw-version' => $this->shopwareVersion,
                 ],
                 'json' => $payload,
             ]);

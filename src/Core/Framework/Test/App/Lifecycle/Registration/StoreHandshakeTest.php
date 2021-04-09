@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Kernel;
 
 class StoreHandshakeTest extends TestCase
 {
@@ -20,7 +21,7 @@ class StoreHandshakeTest extends TestCase
             ->method('signPayloadWithAppSecret')
             ->willReturn('1234');
 
-        $handshake = new StoreHandshake($shopUrl, $appEndpoint, '', $shopId, $storeClientMock);
+        $handshake = new StoreHandshake($shopUrl, $appEndpoint, '', $shopId, $storeClientMock, Kernel::SHOPWARE_FALLBACK_VERSION);
 
         $request = $handshake->assembleRequest();
         static::assertStringStartsWith($appEndpoint, (string) $request->getUri());
@@ -42,6 +43,8 @@ class StoreHandshakeTest extends TestCase
             '1234',
             $request->getHeaderLine('shopware-app-signature')
         );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
     public function testAppProof(): void
@@ -57,7 +60,7 @@ class StoreHandshakeTest extends TestCase
             ->with($shopId . $shopUrl . $appName, $appName)
             ->willReturn('1234');
 
-        $handshake = new StoreHandshake($shopUrl, $appEndpoint, $appName, $shopId, $storeClientMock);
+        $handshake = new StoreHandshake($shopUrl, $appEndpoint, $appName, $shopId, $storeClientMock, Kernel::SHOPWARE_FALLBACK_VERSION);
 
         static::assertEquals('1234', $handshake->fetchAppProof());
     }

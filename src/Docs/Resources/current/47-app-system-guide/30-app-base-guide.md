@@ -65,6 +65,7 @@ app can fetch additional data through the shops API. This also has the advantage
 get fetched instead of relying on the associations determined by the event. Other events in contrast contain the entity data that defines the event,
 but keep in mind that event might not contain all associations.    
 
+The current shopware version will be sent as a `sw-version` header.
 
 You can verify the authenticity of the incoming request by checking the `shopware-shop-signature` every request should have a sha256 hmac of the 
 request body, that is signed with the secret your app assigned the shop during the registration.
@@ -178,6 +179,8 @@ The main difference is that it contains the name of the entity and an array of i
 }
 ```
 
+The current shopware version will be sent as a `sw-version` header.
+
 Again you can verify the authenticity of the incoming request, like with webhooks, by checking the `shopware-shop-signature` it too should contain a sha256 hmac of the
 request body, that is signed with the secret your app assigned the shop during the registration.
 
@@ -211,9 +214,10 @@ there.
 
 When the user opens the module in the administration your app will receive a request to the given source url.
 Your app can determine the shop that has opened the module through query parameters added to the url:
-`https://example.com//promotion/view/promotion-config?shop-id=HKTOOpH9nUQ2&shop-url=http%3A%2F%2Fmy.shop.com&timestamp=1592406102&shopware-shop-signature=3621fffa80187f6d43ce6cb25760340ab9ba2ea2f601e6a78a002e601579f415`
+`https://example.com//promotion/view/promotion-config?shop-id=HKTOOpH9nUQ2&shop-url=http%3A%2F%2Fmy.shop.com&timestamp=1592406102&sw-version=6.4.9999999.9999999-dev&shopware-shop-signature=3621fffa80187f6d43ce6cb25760340ab9ba2ea2f601e6a78a002e601579f415`
 
 In this case the `shopware-shop-signature` parameter contains an sha256 hmac of the rest of the query string, signed again with the secret your app assigned the shop during the registration.
+The `sw-version` is the current version of the shopware that the app installed on.
 
 
 ### Custom fields

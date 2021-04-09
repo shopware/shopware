@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\App\TestAppServer;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class AppRegistrationServiceTest extends TestCase
@@ -75,6 +76,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $uriWithoutQuery = $registrationRequest->getUri()->withQuery('');
         static::assertEquals($manifest->getSetup()->getRegistrationUrl(), (string) $uriWithoutQuery);
+        static::assertNotEmpty($registrationRequest->getHeaderLine('sw-version'));
 
         $this->assertRequestIsSigned($registrationRequest, $manifest->getSetup()->getSecret());
 
@@ -97,6 +99,8 @@ class AppRegistrationServiceTest extends TestCase
             hash_hmac('sha256', json_encode($postBody), $appSecret),
             $confirmationReq->getHeaderLine('shopware-shop-signature')
         );
+
+        static::assertNotEmpty($confirmationReq->getHeaderLine('sw-version'));
     }
 
     public function testRegistrationConfirmFails(): void
@@ -187,7 +191,8 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeFactory = new HandshakeFactory(
             $this->shopUrl,
             $shopIdProviderMock,
-            $this->getContainer()->get(StoreClient::class)
+            $this->getContainer()->get(StoreClient::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $registrator = new AppRegistrationService(
@@ -195,7 +200,8 @@ class AppRegistrationServiceTest extends TestCase
             $this->getContainer()->get('shopware.app_system.guzzle'),
             $this->getContainer()->get('app.repository'),
             $this->shopUrl,
-            $this->getContainer()->get(ShopIdProvider::class)
+            $this->getContainer()->get(ShopIdProvider::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         static::expectException(AppRegistrationException::class);
@@ -209,6 +215,11 @@ class AppRegistrationServiceTest extends TestCase
 
         static::expectException(\RuntimeException::class);
         $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+
+        $registrationRequest = $this->getPastRequest(0);
+        $confirmationRequest = $this->getPastRequest(1);
+        static::assertNotEmpty($registrationRequest->getHeaderLine('sw-version'));
+        static::assertNotEmpty($confirmationRequest->getHeaderLine('sw-version'));
     }
 
     public function testDoesNotRegisterIfNoSetupElementIsProvided(): void

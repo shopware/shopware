@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class HandshakeFactoryTest extends TestCase
@@ -27,7 +28,8 @@ class HandshakeFactoryTest extends TestCase
         $factory = new HandshakeFactory(
             $shopUrl,
             $this->getContainer()->get(ShopIdProvider::class),
-            $this->getContainer()->get(StoreClient::class)
+            $this->getContainer()->get(StoreClient::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $handshake = $factory->create($manifest);
@@ -50,7 +52,8 @@ class HandshakeFactoryTest extends TestCase
         $factory = new HandshakeFactory(
             $shopUrl,
             $this->getContainer()->get(ShopIdProvider::class),
-            $this->getContainer()->get(StoreClient::class)
+            $this->getContainer()->get(StoreClient::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         static::expectException(AppRegistrationException::class);
@@ -66,7 +69,8 @@ class HandshakeFactoryTest extends TestCase
         $factory = new HandshakeFactory(
             $shopUrl,
             $this->getContainer()->get(ShopIdProvider::class),
-            $this->getContainer()->get(StoreClient::class)
+            $this->getContainer()->get(StoreClient::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         $handshake = $factory->create($manifest);

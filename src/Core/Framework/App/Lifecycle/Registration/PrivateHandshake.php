@@ -11,38 +11,26 @@ use Psr\Http\Message\RequestInterface;
  */
 class PrivateHandshake implements AppHandshakeInterface
 {
-    /**
-     * @var string
-     */
-    private $shopUrl;
+    private string $shopUrl;
 
-    /**
-     * @var string
-     */
-    private $secret;
+    private string $secret;
 
-    /**
-     * @var string
-     */
-    private $appEndpoint;
+    private string $appEndpoint;
 
-    /**
-     * @var string
-     */
-    private $appName;
+    private string $appName;
 
-    /**
-     * @var string
-     */
-    private $shopId;
+    private string $shopId;
 
-    public function __construct(string $shopUrl, string $secret, string $appEndpoint, string $appName, string $shopId)
+    private string $shopwareVersion;
+
+    public function __construct(string $shopUrl, string $secret, string $appEndpoint, string $appName, string $shopId, string $shopwareVersion)
     {
         $this->shopUrl = $shopUrl;
         $this->secret = $secret;
         $this->appEndpoint = $appEndpoint;
         $this->appName = $appName;
         $this->shopId = $shopId;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function assembleRequest(): RequestInterface
@@ -63,6 +51,7 @@ class PrivateHandshake implements AppHandshakeInterface
             $uri,
             [
                 'shopware-app-signature' => $signature,
+                'sw-version' => $this->shopwareVersion,
             ]
         );
     }

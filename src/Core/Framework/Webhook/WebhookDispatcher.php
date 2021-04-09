@@ -22,45 +22,23 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class WebhookDispatcher implements EventDispatcherInterface
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var WebhookCollection|null
-     */
-    private $webhooks;
+    private ?WebhookCollection $webhooks = null;
 
-    /**
-     * @var Client
-     */
-    private $guzzle;
+    private Client $guzzle;
 
-    /**
-     * @var string
-     */
-    private $shopUrl;
+    private string $shopUrl;
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    private ContainerInterface $container;
 
-    /**
-     * @var array
-     */
-    private $privileges = [];
+    private array $privileges = [];
 
-    /**
-     * @var HookableEventFactory
-     */
-    private $eventFactory;
+    private HookableEventFactory $eventFactory;
+
+    private string $shopwareVersion;
 
     /**
      * @psalm-suppress ContainerDependency
@@ -71,7 +49,8 @@ class WebhookDispatcher implements EventDispatcherInterface
         Client $guzzle,
         string $shopUrl,
         ContainerInterface $container,
-        HookableEventFactory $eventFactory
+        HookableEventFactory $eventFactory,
+        string $shopwareVersion
     ) {
         $this->dispatcher = $dispatcher;
         $this->connection = $connection;
@@ -81,6 +60,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         // ShopIdProvider and webhook repository can not be injected directly as it would lead to a circular reference
         $this->container = $container;
         $this->eventFactory = $eventFactory;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     /**
@@ -207,6 +187,7 @@ class WebhookDispatcher implements EventDispatcherInterface
                 $webhook->getUrl(),
                 [
                     'Content-Type' => 'application/json',
+                    'sw-version' => $this->shopwareVersion,
                 ],
                 $jsonPayload
             );

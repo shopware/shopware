@@ -13,7 +13,7 @@ Component.register('sw-settings-payment-detail', {
         Mixin.getByName('placeholder')
     ],
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -31,7 +31,8 @@ Component.register('sw-settings-payment-detail', {
             mediaItem: null,
             uploadTag: 'sw-payment-method-upload-tag',
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            customFieldSets: null
         };
     },
 
@@ -102,6 +103,10 @@ Component.register('sw-settings-payment-detail', {
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
+        },
+
+        showCustomFields() {
+            return this.paymentMethod && this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -114,6 +119,7 @@ Component.register('sw-settings-payment-detail', {
             if (this.$route.params.id) {
                 this.paymentMethodId = this.$route.params.id;
                 this.loadEntityData();
+                this.loadCustomFieldSets();
             }
         },
 
@@ -148,6 +154,12 @@ Component.register('sw-settings-payment-detail', {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('payment_method').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         saveFinish() {

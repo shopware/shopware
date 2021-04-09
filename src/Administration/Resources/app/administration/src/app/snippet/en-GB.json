@@ -696,7 +696,9 @@
       "delivery_time": "Delivery time | Delivery times",
       "import_export_profile": "Import/Export Profile | Import/Export Profiles",
       "feature_set": "Template | Templates",
-      "event_action": "Business events"
+      "event_action": "Business events",
+      "property_group": "Property group | Property groups",
+      "document_base_config": "Document base config | Document base configs"
     },
     "day-of-week": {
       "monday": "Monday",

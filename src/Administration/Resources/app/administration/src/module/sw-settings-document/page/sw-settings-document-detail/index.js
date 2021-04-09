@@ -9,7 +9,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-settings-document-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -268,7 +268,8 @@ Component.register('sw-settings-document-detail', {
                 }
             ],
             alreadyAssignedSalesChannelIdsToType: [],
-            typeIsLoading: false
+            typeIsLoading: false,
+            customFieldSets: null
         };
     },
 
@@ -347,7 +348,11 @@ Component.register('sw-settings-document-detail', {
         documentBaseConfig() {
             return this.documentConfig;
         },
-        ...mapPropertyErrors('documentBaseConfig', ['name', 'documentTypeId'])
+        ...mapPropertyErrors('documentBaseConfig', ['name', 'documentTypeId']),
+
+        showCustomFields() {
+            return this.customFieldSets && this.customFieldSets.length > 0;
+        }
     },
 
     created() {
@@ -359,7 +364,7 @@ Component.register('sw-settings-document-detail', {
             this.isLoading = true;
             await this.loadAvailableSalesChannel();
             if (this.documentConfigId) {
-                await this.loadEntityData();
+                await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             } else {
                 this.documentConfig = this.documentBaseConfigRepository.create(Shopware.Context.api);
                 this.documentConfig.global = false;
@@ -395,6 +400,12 @@ Component.register('sw-settings-document-detail', {
                 this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
             this.isLoading = false;
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('document_base_config').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         async loadAvailableSalesChannel() {

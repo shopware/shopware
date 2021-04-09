@@ -117,6 +117,19 @@
                             @modal-close="closeModalPreview">
                         </sw-product-stream-modal-preview>
                     {% endblock %}
+
+                    {% block sw_prouct_stream_detail_custom_field_sets %}
+                        <sw-card v-if="showCustomFields"
+                                 :large="true"
+                                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                                 :isLoading="isLoading">
+                            <sw-custom-field-set-renderer
+                                :entity="productStream"
+                                :disabled="!acl.can('product_stream.editor')"
+                                :sets="customFieldSets">
+                            </sw-custom-field-set-renderer>
+                        </sw-card>
+                    {% endblock %}
                 </sw-card-view>
             </template>
         {% endblock %}

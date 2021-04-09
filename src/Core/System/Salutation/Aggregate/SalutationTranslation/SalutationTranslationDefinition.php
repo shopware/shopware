@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Salutation\Aggregate\SalutationTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -43,6 +44,7 @@ class SalutationTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             (new StringField('display_name', 'displayName'))->addFlags(new ApiAware(), new Required()),
             (new StringField('letter_name', 'letterName'))->addFlags(new ApiAware(), new Required()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

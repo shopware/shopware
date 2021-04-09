@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-review-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         'placeholder',
@@ -30,7 +30,8 @@ Component.register('sw-review-detail', {
             isLoading: null,
             isSaveSuccessful: false,
             reviewId: null,
-            review: {}
+            review: {},
+            customFieldSets: null
         };
     },
 
@@ -87,6 +88,10 @@ Component.register('sw-review-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        showCustomFields() {
+            return this.review && this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -106,6 +111,7 @@ Component.register('sw-review-detail', {
                 this.reviewId = this.$route.params.id;
 
                 this.loadEntityData();
+                this.loadCustomFieldSets();
             }
         },
 
@@ -121,6 +127,12 @@ Component.register('sw-review-detail', {
             this.repository.get(this.reviewId, context, criteria).then((review) => {
                 this.review = review;
                 this.isLoading = false;
+            });
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('product_review').then((sets) => {
+                this.customFieldSets = sets;
             });
         },
 

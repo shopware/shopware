@@ -40,6 +40,7 @@ Table(ShopwareCoreCheckoutPromotionPromotionDefinition, "promotion\n(Discounts w
    orderCount int
    ordersPerCustomerCount json
    exclusionIds list
+   customFields translated
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -110,6 +111,7 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDe
 }
 TranslationTable(ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition, "promotion_translation\n((Translations))") {
    not_null(name) string
+   customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
    primary_key(promotionId) foreignKey

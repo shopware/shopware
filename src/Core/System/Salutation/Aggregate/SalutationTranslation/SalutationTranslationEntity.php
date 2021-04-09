@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\System\Salutation\Aggregate\SalutationTranslation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
 class SalutationTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */

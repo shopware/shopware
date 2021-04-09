@@ -9,7 +9,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-currency-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -42,7 +42,8 @@ Component.register('sw-settings-currency-detail', {
             isSaveSuccessful: false,
             currentCurrencyCountry: null,
             currencyCountryRoundings: null,
-            searchTerm: ''
+            searchTerm: '',
+            customFieldSets: null
         };
     },
 
@@ -162,6 +163,10 @@ Component.register('sw-settings-currency-detail', {
             }
 
             return this.$tc('sw-settings-currency.detail.emptyCountryRoundings');
+        },
+
+        showCustomFields() {
+            return this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -181,7 +186,10 @@ Component.register('sw-settings-currency-detail', {
         createdComponent() {
             if (this.currencyId) {
                 this.currencyId = this.$route.params.id;
-                return this.loadEntityData();
+                return Promise.all([
+                    this.loadEntityData(),
+                    this.loadCustomFieldSets()
+                ]);
             }
 
             Shopware.State.commit('context/resetLanguageToDefault');
@@ -226,6 +234,12 @@ Component.register('sw-settings-currency-detail', {
                 return res;
             }).finally(() => {
                 this.currencyCountryLoading = false;
+            });
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('currency').then((sets) => {
+                this.customFieldSets = sets;
             });
         },
 

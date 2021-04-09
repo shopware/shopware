@@ -3,6 +3,7 @@
         {% block sw_settings_rule_detail_base_content_card %}
             <sw-card
                 :large="true"
+                :isLoading="isLoading"
                 :title="$tc('sw-settings-rule.detail.titleCard')">
                 <template v-if="rule">
                     <sw-container columns="2fr 1fr" gap="0px 32px">
@@ -68,6 +69,7 @@
             <sw-card
                 class="sw-settings-rule-detail__condition_container"
                 :large="true"
+                :isLoading="isLoading"
                 :title="$tc('sw-settings-rule.detail.ruleCard')">
                 <sw-condition-tree
                     :initialConditions="conditions"
@@ -79,6 +81,19 @@
                     :disabled="!acl.can('rule.editor')"
                     @conditions-changed="onConditionsChanged">
                 </sw-condition-tree>
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_settings_rule_detail_custom_field_sets %}
+            <sw-card v-if="showCustomFields"
+                     :large="true"
+                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                     :isLoading="isLoading">
+                <sw-custom-field-set-renderer
+                    :entity="rule"
+                    :disabled="!acl.can('rule.editor')"
+                    :sets="customFieldSets">
+                </sw-custom-field-set-renderer>
             </sw-card>
         {% endblock %}
     </div>

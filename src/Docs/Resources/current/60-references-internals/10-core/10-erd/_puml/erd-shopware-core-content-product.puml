@@ -173,6 +173,7 @@ Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "
    points float
    status bool
    comment longText
+   customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }

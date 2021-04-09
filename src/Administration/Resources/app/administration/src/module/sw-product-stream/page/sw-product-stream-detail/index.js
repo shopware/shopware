@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-stream-detail', {
     template,
 
-    inject: ['repositoryFactory', 'productStreamConditionService', 'acl'],
+    inject: ['repositoryFactory', 'productStreamConditionService', 'acl', 'customFieldDataProviderService'],
 
     provide() {
         return {
@@ -55,7 +55,8 @@ Component.register('sw-product-stream-detail', {
             deletedProductStreamFilters: [],
             productCustomFields: {},
             showModalPreview: false,
-            languageId: null
+            languageId: null,
+            customFieldSets: null
         };
     },
 
@@ -121,7 +122,11 @@ Component.register('sw-product-stream-detail', {
             return this.isSystemLanguage;
         },
 
-        ...mapPropertyErrors('productStream', ['name'])
+        ...mapPropertyErrors('productStream', ['name']),
+
+        showCustomFields() {
+            return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
+        }
     },
 
     watch: {
@@ -149,6 +154,13 @@ Component.register('sw-product-stream-detail', {
         createdComponent() {
             this.languageId = Context.api.languageId;
             this.getProductCustomFields();
+            this.loadCustomFieldSets();
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('product_stream').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         createProductStream() {

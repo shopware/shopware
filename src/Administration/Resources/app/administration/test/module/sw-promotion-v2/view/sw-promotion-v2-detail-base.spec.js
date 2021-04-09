@@ -46,6 +46,9 @@ function createWrapper(privileges = []) {
             },
             promotionCodeApiService: {
                 generateCodeFixed: () => 'ABCDEF'
+            },
+            customFieldDataProviderService: {
+                getCustomFieldSets: () => Promise.resolve([])
             }
         },
         propsData: {

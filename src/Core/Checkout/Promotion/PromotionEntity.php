@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGro
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Rule\Rule;
 class PromotionEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     public const CODE_TYPE_NO_CODE = 'no_code';
 

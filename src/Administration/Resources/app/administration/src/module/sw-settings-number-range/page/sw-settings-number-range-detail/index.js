@@ -9,7 +9,8 @@ Component.register('sw-settings-number-range-detail', {
     inject: [
         'numberRangeService',
         'repositoryFactory',
-        'acl'
+        'acl',
+        'customFieldDataProviderService'
     ],
 
     mixins: [
@@ -34,7 +35,8 @@ Component.register('sw-settings-number-range-detail', {
             preview: '',
             state: 1,
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            customFieldSets: null
         };
     },
 
@@ -182,6 +184,10 @@ Component.register('sw-settings-number-range-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        showCustomFields() {
+            return this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -204,7 +210,7 @@ Component.register('sw-settings-number-range-detail', {
 
             if (this.$route.params.id && this.numberRange.isLoading !== true) {
                 this.numberRangeId = this.$route.params.id;
-                await this.loadEntityData();
+                await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
             this.isLoading = false;
@@ -216,6 +222,12 @@ Component.register('sw-settings-number-range-detail', {
             this.getState();
             this.splitPattern();
             await this.loadSalesChannels();
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('number_range').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         splitPattern() {

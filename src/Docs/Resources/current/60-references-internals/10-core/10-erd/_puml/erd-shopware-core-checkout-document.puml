@@ -66,6 +66,7 @@ Table(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigD
    documentNumber numberRange
    config json
    not_null(createdAt) createdAt
+   customFields customFields
    updatedAt updatedAt
 }
 Table(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition, "document_base_config_sales_channel\n(SalesChannel Configuration)") {

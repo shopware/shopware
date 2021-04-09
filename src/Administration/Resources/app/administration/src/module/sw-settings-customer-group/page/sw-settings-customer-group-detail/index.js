@@ -11,7 +11,7 @@ const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 Component.register('sw-settings-customer-group-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -45,7 +45,8 @@ Component.register('sw-settings-customer-group-detail', {
             isSaveSuccessful: false,
             openSeoModal: false,
             registrationTitleError: null,
-            seoUrls: []
+            seoUrls: [],
+            customFieldSets: null
         };
     },
 
@@ -123,6 +124,10 @@ Component.register('sw-settings-customer-group-detail', {
             return this.customerGroup && this.customerGroup.isNew()
                 ? this.acl.can('customer_groups.creator')
                 : this.acl.can('customer_groups.editor');
+        },
+
+        showCustomFields() {
+            return this.customerGroup && this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -146,6 +151,7 @@ Component.register('sw-settings-customer-group-detail', {
             this.isLoading = true;
             if (this.customerGroupId) {
                 this.loadSeoUrls();
+                this.loadCustomFieldSets();
                 const criteria = new Criteria();
                 criteria.addAssociation('registrationSalesChannels');
 
@@ -172,6 +178,12 @@ Component.register('sw-settings-customer-group-detail', {
             criteria.addGroupField('salesChannelId');
 
             this.seoUrls = await this.seoUrlRepository.search(criteria, Shopware.Context.api);
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('customer_group').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         onChangeLanguage() {

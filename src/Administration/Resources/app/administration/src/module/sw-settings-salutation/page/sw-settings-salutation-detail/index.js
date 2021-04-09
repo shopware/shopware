@@ -9,7 +9,7 @@ const utils = Shopware.Utils;
 Component.register('sw-settings-salutation-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -43,7 +43,8 @@ Component.register('sw-settings-salutation-detail', {
             salutation: null,
             invalidKey: false,
             isKeyChecking: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            customFieldSets: null
         };
     },
 
@@ -107,7 +108,11 @@ Component.register('sw-settings-salutation-detail', {
             };
         },
 
-        ...mapPropertyErrors('salutation', ['displayName', 'letterName'])
+        ...mapPropertyErrors('salutation', ['displayName', 'letterName']),
+
+        showCustomFields() {
+            return this.salutation && this.customFieldSets && this.customFieldSets.length > 0;
+        }
     },
 
     watch: {
@@ -130,12 +135,19 @@ Component.register('sw-settings-salutation-detail', {
                     this.salutation = salutation;
                     this.isLoading = false;
                 });
+                this.loadCustomFieldSets();
                 return;
             }
 
             Shopware.State.commit('context/resetLanguageToDefault');
             this.salutation = this.salutationRepository.create(Shopware.Context.api);
             this.isLoading = false;
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('salutation').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         onChangeLanguage() {

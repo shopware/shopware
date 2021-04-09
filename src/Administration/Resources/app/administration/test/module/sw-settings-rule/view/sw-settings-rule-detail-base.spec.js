@@ -16,13 +16,15 @@ function createWrapper(privileges = []) {
             'sw-multi-select': true
         },
         propsData: {
+            conditionRepository: {},
             ruleId: 'uuid1',
             rule: {
                 name: 'Test rule',
                 priority: 7,
                 description: 'Foo, bar',
                 type: ''
-            }
+            },
+            isLoading: false
         },
         provide: {
             ruleConditionDataProviderService: {
@@ -34,6 +36,9 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            customFieldDataProviderService: {
+                getCustomFieldSets: () => Promise.resolve([])
             }
         }
     });

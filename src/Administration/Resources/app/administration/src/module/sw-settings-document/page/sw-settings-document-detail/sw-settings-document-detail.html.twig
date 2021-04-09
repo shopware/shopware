@@ -223,6 +223,18 @@
                         </sw-container>
                     </sw-card>
                 {% endblock %}
+
+                {% block sw_settings_document_detail_custom_field_sets %}
+                    <sw-card v-if="showCustomFields"
+                             :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                             :isLoading="isLoading">
+                        <sw-custom-field-set-renderer
+                            :entity="documentConfig"
+                            :disabled="!acl.can('document.editor')"
+                            :sets="customFieldSets">
+                        </sw-custom-field-set-renderer>
+                    </sw-card>
+                {% endblock %}
             </sw-card-view>
         {% endblock %}
     </sw-page>

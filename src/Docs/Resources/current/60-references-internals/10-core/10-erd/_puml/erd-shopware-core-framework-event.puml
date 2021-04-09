@@ -29,6 +29,7 @@ Table(ShopwareCoreFrameworkEventEventActionEventActionDefinition, "event_action\
    config json
    active bool
    title string
+   customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }

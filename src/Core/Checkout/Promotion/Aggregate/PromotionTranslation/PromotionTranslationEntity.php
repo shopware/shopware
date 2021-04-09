@@ -4,10 +4,13 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation;
 
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class PromotionTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */

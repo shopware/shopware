@@ -67,6 +67,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateLoader"/>
             <argument type="service" id="app_template.repository"/>
+            <argument type="service" id="app.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateLoader">

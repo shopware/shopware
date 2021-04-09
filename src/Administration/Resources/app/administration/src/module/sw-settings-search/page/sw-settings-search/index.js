@@ -1,7 +1,7 @@
 import template from './sw-settings-search.html.twig';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 
 Component.register('sw-settings-search', {
     template,
@@ -32,7 +32,8 @@ Component.register('sw-settings-search', {
             isLoading: false,
             currentSalesChannelId: null,
             searchTerms: '',
-            searchResults: null
+            searchResults: null,
+            defaultConfig: null
         };
     },
 
@@ -45,10 +46,21 @@ Component.register('sw-settings-search', {
             return this.repositoryFactory.create('product_search_config');
         },
 
+        productSearchFieldRepository() {
+            return this.repositoryFactory.create('product_search_config_field');
+        },
+
         productSearchConfigsCriteria() {
             const criteria = new Criteria();
             criteria.addAssociation('configFields');
             criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
+            return criteria;
+        },
+
+        productDefaultConfigsCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('configFields');
+            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.systemLanguageId));
             return criteria;
         },
 
@@ -76,6 +88,7 @@ Component.register('sw-settings-search', {
 
     methods: {
         createdComponent() {
+            this.getDefaultSearchConfig();
             this.getProductSearchConfigs();
         },
 
@@ -83,7 +96,11 @@ Component.register('sw-settings-search', {
             this.isLoading = true;
             this.productSearchRepository.search(this.productSearchConfigsCriteria, Shopware.Context.api)
                 .then((items) => {
-                    this.productSearchConfigs = items.first();
+                    if (!items.total) {
+                        this.onSaveDefaultSearchConfig();
+                    } else {
+                        this.productSearchConfigs = items.first();
+                    }
                 })
                 .catch((err) => {
                     this.createNotificationError({
@@ -95,7 +112,66 @@ Component.register('sw-settings-search', {
                 });
         },
 
+        getDefaultSearchConfig() {
+            this.productSearchRepository.search(this.productDefaultConfigsCriteria, Shopware.Context.api)
+                .then((items) => {
+                    this.defaultConfig = items.first();
+                })
+                .catch((err) => {
+                    this.createNotificationError({
+                        message: err.message
+                    });
+                });
+        },
+
+        createDefaultSearchConfig() {
+            const defaultConfig = this.productSearchRepository.create(Shopware.Context.api);
+            defaultConfig.andLogic = this.defaultConfig.andLogic;
+            defaultConfig.minSearchLength = this.defaultConfig.minSearchLength;
+            defaultConfig.excludedTerms = [];
+            defaultConfig.languageId = Shopware.Context.api.languageId;
+            return defaultConfig;
+        },
+
+        createConfigFields() {
+            if (!this.defaultConfig || !this.defaultConfig.configFields.length) {
+                return null;
+            }
+
+            const configFieldCollection = new EntityCollection(
+                this.productSearchFieldRepository.route,
+                this.productSearchFieldRepository.entityName,
+                Shopware.Context.api
+            );
+            this.defaultConfig.configFields.forEach(item => {
+                const newConfigField = this.productSearchFieldRepository.create(Shopware.Context.api);
+                newConfigField.field = item.field;
+                newConfigField.ranking = item.ranking;
+                newConfigField.searchable = item.searchable;
+                newConfigField.tokenize = item.tokenize;
+                newConfigField.customFieldId = null;
+                newConfigField.searchConfigId = this.productSearchConfigs.id;
+                configFieldCollection.add(newConfigField);
+            });
+            return configFieldCollection;
+        },
+
+        onSaveDefaultSearchConfig() {
+            this.productSearchConfigs = this.createDefaultSearchConfig();
+            this.productSearchConfigs.configFields = this.createConfigFields();
+            this.productSearchRepository.save(this.productSearchConfigs, Shopware.Context.api)
+                .then(() => {
+                    this.getProductSearchConfigs();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-search.notification.saveError')
+                    });
+                });
+        },
+
         onChangeLanguage() {
+            this.getDefaultSearchConfig();
             this.getProductSearchConfigs();
         },
 

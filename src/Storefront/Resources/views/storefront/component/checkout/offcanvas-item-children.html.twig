@@ -2,7 +2,7 @@
     {% set isChangeable = false %}
     {% set nestingLevel = 0 %}
 
-    <div class="cart-item-children">
+    <div class="cart-item-children" data-fading="true">
 
         {% block component_offcanvas_item_children_header %}
             <div class="container cart-item-collapse-container">
@@ -72,7 +72,11 @@
 
                                             {% block page_checkout_item_child_headline_label %}
                                                 <div class="cart-item-child-label-bullet">
-                                                    {{ nestedLineItem.label }}
+                                                    <div class="swag-fade-container swag-fade-container-shrinked">
+                                                        {{ nestedLineItem.label }}
+                                                    </div>
+                                                    <a href="#" class="swag-fading-link-more swag-fade-link-hidden">more</a>
+                                                    <a href="#" class="swag-fading-link-less swag-fade-link-hidden">less</a>
                                                 </div>
                                             {% endblock %}
 
@@ -86,7 +90,7 @@
                                     {% endblock %}
 
                                     {% block page_checkout_item_child_remove %}
-                                        <div class="d-md-block col-md-1 cart-item-child-remove-icon-container {% if nestedLineItem.removable %}col-1{% else %}d-none{% endif %}">
+                                        <div class="d-md-block col-md-1 cart-item-child-remove-icon-container col-1">
 
                                             {% block page_checkout_item_remove_icon %}
                                                 {% if nestedLineItem.removable %}

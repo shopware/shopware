@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
@@ -9,32 +10,33 @@ use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
 class TemplatePersister
 {
-    /**
-     * @var AbstractTemplateLoader
-     */
-    private $templateLoader;
+    private AbstractTemplateLoader $templateLoader;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $templateRepository;
+    private EntityRepositoryInterface $templateRepository;
 
-    public function __construct(AbstractTemplateLoader $templateLoader, EntityRepositoryInterface $templateRepository)
-    {
+    private EntityRepositoryInterface $appRepository;
+
+    public function __construct(
+        AbstractTemplateLoader $templateLoader,
+        EntityRepositoryInterface $templateRepository,
+        EntityRepositoryInterface $appRepository
+    ) {
         $this->templateLoader = $templateLoader;
         $this->templateRepository = $templateRepository;
+        $this->appRepository = $appRepository;
     }
 
     public function updateTemplates(Manifest $manifest, string $appId, Context $context): void
     {
-        $existingTemplates = $this->getExistingTemplates($appId, $context);
+        $app = $this->getAppWithExistingTemplates($appId, $context);
+        /** @var TemplateCollection $existingTemplates */
+        $existingTemplates = $app->getTemplates();
         $templatePaths = $this->templateLoader->getTemplatePathsForApp($manifest);
 
         $upserts = [];
@@ -50,7 +52,7 @@ class TemplatePersister
                 $existingTemplates->remove($existing->getId());
             } else {
                 $payload['appId'] = $appId;
-                $payload['active'] = false;
+                $payload['active'] = $app->isActive();
                 $payload['path'] = $templatePath;
             }
 
@@ -78,14 +80,14 @@ class TemplatePersister
         }
     }
 
-    private function getExistingTemplates(string $appId, Context $context): TemplateCollection
+    private function getAppWithExistingTemplates(string $appId, Context $context): AppEntity
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria = new Criteria([$appId]);
+        $criteria->addAssociation('templates');
 
-        /** @var TemplateCollection $templates */
-        $templates = $this->templateRepository->search($criteria, $context)->getEntities();
+        /** @var AppEntity $app */
+        $app = $this->appRepository->search($criteria, $context)->first();
 
-        return $templates;
+        return $app;
     }
 }

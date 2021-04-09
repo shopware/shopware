@@ -16,9 +16,12 @@ class TemplateLoaderTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $templateLoader = new TemplateLoader();
 
+        $templates = $templateLoader->getTemplatePathsForApp($manifest);
+        sort($templates);
+
         static::assertEquals(
-            ['storefront/layout/header/logo.html.twig'],
-            $templateLoader->getTemplatePathsForApp($manifest)
+            ['storefront/layout/header/header.html.twig', 'storefront/layout/header/logo.html.twig'],
+            $templates
         );
     }
 

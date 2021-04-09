@@ -171,7 +171,7 @@ export default class CookieConfiguration extends Plugin {
 
         this._hideCookieBar();
 
-        AjaxOffCanvas.open(url, false, this._onOffCanvasOpened.bind(this, callback), offCanvasPosition, null, null, isFullwidth);
+        AjaxOffCanvas.open(url, false, this._onOffCanvasOpened.bind(this, callback), offCanvasPosition, undefined, undefined, isFullwidth);
     }
 
     /**

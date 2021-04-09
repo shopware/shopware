@@ -541,5 +541,16 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTaskHandler">
+            <tag name="messenger.message_handler"/>
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.dal.versioning.expire_days%</argument>
+        </service>
     </services>
 </container>

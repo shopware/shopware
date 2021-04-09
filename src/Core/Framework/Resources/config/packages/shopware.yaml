@@ -57,6 +57,8 @@ shopware:
 
     dal:
         batch_size: 125
+        versioning:
+            expire_days: 30
 
     cart:
         expire_days: 120

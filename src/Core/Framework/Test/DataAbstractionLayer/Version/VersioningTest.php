@@ -172,21 +172,22 @@ class VersioningTest extends TestCase
 
         $event = $priceRepository->create([$price], $context);
         $productEvent = $event->getEventByEntityName('product');
+
         static::assertInstanceOf(EntityWrittenEvent::class, $productEvent);
         static::assertEquals([$id], $productEvent->getIds());
 
-        $commits = $this->getCommits('product', $id, Defaults::LIVE_VERSION);
+        $versionId = $this->productRepository->createVersion($id, $context);
+        $version = $context->createWithVersionId($versionId);
+
+        $priceRepository->delete([['id' => $id]], $version);
+
+        $commits = $this->getCommits('product', $id, $versionId);
         static::assertCount(2, $commits);
-
-        $priceRepository->delete([['id' => $id]], $context);
-
-        $commits = $this->getCommits('product', $id, Defaults::LIVE_VERSION);
-        static::assertCount(3, $commits);
 
         /** @var EntityRepositoryInterface $mappingRepository */
         $mappingRepository = $this->getContainer()->get('product_category.repository');
 
-        $event = $mappingRepository->delete([['productId' => $id, 'categoryId' => $categoryId]], $context);
+        $event = $mappingRepository->delete([['productId' => $id, 'categoryId' => $categoryId]], $version);
 
         $productEvent = $event->getEventByEntityName('product');
         static::assertInstanceOf(EntityWrittenEvent::class, $productEvent);
@@ -226,6 +227,11 @@ class VersioningTest extends TestCase
 
         $this->productRepository->upsert([$product], $context);
 
+        $versionId = $this->productRepository->createVersion($id, $context);
+        $version = $context->createWithVersionId($versionId);
+        $this->productRepository->update([['id' => $id, 'name' => 'test']], $version);
+        $this->productRepository->merge($versionId, $context);
+
         $changelog = $this->getVersionData($this->getContainer()->get(TaxDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(0, $changelog);
 
@@ -233,7 +239,7 @@ class VersioningTest extends TestCase
         static::assertCount(1, $changelog);
 
         $changelog = $this->getVersionData($this->getContainer()->get(ProductManufacturerDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
-        static::assertCount(1, $changelog);
+        static::assertCount(0, $changelog);
     }
 
     public function testICanVersionPriceFields(): void
@@ -518,48 +524,34 @@ class VersioningTest extends TestCase
             'name' => 'test',
             'ean' => 'EAN',
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
-            'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
 
         $context = Context::createDefaultContext();
         $this->productRepository->create([$data], $context);
 
-        $changelog = $this->getTranslationVersionData($this->getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId());
+        $versionId = $this->productRepository->createVersion($id, $context);
+        $version = $context->createWithVersionId($versionId);
+
+        $this->productRepository->update([['id' => $id, 'name' => 'test']], $version);
+        $this->productRepository->merge($versionId, $context);
+
+        $changelog = $this->getTranslationVersionData($this->getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId(), 'productVersionId');
+
         static::assertCount(1, $changelog);
         static::assertArrayHasKey('name', $changelog[0]['payload']);
         static::assertEquals('test', $changelog[0]['payload']['name']);
 
-        $this->productRepository->update([['id' => $id, 'name' => 'updated']], $context);
-        $changelog = $this->getTranslationVersionData($this->getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId());
+        $versionId = $this->productRepository->createVersion($id, $context);
+        $version = $context->createWithVersionId($versionId);
+        $this->productRepository->update([['id' => $id, 'name' => 'updated']], $version);
+        $this->productRepository->merge($versionId, $context);
+
+        $changelog = $this->getTranslationVersionData($this->getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId(), 'productVersionId');
+
         static::assertCount(2, $changelog);
         static::assertArrayHasKey('name', $changelog[1]['payload']);
         static::assertEquals('updated', $changelog[1]['payload']['name']);
-    }
-
-    public function testChangelogWrittenForCreate(): void
-    {
-        $id = Uuid::randomHex();
-        $data = [
-            'id' => $id,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'name' => 'test',
-            'ean' => 'EAN',
-            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
-            'manufacturer' => ['name' => 'create'],
-            'tax' => ['name' => 'create', 'taxRate' => 1],
-        ];
-
-        $context = Context::createDefaultContext();
-        $this->productRepository->create([$data], $context);
-
-        $changelog = $this->getVersionData('product', $id, $context->getVersionId());
-
-        static::assertCount(1, $changelog);
-        static::assertEquals($id, $changelog[0]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
-        static::assertEquals('product', $changelog[0]['entity_name']);
     }
 
     public function testChangelogWrittenForUpdate(): void
@@ -579,57 +571,23 @@ class VersioningTest extends TestCase
         $context = Context::createDefaultContext();
         $this->productRepository->create([$data], $context);
 
-        $this->productRepository->upsert([['id' => $id, 'ean' => 'updated']], $context);
+        $versionId = $this->productRepository->createVersion($id, $context);
+
+        $version = $context->createWithVersionId($versionId);
+
+        $this->productRepository->upsert([['id' => $id, 'ean' => 'updated']], $version);
+
+        $this->productRepository->merge($versionId, $context);
 
         $changelog = $this->getVersionData('product', $id, $context->getVersionId());
 
-        static::assertCount(2, $changelog);
-
-        //check insert written
-        static::assertEquals($id, $changelog[0]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
-        static::assertEquals('product', $changelog[0]['entity_name']);
-        static::assertEquals('insert', $changelog[0]['action']);
+        static::assertCount(1, $changelog);
 
         //check update written
-        static::assertEquals($id, $changelog[1]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[1]['entity_id']['versionId']);
-        static::assertEquals('product', $changelog[1]['entity_name']);
-        static::assertEquals('update', $changelog[1]['action']);
-    }
-
-    public function testChangelogWrittenWithMultipleEntities(): void
-    {
-        $id = Uuid::randomHex();
-        $data = [
-            'id' => $id,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'name' => 'test',
-            'ean' => 'EAN',
-            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
-            'manufacturer' => ['id' => $id, 'name' => 'create'],
-            'tax' => ['id' => $id, 'name' => 'create', 'taxRate' => 1],
-        ];
-
-        $context = Context::createDefaultContext();
-        $this->productRepository->create([$data], $context);
-
-        $changelog = $this->getVersionData('product', $id, $context->getVersionId());
-
-        static::assertCount(1, $changelog);
         static::assertEquals($id, $changelog[0]['entity_id']['id']);
         static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[0]['entity_name']);
-        static::assertEquals('insert', $changelog[0]['action']);
-
-        $changelog = $this->getVersionData('product_manufacturer', $id, $context->getVersionId());
-
-        static::assertCount(1, $changelog);
-        static::assertEquals($id, $changelog[0]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
-        static::assertEquals('product_manufacturer', $changelog[0]['entity_name']);
-        static::assertEquals('insert', $changelog[0]['action']);
+        static::assertEquals('update', $changelog[0]['action']);
     }
 
     public function testChangelogAppliedAfterMerge(): void
@@ -650,16 +608,6 @@ class VersioningTest extends TestCase
         $this->productRepository->create([$data], $context);
 
         $versionId = $this->productRepository->createVersion($id, $context);
-
-        $changelog = $this->getVersionData('product', $id, $context->getVersionId());
-
-        static::assertCount(1, $changelog);
-
-        //check insert written
-        static::assertEquals($id, $changelog[0]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
-        static::assertEquals('product', $changelog[0]['entity_name']);
-        static::assertEquals('insert', $changelog[0]['action']);
 
         $changelog = $this->getVersionData('product', $id, $versionId);
 
@@ -696,22 +644,16 @@ class VersioningTest extends TestCase
         $this->productRepository->merge($versionId, $context);
 
         $changelog = $this->getVersionData('product', $id, $context->getVersionId());
-        static::assertCount(2, $changelog);
+        static::assertCount(1, $changelog);
 
-        //check insert written
         static::assertEquals($id, $changelog[0]['entity_id']['id']);
         static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[0]['entity_name']);
-        static::assertEquals('insert', $changelog[0]['action']);
+        static::assertEquals('update', $changelog[0]['action']);
 
-        static::assertEquals($id, $changelog[1]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[1]['entity_id']['versionId']);
-        static::assertEquals('product', $changelog[1]['entity_name']);
-        static::assertEquals('update', $changelog[1]['action']);
-
-        static::assertArrayHasKey('payload', $changelog[1]);
-        static::assertArrayHasKey('ean', $changelog[1]['payload']);
-        static::assertEquals('updated', $changelog[1]['payload']['ean']);
+        static::assertArrayHasKey('payload', $changelog[0]);
+        static::assertArrayHasKey('ean', $changelog[0]['payload']);
+        static::assertEquals('updated', $changelog[0]['payload']['ean']);
     }
 
     public function testICanVersionOneToManyAssociations(): void
@@ -1744,20 +1686,20 @@ class VersioningTest extends TestCase
         $this->productRepository->createVersion($id2, $context, 'campaign', $versionId);
 
         //check changelog written for product 1
-        $changelog = $this->getVersionData('product', $id1, $context->getVersionId());
+        $changelog = $this->getVersionData('product', $id1, $versionId);
         static::assertCount(1, $changelog);
         static::assertEquals($id1, $changelog[0]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals($versionId, $changelog[0]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[0]['entity_name']);
-        static::assertEquals('insert', $changelog[0]['action']);
+        static::assertEquals('clone', $changelog[0]['action']);
 
         //check changelog written for product 2 with same version
-        $changelog = $this->getVersionData('product', $id2, $context->getVersionId());
+        $changelog = $this->getVersionData('product', $id2, $versionId);
         static::assertCount(1, $changelog);
         static::assertEquals($id2, $changelog[0]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals($versionId, $changelog[0]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[0]['entity_name']);
-        static::assertEquals('insert', $changelog[0]['action']);
+        static::assertEquals('clone', $changelog[0]['action']);
 
         //update products of specify version
         $versionContext = $context->createWithVersionId($versionId);
@@ -1968,6 +1910,19 @@ class VersioningTest extends TestCase
         return $customerId;
     }
 
+    private function dump(): void
+    {
+        $commits = $this->connection->fetchAllAssociativeIndexed('SELECT LOWER(HEX(id)) as array_key, LOWER(HEX(id)) as id, is_merge, message, LOWER(HEX(version_id)) as version_id FROM version_commit ORDER BY auto_increment');
+
+        $data = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, auto_increment, LOWER(HEX(version_commit_id)) as version_commit_id, action, entity_name, entity_id, payload FROM version_commit_data ORDER BY auto_increment');
+
+        foreach ($data as $row) {
+            $commits[$row['version_commit_id']]['data'][] = $row;
+        }
+
+        dump($commits);
+    }
+
     private function getCommits(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAll(
@@ -2025,7 +1980,7 @@ class VersioningTest extends TestCase
         return $data;
     }
 
-    private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId): array
+    private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId, string $versionField = 'versionId'): array
     {
         $data = $this->connection->fetchAll(
             "SELECT *
@@ -2033,7 +1988,7 @@ class VersioningTest extends TestCase
              WHERE entity_name = :entity
              AND JSON_EXTRACT(entity_id, '$." . $foreignKeyName . "') = :id
              AND JSON_EXTRACT(entity_id, '$.languageId') = :language
-             AND JSON_EXTRACT(entity_id, '$.versionId') = :version
+             AND JSON_EXTRACT(entity_id, '$." . $versionField . "') = :version
              ORDER BY auto_increment",
             [
                 'entity' => $entity,

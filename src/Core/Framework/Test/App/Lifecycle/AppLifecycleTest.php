@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
@@ -313,12 +314,12 @@ class AppLifecycleTest extends TestCase
                 [
                     'path' => 'storefront/layout/header/logo.html.twig',
                     'template' => 'will be overwritten',
-                    'active' => true,
+                    'active' => false,
                 ],
                 [
                     'path' => 'storefront/got/removed',
                     'template' => 'will be removed',
-                    'active' => true,
+                    'active' => false,
                 ],
             ],
         ]], Context::createDefaultContext());
@@ -395,7 +396,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($apps->first()->getId());
-        $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultTemplate($apps->first()->getId(), false);
         $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
@@ -1031,26 +1032,36 @@ class AppLifecycleTest extends TestCase
         static::assertEquals('checkout.order.placed', $secondWebhook->getEventName());
     }
 
-    private function assertDefaultTemplate(string $appId): void
+    private function assertDefaultTemplate(string $appId, bool $active = true): void
     {
         /** @var EntityRepositoryInterface $templateRepository */
         $templateRepository = $this->getContainer()->get('app_template.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
-
+        $criteria->addSorting(new FieldSorting('path', FieldSorting::ASCENDING));
         $templates = $templateRepository->search($criteria, $this->context)->getEntities();
 
-        static::assertCount(1, $templates);
+        static::assertCount(2, $templates);
+        $templates = array_values($templates->getElements());
 
         /** @var TemplateEntity $template */
-        $template = $templates->first();
+        $template = $templates[0];
+        static::assertEquals('storefront/layout/header/header.html.twig', $template->getPath());
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/header.html.twig',
+            $template->getTemplate()
+        );
+        static::assertEquals($active, $template->isActive());
+
+        /** @var TemplateEntity $template */
+        $template = $templates[1];
         static::assertEquals('storefront/layout/header/logo.html.twig', $template->getPath());
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/logo.html.twig',
             $template->getTemplate()
         );
-        static::assertTrue($template->isActive());
+        static::assertEquals($active, $template->isActive());
     }
 
     private function assertDefaultPaymentMethods(string $appId): void

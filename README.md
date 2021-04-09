@@ -100,6 +100,8 @@ A full installation guide covering different dev environments is available in th
 
 *For the impatient reader, here is a tl;dr using docker.*
 
+Make sure to assign enough resources, especially memory, to Docker to make this work. 
+
 Let's start by cloning the development template:
 
 ```bash

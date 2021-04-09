@@ -3917,31 +3917,11 @@ parameters:
 
 		-
 			message: "#^Cannot call method getPluginInstances\\(\\) on Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Core/Kernel.php
 
 		-
 			message: "#^Cannot call method getPluginDir\\(\\) on Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Cannot call method getPluginInfos\\(\\) on Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Kernel\\:\\:getCacheHash\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function mb_substr expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Kernel.php
 

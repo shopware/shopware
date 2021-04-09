@@ -69,6 +69,6 @@ class NamespaceHierarchyBuilderTest extends TestCase
             'Storefront',
             'Administration',
             'Framework',
-        ], $hierarchyBuilder->buildHierarchy());
+        ], array_keys($hierarchyBuilder->buildHierarchy()));
     }
 }

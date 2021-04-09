@@ -285,13 +285,21 @@ class Kernel extends HttpKernel
         );
     }
 
-    protected function getCacheHash()
+    protected function getCacheHash(): string
     {
-        $pluginHash = md5(implode('', array_keys($this->pluginLoader->getPluginInstances()->getActives())));
+        $plugins = [];
+        foreach ($this->pluginLoader->getPluginInfos() as $plugin) {
+            if ($plugin['active'] === false) {
+                continue;
+            }
+            $plugins[$plugin['name']] = $plugin['version'];
+        }
 
-        return md5(json_encode([
+        $pluginHash = md5((string) json_encode($plugins));
+
+        return md5((string) json_encode([
             $this->cacheId,
-            mb_substr($this->shopwareVersionRevision, 0, 8),
+            mb_substr((string) $this->shopwareVersionRevision, 0, 8),
             mb_substr($pluginHash, 0, 8),
         ]));
     }

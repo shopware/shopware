@@ -51,7 +51,7 @@ trait StorefrontPluginRegistryTestBehaviour
         $prop = $reflection->getProperty('namespaceHierarchy');
 
         $prop->setAccessible(true);
-        $prop->setValue($templateFinder, null);
+        $prop->setValue($templateFinder, []);
     }
 
     abstract protected function getContainer(): ContainerInterface;

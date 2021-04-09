@@ -71,12 +71,20 @@ Component.register('sw-settings-search-excluded-search-terms', {
                 this.searchConfigs.excludedTerms === null ||
                 this.searchConfigs.excludedTerms.length <= 0
             ) {
+                this.resetData();
                 this.showEmptyState = true;
                 this.isLoading = false;
                 return;
             }
             this.originalItems = this.searchConfigs.excludedTerms;
             this.renderComponent();
+        },
+
+        resetData() {
+            this.originalItems = [];
+            this.items = [];
+            this.page = 1;
+            this.total = 0;
         },
 
         addExcludedSearchTerms() {
@@ -225,7 +233,6 @@ Component.register('sw-settings-search-excluded-search-terms', {
 
             return this.searchRepository.save(this.searchConfigs, Shopware.Context.api)
                 .then(() => {
-                    this.isLoading = false;
                     this.createNotificationSuccess({
                         message: this.responseMessage
                     });
@@ -236,6 +243,8 @@ Component.register('sw-settings-search-excluded-search-terms', {
                     this.createNotificationError({
                         message: error
                     });
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         }

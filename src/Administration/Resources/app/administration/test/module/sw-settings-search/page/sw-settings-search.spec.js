@@ -3,6 +3,24 @@ import 'src/module/sw-settings-search/page/sw-settings-search';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
+const { Context } = Shopware;
+const { EntityCollection } = Shopware.Data;
+
+const mockData = [
+    {
+        andLogic: false,
+        minSearchLength: 4,
+        excludedTerms: [],
+        languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b'
+    },
+    {
+        andLogic: true,
+        minSearchLength: 4,
+        excludedTerms: [],
+        languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20c'
+    }
+];
+
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
@@ -27,7 +45,7 @@ function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve();
+                        return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData));
                     },
                     save: (productSearchConfigs) => {
                         if (!productSearchConfigs) {
@@ -35,7 +53,10 @@ function createWrapper(privileges = []) {
                             return Promise.reject({ error: 'Error' });
                         }
                         return Promise.resolve();
-                    }
+                    },
+                    create: jest.fn(() => {
+                        return {};
+                    })
                 })
             },
             feature: {
@@ -181,5 +202,18 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
             message: 'sw-settings-search.notification.saveError'
         });
         expect(wrapper.vm.createNotificationSuccess).not.toHaveBeenCalled();
+    });
+
+    it('should assign new value when the new language was switch', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
+
+        await wrapper.vm.getProductSearchConfigs();
+
+        expect(wrapper.vm.productSearchConfigs.andLogic).toBe(mockData[0].andLogic);
+        expect(wrapper.vm.productSearchConfigs.minSearchLength).toBe(mockData[0].minSearchLength);
+        expect(wrapper.vm.productSearchConfigs.excludedTerms.length).toBe(0);
+        expect(wrapper.vm.productSearchConfigs.languageId).toBe(null);
     });
 });

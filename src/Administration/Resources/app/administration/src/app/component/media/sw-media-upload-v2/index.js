@@ -16,9 +16,8 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
  * <sw-media-upload-v2
  *     uploadTag="my-upload-tag"
  *     variant="regular"
- *     allowMultiSelect="false"
- *     variant="regular"
- *     autoUpload="true"
+ *     :allowMultiSelect="false"
+ *     :autoUpload="true"
  *     label="My image-upload">
  * </sw-media-upload-v2>
  */

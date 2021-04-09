@@ -1,7 +1,13 @@
 {% block component_captcha_base %}
     {% if captchas is defined and captchas is not empty %}
         {% for captcha in captchas %}
-            {% sw_include '@Storefront/storefront/component/captcha/%s.html.twig'|format(captcha) %}
+            {% if feature('FEATURE_NEXT_12455') %}
+                {% if captcha.isActive %}
+                    {% sw_include '@Storefront/storefront/component/captcha/%s.html.twig'|format(captcha.name) %}
+                {% endif %}
+            {% else %}
+                {% sw_include '@Storefront/storefront/component/captcha/%s.html.twig'|format(captcha) %}
+            {% endif %}
         {% endfor %}
     {% endif %}
 {% endblock %}

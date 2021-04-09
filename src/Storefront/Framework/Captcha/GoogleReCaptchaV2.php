@@ -7,10 +7,10 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal (flag:FEATURE_NEXT_12455)
  */
-class GoogleReCaptchaV3 extends AbstractCaptcha
+class GoogleReCaptchaV2 extends AbstractCaptcha
 {
-    public const CAPTCHA_NAME = 'googleReCaptchaV3';
-    public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v3';
+    public const CAPTCHA_NAME = 'googleReCaptchaV2';
+    public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v2';
 
     /**
      * {@inheritdoc}

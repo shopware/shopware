@@ -515,9 +515,12 @@
             <tag name="shopware.storefront.captcha"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2">
+            <tag name="shopware.storefront.captcha"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
+        </service>
 
+        <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
             <tag name="shopware.storefront.captcha"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>

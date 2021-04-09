@@ -5,6 +5,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import Iterator from 'src/helper/iterator.helper';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * This plugin automatically submits a form,
@@ -151,10 +152,23 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      */
     _fireRequest() {
         this._createLoadingIndicators();
+
+        if (!Feature.isActive('FEATURE_NEXT_12455')) {
+            this.$emitter.publish('beforeFireRequest');
+        } else {
+            /**
+             * @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455) - beforeFireRequest event will be removed, use beforeSubmit instead
+             */
+            this.$emitter.publish('beforeFireRequest');
+            this.$emitter.publish('beforeSubmit');
+        }
+
+        this.sendAjaxFormSubmit();
+    }
+
+    sendAjaxFormSubmit() {
         const action = DomAccess.getAttribute(this._form, 'action');
         const method = DomAccess.getAttribute(this._form, 'method');
-
-        this.$emitter.publish('beforeFireRequest');
 
         if (method === 'get') {
             this._client.get(action, this._onAfterAjaxSubmit.bind(this));

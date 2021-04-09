@@ -8,7 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\CookieController;
+use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
+use Symfony\Component\HttpFoundation\Response;
 
 class CookieControllerTest extends TestCase
 {
@@ -60,17 +62,66 @@ class CookieControllerTest extends TestCase
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
-        $systemConfig->set('core.basicInformation.activeCaptchas', []);
+        $systemConfig->set('core.basicInformation.activeCaptchasV2', [
+            GoogleReCaptchaV2::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV2::CAPTCHA_NAME,
+                'isActive' => false,
+                'config' => [
+                    'siteKey' => 'siteKey',
+                    'secretKey' => 'secretKey',
+                    'invisible' => false,
+                ],
+            ],
+            GoogleReCaptchaV3::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
+                'isActive' => false,
+                'config' => [
+                    'siteKey' => 'siteKey',
+                    'secretKey' => 'secretKey',
+                    'invisible' => false,
+                ],
+            ],
+        ]);
 
         $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas', []);
 
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
         static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
         static::assertCount(0, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
 
-        $systemConfig->set('core.basicInformation.activeCaptchas', [GoogleReCaptchaV3::CAPTCHA_NAME]);
+        $systemConfig->set('core.basicInformation.activeCaptchasV2', [
+            GoogleReCaptchaV2::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV2::CAPTCHA_NAME,
+                'isActive' => true,
+                'config' => [
+                    'siteKey' => 'siteKey',
+                    'secretKey' => 'secretKey',
+                    'invisible' => false,
+                ],
+            ],
+        ]);
 
         $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas', []);
 
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
+        static::assertCount(1, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
+
+        $systemConfig->set('core.basicInformation.activeCaptchasV3', [
+            GoogleReCaptchaV3::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
+                'isActive' => true,
+                'config' => [
+                    'siteKey' => 'siteKey',
+                    'secretKey' => 'secretKey',
+                    'invisible' => false,
+                ],
+            ],
+        ]);
+
+        $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas', []);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
         static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
         static::assertCount(1, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
     }

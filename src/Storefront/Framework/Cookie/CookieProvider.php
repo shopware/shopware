@@ -89,7 +89,7 @@ class CookieProvider implements CookieProviderInterface
 
         if (Feature::isActive('FEATURE_NEXT_12455')) {
             $requiredCookies['entries'][] = [
-                'snippet_name' => 'cookie.groupRequiredGoogleReCaptcha',
+                'snippet_name' => 'cookie.groupRequiredCaptcha',
                 'cookie' => '_GRECAPTCHA',
                 'value' => '1',
             ];

@@ -47,7 +47,9 @@ export default class CountryStateSelectPlugin extends Plugin {
             const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
             const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
-            this._updateRequiredVatId(vatIdInput, vatIdRequired);
+            if (vatIdInput) {
+                this._updateRequiredVatId(vatIdInput, vatIdRequired);
+            }
         }
     }
 

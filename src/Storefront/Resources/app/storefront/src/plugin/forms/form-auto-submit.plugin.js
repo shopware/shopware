@@ -108,10 +108,16 @@ export default class FormAutoSubmitPlugin extends Plugin {
     _onSubmit(event) {
         event.preventDefault();
         PageLoadingIndicatorUtil.create();
-        const data = FormSerializeUtil.serialize(this._form);
-        const action = DomAccess.getAttribute(this._form, 'action');
 
         this.$emitter.publish('beforeSubmit');
+
+        this.sendAjaxFormSubmit();
+
+    }
+
+    sendAjaxFormSubmit() {
+        const data = FormSerializeUtil.serialize(this._form);
+        const action = DomAccess.getAttribute(this._form, 'action');
 
         this._client.post(action, data, this._onAfterAjaxSubmit.bind(this));
     }

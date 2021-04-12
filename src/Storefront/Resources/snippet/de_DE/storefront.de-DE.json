@@ -63,7 +63,6 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "productNotFound": "Produkt \"%number%\" konnte nicht gefunden werden.",
     "payment-method-blocked": "Die gewählte Zahlungsart %name% ist nicht verfügbar.",
-    "shipping-method-blocked": "Die gewählte Versandart %name% ist nicht verfügbar.",
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
     "shipping-address-invalid": "Die gewählte Versandadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Eingaben.",
     "billing-address-blocked": "Rechnungen können nicht an die gewählte Rechnungsadresse ausgestellt werden.",

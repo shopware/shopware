@@ -72,7 +72,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
     _openMenu(event) {
         const isFullwidth = ViewportDetection.isXS();
         OffcanvasMenuPlugin._stopEvent(event);
-        OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position, null, null, isFullwidth);
+        OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position, undefined, undefined, isFullwidth);
         OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
 
         this.$emitter.publish('openMenu');

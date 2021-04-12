@@ -38,7 +38,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     openOffCanvas(url, data, callback) {
         const isFullwidth = ViewportDetection.isXS();
-        AjaxOffCanvas.open(url, data, this._onOffCanvasOpened.bind(this, callback), this.options.offcanvasPosition, null, null, isFullwidth);
+        AjaxOffCanvas.open(url, data, this._onOffCanvasOpened.bind(this, callback), this.options.offcanvasPosition, undefined, undefined, isFullwidth);
         AjaxOffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
     }
 

@@ -224,6 +224,10 @@ function registerModule(moduleId, module) {
         addSettingsItemsToStore(moduleId, module);
     }
 
+    if (hasOwnProperty(module, 'extensionEntryRoute') && module.extensionEntryRoute) {
+        addEntryRouteToExtensionRouteStore(module.extensionEntryRoute);
+    }
+
     modules.set(moduleId, moduleDefinition);
 
     return moduleDefinition;
@@ -434,4 +438,26 @@ function addSettingsItemsToStore(moduleId, module) {
             );
         }
     });
+}
+
+function addEntryRouteToExtensionRouteStore(config) {
+    if (config.extensionName === 'string') {
+        warn(
+            'ModuleFactory',
+            'extensionEntryRoute.extensionName needs to be an string'
+        );
+
+        return;
+    }
+
+    if (config.route === 'string') {
+        warn(
+            'ModuleFactory',
+            'extensionEntryRoute.route needs to be an string'
+        );
+
+        return;
+    }
+
+    Shopware.State.commit('extensionEntryRoutes/addItem', config);
 }

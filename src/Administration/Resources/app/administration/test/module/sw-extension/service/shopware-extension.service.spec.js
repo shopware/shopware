@@ -16,6 +16,17 @@ describe('shopware-extension.service', () => {
 
     beforeAll(() => {
         shopwareExtensionService = Shopware.Service('shopwareExtensionService');
+
+        Shopware.State.registerModule('extensionEntryRoutes', {
+            namespaced: true,
+            state: {
+                routes: {
+                    ExamplePlugin: {
+                        route: 'test.foo'
+                    }
+                }
+            }
+        });
     });
 
     describe('canBeOpened', () => {
@@ -127,12 +138,24 @@ describe('shopware-extension.service', () => {
             })).toBeNull();
         });
 
-        it('returns no open link for plugins right now', () => {
+        it('returns no open link for plugins not registered', () => {
             expect(shopwareExtensionService.getOpenLink({
                 isTheme: false,
                 type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN,
                 name: 'SwagNoModule'
             })).toBeNull();
+        });
+
+        it('returns route for plugins registered', () => {
+            expect(shopwareExtensionService.getOpenLink({
+                isTheme: false,
+                type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN,
+                name: 'ExamplePlugin',
+                active: true
+            })).toEqual({
+                label: null,
+                name: 'test.foo'
+            });
         });
     });
 });

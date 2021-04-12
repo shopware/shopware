@@ -42,6 +42,7 @@ Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(__EMPTY__)") {
    label translated
    description translated
    privacyPolicyExtensions translated
+   customFields translated
    not_null(integrationId) foreignKey
    not_null(aclRoleId) foreignKey
    not_null(createdAt) createdAt
@@ -52,6 +53,7 @@ TranslationTable(ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDe
    not_null(label) string
    description longText
    privacyPolicyExtensions longText
+   customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
    primary_key(appId) foreignKey

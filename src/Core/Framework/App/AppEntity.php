@@ -106,6 +106,11 @@ class AppEntity extends Entity
     protected $privacyPolicyExtensions;
 
     /**
+     * @var array|null
+     */
+    protected $customFields;
+
+    /**
      * @var string|null
      */
     protected $appSecret;
@@ -326,6 +331,16 @@ class AppEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getCustomFields(): ?array
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?array $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 
     public function getIntegrationId(): string

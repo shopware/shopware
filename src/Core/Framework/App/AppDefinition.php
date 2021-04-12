@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -94,6 +95,7 @@ class AppDefinition extends EntityDefinition
             new TranslatedField('label'),
             new TranslatedField('description'),
             new TranslatedField('privacyPolicyExtensions'),
+            (new TranslatedField('customFields'))->addFlags(new Since('6.4.1.0')),
 
             (new FkField('integration_id', 'integrationId', IntegrationDefinition::class))->addFlags(new Required()),
             new OneToOneAssociationField('integration', 'integration_id', 'id', IntegrationDefinition::class),

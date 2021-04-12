@@ -9,7 +9,7 @@
     {% set reviewTabContent = "review-tab-pane-" ~ product.id %}
 
     {% if element.data.product %}
-        <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
+        <div class="product-detail-tabs cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
             {% if config.alignment.value %}
                 <div class="cms-element-alignment{% if config.alignment.value == "center" %} align-self-center{% elseif config.alignment.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
@@ -32,11 +32,11 @@
                                                aria-selected="true">
                                                 <span>{{ "detail.tabsDescription"|trans|sw_sanitize }}</span>
                                                 <span class="product-detail-tab-navigation-icon">
-                                                        {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
-                                                    </span>
+                                                    {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                                </span>
                                                 {% if element.data.product.translated.description|length > 0 %}
                                                     <span class="product-detail-tab-preview">
-                                                            {{ page.product.translated.description|raw|striptags|sw_sanitize|u.truncate(125, '…') }}
+                                                        {{ page.product.translated.description|raw|striptags|sw_sanitize|u.truncate(125, '…') }}
 
                                                         {# truncate always cuts down the length to 125 characters.
                                                                So it will only shorten the string if it exceeds 125 chars.
@@ -64,8 +64,8 @@
                                                    aria-selected="true">
                                                     {{ "detail.tabsReview"|trans|sw_sanitize }}
                                                     <span class="product-detail-tab-navigation-icon">
-                                                            {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
-                                                        </span>
+                                                        {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                                    </span>
                                                 </a>
                                             </li>
                                         {% endif %}

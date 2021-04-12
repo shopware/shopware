@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="cms">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="blocks" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="block" type="block" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:unique name="uniqueBlockName">
+                        <xs:selector xpath="block"/>
+                        <xs:field xpath="name"/>
+                    </xs:unique>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="block">
+        <xs:annotation>
+            <xs:documentation>Define a block that will be available in the CMS component in the Administration.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>A unique technical name for the block.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="category">
+                <xs:annotation>
+                    <xs:documentation>
+                        The block's category must be one of the following:
+
+                        "commerce": Blocks using a special template can be found here, e.g. a product slider block.
+                        "form": A single block displaying a form, mainly the contact or the newsletter form.
+                        "image": Only image elements are used by these blocks.
+                        "sidebar": Blocks for the sidebar, such as the listing filters or the category navigation.
+                        "text-image": Blocks, that are making use of both, text and images, belong here.
+                        "text": Blocks only using text elements are located here.
+                        "video": Blocks for YouTube and Vimeo videos reside here.
+
+                        Refer to the documentation to find out more: https://developer.shopware.com/docs/guides/plugins/plugins/content/cms/add-cms-block#custom-block-in-the-administration
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="commerce"/>
+                        <xs:enumeration value="form"/>
+                        <xs:enumeration value="image"/>
+                        <xs:enumeration value="sidebar"/>
+                        <xs:enumeration value="text"/>
+                        <xs:enumeration value="text-image"/>
+                        <xs:enumeration value="video"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="label" type="translatableString" maxOccurs="unbounded"/>
+            <xs:element name="slots" type="slots">
+                <xs:unique name="uniqueSlotName">
+                    <xs:selector xpath="slot"/>
+                    <xs:field xpath="@name"/>
+                </xs:unique>
+            </xs:element>
+            <xs:element name="default-config" type="defaultConfig"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="defaultConfig">
+        <xs:annotation>
+            <xs:documentation>
+                The block's default configuration.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element name="margin-bottom" minOccurs="0" type="xs:string"/>
+            <xs:element name="margin-top" minOccurs="0" type="xs:string"/>
+            <xs:element name="margin-left" minOccurs="0" type="xs:string"/>
+            <xs:element name="margin-right" minOccurs="0" type="xs:string"/>
+            <xs:element name="sizing-mode" minOccurs="0" type="sizingMode"/>
+            <xs:element name="background-color" minOccurs="0" type="xs:string"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="configValue">
+        <xs:attribute name="name" use="required"/>
+        <xs:attribute name="source" use="required"/>
+        <xs:attribute name="value" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="slots">
+        <xs:annotation>
+            <xs:documentation>
+                Define the slots of the block that will be filled with elements.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="slot" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Define a slot with a unique name and a type referring to a CMS element.
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="config" type="slotConfig"/>
+                    </xs:sequence>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="type" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="slotConfig">
+        <xs:annotation>
+            <xs:documentation>
+                The slot's necessary configuration.
+
+                This might be e.g. "display-mode", "min-height" etc. depending on the slot's type.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="config-value" type="configValue" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="translatableString">
+        <xs:annotation>
+            <xs:documentation>
+                A translatable label for the block that is shown in the Administration.
+                Defaults to "en-GB" if the "lang" attribute is not set.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="lang" type="languageCode" default="en-GB"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="languageCode">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z]{2,3}-[A-Z]{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="sizingMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="boxed"/>
+            <xs:enumeration value="full_width"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

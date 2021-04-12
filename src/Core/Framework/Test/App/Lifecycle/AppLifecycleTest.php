@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
+use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
@@ -133,6 +134,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
+        $this->assertDefaultCmsBlocks($apps->first()->getId());
     }
 
     public function testInstallRollbacksRegistrationFailure(): void
@@ -1109,6 +1111,58 @@ class AppLifecycleTest extends TestCase
         static::assertSame('myMethod', $appPaymentMethod->getIdentifier());
         static::assertSame('https://payment.app/payment/process', $appPaymentMethod->getPayUrl());
         static::assertSame('https://payment.app/payment/finalize', $appPaymentMethod->getFinalizeUrl());
+    }
+
+    private function assertDefaultCmsBlocks(string $appId): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_14408')) {
+            return;
+        }
+
+        /** @var EntityRepositoryInterface $cmsBlockRepository */
+        $cmsBlockRepository = $this->getContainer()->get('app_cms_block.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('appId', $appId)
+        );
+
+        $cmsBlocks = $cmsBlockRepository->search($criteria, $this->context)->getEntities();
+        static::assertCount(2, $cmsBlocks);
+
+        /** @var AppCmsBlockEntity|null $firstCmsBlock */
+        $firstCmsBlock = $cmsBlocks->filterByProperty('name', 'my-first-block')->first();
+        static::assertEquals('my-first-block', $firstCmsBlock->getName());
+        static::assertEquals('First block from app', $firstCmsBlock->getLabel());
+        static::assertJsonStringEqualsJsonFile(
+            __DIR__ . '/_fixtures/cms/expectedFirstCmsBlock.json',
+            json_encode($firstCmsBlock->getBlock())
+        );
+        static::assertEquals(
+            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/preview.html'),
+            $firstCmsBlock->getTemplate()
+        );
+        static::assertEquals(
+            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/styles.css'),
+            $firstCmsBlock->getStyles()
+        );
+
+        /** @var AppCmsBlockEntity|null $secondCmsBlock */
+        $secondCmsBlock = $cmsBlocks->filterByProperty('name', 'my-second-block')->first();
+        static::assertEquals('my-second-block', $secondCmsBlock->getName());
+        static::assertEquals('Second block from app', $secondCmsBlock->getLabel());
+        static::assertJsonStringEqualsJsonFile(
+            __DIR__ . '/_fixtures/cms/expectedSecondCmsBlock.json',
+            json_encode($secondCmsBlock->getBlock())
+        );
+        static::assertEquals(
+            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/preview.html'),
+            $secondCmsBlock->getTemplate()
+        );
+        static::assertEquals(
+            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/styles.css'),
+            $secondCmsBlock->getStyles()
+        );
     }
 
     private function setNewSystemLanguage(string $iso): void

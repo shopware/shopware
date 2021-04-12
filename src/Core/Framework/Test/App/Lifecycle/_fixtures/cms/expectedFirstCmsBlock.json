@@ -1,0 +1,49 @@
+{
+  "name": "my-first-block",
+  "label": {
+    "de-DE": "Erster Block einer App",
+    "en-GB": "First block from app"
+  },
+  "slots": {
+    "left": {
+      "type": "manufacturer-logo",
+      "config": {
+        "displayMode": {
+          "source": "static",
+          "value": "cover"
+        }
+      }
+    },
+    "right": {
+      "type": "buy-box",
+      "config": {
+        "displayMode": {
+          "source": "static",
+          "value": "contain"
+        }
+      }
+    },
+    "middle": {
+      "type": "image-gallery",
+      "config": {
+        "displayMode": {
+          "source": "static",
+          "value": "auto"
+        },
+        "minHeight": {
+          "source": "static",
+          "value": "300px"
+        }
+      }
+    }
+  },
+  "category": "text-image",
+  "defaultConfig": {
+    "marginTop": "20px",
+    "marginLeft": "20px",
+    "sizingMode": "boxed",
+    "marginRight": "20px",
+    "marginBottom": "20px",
+    "backgroundColor": "#000"
+  }
+}

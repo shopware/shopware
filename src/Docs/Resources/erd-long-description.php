@@ -766,4 +766,9 @@ Landing Pages which are called via the given seo url
 EOD
     ,
     Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition::class => '',
+    Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition::class => <<<'EOD'
+CMS Blocks added via the App System.
+EOD
+    ,
+    Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationDefinition::class => '',
 ];

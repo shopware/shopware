@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
@@ -35,7 +36,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal
  */
 class AppLifecycle extends AbstractAppLifecycle
 {
@@ -64,6 +65,11 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private ?PaymentMethodPersister $paymentMethodPersister;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_14408) make persister not nullable on removal
+     */
+    private ?CmsBlockPersister $cmsBlockPersister;
+
     private EntityRepositoryInterface $languageRepository;
 
     private SystemConfigService $systemConfigService;
@@ -82,6 +88,7 @@ class AppLifecycle extends AbstractAppLifecycle
         TemplatePersister $templatePersister,
         WebhookPersister $webhookPersister,
         ?PaymentMethodPersister $paymentMethodPersister,
+        ?CmsBlockPersister $cmsBlockPersister,
         AbstractAppLoader $appLoader,
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
@@ -97,6 +104,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->customFieldPersister = $customFieldPersister;
         $this->webhookPersister = $webhookPersister;
         $this->paymentMethodPersister = $paymentMethodPersister;
+        $this->cmsBlockPersister = $cmsBlockPersister;
         $this->appLoader = $appLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->registrationService = $registrationService;
@@ -213,6 +221,13 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
+
+        if (Feature::isActive('FEATURE_NEXT_14408') && $this->cmsBlockPersister !== null) {
+            $cmsExtensions = $this->appLoader->getCmsExtensions($app);
+            if ($cmsExtensions) {
+                $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
+            }
+        }
 
         $config = $this->appLoader->getConfiguration($app);
         if ($config) {

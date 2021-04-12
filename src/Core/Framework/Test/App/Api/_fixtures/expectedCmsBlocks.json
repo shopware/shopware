@@ -1,0 +1,106 @@
+{
+  "blocks": [
+    {
+      "name": "my-first-block",
+      "label": {
+        "de-DE": "Erster Block einer App",
+        "en-GB": "First block from app"
+      },
+      "slots": {
+        "left": {
+          "type": "manufacturer-logo",
+          "config": {
+            "displayMode": {
+              "source": "static",
+              "value": "cover"
+            }
+          }
+        },
+        "right": {
+          "type": "buy-box",
+          "config": {
+            "displayMode": {
+              "source": "static",
+              "value": "contain"
+            }
+          }
+        },
+        "middle": {
+          "type": "image-gallery",
+          "config": {
+            "displayMode": {
+              "source": "static",
+              "value": "auto"
+            },
+            "minHeight": {
+              "source": "static",
+              "value": "300px"
+            }
+          }
+        }
+      },
+      "category": "text-image",
+      "defaultConfig": {
+        "marginTop": "20px",
+        "marginLeft": "20px",
+        "sizingMode": "boxed",
+        "marginRight": "20px",
+        "marginBottom": "20px",
+        "backgroundColor": "#000"
+      },
+      "styles": "#sw-example-app--my-first-block {\n    color: red;\n    font-size: 12px;\n}\n",
+      "template": "<div id=\"sw-example-app--my-first-block\">\n    <slot name=\"left\">manufacturer-logo</slot>\n    <slot name=\"middle\">image-gallery</slot>\n    <slot name=\"right\">buy-box</slot>\n</div>\n"
+    },
+    {
+      "name": "my-second-block",
+      "label": {
+        "de-DE": "Zweiter Block einer App",
+        "en-GB": "Second block from app"
+      },
+      "slots": {
+        "left": {
+          "type": "form",
+          "config": {
+            "displayMode": {
+              "source": "static",
+              "value": "cover"
+            }
+          }
+        },
+        "right": {
+          "type": "youtube-video",
+          "config": {
+            "displayMode": {
+              "source": "static",
+              "value": "contain"
+            }
+          }
+        },
+        "middle": {
+          "type": "image",
+          "config": {
+            "displayMode": {
+              "source": "static",
+              "value": "auto"
+            },
+            "backgroundColor": {
+              "source": "static",
+              "value": "red"
+            }
+          }
+        }
+      },
+      "category": "text-image",
+      "defaultConfig": {
+        "marginTop": "20px",
+        "marginLeft": "20px",
+        "sizingMode": "boxed",
+        "marginRight": "20px",
+        "marginBottom": "20px",
+        "backgroundColor": "#000"
+      },
+      "styles": "#sw-example-app--my-second-block {\n    color: blue;\n    font-size: 24px;\n}\n",
+      "template": "<div id=\"sw-example-app--my-second-block\">\n    <slot name=\"left\">form</slot>\n    <slot name=\"middle\">image</slot>\n    <slot name=\"right\">youtube-video</slot>\n</div>\n"
+    }
+  ]
+}

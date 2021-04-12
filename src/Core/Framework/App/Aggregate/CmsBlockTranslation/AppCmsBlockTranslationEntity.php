@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation;
+namespace Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation;
 
-use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
+use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageEntity;
 
 /**
- * @internal
+ * @internal (flag:FEATURE_NEXT_14408)
  */
-class ActionButtonTranslationEntity extends Entity
+class AppCmsBlockTranslationEntity extends Entity
 {
     use EntityIdTrait;
 
@@ -22,7 +22,7 @@ class ActionButtonTranslationEntity extends Entity
     /**
      * @var string
      */
-    protected $appActionButtonId;
+    protected $appCmsBlockId;
 
     /**
      * @var string
@@ -30,9 +30,9 @@ class ActionButtonTranslationEntity extends Entity
     protected $languageId;
 
     /**
-     * @var ActionButtonEntity|null
+     * @var AppCmsBlockEntity|null
      */
-    protected $appActionButton;
+    protected $appCmsBlock;
 
     /**
      * @var LanguageEntity|null
@@ -49,6 +49,16 @@ class ActionButtonTranslationEntity extends Entity
         $this->label = $label;
     }
 
+    public function getAppCmsBlockId(): string
+    {
+        return $this->appCmsBlockId;
+    }
+
+    public function setAppCmsBlockId(string $appCmsBlockId): void
+    {
+        $this->appCmsBlockId = $appCmsBlockId;
+    }
+
     public function getLanguageId(): string
     {
         return $this->languageId;
@@ -59,24 +69,14 @@ class ActionButtonTranslationEntity extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getAppActionButtonId(): string
+    public function getAppCmsBlock(): ?AppCmsBlockEntity
     {
-        return $this->appActionButtonId;
+        return $this->appCmsBlock;
     }
 
-    public function setAppActionButtonId(string $appActionButtonId): void
+    public function setAppCmsBlock(?AppCmsBlockEntity $appCmsBlock): void
     {
-        $this->appActionButtonId = $appActionButtonId;
-    }
-
-    public function getAppActionButton(): ?ActionButtonEntity
-    {
-        return $this->appActionButton;
-    }
-
-    public function setAppActionButton(?ActionButtonEntity $appActionButton): void
-    {
-        $this->appActionButton = $appActionButton;
+        $this->appCmsBlock = $appCmsBlock;
     }
 
     public function getLanguage(): ?LanguageEntity

@@ -361,7 +361,7 @@
     </xs:complexType>
     <xs:simpleType name="languageCode">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[a-z]{2}-[A-Z]{2}"/>
+            <xs:pattern value="[a-z]{2,3}-[A-Z]{2}"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="cookies">

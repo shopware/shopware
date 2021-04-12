@@ -60,6 +60,16 @@ class ApiAwareTest extends TestCase
             $expected[] = 'currency.taxFreeFrom';
         }
 
+        if (Feature::isActive('FEATURE_NEXT_14408')) {
+            $expected[] = 'app_cms_block.createdAt';
+            $expected[] = 'app_cms_block.updatedAt';
+            $expected[] = 'app_cms_block.translated';
+            $expected[] = 'app_cms_block_translation.createdAt';
+            $expected[] = 'app_cms_block_translation.updatedAt';
+            $expected[] = 'app_cms_block_translation.appCmsBlockId';
+            $expected[] = 'app_cms_block_translation.languageId';
+        }
+
         $message = 'One or more fields have been changed in their visibility for the Store Api.
         This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';
 

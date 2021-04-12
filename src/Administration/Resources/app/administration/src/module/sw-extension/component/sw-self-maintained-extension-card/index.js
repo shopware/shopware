@@ -75,6 +75,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
 
                 await this.clearCacheAndReloadPage();
             } catch (e) {
+                this.extension.active = false;
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
@@ -93,6 +94,8 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
 
                 await this.clearCacheAndReloadPage();
             } catch (e) {
+                this.extension.active = true;
+
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;

@@ -102,6 +102,10 @@ Component.register('sw-extension-card-base', {
             return this.shopwareExtensionService.canBeOpened(this.extension);
         },
 
+        openLinkInformation() {
+            return this.shopwareExtensionService.getOpenLink(this.extension);
+        },
+
         privacyPolicyLink() {
             return this.extension.privacyPolicyLink;
         },

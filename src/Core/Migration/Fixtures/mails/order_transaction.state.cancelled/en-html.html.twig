@@ -12,35 +12,63 @@ You have not completed your payment with {{ order.transactions.first.paymentMeth
 <strong>Information on your order:</strong><br>
 <br>
 
-<table width="80%" border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
+<table border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
     <tr>
-        <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Pos.</strong></td>
+        <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Prod. no.</strong></td>
         <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Description</strong></td>
         <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Quantities</strong></td>
         <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Price</strong></td>
         <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Total</strong></td>
     </tr>
 
-    {% for lineItem in order.lineItems %}
-    <tr>
-        <td style="border-bottom:1px solid #cccccc;">{{ loop.index }} </td>
-        <td style="border-bottom:1px solid #cccccc;">
-          {{ lineItem.label|u.wordwrap(80) }}<br>
-            {% if lineItem.payload.options is defined and lineItem.payload.options|length >= 1 %}
-                {% for option in lineItem.payload.options %}
-                    {{ option.group }}: {{ option.option }}
-                    {% if lineItem.payload.options|last != option %}
-                        {{ " | " }}
+    {% for lineItem in order.nestedLineItems %}
+        {% set nestingLevel = 0 %}
+        {% set nestedItem = lineItem %}
+        {% block lineItem %}
+            <tr>
+                <td>{% if nestedItem.payload.productNumber is defined %}{{ nestedItem.payload.productNumber|u.wordwrap(80) }}{% endif %}</td>
+                <td>
+                    {% if nestingLevel > 0 %}
+                        {% for i in 1..nestingLevel %}
+                            <span style="position: relative;">
+                                <span style="display: inline-block;
+                                    position: absolute;
+                                    width: 6px;
+                                    height: 20px;
+                                    top: 0;
+                                    border-left:  2px solid rgba(0, 0, 0, 0.15);
+                                    margin-left: {{ i * 10 }}px;"></span>
+                            </span>
+                        {% endfor %}
                     {% endif %}
+
+                    <div{% if nestingLevel > 0 %} style="padding-left: {{ (nestingLevel + 1) * 10 }}px"{% endif %}>
+                        {{ nestedItem.label|u.wordwrap(80) }}
+                    </div>
+
+                    {% if nestedItem.payload.options is defined and nestedItem.payload.options|length >= 1 %}
+                        <br/>
+                        {% for option in nestedItem.payload.options %}
+                            {{ option.group }}: {{ option.option }}
+                            {% if nestedItem.payload.options|last != option %}
+                                {{ " | " }}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </td>
+                <td style="text-align: center">{{ nestedItem.quantity }}</td>
+                <td>{{ nestedItem.unitPrice|currency(currencyIsoCode) }}</td>
+                <td>{% if nestingLevel == 0 %}{{ nestedItem.totalPrice|currency(currencyIsoCode) }}{% endif %}</td>
+            </tr>
+
+            {% if nestedItem.children.count > 0 %}
+                {% set nestingLevel = nestingLevel + 1 %}
+                {% for lineItem in nestedItem.children %}
+                    {% set nestedItem = lineItem %}
+                    {{ block('lineItem') }}
                 {% endfor %}
-                <br/>
             {% endif %}
-          {% if lineItem.payload.productNumber is defined %}Prod. No.: {{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}
-        </td>
-        <td style="border-bottom:1px solid #cccccc;">{{ lineItem.quantity }}</td>
-        <td style="border-bottom:1px solid #cccccc;">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
-        <td style="border-bottom:1px solid #cccccc;">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
-    </tr>
+        {% endblock %}
     {% endfor %}
 </table>
 

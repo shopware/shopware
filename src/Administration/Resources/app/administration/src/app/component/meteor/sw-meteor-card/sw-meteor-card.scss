@@ -41,61 +41,6 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
         }
     }
 
-    &.sw-meteor-card--tabs {
-        &:not(.sw-meteor-card--toolbar) .sw-meteor-card__header-grid {
-            padding-bottom: 0;
-        }
-
-        & .sw-meteor-card__header > .sw-tabs {
-            padding: 0 32px;
-            border-radius: $border-radius-default $border-radius-default 0 0;
-            border-bottom: none;
-            margin-bottom: 0;
-
-            @media screen and (max-width: 800px) {
-                padding: 0 15px;
-            }
-
-            .sw-tabs__content::before {
-                display: none;
-            }
-
-            .sw-tabs__custom-content {
-                padding: 0;
-            }
-
-            &.sw-tabs--scrollable {
-                padding: 0 (20px + 12px) 0 (20px + 12px);
-
-                .sw-tabs__arrow {
-                    top: 53%;
-                    transform: translate(0, -50%);
-                    padding: 0 12px 0 12px;
-                }
-            }
-
-            .sw-tabs-item {
-                padding: 19px 0 15px 0;
-                margin-right: 14px;
-                font-weight: $font-weight-regular;
-                border-color: transparent;
-                font-size: $font-size-small;
-
-                @media screen and (max-width: 800px) {
-                    padding: 15px 0 10px 0;
-                }
-
-                &:last-of-type {
-                    margin-right: 0;
-                }
-
-                &.sw-tabs-item--active {
-                    font-weight: 600;
-                }
-            }
-        }
-    }
-
     &.sw-meteor-card--hero {
         background: none;
         box-shadow: none;
@@ -218,6 +163,61 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
 
         @media screen and (max-width: 800px) {
             padding: 15px;
+        }
+    }
+}
+
+.sw-meteor-card.sw-meteor-card--tabs {
+    &:not(.sw-meteor-card--toolbar) .sw-meteor-card__header-grid {
+        padding-bottom: 0;
+    }
+
+    & .sw-meteor-card__header > .sw-tabs {
+        padding: 0 32px;
+        border-radius: $border-radius-default $border-radius-default 0 0;
+        border-bottom: none;
+        margin-bottom: 0;
+
+        @media screen and (max-width: 800px) {
+            padding: 0 15px;
+        }
+
+        .sw-tabs__content::before {
+            display: none;
+        }
+
+        .sw-tabs__custom-content {
+            padding: 0;
+        }
+
+        &.sw-tabs--scrollable {
+            padding: 0 (20px + 12px) 0 (20px + 12px);
+
+            .sw-tabs__arrow {
+                top: 53%;
+                transform: translate(0, -50%);
+                padding: 0 12px 0 12px;
+            }
+        }
+
+        .sw-tabs-item {
+            padding: 19px 0 15px 0;
+            margin-right: 14px;
+            font-weight: $font-weight-regular;
+            border-color: transparent;
+            font-size: $font-size-small;
+
+            @media screen and (max-width: 800px) {
+                padding: 15px 0 10px 0;
+            }
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+
+            &.sw-tabs-item--active {
+                font-weight: 600;
+            }
         }
     }
 }

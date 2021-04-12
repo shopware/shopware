@@ -92,9 +92,19 @@ $sw-alert-size-close: 40px;
         box-shadow: $sw-alert-box-shadow;
         border: 1px solid $color-gray-300;
         border-left: 4px solid $color-gray-300;
+        background-color: $color-gray-100;
 
-        .sw-alert__actions .sw-button {
-            color: $color-shopware-brand-500;
+        .sw-alert__actions {
+            border-color: $color-gray-300;
+
+            .sw-button {
+                color: $color-shopware-brand-500;
+                border-color: $color-gray-300;
+
+                &:hover {
+                    background-color: $color-gray-100;
+                }
+            }
         }
     }
 
@@ -205,22 +215,6 @@ $sw-alert-size-close: 40px;
 
                 &:hover {
                     background-color: $color-shopware-brand-100;
-                }
-            }
-        }
-    }
-
-    &.sw-alert--notification {
-        background-color: $color-gray-100;
-
-        .sw-alert__actions {
-            border-color: $color-gray-300;
-
-            .sw-button {
-                border-color: $color-gray-300;
-
-                &:hover {
-                    background-color: $color-gray-100;
                 }
             }
         }

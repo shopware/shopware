@@ -10,6 +10,7 @@ $sw-metadata-item-caption-color: $color-darkgray-200;
 
 .sw-media-quickinfo-metadata-item__description {
     @include truncate();
+
     font-size: $font-size-small;
 
     @media screen and (max-width: 768px) {

@@ -32,7 +32,7 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
 
     &.is--boxedEdit {
         width: 100%;
-        top:0;
+        top: 0;
         left: 0;
         position: initial;
         background: $color-gray-100;
@@ -55,7 +55,6 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
                 border-left: 1px solid $color-gray-300;
             }
         }
-
     }
 
     .sw-text-editor-buttons {

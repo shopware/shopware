@@ -49,17 +49,17 @@ $padding-star: 10%;
 
     &--is-editable {
         .sw-extension-rating-stars__wrapper {
-            .sw-extension-rating-stars__star {
-                cursor: pointer;
-
-                &--is-rated:hover {
-                    color: #e9e1a8;
-                }
-            }
-
             & > .sw-extension-rating-stars__star:hover,
             & > .sw-extension-rating-stars__star:hover ~ .sw-extension-rating-stars__star {
                 color: $color-module-yellow-600;
+            }
+        }
+
+        .sw-extension-rating-stars__wrapper .sw-extension-rating-stars__star {
+            cursor: pointer;
+
+            &--is-rated:hover {
+                color: #e9e1a8;
             }
         }
     }

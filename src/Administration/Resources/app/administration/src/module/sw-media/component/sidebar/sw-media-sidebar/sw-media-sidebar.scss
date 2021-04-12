@@ -25,6 +25,7 @@ $sw-media-sidebar-color-quick-action-danger:  $color-crimson-500;
 
     .sw-media-sidebar__headline {
         @include truncate();
+
         padding: 25px;
         margin: 0;
         font-size: $sw-media-sidebar-font-size-headline;
@@ -59,7 +60,6 @@ $sw-media-sidebar-color-quick-action-danger:  $color-crimson-500;
     }
 
     .sw-media-sidebar__metadata-list {
-
         @media screen and (min-width: 769px) {
             display: grid;
             grid-template-columns: auto 1fr;

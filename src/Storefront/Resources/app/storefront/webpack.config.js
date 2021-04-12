@@ -6,7 +6,6 @@ const fs = require('fs');
 const chokidar = require('chokidar');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
-const StyleLintPlugin = require('stylelint-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 
@@ -302,11 +301,6 @@ let webpackConfig = {
         }),
         new WebpackBar({
             name: 'Shopware 6 Storefront'
-        }),
-        new StyleLintPlugin({
-            context: path.resolve(__dirname, 'src/scss'),
-            syntax: 'scss',
-            fix: true
         }),
         new MiniCssExtractPlugin({
             filename: './css/[name].css',

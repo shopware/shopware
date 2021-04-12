@@ -37,57 +37,6 @@ $sw-media-upload-v2-caption-icon-color:           $color-gray-300;
         margin-left: 8px;
     }
 
-    .sw-media-upload-v2__dropzone {
-        padding: 24px;
-        min-height: 148px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        border: 2px dashed $sw-media-upload-v2-border-color;
-        border-radius: $sw-media-upload-v2-border-radius;
-        background-color: $sw-media-upload-v2-upload-background-color;
-        position: relative;
-
-        &.is--multi {
-            flex-direction: column;
-            justify-items: center;
-            padding: 36px 24px;
-
-            .sw-media-upload-v2__actions {
-                margin-top: 12px;
-                margin-left: unset;
-                flex-direction: row;
-                padding-left: unset;
-
-                .sw-media-upload-v2__button {
-                    margin: 0 8px;
-                }
-            }
-        }
-
-        &.is--active {
-            border-color: $sw-media-upload-v2-color-highlighted;
-            background-color: $sw-media-upload-v2-background-color-highlighted;
-            color: $sw-media-upload-v2-color-highlighted;
-
-            .sw-media-upload-v2__upload-caption {
-                .sw-icon {
-                    color: $sw-media-upload-v2-color-highlighted;
-                }
-            }
-        }
-
-        .sw-media-upload-v2__upload-caption {
-            font-size: $sw-media-upload-v2-caption-font-size;
-            text-align: center;
-
-            .sw-icon {
-                margin-right: 8px;
-                color: $sw-media-upload-v2-caption-icon-color;
-            }
-        }
-    }
-
     .sw-media-upload-v2__actions {
         display: flex;
         flex-direction: column;
@@ -182,6 +131,57 @@ $sw-media-upload-v2-caption-icon-color:           $color-gray-300;
         .sw-media-preview-v2__item {
             max-height: 100%;
             max-width: 100%;
+        }
+    }
+}
+
+.sw-media-upload-v2__dropzone {
+    padding: 24px;
+    min-height: 148px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 2px dashed $sw-media-upload-v2-border-color;
+    border-radius: $sw-media-upload-v2-border-radius;
+    background-color: $sw-media-upload-v2-upload-background-color;
+    position: relative;
+
+    &.is--multi {
+        flex-direction: column;
+        justify-items: center;
+        padding: 36px 24px;
+
+        .sw-media-upload-v2__actions {
+            margin-top: 12px;
+            margin-left: unset;
+            flex-direction: row;
+            padding-left: unset;
+
+            .sw-media-upload-v2__button {
+                margin: 0 8px;
+            }
+        }
+    }
+
+    &.is--active {
+        border-color: $sw-media-upload-v2-color-highlighted;
+        background-color: $sw-media-upload-v2-background-color-highlighted;
+        color: $sw-media-upload-v2-color-highlighted;
+
+        .sw-media-upload-v2__upload-caption {
+            .sw-icon {
+                color: $sw-media-upload-v2-color-highlighted;
+            }
+        }
+    }
+
+    .sw-media-upload-v2__upload-caption {
+        font-size: $sw-media-upload-v2-caption-font-size;
+        text-align: center;
+
+        .sw-icon {
+            margin-right: 8px;
+            color: $sw-media-upload-v2-caption-icon-color;
         }
     }
 }

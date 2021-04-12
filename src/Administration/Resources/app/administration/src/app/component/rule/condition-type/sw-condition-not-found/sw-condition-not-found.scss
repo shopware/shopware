@@ -7,8 +7,8 @@ $sw-condition-not-found-color-background: $color-white;
     .sw-select.field--condition {
         background-color: $sw-condition-not-found-color-error;
 
-        &:before,
-        &:after {
+        &::before,
+        &::after {
             background-color: $sw-condition-not-found-color-error;
         }
     }

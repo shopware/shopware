@@ -130,7 +130,7 @@ PHP Unit:
                 FEATURE_ALL: ["false", "minor", "major"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
-Javascript analysis:
+ESLint (Administration):
     only:
         refs:
             - merge_requests
@@ -144,10 +144,67 @@ Javascript analysis:
     script:
         - cd src/Administration/Resources/app/administration
         - npm clean-install
-        - PROJECT_ROOT=$(pwd) node_modules/.bin/eslint --ext .js,.vue --format junit src test > eslint.junit.xml
+        - npm run lint -- --format junit --output-file eslint.junit.xml
     artifacts:
         reports:
             junit: src/Administration/Resources/app/administration/eslint.junit.xml
+
+ESLint (Storefront):
+    only:
+        refs:
+            - merge_requests
+            - trunk
+            - /^6\..*$/
+            - schedules
+            - pipelines
+    stage: unit
+    timeout: 1h 00m
+    before_script: []
+    script:
+        - cd src/Storefront/Resources/app/storefront
+        - npm clean-install
+        - npm run lint:js -- --format junit --output-file eslint.junit.xml
+    artifacts:
+        reports:
+            junit: src/Storefront/Resources/app/storefront/eslint.junit.xml
+
+Stylelint (Administration):
+    only:
+        refs:
+            - merge_requests
+            - trunk
+            - /^6\..*$/
+            - schedules
+            - pipelines
+    stage: unit
+    timeout: 1h 00m
+    before_script: []
+    script:
+        - cd src/Administration/Resources/app/administration
+        - npm clean-install
+        - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
+    artifacts:
+        reports:
+            junit: src/Administration/Resources/app/administration/stylelint.junit.xml
+
+Stylelint (Storefront):
+    only:
+        refs:
+            - merge_requests
+            - trunk
+            - /^6\..*$/
+            - schedules
+            - pipelines
+    stage: unit
+    timeout: 1h 00m
+    before_script: []
+    script:
+        - cd src/Storefront/Resources/app/storefront
+        - npm clean-install
+        - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
+    artifacts:
+        reports:
+            junit: src/Storefront/Resources/app/storefront/stylelint.junit.xml
 
 PHP analysis:
     image: shopware/development:7.4-composer-2
@@ -211,7 +268,7 @@ Check generated Docs:
             fi
 
 # jest
-Administration (Jest):
+Jest (Administration):
     only:
         refs:
             - merge_requests
@@ -232,7 +289,7 @@ Administration (Jest):
         reports:
             junit: development/build/artifacts/administration.junit.xml
 
-Storefront (Jest):
+Jest (Storefront):
     only:
         refs:
             - merge_requests
@@ -279,7 +336,7 @@ Validate snippets:
 E2E:
     timeout: 2h 00m
     stage: E2E
-    needs: [Javascript analysis]
+    needs: [ESLint (Administration), ESLint (Storefront)]
     dependencies: []
     services:
         -   name: docker:18.09.7-dind
@@ -419,7 +476,7 @@ Component Library:
     image: node:10.8
     before_script: []
     dependencies: []
-    needs: [Administration (Jest), Storefront (Jest)]
+    needs: [Jest (Administration), Jest (Storefront)]
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR
     environment:

@@ -23,6 +23,7 @@ $sw-media-index-page-background-color:    $color-white;
 
     .sw-media-index__navigation-label {
         @include truncate();
+
         color: $sw-media-index-color-navigation-parent;
         text-decoration: none;
     }

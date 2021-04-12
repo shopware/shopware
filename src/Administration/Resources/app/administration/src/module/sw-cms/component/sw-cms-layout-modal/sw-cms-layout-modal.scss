@@ -1,7 +1,6 @@
 @import '~scss/variables';
 
 .sw-cms-layout-modal {
-
     .sw-cms-layout-modal__header {
         display: grid;
         grid-template-columns: 1fr 250px;
@@ -15,6 +14,7 @@
             text-overflow: ellipsis;
             overflow: hidden;
         }
+
         .sw-simple-search-field {
             margin-bottom: 0;
         }
@@ -29,10 +29,8 @@
         .sw-cms-layout-modal__content-item {
             position: relative;
 
-            &.is--selected {
-                .sw-cms-list-item {
-                    border-color: $color-shopware-brand-500;
-                }
+            &.is--selected .sw-cms-list-item {
+                border-color: $color-shopware-brand-500;
             }
 
             .sw-field--checkbox {
@@ -50,6 +48,7 @@
         .sw-media-modal-v2__dialog {
             max-width: 960px;
         }
+
         .sw-media-modal-v2__body {
             padding: 0;
             display: flex;

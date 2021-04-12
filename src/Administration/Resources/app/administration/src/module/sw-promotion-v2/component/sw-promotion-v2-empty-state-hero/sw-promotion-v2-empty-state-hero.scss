@@ -7,7 +7,6 @@
     height: 100%;
     padding: 32px 96px;
     align-items: center;
-
     grid-template-columns: 1fr 2fr;
     grid-column-gap: 50px;
 
@@ -16,7 +15,8 @@
         justify-self: right;
     }
 
-    &__title, &__description {
+    &__title,
+    &__description {
         margin-bottom: 24px;
 
         &:last-child {

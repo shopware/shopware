@@ -13,42 +13,6 @@
         }
     }
 
-    .sw-text-editor-table {
-        border-collapse: collapse;
-
-        .sw-text-editor-table__head {
-            td {
-                background: $color-gray-100;
-            }
-        }
-
-        .sw-text-editor-table__row {
-            .sw-text-editor-table__col {
-                border: 1px solid $color-black;
-                min-width: 15px;
-                min-height: 15px;
-                position: relative;
-                padding: 8px;
-                text-align: left;
-
-                .sw-text-editor-table__col-selector {
-                    position: absolute;
-                    cursor: col-resize;
-                    user-select: none;
-                    width: 4px;
-                    top: 0;
-                    right: 0;
-                    z-index: 2;
-                    margin: 0;
-
-                    &:hover {
-                        border: 2px solid $color-shopware-brand-500;
-                    }
-                }
-            }
-        }
-    }
-
     .btn {
         background: $color-gray-50;
         color: $color-darkgray-200;
@@ -90,7 +54,7 @@
             line-height: 16px;
             font-size: 14px;
             margin-bottom: 8px;
-            color: #54698D;
+            color: #54698d;
             user-select: none;
         }
 
@@ -165,9 +129,14 @@
     .sw-text-editor__content-editor {
         outline: 0 solid transparent;
 
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             font-weight: 600;
-            color: #52667A;
+            color: #52667a;
             letter-spacing: 0;
             margin-bottom: 0;
         }
@@ -208,11 +177,12 @@
             margin-top: 22px;
         }
 
-        p, div {
+        p,
+        div {
             font-weight: normal;
             font-size: 16px;
             line-height: 24px;
-            color: #52667A;
+            color: #52667a;
             letter-spacing: 0;
             margin-top: 16px;
         }
@@ -221,12 +191,12 @@
             font-size: 16px;
             font-style: italic;
             line-height: 24px;
-            color: #52667A;
+            color: #52667a;
             margin-left: 20px;
             position: relative;
             margin-top: 16px;
 
-            &:before {
+            &::before {
                 content: '"';
                 font-size: 40px;
                 line-height: 16px;
@@ -237,7 +207,8 @@
             }
         }
 
-        ul, ol {
+        ul,
+        ol {
             margin-left: 20px;
             margin-top: 16px;
 
@@ -245,7 +216,7 @@
                 font-weight: normal;
                 font-size: 16px;
                 line-height: 24px;
-                color: #52667A;
+                color: #52667a;
                 margin-bottom: 8px;
             }
 
@@ -278,8 +249,45 @@
     }
 
     &.is--disabled {
-        .sw-text-editor__content, .sw-text-editor__word_count {
+        .sw-text-editor__content,
+        .sw-text-editor__word_count {
             background-color: $color-gray-100;
+        }
+    }
+}
+
+.sw-text-editor-table {
+    border-collapse: collapse;
+
+    .sw-text-editor-table__head {
+        td {
+            background: $color-gray-100;
+        }
+    }
+
+    .sw-text-editor-table__row {
+        .sw-text-editor-table__col {
+            border: 1px solid $color-black;
+            min-width: 15px;
+            min-height: 15px;
+            position: relative;
+            padding: 8px;
+            text-align: left;
+
+            .sw-text-editor-table__col-selector {
+                position: absolute;
+                cursor: col-resize;
+                user-select: none;
+                width: 4px;
+                top: 0;
+                right: 0;
+                z-index: 2;
+                margin: 0;
+
+                &:hover {
+                    border: 2px solid $color-shopware-brand-500;
+                }
+            }
         }
     }
 }

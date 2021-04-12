@@ -8,7 +8,6 @@
         margin-bottom: 0;
     }
 
-
     .sw-simple-search-field__input.sw-simple-search-field--default {
         .sw-block-field__block {
             border: none;
@@ -60,7 +59,8 @@
         }
     }
 
-    .sw-simple-search-field__search-icon, .sw-icon {
+    .sw-simple-search-field__search-icon,
+    .sw-icon {
         color: $color-gray-700;
         transform: translate(0, -50%);
         position: absolute;

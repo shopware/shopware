@@ -41,7 +41,7 @@ $sw-product-variants-media-upload-preview-cover-border: #d8d8d8;
             position: absolute;
             left: 50%;
             top: 50%;
-            transform: translate(-50%,-50%);
+            transform: translate(-50%, -50%);
 
             &.is--disabled {
                 display: none;
@@ -95,51 +95,6 @@ $sw-product-variants-media-upload-preview-cover-border: #d8d8d8;
         height: 36px;
     }
 
-    .sw-product-variants-media-upload__image {
-        position: relative;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        justify-content: center;
-
-        &:hover {
-            .sw-media-upload-v2__preview {
-                &.is--disabled {
-                    background-color: unset;
-
-                    &.is--cover {
-                        border: 1px solid $color-shopware-brand-500;
-                    }
-
-                    .sw-media-preview-v2__item {
-                        opacity: 1;
-                    }
-                }
-
-                background-color: $color-black;
-                border: none;
-            }
-
-            .sw-media-preview-v2__item {
-                opacity: 0.7;
-            }
-
-            .sw-context-button__button {
-                visibility: visible;
-                border: none;
-            }
-        }
-
-        .sw-context-button__button {
-            visibility: hidden;
-
-            .sw-icon {
-                color: $color-white;
-                height: 100%;
-            }
-        }
-    }
-
     .sw-media-preview-v2__item {
         border-radius: 4px;
         width: 100%;
@@ -166,6 +121,51 @@ $sw-product-variants-media-upload-preview-cover-border: #d8d8d8;
         .sw-context-button__button {
             border: none;
             visibility: hidden;
+        }
+    }
+}
+
+.sw-product-variants-media-upload__image {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+
+    &:hover {
+        .sw-media-upload-v2__preview {
+            background-color: $color-black;
+            border: none;
+
+            &.is--disabled {
+                background-color: unset;
+
+                &.is--cover {
+                    border: 1px solid $color-shopware-brand-500;
+                }
+
+                .sw-media-preview-v2__item {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .sw-media-preview-v2__item {
+            opacity: 0.7;
+        }
+
+        .sw-context-button__button {
+            visibility: visible;
+            border: none;
+        }
+    }
+
+    .sw-context-button__button {
+        visibility: hidden;
+
+        .sw-icon {
+            color: $color-white;
+            height: 100%;
         }
     }
 }

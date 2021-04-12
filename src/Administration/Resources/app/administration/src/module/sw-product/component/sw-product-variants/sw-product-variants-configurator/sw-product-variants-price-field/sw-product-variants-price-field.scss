@@ -22,17 +22,16 @@ $sw-product-variants-field-suffix-font-weight: 400;
         }
     }
 
-    .sw-field .sw-product-variants-price-field__input input{
+    .sw-field .sw-product-variants-price-field__input input {
         padding: 2px 8px;
     }
 
     &.is--readonly {
-
-        .sw-field .sw-product-variants-price-field__input input{
+        .sw-field .sw-product-variants-price-field__input input {
             cursor: default;
 
             &:focus {
-                border: 1px solid #D8DDE6;
+                border: 1px solid #d8dde6;
                 box-shadow: 0 0 0 #b1deff;
             }
         }

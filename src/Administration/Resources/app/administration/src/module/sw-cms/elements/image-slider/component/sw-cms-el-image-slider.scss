@@ -41,93 +41,93 @@
             }
         }
     }
+}
 
-    .sw-cms-el-image-slider__navigation {
-        &.is--nav-outside {
-            justify-content: center;
-            background: #fff;
-            border-radius: 5px;
-            padding: 15px;
+.sw-cms-el-image-slider__navigation {
+    &.is--nav-outside {
+        justify-content: center;
+        background: #fff;
+        border-radius: 5px;
+        padding: 15px;
+    }
+
+    .sw-cms-el-image-slider__navigation-button {
+        cursor: pointer;
+        color: $color-gray-400;
+
+        &:hover {
+            color: $color-gray-900;
         }
+    }
+}
+
+.sw-cms-el-image-slider__navigation-arrows {
+    .sw-cms-el-image-slider__navigation-button {
+        position: absolute;
+        top: 50%;
+    }
+
+    &.is--dot-outside {
+        .sw-cms-el-image-slider__navigation-button {
+            top: calc(50% - 15px);
+        }
+    }
+
+    &.is--nav-inside {
+        .sw-cms-el-image-slider__navigation-button {
+            &:first-child {
+                left: 5px;
+            }
+
+            &:last-child {
+                right: 5px;
+            }
+        }
+    }
+
+    &.is--nav-outside {
+        .sw-cms-el-image-slider__navigation-button {
+            &:first-child {
+                left: -25px;
+            }
+
+            &:last-child {
+                right: -25px;
+            }
+        }
+    }
+}
+
+.sw-cms-el-image-slider__navigation-dots {
+    .sw-cms-el-image-slider__navigation-buttons {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: grid;
+        grid-auto-flow: column dense;
+        grid-auto-columns: min-content;
 
         .sw-cms-el-image-slider__navigation-button {
-            cursor: pointer;
-            color: $color-gray-400;
+            width: 15px;
+            height: 15px;
+            background: $color-gray-400;
+            border-radius: 100%;
+            margin: 0 3px;
+
+            &.is--active {
+                background: $color-gray-900;
+            }
 
             &:hover {
-                color: $color-gray-900;
+                background: $color-gray-900;
             }
         }
+    }
 
-        .sw-cms-el-image-slider__navigation-arrows {
-            .sw-cms-el-image-slider__navigation-button {
-                position: absolute;
-                top: 50%;
-            }
-
-            &.is--dot-outside {
-                .sw-cms-el-image-slider__navigation-button {
-                    top: calc(50% - 15px);
-                }
-            }
-
-            &.is--nav-inside {
-                .sw-cms-el-image-slider__navigation-button {
-                    &:first-child {
-                        left: 5px;
-                    }
-
-                    &:last-child {
-                        right: 5px;
-                    }
-                }
-            }
-
-            &.is--nav-outside {
-                .sw-cms-el-image-slider__navigation-button {
-                    &:first-child {
-                        left: -25px;
-                    }
-
-                    &:last-child {
-                        right: -25px;
-                    }
-                }
-            }
-        }
-
-        .sw-cms-el-image-slider__navigation-dots {
-            .sw-cms-el-image-slider__navigation-buttons {
-                position: absolute;
-                bottom: 10px;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                display: grid;
-                grid-auto-flow: column dense;
-                grid-auto-columns: min-content;
-
-                .sw-cms-el-image-slider__navigation-button {
-                    width: 15px;
-                    height: 15px;
-                    background: $color-gray-400;
-                    border-radius: 100%;
-                    margin: 0 3px;
-
-                    &.is--active {
-                        background: $color-gray-900;
-                    }
-
-                    &:hover {
-                        background: $color-gray-900;
-                    }
-                }
-            }
-
-            &.is--dot-outside {
-                .sw-cms-el-image-slider__navigation-buttons {
-                    bottom: -6px;
-                }
-            }
+    &.is--dot-outside {
+        .sw-cms-el-image-slider__navigation-buttons {
+            bottom: -6px;
         }
     }
 }

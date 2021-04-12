@@ -6,7 +6,7 @@ $sw-error-color: $color-darkgray-200;
 $sw-error-font-size-large: $font-size-large;
 
 .sw-error {
-    display:grid;
+    display: grid;
     height: 100%;
     align-items: center;
     justify-items: center;
@@ -22,7 +22,7 @@ $sw-error-font-size-large: $font-size-large;
 
     .sw-error__illustration {
         text-align: center;
-        width :100%;
+        width: 100%;
         height: 100%;
 
         img {

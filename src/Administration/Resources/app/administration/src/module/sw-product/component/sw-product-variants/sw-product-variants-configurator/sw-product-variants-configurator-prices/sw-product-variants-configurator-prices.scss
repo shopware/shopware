@@ -27,6 +27,7 @@ $sw-product-variants-configurator-prices-search-border: $color-gray-300;
         overflow: auto;
         border-right: 1px solid $color-gray-300;
         padding: 20px 0;
+
         .sw-icon {
             margin-right: 8px;
         }
@@ -44,6 +45,7 @@ $sw-product-variants-configurator-prices-search-border: $color-gray-300;
         &:hover {
             background-color: lighten($sw-product-variants-configurator-prices-active-color-background, 2.5);
         }
+
         &.is--selected {
             background-color: $sw-product-variants-configurator-prices-active-color-background;
         }
@@ -54,7 +56,6 @@ $sw-product-variants-configurator-prices-search-border: $color-gray-300;
         flex: 1;
         display: flex;
         flex-direction: column;
-
 
         .sw-data-grid {
             border-bottom: 1px solid $sw-product-variants-configurator-prices-search-border;

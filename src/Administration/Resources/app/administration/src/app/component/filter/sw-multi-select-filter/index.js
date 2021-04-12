@@ -1,5 +1,4 @@
 import template from './sw-multi-select-filter.html.twig';
-import './sw-multi-select-filter.scss';
 
 const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;

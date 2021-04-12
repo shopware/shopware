@@ -1,4 +1,5 @@
 @import "~scss/variables";
+
 .sw-app-app-url-changed-modal {
     font-size: $font-size-small;
 
@@ -22,7 +23,7 @@
         .sw-button__content {
             grid-template-columns: 16px 1fr;
             justify-items: start;
-            line-height:22px;
+            line-height: 22px;
             padding: 16px;
 
             .sw-icon {
@@ -64,4 +65,3 @@
         }
     }
 }
-

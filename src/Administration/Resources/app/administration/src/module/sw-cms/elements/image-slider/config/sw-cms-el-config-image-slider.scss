@@ -15,23 +15,23 @@
         .sw-cms-el-config-image-slider__settings-link {
             margin-top: 8px;
 
-            .sw-cms-el-config-image-slider__settings-link-input {
-                margin-bottom: 8px;
-
-                .sw-field__addition {
-                    &.is--prefix {
-                        padding: 5px 0 5px 5px;
-                        background: initial;
-                        border-right: none;
-                    }
-                }
-            }
-
             .sw-cms-el-config-image-slider__settings-link-prefix {
                 height: 36px;
                 width: 44px;
                 border-radius: 2px;
                 object-fit: cover;
+            }
+        }
+    }
+
+    .sw-cms-el-config-image-slider__settings-link-input {
+        margin-bottom: 8px;
+
+        .sw-field__addition {
+            &.is--prefix {
+                padding: 5px 0 5px 5px;
+                background: initial;
+                border-right: none;
             }
         }
     }

@@ -192,10 +192,8 @@ $sw-media-base-item-preview-background:      $color-white;
             text-align: left;
             font-size: $font-size-small;
 
-            .sw-media-base-item__name-field {
-                input {
-                    text-align: unset;
-                }
+            .sw-media-base-item__name-field input {
+                text-align: unset;
             }
         }
 

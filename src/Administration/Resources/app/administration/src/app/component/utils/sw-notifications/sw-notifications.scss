@@ -3,7 +3,7 @@
 $sw-notifications-gap: 20px;
 $sw-notifications-z-index: $z-index-notifications;
 $sw-notifications-width: 400px;
-$sw-notifications-transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+$sw-notifications-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 .sw-notifications {
     position: absolute;

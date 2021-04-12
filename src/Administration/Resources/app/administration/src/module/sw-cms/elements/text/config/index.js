@@ -1,5 +1,4 @@
 import template from './sw-cms-el-config-text.html.twig';
-import './sw-cms-el-config-text.scss';
 
 const { Component, Mixin } = Shopware;
 

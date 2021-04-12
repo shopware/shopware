@@ -6,7 +6,7 @@
 
         &-scrollable {
             display: flex;
-            transform: translateX(0px);
+            transform: translateX(0);
             transition: transform 0.3s ease-out;
             clear: both;
         }
@@ -15,14 +15,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-
             overflow: hidden;
             border-radius: $border-radius-default;
 
             &-wrapper {
                 flex-direction: column;
                 align-self: flex-start;
-
                 border: 1px solid #ccc;
                 border-radius: calc(#{$border-radius-default} + 2px);
             }
@@ -47,7 +45,6 @@
             margin: 12px 6px;
             border: 0 none;
             border-radius: 100%;
-
             background: $color-gray-500;
             transition: background 0.3s ease-out;
             outline: none;

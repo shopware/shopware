@@ -63,7 +63,6 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
     "productNotFound": "Product \"%number%\" not found.",
     "payment-method-blocked": "Payment via %name% not available.",
-    "shipping-method-blocked": "%name% shipping is not available.",
     "shipping-address-blocked": "Shipping to the selected address is not possible.",
     "shipping-address-invalid": "The selected shipping address is not valid or incomplete. Please check your entries.",
     "billing-address-blocked": "Billing to the selected address is not possible.",

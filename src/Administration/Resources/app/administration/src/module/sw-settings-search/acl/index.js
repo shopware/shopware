@@ -8,6 +8,7 @@ Shopware.Service('privileges')
                 privileges: [
                     'product_search_config:read',
                     'product_search_config_field:read',
+                    'custom_field_set:read',
                     'product_search_keyword:read',
                     'product:read',
                     'sales_channel:read',

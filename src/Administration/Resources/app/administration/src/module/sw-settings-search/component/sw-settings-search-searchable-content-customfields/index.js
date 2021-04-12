@@ -50,13 +50,49 @@ Component.register('sw-settings-search-searchable-content-customfields', {
     data() {
         return {
             customFields: [],
-            currentCustomFieldId: null
+            currentCustomFieldId: null,
+            addedCustomFieldIds: []
         };
     },
 
     computed: {
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field');
+        },
+
+        customFieldFilteredCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('customFieldSet');
+
+            if (!this.searchConfigs) {
+                return criteria;
+            }
+
+            this.searchConfigs.forEach(item => {
+                if (item && item.customFieldId) {
+                    this.addedCustomFieldIds.push(item.customFieldId);
+                }
+            });
+
+            if (this.addedCustomFieldIds.length === 0) {
+                return criteria;
+            }
+
+            criteria.addFilter(Criteria.not(
+                'AND',
+                [
+                    Criteria.equalsAny('id', this.addedCustomFieldIds)
+                ]
+            ));
+
+            return criteria;
+        },
+
+        customFieldCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('customFieldSet');
+
+            return criteria;
         }
     },
 
@@ -66,7 +102,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
 
     methods: {
         createdComponent() {
-            this.customFieldRepository.search(new Criteria(), Shopware.Context.api)
+            this.customFieldRepository.search(this.customFieldCriteria, Shopware.Context.api)
                 .then(items => {
                     this.customFields = items;
                 })
@@ -77,14 +113,25 @@ Component.register('sw-settings-search-searchable-content-customfields', {
                 });
         },
 
+        showCustomFieldWithSet(field) {
+            let setName = '';
+            if (field && field.customFieldSet) {
+                setName = this.getInlineSnippet(field.customFieldSet.config.label) || field.customFieldSet.name;
+            }
+
+            const itemName = this.getInlineSnippet(field.config.label) || field.name;
+            return `${setName} - ${itemName}`;
+        },
+
         getMatchingCustomFields(field) {
+            if (!field) { return ''; }
+
             const fieldName = field.replace('customFields.', '');
             const fieldItem = this.customFields.find(item => item.name === fieldName);
 
-            if (fieldItem && fieldItem.config.label['en-GB']) {
-                return fieldItem.config.label['en-GB'];
+            if (fieldItem) {
+                return this.showCustomFieldWithSet(fieldItem);
             }
-
             return fieldName;
         },
 

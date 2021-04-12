@@ -33,7 +33,8 @@ Component.register('sw-settings-search', {
             currentSalesChannelId: null,
             searchTerms: '',
             searchResults: null,
-            defaultConfig: null
+            defaultConfig: null,
+            isSaveSuccessful: false
         };
     },
 
@@ -187,6 +188,7 @@ Component.register('sw-settings-search', {
                         message: this.$tc('sw-settings-search.notification.saveSuccess')
                     });
                     this.getProductSearchConfigs();
+                    this.isSaveSuccessful = true;
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -196,6 +198,10 @@ Component.register('sw-settings-search', {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
         },
 
         fetchSalesChannels() {

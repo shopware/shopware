@@ -146,7 +146,20 @@ export default class ShopwareExtensionService {
             return this._getLinkToApp(extension);
         }
 
-        // TODO get link for plugins
+        // Only show open link when extension is active. The route is maybe not available
+        if (!extension.active) {
+            return null;
+        }
+
+        const entryRoutes = Shopware.State.get('extensionEntryRoutes').routes;
+
+        if (entryRoutes[extension.name] !== undefined) {
+            return {
+                name: entryRoutes[extension.name].route,
+                label: entryRoutes[extension.name].label || null
+            };
+        }
+
         return null;
     }
 

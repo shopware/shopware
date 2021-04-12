@@ -7,6 +7,7 @@ import licenseViolation from './license-violation.store';
 import error from './error.store';
 import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
+import extensionEntryRoutes from './extension-entry-routes';
 
 export default {
     notification,
@@ -17,5 +18,6 @@ export default {
     context,
     error,
     settingsItems,
-    shopwareApps
+    shopwareApps,
+    extensionEntryRoutes
 };

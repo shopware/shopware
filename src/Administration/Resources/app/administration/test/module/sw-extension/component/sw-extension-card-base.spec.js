@@ -19,7 +19,8 @@ function createWrapper(propsData = {}) {
         },
         provide: {
             shopwareExtensionService: {
-                canBeOpened: () => true
+                canBeOpened: () => false,
+                getOpenLink: () => null
             },
             extensionStoreActionService: {},
             cacheApiService: {}

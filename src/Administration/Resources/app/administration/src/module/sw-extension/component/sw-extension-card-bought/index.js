@@ -85,6 +85,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 this.extension.active = true;
                 this.clearCacheAndReloadPage();
             } catch (e) {
+                this.extension.active = false;
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
@@ -102,6 +103,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 this.extension.active = false;
                 this.clearCacheAndReloadPage();
             } catch (e) {
+                this.extension.active = true;
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;

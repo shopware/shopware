@@ -453,6 +453,10 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         expect(firstProductNameDESCSorted.text()).toBe('Product 2');
         expect(secondProductNameDESCSorted.text()).toBe('Product 1');
+
+        const params = new URLSearchParams(window.location.href);
+        expect(params.get('naturalSorting')).toBe('false');
+        expect(wrapper.vm.naturalSorting).toBe(false);
     });
 
     it('should sort products by Manufacturer name', async () => {

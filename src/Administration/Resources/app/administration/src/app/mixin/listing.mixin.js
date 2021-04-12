@@ -45,12 +45,22 @@ Mixin.register('listing', {
             this.getList();
             return;
         }
+
         const actualQueryParameters = this.$route.query;
 
         // When no route information are provided
         if (types.isEmpty(actualQueryParameters)) {
             this.resetListing();
         } else {
+            // When we get the parameters on the route, true and false will be a string so we should convert to boolean
+            Object.keys(actualQueryParameters).forEach((key) => {
+                if (actualQueryParameters[key] === 'true') {
+                    actualQueryParameters[key] = true;
+                } else if (actualQueryParameters[key] === 'false') {
+                    actualQueryParameters[key] = false;
+                }
+            });
+
             // otherwise update local data and fetch from server
             this.updateData(actualQueryParameters);
             this.getList();

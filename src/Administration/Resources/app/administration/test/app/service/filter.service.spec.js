@@ -1,12 +1,16 @@
 import FilterService from 'src/app/service/filter.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import VueRouter from 'vue-router';
 
 describe('app/service/filter.service.js', () => {
     let filterService;
     let filterData;
 
     beforeEach(() => {
+        Shopware.Application.view = {
+            router: new VueRouter()
+        };
         filterData = new EntityCollection(null, null, null, new Criteria(), [{
             key: 'test',
             userId: '123',
@@ -47,17 +51,78 @@ describe('app/service/filter.service.js', () => {
         });
     });
 
-    it('getStoredFilters should return correct data', async () => {
+    it('getStoredFilters when there is no data from url, no data from database', async () => {
         const data = await filterService.getStoredFilters('test');
 
         expect(data).not.toBeNull();
     });
 
-    it('getStoredFilters should return empty object when data is not available', async () => {
+    it('getStoredFilters when there is no data from url, has data from database', async () => {
+        const data = await filterService.getStoredFilters('test');
+        const filterResult = {
+            filter3: {
+                value: [
+                    {
+                        id: '123'
+                    }
+                ],
+                criteria: [{
+                    type: 'equalsAny',
+                    field: 'salutation.id',
+                    value: '123'
+                }]
+            }
+        };
+
+        expect(data).toEqual(filterResult);
+
+        const query = JSON.parse(decodeURIComponent(Shopware.Application.view.router.currentRoute.query.test));
+        expect(query).toEqual(filterResult);
+    });
+
+    it('getStoredFilters when there is no data from database, has data from url', async () => {
         filterData = new EntityCollection(null, null, null, new Criteria(), []);
+        const urlEncodedValue = encodeURIComponent(JSON.stringify({
+            'stock-filter': {
+                value: null,
+                criteria: null
+            }
+        }));
+        Shopware.Application.view.router.push({
+            query: {
+                test: urlEncodedValue
+            }
+        });
 
         const data = await filterService.getStoredFilters('test');
-        expect(data).toEqual({});
+        expect(data).toEqual({
+            'stock-filter': {
+                value: null,
+                criteria: null
+            }
+        });
+    });
+
+    it('getStoredFilters when there is data from database and data from url', async () => {
+        const urlEncodedValue = encodeURIComponent(JSON.stringify({
+            'stock-filter': {
+                value: null,
+                criteria: null
+            }
+        }));
+        Shopware.Application.view.router.push({
+            query: {
+                test: urlEncodedValue
+            }
+        });
+
+        const data = await filterService.getStoredFilters('test');
+        expect(data).toEqual({
+            'stock-filter': {
+                value: null,
+                criteria: null
+            }
+        });
     });
 
     it('getStoredCriteria should return correct criteria', async () => {
@@ -111,49 +176,5 @@ describe('app/service/filter.service.js', () => {
         await filterService.mergeWithStoredFilters('test', criteria);
         expect(filterService.getStoredFilters).toHaveBeenCalled();
         expect(filterService._storedFilters.test).toEqual([]);
-    });
-
-    it('mergeWithStoredFilters should merge filters when there is cache data', async () => {
-        let criteria = new Criteria();
-        criteria.addFilter({
-            type: 'equalsAny',
-            field: 'filter1',
-            value: 'filter1'
-        });
-        criteria.addFilter({
-            type: 'equalsAny',
-            field: 'filter2',
-            value: 'filter2'
-        });
-
-        await filterService.mergeWithStoredFilters('test', criteria);
-
-        criteria = new Criteria();
-        criteria.addFilter({
-            type: 'equalsAny',
-            field: 'filter1',
-            value: 'newValue'
-        });
-        criteria.addFilter({
-            type: 'equalsAny',
-            field: 'filter2',
-            value: 'newValue'
-        });
-        criteria.addFilter({
-            type: 'equalsAny',
-            field: 'filter3',
-            value: 'newValue'
-        });
-
-        filterService.getStoredFilters = jest.fn();
-        const mergedFilters = await filterService.mergeWithStoredFilters('test', criteria);
-
-        expect(filterService.getStoredFilters).not.toHaveBeenCalled();
-        expect(mergedFilters.filters).toEqual([
-            { type: 'equalsAny', field: 'filter1', value: 'newValue' },
-            { type: 'equalsAny', field: 'filter2', value: 'newValue' },
-            { type: 'equalsAny', field: 'filter3', value: 'newValue' },
-            { field: 'salutation.id', type: 'equalsAny', value: '123' }
-        ]);
     });
 });

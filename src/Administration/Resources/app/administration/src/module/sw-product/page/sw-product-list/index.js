@@ -218,7 +218,7 @@ Component.register('sw-product-list', {
 
             try {
                 const result = await Promise.all([
-                    this.productRepository.search(this.productCriteria, Shopware.Context.api),
+                    this.productRepository.search(criteria, Shopware.Context.api),
                     this.currencyRepository.search(this.currencyCriteria, Shopware.Context.api)
                 ]);
 

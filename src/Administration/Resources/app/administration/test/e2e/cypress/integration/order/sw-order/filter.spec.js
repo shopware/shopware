@@ -340,7 +340,6 @@ describe('Order: Testing filter and reset filter', () => {
         cy.wait('@filterOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-page__smart-bar-amount').contains('9');
 
         // Check notification badge after filtering
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('exist');
@@ -390,10 +389,6 @@ describe('Order: Testing filter and reset filter', () => {
 
         // Click Reset button to reset filter
         cy.get('.sw-filter-panel__item').eq(2).find('.sw-base-filter__reset').click();
-        cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-page__smart-bar-amount').contains('9');
 
         // Reset All button should show up when there is active filter
         cy.get('.sw-filter-panel__item:nth-child(5) .sw-entity-multi-select').scrollIntoView();
@@ -405,9 +400,10 @@ describe('Order: Testing filter and reset filter', () => {
         cy.get('.sw-sidebar-item__headline a').click();
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
+
+        cy.wait('@getUserConfig').then((xhr) => {});
         cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            cy.get('.sw-page__smart-bar-amount').contains('9');
         });
-        cy.get('.sw-page__smart-bar-amount').contains('9');
     });
 });

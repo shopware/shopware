@@ -59,7 +59,7 @@ Mixin.register('listing', {
 
     watch: {
         // Watch for changes in query parameters and update listing
-        '$route'() {
+        '$route'(newRoute, oldRoute) {
             if (this.disableRouteParams) {
                 return;
             }
@@ -72,6 +72,11 @@ Mixin.register('listing', {
 
             // Update data information from the url
             this.updateData(query);
+
+            if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria.length) {
+                this.filterCriteria = [];
+                return;
+            }
 
             // Fetch new list
             this.getList();

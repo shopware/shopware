@@ -42,13 +42,12 @@
 
         {% block sw_product_detail_specifications_custom_fields %}
             <sw-card
-                v-show="showProductCard('custom_fields')"
+                v-show="showCustomFieldsCard"
                 class="sw-product-detail-specification__custom-fields"
                 :title="$tc('sw-product.specifications.cardTitleCustomFields')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_specifications_custom_fields_content %}
                     <sw-custom-field-set-renderer
-                        v-if="!isLoading && customFieldSets.length > 0"
                         showCustomFieldSetSelection
                         :entity="product"
                         :parentEntity="parentProduct"

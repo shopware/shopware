@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\App\Aggregate\AppTranslation;
 
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -47,6 +49,7 @@ class AppTranslationDefinition extends EntityTranslationDefinition
             (new StringField('label', 'label'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
             new LongTextField('privacy_policy_extensions', 'privacyPolicyExtensions'),
+            (new CustomFields())->addFlags(new Since('6.4.1.0')),
         ]);
     }
 }

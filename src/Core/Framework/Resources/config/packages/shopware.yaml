@@ -103,6 +103,11 @@ shopware:
               major: false
               description: "Improve nested LineItem support"
               # issue: NEXT-12635
+            - name: FEATURE_NEXT_12870
+              default: false
+              major: false
+              description: "Remove default messenger routing rule"
+                # issue: NEXT-12870
             - name: FEATURE_NEXT_14357
               default: false
               major: false

@@ -6,17 +6,18 @@ use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 class MessageFailedHandler implements EventSubscriberInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    public function __construct(Connection $connection)
+    private string $defaultTransportName;
+
+    public function __construct(Connection $connection, string $defaultTransportName)
     {
         $this->connection = $connection;
+        $this->defaultTransportName = $defaultTransportName;
     }
 
     public static function getSubscribedEvents(): array
@@ -33,20 +34,28 @@ class MessageFailedHandler implements EventSubscriberInterface
             return;
         }
 
+        $message = $event->getEnvelope();
+
+        if (!$this->wasReceivedByDefaultTransport($message)) {
+            return;
+        }
+
+        $name = \get_class($message->getMessage());
         $this->connection->executeUpdate('
             UPDATE `message_queue_stats`
             SET `size` = `size` - 1
             WHERE `name` = :name;
-        ', [
-            'name' => $this->getMessageName($event->getEnvelope()),
-        ]);
+        ', ['name' => $name]);
     }
 
-    /**
-     * @param object|Envelope $message
-     */
-    private function getMessageName($message): string
+    private function wasReceivedByDefaultTransport(Envelope $message): bool
     {
-        return $message instanceof Envelope ? \get_class($message->getMessage()) : \get_class($message);
+        foreach ($message->all(ReceivedStamp::class) as $stamp) {
+            if ($stamp instanceof ReceivedStamp && $stamp->getTransportName() === $this->defaultTransportName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

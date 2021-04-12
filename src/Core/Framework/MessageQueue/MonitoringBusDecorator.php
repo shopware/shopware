@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
+use Symfony\Component\Messenger\Stamp\SentStamp;
 
 class MonitoringBusDecorator implements MessageBusInterface
 {
@@ -21,12 +22,16 @@ class MonitoringBusDecorator implements MessageBusInterface
      */
     private $connection;
 
+    private string $defaultTransportName;
+
     public function __construct(
         MessageBusInterface $inner,
-        Connection $connection
+        Connection $connection,
+        string $defaultTransportName
     ) {
         $this->innerBus = $inner;
         $this->connection = $connection;
+        $this->defaultTransportName = $defaultTransportName;
     }
 
     /**
@@ -36,42 +41,19 @@ class MonitoringBusDecorator implements MessageBusInterface
      */
     public function dispatch($message, array $stamps = []): Envelope
     {
-        $messageName = $this->getMessageName($message);
-
-        if (!$this->isIncoming($message)) {
-            $this->incrementMessageQueueSize($messageName);
+        $message = $this->innerBus->dispatch(Envelope::wrap($message, $stamps), $stamps);
+        if ($this->wasSentToDefaultTransport($message)) {
+            $this->incrementMessageQueueSize($message);
         }
 
-        try {
-            $ret = $this->innerBus->dispatch($message, $stamps);
-
-            if ($this->isIncoming($message)) {
-                $this->decrementMessageQueueSize($messageName);
-            }
-
-            return $ret;
-        } catch (\Exception $e) {
-            throw $e;
+        if ($this->wasReceivedByDefaultTransport($message)) {
+            $this->decrementMessageQueueSize($message);
         }
+
+        return $message;
     }
 
-    /**
-     * @param object|Envelope $message
-     */
-    private function isIncoming($message): bool
-    {
-        return $message instanceof Envelope && $message->all(ReceivedStamp::class);
-    }
-
-    /**
-     * @param object|Envelope $message
-     */
-    private function getMessageName($message): string
-    {
-        return $message instanceof Envelope ? \get_class($message->getMessage()) : \get_class($message);
-    }
-
-    private function incrementMessageQueueSize(string $name): void
+    private function incrementMessageQueueSize(Envelope $message): void
     {
         $this->connection->executeUpdate('
             INSERT INTO `message_queue_stats` (`id`, `name`, `size`, `created_at`)
@@ -79,19 +61,41 @@ class MonitoringBusDecorator implements MessageBusInterface
             ON DUPLICATE KEY UPDATE `size` = `size` +1, `updated_at` = :createdAt
         ', [
             'id' => Uuid::randomBytes(),
-            'name' => $name,
+            'name' => \get_class($message->getMessage()),
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 
-    private function decrementMessageQueueSize(string $name): void
+    private function decrementMessageQueueSize(Envelope $message): void
     {
         $this->connection->executeUpdate('
             UPDATE `message_queue_stats`
             SET `size` = `size` - 1
             WHERE `name` = :name;
         ', [
-            'name' => $name,
+            'name' => \get_class($message->getMessage()),
         ]);
+    }
+
+    private function wasSentToDefaultTransport(Envelope $message): bool
+    {
+        foreach ($message->all(SentStamp::class) as $stamp) {
+            if ($stamp instanceof SentStamp && $stamp->getSenderAlias() === $this->defaultTransportName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function wasReceivedByDefaultTransport(Envelope $message): bool
+    {
+        foreach ($message->all(ReceivedStamp::class) as $stamp) {
+            if ($stamp instanceof ReceivedStamp && $stamp->getTransportName() === $this->defaultTransportName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

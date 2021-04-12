@@ -27,12 +27,21 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
      */
     public function handle($task): void
     {
+        $taskId = $task->getTaskId();
+
+        if ($taskId === null) {
+            // run task independent of the schedule
+            $this->run();
+
+            return;
+        }
+
         /** @var ScheduledTaskEntity|null $taskEntity */
         $taskEntity = $this->scheduledTaskRepository
-            ->search(new Criteria([$task->getTaskId()]), Context::createDefaultContext())
-            ->get($task->getTaskId());
+            ->search(new Criteria([$taskId]), Context::createDefaultContext())
+            ->get($taskId);
 
-        if ((!$taskEntity) || ($taskEntity->getStatus() !== ScheduledTaskDefinition::STATUS_QUEUED)) {
+        if ($taskEntity === null || $taskEntity->getStatus() !== ScheduledTaskDefinition::STATUS_QUEUED) {
             return;
         }
 

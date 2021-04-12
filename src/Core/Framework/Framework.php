@@ -97,6 +97,17 @@ class Framework extends Bundle
         $migrationSourceV5 = $container->getDefinition(MigrationSource::class . '.core.V6_5');
         $migrationSourceV5->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_5', 'Shopware\Core\Migration\V6_5']);
 
+        /* @feature-deprecated (flag: FEATURE_NEXT_12870) Remove this block */
+        if (!Feature::isActive('FEATURE_NEXT_12870')) {
+            $container->loadFromExtension('framework', [
+                'messenger' => [
+                    'routing' => [
+                        '*' => 'default',
+                    ],
+                ],
+            ]);
+        }
+
         parent::build($container);
     }
 

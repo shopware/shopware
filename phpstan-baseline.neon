@@ -4841,21 +4841,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeFileResolver.php
 
 		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelCollection\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleHandler.php
-
-		-
-			message: "#^Parameter \\#1 \\$salesChannels of method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleHandler\\:\\:getSalesChannelNames\\(\\) expects Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelCollection, Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelCollection\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleHandler.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\ThemeCollection\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleHandler.php
-
-		-
 			message: "#^Parameter \\#1 \\$config of method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleService\\:\\:getLabelsFromConfig\\(\\) expects array, array\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleService.php

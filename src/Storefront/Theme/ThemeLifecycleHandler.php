@@ -101,8 +101,9 @@ class ThemeLifecycleHandler
         }
 
         $themeSalesChannel = [];
-        if ($theme->getSalesChannels() && $theme->getSalesChannels()->count() > 0) {
-            $themeSalesChannel[$technicalName] = $this->getSalesChannelNames($theme->getSalesChannels());
+        $salesChannels = $theme->getSalesChannels() ?? new SalesChannelCollection();
+        if ($salesChannels->count() > 0) {
+            $themeSalesChannel[$technicalName] = array_values($salesChannels->getIds());
         }
 
         $criteria = new Criteria();
@@ -114,10 +115,12 @@ class ThemeLifecycleHandler
         $childThemeSalesChannel = [];
         if ($childThemes && $childThemes->count() > 0) {
             foreach ($childThemes as $childTheme) {
-                if (!$childTheme->getSalesChannels() || $childTheme->getSalesChannels()->count() === 0) {
+                $childThemeSalesChannels = $childTheme->getSalesChannels();
+                if (!$childThemeSalesChannels || $childThemeSalesChannels->count() === 0) {
                     continue;
                 }
-                $childThemeSalesChannel[$childTheme->getName()] = $this->getSalesChannelNames($childTheme->getSalesChannels());
+                $salesChannels->merge($childThemeSalesChannels);
+                $childThemeSalesChannel[$childTheme->getName()] = array_values($childTheme->getSalesChannels()->getIds());
             }
         }
 
@@ -125,17 +128,7 @@ class ThemeLifecycleHandler
             return;
         }
 
-        throw new ThemeAssignmentException($technicalName, $themeSalesChannel, $childThemeSalesChannel);
-    }
-
-    private function getSalesChannelNames(SalesChannelCollection $salesChannels): array
-    {
-        $names = [];
-        foreach ($salesChannels as $salesChannel) {
-            $names[] = $salesChannel->getName();
-        }
-
-        return $names;
+        throw new ThemeAssignmentException($technicalName, $themeSalesChannel, $childThemeSalesChannel, $salesChannels);
     }
 
     private function changeThemeActive(string $technicalName, bool $active, Context $context): void
@@ -152,8 +145,9 @@ class ThemeLifecycleHandler
 
         $data = [];
         $data[] = ['id' => $theme->getId(), 'active' => $active];
-        if ($theme->getChildThemes()) {
-            foreach ($theme->getChildThemes()->getIds() as $id) {
+        $childThemes = $theme->getChildThemes();
+        if ($childThemes) {
+            foreach ($childThemes->getIds() as $id) {
                 $data[] = ['id' => $id, 'active' => $active];
             }
         }

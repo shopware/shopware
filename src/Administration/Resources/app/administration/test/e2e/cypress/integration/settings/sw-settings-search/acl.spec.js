@@ -116,7 +116,7 @@ describe('Search: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api//product-search-config-field/*',
+            url: '/api/product-search-config-field/*',
             method: 'patch'
         }).as('updateSearchConfig');
 
@@ -262,7 +262,7 @@ describe('Search: Test ACL privileges', () => {
         // Check field already created
         cy.get('.sw-settings-search__searchable-content-customfields ' +
             '.sw-data-grid__row--0 .sw-data-grid__cell-content:first').invoke('text').then((text) => {
-            expect(text.trim()).equal('custom_field_set_property');
+            expect(text.trim()).equal('My custom field - custom_field_set_property');
         });
     });
 

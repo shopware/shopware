@@ -52,10 +52,17 @@
                                     v-model="currentCustomFieldId"
                                     class="sw-settings-search-custom-field-select"
                                     entity="custom_field"
+                                    :criteria="customFieldFilteredCriteria"
                                     @change="(id, customfield) => onSelectCustomField(customfield)">
-                                    <template #result-label-property="{ item }">
-                                        {{ getInlineSnippet(item.config.label) || item.name }}
+
+                                    <template #selection-label-property="{ item }">
+                                        {{ showCustomFieldWithSet(item) }}
                                     </template>
+
+                                    <template #result-label-property="{ item }">
+                                        {{ showCustomFieldWithSet(item) }}
+                                    </template>
+
                                 </sw-entity-single-select>
                             {% endblock %}
                         </template>

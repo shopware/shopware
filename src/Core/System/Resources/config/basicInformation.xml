@@ -131,6 +131,7 @@
         <title>Security and Privacy</title>
         <title lang="de-DE">Sicherheit und Datenschutz</title>
 
+        <!-- @deprecated tag:v6.5.0 - The block "sw-settings-captcha-select" will be deleted and switch to use sw-settings-captcha-v2 -->
         <component name="sw-settings-captcha-select">
             <name>activeCaptchas</name>
             <label>Active captchas</label>
@@ -174,6 +175,22 @@
             <helpText>If active, the field "phone number" has to be filled in, in order to submit a contact form.</helpText>
             <helpText lang="de-DE">Wenn aktiv, muss das Feld "Telefonnummer" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
         </component>
+    </card>
+
+    <card>
+        <title>Captcha</title>
+        <title lang="de-DE">Captcha</title>
+
+        <component name="sw-settings-captcha-select-v2">
+            <name>activeCaptchasV2</name>
+            <label>Active captchas</label>
+            <label lang="de-DE">Aktive Captchas</label>
+            <placeholder>None</placeholder>
+            <placeholder lang="de-DE">Keine</placeholder>
+            <flag>FEATURE_NEXT_12455</flag>
+        </component>
+
+        <flag>FEATURE_NEXT_12455</flag>
     </card>
 
 </config>

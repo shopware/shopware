@@ -19,6 +19,10 @@ Component.register('sw-product-detail-specifications', {
             'isLoading',
             'showModeSetting',
             'showProductCard'
-        ])
+        ]),
+
+        showCustomFieldsCard() {
+            return this.showProductCard('custom_fields') && !this.isLoading && this.customFieldSets.length > 0;
+        }
     }
 });

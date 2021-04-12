@@ -74,7 +74,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @LoginRequired()
+     * @LoginRequired(allowGuest=true)
      * @Route(path="/store-api/order/payment", name="store-api.order.set-payment", methods={"POST"})
      */
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse

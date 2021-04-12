@@ -263,7 +263,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
       this.$emitter.publish('afterInitSlider');
   }
 
-    /**
+  /**
      * navigate thumbnail slider automatically if the selected slider image is hidden
      *
      * @private

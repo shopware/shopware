@@ -7,8 +7,8 @@
 
             {% block sw_multi_select_filter_content_entity_select %}
                 <sw-entity-multi-select
-                    v-if="!filter.options"
-                    :labelProperty="filter.labelProperty"
+                    v-if="isEntityMultiSelect"
+                    :labelProperty="labelProperty"
                     :placeholder="filter.placeholder"
                     :criteria="filter.criteria"
                     :entityName="filter.schema.entity"

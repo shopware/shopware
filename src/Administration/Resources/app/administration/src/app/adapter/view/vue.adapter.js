@@ -41,6 +41,9 @@ export default class VueAdapter extends ViewAdapter {
         const i18n = this.initLocales(store);
         const components = this.getComponents();
 
+        // add router to View
+        this.router = router;
+
         // Enable performance measurements in development mode
         Vue.config.performance = process.env.NODE_ENV !== 'production';
 

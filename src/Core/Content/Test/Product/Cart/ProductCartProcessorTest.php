@@ -575,7 +575,7 @@ class ProductCartProcessorTest extends TestCase
             'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, false],
             'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, false],
             'fixed quantity should be return 1' => [1, 3, 5, 2, 1, true],
-            'fixed quantity should be return 10 with error message' => [10, 3, 12, 11, 10, true],
+            'fixed quantity should be return 10 with error message' => [10, 3, 13, 11, 10, true],
             'fixed quantity should be return 10, without error message' => [10, 2, 20, 2, 10, false],
         ];
     }

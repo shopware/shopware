@@ -61,9 +61,10 @@ class SalesChannelProductSubscriberTest extends TestCase
         yield 'closeout with less stock' => [2, true, 2, 1, 10, 100];
         yield 'use configured max purchase for closeout with stock' => [10, true, 30, 1, 10, 50];
         yield 'not configured, use stock because closeout' => [2, true, 2, 1, null, 50];
-        yield 'next step would be higher than available' => [6, true, 9, 6, 20, 20];
-        yield 'second step would be higher than available' => [12, true, 13, 6, 20, 20];
-        yield 'max config is not in steps' => [12, true, 100, 12, 22, 22];
+        yield 'next step would be higher than available' => [7, true, 9, 6, 20, 20];
+        yield 'second step would be higher than available' => [13, true, 13, 6, 20, 20];
+        yield 'max config is not in steps' => [13, true, 100, 12, 22, 22];
+        yield 'max config is last step' => [15, false, 100, 2, 15, 15];
     }
 
     public function testListPrices(): void

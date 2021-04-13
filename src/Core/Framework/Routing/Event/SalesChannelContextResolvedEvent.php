@@ -9,14 +9,14 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class SalesChannelContextResolvedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    public function __construct(SalesChannelContext $salesChannelContext)
+    private string $usedToken;
+
+    public function __construct(SalesChannelContext $salesChannelContext, string $usedToken)
     {
         $this->salesChannelContext = $salesChannelContext;
+        $this->usedToken = $usedToken;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
@@ -27,5 +27,10 @@ class SalesChannelContextResolvedEvent extends Event implements ShopwareSalesCha
     public function getContext(): Context
     {
         return $this->salesChannelContext->getContext();
+    }
+
+    public function getUsedToken(): string
+    {
+        return $this->usedToken;
     }
 }

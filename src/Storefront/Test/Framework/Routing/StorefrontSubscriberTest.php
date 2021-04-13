@@ -2,13 +2,18 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -18,6 +23,7 @@ class StorefrontSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -46,6 +52,35 @@ class StorefrontSubscriberTest extends TestCase
         $eventDispatcher->dispatch($event);
 
         static::assertArrayHasKey('appShopId', $event->getParameters());
+    }
+
+    public function testExpiredToken(): void
+    {
+        $token = Uuid::randomHex();
+
+        $id = Uuid::randomHex();
+
+        $browser = $this->createCustomSalesChannelBrowser(['id' => $id]);
+
+        $session = $this->getContainer()->get('session');
+
+        $session->start();
+
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+
+        $this->getContainer()->get(SalesChannelContextPersister::class)
+            ->save($token, [SalesChannelContextService::CURRENCY_ID => Defaults::CURRENCY], $id);
+
+        $this->getContainer()->get(Connection::class)
+            ->executeStatement('UPDATE sales_channel_api_context SET updated_at = :expire', ['expire' => '2000-01-01']);
+
+        $browser->request('GET', '/');
+
+        $response = $browser->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotEquals($token, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testItDoesNotAddShopIdParamWhenAppIsInactive(): void

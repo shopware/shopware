@@ -73,19 +73,39 @@ Component.register('sw-entity-multi-id-select', {
         }
     },
 
+    watch: {
+        ids() {
+            if (this.collection === null) {
+                this.createdComponent();
+                return;
+            }
+
+            if (this.collection.getIds() === this.ids) {
+                return;
+            }
+
+            this.createdComponent();
+        }
+    },
+
     created() {
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
-            this.collection = new EntityCollection(
+            const collection = new EntityCollection(
                 this.repository.route,
                 this.repository.entityName,
                 this.context
             );
 
+            if (this.collection === null) {
+                this.collection = collection;
+            }
+
             if (this.ids.length <= 0) {
+                this.collection = collection;
                 return Promise.resolve(this.collection);
             }
 

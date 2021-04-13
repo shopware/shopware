@@ -24,6 +24,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
       loadingCls: 'is-loading',
       slider: {
           startIndex: 1,
+          preventScrollOnTouch: 'force',
           responsive: {
               xs: {},
               sm: {},
@@ -39,6 +40,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
           items: 5,
           gutter: 10,
           startIndex: 1,
+          preventScrollOnTouch: 'force',
           responsive: {
               xs: {},
               sm: {},
@@ -269,13 +271,14 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
      * @private
      * */
   _navigateThumbnailSlider() {
-      if (!this._slider && !this._thumbnailSlider) {
+      const thumbnailSlideInfo = this._thumbnailSlider && this._thumbnailSlider.getInfo();
+
+      if (!(this._slider && thumbnailSlideInfo)) {
           return;
       }
 
       this._slider.events.on('indexChanged', () => {
           const currentIndex = this.getCurrentSliderIndex();
-          const thumbnailSlideInfo = this._thumbnailSlider.getInfo();
 
           if (thumbnailSlideInfo.slideItems[currentIndex].getAttribute('aria-hidden')) {
               this._thumbnailSlider.goTo(currentIndex - 1);

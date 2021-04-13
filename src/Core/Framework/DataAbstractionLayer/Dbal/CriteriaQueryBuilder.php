@@ -66,7 +66,7 @@ class CriteriaQueryBuilder
         $this->criteriaPartResolver = $criteriaPartResolver;
     }
 
-    public function build(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context): QueryBuilder
+    public function build(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, array $paths = []): QueryBuilder
     {
         $query = $this->helper->getBaseQuery($query, $definition, $context);
 
@@ -84,7 +84,7 @@ class CriteriaQueryBuilder
             $criteria->addQuery(...$queries);
         }
 
-        $filters = $this->groupFilters($definition, $criteria);
+        $filters = $this->groupFilters($definition, $criteria, $paths);
 
         $this->criteriaPartResolver->resolve($filters, $definition, $query, $context);
 
@@ -214,7 +214,7 @@ class CriteriaQueryBuilder
         return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || !empty($criteria->getGroupFields());
     }
 
-    private function groupFilters(EntityDefinition $definition, Criteria $criteria): array
+    private function groupFilters(EntityDefinition $definition, Criteria $criteria, array $additionalFields = []): array
     {
         $filters = [];
         foreach ($criteria->getFilters() as $filter) {
@@ -225,7 +225,10 @@ class CriteriaQueryBuilder
             $filters[] = new AndFilter([$filter]);
         }
 
-        return $this->joinGrouper->group($filters, $definition);
+        // $additionalFields is used by the entity aggregator.
+        // For example, if an aggregation is to be created on a to many association that is already stored as a filter.
+        // The association is therefore referenced twice in the query and would have to be created as a sub-join in each case. But since only the filters are considered, the association is referenced only once.
+        return $this->joinGrouper->group($filters, $definition, $additionalFields);
     }
 
     private function hasScoreSorting(Criteria $criteria): bool

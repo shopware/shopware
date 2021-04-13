@@ -114,17 +114,17 @@ describe('Product: Test variants', () => {
 
         const yellowOption = cy.get('.sw-property-option-list').contains('Yellow').parents('tr');
         yellowOption.dblclick();
-        yellowOption.get('#sw-field--item-name').clear().type('Gelb');
+        yellowOption.get('#sw-field--item-name').typeAndCheck('Gelb');
         yellowOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
 
         const redOption = cy.get('.sw-property-option-list').contains('Red').parents('tr');
         redOption.dblclick();
-        redOption.get('#sw-field--item-name').clear().type('Rot');
+        redOption.get('#sw-field--item-name').typeAndCheck('Rot');
         redOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
 
         const greenOption = cy.get('.sw-property-option-list').contains('Green').parents('tr');
         greenOption.dblclick();
-        greenOption.get('#sw-field--item-name').clear().type('Grün');
+        greenOption.get('#sw-field--item-name').typeAndCheck('Grün');
         greenOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

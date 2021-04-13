@@ -488,13 +488,14 @@ Cypress.Commands.add(
             .then(() => {
                 if (subMenuId) {
                     cy.get(finalMenuItem).click();
-                    cy.get(
-                        `.sw-admin-menu__item--${mainMenuId} .router-link-active`
-                    ).should('be.visible');
-
-                    cy.wait(500);
-                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible');
-                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).click();
+                    cy.get(`.sw-admin-menu__item--${mainMenuId} .router-link-active`).should('be.visible');
+                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible')
+                        .then($el => Cypress.dom.isDetached($el));
+                    cy.log(`Element ${subMenuId} is detached.`);
+                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible')
+                        .then($el => Cypress.dom.isAttached($el))
+                    cy.log(`Element ${subMenuId} is now attached to the DOM.`);
+                    cy.getAttached(`.sw-admin-menu__navigation-list-item .${subMenuId}`).click();
                 } else {
                     cy.get(finalMenuItem).should('be.visible').click();
                 }
@@ -502,3 +503,13 @@ Cypress.Commands.add(
         cy.url().should('include', targetPath);
     }
 );
+
+Cypress.Commands.add("getAttached", selector => {
+    const getElement = typeof selector === "function" ? selector : $d => $d.find(selector);
+    let $el = null;
+
+    return cy.document().should($d => {
+        $el = getElement(Cypress.$($d));
+        expect(Cypress.dom.isDetached($el)).to.be.false;
+    }).then(() => cy.wrap($el));
+});

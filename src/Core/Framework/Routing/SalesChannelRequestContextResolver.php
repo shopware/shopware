@@ -105,9 +105,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 
         $this->eventDispatcher->dispatch(
-            new SalesChannelContextResolvedEvent($context)
+            new SalesChannelContextResolvedEvent($context, (string) $contextToken)
         );
     }
 

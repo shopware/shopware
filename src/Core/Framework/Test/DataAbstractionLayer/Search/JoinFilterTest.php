@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -172,6 +174,66 @@ class JoinFilterTest extends TestCase
         static::assertTrue(\count($media->getIds()) > 0);
         static::assertContains($ids->get('with-avatar'), $media->getIds());
         static::assertContains($ids->get('without-avatar'), $media->getIds());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testAggregationWithFilter(IdsCollection $ids): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsAnyFilter('properties.id', $ids->getList(['red']))
+        );
+
+        $criteria->addAggregation(
+            new TermsAggregation('filters', 'properties.id')
+        );
+
+        $criteria->setLimit(0);
+
+        $products = $this->getContainer()->get('product.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $aggregation = $products->getAggregations()->get('filters');
+
+        static::assertInstanceOf(TermsResult::class, $aggregation);
+
+        static::assertContains($ids->get('red'), $aggregation->getKeys());
+        static::assertContains($ids->get('yellow'), $aggregation->getKeys());
+        static::assertContains($ids->get('XL'), $aggregation->getKeys());
+        static::assertContains($ids->get('L'), $aggregation->getKeys());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testAggregationWithNegatedFilter(IdsCollection $ids): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new NandFilter([
+                new EqualsAnyFilter('properties.id', $ids->getList(['XL'])),
+            ])
+        );
+
+        $criteria->addAggregation(
+            new TermsAggregation('filters', 'properties.id')
+        );
+
+        $criteria->setLimit(0);
+
+        $products = $this->getContainer()->get('product.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $aggregation = $products->getAggregations()->get('filters');
+
+        static::assertInstanceOf(TermsResult::class, $aggregation);
+
+        static::assertContains($ids->get('red'), $aggregation->getKeys());
+        static::assertNotContains($ids->get('yellow'), $aggregation->getKeys());
+        static::assertNotContains($ids->get('XL'), $aggregation->getKeys());
+        static::assertNotContains($ids->get('L'), $aggregation->getKeys());
     }
 
     /**

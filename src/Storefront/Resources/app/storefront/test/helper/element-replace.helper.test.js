@@ -150,9 +150,8 @@ describe('element-replace.helper', () => {
 
         test('it does not remove content if single src has none', () => {
             const src = document.createElement('div');
-
-
             const target = document.querySelectorAll('li.replaceable-item');
+
             ElementReplaceHelper.replaceElement(src, target);
 
             expect(target).toHaveProperty('length', 4);
@@ -163,6 +162,46 @@ describe('element-replace.helper', () => {
 
         test('it returns with false if source or target are not found for none strict node', () => {
             expect(ElementReplaceHelper.replaceElement('.nothing', '.nothing', false)).toBe(false);
+        });
+
+        test('it should replace all target element have similar classname', () => {
+            const src = (new DOMParser()).parseFromString(
+                `
+                <ul>
+                    <li class="replaced-item replaced--0">this is replaced</li>
+                    <li class="replaced-item replaced--1">this is replaced 1</li>
+                </ul>
+                `,
+                'text/html'
+            );
+
+            const target = (new DOMParser()).parseFromString(
+                `
+                <ul>
+                    <li class="replaced-item replaced--0">original content</li>
+                    <li class="replaced-item replaced--1">original content 1</li>
+                    <li class="replaced-item replaced--0">original content</li>
+                    <li class="replaced-item replaced--1">original content 1</li>
+                </ul>
+                `,
+                'text/html'
+            );
+
+            ElementReplaceHelper.replaceElement(
+                src.querySelectorAll('li.replaced-item'),
+                target.querySelectorAll('li.replaced-item')
+            );
+
+            const replacedItems = target.querySelectorAll('li.replaced-item');
+            expect(replacedItems).toHaveProperty('length', 4);
+
+            replacedItems.forEach((node, index) => {
+                if (index % 2 === 0) {
+                    expect(node.textContent).toBe('this is replaced');
+                } else {
+                    expect(node.textContent).toBe('this is replaced 1');
+                }
+            })
         });
     });
 });

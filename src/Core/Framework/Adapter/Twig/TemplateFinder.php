@@ -10,30 +10,15 @@ use Twig\Loader\LoaderInterface;
 
 class TemplateFinder implements TemplateFinderInterface
 {
-    /**
-     * @var Environment
-     */
-    protected $twig;
+    private Environment $twig;
 
-    /**
-     * @var LoaderInterface
-     */
-    protected $loader;
+    private LoaderInterface $loader;
 
-    /**
-     * @var array
-     */
-    protected $namespaceHierarchy;
+    private array $namespaceHierarchy = [];
 
-    /**
-     * @var string
-     */
-    protected $cacheDir;
+    private string $cacheDir;
 
-    /**
-     * @var NamespaceHierarchyBuilder
-     */
-    private $namespaceHierarchyBuilder;
+    private NamespaceHierarchyBuilder $namespaceHierarchyBuilder;
 
     public function __construct(
         Environment $twig,
@@ -129,16 +114,16 @@ class TemplateFinder implements TemplateFinderInterface
             return $this->namespaceHierarchy;
         }
 
-        $namespaceHierarchy = array_unique($this->namespaceHierarchyBuilder->buildHierarchy());
+        $namespaceHierarchy = $this->namespaceHierarchyBuilder->buildHierarchy();
         $this->defineCache($namespaceHierarchy);
 
-        return $this->namespaceHierarchy = $namespaceHierarchy;
+        return $this->namespaceHierarchy = array_keys($namespaceHierarchy);
     }
 
     private function defineCache(array $queue): void
     {
         if ($this->twig->getCache(false) instanceof FilesystemCache) {
-            $configHash = implode(':', $queue);
+            $configHash = md5((string) json_encode($queue));
 
             $fileSystemCache = new ConfigurableFilesystemCache($this->cacheDir);
             $fileSystemCache->setConfigHash($configHash);

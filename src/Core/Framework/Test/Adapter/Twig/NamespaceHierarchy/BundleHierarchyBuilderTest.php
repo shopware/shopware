@@ -52,7 +52,7 @@ class BundleHierarchyBuilderTest extends TestCase
             'Storefront',
             'Administration',
             'Framework',
-        ], $bundleHierarchyBuilder->buildNamespaceHierarchy([]));
+        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesInactiveApps(): void
@@ -93,7 +93,7 @@ class BundleHierarchyBuilderTest extends TestCase
             'Storefront',
             'Administration',
             'Framework',
-        ], $bundleHierarchyBuilder->buildNamespaceHierarchy([]));
+        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesInactiveAppTemplates(): void
@@ -135,7 +135,7 @@ class BundleHierarchyBuilderTest extends TestCase
             'Storefront',
             'Administration',
             'Framework',
-        ], $bundleHierarchyBuilder->buildNamespaceHierarchy([]));
+        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesAppNamespacesWithNoTemplates(): void
@@ -170,6 +170,6 @@ class BundleHierarchyBuilderTest extends TestCase
             'Storefront',
             'Administration',
             'Framework',
-        ], $bundleHierarchyBuilder->buildNamespaceHierarchy([]));
+        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 }

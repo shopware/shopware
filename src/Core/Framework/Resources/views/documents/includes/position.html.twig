@@ -51,6 +51,19 @@ All blocks of this template are available in the template which renders this tem
                                 {% endif %}
                             {% endfor %}
                         {% endif %}
+
+                        {% if lineItem.payload.features|length >=1  %}
+                            <br/>
+                            {% for feature in lineItem.payload.features %}
+                                {% if feature.type == 'referencePrice' %}
+                                    {{ feature.value.purchaseUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }}
+                                    ({{ feature.value.price|currency(currencyIsoCode) }}{{ "general.star"|trans }} / {{ feature.value.referenceUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }})
+                                    {% if lineItem.payload.features|last != feature %}
+                                        {{ " | " }}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     </td>
             {% endblock %}
 

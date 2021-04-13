@@ -207,6 +207,14 @@
             <tag name="shopware.es.definition"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector"/>
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler"/>
 

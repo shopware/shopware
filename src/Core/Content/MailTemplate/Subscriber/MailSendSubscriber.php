@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Subscriber;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
+use Shopware\Core\Content\MailTemplate\Event\MailSendSubscriberBridgeEvent;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
@@ -19,46 +20,28 @@ use Shopware\Core\Framework\Event\EventData\EventDataType;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MailSendSubscriber implements EventSubscriberInterface
 {
     public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
     public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mailTemplateRepository;
+    private EntityRepositoryInterface $mailTemplateRepository;
 
-    /**
-     * @var MediaService
-     */
-    private $mediaService;
+    private MediaService $mediaService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepositoryInterface $mediaRepository;
 
-    /**
-     * @var DocumentService
-     */
-    private $documentService;
+    private DocumentService $documentService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $documentRepository;
+    private EntityRepositoryInterface $documentRepository;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var AbstractMailService
-     */
-    private $emailService;
+    private AbstractMailService $emailService;
+
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         AbstractMailService $emailService,
@@ -67,7 +50,8 @@ class MailSendSubscriber implements EventSubscriberInterface
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $documentRepository,
         DocumentService $documentService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;
@@ -76,6 +60,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         $this->documentService = $documentService;
         $this->logger = $logger;
         $this->emailService = $emailService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public static function getSubscribedEvents(): array
@@ -142,6 +127,8 @@ class MailSendSubscriber implements EventSubscriberInterface
         if (!empty($attachments)) {
             $data->set('binAttachments', $attachments);
         }
+
+        $this->eventDispatcher->dispatch(new MailSendSubscriberBridgeEvent($data, $mailTemplate, $event));
 
         try {
             $this->emailService->send(

@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Mail\Service\MailService as EMailService;
+use Shopware\Core\Content\MailTemplate\Event\MailSendSubscriberBridgeEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
@@ -76,10 +77,20 @@ class MailSendSubscriberTest extends TestCase
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
-            $this->getContainer()->get('logger')
+            $this->getContainer()->get('logger'),
+            $this->getContainer()->get('event_dispatcher')
         );
 
+        $mailFilterEvent = null;
+        $this->getContainer()->get('event_dispatcher')->addListener(MailSendSubscriberBridgeEvent::class, static function ($event) use (&$mailFilterEvent): void {
+            $mailFilterEvent = $event;
+        });
+
         $subscriber->sendMail(new BusinessEvent('test', $event, $config));
+
+        if (!$skip) {
+            static::assertIsObject($mailFilterEvent);
+        }
 
         if ($skip) {
             static::assertEquals(0, $mailService->calls);

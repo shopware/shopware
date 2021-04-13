@@ -85,6 +85,7 @@
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="core_mailer" alias="mailer" />

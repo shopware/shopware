@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
@@ -145,6 +146,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             StorefrontRenderEvent::class => [
                 ['addHreflang'],
                 ['addShopIdParameter'],
+            ],
+            SalesChannelContextResolvedEvent::class => [
+                ['replaceContextToken'],
             ],
         ];
     }
@@ -312,6 +316,19 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         throw new AccessDeniedHttpException('PageController can\'t be requested via XmlHttpRequest.');
+    }
+
+    // used to switch session token - when the context token expired
+    public function replaceContextToken(SalesChannelContextResolvedEvent $event): void
+    {
+        $context = $event->getSalesChannelContext();
+
+        // only update session if token expired and switched
+        if ($event->getUsedToken() === $context->getToken()) {
+            return;
+        }
+
+        $this->updateSession($context->getToken());
     }
 
     public function setCanonicalUrl(BeforeSendResponseEvent $event): void

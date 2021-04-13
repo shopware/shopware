@@ -30,7 +30,7 @@ class JoinGroupBuilder
      * - A `JoinGroup` is generated when a to-many association is filtered by more than one `multi-filter`
      * - An "empty" filter will not lead to a join group (example `new EqualsFilter('product.tags.id', null)`)
      */
-    public function group(array $filters, EntityDefinition $definition): array
+    public function group(array $filters, EntityDefinition $definition, array $additionalFields = []): array
     {
         $mapped = $this->recursion($filters, $definition, MultiFilter::CONNECTION_AND, false);
 
@@ -40,7 +40,7 @@ class JoinGroupBuilder
             unset($mapped[self::NOT_RELEVANT]);
         }
 
-        $duplicates = $this->getDuplicates($mapped);
+        $duplicates = $this->getDuplicates($mapped, $additionalFields);
 
         $level = 1;
         foreach ($mapped as $groups) {
@@ -167,9 +167,9 @@ class JoinGroupBuilder
         return $filter->getValue() === null;
     }
 
-    private function getDuplicates(array $mapped): array
+    private function getDuplicates(array $mapped, array $fields): array
     {
-        $paths = [];
+        $paths = $fields;
         foreach ($mapped as $groups) {
             unset($groups['operator'], $groups['negated']);
 

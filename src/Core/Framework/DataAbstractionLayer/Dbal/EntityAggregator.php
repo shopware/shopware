@@ -8,8 +8,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -121,7 +125,12 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $query = new QueryBuilder($this->connection);
 
-        $query = $this->criteriaQueryBuilder->build($query, $definition, $clone, $context);
+        // If an aggregation is to be created on a to many association that is already stored as a filter.
+        // The association is therefore referenced twice in the query and would have to be created as a sub-join in each case. But since only the filters are considered, the association is referenced only once.
+        // In this case we add the aggregation field as path to the criteria builder and the join group builder will consider this path for the sub-join logic
+        $paths = [$this->findToManyPath($aggregation, $definition)];
+
+        $query = $this->criteriaQueryBuilder->build($query, $definition, $clone, $context, array_filter($paths));
         $query->resetQueryPart('orderBy');
 
         if ($criteria->getTitle()) {
@@ -133,7 +142,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $table = $definition->getEntityName();
 
         foreach ($aggregation->getFields() as $fieldName) {
-            $this->helper->resolveAccessor($fieldName, $definition, $table, $query, $context);
+            $this->helper->resolveAccessor($fieldName, $definition, $table, $query, $context, $aggregation);
         }
 
         $query->resetQueryPart('groupBy');
@@ -143,6 +152,42 @@ class EntityAggregator implements EntityAggregatorInterface
         $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
 
         return $this->hydrateResult($aggregation, $definition, $rows, $context);
+    }
+
+    private function findToManyPath(Aggregation $aggregation, EntityDefinition $definition): ?string
+    {
+        $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $aggregation->getField(), false);
+
+        $fields = array_filter($fields);
+
+        if (\count($fields) === 0) {
+            return null;
+        }
+
+        // contains later the path to the first to many association
+        $path = [$definition->getEntityName()];
+
+        $found = false;
+
+        /** @var Field $field */
+        foreach ($fields as $field) {
+            if (!($field instanceof AssociationField)) {
+                break;
+            }
+
+            // if to many not already detected, continue with path building
+            $path[] = $field->getPropertyName();
+
+            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+                $found = true;
+            }
+        }
+
+        if ($found) {
+            return implode('.', $path);
+        }
+
+        return null;
     }
 
     private function extendQuery(Aggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void

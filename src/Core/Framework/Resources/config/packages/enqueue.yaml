@@ -4,3 +4,6 @@ enqueue:
             dsn: "null:"
             factory_service: Shopware\Core\Framework\MessageQueue\Enqueue\ConnectionFactoryFactory
         client: ~
+        consumption:
+            # the time in milliseconds queue consumer waits for a message
+            receive_timeout: 1000

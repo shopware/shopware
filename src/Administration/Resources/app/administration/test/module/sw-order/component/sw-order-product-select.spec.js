@@ -5,6 +5,7 @@ import 'src/module/sw-order/component/sw-order-product-select';
 const createWrapper = () => {
     return shallowMount(Shopware.Component.build('sw-order-product-select'), {
         propsData: {
+            taxStatus: 'net',
             item: {
                 priceDefinition: {
                     isCalculated: false,
@@ -58,7 +59,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
 
         mockResponses.addResponse({
             method: 'POST',
-            url: '/api/v3/search/product',
+            url: '/search/product',
             status: 200,
             response: {
                 data: [
@@ -153,7 +154,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
     });
 
     it('product item should have net price if tax status is not gross', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             taxStatus: 'net',

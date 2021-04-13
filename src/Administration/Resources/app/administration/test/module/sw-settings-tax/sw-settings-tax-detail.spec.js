@@ -3,6 +3,9 @@ import 'src/module/sw-settings-tax/page/sw-settings-tax-detail';
 
 function createWrapper(privileges = [], isShopwareDefaultTax = true) {
     return shallowMount(Shopware.Component.build('sw-settings-tax-detail'), {
+        mocks: {
+            $te: () => isShopwareDefaultTax
+        },
         provide: {
             repositoryFactory: {
                 create: () => ({

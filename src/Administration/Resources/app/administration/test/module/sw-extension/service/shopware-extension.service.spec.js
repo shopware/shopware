@@ -74,13 +74,15 @@ describe('shopware-extension.service', () => {
         it('returns always a open link for theme', async () => {
             const themeId = Shopware.Utils.createId();
 
-            const themeRepo = {
-                searchIds() {
-                    return { data: [themeId] };
+            const responses = global.repositoryFactoryMock.responses;
+            responses.addResponse({
+                method: 'Post',
+                url: '/search-ids/theme',
+                status: 200,
+                response: {
+                    data: [themeId]
                 }
-            };
-
-            Shopware.Service().register('repositoryFactory', () => ({ create: () => themeRepo }));
+            });
 
             const openLink = await shopwareExtensionService.getOpenLink({
                 isTheme: true,

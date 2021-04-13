@@ -74,7 +74,8 @@ config.mocks = {
     $router: {
         replace: jest.fn(),
         push: jest.fn(),
-        go: jest.fn()
+        go: jest.fn(),
+        resolve: jest.fn()
     },
     $route: {
         params: {}

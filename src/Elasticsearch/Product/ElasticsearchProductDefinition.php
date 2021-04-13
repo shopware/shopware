@@ -118,11 +118,18 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ],
                 'weight' => EntityMapper::FLOAT_FIELD,
                 'width' => EntityMapper::FLOAT_FIELD,
+                'customFields' => $this->getCustomFieldsMapping(),
             ],
             'dynamic_templates' => [
                 [
                     'cheapest_price' => [
                         'match' => 'cheapest_price_rule*',
+                        'mapping' => ['type' => 'double'],
+                    ],
+                ],
+                [
+                    'long_to_double' => [
+                        'match_mapping_type' => 'long',
                         'mapping' => ['type' => 'double'],
                     ],
                 ],
@@ -192,7 +199,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'ratingAverage' => (float) $item['ratingAverage'],
                 'active' => (bool) $item['active'],
                 'shippingFree' => (bool) $item['shippingFree'],
-                'customFields' => $item['customFields'] ? json_decode($item['customFields'], true) : [],
+                'customFields' => $this->formatCustomFields($item['customFields'] ? json_decode($item['customFields'], true) : []),
                 'visibilities' => $visibilities,
                 'availableStock' => (int) $item['availableStock'],
                 'productNumber' => $item['productNumber'],
@@ -442,5 +449,46 @@ SQL;
         );
 
         return FetchModeHelper::groupUnique($data);
+    }
+
+    private function getCustomFieldsMapping(): array
+    {
+        $fieldMapping = $this->connection->fetchAllKeyValue('
+SELECT
+    custom_field.`name`,
+    custom_field.type
+FROM custom_field_set_relation
+    INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
+WHERE custom_field_set_relation.entity_name = "product"
+ORDER BY custom_field.`name` ASC
+');
+        $mapping = [
+            'type' => 'object',
+            'dynamic' => true,
+            'properties' => [],
+        ];
+
+        foreach ($fieldMapping as $name => $type) {
+            $esType = CustomFieldUpdater::getTypeFromCustomFieldType($type);
+
+            if ($esType === null) {
+                continue;
+            }
+
+            $mapping['properties'][$name] = $esType;
+        }
+
+        return $mapping;
+    }
+
+    private function formatCustomFields(array $customFields): array
+    {
+        foreach ($customFields as $name => $customField) {
+            if (\is_int($customField)) {
+                $customFields[$name] = (float) $customField;
+            }
+        }
+
+        return $customFields;
     }
 }

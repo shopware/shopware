@@ -347,11 +347,11 @@ class ElasticsearchIndexer extends AbstractMessageHandler
             $errors[] = [
                 'index' => $item['_index'],
                 'id' => $item['_id'],
-                'type' => $item['error']['type'],
-                'reason' => $item['error']['reason'],
+                'type' => $item['error']['type'] ?? $item['_type'],
+                'reason' => $item['error']['reason'] ?? $item['result'],
             ];
 
-            $this->logger->error($item['error']['reason']);
+            $this->logger->error($item['error']['reason'] ?? $item['result']);
         }
 
         return $errors;

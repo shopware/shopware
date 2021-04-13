@@ -61,6 +61,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -2094,6 +2095,143 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($ids->get('xl'), $product['propertyIds']);
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testCustomFieldsGetMapped(IdsCollection $ids): void
+    {
+        $mapping = $this->definition->getMapping($ids->getContext());
+
+        $expected = [
+            'type' => 'object',
+            'dynamic' => true,
+            'properties' => [
+                'test_bool' => [
+                    'type' => 'boolean',
+                ],
+                'test_date' => [
+                    'type' => 'date',
+                    'format' => 'yyyy-MM-dd HH:mm:ss.000',
+                    'ignore_malformed' => true,
+                ],
+                'test_float' => [
+                    'type' => 'double',
+                ],
+                'test_int' => [
+                    'type' => 'long',
+                ],
+                'test_object' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                ],
+                'test_string' => [
+                    'type' => 'keyword',
+                ],
+                'test_unmapped' => [
+                    'type' => 'keyword',
+                ],
+            ],
+        ];
+
+        static::assertSame($expected, $mapping['properties']['customFields']);
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSortByCustomFieldInt(IdsCollection $ids): void
+    {
+        $context = $ids->getContext();
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::DESCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('product-1'), $result[0]);
+            static::assertSame($ids->get('product-2'), $result[1]);
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSortByCustomFieldDate(IdsCollection $ids): void
+    {
+        $context = $ids->getContext();
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addSorting(new FieldSorting('customFields.test_date', FieldSorting::DESCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('product-1'), $result[0]);
+            static::assertSame($ids->get('product-2'), $result[1]);
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testFetchFloatedCustomFieldIds(IdsCollection $ids): void
+    {
+        $context = $ids->getContext();
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addAggregation(new TermsAggregation('testFloatingField', 'customFields.testFloatingField'));
+
+            $aggregator = $this->createEntityAggregator();
+
+            /** @var TermsResult $result */
+            $result = $aggregator->aggregate($this->productDefinition, $criteria, $context)->get('testFloatingField');
+
+            static::assertContains('1', $result->getKeys());
+            static::assertContains('1.5', $result->getKeys());
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testFilterByCustomFieldDate(IdsCollection $ids): void
+    {
+        $context = $ids->getContext();
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('customFields.test_date', '2000-01-01 00:00:00.000'));
+
+            $searcher = $this->createEntitySearcher();
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('product-2'), $result[0]);
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();
@@ -2146,6 +2284,55 @@ class ElasticsearchProductTest extends TestCase
         $thirdLanguage = $this->createLanguage($secondLanguage);
         $this->ids->set('language-2', $thirdLanguage);
 
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
+
+        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+
+        $customFieldRepository->create([
+            [
+                'name' => 'swag_example_set',
+                'config' => [
+                    'label' => [
+                        'en-GB' => 'English custom field set label',
+                        'de-DE' => 'German custom field set label',
+                    ],
+                ],
+                'relations' => [[
+                    'entityName' => 'product',
+                ]],
+                'customFields' => [
+                    [
+                        'name' => 'test_int',
+                        'type' => CustomFieldTypes::INT,
+                    ],
+                    [
+                        'name' => 'test_string',
+                        'type' => CustomFieldTypes::TEXT,
+                    ],
+                    [
+                        'name' => 'test_date',
+                        'type' => CustomFieldTypes::DATETIME,
+                    ],
+                    [
+                        'name' => 'test_object',
+                        'type' => CustomFieldTypes::JSON,
+                    ],
+                    [
+                        'name' => 'test_float',
+                        'type' => CustomFieldTypes::FLOAT,
+                    ],
+                    [
+                        'name' => 'test_bool',
+                        'type' => CustomFieldTypes::BOOL,
+                    ],
+                    [
+                        'name' => 'test_unmapped',
+                        'type' => 'unknown_type',
+                    ],
+                ],
+            ],
+        ], $this->ids->getContext());
+
         $products = [
             (new ProductBuilder($this->ids, 'product-1'))
                 ->name('Silk')
@@ -2162,6 +2349,9 @@ class ElasticsearchProductTest extends TestCase
                 ->category('c2')
                 ->property('red', 'color')
                 ->property('xl', 'size')
+                ->customField('test_int', 19999)
+                ->customField('test_date', (new \DateTime())->format('Y-m-d H:i:s'))
+                ->customField('testFloatingField', 1.5)
                 ->build(),
             (new ProductBuilder($this->ids, 'product-2'))
                 ->name('Rubber')
@@ -2177,6 +2367,9 @@ class ElasticsearchProductTest extends TestCase
                 ->category('c1')
                 ->property('green', 'color')
                 ->property('l', 'size')
+                ->customField('test_int', 200)
+                ->customField('test_date', (new \DateTime('2000-01-01'))->format('Y-m-d H:i:s'))
+                ->customField('testFloatingField', 1) // Without the casting in formatCustomFields this fails
                 ->build(),
             (new ProductBuilder($this->ids, 'product-3'))
                 ->name('Stilk')

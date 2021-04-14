@@ -168,6 +168,11 @@ class OpenApiDefinitionSchemaBuilder
             }
         }
 
+        // In some entities all fields are hidden, but not the id. This creates unwanted schemas. This removes it again
+        if (\count($attributes) === 1 && $attributes[0]->property === 'id') {
+            return [];
+        }
+
         $schema[$schemaName . '_flat'] = new Schema([
             'type' => 'object',
             'schema' => $schemaName . '_flat',

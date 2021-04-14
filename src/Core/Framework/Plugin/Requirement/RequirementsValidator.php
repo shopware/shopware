@@ -36,11 +36,6 @@ class RequirementsValidator
      */
     private $shopwareProjectComposer;
 
-    /**
-     * @var Composer
-     */
-    private $shopwareProjectComposer;
-
     public function __construct(EntityRepositoryInterface $pluginRepo, string $projectDir)
     {
         $this->pluginRepo = $pluginRepo;

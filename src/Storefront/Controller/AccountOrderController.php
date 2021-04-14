@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
@@ -270,9 +271,11 @@ class AccountOrderController extends StorefrontController
             );
 
             $context = $this->contextService->get(
-                $context->getSalesChannelId(),
-                $context->getToken(),
-                $context->getContext()->getLanguageId()
+                new SalesChannelContextServiceParameters(
+                    $context->getSalesChannelId(),
+                    $context->getToken(),
+                    $context->getContext()->getLanguageId()
+                )
             );
         }
 

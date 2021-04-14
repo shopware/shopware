@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -126,10 +127,12 @@ class PaymentService
 
         if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
             $context = $this->contextService->get(
-                $context->getSalesChannelId(),
-                $context->getToken(),
-                $context->getContext()->getLanguageId(),
-                $order->getCurrencyId()
+                new SalesChannelContextServiceParameters(
+                    $context->getSalesChannelId(),
+                    $context->getToken(),
+                    $context->getContext()->getLanguageId(),
+                    $order->getCurrencyId()
+                )
             );
         }
 

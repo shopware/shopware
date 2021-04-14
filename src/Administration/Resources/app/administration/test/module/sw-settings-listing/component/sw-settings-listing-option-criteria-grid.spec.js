@@ -50,9 +50,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
 
                         return { search: () => Promise.resolve() };
                     }
-                },
-                feature: {
-                    isActive: () => {}
                 }
             },
             stubs: {

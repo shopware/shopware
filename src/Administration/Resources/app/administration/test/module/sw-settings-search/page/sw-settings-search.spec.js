@@ -47,9 +47,6 @@ function createWrapper(privileges = []) {
                     })
                 })
             },
-            feature: {
-                isActive: () => true
-            },
             acl: {
                 can: (identifier) => {
                     if (!identifier) {

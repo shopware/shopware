@@ -51,27 +51,22 @@ function createWrapper(customCmsElementConfig) {
             'sw-number-field': true,
             'sw-icon': true
         },
-        provide: {
-            feature: {
-                isActive: () => true
+        provide: { cmsService: {
+            getCmsBlockRegistry: () => {
+                return {};
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return {};
-                }
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve(productStreamMock),
-                        search: () => Promise.resolve(productMock)
-                    };
-                }
+            getCmsElementRegistry: () => {
+                return {};
             }
-        }
+        },
+        repositoryFactory: {
+            create: () => {
+                return {
+                    get: () => Promise.resolve(productStreamMock),
+                    search: () => Promise.resolve(productMock)
+                };
+            }
+        } }
     });
 }
 

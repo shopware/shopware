@@ -6,10 +6,6 @@ import 'src/app/component/base/sw-tabs-item';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
 
 function createWrapper() {
-    Shopware.Feature.init({
-        FEATURE_NEXT_12608: true
-    });
-
     return shallowMount(Shopware.Component.build('sw-self-maintained-extension-card'), {
         propsData: {
             extension: {
@@ -60,9 +56,7 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
     });
 
     beforeAll(async () => {
-        Shopware.Feature.init({
-            FEATURE_NEXT_12608: true
-        });
+        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
         await import('src/app/component/meteor/sw-meteor-card');
     });
 

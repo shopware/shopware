@@ -78,13 +78,6 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeAll(() => {
-        Shopware.Feature.isActive = () => true;
-        Shopware.Service().register('feature', () => {
-            return {
-                isActive: () => true
-            };
-        });
-
         Shopware.State.registerModule('settingsItems', {
             namespaced: true,
             state: {

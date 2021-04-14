@@ -312,10 +312,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 systemConfigApiService: () => ({
                     getConfig: () => Promise.resolve(),
                     getValues: () => Promise.resolve()
-                }),
-                feature: {
-                    isActive: () => true
-                }
+                })
             },
             stubs: {
                 'sw-page': {

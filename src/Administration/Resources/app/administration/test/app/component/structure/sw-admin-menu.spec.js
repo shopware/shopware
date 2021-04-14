@@ -38,9 +38,6 @@ function createWrapper() {
             'sw-shortcut-overview': true
         },
         provide: {
-            feature: {
-                isActive: () => true
-            },
             menuService,
             loginService: {
                 notifyOnLoginListener: () => {}
@@ -62,8 +59,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     beforeAll(() => {
         Shopware.State.get('session').currentLocale = 'en-GB';
         Shopware.Context.app.fallbackLocale = 'en-GB';
-
-        Shopware.Feature.isActive = () => true;
 
         Shopware.State.registerModule('settingsItems', {
             namespaced: true,

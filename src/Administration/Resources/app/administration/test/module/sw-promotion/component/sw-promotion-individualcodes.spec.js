@@ -12,7 +12,7 @@ import 'src/app/component/base/sw-button';
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
-function createWrapper(privileges = []) {
+function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -50,13 +50,6 @@ function createWrapper(privileges = []) {
             }
         },
         provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
-                }
-            },
             repositoryFactory: {
                 create: () => {
                     return { search: () => {
@@ -162,9 +155,8 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
     });
 
     it('should not have disabled form fields', async () => {
-        wrapper = createWrapper([
-            'promotion.editor'
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
+        wrapper = createWrapper();
 
         expect(wrapper.vm.isEditingDisabled).toBe(false);
 
@@ -182,9 +174,8 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
     });
 
     it('should be individualCodePattern can be generate', async () => {
-        wrapper = createWrapper([
-            'promotion.editor'
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
+        wrapper = createWrapper();
         wrapper.vm.createNotificationWarning = jest.fn();
         wrapper.setProps({
             promotion: {
@@ -214,9 +205,8 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
     });
 
     it('should throw an warning message when the individualCodePattern invalid couldn\'t be generate', async () => {
-        wrapper = createWrapper([
-            'promotion.editor'
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
+        wrapper = createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
@@ -234,9 +224,8 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
     });
 
     it('should throw an warning message not allow to generate number', async () => {
-        wrapper = createWrapper([
-            'promotion.editor'
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
+        wrapper = createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
@@ -256,9 +245,8 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
     });
 
     it('should throw an warning message not allow to generate characters', async () => {
-        wrapper = createWrapper([
-            'promotion.editor'
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
+        wrapper = createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 

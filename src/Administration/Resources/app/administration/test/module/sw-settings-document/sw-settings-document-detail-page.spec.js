@@ -115,10 +115,8 @@ const createWrapper = (customOptions, privileges = []) => {
             },
             acl: {
                 can: key => (key ? privileges.includes(key) : true)
-            },
-            feature: {
-                isActive: () => true
             }
+
         }
     };
 

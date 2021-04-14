@@ -23,9 +23,7 @@ describe('src/app/component/meteor/sw-meteor-navigation', () => {
     let wrapper;
 
     beforeAll(async () => {
-        Shopware.Feature.init({
-            FEATURE_NEXT_12608: true
-        });
+        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
 
         await import('src/app/component/meteor/sw-meteor-navigation');
     });

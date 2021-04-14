@@ -42,9 +42,6 @@ function createWrapper(privileges = []) {
                     }
                 })
             },
-            feature: {
-                isActive: () => true
-            },
             cmsService: {
                 getEntityMappingTypes: () => {}
             },

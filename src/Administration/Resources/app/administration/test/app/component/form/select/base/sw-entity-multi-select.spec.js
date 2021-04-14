@@ -104,9 +104,6 @@ const createEntityMultiSelect = (customOptions) => {
                         search: () => Promise.resolve(getCollection())
                     };
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         }
     };
@@ -137,9 +134,6 @@ describe('components/sw-entity-multi-select', () => {
                             search: () => Promise.resolve(getPropertyCollection())
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });

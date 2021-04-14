@@ -15,10 +15,7 @@ function createWrapper(customProps = {}) {
             insertNodeTree: {},
             insertNodeIntoTree: () => {},
             removeNodeFromTree: {},
-            childAssociationField: 'test',
-            acl: {
-                can: () => true
-            }
+            childAssociationField: 'test'
         },
         propsData: {
             condition: {

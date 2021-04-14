@@ -54,9 +54,6 @@ function createWrapper(privileges = []) {
                     };
                 }
             },
-            feature: {
-                isActive: () => true
-            },
             entityFactory: {},
             entityHydrator: {},
             loginService: {},

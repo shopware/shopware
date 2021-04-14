@@ -16,39 +16,34 @@ function createWrapper(privileges = []) {
                 }
             }
         },
-        provide: {
-            feature: {
-                isActive: () => true
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve({
-                            id: 'test',
-                            requestedGroup: {
-                                translated: {
-                                    name: 'Test'
-                                }
+        provide: { repositoryFactory: {
+            create: () => {
+                return {
+                    get: () => Promise.resolve({
+                        id: 'test',
+                        requestedGroup: {
+                            translated: {
+                                name: 'Test'
                             }
-                        })
-                    };
-                }
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            },
-            customerGroupRegistrationService: {
-                accept: jest.fn().mockResolvedValue(true),
-                decline: jest.fn().mockResolvedValue(true)
-            },
-            systemConfigApiService: {
-                getValues: () => Promise.resolve([])
+                        }
+                    })
+                };
             }
         },
+        acl: {
+            can: (identifier) => {
+                if (!identifier) { return true; }
+
+                return privileges.includes(identifier);
+            }
+        },
+        customerGroupRegistrationService: {
+            accept: jest.fn().mockResolvedValue(true),
+            decline: jest.fn().mockResolvedValue(true)
+        },
+        systemConfigApiService: {
+            getValues: () => Promise.resolve([])
+        } },
         propsData: {
             customerEditMode: false,
             customerId: 'test',

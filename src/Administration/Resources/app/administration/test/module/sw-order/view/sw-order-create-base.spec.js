@@ -37,9 +37,7 @@ function createWrapper() {
             'sw-switch-field': true
         },
         provide: {
-            feature: {
-                isActive: () => true
-            }
+
         },
         mocks: {
             $tc: v => v,

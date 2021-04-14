@@ -57,10 +57,8 @@ function createWrapper(privileges = [], isNewRule = false) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
         mocks: {
             $route: {

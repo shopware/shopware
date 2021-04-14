@@ -66,10 +66,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
 
         stubs: {
@@ -125,6 +123,10 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
+    beforeAll(() => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_14114'];
+    });
+
     it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();

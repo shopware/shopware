@@ -81,9 +81,6 @@ function createWrapperForComponent(componentName, props = {}) {
             childAssociationField: {},
             repositoryFactory: {
                 create: () => ({})
-            },
-            feature: {
-                isActive: () => true
             }
         },
         propsData: {

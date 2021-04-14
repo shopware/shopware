@@ -30,10 +30,7 @@ function createWrapper(privileges = []) {
             },
             cmsService: {},
             repositoryFactory: {},
-            seoUrlService: {},
-            feature: {
-                isActive: () => false
-            }
+            seoUrlService: {}
         }
     });
 }

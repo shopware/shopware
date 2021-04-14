@@ -71,9 +71,6 @@ function createWrapper(privileges = []) {
                     return {};
                 }
             },
-            feature: {
-                isActive: () => true
-            },
             validationService: {}
         },
         mocks: {

@@ -16,9 +16,6 @@ function createWrapper(privileges = []) {
             $store: State._store
         },
         provide: {
-            feature: {
-                isActive: () => true
-            },
             acl: {
                 can: (identifier) => {
                     if (!identifier) {

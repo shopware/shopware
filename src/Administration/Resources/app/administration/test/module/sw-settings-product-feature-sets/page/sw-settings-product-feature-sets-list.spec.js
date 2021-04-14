@@ -105,9 +105,6 @@ const listPage = (additionalOptions = {}, privileges = []) => {
                     search: () => Promise.resolve()
                 })
             },
-            feature: {
-                isActive: () => true
-            },
             validationService: {},
             mixins: [
                 Mixin.getByName('listing')

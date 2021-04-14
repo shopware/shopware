@@ -64,10 +64,7 @@ function createWrapper(allowInlineDataMapping = true) {
             };
         },
         provide: {
-            validationService: {},
-            feature: {
-                isActive: () => true
-            }
+            validationService: {}
         }
     });
 }

@@ -3,13 +3,6 @@ import 'src/module/sw-settings-currency/page/sw-settings-currency-detail';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-currency-detail'), {
-        mocks: {
-            feature: {
-                isActive() {
-                    return true;
-                }
-            }
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({
@@ -31,10 +24,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
         stubs: {
             'sw-page': true,

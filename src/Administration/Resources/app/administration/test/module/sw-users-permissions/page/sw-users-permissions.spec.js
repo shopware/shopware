@@ -6,12 +6,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
 
     beforeEach(() => {
         wrapper = shallowMount(Shopware.Component.build('sw-users-permissions'), {
-            provide: {
-                feature: {
-                    isActive: () => true
-                }
-            },
-            mocks: {},
             stubs: {
                 'sw-page': {
                     template: '<div><slot name="content"></slot></div>'

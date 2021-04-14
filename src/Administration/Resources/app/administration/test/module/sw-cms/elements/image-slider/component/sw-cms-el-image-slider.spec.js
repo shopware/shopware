@@ -47,19 +47,14 @@ function createWrapper() {
         mocks: {
             $tc: v => v
         },
-        provide: {
-            feature: {
-                isActive: () => true
+        provide: { cmsService: {
+            getCmsBlockRegistry: () => {
+                return {};
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'image-slider': {} };
-                }
+            getCmsElementRegistry: () => {
+                return { 'image-slider': {} };
             }
-        },
+        } },
         stubs: {
             'sw-icon': true
         },

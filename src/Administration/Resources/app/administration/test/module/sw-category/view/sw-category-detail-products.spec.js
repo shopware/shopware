@@ -67,18 +67,12 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
                 manualAssignedProductsCount: 0
             },
             provide: {
-                acl: {
-                    can: () => true
-                },
                 repositoryFactory: {
                     create: () => {
                         return {
                             get: () => Promise.resolve(productStreamMock)
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });

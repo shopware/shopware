@@ -37,22 +37,17 @@ function createWrapper(propsOverride, dataOverride) {
         mocks: {
             $tc: v => v
         },
-        provide: {
-            feature: {
-                isActive: () => true
+        provide: { cmsService: {
+            getCmsBlockRegistry: () => {
+                return {};
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'image-gallery': {} };
-                },
-                getPropertyByMappingPath: () => {
-                    return {};
-                }
+            getCmsElementRegistry: () => {
+                return { 'image-gallery': {} };
+            },
+            getPropertyByMappingPath: () => {
+                return {};
             }
-        },
+        } },
         stubs: {
             'sw-cms-el-image-slider': true,
             'sw-media-list-selection-item-v2': true,

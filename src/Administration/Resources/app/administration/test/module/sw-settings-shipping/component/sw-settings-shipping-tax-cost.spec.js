@@ -34,10 +34,8 @@ const createWrapper = () => {
 
                     return null;
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         }
     });
 };

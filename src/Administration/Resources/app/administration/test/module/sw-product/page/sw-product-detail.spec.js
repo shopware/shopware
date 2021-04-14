@@ -83,9 +83,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             });
                         }
                     })
-                },
-                acl: {
-                    can: () => true
                 }
             },
 

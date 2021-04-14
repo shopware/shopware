@@ -15,19 +15,14 @@ function createWrapper() {
         mocks: {
             $tc: v => v
         },
-        provide: {
-            feature: {
-                isActive: () => true
+        provide: { cmsService: {
+            getCmsBlockRegistry: () => {
+                return {};
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'product-description-reviews': {} };
-                }
+            getCmsElementRegistry: () => {
+                return { 'product-description-reviews': {} };
             }
-        },
+        } },
         propsData: {
             element: {
                 config: {},

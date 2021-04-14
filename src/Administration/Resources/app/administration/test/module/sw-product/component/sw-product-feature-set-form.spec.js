@@ -97,9 +97,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                     search() {
                         return {};
                     }
-                },
-                feature: {
-                    isActive: () => {}
                 }
             },
             computed: {

@@ -1,5 +1,10 @@
 import Feature from 'src/app/service/feature.service';
 
+/**
+ * You can activate feature flags in the beforeAll method like this:
+ * global.activeFeatureFlags = ['FEATURE_NEXT_12345'];
+ */
+
 global.activeFeatureFlags = [];
 
 const featureMock = {

@@ -86,9 +86,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
             };
         });
 
-        Shopware.Feature.init({
-            FEATURE_NEXT_12608: true
-        });
+        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
 
         await import('src/module/sw-extension/page/sw-extension-my-extensions-account');
         await import('src/app/component/meteor/sw-meteor-card');

@@ -62,9 +62,6 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                             get: () => Promise.resolve(null)
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });

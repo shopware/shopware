@@ -69,7 +69,6 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                     }
                 },
                 acl: { can: () => true },
-                feature: { isActive: () => true },
                 validationService: {}
             }
         });

@@ -26,27 +26,22 @@ function createWrapper() {
             'sw-entity-single-select': true,
             'sw-alert': true
         },
-        provide: {
-            feature: {
-                isActive: () => true
+        provide: { cmsService: {
+            getCmsBlockRegistry: () => {
+                return {};
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'product-description-reviews': {} };
-                }
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve(productMock),
-                        search: () => Promise.resolve(productMock)
-                    };
-                }
+            getCmsElementRegistry: () => {
+                return { 'product-description-reviews': {} };
             }
         },
+        repositoryFactory: {
+            create: () => {
+                return {
+                    get: () => Promise.resolve(productMock),
+                    search: () => Promise.resolve(productMock)
+                };
+            }
+        } },
         propsData: {
             element: {
                 config: {},

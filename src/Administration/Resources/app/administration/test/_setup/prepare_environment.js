@@ -25,6 +25,7 @@ filterRegistry.forEach((value, key) => {
 // Add services
 Shopware.Service().register('acl', () => aclService);
 Shopware.Service().register('feature', () => feature);
+Shopware.Feature = Shopware.Service('feature');
 Shopware.Service().register('repositoryFactory', () => repositoryFactory);
 
 // Provide all services
@@ -32,7 +33,7 @@ Shopware.Service().list().forEach(serviceKey => {
     config.provide[serviceKey] = Shopware.Service(serviceKey);
 });
 
-// Set important functions for Showpare Core
+// Set important functions for Shopware Core
 Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
         return Vue.set(target, propertyName, value);

@@ -22,11 +22,6 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 },
                 $tc: translationKey => translationKey
             },
-            provide: {
-                feature: {
-                    isActive: () => true
-                }
-            },
 
             stubs: {
                 'sw-context-button': true,

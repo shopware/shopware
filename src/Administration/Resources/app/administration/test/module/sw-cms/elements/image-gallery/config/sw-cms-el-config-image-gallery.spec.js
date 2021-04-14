@@ -27,26 +27,21 @@ function createWrapper(activeTab = 'content') {
         mocks: {
             $tc: v => v
         },
-        provide: {
-            feature: {
-                isActive: () => true
+        provide: { cmsService: {
+            getCmsBlockRegistry: () => {
+                return {};
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'image-gallery': {} };
-                }
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve(mediaDataMock)
-                    };
-                }
+            getCmsElementRegistry: () => {
+                return { 'image-gallery': {} };
             }
         },
+        repositoryFactory: {
+            create: () => {
+                return {
+                    search: () => Promise.resolve(mediaDataMock)
+                };
+            }
+        } },
         stubs: {
             'sw-tabs': {
                 data() {

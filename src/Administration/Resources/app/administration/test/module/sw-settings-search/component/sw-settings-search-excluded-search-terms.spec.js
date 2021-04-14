@@ -53,9 +53,6 @@ function createWrapper(privileges = [], resetError = false) {
                     return privileges.includes(identifier);
                 }
             },
-            feature: {
-                isActive: () => true
-            },
             excludedSearchTermService: {
                 resetExcludedSearchTerm: jest.fn(() => {
                     if (resetError === true) {

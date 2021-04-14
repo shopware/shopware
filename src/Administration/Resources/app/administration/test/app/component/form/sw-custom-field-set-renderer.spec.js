@@ -140,10 +140,7 @@ function createWrapper(props) {
                 })
             },
             validationService: {},
-            mediaService: {},
-            feature: {
-                isActive: () => true
-            }
+            mediaService: {}
         }
     });
 }

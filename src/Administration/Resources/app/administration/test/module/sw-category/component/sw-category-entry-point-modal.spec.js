@@ -56,9 +56,6 @@ function createWrapper(privileges = [], additionalSalesChannels = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         },
         propsData: {

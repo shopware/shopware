@@ -42,10 +42,8 @@ function createWrapper() {
                 getConfig: () => Promise.resolve({
                     'core.seo.redirectToCanonicalUrl': true
                 })
-            },
-            feature: {
-                isActive: () => true
             }
+
         }
     });
 }

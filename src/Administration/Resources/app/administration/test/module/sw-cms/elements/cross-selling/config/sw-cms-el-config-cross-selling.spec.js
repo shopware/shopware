@@ -50,27 +50,22 @@ function createWrapper(customCmsElementConfig) {
         mocks: {
             $tc: (value) => value
         },
-        provide: {
-            feature: {
-                isActive: () => true
+        provide: { cmsService: {
+            getCmsBlockRegistry: () => {
+                return {};
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return {};
-                }
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve(productMock),
-                        search: () => Promise.resolve(productMock)
-                    };
-                }
+            getCmsElementRegistry: () => {
+                return {};
             }
-        }
+        },
+        repositoryFactory: {
+            create: () => {
+                return {
+                    get: () => Promise.resolve(productMock),
+                    search: () => Promise.resolve(productMock)
+                };
+            }
+        } }
     });
 }
 

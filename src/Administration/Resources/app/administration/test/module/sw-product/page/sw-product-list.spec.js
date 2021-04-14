@@ -238,9 +238,6 @@ function createWrapper() {
             router,
             provide: {
                 numberRangeService: {},
-                feature: {
-                    isActive: () => true
-                },
                 repositoryFactory: {
                     create: (name) => {
                         if (name === 'product') {

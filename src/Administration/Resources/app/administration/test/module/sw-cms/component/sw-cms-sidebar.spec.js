@@ -106,12 +106,6 @@ function createWrapper() {
                 getCmsBlockRegistry: () => ({
                     'foo-bar': {}
                 })
-            },
-            feature: {
-                isActive: () => true
-            },
-            acl: {
-                can: () => true
             }
         }
     });

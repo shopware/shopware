@@ -17,22 +17,17 @@ function createWrapper() {
         mocks: {
             $tc: v => v
         },
-        provide: {
-            feature: {
-                isActive: () => true
+        provide: { cmsService: {
+            getCmsBlockRegistry: () => {
+                return {};
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { image: {} };
-                },
-                getPropertyByMappingPath: () => {
-                    return {};
-                }
+            getCmsElementRegistry: () => {
+                return { image: {} };
+            },
+            getPropertyByMappingPath: () => {
+                return {};
             }
-        },
+        } },
         propsData: {
             element: {
                 config: {},

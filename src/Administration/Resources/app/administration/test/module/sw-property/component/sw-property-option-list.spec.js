@@ -87,9 +87,6 @@ function createWrapper() {
             shortcutService: {
                 stopEventListener: () => {},
                 startEventListener: () => {}
-            },
-            acl: {
-                can: key => key
             }
         },
         stubs: {

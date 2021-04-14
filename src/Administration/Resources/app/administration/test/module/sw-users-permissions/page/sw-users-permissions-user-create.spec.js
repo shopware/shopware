@@ -56,10 +56,8 @@ function createWrapper(privileges = []) {
 
                     return {};
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
 
         },
         mocks: {

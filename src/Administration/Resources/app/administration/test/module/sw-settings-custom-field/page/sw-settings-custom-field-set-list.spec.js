@@ -67,9 +67,6 @@ function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             },
-            feature: {
-                isActive: () => true
-            },
             mixins: [
                 Mixin.getByName('notification'),
                 Mixin.getByName('sw-inline-snippet'),

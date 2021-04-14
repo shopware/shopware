@@ -41,9 +41,6 @@ function createWrapper(privileges = [], category = {}) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         },
         propsData: {

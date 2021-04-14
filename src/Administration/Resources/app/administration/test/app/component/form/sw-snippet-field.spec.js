@@ -34,9 +34,6 @@ function createWrapper(systemLanguageIso = '', translations = [], customOptions 
         },
         provide: {
             validationService: {},
-            acl: {
-                can: () => true
-            },
             repositoryFactory: {
                 create: (entity) => ({
                     search: () => {

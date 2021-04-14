@@ -104,10 +104,8 @@ function createWrapper(privileges = []) {
                         return Promise.resolve({});
                     }
                 })
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
         propsData: {
             orderId: '1a2b3c',

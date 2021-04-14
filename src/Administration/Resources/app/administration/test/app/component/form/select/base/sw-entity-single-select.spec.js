@@ -100,9 +100,6 @@ const createEntitySingleSelect = (customOptions) => {
                         get: (value) => Promise.resolve({ id: value, name: value })
                     };
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         }
     };
@@ -181,9 +178,6 @@ describe('components/sw-entity-single-select', () => {
                             search: () => Promise.resolve(getCollection())
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });
@@ -220,9 +214,6 @@ describe('components/sw-entity-single-select', () => {
                             }
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });
@@ -250,9 +241,6 @@ describe('components/sw-entity-single-select', () => {
                             search: () => Promise.resolve(getCollection())
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });
@@ -286,9 +274,6 @@ describe('components/sw-entity-single-select', () => {
                             search: () => Promise.resolve(getCollection())
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });
@@ -323,9 +308,6 @@ describe('components/sw-entity-single-select', () => {
                             search: () => Promise.resolve(getPropertyCollection())
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });
@@ -364,9 +346,6 @@ describe('components/sw-entity-single-select', () => {
                             get: () => Promise.resolve(fixture[0])
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });

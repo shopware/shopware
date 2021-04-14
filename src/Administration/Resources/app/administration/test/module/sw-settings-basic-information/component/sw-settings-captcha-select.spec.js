@@ -19,9 +19,6 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
             provide: {
                 captchaService: {
                     list: () => Promise.resolve(['lorem-ipsum'])
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });

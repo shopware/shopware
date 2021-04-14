@@ -39,9 +39,6 @@ function createWrapper(router) {
         $store: Shopware.State._store,
         router,
         provide: {
-            feature: {
-                isActive() { return true; }
-            },
             appActionButtonService: {
                 runAction: jest.fn(),
                 getActionButtonsPerView(entity, view) {

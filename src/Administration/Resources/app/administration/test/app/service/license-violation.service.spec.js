@@ -17,7 +17,6 @@ describe('app/service/license-violation.service.js', () => {
     const licenseViolationService = LicenseViolationService(Application.getContainer('service').storeService);
 
     beforeEach(() => {
-        Shopware.Feature.isActive = () => false;
         jest.clearAllMocks();
     });
 
@@ -177,9 +176,7 @@ describe('app/service/license-violation.service.js', () => {
     });
 
     it('should force delete the plugin (deactivate & uninstall & remove) (with FEATURE_NEXT_12608)', async () => {
-        Shopware.Feature.isActive = (flag) => {
-            return flag === 'FEATURE_NEXT_12608';
-        };
+        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
 
         const extensionMock = {
             active: true,
@@ -194,9 +191,7 @@ describe('app/service/license-violation.service.js', () => {
     });
 
     it('should force delete the plugin (uninstall & remove) (with FEATURE_NEXT_12608)', async () => {
-        Shopware.Feature.isActive = (flag) => {
-            return flag === 'FEATURE_NEXT_12608';
-        };
+        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
 
         const extensionMock = {
             active: false,
@@ -211,9 +206,7 @@ describe('app/service/license-violation.service.js', () => {
     });
 
     it('should force delete the plugin (remove) (with FEATURE_NEXT_12608)', async () => {
-        Shopware.Feature.isActive = (flag) => {
-            return flag === 'FEATURE_NEXT_12608';
-        };
+        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
 
         const extensionMock = {
             active: false,

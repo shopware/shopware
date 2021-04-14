@@ -1,5 +1,16 @@
-import AclService from 'src/app/service/acl.service';
+/**
+ * You can activate acl roles in the each test like this:
+ * global.activeAclRoles = ['product.editor'];
+ */
 
-const aclService = new AclService(Shopware.State);
+global.activeAclRoles = [];
+
+const aclService = {
+    can: (key) => {
+        if (!key) { return true; }
+
+        return global.activeAclRoles.includes(key);
+    }
+};
 
 export default aclService;

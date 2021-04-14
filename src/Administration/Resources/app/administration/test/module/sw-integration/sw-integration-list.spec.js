@@ -20,38 +20,33 @@ function createWrapper(privileges = []) {
             }
         },
 
-        provide: {
-            feature: {
-                isActive: () => true
-            },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '44de136acf314e7184401d36406c1e90'
-                            }
-                        ]);
-                    }
-                })
-            },
-
-            integrationService: {},
-            validationService: {},
-            shortcutService: {
-                stopEventListener: () => { }
-            },
-
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+        provide: { repositoryFactory: {
+            create: () => ({
+                search: () => {
+                    return Promise.resolve([
+                        {
+                            id: '44de136acf314e7184401d36406c1e90'
+                        }
+                    ]);
                 }
-            }
+            })
         },
+
+        integrationService: {},
+        validationService: {},
+        shortcutService: {
+            stopEventListener: () => { }
+        },
+
+        acl: {
+            can: (identifier) => {
+                if (!identifier) {
+                    return true;
+                }
+
+                return privileges.includes(identifier);
+            }
+        } },
 
         stubs: {
             'sw-page': {

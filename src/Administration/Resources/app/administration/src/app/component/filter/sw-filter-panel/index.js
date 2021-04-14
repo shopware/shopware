@@ -80,11 +80,16 @@ Component.register('sw-filter-panel', {
                 if (this.filterChanged) {
                     Shopware.Service('filterService').saveFilters(this.storeKey, this.storedFilters).then(response => {
                         this.storedFilters = response;
+                        this.$emit('criteria-changed', this.criteria);
                     });
-                    this.$emit('criteria-changed', this.criteria);
                 }
             },
             deep: true
+        },
+
+        '$route'() {
+            this.filterChanged = false;
+            this.createdComponent();
         }
     },
 
@@ -95,6 +100,7 @@ Component.register('sw-filter-panel', {
     methods: {
         createdComponent() {
             Shopware.Service('filterService').getStoredFilters(this.storeKey).then(filters => {
+                this.activeFilters = {};
                 this.storedFilters = filters;
 
                 this.listFilters.forEach(filter => {

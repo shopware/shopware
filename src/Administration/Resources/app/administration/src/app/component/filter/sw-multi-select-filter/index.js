@@ -2,7 +2,7 @@ import template from './sw-multi-select-filter.html.twig';
 import './sw-multi-select-filter.scss';
 
 const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -24,8 +24,35 @@ Component.register('sw-multi-select-filter', {
     },
 
     computed: {
+        isEntityMultiSelect() {
+            return !this.filter.options;
+        },
+
+        labelProperty() {
+            return this.filter.labelProperty || 'name';
+        },
+
         values() {
-            return this.filter.value || [];
+            if (!this.isEntityMultiSelect) {
+                return this.filter.value || [];
+            }
+
+            const entities = new EntityCollection(
+                '',
+                this.filter.schema.entity,
+                Shopware.Context.api
+            );
+
+            if (Array.isArray(this.filter.value)) {
+                this.filter.value.forEach(value => {
+                    entities.push({
+                        id: value.id,
+                        [this.labelProperty]: value[this.labelProperty]
+                    });
+                });
+            }
+
+            return entities;
         }
     },
 
@@ -45,7 +72,12 @@ Component.register('sw-multi-select-filter', {
                     : Criteria.equalsAny(this.filter.property, newValues)
             ];
 
-            this.$emit('filter-update', this.filter.name, filterCriteria, newValues);
+            const values = !this.isEntityMultiSelect ? newValues : newValues.map(value => ({
+                id: value.id,
+                [this.labelProperty]: value[this.labelProperty]
+            }));
+
+            this.$emit('filter-update', this.filter.name, filterCriteria, values);
         },
 
         resetFilter() {

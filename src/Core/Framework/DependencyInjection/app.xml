@@ -125,6 +125,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ConfigValidator"/>
+            <argument type="service" id="integration.repository"/>
             <argument type="string">%kernel.project_dir%</argument>
         </service>
 

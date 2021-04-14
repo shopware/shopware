@@ -7,10 +7,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
-    /**
-     * @var StorefrontPluginRegistryInterface
-     */
-    private $themeRegistry;
+    private StorefrontPluginRegistryInterface $themeRegistry;
 
     public function __construct(StorefrontPluginRegistryInterface $themeRegistry)
     {
@@ -28,7 +25,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
         $inheritance = $this->getThemeInheritance($theme, $themes);
 
-        foreach ($bundles as $bundle) {
+        foreach (array_keys($bundles) as $bundle) {
             $key = '@' . $bundle;
 
             if (isset($inheritance[$key])) {
@@ -50,7 +47,14 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             }
         }
 
-        return array_reverse($flat);
+        $flat = array_reverse($flat);
+
+        $new = [];
+        foreach ($flat as $bundle) {
+            $new[$bundle] = $bundles[$bundle];
+        }
+
+        return $new;
     }
 
     private function getThemeInheritance(string $theme, array $themes): array

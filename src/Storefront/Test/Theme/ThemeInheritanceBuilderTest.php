@@ -58,11 +58,11 @@ class ThemeInheritanceBuilderTest extends TestCase
             ->willReturn($configs);
 
         $inheritance = $this->builder->build(
-            ['InheritanceWithConfig', 'Storefront'],
+            ['InheritanceWithConfig' => 1, 'Storefront' => 1],
             ['InheritanceWithConfig' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['InheritanceWithConfig', 'Storefront'], $inheritance);
+        static::assertEquals(['InheritanceWithConfig', 'Storefront'], array_keys($inheritance));
     }
 
     public function testEnsurePlugins(): void
@@ -77,11 +77,11 @@ class ThemeInheritanceBuilderTest extends TestCase
             ->willReturn($configs);
 
         $inheritance = $this->builder->build(
-            ['InheritanceWithConfig', 'Storefront', 'PayPal'],
+            ['InheritanceWithConfig' => 1, 'Storefront' => 1, 'PayPal' => 1],
             ['InheritanceWithConfig' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['PayPal', 'InheritanceWithConfig', 'Storefront'], $inheritance);
+        static::assertEquals(['PayPal', 'InheritanceWithConfig', 'Storefront'], array_keys($inheritance));
     }
 
     public function testConfigWithoutStorefrontDefined(): void
@@ -96,11 +96,11 @@ class ThemeInheritanceBuilderTest extends TestCase
             ->willReturn($configs);
 
         $inheritance = $this->builder->build(
-            ['ConfigWithoutStorefrontDefined', 'Storefront', 'PayPal'],
+            ['ConfigWithoutStorefrontDefined' => 1, 'Storefront' => 1, 'PayPal' => 1],
             ['ConfigWithoutStorefrontDefined' => true]
         );
 
-        static::assertEquals(['PayPal', 'ConfigWithoutStorefrontDefined'], $inheritance);
+        static::assertEquals(['PayPal', 'ConfigWithoutStorefrontDefined'], array_keys($inheritance));
     }
 
     public function testPluginWildcardAndExplicit(): void
@@ -116,11 +116,11 @@ class ThemeInheritanceBuilderTest extends TestCase
             ->willReturn($configs);
 
         $inheritance = $this->builder->build(
-            ['PluginWildcardAndExplicit', 'Storefront', 'PayPal', 'CustomProducts'],
+            ['PluginWildcardAndExplicit' => 1, 'Storefront' => 1, 'PayPal' => 1, 'CustomProducts' => 1],
             ['PluginWildcardAndExplicit' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['CustomProducts', 'PluginWildcardAndExplicit', 'PayPal', 'Storefront'], $inheritance);
+        static::assertEquals(['CustomProducts', 'PluginWildcardAndExplicit', 'PayPal', 'Storefront'], array_keys($inheritance));
     }
 
     public function testThemeWithoutStorefront(): void
@@ -136,11 +136,11 @@ class ThemeInheritanceBuilderTest extends TestCase
             ->willReturn($configs);
 
         $inheritance = $this->builder->build(
-            ['ThemeWithoutStorefront', 'Storefront', 'PayPal', 'CustomProducts'],
+            ['ThemeWithoutStorefront' => 1, 'Storefront' => 1, 'PayPal' => 1, 'CustomProducts' => 1],
             ['ThemeWithoutStorefront' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['CustomProducts', 'ThemeWithoutStorefront', 'PayPal'], $inheritance);
+        static::assertEquals(['CustomProducts', 'ThemeWithoutStorefront', 'PayPal'], array_keys($inheritance));
     }
 
     public function testMultiInheritance(): void
@@ -163,13 +163,13 @@ class ThemeInheritanceBuilderTest extends TestCase
             ->willReturn($configs);
 
         $inheritance = $this->builder->build(
-            ['ThemeWithMultiInheritance', 'ThemeA', 'ThemeB', 'ThemeC', 'ThemeD', 'PayPal'],
+            ['ThemeWithMultiInheritance' => 1, 'ThemeA' => 1, 'ThemeB' => 1, 'ThemeC' => 1, 'ThemeD' => 1, 'PayPal' => 1],
             ['ThemeWithMultiInheritance' => true]
         );
 
         static::assertEquals(
             ['ThemeWithMultiInheritance', 'ThemeC', 'PayPal', 'ThemeB', 'ThemeA'],
-            $inheritance
+            array_keys($inheritance)
         );
     }
 

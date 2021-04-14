@@ -116,6 +116,10 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Content\\Product\\DataAbstractionLayer\\ProductStreamUpdater::iterate\(\) has parameter \$offset with no typehint specified\.#'
             path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
+        -
+            message: '#Cannot call method getPluginInfos\(\) on Shopware\\Core\\Framework\\Plugin\\KernelPluginLoader\\KernelPluginLoader\|null\.#'
+            path: src/Core/Kernel.php
+
         - '#Method .*FieldSerializer::decode\(\) has no return typehint specified\.#'
         - '#Method .*FieldSerializer::decode\(\) has parameter \$value with no typehint specified\.#'
         - '#Method .*CustomFieldsSerializer::decode\(\) has no return typehint specified\.#'

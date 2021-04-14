@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
@@ -124,7 +125,7 @@ class TwigSwIncludeTest extends TestCase
             new NamespaceHierarchyBuilder([
                 new BundleHierarchyBuilder(
                     $kernel,
-                    $this->getContainer()->get('app.repository')
+                    $this->getContainer()->get(Connection::class)
                 ),
             ])
         );

@@ -2,35 +2,26 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private KernelInterface $kernel;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private Connection $connection;
 
-    public function __construct(KernelInterface $kernel, EntityRepositoryInterface $appRepository)
+    public function __construct(KernelInterface $kernel, Connection $connection)
     {
         $this->kernel = $kernel;
-        $this->appRepository = $appRepository;
+        $this->connection = $connection;
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array
     {
+        $bundles = [];
+
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
                 continue;
@@ -44,29 +35,26 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
                 continue;
             }
 
-            array_unshift($namespaceHierarchy, $bundle->getName());
-
-            $namespaceHierarchy = array_values(array_unique($namespaceHierarchy));
+            // bundle or plugin version unknown at this point
+            $bundles[$bundle->getName()] = 1;
         }
 
-        return array_unique(array_merge($this->getAppTemplateNamespaces(), $namespaceHierarchy));
+        $bundles = array_reverse($bundles);
+
+        return array_merge(
+            $this->getAppTemplateNamespaces(),
+            $bundles,
+            $namespaceHierarchy
+        );
     }
 
-    /**
-     * @return string[]
-     */
     private function getAppTemplateNamespaces(): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('app.active', true),
-            new EqualsFilter('app.templates.active', true)
+        return $this->connection->fetchAllKeyValue(
+            'SELECT `app`.`name`, `app`.`version`
+             FROM `app`
+             INNER JOIN `app_template` ON `app_template`.`app_id` = `app`.`id`
+             WHERE `app`.`active` = 1 AND `app_template`.`active` = 1'
         );
-        $criteria->addAggregation(new TermsAggregation('appNames', 'app.name'));
-
-        /** @var TermsResult $appNames */
-        $appNames = $this->appRepository->aggregate($criteria, Context::createDefaultContext())->get('appNames');
-
-        return $appNames->getKeys();
     }
 }

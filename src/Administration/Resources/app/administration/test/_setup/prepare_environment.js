@@ -82,6 +82,3 @@ config.mocks = {
     },
     $store: Shopware.State._store
 };
-
-// TODO: inject all components
-// TODO: inject all services

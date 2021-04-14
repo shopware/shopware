@@ -2,7 +2,7 @@ import ImportExportProfileMappingService from 'src/module/sw-import-export/servi
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 import * as mappings from './mocks/mappings.mock';
 
-describe('module/sw-import-export/service/login.service.js', () => {
+describe('module/sw-import-export/service/importExportProfileMapping.service.spec.js', () => {
     let importExportProfileMappingService;
 
     beforeAll(() => {
@@ -69,6 +69,7 @@ describe('module/sw-import-export/service/login.service.js', () => {
             'productNumber',
             'stock',
             'name',
+            'cmsPageVersionId',
             'createdAt'
         ]);
     });

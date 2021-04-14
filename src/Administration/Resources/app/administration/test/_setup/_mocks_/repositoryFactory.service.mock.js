@@ -6,8 +6,7 @@ import EntityFactory from 'src/core/data/entity-factory.data';
 import ErrorResolverError from 'src/core/data/error-resolver.data';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
-// TODO: EntitySchema have to be generated automatically
-import EntitySchema from './entity-schema.json';
+import EntitySchema from '../../_mocks_/entity-schema.json';
 
 // Add all entities from entity-schema
 Object.entries(EntitySchema).forEach(([entityName, entityInformation]) => {

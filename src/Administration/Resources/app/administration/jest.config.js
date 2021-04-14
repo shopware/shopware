@@ -15,7 +15,8 @@ module.exports = {
     ],
 
     moduleNameMapper: {
-        '^test(.*)$': '<rootDir>/test$1'
+        '^test(.*)$': '<rootDir>/test$1',
+        vue$: 'vue/dist/vue.common.dev.js'
     },
 
     reporters: [
@@ -25,9 +26,5 @@ module.exports = {
             outputDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts'),
             outputName: 'administration.junit.xml'
         }]
-    ],
-
-    moduleNameMapper: {
-        vue$: 'vue/dist/vue.common.dev.js'
-    }
+    ]
 };

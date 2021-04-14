@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Command;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -34,7 +35,7 @@ class DumpSchemaCommand extends Command
                 'schema-format',
                 's',
                 InputOption::VALUE_REQUIRED,
-                'The format of the dumped definition. Either "simple" or "openapi3".',
+                'The format of the dumped definition. Either "simple", "openapi3" or "entity-schema.',
                 'simple'
             )
             ->addOption('pretty', 'p', InputOption::VALUE_NONE, 'Dumps the output in a human-readable form.');
@@ -49,6 +50,8 @@ class DumpSchemaCommand extends Command
             $definitionContents = $this->definitionService->getSchema();
         } elseif ($formatType === 'openapi3') {
             $definitionContents = $this->definitionService->generate();
+        } elseif ($formatType === 'entity-schema') {
+            $definitionContents = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API);
         } else {
             throw new \InvalidArgumentException('Invalid "format-type" given. Aborting.');
         }

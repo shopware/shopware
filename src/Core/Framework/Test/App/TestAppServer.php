@@ -13,10 +13,11 @@ class TestAppServer
     public const CONFIRMATION_URL = 'https://my-app.com/confirm';
     public const APP_SECRET = 'dont_tell';
 
-    /**
-     * @var MockHandler
-     */
-    private $inner;
+    private MockHandler $inner;
+
+    private ?RequestInterface $registrationRequest = null;
+
+    private ?RequestInterface $confirmationRequest = null;
 
     public function __construct(MockHandler $inner)
     {
@@ -30,6 +31,7 @@ class TestAppServer
         }
 
         if ($this->isRegistration($request)) {
+            $this->registrationRequest = $request;
             $promise = new Promise();
             $promise->resolve(new Response(200, [], $this->buildAppResponse($request)));
 
@@ -37,6 +39,7 @@ class TestAppServer
         }
 
         if ($this->isRegistrationConfirmation($request)) {
+            $this->confirmationRequest = $request;
             $promise = new Promise();
             $promise->resolve(new Response(200));
 
@@ -44,6 +47,17 @@ class TestAppServer
         }
 
         return \call_user_func($this->inner, $request, $options);
+    }
+
+    public function didRegister(): bool
+    {
+        return $this->registrationRequest !== null && $this->confirmationRequest !== null;
+    }
+
+    public function reset(): void
+    {
+        $this->registrationRequest = null;
+        $this->confirmationRequest = null;
     }
 
     private function buildAppResponse(RequestInterface $request)

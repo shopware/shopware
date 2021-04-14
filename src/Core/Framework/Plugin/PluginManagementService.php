@@ -3,11 +3,12 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
+use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
-use Shopware\Core\Framework\Store\Services\StoreService;
+use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -18,40 +19,19 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PluginManagementService
 {
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $projectDir;
 
-    /**
-     * @var PluginZipDetector
-     */
-    private $pluginZipDetector;
+    private PluginZipDetector $pluginZipDetector;
 
-    /**
-     * @var PluginExtractor
-     */
-    private $pluginExtractor;
+    private PluginExtractor $pluginExtractor;
 
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
+    private PluginService $pluginService;
 
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
-    /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
+    private CacheClearer $cacheClearer;
 
-    /**
-     * @var StoreService
-     */
-    private $storeService;
+    private Client $client;
 
     public function __construct(
         string $projectDir,
@@ -60,7 +40,7 @@ class PluginManagementService
         PluginService $pluginService,
         Filesystem $filesystem,
         CacheClearer $cacheClearer,
-        StoreService $storeService
+        Client $client
     ) {
         $this->projectDir = $projectDir;
         $this->pluginZipDetector = $pluginZipDetector;
@@ -68,7 +48,7 @@ class PluginManagementService
         $this->pluginService = $pluginService;
         $this->filesystem = $filesystem;
         $this->cacheClearer = $cacheClearer;
-        $this->storeService = $storeService;
+        $this->client = $client;
     }
 
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
@@ -113,15 +93,18 @@ class PluginManagementService
         }
     }
 
-    public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): int
+    public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): void
     {
         $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
-        $client = $this->storeService->createClient(false);
 
-        $statusCode = $client->request('GET', $location->getLocation(), ['sink' => $tempFileName])->getStatusCode();
+        try {
+            $response = $this->client->request('GET', $location->getLocation(), ['sink' => $tempFileName]);
 
-        if ($statusCode !== Response::HTTP_OK) {
-            return $statusCode;
+            if ($response->getStatusCode() !== Response::HTTP_OK) {
+                throw new \RuntimeException();
+            }
+        } catch (\Exception $e) {
+            throw new StoreNotAvailableException();
         }
 
         $this->extractPluginZip($tempFileName, true, $location->getType());
@@ -129,8 +112,6 @@ class PluginManagementService
         if ($location->getType() === 'plugin') {
             $this->pluginService->refreshPlugins($context, new NullIO());
         }
-
-        return $statusCode;
     }
 
     public function deletePlugin(PluginEntity $plugin, Context $context): void

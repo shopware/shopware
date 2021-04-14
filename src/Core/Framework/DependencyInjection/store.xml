@@ -44,8 +44,6 @@
             </call>
         </service>
 
-        <service id="shopware.store.mock_handler" class="GuzzleHttp\Handler\MockHandler"/>
-
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
             <argument>%shopware.store_endpoints%</argument>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService" />
@@ -53,6 +51,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader" on-invalid="null"/>
+            <argument type="service" id="shopware.store_client"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
@@ -61,16 +60,15 @@
             <argument type="service" id="shopware.filesystem.public"/>
             <argument>%shopware.store.frw%</argument>
             <argument type="service" id="event_dispatcher"/>
-
+            <argument type="service" id="shopware.store_client"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
             <argument>%kernel.shopware_version%</argument>
             <argument>%instance_id%</argument>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="shopware.store.mock_handler"/>
+            <argument type="service" id="shopware.store_client"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">
@@ -184,5 +182,16 @@
             </call>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\StoreClientFactory">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
+        </service>
+
+        <service id="shopware.store_client" class="GuzzleHttp\Client">
+            <factory service="Shopware\Core\Framework\Store\Services\StoreClientFactory" method="create"/>
+        </service>
+
+        <service id="shopware.store_download_client" class="GuzzleHttp\Client" />
     </services>
 </container>

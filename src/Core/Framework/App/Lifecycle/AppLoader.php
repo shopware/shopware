@@ -99,6 +99,14 @@ class AppLoader extends AbstractAppLoader
 
     public function deleteApp(string $technicalName): void
     {
-        (new Filesystem())->remove($this->appDir . '/' . $technicalName);
+        $apps = $this->load();
+
+        if (!isset($apps[$technicalName])) {
+            return;
+        }
+
+        $manifest = $apps[$technicalName];
+
+        (new Filesystem())->remove($manifest->getPath());
     }
 }

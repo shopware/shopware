@@ -295,4 +295,18 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         static::assertNull($removedApp);
     }
+
+    public function testDeleteAppWithDifferentName(): void
+    {
+        $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
+
+        $oldName = $this->getContainer()->getParameter('shopware.app_dir') . '/TestAppTheme';
+        $newName = $this->getContainer()->getParameter('shopware.app_dir') . '/some-random-folder-name';
+
+        rename($oldName, $newName);
+
+        $this->lifecycleService->remove('app', 'TestAppTheme', Context::createDefaultContext());
+
+        static::assertFileDoesNotExist($newName);
+    }
 }

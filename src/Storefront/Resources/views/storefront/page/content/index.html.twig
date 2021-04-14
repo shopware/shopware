@@ -3,19 +3,22 @@
 {% block base_main_inner %}
     <div class="container-main">
         {% block page_content %}
-            <div class="breadcrumb cms-breadcrumb container">
-                {% block cms_breadcrumb %}
+            {% block cms_breadcrumb %}
+                <div class="breadcrumb cms-breadcrumb container">
                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                         context: context,
                         category: page.header.navigation.active
                     } only %}
-                {% endblock %}
-            </div>
-            <div class="cms-page">
-                {% block page_content_blocks %}
-                    {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
-                {% endblock %}
-            </div>
+                </div>
+            {% endblock %}
+
+            {% block cms_content %}
+                <div class="cms-page">
+                    {% block page_content_blocks %}
+                        {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
         {% endblock %}
     </div>
 {% endblock %}

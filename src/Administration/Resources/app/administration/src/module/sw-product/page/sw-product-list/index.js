@@ -26,7 +26,7 @@ Component.register('sw-product-list', {
             currencies: [],
             sortBy: 'productNumber',
             sortDirection: 'DESC',
-            naturalSorting: true,
+            naturalSorting: false,
             isLoading: false,
             isBulkLoading: false,
             total: 0,

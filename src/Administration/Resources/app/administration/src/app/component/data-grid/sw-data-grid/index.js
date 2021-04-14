@@ -363,7 +363,8 @@ Component.register('sw-data-grid', {
                     allowResize: false,
                     sortable: true,
                     visible: true,
-                    align: 'left'
+                    align: 'left',
+                    naturalSorting: false
                 };
 
                 if (!column.property) {

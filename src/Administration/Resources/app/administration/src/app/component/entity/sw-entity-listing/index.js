@@ -83,7 +83,14 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             required: false,
             default: true
         },
+
         disableDataFetching: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        naturalSorting: {
             type: Boolean,
             required: false,
             default: false

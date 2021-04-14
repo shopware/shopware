@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Util;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -10,26 +11,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class PromotionCodeService
 {
     public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
     public const CODE_COMPLEXITY_FACTOR = 0.5;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $individualCodesRepository;
+    private EntityRepositoryInterface $individualCodesRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $promotionRepository;
+    private EntityRepositoryInterface $promotionRepository;
 
-    public function __construct(EntityRepositoryInterface $promotionRepository, EntityRepositoryInterface $individualCodesRepository)
+    private Connection $connection;
+
+    public function __construct(EntityRepositoryInterface $promotionRepository, EntityRepositoryInterface $individualCodesRepository, Connection $connection)
     {
         $this->promotionRepository = $promotionRepository;
         $this->individualCodesRepository = $individualCodesRepository;
+        $this->connection = $connection;
     }
 
     public function getFixedCode(): string
@@ -63,7 +62,10 @@ class PromotionCodeService
          * also minimizes the number of retries. Therefore, the CODE_COMPLEXITY_FACTOR is the worst-case-scenario
          * probability to find a new unique promotion code.
          */
-        if ($this->calculatePossibilites($codePattern['replacementString']) * self::CODE_COMPLEXITY_FACTOR < ($amount + $blacklistCount)) {
+
+        $complexity = $this->isComplexEnough($codePattern['replacementString'], $amount, $blacklistCount);
+
+        if (!$complexity) {
             throw new PatternNotComplexEnoughException();
         }
 
@@ -113,19 +115,17 @@ class PromotionCodeService
         }
 
         $codes = $this->generateIndividualCodes($pattern, $amount);
+
         $codeEntries = $this->prepareCodeEntities($promotionId, $codes);
 
         $this->resetPromotionCodes($promotionId, $context);
+
         $this->individualCodesRepository->upsert($codeEntries, $context);
     }
 
     public function resetPromotionCodes(string $promotionId, Context $context): void
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('promotionId', $promotionId));
-        $deleteCodes = \array_values($this->individualCodesRepository->searchIds($criteria, $context)->getData());
-
-        $this->individualCodesRepository->delete($deleteCodes, $context);
+        $this->connection->executeStatement('DELETE FROM promotion_individual_code WHERE promotion_id = :id', ['id' => Uuid::fromHexToBytes($promotionId)]);
     }
 
     public function splitPattern(string $pattern): array
@@ -156,27 +156,6 @@ class PromotionCodeService
         return $codePattern['prefix'] . $code . $codePattern['suffix'];
     }
 
-    private function calculatePossibilites(string $pattern): int
-    {
-        /*
-         * These counts describe the amount of possibilities in a single digit, depending on variable type:
-         * - d: digits (0-9)
-         * - s: letters (A-Z)
-         */
-        $possibilityCounts = [
-            'd' => 10,
-            's' => 26,
-        ];
-        $counts = \count_chars($pattern, 1);
-
-        $result = 1;
-        foreach ($counts as $key => $count) {
-            $result *= $possibilityCounts[\chr($key)] ** $count;
-        }
-
-        return $result;
-    }
-
     private function getRandomChar(string $type): string
     {
         if ($type === 'd') {
@@ -194,5 +173,30 @@ class PromotionCodeService
                 'code' => $code,
             ];
         }, $codes));
+    }
+
+    private function isComplexEnough(string $pattern, int $amount, int $blacklistCount): bool
+    {
+        /*
+         * These counts describe the amount of possibilities in a single digit, depending on variable type:
+         * - d: digits (0-9)
+         * - s: letters (A-Z)
+         */
+        $possibilityCounts = [
+            'd' => 10,
+            's' => 26,
+        ];
+        $counts = \count_chars($pattern, 1);
+
+        $result = 1;
+        foreach ($counts as $key => $count) {
+            $result *= $possibilityCounts[\chr($key)] ** $count;
+
+            if ($result * self::CODE_COMPLEXITY_FACTOR >= ($amount + $blacklistCount)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

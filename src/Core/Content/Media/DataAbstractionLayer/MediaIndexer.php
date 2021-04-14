@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
-use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -13,34 +12,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MediaIndexer extends EntityIndexer
 {
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
+
+    private EntityRepositoryInterface $thumbnailRepository;
 
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
+        EntityRepositoryInterface $thumbnailRepository,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher
     ) {
@@ -48,6 +39,7 @@ class MediaIndexer extends EntityIndexer
         $this->repository = $repository;
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+        $this->thumbnailRepository = $thumbnailRepository;
     }
 
     public function getName(): string
@@ -88,8 +80,8 @@ class MediaIndexer extends EntityIndexer
             return;
         }
 
-        $criteria = new Criteria($ids);
-        $criteria->addAssociation('thumbnails');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('mediaId', $ids));
 
         $context = $message->getContext();
 
@@ -97,12 +89,16 @@ class MediaIndexer extends EntityIndexer
             $this->connection->prepare('UPDATE `media` SET thumbnails_ro = :thumbnails_ro WHERE id = :id')
         );
 
-        /** @var MediaCollection $medias */
-        $medias = $this->repository->search($criteria, $context);
-        foreach ($medias as $media) {
+        $all = $this->thumbnailRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        foreach ($ids as $id) {
+            $thumbnails = $all->filterByProperty('mediaId', $id);
+
             $query->execute([
-                'thumbnails_ro' => serialize($media->getThumbnails()),
-                'id' => Uuid::fromHexToBytes($media->getId()),
+                'thumbnails_ro' => serialize($thumbnails),
+                'id' => Uuid::fromHexToBytes($id),
             ]);
         }
 

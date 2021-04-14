@@ -2,11 +2,11 @@
     {% set config = element.fieldConfig.elements %}
     {% set product = element.data.product %}
     {% set descriptionTabId = "description-tab-" ~ product.id %}
-    {% set descriptionTabHref = "#description-tab-pane-" ~ product.id %}
-    {% set descriptionTabContent = "description-tab-pane-" ~ product.id %}
+    {% set descriptionTabHref = "#description-tab-" ~ product.id ~ "-pane" %}
+    {% set descriptionTabContent = "description-tab-" ~ product.id ~ "-pane" %}
     {% set reviewTabId = "review-tab-" ~ product.id %}
-    {% set reviewTabHref = "#review-tab-pane-" ~ product.id %}
-    {% set reviewTabContent = "review-tab-pane-" ~ product.id %}
+    {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
+    {% set reviewTabContent = "review-tab-" ~ product.id ~ "-pane" %}
 
     {% if element.data.product %}
         <div class="product-detail-tabs cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">

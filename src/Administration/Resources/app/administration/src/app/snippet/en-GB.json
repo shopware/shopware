@@ -104,7 +104,7 @@
       },
       "plugin-updates-listener": {
         "updatesAvailableTitle": "Update(s) available",
-        "updatesAvailableMessage": "Download the latest versions of your plugins now."
+        "updatesAvailableMessage": "Download the latest versions of your extensions now."
       },
       "shopware-updates-listener": {
         "updatesAvailableTitle": "A new Shopware version {version} is available",

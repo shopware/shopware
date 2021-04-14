@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
+use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -158,6 +159,58 @@ class StoreClient
         }
 
         return $licenseList;
+    }
+
+    /**
+     * @return StoreUpdateStruct[]
+     */
+    public function getExtensionUpdateList(ExtensionCollection $extensionCollection, Context $context): array
+    {
+        if ($this->authenticationProvider === null) {
+            throw new \RuntimeException('App Store is not active');
+        }
+
+        $list = [];
+
+        foreach ($extensionCollection as $extension) {
+            $list[] = [
+                'name' => $extension->getName(),
+                'version' => $extension->getVersion(),
+            ];
+        }
+
+        $query = $this->storeService->getDefaultQueryParameters('en-GB', false);
+
+        $token = null;
+
+        try {
+            $token = $this->authenticationProvider->getUserStoreToken($context);
+        } catch (StoreTokenMissingException $e) {
+        }
+
+        $response = $this->getClient()->post(
+            $this->endpoints['my_plugin_updates'],
+            [
+                'query' => $query,
+                'body' => json_encode(['plugins' => $list]),
+                'headers' => $this->getHeaders($token),
+            ]
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        if (!\array_key_exists('data', $data)) {
+            return [];
+        }
+
+        $updateList = [];
+        foreach ($data['data'] as $update) {
+            $updateStruct = new StoreUpdateStruct();
+            $updateStruct->assign($update);
+            $updateList[] = $updateStruct;
+        }
+
+        return $updateList;
     }
 
     /**

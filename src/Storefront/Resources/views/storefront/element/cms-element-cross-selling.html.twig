@@ -17,11 +17,11 @@
                             {% if crossSelling.active and products %}
                                 <li class="nav-item">
                                     <a class="nav-link product-detail-tab-navigation-link{% if loop.first %} active{% endif %}"
-                                       id="cross-selling-{{ id }}tab"
+                                       id="cross-selling-tab-{{ id }}"
                                        data-toggle="tab"
-                                       href="#cross-selling-{{ id }}tab-pane"
+                                       href="#cross-selling-tab-{{ id }}-pane"
                                        role="tab"
-                                       aria-controls="cross-selling-{{ id }}tab-pane"
+                                       aria-controls="cross-selling-tab-{{ id }}-pane"
                                        aria-selected="true">
                                         {{ crossSelling.translated.name }}
                                         <span class="product-detail-tab-navigation-icon">
@@ -46,9 +46,9 @@
                             {% set id = crossSelling.id %}
                             {% if crossSelling.active and products %}
                                 <div class="tab-pane fade show{% if loop.first %} active{% endif %}"
-                                     id="cross-selling-{{ id }}tab-pane"
+                                     id="cross-selling-tab-{{ id }}-pane"
                                      role="tabpanel"
-                                     aria-labelledby="cross-selling-{{ id }}tab">
+                                     aria-labelledby="cross-selling-tab-{{ id }}">
                                     {% set config = {
                                         'title': {
                                             'value': null

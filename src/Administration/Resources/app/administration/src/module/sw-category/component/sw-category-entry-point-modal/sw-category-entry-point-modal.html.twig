@@ -27,6 +27,7 @@
                     <sw-text-field
                             class="sw-category-entry-point-modal__name-in-main-navigation"
                             :label="$tc('sw-category.base.entry-point-modal.mainNavigationName')"
+                            :helpText="$tc('sw-category.base.entry-point-modal.mainNavigationNameHelpText')"
                             :placeholder="selectedSalesChannel.translated.homeName || $tc('sw-category.base.entry-point-modal.mainNavigationNamePlaceholder')"
                             v-model="selectedSalesChannel.homeName"
                             :disabled="!selectedSalesChannel.homeEnabled || !acl.can('category.editor')"></sw-text-field>

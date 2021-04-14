@@ -11,7 +11,7 @@
       "descriptionLabel": "Beschreibung",
       "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
       "useAsLogo": "Als Anzeigebild verwenden",
-      "treeHeadline": "Kategoriestruktur",
+      "treeHeadline": "Kategorien",
       "treeHeadSelected": "{count} ausgewählt",
       "emptyStateHeadline": "Keine Kategorie ausgewählt",
       "errorNavigationEntryPoint": "Diese Kategorie ist als Hauptnavigation in mind. einem Verkaufskanal definiert und kann deshalb nicht gelöscht werden.",
@@ -35,7 +35,7 @@
       "general": {
         "categoryNameLabel": "Name",
         "headlineInformationCard": "Allgemein",
-        "isCategoryActiveLabel": "Kategorie ist aktiv",
+        "isCategoryActiveLabel": "Aktiv",
         "useAsLink": "Als Link verwenden",
         "labelCategoryTags": "Tags",
         "labelCategoryTagsPlaceholder": "Gib einzelne Tags ein ...",
@@ -54,12 +54,12 @@
         }
       },
       "entry-point-card": {
-        "cardTitle": "Einstiegspunkt",
+        "cardTitle": "Navigation",
         "labelEntryPoint": "Einstiegspunkt",
         "placeholderEntryPoint": "Einstiegspunkt auswählen...",
         "existingNavigationDescription": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:",
-        "labelSalesChannelsAdd": "Verkaufskanäle hinzufügen",
-        "placeholderSalesChannels": "Verkaufskanal auswählen...",
+        "labelSalesChannelsAdd": "Verkaufskanalzuweisung",
+        "placeholderSalesChannels": "Verkaufskanäle hinzufügen ...",
         "buttonConfigureHome": "Startseite konfigurieren",
         "types": {
           "labelMainNavigation": "Hauptnavigation",
@@ -72,10 +72,11 @@
       },
       "entry-point-modal": {
         "modalTitle": "Startseite konfigurieren",
-        "salesChannelSelection": "Einstiegspunkt Hauptnavigation",
-        "showInMainNavigation": "Als Home in der Hauptnavigation anzeigen",
-        "mainNavigationName": "Name in der Hauptnavigation",
-        "mainNavigationNamePlaceholder": "Name in der Hauptnavigation...",
+        "salesChannelSelection": "Verkaufskanal",
+        "showInMainNavigation": "In der Hauptnavigation anzeigen",
+        "mainNavigationName": "Anzeigename",
+        "mainNavigationNamePlaceholder": "Alternativen Home-Seitennamen eingeben ...",
+        "mainNavigationNameHelpText": "Standardmäßig wird diese Kategorie als \"Home\" angezeigt. Gib einen alternativen Anzeigenamen ein, falls die Standardkonfiguration nicht zu Deinem aktuellen Verkaufskanal passt.",
         "layoutHeadline": "Layout",
         "seoSettingsHeadline": "SEO-Einstellungen",
         "metaTitleLabel": "Meta-Titel",
@@ -182,7 +183,7 @@
       "general": {
         "labelName": "Name",
         "headlineInformationCard": "Allgemein",
-        "isActiveLabel": "Landingpage ist aktiv",
+        "isActiveLabel": "Aktiv",
         "labelTags": "Tags",
         "labelTagsPlaceholder": "Gib einzelne Tags ein ..."
       },

@@ -248,77 +248,7 @@ describe('components/sw-multi-select', () => {
 ```
 
 The more components you are depending the more you have to create a complex setup for the test. Your 
-component get also depends on other dependencies like `$tc`, directives or injections. When you are
-using this you need to mock them also. I show you here some common warnings:
-
-#### Warning 
-`[Vue warn]: Error in render: "TypeError: $tc is not a function"`
-
-#### Solution:
-```javascript
-shallowMount(Shopware.Component.build('your-component'), {
-    mocks: {
-        $tc: key => key // your mock (here a simple function returning the translation path)
-    }
-});
-```
-
-#### Warning:
-`[Vue warn]: Failed to resolve directive: popover`
-
-#### Solution:
-You need to use [localVue](https://vue-test-utils.vuejs.org/api/#createlocalvue) to provide the directive mock.
-
-```javascript
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-
-const localVue = createLocalVue();
-localVue.directive('popover', {}); // add directive mock to localVue
-
-shallowMount(Shopware.Component.build('your-component'), {
-    localVue
-});
-```
-
-#### Warning:
-`[Vue warn]: Injection "repositoryFactory" not found`
-
-#### Solution:
-You need to provide the injected data, services...
-
-```javascript
-shallowMount(Shopware.Component.build('your-component'), {
-    provide: {
-        repositoryFactory: {
-            create: () => 'fooBar', // you need to mock the return values for your test
-            search: () => 'fooBar' // you need to mock the return values for your test
-        }
-    }
-});
-```
-
-#### Warning:
-`[Vue warn]: Error in foo: "TypeError: Cannot read property 'create' of undefined"`
-
-#### Solution:
-This could causes several reason. The best way to find out the solution is to look at the source of the
-code and find out what is missing. In this example the service `repositoryFactory` is missing:
-
-```javascript
-Shopware.Service('repositoryFactory').create('product');
-```
-
-To fix this you need to add the mocked service before all tests. In our case we need to register the
-service:
-
-```javascript
-beforeAll(() => {
-  Shopware.Service.register('repositoryFactory', {
-    // your service mock
-  });
-});
-```
-
+component get also depends on other dependencies like services or injections. Most dependencies are provided by the default setup. But in some cases you need to mock them also. Here you can find the documentation from Vue-Test-Utils how to do this: https://vue-test-utils.vuejs.org/api/options.html#mocks
 
 ## Write tests for components
 

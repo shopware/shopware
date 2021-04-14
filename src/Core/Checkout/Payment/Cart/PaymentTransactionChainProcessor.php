@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
@@ -13,11 +12,10 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -46,23 +44,16 @@ class PaymentTransactionChainProcessor
      */
     private $paymentHandlerRegistry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderCustomerRepository;
-
     public function __construct(
         TokenFactoryInterfaceV2 $tokenFactory,
         EntityRepositoryInterface $orderRepository,
         RouterInterface $router,
-        PaymentHandlerRegistry $paymentHandlerRegistry,
-        EntityRepositoryInterface $orderCustomerRepository
+        PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
         $this->tokenFactory = $tokenFactory;
         $this->orderRepository = $orderRepository;
         $this->router = $router;
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
-        $this->orderCustomerRepository = $orderCustomerRepository;
     }
 
     /**
@@ -81,6 +72,15 @@ class PaymentTransactionChainProcessor
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
         $criteria->addAssociation('transactions.paymentMethod');
+        $criteria->addAssociation('orderCustomer.customer');
+        $criteria->addAssociation('orderCustomer.salutation');
+        if (Feature::isActive('FEATURE_NEXT_14357')) {
+            $criteria->addAssociation('transactions.paymentMethod.appPaymentMethod.app');
+            $criteria->addAssociation('language');
+            $criteria->addAssociation('currency');
+            $criteria->addAssociation('deliveries.shippingOrderAddress.country');
+            $criteria->addAssociation('billingAddress.country');
+        }
         $criteria->addAssociation('lineItems');
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
@@ -96,10 +96,6 @@ class PaymentTransactionChainProcessor
             throw new InvalidOrderException($orderId);
         }
 
-        $order->setOrderCustomer(
-            $this->fetchCustomer($order->getId(), $salesChannelContext->getContext())
-        );
-
         $transactions = $transactions->filterByState(OrderTransactionStates::STATE_OPEN);
         $transaction = $transactions->last();
         if ($transaction !== null) {
@@ -108,7 +104,7 @@ class PaymentTransactionChainProcessor
                 throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
             }
 
-            $paymentHandler = $this->paymentHandlerRegistry->getHandler($paymentMethod->getHandlerIdentifier());
+            $paymentHandler = $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
 
             if (!$paymentHandler) {
                 throw new UnknownPaymentMethodException($paymentMethod->getHandlerIdentifier());
@@ -147,17 +143,5 @@ class PaymentTransactionChainProcessor
         $parameter = ['_sw_payment_token' => $token];
 
         return $this->router->generate('payment.finalize.transaction', $parameter, UrlGeneratorInterface::ABSOLUTE_URL);
-    }
-
-    private function fetchCustomer(string $orderId, Context $context): OrderCustomerEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
-        $criteria->addAssociation('customer');
-        $criteria->addAssociation('salutation');
-
-        return $this->orderCustomerRepository
-            ->search($criteria, $context)
-            ->first();
     }
 }

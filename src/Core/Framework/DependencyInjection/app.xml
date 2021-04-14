@@ -110,6 +110,37 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Payment\Payload\PayloadService">
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="string">%env(APP_URL)%</argument>
+            <argument>%kernel.shopware_version%</argument>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler" abstract="true">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler"
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
+            <tag name="shopware.payment.method.sync"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler"
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
+            <tag name="shopware.payment.method.async"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory"/>
             <argument type="service" id="shopware.app_system.guzzle"/>

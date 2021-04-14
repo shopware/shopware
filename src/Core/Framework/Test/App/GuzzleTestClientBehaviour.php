@@ -20,6 +20,7 @@ trait GuzzleTestClientBehaviour
     {
         $this->getContainer()->get(GuzzleHistoryCollector::class)->resetHistory();
         $this->getContainer()->get(MockHandler::class)->reset();
+        $this->getContainer()->get(TestAppServer::class)->reset();
     }
 
     public function getLastRequest(): RequestInterface
@@ -43,5 +44,10 @@ trait GuzzleTestClientBehaviour
     public function appendNewResponse($response): void
     {
         $this->getContainer()->get(MockHandler::class)->append($response);
+    }
+
+    public function didRegisterApp(): bool
+    {
+        return $this->getContainer()->get(TestAppServer::class)->didRegister();
     }
 }

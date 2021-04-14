@@ -61,9 +61,6 @@ function createWrapper(propsOverride) {
                 }
             };
         },
-        mocks: {
-            $tc: (value) => value
-        },
         provide: {
             repositoryFactory: {
                 create: () => {}

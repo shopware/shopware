@@ -23,7 +23,6 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-extension-my-extensions-listing'), {
         localVue,
         mocks: {
-            $tc: v => v,
             $route: {
                 name: 'sw.extension.my-extensions.listing.app',
                 query: {}

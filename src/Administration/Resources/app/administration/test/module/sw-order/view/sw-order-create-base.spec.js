@@ -38,10 +38,6 @@ function createWrapper() {
         },
         provide: {
 
-        },
-        mocks: {
-            $tc: v => v,
-            $store: Shopware.State._store
         }
     });
 }

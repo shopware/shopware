@@ -27,12 +27,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-settings-listing-option-criteria-grid'), {
             localVue,
-            mocks: {
-                $tc: translationKey => translationKey,
-                $te: translationKey => translationKey,
-                $t: translationKey => translationKey,
-                $device: { onResize: () => {} }
-            },
             provide: {
                 next5983: true,
                 repositoryFactory: {

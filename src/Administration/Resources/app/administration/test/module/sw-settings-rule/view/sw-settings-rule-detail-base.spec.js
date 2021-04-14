@@ -35,9 +35,6 @@ function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             }
-        },
-        mocks: {
-            $tc: v => v
         }
     });
 }

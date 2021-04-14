@@ -10,9 +10,6 @@ function createWrapper() {
         propsData: {
             namespace: 'MyExtension'
         },
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-meteor-page': {
                 template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'

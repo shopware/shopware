@@ -15,13 +15,6 @@ const createWrapper = () => {
             'sw-single-select': true,
             'sw-entity-single-select': true
         },
-        mocks: {
-            $tc: key => key,
-            $te: () => false,
-            $device: {
-                onResize: () => {}
-            }
-        },
         provide: {
             repositoryFactory: {
                 create: (name) => {

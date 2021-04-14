@@ -41,9 +41,6 @@ function createWrapper(privileges = []) {
                 })
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             promotion: {
                 name: 'Test Promotion',

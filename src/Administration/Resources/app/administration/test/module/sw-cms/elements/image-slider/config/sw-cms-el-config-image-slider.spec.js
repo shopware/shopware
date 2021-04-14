@@ -6,9 +6,6 @@ import 'src/module/sw-cms/component/sw-cms-mapping-field';
 
 function createWrapper(activeTab = 'content') {
     return shallowMount(Shopware.Component.build('sw-cms-el-config-image-slider'), {
-        mocks: {
-            $tc: v => v
-        },
         provide: {
             cmsService: {
                 getCmsBlockRegistry: () => {

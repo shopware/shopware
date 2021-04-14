@@ -52,9 +52,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 'sw-tabs': true,
                 'sw-modal': true
             },
-            mocks: {
-                $tc: (translationPath) => translationPath
-            },
             provide: {
                 repositoryFactory: {
                     create: () => {

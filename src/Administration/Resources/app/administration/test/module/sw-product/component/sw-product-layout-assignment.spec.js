@@ -3,10 +3,6 @@ import 'src/module/sw-product/component/sw-product-layout-assignment';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-product-layout-assignment'), {
-        mocks: {
-            $t: key => key,
-            $tc: key => key
-        },
         stubs: {
             'sw-cms-list-item': true,
             'sw-button': true

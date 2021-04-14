@@ -9,7 +9,6 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
         return shallowMount(Shopware.Component.build('sw-promotion-v2-empty-state-hero'), {
             localVue,
             mocks: {
-                $tc: key => key,
                 $route: { meta: { $module: { name: 'promotion-v2' } } }
             },
             propsData: {

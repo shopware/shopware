@@ -9,7 +9,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-units'), {
         localVue,
         mocks: {
-            $tc: key => key,
             $route: {
                 query: {
                     page: 1,

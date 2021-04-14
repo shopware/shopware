@@ -28,9 +28,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                     rateExtension: jest.fn()
                 }
             },
-            mocks: {
-                $tc: key => key
-            },
             computed: {
                 installedVersion() {
                     return '1.0.0';

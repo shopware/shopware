@@ -110,14 +110,6 @@ function createWrapper() {
             'sw-settings-search-live-search-keyword': Shopware.Component.build('sw-settings-search-live-search-keyword')
         },
 
-        mocks: {
-            $tc: key => key,
-            $te: () => true,
-            $device: {
-                onResize: () => {}
-            }
-        },
-
         propsData: {
             currentSalesChannelId: null,
             searchTerms: '',

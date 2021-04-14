@@ -31,15 +31,6 @@ function createWrapper(privileges = []) {
                     create: () => {}
                 })
             }
-        },
-        mocks: {
-            $tc: v => v,
-            $route: {
-                query: ''
-            },
-            $router: {
-                replace: () => {}
-            }
         }
     });
 }

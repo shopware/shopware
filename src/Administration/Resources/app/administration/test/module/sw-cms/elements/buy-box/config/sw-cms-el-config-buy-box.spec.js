@@ -51,9 +51,6 @@ function createWrapper() {
             'sw-entity-single-select': true,
             'sw-alert': true
         },
-        mocks: {
-            $tc: (value) => value
-        },
         provide: {
             cmsService: {
                 getCmsBlockRegistry: () => {

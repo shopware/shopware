@@ -34,9 +34,6 @@ function createWrapper(propsOverride, dataOverride) {
     return shallowMount(Shopware.Component.build('sw-cms-el-image-gallery'), {
         localVue,
         sync: false,
-        mocks: {
-            $tc: v => v
-        },
         provide: { cmsService: {
             getCmsBlockRegistry: () => {
                 return {};

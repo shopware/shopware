@@ -11,10 +11,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-search-search-index'), {
         localVue,
 
-        mocks: {
-            $tc: key => key
-        },
-
         provide: {
             repositoryFactory: {
                 create: (name) => {

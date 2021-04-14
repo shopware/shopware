@@ -11,10 +11,8 @@ function createWrapper(customRoute = {}) {
             'sw-icon': true
         },
         mocks: {
-            $tc: v => v,
             $route: customRoute
-        },
-        provide: {}
+        }
     });
 }
 

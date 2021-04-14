@@ -36,7 +36,6 @@ function createWrapper(router) {
         localVue,
         stubs,
 
-        $store: Shopware.State._store,
         router,
         provide: {
             appActionButtonService: {

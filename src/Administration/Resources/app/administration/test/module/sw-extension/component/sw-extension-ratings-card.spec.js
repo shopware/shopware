@@ -43,9 +43,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                     id: 'extension-id'
                 }
             },
-            mocks: {
-                $tc: key => key
-            },
             stubs: {
                 'sw-meteor-card': {
                     template: `<div>

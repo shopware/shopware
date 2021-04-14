@@ -48,9 +48,6 @@ function createWrapper(entitiesWithResults = []) {
                     };
                 }
             }
-        },
-        mocks: {
-            $tc: v => v
         }
     });
 }

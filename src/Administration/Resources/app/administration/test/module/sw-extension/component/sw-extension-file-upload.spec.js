@@ -7,10 +7,6 @@ const updateExtensionDataSpy = jest.fn();
 
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-extension-file-upload'), {
-        propsData: {},
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-icon': true

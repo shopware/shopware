@@ -10,11 +10,6 @@ function createWrapper(privileges = []) {
 
     return shallowMount(Component.build('sw-product-detail-reviews'), {
         localVue,
-        mocks: {
-            $t: key => key,
-            $tc: key => key,
-            $store: State._store
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({

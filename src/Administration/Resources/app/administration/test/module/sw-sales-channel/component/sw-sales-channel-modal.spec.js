@@ -26,9 +26,6 @@ function createWrapper() {
                         search: searchFunction
                     })
                 }
-            },
-            mocks: {
-                $tc: v => v
             }
         })
     };

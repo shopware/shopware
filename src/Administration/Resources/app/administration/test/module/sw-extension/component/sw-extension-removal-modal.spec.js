@@ -10,7 +10,6 @@ function createWrapper(propsData = {}) {
             ...propsData
         },
         mocks: {
-            $tc: v => v,
             $t: (key, values) => {
                 return key + JSON.stringify(Object.values(values));
             }

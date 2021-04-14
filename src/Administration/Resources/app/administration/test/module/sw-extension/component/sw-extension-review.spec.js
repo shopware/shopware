@@ -32,9 +32,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () 
                     extensions: []
                 }
             },
-            mocks: {
-                $tc: key => key
-            },
             stubs: {
                 'sw-extension-rating-stars': Shopware.Component.build('sw-extension-rating-stars'),
                 'sw-icon': true,

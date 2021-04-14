@@ -59,7 +59,6 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
             $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } },
             $sanitize: key => key
         },

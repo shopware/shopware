@@ -21,11 +21,6 @@ function createWrapper(privileges = []) {
 
     return shallowMount(Component.build('sw-product-detail-specifications'), {
         localVue,
-        mocks: {
-            $t: key => key,
-            $tc: key => key,
-            $store: State._store
-        },
         provide: {
             acl: {
                 can: (identifier) => {

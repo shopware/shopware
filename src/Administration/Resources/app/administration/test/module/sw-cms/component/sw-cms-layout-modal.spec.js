@@ -3,12 +3,6 @@ import 'src/module/sw-cms/component/sw-cms-layout-modal';
 
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-layout-modal'), {
-        mocks: {
-            $t: key => key,
-            $tc: key => key,
-            $router: { replace: () => {} },
-            $route: { query: '' }
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({

@@ -174,11 +174,6 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                 'sw-meteor-card': Shopware.Component.build('sw-meteor-card'),
                 'sw-tabs': Shopware.Component.build('sw-tabs'),
                 'sw-tabs-item': Shopware.Component.build('sw-tabs-item')
-            },
-            mocks: {
-                $device: {
-                    onResize: () => {}
-                }
             }
         });
 
@@ -209,11 +204,6 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                 'sw-meteor-card': Shopware.Component.build('sw-meteor-card'),
                 'sw-tabs': Shopware.Component.build('sw-tabs'),
                 'sw-tabs-item': Shopware.Component.build('sw-tabs-item')
-            },
-            mocks: {
-                $device: {
-                    onResize: () => {}
-                }
             }
         });
 

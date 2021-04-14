@@ -10,10 +10,6 @@ function createWrapper() {
 
     return shallowMount(Shopware.Component.build('sw-extension-my-extensions-account'), {
         localVue,
-        propsData: {},
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-avatar': true,
             'sw-loader': true,

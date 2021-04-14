@@ -11,7 +11,6 @@ function createWrapper() {
             missingElements: []
         },
         mocks: {
-            $t: key => key,
             $tc: (key, number, value) => {
                 if (!value) {
                     return key;

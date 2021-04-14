@@ -8,7 +8,6 @@ const setup = (propOverride) => {
     };
 
     return shallowMount(Shopware.Component.build('sw-external-link'), {
-        mocks: { $tc: key => key },
         stubs: ['sw-icon'],
         slots: {
             default: 'test external link'

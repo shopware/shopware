@@ -14,10 +14,6 @@ function createWrapper(slotsData = {}) {
         },
 
         mocks: {
-            $tc: v => v,
-            $device: {
-                onResize: () => {}
-            },
             $route: {
                 meta: {
                     $module: {

@@ -24,10 +24,6 @@ function createWrapper() {
         },
         provide: {
             shopwareExtensionService
-        },
-        mocks: {
-            $tc: (key) => key,
-            $store: Shopware.State._store
         }
     });
 }

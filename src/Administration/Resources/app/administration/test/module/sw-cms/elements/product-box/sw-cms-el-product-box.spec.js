@@ -37,9 +37,6 @@ function createWrapper() {
                 }
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         data() {
             return {
                 cmsPageState: {

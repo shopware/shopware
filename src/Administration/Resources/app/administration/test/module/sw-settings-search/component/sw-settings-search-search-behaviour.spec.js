@@ -22,7 +22,6 @@ function createWrapper(privileges = []) {
         },
 
         mocks: {
-            $tc: key => key,
             $route: {
                 query: {
                     page: 1,

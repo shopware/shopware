@@ -78,10 +78,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-event-action-list'), {
         localVue,
         mocks: {
-            $tc: (trans) => trans,
-            $te: (trans) => trans,
-            $router: { replace: () => {} },
-            $device: { onResize: () => {} },
             $route: {
                 query: {
                     limit: '25',

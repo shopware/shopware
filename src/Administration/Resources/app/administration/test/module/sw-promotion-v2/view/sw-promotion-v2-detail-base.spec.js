@@ -48,9 +48,6 @@ function createWrapper(privileges = []) {
                 generateCodeFixed: () => 'ABCDEF'
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             isCreateMode: false,
             promotion: {

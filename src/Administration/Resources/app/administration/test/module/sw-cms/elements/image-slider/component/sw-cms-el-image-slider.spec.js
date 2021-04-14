@@ -44,9 +44,6 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-el-image-slider'), {
         localVue,
         sync: false,
-        mocks: {
-            $tc: v => v
-        },
         provide: { cmsService: {
             getCmsBlockRegistry: () => {
                 return {};

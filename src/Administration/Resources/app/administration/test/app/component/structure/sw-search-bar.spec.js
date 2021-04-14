@@ -53,12 +53,6 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes) {
             'sw-search-bar-item': true
         },
         mocks: {
-            $tc: key => key,
-            $te: () => true,
-            $device: {
-                onResize: () => {},
-                getViewportWidth: () => 1920
-            },
             $route: {
                 query: {
                     term: ''

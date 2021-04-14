@@ -34,11 +34,6 @@ describe('components/data-grid/sw-data-grid-settings', () => {
                 previews: false,
                 enablePreviews: true,
                 disabled: false
-            },
-            mocks: {
-                $tc: key => key,
-                $te: key => key,
-                $device: { onResize: () => {} }
             }
         });
     });

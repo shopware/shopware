@@ -87,10 +87,6 @@ function createWrapper() {
                 id: '72bfaf5d90214ce592715a9649d8760a'
             }
         },
-        mocks: {
-            $t: key => key,
-            $tc: key => key
-        },
         provide: {
             repositoryFactory: {
                 create: () => {

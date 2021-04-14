@@ -28,12 +28,6 @@ function createWrapper(privileges = [], category = {}) {
             'router-link': true,
             'sw-button': true
         },
-        mocks: {
-            $route: {
-                params: {}
-            },
-            $tc: v => v
-        },
         provide: {
             acl: {
                 can: (identifier) => {

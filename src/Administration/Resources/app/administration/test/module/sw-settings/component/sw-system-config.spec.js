@@ -213,12 +213,6 @@ function createWrapper(defaultValues = {}) {
             },
             validationService: {},
             mediaService: {}
-        },
-        mocks: {
-            $tc: key => key,
-            $device: {
-                onResize: () => {}
-            }
         }
     });
 }

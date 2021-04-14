@@ -12,9 +12,6 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-el-product-description-reviews'), {
         localVue,
         sync: false,
-        mocks: {
-            $tc: v => v
-        },
         provide: { cmsService: {
             getCmsBlockRegistry: () => {
                 return {};

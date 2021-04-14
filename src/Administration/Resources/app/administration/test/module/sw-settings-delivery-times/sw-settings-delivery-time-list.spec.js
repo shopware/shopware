@@ -14,9 +14,6 @@ function createWrapper(privileges = []) {
                     page: 1,
                     limit: 25
                 }
-            },
-            $router: {
-                replace: () => {}
             }
         },
         provide: {

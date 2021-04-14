@@ -88,17 +88,7 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
-            $route: { params: { id: '92618290af63445b973cc1021d60e3f5' } },
-            $router: {
-                replace: () => {
-                }
-            },
-            $device: {
-                getSystemKey: () => {
-                },
-                onResize: () => {}
-            }
+            $route: { params: { id: '92618290af63445b973cc1021d60e3f5' } }
         },
         propsData: {
             manufacturerId: 'id'

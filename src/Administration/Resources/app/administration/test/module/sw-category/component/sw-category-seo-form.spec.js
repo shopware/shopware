@@ -6,11 +6,6 @@ function createWrapper(privileges = []) {
         stubs: {
             'sw-field': true
         },
-        mocks: {
-            $route: {
-                params: {}
-            }
-        },
         provide: {
             acl: {
                 can: (identifier) => {

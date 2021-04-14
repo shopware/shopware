@@ -7,9 +7,6 @@ function createWrapper(propsData = {}) {
             extension: { installedAt: null },
             ...propsData
         },
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-meteor-card': true,
             'sw-switch-field': true,

@@ -105,10 +105,6 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
             'sw-cms-product-assignment': true
         },
         mocks: {
-            $tc: (value) => value,
-            $device: {
-                onResize: () => {}
-            },
             cloneDeep: cloneDeep
         },
         provide: {

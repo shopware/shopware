@@ -9,7 +9,6 @@ const setup = (propOverride) => {
     };
 
     return shallowMount(Shopware.Component.build('sw-internal-link'), {
-        mocks: { $tc: key => key },
         stubs: {
             'sw-icon': true,
             RouterLink: RouterLinkStub

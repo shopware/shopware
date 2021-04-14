@@ -16,9 +16,6 @@ function createWrapper() {
                 permissions: []
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-context-button': true,
             'sw-switch-field': true,

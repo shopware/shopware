@@ -27,14 +27,6 @@ function createWrapper(privileges = [], resetError = false) {
             }
         },
 
-        mocks: {
-            $tc: key => key,
-            $te: () => {},
-            $device: {
-                onResize: () => {}
-            }
-        },
-
         provide: {
             validationService: {},
             repositoryFactory: {

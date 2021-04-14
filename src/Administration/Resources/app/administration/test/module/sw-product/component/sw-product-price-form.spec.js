@@ -44,7 +44,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         return shallowMount(Shopware.Component.build('sw-product-price-form'), {
             mocks: {
-                $tc: translationKey => translationKey,
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {

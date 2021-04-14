@@ -555,13 +555,14 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
-    public function testUpdateDoesNotInstallElementsNeedingAppSecretIfItIsMissing(): void
+    public function testUpdateDoesRunRegistrationIfNecessary(): void
     {
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
 
         $this->appRepository->create([[
             'id' => $id,
+            'active' => true,
             'name' => 'test',
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
             'version' => '0.0.1',
@@ -612,6 +613,8 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
+        static::assertTrue($this->didRegisterApp());
+
         $criteria = new Criteria();
         $criteria->addAssociation('actionButtons');
         $criteria->addAssociation('webhooks');
@@ -623,12 +626,13 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $apps);
 
-        static::assertCount(0, $apps->first()->getActionButtons());
-        static::assertCount(0, $apps->first()->getModules());
-        static::assertCount(0, $apps->first()->getWebhooks());
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            static::assertCount(0, $apps->first()->getPaymentMethods());
-        }
+        $this->assertDefaultActionButtons();
+        $this->assertDefaultModules($apps->first());
+        $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
+        $this->assertDefaultCustomFields($id);
+        $this->assertDefaultWebhooks($apps->first()->getId());
+        $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
     public function testUpdateSetsConfiguration(): void

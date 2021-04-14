@@ -57,9 +57,6 @@ function createWrapper(router) {
                     return Promise.reject(new Error('error occured'));
                 }
             }
-        },
-        mocks: {
-            $tc: (translation) => { return translation; }
         }
     });
 }

@@ -32,12 +32,7 @@ function createWrapper() {
                 }
             },
             active: true
-        },
-        mocks: {
-            $tc: key => key,
-            $t: key => key
-        },
-        provide: {}
+        }
     });
 }
 

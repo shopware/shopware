@@ -79,9 +79,6 @@ function createWrapper(systemLanguageIso = '', translations = [], customOptions 
                 }
             }
         },
-        mocks: {
-            $tc: key => key
-        },
         ...customOptions
     });
 }

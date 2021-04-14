@@ -8,10 +8,6 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-settings-search-example-modal'), {
         localVue,
 
-        mocks: {
-            $tc: key => key
-        },
-
         provide: {
             shortcutService: {
                 startEventListener: () => {},

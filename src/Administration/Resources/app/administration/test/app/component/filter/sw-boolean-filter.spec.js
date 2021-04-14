@@ -31,11 +31,7 @@ function createWrapper() {
                 value: null
             },
             active: true
-        },
-        mocks: {
-            $tc: key => key
-        },
-        provide: {}
+        }
     });
 }
 

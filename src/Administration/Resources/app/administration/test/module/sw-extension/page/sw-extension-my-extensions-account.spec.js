@@ -1,5 +1,4 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vue from 'vue';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
 
@@ -54,10 +53,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     let wrapper;
 
     beforeAll(async () => {
-        Shopware.Application.view = {
-            setReactive: Vue.set
-        };
-
         Shopware.State.registerModule('shopwareExtensions', extensionStore);
         Shopware.Service().register('storeService', () => {
             return {

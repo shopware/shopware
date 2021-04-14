@@ -47,9 +47,6 @@ function createWrapper(customCmsElementConfig) {
             'sw-alert': true,
             'sw-icon': true
         },
-        mocks: {
-            $tc: (value) => value
-        },
         provide: { cmsService: {
             getCmsBlockRegistry: () => {
                 return {};

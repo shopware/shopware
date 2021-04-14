@@ -91,7 +91,6 @@ const createEntityMultiSelect = (customOptions) => {
             'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
             'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info')
         },
-        mocks: { $tc: key => key },
         propsData: {
             entity: 'test',
             entityCollection: getCollection()

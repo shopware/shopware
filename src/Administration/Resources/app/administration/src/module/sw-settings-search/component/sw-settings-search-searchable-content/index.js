@@ -20,6 +20,14 @@ Component.register('sw-settings-search-searchable-content', {
         searchConfigId: {
             type: String,
             required: true
+        },
+
+        productSearchConfigs: {
+            type: Object,
+            required: false,
+            default() {
+                return null;
+            }
         }
     },
 
@@ -233,6 +241,10 @@ Component.register('sw-settings-search-searchable-content', {
     watch: {
         searchConfigId(newValue) {
             this.searchConfigId = newValue;
+            this.loadData();
+        },
+
+        productSearchConfigs() {
             this.loadData();
         }
     },

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
@@ -342,7 +343,7 @@ class ThumbnailServiceTest extends TestCase
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        $this->thumbnailService->generateThumbnails($media, $this->context);
+        $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
 
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');
@@ -399,7 +400,7 @@ class ThumbnailServiceTest extends TestCase
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        $this->thumbnailService->generateThumbnails($media, $this->context);
+        $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
 
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');

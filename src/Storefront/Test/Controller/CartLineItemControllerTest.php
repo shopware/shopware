@@ -29,25 +29,6 @@ class CartLineItemControllerTest extends TestCase
         $this->getFlashBag()->clear();
     }
 
-    public function testErrorBehaviourInFlashMessages(): void
-    {
-        $productId = Uuid::randomHex();
-
-        $data = $this->getLineItemAddPayload($productId);
-
-        $response = $this->request(
-            'POST',
-            '/checkout/line-item/add',
-            $this->tokenize('frontend.checkout.line-item.add', $data)
-        );
-
-        static::assertSame(
-            ['warning' => [$this->getContainer()->get('translator')->trans('checkout.product-not-found')]],
-            $this->getFlashBag()->all()
-        );
-        static::assertTrue($response->isRedirect(), $response->getContent());
-    }
-
     /**
      * @dataProvider productNumbers
      */

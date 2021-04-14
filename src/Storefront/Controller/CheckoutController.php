@@ -112,6 +112,8 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->cartPageLoader->load($request, $context);
 
+        $this->addCartErrors($page->getCart());
+
         return $this->renderStorefront('@Storefront/storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
     }
 
@@ -130,6 +132,8 @@ class CheckoutController extends StorefrontController
         }
 
         $page = $this->confirmPageLoader->load($request, $context);
+
+        $this->addCartErrors($page->getCart());
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }

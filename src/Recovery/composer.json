@@ -1,6 +1,5 @@
 {
     "name": "shopware/recovery",
-    "version": "6.3.5.3",
     "description": "Recovery for Shopware",
     "type": "library",
     "license": "MIT",

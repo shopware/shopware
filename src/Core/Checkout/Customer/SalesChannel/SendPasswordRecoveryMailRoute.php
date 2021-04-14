@@ -217,6 +217,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
     {
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customer.active', 1));
         $criteria->addFilter(new EqualsFilter('customer.email', $email));
         $criteria->addFilter(new EqualsFilter('customer.guest', 0));
 

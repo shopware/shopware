@@ -188,6 +188,7 @@
         <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodeService">
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="promotion_individual_code.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover">

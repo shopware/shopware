@@ -1,0 +1,41 @@
+{% block component_wishlist_delivery_information %}
+    {# @var product \Shopware\Core\Content\Product\ProductEntity #}
+    {% if page is defined and page.product is defined %}
+        {% set product = page.product %}
+    {% endif %}
+
+    <div class="product-wishlist-delivery-information">
+        {% if product.active and product.availableStock >= product.minPurchase and product.deliveryTime %}
+            {% block component_wishlist_delivery_information_available %}
+                <link itemprop="availability" href="http://schema.org/InStock"/>
+                <p class="delivery-information delivery-available">
+                    <span class="delivery-status-indicator bg-success"></span>
+                    {{ "wishlist.deliveryTimeAvailable"|trans({
+                        '%name%': product.deliveryTime.translated.name
+                    })|sw_sanitize }}
+                </p>
+            {% endblock %}
+        {% elseif product.isCloseout and product.availableStock < product.minPurchase %}
+            {% block component_wishlist_delivery_information_soldout %}
+                <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+                <p class="delivery-information delivery-soldout">
+                    <span class="delivery-status-indicator bg-danger"></span>
+                    {{ "wishlist.currentlyNotAvailable"|trans|sw_sanitize }}
+                </p>
+            {% endblock %}
+        {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}
+            {% block component_wishlist_delivery_information_restock %}
+                <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+                <p class="delivery-information delivery-restock">
+                    <span class="delivery-status-indicator bg-warning"></span>
+                    {{ "wishlist.deliveryTimeRestock"|trans({
+                        '%count%': product.restockTime,
+                        '%restockTime%': product.restockTime,
+                        '%name%': product.deliveryTime.translated.name
+                    })|sw_sanitize }}
+                </p>
+            {% endblock %}
+        {% endif %}
+    </div>
+{% endblock %}
+

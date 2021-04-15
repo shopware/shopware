@@ -540,7 +540,8 @@
     "noLongerAvailableTooltip": "Das Produkt ist nicht mehr verfügbar.",
     "wishlistMergeHint": "Ihr Merkzettel kann Produkte enthalten, die bei einem vorhergehenden Besuch hinzugefügt und gespeichert wurden.",
     "wishlistEmptyHeader": "Ihr Merkzettel ist leer",
-    "wishlistEmptyDescription": "Behalten Sie interessante Produkte im Auge, indem Sie sie zu Ihrem Merkzettel hinzufügen."
+    "wishlistEmptyDescription": "Behalten Sie interessante Produkte im Auge, indem Sie sie zu Ihrem Merkzettel hinzufügen.",
+    "deliveryTimeRestock": "{1} Versandfertig in 1 Tag, Lieferzeit %name% |]1,Inf[ Versandfertig in %restockTime% Tagen, Lieferzeit %name% "
   },
   "footer": {
     "serviceHotlineHeadline": "Service-Hotline",

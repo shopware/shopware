@@ -67,8 +67,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%kernel.shopware_version%</argument>
             <argument>%instance_id%</argument>
-            <argument type="service" id="language.repository"/>
             <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="user.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">

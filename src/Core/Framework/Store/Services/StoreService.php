@@ -3,13 +3,14 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\UserEntity;
 
 /**
  * @internal
@@ -25,22 +26,22 @@ class StoreService
 
     private ?string $instanceId;
 
-    private EntityRepositoryInterface $languageRepository;
-
     private Client $client;
+
+    private EntityRepositoryInterface $userRepository;
 
     final public function __construct(
         SystemConfigService $configService,
         string $shopwareVersion,
         ?string $instanceId,
-        EntityRepositoryInterface $languageRepository,
-        Client $client
+        Client $client,
+        EntityRepositoryInterface $userRepository
     ) {
         $this->configService = $configService;
         $this->shopwareVersion = $shopwareVersion;
         $this->instanceId = $instanceId;
-        $this->languageRepository = $languageRepository;
         $this->client = $client;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -95,16 +96,27 @@ class StoreService
 
     public function getLanguageByContext(Context $context): string
     {
-        $criteria = new Criteria([$context->getLanguageId()]);
-        $criteria->addAssociation('locale');
-
-        /** @var LanguageEntity $language */
-        $language = $this->languageRepository->search($criteria, $context)->first();
-
-        if ($language->getLocale() !== null) {
-            return $language->getLocale()->getCode();
+        if (!$context->getSource() instanceof AdminApiSource) {
+            return 'en-GB';
         }
 
-        return 'en-GB';
+        /** @var AdminApiSource $source */
+        $source = $context->getSource();
+
+        if ($source->getUserId() === null) {
+            return 'en-GB';
+        }
+
+        $criteria = new Criteria([$source->getUserId()]);
+        $criteria->addAssociation('locale');
+
+        /** @var UserEntity $user */
+        $user = $this->userRepository->search($criteria, $context)->first();
+
+        if ($user->getLocale() === null) {
+            return 'en-GB';
+        }
+
+        return $user->getLocale()->getCode();
     }
 }

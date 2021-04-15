@@ -39,82 +39,40 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class AppLifecycle extends AbstractAppLifecycle
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    /**
-     * @var PermissionPersister
-     */
-    private $permissionPersister;
+    private PermissionPersister $permissionPersister;
 
-    /**
-     * @var CustomFieldPersister
-     */
-    private $customFieldPersister;
+    private CustomFieldPersister $customFieldPersister;
 
-    /**
-     * @var AbstractAppLoader
-     */
-    private $appLoader;
+    private AbstractAppLoader $appLoader;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AppRegistrationService
-     */
-    private $registrationService;
+    private AppRegistrationService $registrationService;
 
-    /**
-     * @var AppStateService
-     */
-    private $appStateService;
+    private AppStateService $appStateService;
 
-    /**
-     * @var ActionButtonPersister
-     */
-    private $actionButtonPersister;
+    private ActionButtonPersister $actionButtonPersister;
 
-    /**
-     * @var TemplatePersister
-     */
-    private $templatePersister;
+    private TemplatePersister $templatePersister;
 
-    /**
-     * @var WebhookPersister
-     */
-    private $webhookPersister;
+    private WebhookPersister $webhookPersister;
 
     /**
      * @internal (flag:FEATURE_NEXT_14357) make persister not nullable on removal
-     *
-     * @var PaymentMethodPersister|null
      */
-    private $paymentMethodPersister;
+    private ?PaymentMethodPersister $paymentMethodPersister;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
-    /*
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /*
-     * @var ConfigValidator
-     */
-    private $configValidator;
+    private ConfigValidator $configValidator;
 
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $projectDir;
+
+    private EntityRepositoryInterface $integrationRepository;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
@@ -131,6 +89,7 @@ class AppLifecycle extends AbstractAppLifecycle
         EntityRepositoryInterface $languageRepository,
         SystemConfigService $systemConfigService,
         ConfigValidator $configValidator,
+        EntityRepositoryInterface $integrationRepository,
         string $projectDir
     ) {
         $this->appRepository = $appRepository;
@@ -148,6 +107,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->languageRepository = $languageRepository;
         $this->systemConfigService = $systemConfigService;
         $this->configValidator = $configValidator;
+        $this->integrationRepository = $integrationRepository;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -195,10 +155,10 @@ class AppLifecycle extends AbstractAppLifecycle
         $appEntity = $this->loadApp($app['id'], $context);
 
         if ($appEntity->isActive()) {
-            $this->appStateService->deactivateApp($app['id'], $context);
+            $this->appStateService->deactivateApp($appEntity->getId(), $context);
         }
 
-        $this->removeAppAndRole($app['id'], $app['roleId'], $context);
+        $this->removeAppAndRole($appEntity, $context);
     }
 
     private function updateApp(
@@ -231,7 +191,7 @@ class AppLifecycle extends AbstractAppLifecycle
             try {
                 $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
             } catch (AppRegistrationException $e) {
-                $this->removeAppAndRole($id, $roleId, $context);
+                $this->removeAppAndRole($app, $context);
 
                 throw $e;
             }
@@ -280,17 +240,18 @@ class AppLifecycle extends AbstractAppLifecycle
         return $app;
     }
 
-    private function removeAppAndRole(string $appId, string $roleId, Context $context): void
+    private function removeAppAndRole(AppEntity $app, Context $context): void
     {
         // throw event before deleting app from db as it may be delivered via webhook to the deleted app
         $this->eventDispatcher->dispatch(
-            new AppDeletedEvent($appId, $context)
+            new AppDeletedEvent($app->getId(), $context)
         );
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId): void {
-            $this->appRepository->delete([['id' => $appId]], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app): void {
+            $this->appRepository->delete([['id' => $app->getId()]], $context);
+            $this->integrationRepository->delete([['id' => $app->getIntegrationId()]], $context);
         });
-        $this->permissionPersister->removeRole($roleId);
+        $this->permissionPersister->removeRole($app->getAclRoleId());
     }
 
     private function updateMetadata(array $metadata, Context $context): void
@@ -309,6 +270,7 @@ class AppLifecycle extends AbstractAppLifecycle
             'writeAccess' => true,
             'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
             'secretAccessKey' => $secret,
+            'admin' => false,
         ];
         $metadata['aclRole'] = [
             'id' => $roleId,

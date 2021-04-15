@@ -3,17 +3,22 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
@@ -72,6 +77,16 @@ class AccountOrderController extends StorefrontController
      */
     private $orderDetailPageLoader;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
+    private $contextService;
+
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
         AccountEditOrderPageLoader $accountEditOrderPageLoader,
@@ -80,7 +95,9 @@ class AccountOrderController extends StorefrontController
         AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
         AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute,
         EventDispatcherInterface $eventDispatcher,
-        AccountOrderDetailPageLoader $orderDetailPageLoader
+        AccountOrderDetailPageLoader $orderDetailPageLoader,
+        EntityRepositoryInterface $orderRepository,
+        SalesChannelContextServiceInterface $contextService
     ) {
         $this->orderPageLoader = $orderPageLoader;
         $this->contextSwitchRoute = $contextSwitchRoute;
@@ -90,6 +107,8 @@ class AccountOrderController extends StorefrontController
         $this->handlePaymentMethodRoute = $handlePaymentMethodRoute;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderDetailPageLoader = $orderDetailPageLoader;
+        $this->orderRepository = $orderRepository;
+        $this->contextService = $contextService;
     }
 
     /**
@@ -180,6 +199,23 @@ class AccountOrderController extends StorefrontController
      */
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
+        $order = $this->orderRepository
+            ->search(new Criteria([$orderId]), $context->getContext())
+            ->first();
+
+        if ($order === null) {
+            throw new OrderNotFoundException($orderId);
+        }
+
+        if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
+            $this->contextSwitchRoute->switchContext(
+                new RequestDataBag([SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId()]),
+                $context
+            );
+
+            return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
+        }
+
         $page = $this->accountEditOrderPageLoader->load($request, $context);
 
         if ($page->isPaymentChangeable() === false) {
@@ -219,6 +255,29 @@ class AccountOrderController extends StorefrontController
             'orderId' => $orderId,
             'changedPayment' => true,
         ]);
+
+        $order = $this->orderRepository
+            ->search(new Criteria([$orderId]), $context->getContext())
+            ->first();
+
+        if ($order === null) {
+            throw new OrderNotFoundException($orderId);
+        }
+
+        if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
+            $this->contextSwitchRoute->switchContext(
+                new RequestDataBag([SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId()]),
+                $context
+            );
+
+            $context = $this->contextService->get(
+                new SalesChannelContextServiceParameters(
+                    $context->getSalesChannelId(),
+                    $context->getToken(),
+                    $context->getContext()->getLanguageId()
+                )
+            );
+        }
 
         $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 

@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
@@ -27,6 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -171,7 +172,10 @@ class PaymentServiceTest extends TestCase
         $token = Uuid::randomHex();
         $request = new Request();
         $this->expectException(InvalidTokenException::class);
-        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext('paymentMethodId'));
+
+        $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
+
+        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
     }
 
     public function testFinalizeTransactionWithExpiredToken(): void
@@ -182,7 +186,10 @@ class PaymentServiceTest extends TestCase
         $token = $this->tokenFactory->generateToken($tokenStruct);
 
         $this->expectException(TokenExpiredException::class);
-        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext('paymentMethodId'));
+
+        $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
+
+        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
     }
 
     public function testFinalizeTransactionCustomerCanceledV630(): void
@@ -253,18 +260,10 @@ class PaymentServiceTest extends TestCase
 
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
-        return Generator::createSalesChannelContext(
-            $this->context,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            (new PaymentMethodEntity())->assign(['id' => $paymentMethodId])
-        );
+        return $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+            ]);
     }
 
     private function createTransaction(

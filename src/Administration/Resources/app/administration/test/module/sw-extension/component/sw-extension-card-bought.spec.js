@@ -134,10 +134,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             }
         }, true);
 
-        expect(wrapper.find('.sw-extension-card-bought__info-price-subscription')
-            .text()).toBe('sw-extension-store.component.sw-extension-card-base.subscriptionLabel');
-        expect(wrapper.find('.sw-extension-card-bought__info-price-per-month')
-            .text()).toBe('sw-extension-store.general.labelPrice');
         expect(wrapper.find('.sw-extension-card-base__info-name')
             .text()).toBe('Sample Extension Label');
         expect(wrapper.find('.sw-extension-card-base__info-description')

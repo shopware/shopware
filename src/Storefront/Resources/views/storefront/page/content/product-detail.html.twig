@@ -4,24 +4,25 @@
     {% sw_include '@Storefront/storefront/page/product-detail/meta.html.twig' %}
 {% endblock %}
 
-{% block base_content %}
+{% block base_main_inner %}
     <div class="container-main">
-        {% block page_product_detail %}
-            <div class="product-detail"
-                 itemscope
-                 itemtype="https://schema.org/Product">
-                {% block page_product_detail_inner %}
-                    <div class="product-detail-content">
-                        {% block page_product_detail_main %}
-                            <div class="cms-page product-detail-page">
-                                {% block page_content_blocks %}
-                                    {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
+        {% block page_content %}
+            {% block cms_breadcrumb %}
+                <div class="breadcrumb cms-breadcrumb container">
+                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                        context: context,
+                        category: page.product.seoCategory
+                    } only %}
+                </div>
+            {% endblock %}
+
+            {% block cms_content %}
+                <div class="cms-page" itemscope itemtype="https://schema.org/Product">
+                    {% block page_content_blocks %}
+                        {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
         {% endblock %}
     </div>
 {% endblock %}

@@ -10,10 +10,8 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Authentication\AuthenticationProvider;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
-use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -72,10 +70,7 @@ class ExtensionDownloader
 
         $data = $this->storeClient->getDownloadDataForPlugin($technicalName, $storeToken, 'de-DE', $storeToken !== '');
 
-        $statusCode = $this->pluginManagementService->downloadStorePlugin($data, $context);
-        if ($statusCode !== Response::HTTP_OK) {
-            throw new StoreNotAvailableException();
-        }
+        $this->pluginManagementService->downloadStorePlugin($data, $context);
 
         return $data;
     }

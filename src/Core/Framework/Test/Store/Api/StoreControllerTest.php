@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\HttpFoundation\Response;
 
 class StoreControllerTest extends TestCase
 {
@@ -106,8 +105,8 @@ class StoreControllerTest extends TestCase
             ->onlyMethods(['downloadStorePlugin'])
             ->getMock();
 
-        $pluginManagementService->method('downloadStorePlugin')
-            ->willReturn(Response::HTTP_OK);
+        $pluginManagementService->expects(static::once())
+            ->method('downloadStorePlugin');
 
         return $pluginManagementService;
     }

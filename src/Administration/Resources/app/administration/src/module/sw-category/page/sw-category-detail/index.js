@@ -591,7 +591,7 @@ Component.register('sw-category-detail', {
 
             this.isLoading = true;
             this.updateSeoUrls().then(() => {
-                return this.categoryRepository.save(this.category, Shopware.Context.api);
+                return this.categoryRepository.save(this.category, { ...Shopware.Context.api });
             }).then(() => {
                 this.isSaveSuccessful = true;
                 this.entryPointOverwriteConfirmed = false;

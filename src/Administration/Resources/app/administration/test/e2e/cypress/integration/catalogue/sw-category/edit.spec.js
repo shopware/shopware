@@ -149,4 +149,40 @@ describe('Category: Edit categories', () => {
             cy.get('#categoryName').should('have.value', 'New Home');
         });
     });
+
+    it('@catalogue: saving the data when changing content language', () => {
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/category/*`,
+            method: 'patch'
+        }).as('saveData');
+
+        const page = new CategoryPageObject();
+
+        // Select a category
+        cy.get('.sw-tree-item__label')
+            .contains('Home')
+            .click();
+
+        cy.get('#categoryName').clearTypeAndCheck('Home - English');
+
+        page.changeTranslation('Deutsch', 0);
+        cy.get('.sw-modal__dialog').should('be.visible');
+        cy.get('#sw-language-switch-save-changes-button').click();
+
+        // Wait for category request with correct data to be successful
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+
+            cy.get('.sw-tree-item__label')
+                .should('be.visible')
+                .contains('Home');
+        });
+
+        page.changeTranslation('English', 1);
+        cy.get('.sw-tree-item__label').should('be.visible');
+        cy.get('.sw-tree-item__label')
+            .should('be.visible')
+            .contains('Home - English');
+    })
 });

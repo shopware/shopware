@@ -23,12 +23,6 @@
             </h1>
         {% endblock %}
 
-        {% block page_checkout_cart_messages %}
-            {% block page_checkout_confirm_errors %}
-                {%  sw_include '@Storefront/storefront/component/checkout/cart-alerts.html.twig' %}
-            {% endblock %}
-        {% endblock %}
-
         {% block page_checkout_cart_product_table %}
             <div class="card checkout-product-table">
                 <div class="card-body">

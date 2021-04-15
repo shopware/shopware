@@ -272,7 +272,6 @@ class CartLineItemController extends StorefrontController
         if ($cart->getErrors()->count() <= 0) {
             return false;
         }
-        $this->addCartErrors($cart);
 
         $cart->getErrors()->clear();
 

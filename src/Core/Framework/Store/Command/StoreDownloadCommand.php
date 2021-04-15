@@ -19,7 +19,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 class StoreDownloadCommand extends Command
 {
@@ -105,10 +104,7 @@ class StoreDownloadCommand extends Command
             throw new StoreApiException($exception);
         }
 
-        $statusCode = $this->pluginManagementService->downloadStorePlugin($data, $context);
-        if ($statusCode !== Response::HTTP_OK) {
-            return $statusCode;
-        }
+        $this->pluginManagementService->downloadStorePlugin($data, $context);
 
         /** @var PluginEntity|null $plugin */
         $plugin = $this->pluginRepo->search($criteria, $context)->first();

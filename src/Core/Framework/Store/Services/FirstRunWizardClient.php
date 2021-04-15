@@ -72,10 +72,11 @@ final class FirstRunWizardClient
         SystemConfigService $configService,
         FilesystemInterface $filesystem,
         bool $frwAutoRun,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        Client $client
     ) {
         $this->storeService = $storeService;
-        $this->client = $this->storeService->createClient();
+        $this->client = $client;
 
         $this->configService = $configService;
         $this->filesystem = $filesystem;

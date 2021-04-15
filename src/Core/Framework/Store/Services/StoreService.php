@@ -3,15 +3,10 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
-use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
-use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -24,54 +19,28 @@ class StoreService
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
     public const CONFIG_KEY_STORE_LICENSE_EDITION = 'core.store.licenseEdition';
 
-    private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';
+    private SystemConfigService $configService;
 
-    private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';
+    private string $shopwareVersion;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $configService;
+    private ?string $instanceId;
 
-    /**
-     * @var string
-     */
-    private $shopwareVersion;
+    private EntityRepositoryInterface $languageRepository;
 
-    /**
-     * @var OpenSSLVerifier
-     */
-    private $openSSLVerifier;
-
-    /**
-     * @var string|null
-     */
-    private $instanceId;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
-
-    /**
-     * @var MockHandler
-     */
-    private $mockHandler;
+    private Client $client;
 
     final public function __construct(
         SystemConfigService $configService,
-        OpenSSLVerifier $openSSLVerifier,
         string $shopwareVersion,
         ?string $instanceId,
         EntityRepositoryInterface $languageRepository,
-        MockHandler $mockHandler
+        Client $client
     ) {
         $this->configService = $configService;
-        $this->openSSLVerifier = $openSSLVerifier;
         $this->shopwareVersion = $shopwareVersion;
         $this->instanceId = $instanceId;
         $this->languageRepository = $languageRepository;
-        $this->mockHandler = $mockHandler;
+        $this->client = $client;
     }
 
     /**
@@ -101,26 +70,6 @@ class StoreService
         return $this->shopwareVersion;
     }
 
-    public function createClient(bool $verifySignature = true): Client
-    {
-        $stack = HandlerStack::create();
-
-        if ($verifySignature) {
-            $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
-                return $this->verifyResponseSignature($response);
-            }));
-        }
-
-        $config = $this->getClientBaseConfig();
-        $config['handler'] = $stack;
-
-        if (\defined('TEST_PROJECT_DIR')) {
-            $config['handler'] = $this->mockHandler;
-        }
-
-        return new Client($config);
-    }
-
     public function fireTrackingEvent(string $eventName, array $additionalData = []): ?array
     {
         if (!$this->instanceId) {
@@ -135,7 +84,7 @@ class StoreService
         ];
 
         try {
-            $response = $this->createClient()->post('/swplatform/tracking/events', ['json' => $payload]);
+            $response = $this->client->post('/swplatform/tracking/events', ['json' => $payload]);
 
             return json_decode($response->getBody()->getContents(), true);
         } catch (\Exception $e) {
@@ -157,43 +106,5 @@ class StoreService
         }
 
         return 'en-GB';
-    }
-
-    private function getClientBaseConfig(): array
-    {
-        return [
-            'base_uri' => $this->configService->get(self::CONFIG_KEY_STORE_API_URI),
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/vnd.api+json,application/json',
-            ],
-        ];
-    }
-
-    private function verifyResponseSignature(ResponseInterface $response): ResponseInterface
-    {
-        $signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;
-        $header = $response->getHeader($signatureHeaderName);
-        if (!isset($header[0])) {
-            throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
-        }
-
-        $signature = $header[0];
-
-        if (empty($signature)) {
-            throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
-        }
-
-        if (!$this->openSSLVerifier->isSystemSupported()) {
-            return $response;
-        }
-
-        if ($this->openSSLVerifier->isValid($response->getBody()->getContents(), $signature)) {
-            $response->getBody()->rewind();
-
-            return $response;
-        }
-
-        throw new StoreSignatureValidationException('Signature not valid');
     }
 }

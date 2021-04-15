@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-first-run-wizard-paypal-info', {
     template,
 
-    inject: ['storeService', 'pluginService'],
+    inject: ['storeService', 'extensionStoreActionService'],
 
     data() {
         return {
@@ -67,14 +67,14 @@ Component.register('sw-first-run-wizard-paypal-info', {
         installPayPal() {
             return this.storeService.downloadPlugin(this.pluginName, true, true)
                 .then(() => {
-                    return this.pluginService.install(this.pluginName);
+                    return this.extensionStoreActionService.installExtension(this.pluginName, 'plugin');
                 });
         },
 
         activatePayPalAndRedirect() {
             this.isInstallingPlugin = true;
             this.installPromise.then(() => {
-                return this.pluginService.activate(this.pluginName);
+                return this.extensionStoreActionService.activateExtension(this.pluginName, 'plugin');
             }).then(() => {
                 // need a force reload, after plugin was activated
                 const { origin, pathname } = document.location;

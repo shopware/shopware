@@ -113,6 +113,7 @@ Use `bin/console dal:validate` to see if you have to adjust your plugins anywher
 
 ## Removed plugin manager
 The plugin manager in the administration is removed with all of its components and replaced by the `sw-extension` module.
+The controller for the plugin manager with all of its routes is removed and replaced by the `ExtensionStoreActionsController`.
 
 ---
 

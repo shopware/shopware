@@ -59,11 +59,11 @@ export default class ShopwareExtensionService {
     updateExtensionData() {
         Shopware.State.commit('shopwareExtensions/loadMyExtensions');
 
-        const extensionDataService = Shopware.Service('extensionApiService');
+        const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
 
-        return extensionDataService.refresh()
+        return extensionStoreActionService.refresh()
             .then(() => {
-                return extensionDataService.getMyExtensions(
+                return extensionStoreActionService.getMyExtensions(
                     { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
                 );
             }).then((myExtensions) => {

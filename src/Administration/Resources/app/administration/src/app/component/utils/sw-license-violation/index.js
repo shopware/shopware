@@ -11,7 +11,6 @@ Shopware.Component.register('sw-license-violation', {
 
     inject: [
         'licenseViolationService',
-        'pluginService',
         'cacheApiService',
         'loginService'
 
@@ -127,9 +126,9 @@ Shopware.Component.register('sw-license-violation', {
             this.addLoading('fetchPlugins');
 
             if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
-                const extensionApiService = Shopware.Service('extensionApiService');
+                const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
 
-                extensionApiService.getMyExtensions()
+                extensionStoreActionService.getMyExtensions()
                     .then((response) => {
                         this.plugins = response;
                     })
@@ -166,7 +165,7 @@ Shopware.Component.register('sw-license-violation', {
 
             const matchingPlugin = this.plugins.find((plugin) => plugin.name === violation.name);
 
-            return this.licenseViolationService.forceDeletePlugin(this.pluginService, matchingPlugin)
+            return this.licenseViolationService.forceDeletePlugin(matchingPlugin)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-license-violation.successfullyDeleted')

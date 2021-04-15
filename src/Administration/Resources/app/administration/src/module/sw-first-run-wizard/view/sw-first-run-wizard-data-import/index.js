@@ -9,7 +9,7 @@ Component.register('sw-first-run-wizard-data-import', {
 
     inject: [
         'storeService',
-        'pluginService',
+        'extensionStoreActionService',
         'repositoryFactory'
     ],
 
@@ -94,10 +94,10 @@ Component.register('sw-first-run-wizard-data-import', {
 
             return this.storeService.downloadPlugin(plugin.name, true, true)
                 .then(() => {
-                    return this.pluginService.install(plugin.name);
+                    return this.extensionStoreActionService.installExtension(plugin.name, 'plugin');
                 })
                 .then(() => {
-                    return this.pluginService.activate(plugin.name);
+                    return this.extensionStoreActionService.activateExtension(plugin.name, 'plugin');
                 })
                 .then(() => {
                     this.isInstallingPlugin = false;

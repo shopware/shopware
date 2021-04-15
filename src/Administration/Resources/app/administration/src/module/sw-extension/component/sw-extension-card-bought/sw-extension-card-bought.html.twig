@@ -24,6 +24,16 @@
             {% endblock %}
         </section>
     {% endblock %}
+
+    {% block sw_extension_card_base_subscription_expired_info %}
+        <section v-if="subscriptionExpiredText">
+            {% block sw_extension_card_base_subscription_expired_info_text %}
+                <span>
+                    {{ subscriptionExpiredText }}
+                </span>
+            {% endblock %}
+        </section>
+    {% endblock %}
 {% endblock %}
 
 {% block sw_extension_card_base_context_menu_actions %}

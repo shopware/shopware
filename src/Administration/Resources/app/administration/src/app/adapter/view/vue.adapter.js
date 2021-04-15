@@ -158,6 +158,45 @@ export default class VueAdapter extends ViewAdapter {
 
                 return mixin;
             });
+
+            if (componentConfig.extends) {
+                componentConfig.mixins.forEach((mixin) => {
+                    Object.keys(mixin).forEach((prop) => {
+                        if (typeof mixin[prop] === 'object') {
+                            // handle computed and methods
+                            switch (prop) {
+                                case 'methods':
+                                case 'computed':
+                                    Object.keys(mixin[prop]).forEach((methodName) => {
+                                        const methodWasDeclareInParent = componentConfig.extends[prop] && componentConfig.extends[prop][methodName];
+                                        const methodNotExistsInCurrentOverwrite = !componentConfig[prop] || !componentConfig[prop][methodName];
+
+                                        // check if method from mixin was overwritten by parent
+                                        if (methodWasDeclareInParent && methodNotExistsInCurrentOverwrite) {
+                                            if (!componentConfig[prop]) {
+                                                componentConfig[prop] = {};
+                                            }
+
+                                            componentConfig[prop][methodName] = componentConfig.extends[prop][methodName];
+                                        }
+                                    });
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        } else if (typeof mixin[prop] === 'function' && prop === 'data') {
+                            // check if data from mixin was overwritten by parent data
+                            const methodWasDeclareInParent = componentConfig.extends.data;
+                            const methodNotExistsInCurrentOverwrite = !componentConfig.data;
+
+                            if (methodWasDeclareInParent && methodNotExistsInCurrentOverwrite) {
+                                componentConfig.data = componentConfig.extends.data;
+                            }
+                        }
+                    });
+                });
+            }
         }
 
         const vueComponent = Vue.component(componentName, componentConfig);

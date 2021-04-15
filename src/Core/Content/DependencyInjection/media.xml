@@ -258,7 +258,6 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService">
-            <argument type="service" id="media.repository"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="shopware.filesystem.private"/>
@@ -298,6 +297,7 @@
             <tag name="shopware.entity_indexer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
         </service>

@@ -47,7 +47,11 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('ban_method')->defaultValue('BAN')->end()
                     ->end()
                 ->end()
-        ->end();
+                ->arrayNode('http_cache')
+                    ->children()
+                    ->arrayNode('ignored_url_parameters')->scalarPrototype()->end()->end()
+                ->end()
+            ->end();
 
         return $treeBuilder;
     }

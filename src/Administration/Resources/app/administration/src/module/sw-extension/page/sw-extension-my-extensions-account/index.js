@@ -67,6 +67,7 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
         logout() {
             return Shopware.Service('storeService').logout()
                 .then(() => {
+                    this.$emit('logout-success');
                     Shopware.State.commit('shopwareExtensions/storeShopwareId', null);
                     Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
                 })
@@ -85,6 +86,7 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
                 shopwareId: this.form.shopwareId,
                 password: this.form.password
             }).then(() => {
+                this.$emit('login-success');
                 this.createNotificationSuccess({
                     message: this.$tc('sw-extension.my-extensions.account.loginNotificationMessage')
                 });

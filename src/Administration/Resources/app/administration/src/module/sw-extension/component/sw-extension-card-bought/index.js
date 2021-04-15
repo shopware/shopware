@@ -1,8 +1,6 @@
 import template from './sw-extension-card-bought.html.twig';
 import './sw-extension-card-bought.scss';
 
-const { currency } = Shopware.Utils.format;
-
 const { Component } = Shopware;
 
 /**
@@ -37,9 +35,8 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
             };
         },
 
-        calculatedPrice() {
-            return this.extension.storeLicense.variant !== this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT ?
-                null : currency(Number(this.extension.storeLicense.netPrice), 'EUR');
+        priceInfo() {
+            return Shopware.Utils.get(this.extension, 'storeLicense.paymentText', '');
         },
 
         detailLink() {
@@ -49,6 +46,21 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                     id: String(this.extension.storeExtension ? this.extension.storeExtension.id : this.extension.id)
                 }
             };
+        },
+
+        subscriptionExpiredText() {
+            const expirationDate = Shopware.Utils.get(this.extension, 'storeLicense.expirationDate', null);
+
+            if (expirationDate === null) {
+                return null;
+            }
+
+            const localDateString = (new Date(expirationDate)).toLocaleDateString();
+
+            return this.$t(
+                'sw-extension-store.component.sw-extension-card-bought.subscriptionExpiredAt',
+                { date: localDateString }
+            );
         }
     },
 
@@ -136,7 +148,6 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
-                // TODO: add error handling
                 this.showExtensionInstallationFailedModal = true;
             } finally {
                 this.isLoading = false;

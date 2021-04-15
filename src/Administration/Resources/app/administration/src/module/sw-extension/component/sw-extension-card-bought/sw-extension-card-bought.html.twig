@@ -16,16 +16,20 @@
     {% parent %}
 
     {% block sw_extension_card_base_calculated_price %}
-        <section v-if="calculatedPrice && extension.storeLicense.variant === 'rent'">
-            {% block sw_bought_extension_card_calculated_price_subscription %}
-                <span class="sw-extension-card-bought__info-price-subscription">
-                    {{ $tc('sw-extension-store.component.sw-extension-card-base.subscriptionLabel') }}
+        <section v-if="priceInfo && extension.storeLicense.variant === 'rent'">
+            {% block sw_bought_extension_card_info_price %}
+                <span class="sw-extension-card-bought__info-price">
+                    {{ priceInfo }}
                 </span>
             {% endblock %}
+        </section>
+    {% endblock %}
 
-            {% block sw_bought_extension_card_calculated_price_per_month %}
-                <span class="sw-extension-card-bought__info-price-per-month">
-                    {{ $tc('sw-extension-store.general.labelPrice', 1, { price: calculatedPrice }) }}
+    {% block sw_extension_card_base_subscription_expired_info %}
+        <section v-if="subscriptionExpiredText">
+            {% block sw_extension_card_base_subscription_expired_info_text %}
+                <span>
+                    {{ subscriptionExpiredText }}
                 </span>
             {% endblock %}
         </section>

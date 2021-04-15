@@ -244,6 +244,9 @@
           "permissions": "Berechtigungen"
         }
       },
+      "sw-extension-card-bought": {
+        "subscriptionExpiredAt": "Miete endet am {date}"
+      },
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deaktiviere \"{extensionName}\"",
         "description": "Die Erweiterung \"{extensionName}\" erfordert eine monatliche Miete.<br>Wenn Du die Erweiterung deaktivierst, wird die Miete <b>nicht</b> beendet und Gebühren fallen weiter an!",

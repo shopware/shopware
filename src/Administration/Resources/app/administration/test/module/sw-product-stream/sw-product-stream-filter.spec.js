@@ -7,7 +7,8 @@ const EntityDefinitionFactory = require('src/core/factory/entity-definition.fact
 function createWrapper(privileges = []) {
     const mockEntitySchema = {
         product: {
-            entity: 'product'
+            entity: 'product',
+            properties: {}
         }
     };
 
@@ -34,7 +35,9 @@ function createWrapper(privileges = []) {
             availableTypes: {},
             childAssociationField: {},
             createCondition: () => {},
-            productCustomFields: [],
+            productCustomFields: {
+                test: 'customFields.test'
+            },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
@@ -85,6 +88,26 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
         const targetElement = wrapper.find(element);
 
         expect(targetElement.attributes('disabled')).toBe(state);
+    });
+
+    it('should return correct custom fields', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            condition: {
+                field: 'customFields.test'
+            }
+        });
+        wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.fields).toEqual(['customFields.test']);
+    });
+
+    it('should return true if input is custom field', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isCustomField('customFields.test')).toBe(true);
     });
 });
 

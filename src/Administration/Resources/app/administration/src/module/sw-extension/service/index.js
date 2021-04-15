@@ -1,17 +1,10 @@
 import ExtensionStoreActionService from './extension-store-action.service';
 import ShopwareExtensionService from './shopware-extension.service';
 import ShopwareDiscountCampaignService from './discount-campaign.service';
-import ExtensionApiService from './extension.api.service';
 import ExtensionErrorService from './extension-error.service';
 
 const { Application } = Shopware;
 
-Application.addServiceProvider('extensionApiService', () => {
-    return new ExtensionApiService(
-        Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
-    );
-});
 
 Application.addServiceProvider('extensionStoreActionService', () => {
     return new ExtensionStoreActionService(

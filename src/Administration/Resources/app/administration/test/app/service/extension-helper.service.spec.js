@@ -16,16 +16,14 @@ describe('src/app/service/extension-helper.service.js', () => {
             storeService: {
                 downloadPlugin: jest.fn(() => Promise.resolve())
             },
-            pluginService: {
-                install: jest.fn(() => Promise.resolve()),
-                activate: jest.fn(() => Promise.resolve())
-            },
-            extensionApiService: {
+            extensionStoreActionService: {
                 getMyExtensions: () => {
                     return Promise.resolve([
                         extensionMock
                     ]);
-                }
+                },
+                installExtension: jest.fn(() => Promise.resolve()),
+                activateExtension: jest.fn(() => Promise.resolve())
             }
         });
     });
@@ -65,15 +63,15 @@ describe('src/app/service/extension-helper.service.js', () => {
             }
 
             if (!mock || !mock.installedAt) {
-                expect(extensionHelperService.pluginService.install).toHaveBeenCalled();
+                expect(extensionHelperService.extensionStoreActionService.installExtension).toHaveBeenCalled();
             } else {
-                expect(extensionHelperService.pluginService.install).not.toHaveBeenCalled();
+                expect(extensionHelperService.extensionStoreActionService.installExtension).not.toHaveBeenCalled();
             }
 
             if (!mock || !mock.active) {
-                expect(extensionHelperService.pluginService.activate).toHaveBeenCalled();
+                expect(extensionHelperService.extensionStoreActionService.activateExtension).toHaveBeenCalled();
             } else {
-                expect(extensionHelperService.pluginService.activate).not.toHaveBeenCalled();
+                expect(extensionHelperService.extensionStoreActionService.activateExtension).not.toHaveBeenCalled();
             }
         });
     });

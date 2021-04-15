@@ -151,49 +151,28 @@ export default function createLicenseViolationsService(storeService) {
         localStorage.removeItem(responseCacheKey);
     }
 
-    async function forceDeletePlugin(pluginService, extension) {
-        if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
-            const extensionApiService = Shopware.Service('shopwareExtensionService');
-            const cacheService = Shopware.Service('cacheApiService');
+    async function forceDeletePlugin(extension) {
+        const shopwareExtensionService = Shopware.Service('shopwareExtensionService');
+        const cacheService = Shopware.Service('cacheApiService');
 
-            try {
-                const isActive = extension.active;
-                const isInstalled = extension.installedAt !== null;
+        try {
+            const isActive = extension.active;
+            const isInstalled = extension.installedAt !== null;
 
-                if (isActive) {
-                    await extensionApiService.deactivateExtension(extension.name, extension.type);
-                    await cacheService.clear();
-                }
-
-                if (isInstalled) {
-                    await extensionApiService.uninstallExtension(extension.name, extension.type);
-                }
-
-                await extensionApiService.removeExtension(extension.name, extension.type);
-
-                return true;
-            } catch (error) {
-                throw new Error(error);
+            if (isActive) {
+                await shopwareExtensionService.deactivateExtension(extension.name, extension.type);
+                await cacheService.clear();
             }
-        } else {
-            try {
-                const isActive = extension.active;
-                const isInstalled = extension.installedAt !== null;
 
-                if (isActive) {
-                    await pluginService.deactivate(extension.name);
-                }
-
-                if (isInstalled) {
-                    await pluginService.uninstall(extension.name);
-                }
-
-                await pluginService.delete(extension.name);
-
-                return true;
-            } catch (error) {
-                throw new Error(error);
+            if (isInstalled) {
+                await shopwareExtensionService.uninstallExtension(extension.name, extension.type);
             }
+
+            await shopwareExtensionService.removeExtension(extension.name, extension.type);
+
+            return true;
+        } catch (error) {
+            throw new Error(error);
         }
     }
 

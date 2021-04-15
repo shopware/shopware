@@ -7,7 +7,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-extension-file-upload', {
     template,
 
-    inject: ['extensionApiService', 'repositoryFactory'],
+    inject: ['extensionStoreActionService', 'repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -35,7 +35,7 @@ Component.register('sw-extension-file-upload', {
             const formData = new FormData();
             formData.append('file', files[0]);
 
-            return this.extensionApiService.upload(formData).then(() => {
+            return this.extensionStoreActionService.upload(formData).then(() => {
                 Shopware.Service('shopwareExtensionService').updateExtensionData().then(() => {
                     return this.createNotificationSuccess({
                         message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess')

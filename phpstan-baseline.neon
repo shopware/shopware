@@ -3266,11 +3266,6 @@ parameters:
 			path: src/Core/Framework/Migration/MigrationCollection.php
 
 		-
-			message: "#^Parameter \\#1 \\$mimeType of class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Exception\\\\PluginNotAZipFileException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Api/PluginController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogParser\\:\\:parseTitle\\(\\) has parameter \\$line with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Changelog/ChangelogParser.php

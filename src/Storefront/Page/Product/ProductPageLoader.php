@@ -25,45 +25,21 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductPageLoader
 {
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
+    private GenericPageLoaderInterface $genericLoader;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var SalesChannelCmsPageRepository
-     */
-    private $cmsPageRepository;
+    private SalesChannelCmsPageRepository $cmsPageRepository;
 
-    /**
-     * @var CmsSlotsDataResolver
-     */
-    private $slotDataResolver;
+    private CmsSlotsDataResolver $slotDataResolver;
 
-    /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
+    private ProductDefinition $productDefinition;
 
-    /**
-     * @var AbstractProductDetailRoute
-     */
-    private $productDetailRoute;
+    private AbstractProductDetailRoute $productDetailRoute;
 
-    /**
-     * @var ProductReviewLoader
-     */
-    private $productReviewLoader;
+    private ProductReviewLoader $productReviewLoader;
 
-    /**
-     * @var AbstractProductCrossSellingRoute
-     */
-    private $crossSellingRoute;
+    private AbstractProductCrossSellingRoute $crossSellingRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
@@ -110,6 +86,8 @@ class ProductPageLoader
         $criteria
             ->getAssociation('media')
             ->addSorting(new FieldSorting('position'));
+
+        $this->eventDispatcher->dispatch(new ProductPageCriteriaEvent($productId, $criteria, $context));
 
         $result = $this->productDetailRoute->load($productId, $request, $context, $criteria);
         $product = $result->getProduct();

@@ -25,6 +25,11 @@ class LicenseStruct extends Struct
     protected $variant;
 
     /**
+     * @var string
+     */
+    protected $paymentText;
+
+    /**
      * @var float
      */
     protected $netPrice;

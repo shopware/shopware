@@ -37,9 +37,8 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
             };
         },
 
-        calculatedPrice() {
-            return this.extension.storeLicense.variant !== this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT ?
-                null : currency(Number(this.extension.storeLicense.netPrice), 'EUR');
+        priceInfo() {
+            return Shopware.Utils.get(this.extension, 'storeLicense.paymentText', '');
         },
 
         detailLink() {

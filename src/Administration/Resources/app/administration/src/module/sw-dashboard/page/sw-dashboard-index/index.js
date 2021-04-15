@@ -24,6 +24,34 @@ Component.register('sw-dashboard-index', {
     },
 
     computed: {
+        welcomeMessage() {
+            if (this.greetingName === '') {
+                return this.$tc(
+                    'sw-dashboard.introduction.headlineUnkownUser'
+                );
+            }
+
+            return this.$tc(
+                'sw-dashboard.introduction.headline',
+                1,
+                { greetingName: this.greetingName }
+            );
+        },
+
+        greetingName() {
+            const { currentUser } = Shopware.State.get('session');
+
+            if (!currentUser) {
+                return '';
+            }
+
+            if (currentUser.firstName) {
+                return currentUser.firstName;
+            }
+
+            return currentUser.username;
+        },
+
         chartOptionsOrderCount() {
             return {
                 title: { text: this.$tc('sw-dashboard.monthStats.orderNumber') },

@@ -24,10 +24,11 @@ function createWrapper(privileges = []) {
             'sw-container': true,
             'sw-button': true,
             'sw-entity-listing': true,
-            'sw-chart': true
+            'sw-chart': true,
+            'sw-icon': true
         },
         mocks: {
-            $tc: v => v
+            $tc: (...args) => JSON.stringify([...args])
         },
         provide: {
             repositoryFactory: {
@@ -50,16 +51,25 @@ function createWrapper(privileges = []) {
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper = createWrapper();
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeAll(() => {
+        Shopware.State.registerModule('session', {
+            state: {
+                currentUser: null
+            },
+            mutations: {
+                setCurrentUser(state, user) {
+                    state.currentUser = user;
+                }
+            }
+        });
+    });
+
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not show the stats', async () => {
@@ -83,5 +93,31 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         expect(orderToday.exists()).toBeTruthy();
         expect(statisticsCount.exists()).toBeTruthy();
         expect(statisticsSum.exists()).toBeTruthy();
+    });
+
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should display headline for unknown user', async () => {
+        expect(wrapper.text()).toContain('sw-dashboard.introduction.headlineUnkownUser');
+    });
+
+    it('should display users firstName', async () => {
+        Shopware.State.commit('setCurrentUser', {
+            firstName: 'userFirstName'
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toContain('{"greetingName":"userFirstName"}');
+    });
+
+    it('should display users "username"', async () => {
+        Shopware.State.commit('setCurrentUser', {
+            username: 'username'
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toContain('{"greetingName":"username"}');
     });
 });

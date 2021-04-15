@@ -5,16 +5,23 @@
       "descriptionTextModule": "The Administration's front page, displaying statistics and system information"
     },
     "introduction": {
-      "headline": "Welcome to Shopware 6",
-      "enduserDocumentation": "User documentation",
-      "enduserDocumentationLink": "https://docs.shopware.com/en/shopware-6-en",
-      "developerDocumentation": "Developer documentation",
-      "developerDocumentationLink": "https://docs.shopware.com/en/shopware-platform-dev-en",
-      "migrationDocumentation": "Migration documentation",
-      "migrationDocumentationLink": "https://docs.shopware.com/en/migration-en",
-      "roadmap": "Shopware Roadmap",
-      "roadmapLink": "https://www.shopware.com/en/roadmap/",
-      "feedback": "Feedback",
+      "headline": "Welcome to Shopware, {greetingName}.",
+      "headlineUnkownUser": "Welcome to Shopware.",
+      "welcomeText": "Get familiar with everything, here are some ways to get started."
+    },
+    "helpcard": {
+      "headline": "Get ready to sell your products.",
+      "helpcenter": "Shopware Help Center",
+      "helpcenterLink": "https://docs.shopware.com/en/shopware-6-en",
+      "takeOffTip": "Learn how to make your first sale",
+      "takeOffTipLink": "https://www.shopware.com/en/news/take-off-in-ecommerce-10-tips-for-your-initial-sales/",
+      "getToKnowSales": "Get to know Sales Channels",
+      "getToKnowSalesLink": "https://www.youtube.com/watch?v=RsEeersOgIo"
+    },
+    "feedbackCard": {
+      "headline": "First impressions count.",
+      "text": "We’d love to hear your first impressions to help us improve your experience with Shopware.",
+      "feedback": "Give feedback",
       "feedbackLink": "https://issues.shopware.com"
     },
     "todayStats": {

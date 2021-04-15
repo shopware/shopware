@@ -18,6 +18,24 @@ Component.register('sw-extension-adding-failed', {
         extensionName: {
             type: String,
             required: true
+        },
+
+        title: {
+            type: String,
+            required: false,
+            default: null
+        },
+
+        detail: {
+            type: String,
+            required: false,
+            default: null
+        },
+
+        documentationLink: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 

@@ -9,11 +9,16 @@
         {% endblock %}
 
         {% block sw_extension_adding_failed_headline %}
-            <h3>{{ headline }}</h3>
+            <h3>{{ title || headline }}</h3>
         {% endblock %}
 
         {% block sw_extension_adding_failed_notification %}
-            <p>{{ text }}</p>
+            <p>{{ detail || text }}</p>
+            <p v-if="documentationLink">
+                <a :href="documentationLink">
+                    {{ documentationLink }}
+                </a>
+            </p>
         {% endblock %}
 
         {% block sw_extension_adding_failed_licence_cancellation %}

@@ -11,9 +11,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -26,6 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
@@ -69,6 +69,11 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
     private $stateMachineRegistry;
 
     /**
+     * @var SalesChannelContextFactory
+     */
+    private $salesChannelContextFactory;
+
+    /**
      * @var EntityRepositoryInterface
      */
     private $orderTransactionRepository;
@@ -83,6 +88,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
@@ -219,17 +225,10 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
 
     protected function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
-        return Generator::createSalesChannelContext(
-            $this->context,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            (new PaymentMethodEntity())->assign(['id' => $paymentMethodId])
+        return $this->salesChannelContextFactory->create(
+            Uuid::randomHex(),
+            Defaults::SALES_CHANNEL,
+            [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
     }
 

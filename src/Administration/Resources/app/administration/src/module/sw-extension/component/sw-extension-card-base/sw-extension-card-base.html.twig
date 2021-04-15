@@ -142,7 +142,7 @@
                                 {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
                             </sw-context-menu-item>
 
-                            <sw-context-menu-item v-if="isRemovable && extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null" variant="danger" @click="openRemovalModal">
+                            <sw-context-menu-item v-if="extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null" variant="danger" @click="openRemovalModal">
                                 {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') }}
                             </sw-context-menu-item>
 

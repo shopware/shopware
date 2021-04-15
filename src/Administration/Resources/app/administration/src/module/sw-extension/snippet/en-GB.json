@@ -244,6 +244,9 @@
           "permissions": "Permissions"
         }
       },
+      "sw-extension-card-bought": {
+        "subscriptionExpiredAt": "Subscription expires at {date}"
+      },
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deactivate \"{extensionName}\"",
         "description": "The \"{extensionName}\" extension has a monthly subscription fee.<br>Deactivating the extension <b>will not</b> cancel the subscription and fees will continue to be collected!",

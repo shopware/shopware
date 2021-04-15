@@ -26,6 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,6 +69,16 @@ class PaymentService
      */
     private $logger;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
+    private $contextService;
+
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
         TokenFactoryInterfaceV2 $tokenFactory,
@@ -74,7 +86,9 @@ class PaymentService
         PaymentHandlerRegistry $paymentHandlerRegistry,
         EntityRepositoryInterface $orderTransactionRepository,
         OrderTransactionStateHandler $transactionStateHandler,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EntityRepositoryInterface $orderRepository,
+        SalesChannelContextServiceInterface $contextService
     ) {
         $this->paymentProcessor = $paymentProcessor;
         $this->tokenFactory = $tokenFactory;
@@ -83,6 +97,8 @@ class PaymentService
         $this->orderTransactionRepository = $orderTransactionRepository;
         $this->transactionStateHandler = $transactionStateHandler;
         $this->logger = $logger;
+        $this->orderRepository = $orderRepository;
+        $this->contextService = $contextService;
     }
 
     /**
@@ -100,6 +116,25 @@ class PaymentService
     ): ?RedirectResponse {
         if (!Uuid::isValid($orderId)) {
             throw new InvalidOrderException($orderId);
+        }
+
+        $order = $this->orderRepository
+            ->search(new Criteria([$orderId]), $context->getContext())
+            ->first();
+
+        if ($order === null) {
+            throw new InvalidOrderException($orderId);
+        }
+
+        if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
+            $context = $this->contextService->get(
+                new SalesChannelContextServiceParameters(
+                    $context->getSalesChannelId(),
+                    $context->getToken(),
+                    $context->getContext()->getLanguageId(),
+                    $order->getCurrencyId()
+                )
+            );
         }
 
         try {

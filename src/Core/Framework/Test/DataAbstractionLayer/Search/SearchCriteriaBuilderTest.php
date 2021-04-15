@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -440,7 +441,7 @@ class SearchCriteriaBuilderTest extends TestCase
     private function fakeHandleRequest(int $maxLimit = 0, array $params = []): Criteria
     {
         $parser = $this->getContainer()->get(AggregationParser::class);
-        $requestBuilder = new RequestCriteriaBuilder($parser, $maxLimit);
+        $requestBuilder = new RequestCriteriaBuilder($parser, $maxLimit, $this->getContainer()->get(ApiCriteriaValidator::class));
         $context = Context::createDefaultContext();
         $definition = $this->getContainer()->get(ProductDefinition::class);
 

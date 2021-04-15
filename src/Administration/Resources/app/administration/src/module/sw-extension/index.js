@@ -35,11 +35,24 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './acl');
 }
 
+let errorMixin = extensionErrorMixin;
+if (!Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
+    errorMixin = {
+        mixins: [Shopware.Mixin.getByName('notification')],
+
+        methods: {
+            showExtensionErrors(errorResponse) {
+                console.error(errorResponse);
+            }
+        }
+    };
+}
+Shopware.Mixin.register('sw-extension-error', errorMixin);
+
+
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
     initState(Shopware);
     initDependencies();
-
-    Shopware.Mixin.register('sw-extension-error', extensionErrorMixin);
 }
 
 Shopware.Module.register('sw-extension', {

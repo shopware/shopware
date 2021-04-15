@@ -35,10 +35,19 @@ class RequestCriteriaBuilder
      */
     private $aggregationParser;
 
-    public function __construct(AggregationParser $aggregationParser, int $maxLimit)
-    {
+    /**
+     * @var ApiCriteriaValidator
+     */
+    private $validator;
+
+    public function __construct(
+        AggregationParser $aggregationParser,
+        int $maxLimit,
+        ApiCriteriaValidator $validator
+    ) {
         $this->maxLimit = $maxLimit;
         $this->aggregationParser = $aggregationParser;
+        $this->validator = $validator;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -48,6 +57,8 @@ class RequestCriteriaBuilder
         } else {
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context, $request->attributes->getInt('version'));
         }
+
+        $this->validator->validate($definition->getEntityName(), $criteria, $context);
 
         return $criteria;
     }

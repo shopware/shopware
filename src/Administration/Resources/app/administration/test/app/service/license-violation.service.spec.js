@@ -185,7 +185,7 @@ describe('app/service/license-violation.service.js', () => {
             active: true,
             installedAt: '123456'
         };
-        await licenseViolationService.forceDeletePlugin({}, extensionMock);
+        await licenseViolationService.forceDeletePlugin(extensionMock);
 
         expect(extensionApiServiceMock.deactivateExtension).toHaveBeenCalled();
         expect(cacheApiServiceMock.clear).toHaveBeenCalled();
@@ -202,7 +202,7 @@ describe('app/service/license-violation.service.js', () => {
             active: false,
             installedAt: '123456'
         };
-        await licenseViolationService.forceDeletePlugin({}, extensionMock);
+        await licenseViolationService.forceDeletePlugin(extensionMock);
 
         expect(extensionApiServiceMock.deactivateExtension).not.toHaveBeenCalled();
         expect(cacheApiServiceMock.clear).not.toHaveBeenCalled();
@@ -219,7 +219,7 @@ describe('app/service/license-violation.service.js', () => {
             active: false,
             installedAt: null
         };
-        await licenseViolationService.forceDeletePlugin({}, extensionMock);
+        await licenseViolationService.forceDeletePlugin(extensionMock);
 
         expect(extensionApiServiceMock.deactivateExtension).not.toHaveBeenCalled();
         expect(cacheApiServiceMock.clear).not.toHaveBeenCalled();

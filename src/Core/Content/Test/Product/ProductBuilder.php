@@ -270,9 +270,9 @@ class ProductBuilder
     /**
      * @param array|object|string|float|int|bool|null $value
      */
-    public function translation(string $currencyId, string $key, $value): self
+    public function translation(string $languageId, string $key, $value): self
     {
-        $this->translations[$currencyId][$key] = $value;
+        $this->translations[$languageId][$key] = $value;
 
         return $this;
     }

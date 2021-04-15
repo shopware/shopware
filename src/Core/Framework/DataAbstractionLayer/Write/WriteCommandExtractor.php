@@ -212,6 +212,11 @@ class WriteCommandExtractor
 
         $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data);
 
+        $translation = $definition->getField('translations');
+        if ($translation instanceof TranslationsAssociationField) {
+            $this->map([$translation], $rawData, $existence, $parameters);
+        }
+
         // call map with child associations only
         $children = array_filter($fields, static function (Field $field) {
             return $field instanceof ChildrenAssociationField;
@@ -538,6 +543,9 @@ class WriteCommandExtractor
 
         foreach ($fields as $field) {
             if ($field instanceof ChildrenAssociationField) {
+                continue;
+            }
+            if ($field instanceof TranslationsAssociationField) {
                 continue;
             }
 

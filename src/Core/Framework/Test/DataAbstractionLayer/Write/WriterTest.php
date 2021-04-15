@@ -8,17 +8,20 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -734,6 +737,68 @@ class WriterTest extends TestCase
         }
 
         static::assertFalse($exceptionThrown);
+    }
+
+    public function testCloneVariantTranslation(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->getContainer()->get('language.repository')->create(
+            [
+                [
+                    'id' => $ids->create('language'),
+                    'name' => 'test-language',
+                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                    'translationCode' => [
+                        'code' => Uuid::randomHex(),
+                        'name' => 'Test locale',
+                        'territory' => 'test',
+                    ],
+                ],
+            ],
+            Context::createDefaultContext()
+        );
+
+        $product = (new ProductBuilder($ids, 'parent'))
+            ->price(100)
+            ->variant(
+                (new ProductBuilder($ids, 'child'))
+                    ->translation($ids->get('language'), 'description', 'update')
+                    ->build()
+            )
+            ->build();
+
+        $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+
+        $behavior = new CloneBehavior(['productNumber' => 'new-parent'], false);
+
+        $this->getContainer()->get('product.repository')->clone(
+            $ids->get('parent'),
+            $ids->getContext(),
+            $ids->get('new-parent'),
+            $behavior
+        );
+
+        $behavior = new CloneBehavior([
+            'parentId' => $ids->get('new-parent'),
+            'productNumber' => 'new-child',
+        ], false);
+
+        $this->getContainer()->get('product.repository')->clone(
+            $ids->get('child'),
+            $ids->getContext(),
+            $ids->get('new-child'),
+            $behavior
+        );
+
+        $translations = $this->getContainer()->get(Connection::class)
+            ->fetchAssociative(
+                'SELECT name, description FROM product_translation WHERE language_id = :language AND product_id = :id',
+                ['language' => $ids->getBytes('language'), 'id' => $ids->getBytes('new-child')]
+            );
+
+        static::assertNull($translations['name']);
+        static::assertEquals('update', $translations['description']);
     }
 
     protected function createWriteContext(): WriteContext

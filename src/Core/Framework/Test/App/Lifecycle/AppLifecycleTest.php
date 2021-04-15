@@ -99,8 +99,10 @@ class AppLifecycleTest extends TestCase
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppInstalledEvent::class, $onAppInstalled);
+        $criteria = new Criteria();
+        $criteria->addAssociation('integration');
         /** @var AppCollection $apps */
-        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
         static::assertEquals('test', $apps->first()->getName());
@@ -120,6 +122,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertEquals($appId, $apps->first()->getId());
         static::assertFalse($apps->first()->isConfigurable());
+        static::assertFalse($apps->first()->getIntegration()->getAdmin());
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
@@ -661,6 +664,7 @@ class AppLifecycleTest extends TestCase
     {
         $appId = Uuid::randomHex();
         $roleId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
 
         $this->appRepository->create([[
             'id' => $appId,
@@ -679,6 +683,7 @@ class AppLifecycleTest extends TestCase
                 ],
             ],
             'integration' => [
+                'id' => $integrationId,
                 'label' => 'test',
                 'writeAccess' => false,
                 'accessKey' => 'test',
@@ -713,6 +718,11 @@ class AppLifecycleTest extends TestCase
         $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
         $roles = $aclRoleRepository->searchIds(new Criteria([$roleId]), $this->context)->getIds();
         static::assertCount(0, $roles);
+
+        /** @var EntityRepositoryInterface $integrationRepository */
+        $integrationRepository = $this->getContainer()->get('integration.repository');
+        $integrations = $integrationRepository->searchIds(new Criteria([$integrationId]), $this->context)->getIds();
+        static::assertCount(0, $integrations);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));

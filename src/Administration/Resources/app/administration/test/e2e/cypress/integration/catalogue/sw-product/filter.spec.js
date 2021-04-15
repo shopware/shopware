@@ -292,10 +292,15 @@ describe('Product: Testing filter and reset filter', () => {
         cy.get('.sw-sidebar-item__headline a').click();
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
-        cy.wait('@getUserConfig').then((xhr) => {});
-        cy.wait('@filterProduct').then((xhr) => {
+
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.wait('@getUserConfig').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-page__smart-bar-amount').contains('28');
+            cy.wait('@filterProduct').then((xhr) => {
+                expect(xhr).to.have.property('status', 200);
+                cy.contains('.sw-page__smart-bar-amount', '28')
+            });
         });
     });
 });

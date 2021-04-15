@@ -409,11 +409,17 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">
-            <argument>%kernel.cache.hash%</argument>
             <argument type="service" id="cache.http"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator" />
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator"/>
             <argument type="service" id="event_dispatcher" />
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer" />
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator">
+            <argument>%kernel.cache.hash%</argument>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%storefront.http_cache.ignored_url_parameters%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheTracer" decorates="Shopware\Core\Framework\Adapter\Cache\CacheTracer">

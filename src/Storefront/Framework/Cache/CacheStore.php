@@ -4,11 +4,8 @@ namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Cache\Event\HttpCacheGenerateKeyEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
-use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,27 +23,27 @@ class CacheStore implements StoreInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private string $cacheHash;
-
     private AbstractCacheTracer $tracer;
 
+    private AbstractHttpCacheKeyGenerator $cacheKeyGenerator;
+
     public function __construct(
-        string $cacheHash,
         TagAwareAdapterInterface $cache,
         CacheStateValidator $stateValidator,
         EventDispatcherInterface $eventDispatcher,
-        AbstractCacheTracer $tracer
+        AbstractCacheTracer $tracer,
+        AbstractHttpCacheKeyGenerator $cacheKeyGenerator
     ) {
         $this->cache = $cache;
         $this->stateValidator = $stateValidator;
         $this->eventDispatcher = $eventDispatcher;
-        $this->cacheHash = $cacheHash;
         $this->tracer = $tracer;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
     public function lookup(Request $request)
     {
-        $key = $this->generateCacheKey($request);
+        $key = $this->cacheKeyGenerator->generate($request);
 
         $item = $this->cache->getItem($key);
 
@@ -70,7 +67,7 @@ class CacheStore implements StoreInterface
 
     public function write(Request $request, Response $response)
     {
-        $key = $this->generateCacheKey($request);
+        $key = $this->cacheKeyGenerator->generate($request);
         if ($response instanceof StorefrontResponse) {
             $response->setData(null);
             $response->setContext(null);
@@ -111,7 +108,7 @@ class CacheStore implements StoreInterface
     public function invalidate(Request $request): void
     {
         $this->cache->deleteItem(
-            $this->generateCacheKey($request)
+            $this->cacheKeyGenerator->generate($request)
         );
     }
 
@@ -194,68 +191,6 @@ class CacheStore implements StoreInterface
 
     private function getLockKey(Request $request): string
     {
-        return 'http_lock_' . $this->generateCacheKey($request);
-    }
-
-    /**
-     * Generates a cache key for the given Request.
-     *
-     * This method should return a key that must only depend on a
-     * normalized version of the request URI.
-     *
-     * If the same URI can have more than one representation, based on some
-     * headers, use a Vary header to indicate them, and each representation will
-     * be stored independently under the same cache key.
-     *
-     * @return string A key for the given Request
-     */
-    private function generateCacheKey(Request $request): string
-    {
-        $uri = $this->getRequestUri($request) . $this->cacheHash;
-
-        $event = new HttpCacheGenerateKeyEvent($request, 'md' . hash('sha256', $uri));
-
-        $this->eventDispatcher->dispatch($event);
-
-        $hash = $event->getHash();
-
-        if ($request->cookies->has(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE)) {
-            return hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE));
-        }
-
-        if ($request->cookies->has(CacheResponseSubscriber::CURRENCY_COOKIE)) {
-            return hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CURRENCY_COOKIE));
-        }
-
-        if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)) {
-            return hash('sha256', $hash . '-' . $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
-        }
-
-        return $hash;
-    }
-
-    private function getRequestUri(Request $request): string
-    {
-        $params = $request->query->all();
-        if (\count($params) === 0) {
-            return sprintf(
-                '%s%s%s',
-                $request->getSchemeAndHttpHost(),
-                $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),
-                $request->getPathInfo()
-            );
-        }
-
-        $params = $request->query->all();
-        ksort($params);
-        $params = http_build_query($params);
-
-        return sprintf(
-            '%s%s%s%s',
-            $request->getSchemeAndHttpHost(),
-            $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),
-            $request->getPathInfo(),
-            '?' . $params
-        );
+        return 'http_lock_' . $this->cacheKeyGenerator->generate($request);
     }
 }

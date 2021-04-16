@@ -5,16 +5,23 @@
       "descriptionTextModule": "Startseite, Statistiken und Systeminformationen"
     },
     "introduction": {
-      "headline": "Willkommen bei Shopware 6",
-      "enduserDocumentation": "Endbenutzer-Dokumentation",
-      "enduserDocumentationLink": "https://docs.shopware.com/de/shopware-6-de",
-      "developerDocumentation": "Entwickler-Dokumentation",
-      "developerDocumentationLink": "https://docs.shopware.com/de/shopware-platform--dev-de",
-      "migrationDocumentation": "Migrations-Dokumentation",
-      "migrationDocumentationLink": "https://docs.shopware.com/de/migration-de",
-      "roadmap": "Shopware Roadmap",
-      "roadmapLink": "https://www.shopware.com/de/roadmap/",
-      "feedback": "Feedback",
+      "headline": "Willkommen bei Shopware, {greetingName}.",
+      "headlineUnkownUser": "Willkommen bei Shopware.",
+      "welcomeText": "Mach Dich mit allem vertraut, hier sind ein paar Tipps um anzufangen."
+    },
+    "helpcard": {
+      "headline": "Mach dich bereit, deine Produkte zu verkaufen.",
+      "helpcenter": "Shopware Hilfe Center",
+      "helpcenterLink": "https://docs.shopware.com/de/shopware-6-de",
+      "takeOffTip": "Tipps für Deinen ersten Verkauf",
+      "takeOffTipLink": "https://www.shopware.com/de/news/durchstarten-im-e-commerce-10-tipps-fuer-deine-ersten-verkaeufe/",
+      "getToKnowSales": "Lerne Verkaufskanäle kennen",
+      "getToKnowSalesLink": "https://www.youtube.com/watch?v=vFORvXev624"
+    },
+    "feedbackCard": {
+      "headline": "Der erste Eindruck zählt.",
+      "text": "Erzähle uns von Deinem ersten Eindruck und hilf uns die Erfahrung mit Shopware besser zu machen.",
+      "feedback": "Feedback geben",
       "feedbackLink": "https://issues.shopware.com"
     },
     "todayStats": {

@@ -2,6 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/page/sw-settings-search';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+import 'src/app/component/base/sw-button-process';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -103,6 +104,7 @@ function createWrapper(privileges = []) {
             },
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'sw-button-process': Shopware.Component.build('sw-button-process'),
             'router-link': true,
             'router-view': true
         }
@@ -144,7 +146,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
 
         await wrapper.vm.$nextTick();
 
-        wrapper.setData({
+        await wrapper.setData({
             productSearchConfigs: {
                 andLogic: true,
                 minSearchLength: 2
@@ -156,8 +158,8 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
 
         await wrapper.vm.$nextTick();
         const saveButton = await wrapper.find('.sw-settings-search__button-save');
-
         await saveButton.trigger('click');
+
         expect(onSaveSearchSettingsSpy).toBeCalled();
         expect(wrapper.vm.productSearchRepository.save).toHaveBeenCalled();
     });

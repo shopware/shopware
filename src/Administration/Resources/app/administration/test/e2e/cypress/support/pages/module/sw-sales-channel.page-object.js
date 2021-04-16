@@ -29,36 +29,31 @@ export default class SalesChannelPageObject {
         cy.get('.sw-sales-channel-detail__select-countries').typeMultiSelectAndCheck('Germany', {
             searchTerm: 'Germany'
         });
-        cy.get('.sw-sales-channel-detail__assign-countries')
-            .typeSingleSelectAndCheck('Germany', '.sw-sales-channel-detail__assign-countries');
+        cy.contains('.sw-sales-channel-detail__assign-countries', 'Germany');
 
         cy.get('.sw-sales-channel-detail__select-languages').scrollIntoView();
         cy.get('.sw-sales-channel-detail__select-languages').typeMultiSelectAndCheck('English', {
             searchTerm: 'English'
         });
-        cy.get('.sw-sales-channel-detail__assign-languages')
-            .typeSingleSelectAndCheck('English', '.sw-sales-channel-detail__assign-languages');
+        cy.contains('.sw-sales-channel-detail__assign-languages', 'English');
 
         cy.get('.sw-sales-channel-detail__select-payment-methods').scrollIntoView();
         cy.get('.sw-sales-channel-detail__select-payment-methods').typeMultiSelectAndCheck('Invoice', {
             searchTerm: 'Invoice'
         });
-        cy.get('.sw-sales-channel-detail__assign-payment-methods')
-            .typeSingleSelectAndCheck('Invoice', '.sw-sales-channel-detail__assign-payment-methods');
+        cy.get('.sw-sales-channel-detail__assign-payment-methods').should('contain', 'Invoice');
 
         cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
         cy.get('.sw-sales-channel-detail__select-shipping-methods').typeMultiSelectAndCheck('Standard', {
             searchTerm: 'Standard'
         });
-        cy.get('.sw-sales-channel-detail__assign-shipping-methods')
-            .typeSingleSelectAndCheck('Standard', '.sw-sales-channel-detail__assign-shipping-methods');
+        cy.contains('.sw-sales-channel-detail__assign-shipping-methods', 'Standard');
 
         cy.get('.sw-sales-channel-detail__select-currencies').scrollIntoView();
         cy.get('.sw-sales-channel-detail__select-currencies').typeMultiSelectAndCheck('Euro', {
             searchTerm: 'Euro'
         });
-        cy.get('.sw-sales-channel-detail__assign-currencies')
-            .typeSingleSelectAndCheck('Euro', '.sw-sales-channel-detail__assign-currencies');
+        cy.contains('.sw-sales-channel-detail__assign-currencies', 'Euro');
     }
 
     openSalesChannel(salesChannelName, position = 0) {

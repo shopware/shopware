@@ -1,9 +1,14 @@
 @import "~scss/variables";
 
-.product-detail-cross-selling {
+.sw-product-detail-cross-selling {
     .sw-product-detail-cross-selling__context-button {
         float: right;
         padding-bottom: 20px;
+    }
+
+    .sw-product-detail-cross-selling__add-btn {
+        display: block;
+        margin: 0 auto;
     }
 }
 

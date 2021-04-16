@@ -197,7 +197,7 @@
                                                                         :options="field.options"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
-                                                                        :disabled="!acl.can('theme.editor')"
+                                                                        :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 
@@ -206,7 +206,7 @@
                                                                         type="url"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
-                                                                        :disabled="!acl.can('theme.editor')"
+                                                                        :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 
@@ -243,10 +243,10 @@
                                                                     </sw-field>
 
                                                                     <sw-form-field-renderer
-                                                                        v-else-if="themeConfig[fieldName].editable !== false"
+                                                                        v-else
                                                                         v-bind="getBind(field)"
                                                                         v-model="themeConfig[fieldName].value"
-                                                                        :disabled="!acl.can('theme.editor')">
+                                                                        :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false">
                                                                     </sw-form-field-renderer>
                                                                 </template>
                                                             </div>

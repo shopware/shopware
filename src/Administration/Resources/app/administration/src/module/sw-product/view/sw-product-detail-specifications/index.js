@@ -21,8 +21,18 @@ Component.register('sw-product-detail-specifications', {
             'showProductCard'
         ]),
 
+        customFieldsExists() {
+            if (!this.customFieldSets.length > 0) {
+                return false;
+            }
+
+            return this.customFieldSets.some(set => set.customFields.length > 0);
+        },
+
         showCustomFieldsCard() {
-            return this.showProductCard('custom_fields') && !this.isLoading && this.customFieldSets.length > 0;
+            return this.showProductCard('custom_fields') &&
+                !this.isLoading &&
+                this.customFieldsExists;
         }
     }
 });

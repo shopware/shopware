@@ -129,6 +129,9 @@ describe('Product: Mode advanced settings at product detail on Specifications ta
                 return cy.createDefaultFixture('tag');
             })
             .then(() => {
+                return cy.createDefaultFixture('custom-field-set');
+            })
+            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             });
     });
@@ -170,6 +173,28 @@ describe('Product: Mode advanced settings at product detail on Specifications ta
     });
 
     it('@catalogue: should be not show the Custom Fields card when Custom Fields settings was unchecked', () => {
+        cy.server();
+        cy.route({
+            method: 'PATCH',
+            url: '/api/custom-field-set/*'
+        }).as('saveData');
+
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+
+        cy.get('.sw-custom-field-set-list__column-name').click();
+
+        cy.get('sw-loader').should('not.exist');
+
+        cy.get('.sw-settings-custom-field-set-detail-base__label-entities').typeMultiSelectAndCheck('Products');
+
+        cy.get('.sw-button-process').click();
+
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',

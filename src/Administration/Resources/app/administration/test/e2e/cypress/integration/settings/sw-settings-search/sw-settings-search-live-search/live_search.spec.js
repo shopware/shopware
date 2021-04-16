@@ -20,14 +20,14 @@ describe('Search settings: Live Search', () => {
     });
 
     it('@settings: link should open the example popup', () => {
-        cy.contains('Storefront live search');
+        cy.contains('Sales Channel live search');
 
         cy.get('.sw-settings-search-live-search__show-example-link').click();
         cy.get('.sw-modal.sw-settings-search-example-modal').should('be.visible');
     });
 
     it('@settings: Search for a keyword with no result', () => {
-        cy.contains('Storefront live search');
+        cy.contains('Sales Channel live search');
 
         // Request we want to wait for later
         cy.server();
@@ -64,6 +64,31 @@ describe('Search settings: Live Search', () => {
             .typeSingleSelect('Storefront', '.sw-single-select');
 
         cy.get('.sw-simple-search-field input').type('variant');
+
+        // Verify search keyword
+        cy.wait('@searchKeywords').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
+            // should show the data grid result
+            cy.get('.sw-settings-search-live-search__grid-result').should('be.visible');
+            // should show the highlight keywords
+            cy.get('.sw-settings-search-live-search-keyword__highlight').should('be.visible');
+        });
+    });
+
+    it('@settings: Clicking on the search icon to trigger search', () => {
+        cy.server();
+        cy.route({
+            url: '/api/_proxy/store-api/*/search',
+            method: 'post'
+        }).as('searchKeywords');
+
+        // select a sales channel to search
+        cy.get('.sw-single-select')
+            .typeSingleSelect('Storefront', '.sw-single-select');
+
+        cy.get('.sw-simple-search-field input').type('variant');
+        cy.get('.sw-settings-search-live-search__search-icon').click();
 
         // Verify search keyword
         cy.wait('@searchKeywords').then((xhr) => {

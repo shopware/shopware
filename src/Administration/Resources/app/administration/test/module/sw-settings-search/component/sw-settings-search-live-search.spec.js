@@ -10,21 +10,24 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/base/sw-single-select';
+import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/utils/sw-popover';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-product-variant-info';
+import 'src/app/component/base/sw-highlight-text';
 
-const salesChannel = {
-    storeFront: {
-        id: '6f78f963a82b4db6b2f5ad63bd43e1bd',
-        name: 'Storefront'
+const salesChannels = [
+    {
+        name: 'Storefront',
+        id: '7e0e4a256138402c82a20fcbb4fbb858'
     },
-    headless: {
-        id: '98432def39fc4624b33213a56b8c944d',
-        name: 'Headless'
+    {
+
+        name: 'Headless',
+        id: '98432def39fc4624b33213a56b8c944d'
     }
-};
+];
 
 const mockResults = {
     nothing: {
@@ -103,6 +106,8 @@ function createWrapper() {
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-single-select': Shopware.Component.build('sw-single-select'),
+            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+            'sw-select-result': Shopware.Component.build('sw-select-result'),
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
             'sw-popover': Shopware.Component.build('sw-popover'),
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
@@ -128,7 +133,7 @@ function createWrapper() {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve([]);
+                        return Promise.resolve(salesChannels);
                     }
                 })
             },
@@ -182,18 +187,19 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const searchBox = wrapper.find('.sw-simple-search-field input');
         expect(searchBox.attributes().disabled).toBeTruthy();
 
-        await wrapper.setData({ salesChannelId: salesChannel.storeFront.id });
-        expect(searchBox.attributes().disabled).toBeUndefined();
+        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        await salesChannelSwitch.trigger('click');
+        await wrapper.find('.sw-select-option--0').trigger('click');
+        expect(searchBox.attributes().disabled).toBeFalsy();
     });
 
     it('should show no results message if search keywords is nothing', async () => {
-        await wrapper.setData({ salesChannelId: salesChannel.storeFront.id });
+        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        await salesChannelSwitch.trigger('click');
+        await wrapper.find('.sw-select-option--0').trigger('click');
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.nothing.terms);
 
-        await wrapper.setData({
-            liveSearchTerm: mockResults.nothing.terms
-        });
         searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
 
@@ -206,12 +212,11 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
     });
 
     it('should show one result for search', async () => {
-        await wrapper.setData({ salesChannelId: salesChannel.storeFront.id });
+        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        await salesChannelSwitch.trigger('click');
+        await wrapper.find('.sw-select-option--0').trigger('click');
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.oneResult.terms);
-        await wrapper.setData({
-            liveSearchTerm: mockResults.oneResult.terms
-        });
 
         searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
@@ -231,14 +236,33 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         wrapper.vm.liveSearchService.search.mockReset();
     });
 
+    it('should able to click on search glass to search', async () => {
+        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        await salesChannelSwitch.trigger('click');
+        await wrapper.find('.sw-select-option--0').trigger('click');
+        const searchBox = wrapper.find('.sw-settings-search-live-search__search_box input');
+        await searchBox.setValue(mockResults.oneResult.terms);
+
+        const searchIcon = wrapper.find('.sw-settings-search-live-search__search-icon');
+        searchIcon.trigger('click');
+        await flushPromises();
+
+        await wrapper.setData({
+            liveSearchResults: mockResults.oneResult.result
+        });
+
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        expect(firstRow.find('.sw-product-variant-info').exists()).toBeTruthy();
+        wrapper.vm.liveSearchService.search.mockReset();
+    });
+
     it('should show multiple results for search', async () => {
-        await wrapper.setData({ salesChannelId: salesChannel.storeFront.id });
+        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        await salesChannelSwitch.trigger('click');
+        await wrapper.find('.sw-select-option--0').trigger('click');
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.multipleResults.terms);
 
-        await wrapper.setData({
-            liveSearchTerm: mockResults.multipleResults.terms
-        });
         searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
 

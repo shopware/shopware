@@ -862,11 +862,15 @@ Component.register('sw-cms-detail', {
             const cmsBlock = this.cmsBlocks[blockType];
             let defaultConfig = cmsBlock.defaultConfig;
 
-            if (this.isProductPage && defaultConfig && blockType !== 'product-heading') {
+            if (this.isProductPage && defaultConfig) {
                 defaultConfig = {
                     ...defaultConfig,
                     marginLeft: '0',
-                    marginRight: '0'
+                    marginRight: '0',
+                    marginTop: (blockType === 'gallery-buybox' || blockType === 'product-description-reviews')
+                        ? '20px' : '0',
+                    marginBottom: (blockType === 'product-heading' || blockType === 'product-description-reviews')
+                        ? '20px' : '0'
                 };
             }
 

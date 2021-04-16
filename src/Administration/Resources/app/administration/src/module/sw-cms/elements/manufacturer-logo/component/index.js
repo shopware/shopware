@@ -1,6 +1,9 @@
+import template from './sw-cms-el-manufacturer-logo.html.twig';
+
 const { Component, Mixin, Utils } = Shopware;
 
 Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
+    template,
     mixins: [
         Mixin.getByName('cms-element')
     ],
@@ -27,7 +30,9 @@ Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
             this.initElementConfig('manufacturer-logo');
             this.initElementData('manufacturer-logo');
 
-            if (this.isProductPage && !Utils.get(this.element, 'translated.config.media')) {
+            if (this.isProductPage
+                && !Utils.get(this.element, 'translated.config.media')
+                && !Utils.get(this.element, 'data.media')) {
                 this.element.config.media.source = 'mapped';
                 this.element.config.media.value = 'product.manufacturer.media';
             }

@@ -3,7 +3,7 @@
     {% set manufacturerLogoElement = block.slots.getSlot('right') %}
 
     {% block block_product_heading_product_name_element %}
-        <div class="col-10 product-heading-name-container" data-cms-element-id="{{ productNameElement.id }}">
+        <div class="col product-heading-name-container" data-cms-element-id="{{ productNameElement.id }}">
             {% block block_product_heading_product_name_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ productNameElement.type ~ ".html.twig" ignore missing with {
                     element: productNameElement
@@ -13,7 +13,7 @@
     {% endblock %}
 
     {% block block_product_heading_product_manufacturer_logo_element %}
-        <div class="col-2 product-heading-manufacturer-logo-container" data-cms-element-id="{{ manufacturerLogoElement.id }}">
+        <div class="col-md-auto product-heading-manufacturer-logo-container" data-cms-element-id="{{ manufacturerLogoElement.id }}">
             {% block block_product_heading_product_manufacturer_logo_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ manufacturerLogoElement.type ~ ".html.twig" ignore missing with {
                     element: manufacturerLogoElement

@@ -17,7 +17,7 @@ Shopware.Service('cmsService').registerCmsElement({
         },
         displayMode: {
             source: 'static',
-            value: 'cover'
+            value: 'standard'
         },
         url: {
             source: 'static',

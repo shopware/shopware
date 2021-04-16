@@ -127,7 +127,9 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         initConfig() {
-            if (!this.isProductPage || Utils.get(this.element, 'translated.config')) {
+            if (!this.isProductPage
+                || Utils.get(this.element, 'translated.config')
+                || Utils.get(this.element, 'data.sliderItems')) {
                 return;
             }
 

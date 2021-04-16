@@ -131,6 +131,57 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(wrapper.vm.fooBar()).toBe('testComponentOverride');
     });
 
+    it('should resolve mixins for component in combination with overrides', () => {
+        Shopware.Mixin.register('foo-with-data', {
+            data() {
+                return {
+                    sortBy: null
+                };
+            },
+            methods: {
+                fooBar() {
+                    return this.sortBy;
+                }
+            }
+        });
+
+        Shopware.Component.register('test-component-foobar-with-mixin', {
+            template: '<div></div>',
+            name: 'test-component',
+            data() {
+                return {
+                    sortBy: 'date'
+                };
+            },
+            mixins: [
+                'foo-with-data'
+            ],
+            methods: {
+                bar() {},
+                fooBar() {
+                    return this.sortBy;
+                }
+            }
+        });
+
+        const buildComp = vueAdapter.createComponent('test-component-foobar-with-mixin');
+        let wrapper = shallowMount(buildComp);
+
+        expect(buildComp.sealedOptions.methods.fooBar).toBeDefined();
+        expect(buildComp.sealedOptions.methods.bar).toBeDefined();
+        expect(wrapper.vm.fooBar()).toBe('date');
+
+        // add an override to the component
+        Shopware.Component.override('test-component-foobar-with-mixin', {});
+
+        const buildOverrideComp = vueAdapter.createComponent('test-component-foobar-with-mixin');
+        wrapper = shallowMount(buildOverrideComp);
+
+        expect(buildOverrideComp.sealedOptions.methods.fooBar).toBeDefined();
+        expect(buildOverrideComp.sealedOptions.methods.bar).toBeDefined();
+        expect(wrapper.vm.fooBar()).toBe('date');
+    });
+
     it('should extend mixins', () => {
         Shopware.Mixin.register('swFoo', {
             methods: {

@@ -217,6 +217,6 @@ describe('Minimal install', () => {
         });
 
         // Verify dashboard module
-        cy.get('.sw-dashboard-index__intro').should('be.visible');
+        cy.get('.sw-dashboard-index__content').should('be.visible');
     });
 });

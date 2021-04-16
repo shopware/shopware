@@ -233,6 +233,31 @@
                     </template>
                 {% endblock %}
 
+                {% block sw_product_variants_overview_data_grid_column_media %}
+                    <template v-if="feature.isActive('FEATURE_NEXT_6544')" #column-media="{ item, isInlineEdit, compact }">
+                        {% block sw_product_variants_overview_data_grid_column_media_inline_edit %}
+                            {% block sw_product_variants_overview_data_grid_column_media_inherit %}
+                                <sw-inheritance-switch :isInherited="isMediaFieldInherited(item)"
+                                                       :disabled="!isInlineEdit"
+                                                       class="sw-product-variants-overview_media__inherited-icon"
+                                                       @inheritance-restore="isInlineEdit ? onMediaInheritanceRestore(item) : ''"
+                                                       @inheritance-remove="isInlineEdit ? onMediaInheritanceRemove(item): ''">
+                                </sw-inheritance-switch>
+                            {% endblock %}
+
+                            {% block sw_product_variants_overview_data_grid_column_media_content %}
+                                <sw-product-variants-media-upload
+                                    :source="item"
+                                    :uploadTag="item.id"
+                                    :isInherited="isMediaFieldInherited(item)"
+                                    :disabled="isInlineEdit ? isMediaFieldInherited(item) : true"
+                                    :parentProduct="product">
+                                </sw-product-variants-media-upload>
+                            {% endblock %}
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
                 {% block sw_product_variants_overview_data_grid_column_active %}
                     <template slot="column-active" slot-scope="{ item, isInlineEdit }">
                         <template v-if="isInlineEdit">

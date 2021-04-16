@@ -318,6 +318,7 @@
       "generatedListColumnVariation": "Variante",
       "generatedListColumnPrice": "Preis (Brutto / Netto)",
       "generatedListColumnProductNumber": "Produktnummer",
+      "generatedListColumnMedia": "Medien",
       "generatedListColumnActive": "Aktiv",
       "generatedListColumnStock": "Lagerbestand",
       "generatedListContextMenuEdit": "Bearbeiten",

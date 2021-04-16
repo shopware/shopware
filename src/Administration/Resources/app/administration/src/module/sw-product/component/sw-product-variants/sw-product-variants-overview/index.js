@@ -1,7 +1,7 @@
 import template from './sw-product-variants-overview.html.twig';
 import './sw-products-variants-overview.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
@@ -64,7 +64,23 @@ Component.register('sw-product-variants-overview', {
             return this.repositoryFactory.create('product');
         },
 
+        productMediaRepository() {
+            return this.repositoryFactory.create(this.product.media.entity);
+        },
+
         variantColumns() {
+            let mediaColumn = [];
+
+            if (this.feature.isActive('FEATURE_NEXT_6544')) {
+                mediaColumn = [{
+                    property: 'media',
+                    label: this.$tc('sw-product.detailBase.cardTitleMedia'),
+                    allowResize: true,
+                    inlineEdit: true,
+                    sortable: false
+                }];
+            }
+
             return [
                 {
                     property: 'name',
@@ -87,6 +103,7 @@ Component.register('sw-product-variants-overview', {
                     inlineEdit: 'string',
                     width: '150px'
                 },
+                ...mediaColumn,
                 {
                     property: 'active',
                     label: this.$tc('sw-product.variations.generatedListColumnActive'),
@@ -137,6 +154,10 @@ Component.register('sw-product-variants-overview', {
                     .setPage(this.page)
                     .setLimit(this.limit)
                     .addFilter(Criteria.equals('product.parentId', this.product.id));
+
+                if (this.feature.isActive('FEATURE_NEXT_6544')) {
+                    searchCriteria.addAssociation('media');
+                }
 
                 searchCriteria.getAssociation('options')
                     .addSorting(Criteria.sort('groupId'))
@@ -319,6 +340,18 @@ Component.register('sw-product-variants-overview', {
             return variant.active === null;
         },
 
+        isMediaFieldInherited(variant) {
+            if (variant.forceMediaInheritanceRemove) {
+                return false;
+            }
+
+            if (variant.media) {
+                return variant.media.length <= 0;
+            }
+
+            return !!variant.media;
+        },
+
         onInheritanceRestore(variant, currency) {
             if (!variant.price) {
                 return;
@@ -366,6 +399,28 @@ Component.register('sw-product-variants-overview', {
 
             // add new price currency to variant
             this.$set(variant.price, variant.price.length, newPrice);
+        },
+
+        onMediaInheritanceRestore(variant) {
+            variant.forceMediaInheritanceRemove = false;
+            variant.coverId = null;
+
+            variant.media.getIds().forEach((mediaId) => {
+                variant.media.remove(mediaId);
+            });
+        },
+
+        onMediaInheritanceRemove(variant) {
+            variant.forceMediaInheritanceRemove = true;
+            this.product.media.forEach(({ id, mediaId, position }) => {
+                const media = this.productMediaRepository.create(Context.api);
+                Object.assign(media, { mediaId, position, productId: this.product.id });
+                if (this.product.coverId === id) {
+                    variant.coverId = media.id;
+                }
+
+                variant.media.push(media);
+            });
         },
 
         getDefaultPriceForVariant(variant) {

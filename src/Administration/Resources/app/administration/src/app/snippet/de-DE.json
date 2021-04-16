@@ -625,7 +625,8 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Als Cover nutzen",
-        "buttonRemove": "Entfernen"
+        "buttonRemove": "Entfernen",
+        "buttonPreviewImage": "Vorschau-Bild"
       }
     },
     "sw-simple-search-field": {

@@ -1,0 +1,137 @@
+{% block sw_media_upload_v2 %}
+    <div class="sw-media-upload-v2 sw-product-variants-media-upload" :class="{ 'is--disabled': disabled }">
+        {% block sw_product_variants_media_upload_content %}
+            <div class="sw-media-upload-v2__content">
+                {% block sw_product_variants_media_upload_drop_zone %}
+                    <div class="sw-media-upload-v2__dropzone" ref="dropzone">
+                        <div class="sw-product-variants-media-upload__preview-images">
+                            {% block sw_product_variants_media_upload_cover_preview %}
+                                <div v-if="product.cover || cover" class="sw-product-variants-media-upload__preview-cover">
+                                    {% block sw_product_variants_media_upload_cover_image %}
+                                        <sw-media-preview-v2
+                                            class="sw-product-variants-media-upload__cover-image"
+                                            :source="cover ? cover.mediaId : product.cover.mediaId">
+                                        </sw-media-preview-v2>
+                                    {% endblock %}
+                                </div>
+                                <div v-else-if="source.media.length > 0" class="sw-product-variants-media-upload__preview-cover">
+                                    {% block sw_product_variants_media_upload_cover_image_empty %}
+                                        <sw-media-preview-v2
+                                            class="sw-product-variants-media-upload__cover-image"
+                                            :source="null">
+                                        </sw-media-preview-v2>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_product_variants_media_upload_preview %}
+                                <div class="sw-product-variants-media-upload__images" :class="{ 'is--compact--button': mediaSource.length > 3 }">
+                                    <div v-for="item in mediaSource" class="sw-product-variants-media-upload__image">
+                                        {% block ssw_product_variants_media_upload_content_preview_file %}
+                                            <sw-media-preview-v2
+                                                class="sw-media-upload-v2__preview"
+                                                :key="item.id"
+                                                :class="{ 'is--cover': isCover(item), 'is--disabled': disabled }"
+                                                :source="item.mediaId">
+                                            </sw-media-preview-v2>
+                                        {% endblock %}
+
+                                        {% block sw_product_variants_media_upload_action_buttons %}
+                                            <sw-context-button class="sw-product-variants-media-upload__context-button" :disabled="disabled">
+                                                {% block sw_product_variants_media_upload_context %}
+                                                    {% block sw_product_variants_media_upload_context_cover_action %}
+                                                        <sw-context-menu-item v-if="!isCover(item)" @click="markMediaAsCover(item)">{{ $tc('global.sw-product-image.context.buttonAsCover') }}</sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_product_variants_media_upload_context_preview_action %}
+                                                        <sw-context-menu-item>{{ $tc('global.sw-product-image.context.buttonPreviewImage') }}</sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_product_variants_media_upload_context_delete_action %}
+                                                        <sw-context-menu-item variant="danger" @click="removeMedia(item)">{{ $tc('global.sw-product-image.context.buttonRemove') }}</sw-context-menu-item>
+                                                    {% endblock %}
+                                                {% endblock %}
+                                            </sw-context-button>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                        {% block sw_product_variants_media_upload_actions %}
+                            <div class="sw-media-upload-v2__actions">
+                                {% block sw_product_variants_media_upload_actions_regular %}
+                                    <div class="sw-product-variants-media-upload__regular-button" v-if="mediaSource.length <= 3">
+                                        {% block sw_product_variants_media_upload_actions_regular_upload_button %}
+                                            <sw-button
+                                                class="sw-media-upload-v2__button upload"
+                                                :disabled="disabled"
+                                                variant="ghost"
+                                                size="small"
+                                                @click="onClickUpload">
+                                                {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
+                                            </sw-button>
+                                        {% endblock %}
+
+                                        {% block sw_product_variants_media_upload_actions_regular_open_button %}
+                                            <sw-button
+                                                variant="primary"
+                                                :disabled="disabled"
+                                                class="sw-product-variants-media-upload__browse-button"
+                                                @click="showMediaModal = true">
+                                                <sw-icon class="sw-product-variants-media-upload__browse-icon"
+                                                         name="default-object-image"></sw-icon>
+                                            </sw-button>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_product_variants_media_upload_actions_compact %}
+                                    <div v-else class="sw-product-variants-media-upload__compact-button">
+                                        <sw-button
+                                            variant="primary"
+                                            :disabled="disabled"
+                                            class="sw-product-variants-media-upload__browse-button">
+                                            <sw-icon class="sw-product-variants-media-upload__browse-icon"
+                                                     name="default-basic-plus-line"></sw-icon>
+                                        </sw-button>
+                                        <sw-context-button class="sw-product-variants-media-upload__context-button" :disabled="disabled">
+                                            {% block sw_product_variants_media_upload_actions_compact_button_context %}
+                                                {% block sw_product_variants_media_upload_actions_compact_button_context_upload_action %}
+                                                    <sw-context-menu-item @click="onClickUpload">{{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}</sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_product_variants_media_upload_actions_compact_button_context_open_action %}
+                                                    <sw-context-menu-item @click="showMediaModal = true">{{ $tc('global.sw-media-upload-v2.buttonOpenMedia') }}</sw-context-menu-item>
+                                                {% endblock %}
+                                            {% endblock %}
+                                        </sw-context-button>
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_product_variants_media_upload_file_input %}
+            <form class="sw-media-upload-v2__form" ref="fileForm">
+                <input class="sw-media-upload-v2__file-input"
+                       type="file"
+                       :key="source.id"
+                       ref="fileInput"
+                       :accept="fileAccept"
+                       :multiple="multiSelect"
+                       @change="onFileInputChange"/>
+            </form>
+        {% endblock %}
+        {% block sw_product_variants_media_upload_actions_media_modal %}
+            <sw-media-modal-v2
+                v-if="showMediaModal"
+                :entityContext="product.getEntityName()"
+                @modal-close="showMediaModal = false"
+                @media-modal-selection-change="">
+            </sw-media-modal-v2>
+        {% endblock %}
+    </div>
+{% endblock %}

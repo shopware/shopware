@@ -47,6 +47,18 @@ class ElementReplaceHelperSingleton {
             target = DomAccess.querySelectorAll(document, target, strict);
         }
 
+        if (src instanceof NodeList && target instanceof NodeList && target.length > src.length) {
+            Iterator.iterate(target, (targetEl) => {
+                Iterator.iterate(src, (srcEl) => {
+                    if (srcEl.innerHTML && srcEl.className === targetEl.className) {
+                        targetEl.innerHTML = srcEl.innerHTML;
+                    }
+                });
+            });
+
+            return true;
+        }
+
         if (src instanceof NodeList) {
             Iterator.iterate(src, (srcEl, index) => {
                 if (srcEl.innerHTML) {

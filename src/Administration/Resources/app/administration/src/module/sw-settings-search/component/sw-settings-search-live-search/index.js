@@ -101,9 +101,13 @@ Component.register('sw-settings-search-live-search', {
                     searchTerms: this.liveSearchTerm,
                     searchResults: this.liveSearchResults
                 });
-            }).catch((err) => {
+            }).catch((error) => {
+                const message = error.response.status === 500
+                    ? this.$tc('sw-settings-search.notification.notSupportedLanguageError')
+                    : error.message;
+
                 this.createNotificationError({
-                    message: err.message
+                    message
                 });
             }).finally(() => {
                 this.searchInProgress = false;

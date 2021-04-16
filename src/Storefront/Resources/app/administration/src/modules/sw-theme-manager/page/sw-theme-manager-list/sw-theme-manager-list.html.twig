@@ -4,8 +4,7 @@
         {% block sw_theme_manager_list_search_bar %}
             <template slot="search-bar">
                 <sw-search-bar :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-theme-manager.general.mainMenuItemIndex')"
-                               :entityService="themeRepository"
+                               :initialSearchType="$tc('sw-theme-manager.general.mainMenuItemGeneral')"
                                @search="onSearch">
                 </sw-search-bar>
             </template>

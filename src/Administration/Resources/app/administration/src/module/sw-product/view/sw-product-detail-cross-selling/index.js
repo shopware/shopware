@@ -31,7 +31,11 @@ Component.register('sw-product-detail-cross-selling', {
 
         ...mapGetters('swProductDetail', [
             'isLoading'
-        ])
+        ]),
+
+        showCrossSellingCard() {
+            return !this.isLoading && this.product.crossSellings && this.product.crossSellings.length > 0;
+        }
     },
 
     watch: {

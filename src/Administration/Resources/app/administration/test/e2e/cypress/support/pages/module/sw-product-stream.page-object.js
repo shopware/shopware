@@ -71,18 +71,20 @@ export default class ProductStreamPageObject {
         });
 
         value.forEach((value) => {
-            cy.get('li.sw-select-result').contains(value).click();
+            // "force: true" is needed, because when clicking several entries, the tooltip might be overlapping
+            // the next element to click
+            cy.get('li.sw-select-result').contains(value).click({ force: true });
         });
     }
 
     selectFieldAndOperator(selector, fieldPath, operator) {
         if (typeof fieldPath === 'string' && fieldPath !== '') {
             cy.wrap(fieldPath.split('.')).each((field) => {
-                 cy.get('.sw-product-stream-field-select').last().within(($singleSelect) => {
+                cy.get('.sw-product-stream-field-select').last().within(($singleSelect) => {
                     cy.wrap($singleSelect).click();
                     cy.get('.sw-select-result-list').should('be.visible');
                     selectResultList().find('li.sw-select-result').contains(field).click();
-                })
+                });
             });
         }
 

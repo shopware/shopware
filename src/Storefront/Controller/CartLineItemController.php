@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
@@ -273,7 +274,9 @@ class CartLineItemController extends StorefrontController
             return false;
         }
 
-        $cart->getErrors()->clear();
+        $this->addCartErrors($cart, function (Error $error) {
+            return $error->isPersistent();
+        });
 
         return true;
     }

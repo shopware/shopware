@@ -126,7 +126,7 @@
                         scrollToElement: true
                     } %}
 
-                    {% set reviewTabHref = "#review-tab-pane-" ~ product.id %}
+                    {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
 
                     {% block buy_widget_reviews %}
                         {% if product.ratingAverage > 0 and totalReviews > 0 and config('core.listing.showReview') %}

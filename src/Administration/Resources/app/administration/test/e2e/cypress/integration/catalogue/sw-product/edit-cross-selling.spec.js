@@ -109,6 +109,9 @@ describe('Product: Check cross selling integration', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
+        // check if add cross selling button is still visible
+        cy.get('.sw-product-detail-cross-selling__add-btn').should('be.visible');
+
         // Verify in storefront
         cy.visit('/');
         cy.contains('Original product').click();
@@ -167,6 +170,9 @@ describe('Product: Check cross selling integration', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
+        // check if add cross selling button is still visible
+        cy.get('.sw-product-detail-cross-selling__add-btn').should('be.visible');
+
         // Add products to cross selling
         cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').type('Second');
         cy.get('.sw-select-result').should('be.visible');
@@ -198,6 +204,9 @@ describe('Product: Check cross selling integration', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
+
+        // check if add cross selling button is still visible
+        cy.get('.sw-product-detail-cross-selling__add-btn').should('be.visible');
 
         // Verify in storefront
         cy.visit('/');
@@ -249,6 +258,9 @@ describe('Product: Check cross selling integration', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 400);
         });
+
+        // check if add cross selling button is still visible
+        cy.get('.sw-product-detail-cross-selling__add-btn').should('be.visible');
 
         cy.get('.sw-tabs__content').contains('.sw-tabs-item', 'Cross Selling').then((field) => {
             cy.wrap(field).should('have.class', 'sw-tabs-item--has-error');

@@ -2,6 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
 ## 6.4.0.0
+*  [NEXT-14801 - Overriding admin components not working](/changelog/release-6-4-0-0/2021-04-15-fix-component-override-inheritance-in-comination-with-mixins.md)
 *  [NEXT-14735 - Fix image slider navigation of CMS product detail page on mobile](/changelog/release-6-4-0-0/2021-04-12-fix-image-slider-navigation-of-cms-product-detail-page-on-mobile.md)
 *  [NEXT-14548 - Fix missing close button of offcanvas on cms product page](/changelog/release-6-4-0-0/2021-04-01-fix-missing-close-button-of-offcanvas-on-cms-product-page.md)
 *  [NEXT-14415 - Set local time configuration for date range rule builder](/changelog/release-6-4-0-0/2021-03-29-set-local-time-configuration-for-date-range-rule-builder.md)

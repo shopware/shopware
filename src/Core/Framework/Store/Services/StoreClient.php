@@ -40,7 +40,7 @@ class StoreClient
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
 
-    private ?Client $client = null;
+    private Client $client;
 
     private EntityRepositoryInterface $pluginRepo;
 
@@ -60,7 +60,8 @@ class StoreClient
         EntityRepositoryInterface $pluginRepo,
         SystemConfigService $configService,
         ?AbstractAuthenticationProvider $authenticationProvider,
-        ?ExtensionLoader $extensionLoader
+        ?ExtensionLoader $extensionLoader,
+        Client $client
     ) {
         $this->endpoints = $endpoints;
         $this->storeService = $storeService;
@@ -68,11 +69,12 @@ class StoreClient
         $this->pluginRepo = $pluginRepo;
         $this->authenticationProvider = $authenticationProvider;
         $this->extensionLoader = $extensionLoader;
+        $this->client = $client;
     }
 
     public function ping(): void
     {
-        $this->getClient()->get($this->endpoints['ping']);
+        $this->client->get($this->endpoints['ping']);
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password, string $language, Context $context): AccessTokenStruct
@@ -81,7 +83,7 @@ class StoreClient
             throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
-        $response = $this->getClient()->post(
+        $response = $this->client->post(
             $this->endpoints['login'],
             [
                 'body' => json_encode([
@@ -110,7 +112,7 @@ class StoreClient
      */
     public function getLicenseList(string $storeToken, string $language, Context $context): array
     {
-        $response = $this->getClient()->get(
+        $response = $this->client->get(
             $this->endpoints['my_plugin_licenses'],
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language),
@@ -188,11 +190,11 @@ class StoreClient
         } catch (StoreTokenMissingException $e) {
         }
 
-        $response = $this->getClient()->post(
+        $response = $this->client->post(
             $this->endpoints['my_plugin_updates'],
             [
                 'query' => $query,
-                'body' => json_encode(['plugins' => $list]),
+                'body' => \json_encode(['plugins' => $list]),
                 'headers' => $this->getHeaders($token),
             ]
         );
@@ -230,7 +232,7 @@ class StoreClient
         $query = $this->storeService->getDefaultQueryParameters($language, false);
         $query['hostName'] = $hostName;
 
-        $response = $this->getClient()->post(
+        $response = $this->client->post(
             $this->endpoints['my_plugin_updates'],
             [
                 'query' => $query,
@@ -296,11 +298,11 @@ class StoreClient
         $query = $this->storeService->getDefaultQueryParameters($language, false);
         $query['hostName'] = $hostName;
 
-        $response = $this->getClient()->post(
+        $response = $this->client->post(
             $this->endpoints['environment_information'],
             [
                 'query' => $query,
-                'body' => json_encode(['plugins' => $pluginData]),
+                'body' => \json_encode(['plugins' => $pluginData]),
                 'headers' => $this->getHeaders($storeToken),
             ]
         );
@@ -312,7 +314,7 @@ class StoreClient
 
     public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, bool $checkLicenseDomain = true): PluginDownloadDataStruct
     {
-        $response = $this->getClient()->get(
+        $response = $this->client->get(
             str_replace('{pluginName}', $pluginName, $this->endpoints['plugin_download']),
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, $checkLicenseDomain),
@@ -338,7 +340,7 @@ class StoreClient
             ];
         }
 
-        $response = $this->getClient()->post(
+        $response = $this->client->post(
             $this->endpoints['updater_extension_compatibility'],
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
@@ -364,7 +366,7 @@ class StoreClient
             ];
         }
 
-        $response = $this->getClient()->post(
+        $response = $this->client->post(
             $this->endpoints['updater_extension_compatibility'],
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
@@ -381,17 +383,17 @@ class StoreClient
 
     public function isShopUpgradeable(): bool
     {
-        $response = $this->getClient()->get($this->endpoints['updater_permission'], [
+        $response = $this->client->get($this->endpoints['updater_permission'], [
             'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
             'headers' => $this->getHeaders(),
         ]);
 
-        return json_decode((string) $response->getBody(), true)['updateAllowed'];
+        return \json_decode((string) $response->getBody(), true)['updateAllowed'];
     }
 
     public function signPayloadWithAppSecret(string $payload, string $appName): string
     {
-        $response = $this->getClient()->post($this->endpoints['app_generate_signature'], [
+        $response = $this->client->post($this->endpoints['app_generate_signature'], [
             'headers' => $this->getHeaders(),
             'json' => [
                 'payload' => $payload,
@@ -412,7 +414,7 @@ class StoreClient
         $storeToken = $this->authenticationProvider->getUserStoreToken($context);
 
         try {
-            $response = $this->getClient()->post($this->endpoints['my_extensions'], [
+            $response = $this->client->post($this->endpoints['my_extensions'], [
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
                 'headers' => $this->getHeaders($storeToken),
                 'json' => ['plugins' => array_map(function (ExtensionStruct $e) {
@@ -456,7 +458,7 @@ class StoreClient
         }
 
         try {
-            $this->getClient()->post(sprintf($this->endpoints['cancel_license'], $licenseId), [
+            $this->client->post(sprintf($this->endpoints['cancel_license'], $licenseId), [
                 'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
                 'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
             ]);
@@ -481,7 +483,7 @@ class StoreClient
         }
 
         try {
-            $this->getClient()->post(
+            $this->client->post(
                 sprintf($this->endpoints['create_rating'], $rating->getExtensionId()),
                 [
                     'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
@@ -501,7 +503,7 @@ class StoreClient
         }
 
         try {
-            $response = $this->getClient()->get(
+            $response = $this->client->get(
                 $this->endpoints['my_licenses'],
                 [
                     'query' => $this->storeService->getDefaultQueryParameters('en-GB'),
@@ -518,15 +520,6 @@ class StoreClient
             'headers' => $response->getHeaders(),
             'data' => $body,
         ];
-    }
-
-    private function getClient(): Client
-    {
-        if ($this->client === null) {
-            $this->client = $this->storeService->createClient();
-        }
-
-        return $this->client;
     }
 
     /**
@@ -563,7 +556,7 @@ class StoreClient
 
     private function getHeaders(?string $storeToken = null): array
     {
-        $headers = $this->getClient()->getConfig('headers');
+        $headers = $this->client->getConfig('headers');
 
         if ($storeToken) {
             $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;

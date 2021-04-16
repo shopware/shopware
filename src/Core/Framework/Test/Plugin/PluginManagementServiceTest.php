@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
-use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -133,7 +132,7 @@ class PluginManagementServiceTest extends TestCase
             $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),
-            $this->getContainer()->get(StoreService::class)
+            $this->getContainer()->get('shopware.store_client')
         );
     }
 

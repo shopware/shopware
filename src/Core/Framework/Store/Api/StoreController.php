@@ -250,12 +250,9 @@ class StoreController extends AbstractStoreController
             throw new StoreApiException($exception);
         }
 
-        $statusCode = $this->pluginManagementService->downloadStorePlugin($data, $context);
-        if ($statusCode !== Response::HTTP_OK) {
-            return new JsonResponse(null, $statusCode);
-        }
+        $this->pluginManagementService->downloadStorePlugin($data, $context);
 
-        return new JsonResponse();
+        return new JsonResponse(null, Response::HTTP_OK);
     }
 
     /**

@@ -11,4 +11,5 @@ trait IntegrationTestBehaviour
     use BasicTestDataBehaviour;
     use SessionTestBehaviour;
     use RequestStackTestBehaviour;
+    use SystemConfigTestBehaviour;
 }

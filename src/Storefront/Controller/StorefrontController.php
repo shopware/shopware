@@ -125,12 +125,17 @@ abstract class StorefrontController extends AbstractController
         return $params;
     }
 
-    protected function addCartErrors(Cart $cart): void
+    protected function addCartErrors(Cart $cart, ?\Closure $filter = null): void
     {
+        $errors = $cart->getErrors();
+        if ($filter !== null) {
+            $errors = $errors->filter($filter);
+        }
+
         $groups = [
-            'info' => $cart->getErrors()->getNotices(),
-            'warning' => $cart->getErrors()->getWarnings(),
-            'danger' => $cart->getErrors()->getErrors(),
+            'info' => $errors->getNotices(),
+            'warning' => $errors->getWarnings(),
+            'danger' => $errors->getErrors(),
         ];
 
         foreach ($groups as $type => $errors) {

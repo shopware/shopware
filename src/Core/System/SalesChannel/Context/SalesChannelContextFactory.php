@@ -464,8 +464,14 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $addresses = $this->addressRepository->search($criteria, $context);
 
-        $customer->setActiveBillingAddress($addresses->get($billingAddressId));
-        $customer->setActiveShippingAddress($addresses->get($shippingAddressId));
+        $billingAddress = $addresses->get($billingAddressId);
+        if (null !== $billingAddress) {
+            $customer->setActiveBillingAddress($billingAddress);
+        }
+        $shippingAddress = $addresses->get($shippingAddressId);
+        if (null !== $shippingAddress) {
+            $customer->setActiveShippingAddress($shippingAddress);
+        }
 
         return $customer;
     }

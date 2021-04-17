@@ -65,17 +65,10 @@ describe('Product: Check cross selling integration', () => {
             {
                 field: null,
                 operator: 'Is equal to any of',
-                value: ['Second product']
+                value: ['Second product', 'Third product']
             }
         );
-        page.fillFilterWithEntityMultiSelect(
-            '.sw-product-stream-filter',
-            {
-                field: null,
-                operator: 'Is equal to any of',
-                value: ['Third product']
-            }
-        );
+
         cy.get('.sw-button-process').click();
         cy.wait('@saveStream').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

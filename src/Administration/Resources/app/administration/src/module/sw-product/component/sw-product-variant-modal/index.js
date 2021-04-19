@@ -509,14 +509,15 @@ Component.register('sw-product-variant-modal', {
             }
 
             variant.forceMediaInheritanceRemove = true;
-            this.productEntity.media.forEach(({ id, mediaId, position }) => {
-                const media = this.productMediaRepository.create(Context.api);
-                Object.assign(media, { mediaId, position, productId: this.productEntity.id });
+            this.productEntity.media.forEach(({ id, mediaId, position, media }) => {
+                const mediaItem = this.productMediaRepository.create(Context.api);
+                Object.assign(mediaItem, { mediaId, position, productId: this.productEntity.id, media });
+
                 if (this.productEntity.coverId === id) {
-                    variant.coverId = media.id;
+                    variant.coverId = mediaItem.id;
                 }
 
-                variant.media.push(media);
+                variant.media.push(mediaItem);
             });
         }
     }

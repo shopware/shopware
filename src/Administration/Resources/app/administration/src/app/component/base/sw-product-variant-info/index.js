@@ -67,7 +67,7 @@ Component.register('sw-product-variant-info', {
 
     computed: {
         productName() {
-            return this.$slots.default[0].text;
+            return this.$slots?.default?.[0]?.text;
         }
     },
 
@@ -87,7 +87,7 @@ Component.register('sw-product-variant-info', {
         },
 
         getFirstSlot() {
-            return this.$slots.default[0].text;
+            return this.$slots?.default?.[0]?.text;
         },
 
         setHelpText() {

@@ -44,7 +44,7 @@
                                                     {% endblock %}
 
                                                     {% block sw_product_variants_media_upload_context_preview_action %}
-                                                        <sw-context-menu-item>{{ $tc('global.sw-product-image.context.buttonPreviewImage') }}</sw-context-menu-item>
+                                                        <sw-context-menu-item @click="previewMedia(item)">{{ $tc('global.sw-product-image.context.buttonPreviewImage') }}</sw-context-menu-item>
                                                     {% endblock %}
 
                                                     {% block sw_product_variants_media_upload_context_delete_action %}
@@ -145,6 +145,15 @@
                 @media-upload-finish="onUploadMediaSuccessful"
                 @media-upload-fail="onUploadMediaFailed">
             </sw-upload-listener>
+        {% endblock %}
+
+        {% block sw_product_variants_media_upload_preview_modal %}
+            <sw-image-preview-modal
+                v-if="showPreviewModal"
+                :activeItemId="activeItemId"
+                :mediaItems="mediaSource"
+                @modal-close="onClosePreviewModal">
+            </sw-image-preview-modal>
         {% endblock %}
     </div>
 {% endblock %}

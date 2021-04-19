@@ -1,43 +1,76 @@
 @import "~scss/variables";
 
 .sw-image-slider {
-    &__image-container {
-        position: relative;
+    position: relative;
 
-        &-scrollable {
-            display: flex;
-            transform: translateX(0);
-            transition: transform 0.3s ease-out;
-            clear: both;
+    &__image-container {
+        height: 100%;
+    }
+
+    &__image-scrollable {
+        display: flex;
+        transform: translateX(0);
+        transition: transform 0.5s ease-out;
+        clear: both;
+        height: 100%;
+        justify-content: center;
+    }
+
+    &__element-container {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+
+        &.is--rounded {
+            border-radius: $border-radius-default;
         }
 
-        &-element {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+        &.is--bordered {
+            border: 1px solid #ccc;
+        }
+
+        &.is--active {
+            border: 1px solid $color-shopware-brand-500;
             border-radius: $border-radius-default;
+        }
+    }
 
-            &-wrapper {
-                flex-direction: column;
-                align-self: flex-start;
-                border: 1px solid #ccc;
-                border-radius: calc(#{$border-radius-default} + 2px);
-            }
+    &__element-wrapper {
+        flex-direction: column;
+        align-self: flex-start;
+        border-radius: calc(#{$border-radius-default} + 2px);
+        height: 100%;
+    }
 
-            &-description {
-                padding: 24px 12px;
-            }
+    &__element-description {
+        padding: 24px 12px;
+    }
 
-            &-image {
-                border-radius: $border-radius-default;
-                user-select: none;
-            }
+    &__element-image {
+        user-select: none;
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+
+        &.is--auto-width {
+            height: auto;
+            width: auto;
+            max-height: 100%;
+            max-width: 100%;
         }
     }
 
     &__buttons {
         text-align: center;
+
+        &.is--button-inside {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
 
         &-element {
             width: 12px;
@@ -64,6 +97,7 @@
         background-color: rgba(255, 255, 255, 0);
         transition: background-color 0.3s ease-out;
         cursor: pointer;
+        height: 100%;
 
         &:hover {
             background-color: rgba(255, 255, 255, 0.3);

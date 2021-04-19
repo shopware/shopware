@@ -11,10 +11,16 @@ Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', {
         createdComponent() {
             this.initElementConfig('product-name');
 
-            if (this.isProductPage && !Utils.get(this.element, 'translated.config.content')) {
-                this.element.config.content.source = 'mapped';
-                this.element.config.content.value = 'product.name';
+            if (!this.isProductPage || Utils.get(this.element, 'translated.config.content')) {
+                return;
             }
+
+            if (this.element.config.content.source && this.element.config.content.value) {
+                return;
+            }
+
+            this.element.config.content.source = 'mapped';
+            this.element.config.content.value = 'product.name';
         }
     }
 });

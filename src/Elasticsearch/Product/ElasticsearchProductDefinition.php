@@ -214,6 +214,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'price' => $prices,
                 'purchasePrices' => $purchase,
                 'manufacturerId' => $item['productManufacturerId'],
+                'manufacturer' => [
+                    'id' => $item['productManufacturerId'],
+                ],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'optionIds' => json_decode($item['optionIds'] ?? '[]', true),
                 'options' => array_map(fn (string $optionId) => ['id' => $optionId], json_decode($item['optionIds'] ?? '[]', true)),

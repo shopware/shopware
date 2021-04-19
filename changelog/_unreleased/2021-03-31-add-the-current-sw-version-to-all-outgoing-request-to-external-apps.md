@@ -1,7 +1,6 @@
 ---
 title: Add the current sw version to all outgoing request to external apps
 issue: NEXT-14359
-flag: FEATURE_NEXT_13992
 ---
 # Core
 * Changed method `execute` in `src/Core/Framework/App/ActionButton/Executor.php` to add `shopware version` to `action button requests` 

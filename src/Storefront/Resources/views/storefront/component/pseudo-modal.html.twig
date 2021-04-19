@@ -1,26 +1,40 @@
-<div class="js-pseudo-modal-template">
-    <div class="modal fade"
-         tabindex="-1"
-         role="dialog">
-        <div class="modal-dialog"
-             role="document">
-            <div class="modal-content">
-                <div class="modal-header only-close">
-                    <h5 class="modal-title js-pseudo-modal-template-title-element"></h5>
-                    <button type="button"
-                            class="modal-close close"
-                            data-dismiss="modal"
-                            aria-label="Close">
-                        {% block product_detail_zoom_modal_close_button_content %}
-                            <span aria-hidden="true">
-                                {% sw_icon 'x' style { 'size': 'sm' } %}
-                            </span>
+{% block component_pseudo_modal %}
+    <div class="js-pseudo-modal-template">
+        <div class="modal fade"
+            tabindex="-1"
+            role="dialog">
+            {% block component_pseudo_modal_dialog %}
+                <div class="modal-dialog"
+                    role="document">
+                    <div class="modal-content">
+                        {% block component_pseudo_modal_header %}
+                            <div class="modal-header only-close">
+                                {% block component_pseudo_modal_header_title %}
+                                    <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
+                                {% endblock %}
+                                {% block component_pseudo_modal_header_close_button %}
+                                    <button type="button"
+                                            class="modal-close close"
+                                            data-dismiss="modal"
+                                            aria-label="Close">
+                                        {% block component_pseudo_modal_header_close_button_content %}
+                                            <span aria-hidden="true">
+                                                {% sw_icon 'x' style { 'size': 'sm' } %}
+                                            </span>
+                                        {% endblock %}
+                                    </button>
+                                {% endblock %}
+                            </div>
                         {% endblock %}
-                    </button>
+                        {% block component_pseudo_modal_body %}
+                            <div class="modal-body js-pseudo-modal-template-content-element">
+                                {% block component_pseudo_modal_body_cotent %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
                 </div>
-                <div class="modal-body js-pseudo-modal-template-content-element">
-                </div>
-            </div>
+            {% endblock %}
         </div>
     </div>
-</div>
+{% endblock %}

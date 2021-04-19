@@ -713,6 +713,8 @@ Component.register('sw-category-detail', {
                 return null;
             }
 
+            this.deleteEntityAndRequiredConfigKey(this.cmsPage.sections);
+
             const changesetGenerator = new ChangesetGenerator();
             const { changes } = changesetGenerator.generate(this.cmsPage);
 
@@ -727,26 +729,48 @@ Component.register('sw-category-detail', {
                         section.blocks.forEach((block) => {
                             if (type.isArray(block.slots)) {
                                 block.slots.forEach((slot) => {
-                                    if (type.isPlainObject(slot.config)) {
-                                        const slotConfig = {};
-
-                                        Object.keys(slot.config).forEach((key) => {
-                                            if (slot.config[key].value !== null) {
-                                                slotConfig[key] = slot.config[key];
-                                            }
-                                        });
-
-                                        if (Object.keys(slotConfig).length > 0) {
-                                            slotOverrides[slot.id] = slotConfig;
-                                        }
-                                    }
+                                    slotOverrides[slot.id] = slot.config;
                                 });
                             }
                         });
                     }
                 });
             }
+
             return slotOverrides;
+        },
+
+        deleteEntityAndRequiredConfigKey(sections) {
+            if (!sections) {
+                return;
+            }
+
+            sections.forEach((section) => {
+                if (!section.blocks) {
+                    return;
+                }
+
+                section.blocks.forEach((block) => {
+                    if (!block.slots) {
+                        return;
+                    }
+
+                    block.slots.forEach((slot) => {
+                        if (!slot.config) {
+                            return;
+                        }
+
+                        Object.values(slot.config).forEach((configField) => {
+                            if (configField.entity) {
+                                delete configField.entity;
+                            }
+                            if (configField.required) {
+                                delete configField.required;
+                            }
+                        });
+                    });
+                });
+            });
         },
 
         updateSeoUrls() {

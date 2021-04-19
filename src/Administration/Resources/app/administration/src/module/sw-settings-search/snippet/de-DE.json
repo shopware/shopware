@@ -88,6 +88,8 @@
       "createExcludedTermSuccess": "Ausgeschlossenen Suchbegriff erstellt.",
       "deleteExcludedTermSuccess": "Ausgeschlossenen Suchbegriff entfernt.",
       "saveError": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten.",
+      "resetToDefaultExcludedTermSuccess": "Ausgeschlossene Suchbegriffe wurden auf den Standard zurückgesetzt.",
+      "resetToDefaultExcludedTermError": "Beim Zurücksetzen ausgeschlossener Suchbegriffe ist ein Fehler aufgetreten.",
       "index": {
         "started": "Erstellen der Produkt-Indizes.",
         "success": "Produkt-Indizes erstellt."

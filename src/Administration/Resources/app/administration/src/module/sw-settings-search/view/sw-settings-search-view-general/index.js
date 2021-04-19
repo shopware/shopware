@@ -27,5 +27,11 @@ Shopware.Component.register('sw-settings-search-view-general', {
         productSearchConfigs(newValue) {
             this.searchConfigId = newValue.id || '';
         }
+    },
+
+    methods: {
+        loadData() {
+            this.$emit('excluded-search-terms-load');
+        }
     }
 });

@@ -12,8 +12,9 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/data-grid/sw-data-grid-column-position';
+import flushPromises from 'flush-promises';
 
-function createWrapper(privileges = []) {
+function createWrapper(privileges = [], resetError = false) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('popover', {});
@@ -54,6 +55,14 @@ function createWrapper(privileges = []) {
             },
             feature: {
                 isActive: () => true
+            },
+            excludedSearchTermService: {
+                resetExcludedSearchTerm: jest.fn(() => {
+                    if (resetError === true) {
+                        return Promise.reject();
+                    }
+                    return Promise.resolve();
+                })
             }
         },
 
@@ -213,5 +222,50 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
         const dataGridsSecondPage = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(dataGridsSecondPage.wrappers.length).toEqual(2);
+    });
+
+    it('should not able to reset excluded search term to default', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const btnResetToDefault = wrapper.find('.sw-settings-search-excluded-search-terms__reset-button');
+        expect(btnResetToDefault.attributes().disabled).toBeTruthy();
+    });
+
+    it('should able to reset excluded search term to default with success message', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.creator'
+        ]);
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        await wrapper.vm.$nextTick();
+
+        const btnResetToDefault = wrapper.find('.sw-settings-search-excluded-search-terms__reset-button');
+        expect(btnResetToDefault.attributes().disable).not.toBeTruthy();
+        await btnResetToDefault.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'sw-settings-search.notification.resetToDefaultExcludedTermSuccess'
+        });
+    });
+
+    it('should not able to reset excluded search term to default with error message', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.creator'
+        ], true);
+
+        wrapper.vm.createNotificationError = jest.fn();
+        await wrapper.vm.$nextTick();
+
+        const btnResetToDefault = wrapper.find('.sw-settings-search-excluded-search-terms__reset-button');
+        expect(btnResetToDefault.attributes().disable).not.toBeTruthy();
+        await btnResetToDefault.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-settings-search.notification.resetToDefaultExcludedTermError'
+        });
     });
 });

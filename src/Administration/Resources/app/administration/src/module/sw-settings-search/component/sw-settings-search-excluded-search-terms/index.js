@@ -7,6 +7,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
     template,
 
     inject: [
+        'excludedSearchTermService',
         'repositoryFactory',
         'acl'
     ],
@@ -20,6 +21,12 @@ Component.register('sw-settings-search-excluded-search-terms', {
             type: Object,
             required: false,
             default: null
+        },
+
+        isExcludedTermsLoading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -246,6 +253,21 @@ Component.register('sw-settings-search-excluded-search-terms', {
                 })
                 .finally(() => {
                     this.isLoading = false;
+                });
+        },
+
+        onResetExcludedSearchTermDefault() {
+            this.excludedSearchTermService.resetExcludedSearchTerm()
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-search.notification.resetToDefaultExcludedTermSuccess')
+                    });
+                    this.$emit('data-load');
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-search.notification.resetToDefaultExcludedTermError')
+                    });
                 });
         }
     }

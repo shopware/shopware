@@ -87,6 +87,8 @@
       "updateExcludedTermSuccess": "Excluded search term updated.",
       "createExcludedTermSuccess": "Excluded search term created.",
       "deleteExcludedTermSuccess": "Excluded search term deleted.",
+      "resetToDefaultExcludedTermSuccess": "Excluded search terms have been reset to default.",
+      "resetToDefaultExcludedTermError": "An error occurred while resetting excluded search terms.",
       "saveError": "An error occurred while saving your configuration.",
       "index": {
         "started": "Building product indexes.",

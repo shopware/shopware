@@ -75,12 +75,7 @@ export default class ChangesetGenerator {
             }
 
             if (definition.isJsonField(field)) {
-                const originValueStringified = types.isEmpty(originValue) ? null : JSON.stringify(originValue);
-                const draftValueStringified = types.isEmpty(draftValue) ? null : JSON.stringify(draftValue);
-
-                const equals = originValueStringified === draftValueStringified;
-
-                if (!equals) {
+                if (!types.isEqual(originValue, draftValue)) {
                     if (Array.isArray(draftValue) && draftValue.length <= 0) {
                         changes[fieldName] = [];
                         return;

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\MessageQueue\DeadMessage;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 use Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
@@ -119,6 +120,37 @@ class RequeueDeadMessagesServiceTest extends TestCase
             ->willReturn(new Envelope(new RetryMessage($encryptedId)));
 
         $this->requeueDeadMessageService->requeue();
+    }
+
+    public function testDoNotRequeueNotFoundDeadMessages(): void
+    {
+        $msg = new EncryptedMessage('test');
+        $e = new \Exception('exception');
+
+        $encryptedId = Uuid::randomHex();
+
+        $this->deadMessageRepository->create([
+            [
+                'id' => $encryptedId,
+                'originalMessageClass' => '\Shopware\Core\Framework\MessageQueue\DeadMessage\AMessageThatDoesNotExist',
+                'serializedOriginalMessage' => serialize($msg),
+                'handlerClass' => EncryptedMessageHandler::class,
+                'encrypted' => true,
+                'nextExecutionTime' => new \DateTime('2000-01-01'),
+                'exception' => \get_class($e),
+                'exceptionMessage' => $e->getMessage(),
+                'exceptionFile' => $e->getFile(),
+                'exceptionLine' => $e->getLine(),
+            ],
+        ], Context::createDefaultContext());
+
+        $this->bus->expects(static::never())->method('dispatch');
+        $this->encryptedBus->expects(static::never())->method('dispatch');
+        $this->requeueDeadMessageService->requeue();
+
+        $deadMessage = $this->deadMessageRepository->search(new Criteria([$encryptedId]), Context::createDefaultContext());
+
+        static::assertCount(0, $deadMessage);
     }
 
     public function testRequeueDeadMessagesByClassname(): void

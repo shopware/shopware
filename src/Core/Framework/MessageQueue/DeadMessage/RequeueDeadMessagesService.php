@@ -40,11 +40,23 @@ class RequeueDeadMessagesService
     public function requeue(?string $messageClass = null): void
     {
         $criteria = $this->buildCriteria($messageClass);
-        $messages = $this->deadMessageRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        $context = Context::createDefaultContext();
+        $messages = $this->deadMessageRepository->search($criteria, $context)->getEntities();
+
+        $notFoundDeadMessages = [];
 
         /** @var DeadMessageEntity $message */
         foreach ($messages as $message) {
+            if (!class_exists($message->getOriginalMessageClass())) {
+                $notFoundDeadMessages[] = ['id' => $message->getId()];
+
+                continue;
+            }
             $this->dispatchRetryMessage($message);
+        }
+
+        if (!empty($notFoundDeadMessages)) {
+            $this->deadMessageRepository->delete($notFoundDeadMessages, $context);
         }
     }
 
@@ -57,6 +69,7 @@ class RequeueDeadMessagesService
                 RangeFilter::LT => (new \DateTime())->format(\DATE_ATOM),
             ]
         ));
+
         if ($messageClass) {
             $criteria->addFilter(new EqualsFilter('originalMessageClass', $messageClass));
         }

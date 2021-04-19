@@ -9,7 +9,7 @@
     {% set reviewTabContent = "review-tab-" ~ product.id ~ "-pane" %}
 
     {% if element.data.product %}
-        <div class="product-detail-tabs cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
+        <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
             {% if config.alignment.value %}
                 <div class="cms-element-alignment{% if config.alignment.value == "center" %} align-self-center{% elseif config.alignment.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}

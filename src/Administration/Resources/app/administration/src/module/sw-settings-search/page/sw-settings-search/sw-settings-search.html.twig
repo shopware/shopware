@@ -21,14 +21,17 @@
         {% block sw_settings_search_smart_bar_actions %}
             <template #smart-bar-actions>
                 {% block sw_settings_search_smart_bar_actions_save %}
-                    <sw-button
+                    <sw-button-process
                         v-tooltip.bottom="tooltipSave"
                         class="sw-settings-search__button-save"
                         variant="primary"
                         :disabled="!allowSave"
-                        @click="onSaveSearchSettings">
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSaveSearchSettings">
                         {{ $tc('global.default.save') }}
-                    </sw-button>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

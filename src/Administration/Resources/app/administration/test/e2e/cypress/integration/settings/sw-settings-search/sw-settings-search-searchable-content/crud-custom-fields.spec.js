@@ -73,7 +73,7 @@ describe('Product Search: Test crud operations of custom field', () => {
         // Check field already created
         cy.get('.sw-settings-search__searchable-content-customfields ' +
             '.sw-data-grid__row--0 .sw-data-grid__cell-content:first').invoke('text').then((text) => {
-            expect(text.trim()).equal('custom_field_set_property');
+            expect(text.trim()).equal('My custom field - custom_field_set_property');
         });
     });
 
@@ -221,70 +221,5 @@ describe('Product Search: Test crud operations of custom field', () => {
         });
 
         cy.get('.sw-empty-state').should('exist');
-    });
-
-    it('@settings: Can not create a config field which is exists', () => {
-        const page = new SettingsPageObject();
-
-        // Request we want to wait for later
-        cy.server();
-
-        cy.route({
-            url: '/api/search/product-search-config-field',
-            method: 'post'
-        }).as('getData');
-
-        cy.route({
-            url: '/api/product-search-config-field',
-            method: 'post'
-        }).as('createSearchConfig');
-
-        cy.route({
-            url: '/api/search/custom-field',
-            method: 'post'
-        }).as('getCustomField');
-
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        // change to customfield tab
-        cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
-
-        cy.wait('@getCustomField').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        // Create a new item first and then duplicate it.
-        cy.get('.sw-settings-search__searchable-content-add-button').click();
-
-        cy.get('.sw-settings-search__searchable-content-customfields ' +
-            `${page.elements.dataGridRow}--0`).dblclick();
-        cy.get('.sw-settings-search-custom-field-select')
-            .typeSingleSelectAndCheck('custom_field_set_property', '.sw-settings-search-custom-field-select');
-        cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
-
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
-
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.awaitAndCheckNotification('Configuration saved.');
-
-        cy.get('.sw-settings-search__searchable-content-add-button').should('exist');
-        cy.get('.sw-settings-search__searchable-content-add-button').click();
-
-        cy.get('.sw-settings-search__searchable-content-customfields ' +
-            `${page.elements.dataGridRow}--0`).dblclick();
-        cy.get('.sw-settings-search-custom-field-select')
-            .typeSingleSelectAndCheck('custom_field_set_property', '.sw-settings-search-custom-field-select');
-        cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
-
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-        });
     });
 });

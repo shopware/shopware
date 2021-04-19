@@ -70,7 +70,8 @@
                             :searchTerms="searchTerms"
                             :searchResults="searchResults"
                             @sales-channel-change="onSalesChannelChanged"
-                            @live-search-results-change="onLiveSearchResultsChanged">
+                            @live-search-results-change="onLiveSearchResultsChanged"
+                            @excluded-search-terms-load="getProductSearchConfigs">
                         </router-view>
                     {% endblock %}
                 </sw-card-view>

@@ -447,7 +447,7 @@ describe('Search: Test ACL privileges', () => {
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms ' +
-            '.sw-settings-search__insert-button').click();
+            '.sw-settings-search-excluded-search-terms__insert-button').click();
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0`).dblclick();
         cy.get('.sw-settings-search-excluded-search-terms ' +

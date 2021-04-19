@@ -2,6 +2,14 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
+const packagingItemClassName = [
+    '.sw-product-packaging-form__purchase-unit-field',
+    '.sw-select-product__select_unit',
+    '.sw-product-packaging-form__pack-unit-field',
+    '.sw-product-packaging-form__pack-unit-plural-field',
+    '.sw-product-packaging-form__reference-unit-field'
+];
+
 describe('Product: Mode advanced settings at product detail', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -151,7 +159,7 @@ describe('Product: Mode advanced settings at product detail', () => {
             cy.get('.sw-product-detail-base__labelling-card').should('not.be.visible');
         });
     });
-
+    
     it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in Specification tab', () => {
         const page = new ProductPageObject();
 
@@ -169,7 +177,7 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
 
         cy.get('.sw-custom-field-set-list__column-name').click();
-        cy.get('sw-loader').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-custom-field-set-detail-base__label-entities').typeMultiSelectAndCheck('Products');
         cy.get('.sw-button-process').click();
 
@@ -177,6 +185,7 @@ describe('Product: Mode advanced settings at product detail', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
+        cy.awaitAndCheckNotification('has been saved');
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
 
         cy.clickContextMenuItem(
@@ -191,14 +200,6 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-product-detail-properties').should('be.visible');
         cy.get('.sw-product-detail-specification__essential-characteristics').should('be.visible');
 
-        const packagingItemClassName = [
-            '.sw-product-packaging-form__purchase-unit-field',
-            '.sw-select-product__select_unit',
-            '.sw-product-packaging-form__pack-unit-field',
-            '.sw-product-packaging-form__pack-unit-plural-field',
-            '.sw-product-packaging-form__reference-unit-field'
-        ];
-
         packagingItemClassName.forEach(item => {
             cy.get(item).should('be.visible');
         });
@@ -209,9 +210,14 @@ describe('Product: Mode advanced settings at product detail', () => {
             });
 
         // Toggle off advanced mode
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-settings-mode').click();
         cy.get('.sw-product-settings-mode__advanced-mode').click();
 
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-product-detail-specification__measures-packaging').should('be.visible');
+        cy.get('.sw-product-detail-properties').should('be.visible');
+        cy.get('.sw-product-detail-properties .sw-empty-state__element').should('be.visible');
         cy.get('.sw-product-detail-specification__essential-characteristics').should('not.be.visible');
 
         packagingItemClassName.forEach(item => {
@@ -221,6 +227,7 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-product-detail-specification__custom-fields').should('not.be.visible');
 
         // Toggle on advanced mode
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-settings-mode__advanced-mode').click();
 
         cy.wait('@saveUserConfig').then((xhr) => {

@@ -440,9 +440,9 @@ Component.register('sw-product-detail', {
             Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', true]);
             this.userModeSettingsRepository.save(this.advancedModeSetting, Shopware.Context.api)
                 .then(() => {
-                    this.getAdvancedModeSetting();
-                    Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', false]);
-                    Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.advancedModeSetting);
+                    this.getAdvancedModeSetting().then(() => {
+                        Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', false]);
+                    });
                 })
                 .catch(() => {
                     this.createNotificationError({

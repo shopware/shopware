@@ -43,8 +43,10 @@ class AdministrationControllerTest extends TestCase
 
     public function testResetExcludedSearchTerm(): void
     {
-        $defaultExcludedTermEn = require \dirname(__DIR__) . './../../Core/Migration/Fixtures/stopwords/en.php';
-        $defaultExcludedTermDe = require \dirname(__DIR__) . './../../Core/Migration/Fixtures/stopwords/de.php';
+        /** @var string $coreDir */
+        $coreDir = $this->getContainer()->getParameter('kernel.shopware_core_dir');
+        $defaultExcludedTermEn = require $coreDir . '/Migration/Fixtures/stopwords/en.php';
+        $defaultExcludedTermDe = require $coreDir . '/Migration/Fixtures/stopwords/de.php';
 
         $languageIds = array_column($this->connection->fetchAll('SELECT `language`.id FROM `language`'), 'id');
         foreach ($languageIds as $languageId) {

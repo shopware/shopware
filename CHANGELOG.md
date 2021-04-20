@@ -2,6 +2,9 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
 ## 6.4.0.0
+*  [NEXT-11742 - Create cms block gallery buybox in administration](/changelog/release-6-4-0-0/2020-11-16-create-cms-block-gallery-buybox-in-administration.md)
+*  [NEXT-12967 - Implement layout assignment in Page builder](/changelog/release-6-4-0-0/2021-01-06-implement-layout-assignment-in-page-builder.md)
+*  [NEXT-14417 - Add reset to default for excluded search term.](/changelog/release-6-4-0-0/2021-04-01-add-reset-to-default-for-excluded-search-term.md)
 *  [NEXT-14380 - Dispatch AppDeletedEvent once](/changelog/release-6-4-0-0/2021-03-20-dispatch-appdeletedevent-once.md)
 *  [NEXT-14351 - The VAT-ID should get from orderCustomer within the order mail templates](/changelog/release-6-4-0-0/2021-03-22-the-vat-id-should-get-from-order-customer-within-the-order-mail-templates.md)
 *  [NEXT-13285 - Validate generated Openapi3 files](/changelog/release-6-4-0-0/2021-03-22-validation-of-openapi3-files.md)

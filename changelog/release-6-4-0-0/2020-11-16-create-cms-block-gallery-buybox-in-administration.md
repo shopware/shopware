@@ -1,7 +1,6 @@
 ---
 title: Create cms block gallery buybox in administration
 issue: NEXT-11742
-flag: FEATURE_FLAG_10078
 ---
 # Administration
 * Added component `gallery-buybox` in `src/module/sw-cms/blocks/commerce`

@@ -1,7 +1,6 @@
 ---
 title: Implement layout assignment in Page builder
 issue: NEXT-12967
-flag: FEATURE_FLAG_10078
 ---
 # Administration
 * Added component `sw-cms-product-assignment` in `src/module/sw-cms/component`

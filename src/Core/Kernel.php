@@ -267,12 +267,15 @@ class Kernel extends HttpKernel
 
         $pluginDir = $this->pluginLoader->getPluginDir($this->getProjectDir());
 
+        $coreDir = \dirname((string) (new \ReflectionClass(self::class))->getFileName());
+
         return array_merge(
             $parameters,
             [
                 'kernel.cache.hash' => $this->getCacheHash(),
                 'kernel.shopware_version' => $this->shopwareVersion,
                 'kernel.shopware_version_revision' => $this->shopwareVersionRevision,
+                'kernel.shopware_core_dir' => $coreDir,
                 'kernel.plugin_dir' => $pluginDir,
                 'kernel.app_dir' => rtrim($this->getProjectDir(), '/') . '/custom/apps',
                 'kernel.active_plugins' => $activePluginMeta,

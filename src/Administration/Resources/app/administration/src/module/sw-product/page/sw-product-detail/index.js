@@ -945,47 +945,67 @@ Component.register('sw-product-detail', {
                 return null;
             }
 
+            this.deleteSpecifcKeys(this.currentPage.sections);
+
             const changesetGenerator = new ChangesetGenerator();
             const { changes } = changesetGenerator.generate(this.currentPage);
 
             const slotOverrides = {};
-            if (changes === null || !type.isArray(changes.sections)) {
+            if (changes === null) {
                 return slotOverrides;
             }
 
-            changes.sections.forEach((section) => {
-                if (!type.isArray(section.blocks)) {
+            if (type.isArray(changes.sections)) {
+                changes.sections.forEach((section) => {
+                    if (type.isArray(section.blocks)) {
+                        section.blocks.forEach((block) => {
+                            if (type.isArray(block.slots)) {
+                                block.slots.forEach((slot) => {
+                                    slotOverrides[slot.id] = slot.config;
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            return slotOverrides;
+        },
+
+        deleteSpecifcKeys(sections) {
+            if (!sections) {
+                return;
+            }
+
+            sections.forEach((section) => {
+                if (!section.blocks) {
                     return;
                 }
 
                 section.blocks.forEach((block) => {
-                    if (!type.isArray(block.slots)) {
+                    if (!block.slots) {
                         return;
                     }
 
                     block.slots.forEach((slot) => {
-                        if (!type.isPlainObject(slot.config)) {
+                        if (!slot.config) {
                             return;
                         }
 
-                        const slotConfig = {};
-
-                        Object.keys(slot.config).forEach((key) => {
-                            if (!slot.config[key].value) {
-                                return;
+                        Object.values(slot.config).forEach((configField) => {
+                            if (configField.entity) {
+                                delete configField.entity;
                             }
-
-                            slotConfig[key] = slot.config[key];
+                            if (configField.required) {
+                                delete configField.required;
+                            }
+                            if (configField.type) {
+                                delete configField.type;
+                            }
                         });
-
-                        if (Object.keys(slotConfig).length > 0) {
-                            slotOverrides[slot.id] = slotConfig;
-                        }
                     });
                 });
             });
-
-            return slotOverrides;
         }
     }
 });

@@ -713,7 +713,7 @@ Component.register('sw-category-detail', {
                 return null;
             }
 
-            this.deleteEntityAndRequiredConfigKey(this.cmsPage.sections);
+            this.deleteSpecifcKeys(this.cmsPage.sections);
 
             const changesetGenerator = new ChangesetGenerator();
             const { changes } = changesetGenerator.generate(this.cmsPage);
@@ -740,7 +740,7 @@ Component.register('sw-category-detail', {
             return slotOverrides;
         },
 
-        deleteEntityAndRequiredConfigKey(sections) {
+        deleteSpecifcKeys(sections) {
             if (!sections) {
                 return;
             }
@@ -766,6 +766,9 @@ Component.register('sw-category-detail', {
                             }
                             if (configField.required) {
                                 delete configField.required;
+                            }
+                            if (configField.type) {
+                                delete configField.type;
                             }
                         });
                     });

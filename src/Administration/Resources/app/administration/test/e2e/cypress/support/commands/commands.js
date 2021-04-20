@@ -483,6 +483,7 @@ Cypress.Commands.add(
     ({ targetPath, mainMenuId, subMenuId = null }) => {
         const finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
 
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-admin-menu')
             .should('be.visible')
             .then(() => {
@@ -493,7 +494,7 @@ Cypress.Commands.add(
                         .then($el => Cypress.dom.isDetached($el));
                     cy.log(`Element ${subMenuId} is detached.`);
                     cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible')
-                        .then($el => Cypress.dom.isAttached($el))
+                        .then($el => Cypress.dom.isAttached($el));
                     cy.log(`Element ${subMenuId} is now attached to the DOM.`);
                     cy.getAttached(`.sw-admin-menu__navigation-list-item .${subMenuId}`).click();
                 } else {
@@ -504,8 +505,8 @@ Cypress.Commands.add(
     }
 );
 
-Cypress.Commands.add("getAttached", selector => {
-    const getElement = typeof selector === "function" ? selector : $d => $d.find(selector);
+Cypress.Commands.add('getAttached', selector => {
+    const getElement = typeof selector === 'function' ? selector : $d => $d.find(selector);
     let $el = null;
 
     return cy.document().should($d => {

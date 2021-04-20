@@ -159,7 +159,7 @@ class PromotionCalculator
     {
         // array that holds all excluded promotion ids.
         // if a promotion has exclusions they are added on the stack
-        $exclusions = $this->buildExclusions($discountLineItems);
+        $exclusions = $this->buildExclusions($discountLineItems, $calculated, $context);
 
         // @todo order $discountLineItems by priority
         /* @var LineItem $discountLineItem */
@@ -234,7 +234,7 @@ class PromotionCalculator
      * that are excluded somehow.
      * The validation which one to take will be done later.
      */
-    private function buildExclusions(LineItemCollection $discountLineItems): array
+    private function buildExclusions(LineItemCollection $discountLineItems, Cart $calculated, SalesChannelContext $context): array
     {
         // array that holds all excluded promotion ids.
         // if a promotion has exclusions they are added on the stack
@@ -261,7 +261,10 @@ class PromotionCalculator
 
             // add all exclusions to the stack
             foreach ($discountItem->getPayloadValue('exclusions') as $id) {
-                $exclusions[$id] = true;
+                // check if the promotion is active by its conditions
+                if ($this->isRequirementValid($discountItem, $calculated, $context)) {
+                    $exclusions[$id] = true;
+                }
             }
         }
 

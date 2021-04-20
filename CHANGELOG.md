@@ -333,6 +333,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14342 - Fix change box size of wishlist items in storefront](/changelog/release-6-4-0-0/2021-04-12-fix-change-box-size-wishlist-in-storefront.md)
 *  [NEXT-14465 - Prevent duplicate cart alerts](/changelog/release-6-4-0-0/2021-04-12-prevent-duplicate-cart-alerts.md)
 *  [NEXT-14820 - Fix cms saving in category module](/changelog/release-6-4-0-0/2021-04-19-fix-cms-saving-in-category-module.md)
+*  [NEXT-14845 - Use repository in global admin search](/changelog/release-6-4-0-0/2021-04-19-use-repository-instead-of-non-existing-service-in-global-admin-search.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

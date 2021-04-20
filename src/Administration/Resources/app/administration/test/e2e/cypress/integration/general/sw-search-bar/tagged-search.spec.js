@@ -2,7 +2,7 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-describe('Search bar: Check main functionality', () => {
+describe('Search bar: Check search functionality withtags', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -10,7 +10,7 @@ describe('Search bar: Check main functionality', () => {
             });
     });
 
-    it('@base @searchBar @search: search for a product', () => {
+    it('@base @searchBar @search: search for a product using tag in dashboard', () => {
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -21,6 +21,11 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('.sw-loader__element')
             .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
+        cy.get('.sw-search-bar__types_container').should('be.visible');
+        cy.contains('.sw-search-bar__type', 'Products').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Products').should('be.visible');
 
         cy.get('input.sw-search-bar__input').type('Product');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -34,7 +39,7 @@ describe('Search bar: Check main functionality', () => {
             .contains('Product name');
     });
 
-    it('@searchBar @search: search for a category', () => {
+    it('@searchBar @search: search for a category using tag in dashboard', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
         cy.get('.sw-dashboard')
@@ -42,6 +47,11 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('.sw-loader__element')
             .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
+        cy.get('.sw-search-bar__types_container').should('be.visible');
+        cy.contains('.sw-search-bar__type', 'Categories').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Categories').should('be.visible');
 
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -55,7 +65,7 @@ describe('Search bar: Check main functionality', () => {
             .contains('Home');
     });
 
-    it('@searchBar @search: search for a customer', () => {
+    it('@searchBar @search: search for a customer using tag in dashboard', () => {
         cy.createCustomerFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -66,6 +76,11 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('.sw-loader__element')
             .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
+        cy.get('.sw-search-bar__types_container').should('be.visible');
+        cy.contains('.sw-search-bar__type', 'Customers').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Customers').should('be.visible');
 
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -79,7 +94,7 @@ describe('Search bar: Check main functionality', () => {
             .contains('Pep Eroni');
     });
 
-    it('@searchBar @search: search for a order', () => {
+    it('@searchBar @search: search for a order using tag in dashboard', () => {
         cy.createProductFixture()
             .then(() => {
                 return cy.createProductFixture({
@@ -115,12 +130,13 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
+        cy.get('input.sw-search-bar__input').click();
+        cy.get('.sw-search-bar__types_container').should('be.visible');
+        cy.contains('.sw-search-bar__type', 'Orders').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Orders').should('be.visible');
+
         cy.get('input.sw-search-bar__input').type('Max Mustermann');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar__results-column > :nth-child(1)')
-            .should('be.visible')
-            .get('.sw-search-bar__types-header-entity')
-            .contains('Order');
 
         cy.get('.sw-search-bar-item')
             .should('be.visible')
@@ -132,7 +148,7 @@ describe('Search bar: Check main functionality', () => {
             .contains('Order 10000');
     });
 
-    it('@searchBar @search: search for a media', () => {
+    it('@searchBar @search: search for a media using tag in dashboard', () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
@@ -163,6 +179,11 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
+        cy.get('input.sw-search-bar__input').click();
+        cy.get('.sw-search-bar__types_container').should('be.visible');
+        cy.contains('.sw-search-bar__type', 'Media').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Media').should('be.visible');
+
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
 
@@ -175,99 +196,5 @@ describe('Search bar: Check main functionality', () => {
             .should('be.visible')
             .get('.sw-media-base-item__name')
             .contains('sw-login-background');
-    });
-
-    it('@searchBar @search: toggle result box with results for the letter "e"', () => {
-        cy.createProductFixture()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
-
-        cy.get('.sw-dashboard')
-            .should('exist');
-
-        cy.get('.sw-loader__element')
-            .should('not.exist');
-
-        cy.get('input.sw-search-bar__input').type('e');
-        cy.get('.sw-search-bar__results').should('be.visible');
-
-        // navigate down to test if active item also stays the same after refocus
-        cy.get('input.sw-search-bar__input').type('{downarrow}');
-
-        // capture dom of search result box
-        let searchResultsMarkup = undefined;
-        cy.get('.sw-search-bar__results').then($el =>
-            searchResultsMarkup = $el.html()
-        );
-
-        cy.get('input.sw-search-bar__input').blur();
-        cy.get('input.sw-search-bar__input').focus();
-
-        // compare result box dom after refocus wit the string captured before
-        cy.get('.sw-search-bar__results').then($el => expect($el.html()).to.be.equal(searchResultsMarkup));
-    });
-
-    it('@searchBar @search: navigate in the results for the letter "e"', () => {
-        cy.createProductFixture()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
-
-        cy.get('.sw-dashboard')
-            .should('exist');
-
-        cy.get('.sw-loader__element')
-            .should('not.exist');
-
-        cy.get('input.sw-search-bar__input').type('e');
-        cy.get('.sw-search-bar__results').should('be.visible');
-
-        // 'Cursor' is at the first element and should therefore not move
-        cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
-            // to ensure this try to move it anyways
-            cy.get('input.sw-search-bar__input').type('{leftarrow}');
-            cy.get('input.sw-search-bar__input').type('{uparrow}');
-            cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
-                expect(resultTextBefore).to.equal(resultTextAfter)
-            })
-        });
-
-        // move the 'Cursor' down and then up again
-        cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
-            // to ensure this try to move it anyways
-            cy.get('input.sw-search-bar__input').type('{downarrow}');
-            cy.get('input.sw-search-bar__input').type('{uparrow}');
-            cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
-                expect(resultTextBefore).to.equal(resultTextAfter)
-            })
-        });
-
-        // move the 'Cursor' right and then left again
-        cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
-            // to ensure this try to move it anyways
-            cy.get('input.sw-search-bar__input').type('{rightarrow}');
-            cy.get('input.sw-search-bar__input').type('{leftarrow}');
-            cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
-                expect(resultTextBefore).to.equal(resultTextAfter)
-            })
-        });
-
-        cy.get('.sw-search-bar__results').find('.sw-search-bar-item').its('length').then((numberOfResults) => {
-            // navigate to the last result based on the numberOfResults
-            for (let i = 1; i <= numberOfResults; i++) {
-                cy.get('input.sw-search-bar__input').type('{downarrow}')
-            }
-
-            // 'Cursor' is at the last element and should therefore not move
-            cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
-                // to ensure this try to move it anyways
-                cy.get('input.sw-search-bar__input').type('{downarrow}');
-                cy.get('input.sw-search-bar__input').type('{rightarrow}');
-                cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
-                    expect(resultTextBefore).to.equal(resultTextAfter)
-                })
-            });
-        });
     });
 });

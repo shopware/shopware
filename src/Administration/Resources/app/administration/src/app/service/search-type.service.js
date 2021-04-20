@@ -13,37 +13,31 @@ export default function createSearchTypeService() {
     const $typeStore = {
         product: {
             entityName: 'product',
-            entityService: 'productService',
             placeholderSnippet: 'sw-product.general.placeholderSearchBar',
             listingRoute: 'sw.product.index'
         },
         category: {
             entityName: 'category',
-            entityService: 'categoryService',
             placeholderSnippet: 'sw-category.general.placeholderSearchBar',
             listingRoute: 'sw.category.index'
         },
         landing_page: {
             entityName: 'landing_page',
-            entityService: 'landingPageService',
             placeholderSnippet: 'sw-landing-page.general.placeholderSearchBar',
             listingRoute: 'sw.category.index'
         },
         customer: {
             entityName: 'customer',
-            entityService: 'customerService',
             placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
             listingRoute: 'sw.customer.index'
         },
         order: {
             entityName: 'order',
-            entityService: 'orderService',
             placeholderSnippet: 'sw-order.general.placeholderSearchBar',
             listingRoute: 'sw.order.index'
         },
         media: {
             entityName: 'media',
-            entityService: 'mediaService',
             placeholderSnippet: 'sw-media.general.placeholderSearchBar',
             listingRoute: 'sw.media.index'
         }

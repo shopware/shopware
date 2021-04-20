@@ -2,6 +2,7 @@ import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
 const { Component, Application } = Shopware;
+const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
@@ -14,7 +15,11 @@ const utils = Shopware.Utils;
 Component.register('sw-search-bar', {
     template,
 
-    inject: ['searchService', 'searchTypeService'],
+    inject: [
+        'searchService',
+        'searchTypeService',
+        'repositoryFactory'
+    ],
 
     shortcuts: {
         f: 'setFocus'
@@ -69,6 +74,11 @@ Component.register('sw-search-bar', {
             // Use type search again when route changes and the term is undefined
             if (newValue.query.term === undefined && this.initialSearchType) {
                 this.currentSearchType = this.initialSearchType;
+            }
+
+            // Do not modify the search term when the user is currently typing
+            if (this.isActive) {
+                return;
             }
 
             this.searchTerm = newValue.query.term ? newValue.query.term : '';
@@ -305,7 +315,10 @@ Component.register('sw-search-bar', {
             this.isLoading = true;
             this.results = [];
             this.searchService.search({ term: searchTerm }).then((response) => {
-                // filter not yet implemented entities and empty entities
+                response.data.forEach((item) => {
+                    item.entities = Object.values(item.entities);
+                });
+
                 this.results = response.data.filter(item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0);
                 this.activeResultColumn = 0;
                 this.activeResultIndex = 0;
@@ -317,6 +330,36 @@ Component.register('sw-search-bar', {
         },
 
         loadTypeSearchResults(searchTerm) {
+            // If searchType has an "entityService" load by service, otherwise load by entity
+            if (this.searchTypes[this.currentSearchType].entityService) {
+                this.loadTypeSearchResultsByService(searchTerm);
+                return;
+            }
+
+            this.isLoading = true;
+            this.results = [];
+            const entityResults = {};
+
+            const entityName = this.searchTypes[this.currentSearchType].entityName;
+            const repository = this.repositoryFactory.create(entityName);
+            const criteria = new Criteria();
+
+            criteria.setTerm(searchTerm);
+
+            repository.search(criteria, Shopware.Context.api).then((response) => {
+                entityResults.total = response.total;
+                entityResults.entity = this.currentSearchType;
+                entityResults.entities = response;
+
+                this.results.push(entityResults);
+                this.isLoading = false;
+            });
+            if (!this.showTypeSelectContainer) {
+                this.showResultsContainer = true;
+            }
+        },
+
+        loadTypeSearchResultsByService(searchTerm) {
             this.isLoading = true;
             const params = {
                 limit: 25,
@@ -440,7 +483,7 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            const itemsInActualColumn = Object.keys(this.results[this.activeResultColumn].entities).length;
+            const itemsInActualColumn = this.results[this.activeResultColumn].entities.length;
 
             if (this.activeResultIndex === itemsInActualColumn - 1 || itemsInActualColumn < 1) {
                 if (this.activeResultColumn < this.results.length - 1) {

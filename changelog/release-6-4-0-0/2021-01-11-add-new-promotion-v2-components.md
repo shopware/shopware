@@ -1,7 +1,6 @@
 ---
 title: Add new promotion v2 components
 issue: NEXT-12512
-flag: FEATURE_NEXT_12016
 ---
 # Administration
 * Added new components in the promotions v2 module:

@@ -1,7 +1,6 @@
 ---
 title: Promotions Rework deprecations
 issue: NEXT-12016
-flag: FEATURE_NEXT_12016
 ---
 # Core
 * Added `Shopware\Core\Checkout\Promotion\Util\PromotionCodeService` and `Shopware\Core\Checkout\Promotion\Api\PromotionController`

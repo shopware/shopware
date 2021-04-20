@@ -89,7 +89,9 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@base @catalogue: variants display corresponding name based on specific language', () => {
+    // TODO: Unskip as soon as NEXT-14025 is resolved
+
+    it.skip('@catalogue: variants display corresponding name based on specific language', () => {
         const page = new PropertyPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
@@ -228,7 +230,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@base @catalogue: check fields in inheritance', () => {
+    it('@catalogue: check fields in inheritance', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -292,6 +294,8 @@ describe('Product: Test variants', () => {
             .scrollIntoView()
             .should('be.visible');
     });
+
+    // TODO: Unskip as soon as NEXT-10173 is resolved
 
     it.skip('@base @catalogue: test multidimensional variant with diversification', () => {
         const page = new ProductPageObject();

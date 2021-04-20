@@ -6,9 +6,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class CsrfNotEnabledException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('CSRF protection is not enabled.');
+        parent::__construct('CSRF protection is not enabled.', [], $previous);
     }
 
     public function getErrorCode(): string

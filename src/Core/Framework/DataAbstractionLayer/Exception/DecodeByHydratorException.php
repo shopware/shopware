@@ -8,11 +8,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class DecodeByHydratorException extends ShopwareHttpException
 {
-    public function __construct(Field $field)
+    public function __construct(Field $field, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Decoding of {{ fieldClass }} is handled by the entity hydrator.',
-            ['fieldClass' => \get_class($field)]
+            ['fieldClass' => \get_class($field)],
+            $previous
         );
     }
 

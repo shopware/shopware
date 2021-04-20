@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CodeAlreadyRedeemedException extends ShopwareHttpException
 {
-    public function __construct(string $code)
+    public function __construct(string $code, ?\Throwable $previous = null)
     {
-        parent::__construct('Promotion with code "{{ code }}" has already been marked as redeemed!', ['code' => $code]);
+        parent::__construct('Promotion with code "{{ code }}" has already been marked as redeemed!', ['code' => $code], $previous);
     }
 
     public function getErrorCode(): string

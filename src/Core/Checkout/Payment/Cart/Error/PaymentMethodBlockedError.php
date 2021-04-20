@@ -13,7 +13,7 @@ class PaymentMethodBlockedError extends Error
      */
     private $name;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ?\Throwable $previous = null)
     {
         $this->name = $name;
         $this->message = sprintf(
@@ -21,7 +21,7 @@ class PaymentMethodBlockedError extends Error
             $name
         );
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function getParameters(): array

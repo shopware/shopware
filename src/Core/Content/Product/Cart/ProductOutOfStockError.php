@@ -17,13 +17,13 @@ class ProductOutOfStockError extends Error
      */
     protected $name;
 
-    public function __construct(string $id, string $name)
+    public function __construct(string $id, string $name, ?\Throwable $previous = null)
     {
         $this->id = $id;
 
         $this->message = sprintf('The product %s is no longer available', $name);
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
         $this->name = $name;
     }
 

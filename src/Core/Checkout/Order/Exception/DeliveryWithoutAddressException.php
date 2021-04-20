@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DeliveryWithoutAddressException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Delivery contains no shipping address');
+        parent::__construct('Delivery contains no shipping address', [], $previous);
     }
 
     public function getErrorCode(): string

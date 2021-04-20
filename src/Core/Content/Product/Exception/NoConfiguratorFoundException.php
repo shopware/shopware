@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class NoConfiguratorFoundException extends ShopwareHttpException
 {
-    public function __construct(string $productId)
+    public function __construct(string $productId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Product with id {{ productId }} has no configuration.',
-            ['productId' => $productId]
+            ['productId' => $productId],
+            $previous
         );
     }
 

@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LineItemNotRemovableException extends ShopwareHttpException
 {
-    public function __construct(string $identifier)
+    public function __construct(string $identifier, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Line item with identifier {{ identifier }} cannot be removed.',
-            ['identifier' => $identifier]
+            ['identifier' => $identifier],
+            $previous
         );
     }
 

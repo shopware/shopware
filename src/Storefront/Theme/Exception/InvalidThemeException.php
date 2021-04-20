@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidThemeException extends ShopwareHttpException
 {
-    public function __construct(string $themeName)
+    public function __construct(string $themeName, ?\Throwable $previous = null)
     {
-        parent::__construct('Unable to find the theme "{{ themeName }}"', ['themeName' => $themeName]);
+        parent::__construct('Unable to find the theme "{{ themeName }}"', ['themeName' => $themeName], $previous);
     }
 
     public function getErrorCode(): string

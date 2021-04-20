@@ -198,7 +198,7 @@ class RegisterController extends StorefrontController
             );
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
-                throw new MissingRequestParameterException('errorRoute');
+                throw new MissingRequestParameterException('errorRoute', '', $formViolations);
             }
 
             $params = $this->decodeParam($request, 'errorParameters');

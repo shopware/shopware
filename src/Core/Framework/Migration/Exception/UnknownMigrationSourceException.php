@@ -15,13 +15,14 @@ if (class_exists(HttpException::class)) {
          */
         private $name;
 
-        public function __construct(string $name)
+        public function __construct(string $name, ?\Throwable $previous = null)
         {
             $this->name = $name;
 
             parent::__construct(
                 'No source registered for "{{ name }}"',
-                ['name' => $name]
+                ['name' => $name],
+                $previous
             );
         }
 
@@ -45,9 +46,9 @@ if (class_exists(HttpException::class)) {
          */
         private $name;
 
-        public function __construct(string $name)
+        public function __construct(string $name, ?\Throwable $previous = null)
         {
-            parent::__construct('No source registered for "' . $name . '"');
+            parent::__construct('No source registered for "' . $name . '"', 0, $previous);
             $this->name = $name;
         }
 

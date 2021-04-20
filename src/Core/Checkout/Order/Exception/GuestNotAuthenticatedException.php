@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GuestNotAuthenticatedException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Guest not authenticated.');
+        parent::__construct('Guest not authenticated.', [], $previous);
     }
 
     public function getErrorCode(): string

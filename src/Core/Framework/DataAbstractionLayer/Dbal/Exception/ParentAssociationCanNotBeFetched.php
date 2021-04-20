@@ -7,10 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ParentAssociationCanNotBeFetched extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
         parent::__construct(
-            'It is not possible to read the parent association directly. Please read the parents via a separate call over the repository'
+            'It is not possible to read the parent association directly. Please read the parents via a separate call over the repository',
+            [],
+            $previous
         );
     }
 

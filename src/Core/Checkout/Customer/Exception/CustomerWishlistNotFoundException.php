@@ -7,10 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerWishlistNotFoundException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
         parent::__construct(
-            'Wishlist for this customer was not found.'
+            'Wishlist for this customer was not found.',
+            [],
+            $previous
         );
     }
 

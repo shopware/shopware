@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidSalesChannelIdException extends ShopwareHttpException
 {
-    public function __construct(string $salesChannelId)
+    public function __construct(string $salesChannelId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The provided salesChannelId "{{ salesChannelId }}" is invalid.',
-            ['salesChannelId' => $salesChannelId]
+            ['salesChannelId' => $salesChannelId],
+            $previous
         );
     }
 

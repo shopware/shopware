@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidRouteScopeException extends ShopwareHttpException
 {
-    public function __construct(string $routeName)
+    public function __construct(string $routeName, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Invalid route scope for route {{ routeName }}.',
-            ['routeName' => $routeName]
+            ['routeName' => $routeName],
+            $previous
         );
     }
 

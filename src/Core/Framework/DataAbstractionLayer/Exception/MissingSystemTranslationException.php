@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -13,7 +14,7 @@ class MissingSystemTranslationException extends WriteConstraintViolationExceptio
 {
     public const VIOLATION_MISSING_SYSTEM_TRANSLATION = 'MISSING-SYSTEM-TRANSLATION';
 
-    public function __construct(string $path = '')
+    public function __construct(string $path = '', ?\Throwable $previous = null)
     {
         $template = 'Translation required for system language {{ systemLanguage }}';
         $parameters = ['{{ systemLanguage }}' => Defaults::LANGUAGE_SYSTEM];
@@ -29,6 +30,6 @@ class MissingSystemTranslationException extends WriteConstraintViolationExceptio
                 self::VIOLATION_MISSING_SYSTEM_TRANSLATION
             ),
         ]);
-        parent::__construct($constraintViolationList, $path);
+        parent::__construct($constraintViolationList, $path, Response::HTTP_BAD_REQUEST, $previous);
     }
 }

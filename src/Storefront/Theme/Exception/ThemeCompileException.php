@@ -7,14 +7,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ThemeCompileException extends ShopwareHttpException
 {
-    public function __construct(string $themeName, string $message = '')
+    public function __construct(string $themeName, string $message = '', ?\Throwable $previous = null)
     {
         parent::__construct(
             'Unable to compile the theme "{{ themeName }}". {{ message }}',
             [
                 'themeName' => $themeName,
                 'message' => $message,
-            ]
+            ],
+            $previous
         );
     }
 

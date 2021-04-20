@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class PluginCannotBeDeletedException extends ShopwareHttpException
 {
-    public function __construct(string $reason)
+    public function __construct(string $reason, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Cannot delete plugin. Error: {{ error }}',
-            ['error' => $reason]
+            ['error' => $reason],
+            $previous
         );
     }
 

@@ -8,13 +8,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CaptchaInvalidException extends ShopwareHttpException
 {
-    public function __construct(AbstractCaptcha $captcha)
+    public function __construct(AbstractCaptcha $captcha, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The provided value for captcha "{{ captcha }}" is not valid.',
             [
                 'captcha' => \get_class($captcha),
-            ]
+            ],
+            $previous
         );
     }
 

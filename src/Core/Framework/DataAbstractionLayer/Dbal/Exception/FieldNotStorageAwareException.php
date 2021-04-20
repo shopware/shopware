@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FieldNotStorageAwareException extends ShopwareHttpException
 {
-    public function __construct(string $field)
+    public function __construct(string $field, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The field {{ field }} must implement the StorageAware interface to be accessible.',
-            ['field' => $field]
+            ['field' => $field],
+            $previous
         );
     }
 

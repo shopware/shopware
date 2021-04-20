@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UnexpectedFileTypeException extends ShopwareHttpException
 {
-    public function __construct(?string $givenType, string $expectedType)
+    public function __construct(?string $givenType, string $expectedType, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Given file does not match MIME-Type for selected profile. Given: {{ given }}. Expected: {{ expected }}',
-            ['given' => $givenType, 'expected' => $expectedType]
+            ['given' => $givenType, 'expected' => $expectedType],
+            $previous
         );
     }
 

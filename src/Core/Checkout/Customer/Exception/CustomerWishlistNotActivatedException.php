@@ -7,10 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerWishlistNotActivatedException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
         parent::__construct(
-            'Wishlist is not activated!'
+            'Wishlist is not activated!',
+            [],
+            $previous
         );
     }
 

@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PromotionCodeNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $code)
+    public function __construct(string $code, ?\Throwable $previous = null)
     {
-        parent::__construct('Promotion Code "{{ code }}" has not been found!', ['code' => $code]);
+        parent::__construct('Promotion Code "{{ code }}" has not been found!', ['code' => $code], $previous);
     }
 
     public function getErrorCode(): string

@@ -7,8 +7,8 @@ namespace Shopware\Core\Framework\App\Exception;
  */
 class AppUrlChangeStrategyNotFoundException extends \RuntimeException
 {
-    public function __construct(string $strategyName)
+    public function __construct(string $strategyName, ?\Throwable $previous = null)
     {
-        parent::__construct('Unable to find AppUrlChangeResolver with name: "' . $strategyName . '".');
+        parent::__construct('Unable to find AppUrlChangeResolver with name: "' . $strategyName . '".', 0, $previous);
     }
 }

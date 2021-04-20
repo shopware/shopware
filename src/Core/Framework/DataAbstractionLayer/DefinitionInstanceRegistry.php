@@ -82,7 +82,7 @@ class DefinitionInstanceRegistry
         try {
             return $this->get($definitionClass);
         } catch (ServiceNotFoundException $e) {
-            throw new DefinitionNotFoundException($entityName);
+            throw new DefinitionNotFoundException($entityName, $e);
         }
     }
 

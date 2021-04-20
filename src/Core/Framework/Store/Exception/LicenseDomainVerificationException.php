@@ -6,11 +6,11 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class LicenseDomainVerificationException extends ShopwareHttpException
 {
-    public function __construct(string $domain, string $reason = '')
+    public function __construct(string $domain, string $reason = '', ?\Throwable $previous = null)
     {
         $reason = $reason ? (' ' . $reason) : '';
         $message = 'License host verification failed for domain "{{ domain }}.{{ reason }}"';
-        parent::__construct($message, ['domain' => $domain, 'reason' => $reason]);
+        parent::__construct($message, ['domain' => $domain, 'reason' => $reason], $previous);
     }
 
     public function getErrorCode(): string

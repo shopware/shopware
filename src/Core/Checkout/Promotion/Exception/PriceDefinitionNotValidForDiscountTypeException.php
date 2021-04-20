@@ -7,11 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PriceDefinitionNotValidForDiscountTypeException extends ShopwareHttpException
 {
-    public function __construct(string $message)
-    {
-        parent::__construct($message);
-    }
-
     public function getErrorCode(): string
     {
         return 'CHECKOUT__INVALID_PRICE_DEFINITION_FOR_DISCOUNT_TYPE';

@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidUuidException extends ShopwareHttpException
 {
-    public function __construct(string $uuid)
+    public function __construct(string $uuid, ?\Throwable $previous = null)
     {
-        parent::__construct('Value is not a valid UUID: {{ input }}', ['input' => $uuid]);
+        parent::__construct('Value is not a valid UUID: {{ input }}', ['input' => $uuid], $previous);
     }
 
     public function getErrorCode(): string

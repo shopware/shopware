@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LegacyPasswordEncoderNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $encoder)
+    public function __construct(string $encoder, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Encoder with name "{{ encoder }}" not found.',
-            ['encoder' => $encoder]
+            ['encoder' => $encoder],
+            $previous
         );
     }
 

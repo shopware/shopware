@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class EntityRepositoryNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $entity)
+    public function __construct(string $entity, ?\Throwable $previous = null)
     {
         parent::__construct(
             'EntityRepository for entity "{{ entityName }}" does not exist.',
-            ['entityName' => $entity]
+            ['entityName' => $entity],
+            $previous
         );
     }
 

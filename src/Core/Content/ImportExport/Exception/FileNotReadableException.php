@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FileNotReadableException extends ShopwareHttpException
 {
-    public function __construct(string $path)
+    public function __construct(string $path, ?\Throwable $previous = null)
     {
-        parent::__construct('Import file is not readable at {{ path }}.', ['path' => $path]);
+        parent::__construct('Import file is not readable at {{ path }}.', ['path' => $path], $previous);
     }
 
     public function getErrorCode(): string

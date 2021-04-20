@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidThemeBundleException extends ShopwareHttpException
 {
-    public function __construct(string $themeName)
+    public function __construct(string $themeName, ?\Throwable $previous = null)
     {
-        parent::__construct('Unable to find the theme.json for "{{ themeName }}"', ['themeName' => $themeName]);
+        parent::__construct('Unable to find the theme.json for "{{ themeName }}"', ['themeName' => $themeName], $previous);
     }
 
     public function getErrorCode(): string

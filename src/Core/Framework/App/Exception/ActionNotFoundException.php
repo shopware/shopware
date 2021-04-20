@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ActionNotFoundException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('The requested app action does not exist');
+        parent::__construct('The requested app action does not exist', [], $previous);
     }
 
     public function getErrorCode(): string

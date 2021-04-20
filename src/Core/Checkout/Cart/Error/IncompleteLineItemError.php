@@ -15,13 +15,13 @@ class IncompleteLineItemError extends Error
      */
     private $property;
 
-    public function __construct(string $key, string $property)
+    public function __construct(string $key, string $property, ?\Throwable $previous = null)
     {
         $this->key = $key;
         $this->property = $property;
         $this->message = sprintf('Line item "%s" incomplete. Property "%s" missing.', $key, $property);
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function getParameters(): array

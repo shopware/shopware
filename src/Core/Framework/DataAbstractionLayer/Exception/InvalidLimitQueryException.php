@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidLimitQueryException extends ShopwareHttpException
 {
-    public function __construct($limit)
+    public function __construct($limit, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The limit parameter must be a positive integer greater or equals than 1. Given: {{ limit }}',
-            ['limit' => $limit]
+            ['limit' => $limit],
+            $previous
         );
     }
 

@@ -7,11 +7,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class SalesChannelDomainNotFoundException extends ShopwareHttpException
 {
-    public function __construct(SalesChannelEntity $salesChannel)
+    public function __construct(SalesChannelEntity $salesChannel, ?\Throwable $previous = null)
     {
         parent::__construct(
             'No domain found for sales channel {{ salesChannel }}',
-            ['salesChannel' => $salesChannel->getTranslation('name')]
+            ['salesChannel' => $salesChannel->getTranslation('name')],
+            $previous
         );
     }
 

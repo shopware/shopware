@@ -12,11 +12,11 @@ class ProductNotFoundError extends Error
      */
     protected $id;
 
-    public function __construct(string $id)
+    public function __construct(string $id, ?\Throwable $previous = null)
     {
         $this->id = $id;
 
-        parent::__construct('The product %s could not be found');
+        parent::__construct('The product %s could not be found', 0, $previous);
     }
 
     public function getParameters(): array

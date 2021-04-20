@@ -12,11 +12,11 @@ abstract class PaymentProcessException extends ShopwareHttpException
      */
     private $orderTransactionId;
 
-    public function __construct(string $orderTransactionId, string $message, array $parameters = [])
+    public function __construct(string $orderTransactionId, string $message, array $parameters = [], ?\Throwable $previous = null)
     {
         $this->orderTransactionId = $orderTransactionId;
 
-        parent::__construct($message, $parameters);
+        parent::__construct($message, $parameters, $previous);
     }
 
     public function getStatusCode(): int

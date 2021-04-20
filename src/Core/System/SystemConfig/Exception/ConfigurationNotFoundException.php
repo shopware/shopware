@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ConfigurationNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $scope)
+    public function __construct(string $scope, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Configuration for scope "{{ $scope }}" not found.',
-            ['scope' => $scope]
+            ['scope' => $scope],
+            $previous
         );
     }
 

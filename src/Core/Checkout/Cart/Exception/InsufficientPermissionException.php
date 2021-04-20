@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InsufficientPermissionException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Insufficient permission exception.');
+        parent::__construct('Insufficient permission exception.', [], $previous);
     }
 
     public function getErrorCode(): string

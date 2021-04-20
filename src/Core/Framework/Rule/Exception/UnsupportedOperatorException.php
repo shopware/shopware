@@ -17,14 +17,15 @@ class UnsupportedOperatorException extends ShopwareHttpException
      */
     protected $class;
 
-    public function __construct(string $operator, string $class)
+    public function __construct(string $operator, string $class, ?\Throwable $previous = null)
     {
         $this->operator = $operator;
         $this->class = $class;
 
         parent::__construct(
             'Unsupported operator {{ operator }} in {{ class }}',
-            ['operator' => $operator, 'class' => $class]
+            ['operator' => $operator, 'class' => $class],
+            $previous
         );
     }
 

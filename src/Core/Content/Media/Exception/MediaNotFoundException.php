@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MediaNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $mediaId)
+    public function __construct(string $mediaId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Media for id {{ mediaId }} not found.',
-            ['mediaId' => $mediaId]
+            ['mediaId' => $mediaId],
+            $previous
         );
     }
 

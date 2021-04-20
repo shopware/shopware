@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerRecoveryHashExpiredException extends ShopwareHttpException
 {
-    public function __construct(string $hash)
+    public function __construct(string $hash, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The hash "{{ hash }}" is expired.',
-            ['hash' => $hash]
+            ['hash' => $hash],
+            $previous
         );
     }
 

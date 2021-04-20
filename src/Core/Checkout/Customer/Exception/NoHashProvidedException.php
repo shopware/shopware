@@ -7,10 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class NoHashProvidedException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
         parent::__construct(
-            'The given hash is empty.'
+            'The given hash is empty.',
+            [],
+            $previous
         );
     }
 

@@ -111,7 +111,7 @@ class AssetService
         }
 
         if ($bundle === null) {
-            throw new PluginNotFoundException($bundleName);
+            throw new PluginNotFoundException($bundleName, $e ?? null);
         }
 
         return $bundle;

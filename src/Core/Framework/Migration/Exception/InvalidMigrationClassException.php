@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class InvalidMigrationClassException extends ShopwareHttpException
 {
-    public function __construct(string $class, string $path)
+    public function __construct(string $class, string $path, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Unable to load migration {{ class }} at path {{ path }}',
-            ['class' => $class, 'path' => $path]
+            ['class' => $class, 'path' => $path],
+            $previous
         );
     }
 

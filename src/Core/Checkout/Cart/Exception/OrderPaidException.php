@@ -12,11 +12,12 @@ class OrderPaidException extends ShopwareHttpException
      */
     private $orderId;
 
-    public function __construct(string $orderId)
+    public function __construct(string $orderId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Order with id "{{ orderId }}" was already paid and cannot be edited afterwards.',
-            ['orderId' => $orderId]
+            ['orderId' => $orderId],
+            $previous
         );
 
         $this->orderId = $orderId;

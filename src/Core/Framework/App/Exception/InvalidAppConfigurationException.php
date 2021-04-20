@@ -9,8 +9,8 @@ use Shopware\Core\Framework\App\Validation\Error\Error;
  */
 class InvalidAppConfigurationException extends \RuntimeException
 {
-    public function __construct(Error $error)
+    public function __construct(Error $previous)
     {
-        parent::__construct($error->getMessage());
+        parent::__construct($previous->getMessage(), $previous->getCode(), $previous);
     }
 }

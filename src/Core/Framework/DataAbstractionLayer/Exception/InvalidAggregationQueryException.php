@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidAggregationQueryException extends ShopwareHttpException
 {
-    public function __construct(string $message)
+    public function __construct(string $message, ?\Throwable $previous = null)
     {
-        parent::__construct('{{ message }}', ['message' => $message]);
+        parent::__construct('{{ message }}', ['message' => $message], $previous);
     }
 
     public function getStatusCode(): int

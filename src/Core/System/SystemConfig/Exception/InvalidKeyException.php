@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidKeyException extends ShopwareHttpException
 {
-    public function __construct(string $key)
+    public function __construct(string $key, ?\Throwable $previous = null)
     {
-        parent::__construct('Invalid key \'{{ key }}\'', ['key' => $key]);
+        parent::__construct('Invalid key \'{{ key }}\'', ['key' => $key], $previous);
     }
 
     public function getStatusCode(): int

@@ -12,11 +12,12 @@ class OrderTransactionNotFoundException extends ShopwareHttpException
      */
     private $orderTransactionId;
 
-    public function __construct(string $orderTransactionId)
+    public function __construct(string $orderTransactionId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Order transaction with id "{{ orderTransactionId }}" not found.',
-            ['orderTransactionId' => $orderTransactionId]
+            ['orderTransactionId' => $orderTransactionId],
+            $previous
         );
 
         $this->orderTransactionId = $orderTransactionId;

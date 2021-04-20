@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PluginComposerRemoveException extends ShopwareHttpException
 {
-    public function __construct(string $pluginName, string $pluginComposerName, string $output)
+    public function __construct(string $pluginName, string $pluginComposerName, string $output, ?\Throwable $previous = null)
     {
         parent::__construct(
             sprintf('Could not execute "composer remove" for plugin "{{ pluginName }} ({{ pluginComposerName }}). Output:%s{{ output }}', \PHP_EOL),
@@ -15,7 +15,8 @@ class PluginComposerRemoveException extends ShopwareHttpException
                 'pluginName' => $pluginName,
                 'pluginComposerName' => $pluginComposerName,
                 'output' => $output,
-            ]
+            ],
+            $previous
         );
     }
 

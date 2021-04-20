@@ -7,10 +7,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DocumentGenerationException extends ShopwareHttpException
 {
-    public function __construct(string $message = '')
+    public function __construct(string $message = '', ?\Throwable $previous = null)
     {
         $message = sprintf('Unable to generate document. ' . $message);
-        parent::__construct($message);
+        parent::__construct($message, [], $previous);
     }
 
     public function getStatusCode(): int

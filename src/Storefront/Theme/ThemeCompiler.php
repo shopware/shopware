@@ -213,7 +213,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         } catch (\Throwable $exception) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),
-                $exception->getMessage()
+                $exception->getMessage(),
+                $exception
             );
         }
         $autoPreFixer = new Autoprefixer($cssOutput);

@@ -120,7 +120,7 @@ class LoginRoute extends AbstractLoginRoute
                 $context
             );
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
-            throw new UnauthorizedHttpException('json', $exception->getMessage());
+            throw new UnauthorizedHttpException('json', $exception->getMessage(), $exception);
         }
 
         if (!$customer->getActive()) {

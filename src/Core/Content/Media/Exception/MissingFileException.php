@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MissingFileException extends ShopwareHttpException
 {
-    public function __construct(string $mediaId)
+    public function __construct(string $mediaId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Could not find file for media with id: "{{ mediaId }}"',
-            ['mediaId' => $mediaId]
+            ['mediaId' => $mediaId],
+            $previous
         );
     }
 

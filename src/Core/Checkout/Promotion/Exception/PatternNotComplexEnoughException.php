@@ -9,10 +9,12 @@ class PatternNotComplexEnoughException extends ShopwareHttpException
 {
     public const ERROR_CODE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX';
 
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
         parent::__construct(
-            'The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.'
+            'The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.',
+            [],
+            $previous
         );
     }
 

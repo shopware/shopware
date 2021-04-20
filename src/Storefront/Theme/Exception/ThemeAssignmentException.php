@@ -13,8 +13,13 @@ class ThemeAssignmentException extends ShopwareHttpException
     /**
      * @deprecated tag:v6.5.0 parameter $stillAssignedSalesChannels will be required
      */
-    public function __construct(string $themeName, array $themeSalesChannel, array $childThemeSalesChannel, ?SalesChannelCollection $stillAssignedSalesChannels = null)
-    {
+    public function __construct(
+        string $themeName,
+        array $themeSalesChannel,
+        array $childThemeSalesChannel,
+        ?SalesChannelCollection $stillAssignedSalesChannels = null,
+        ?\Throwable $previous = null
+    ) {
         $this->stillAssignedSalesChannels = $stillAssignedSalesChannels ?? new SalesChannelCollection();
 
         $parameters = ['themeName' => $themeName];
@@ -30,7 +35,7 @@ class ThemeAssignmentException extends ShopwareHttpException
         }
         $parameters['assignments'] = $assignments;
 
-        parent::__construct($message, $parameters);
+        parent::__construct($message, $parameters, $previous);
     }
 
     public function getErrorCode(): string

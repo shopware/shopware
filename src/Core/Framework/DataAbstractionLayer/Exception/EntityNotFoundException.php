@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EntityNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $entity, string $identifier)
+    public function __construct(string $entity, string $identifier, ?\Throwable $previous = null)
     {
         parent::__construct(
             '{{ entity }} for id {{ identifier }} not found.',
-            ['entity' => $entity, 'identifier' => $identifier]
+            ['entity' => $entity, 'identifier' => $identifier],
+            $previous
         );
     }
 

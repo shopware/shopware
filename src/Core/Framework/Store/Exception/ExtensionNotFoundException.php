@@ -7,19 +7,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExtensionNotFoundException extends ShopwareHttpException
 {
-    public static function fromTechnicalName(string $technicalName): self
+    public static function fromTechnicalName(string $technicalName, ?\Throwable $previous = null): self
     {
         return new self(
             'Could not find extension with technical name "{{technicalName}}".',
-            ['technicalName' => $technicalName]
+            ['technicalName' => $technicalName],
+            $previous
         );
     }
 
-    public static function fromId(string $id): self
+    public static function fromId(string $id, ?\Throwable $previous = null): self
     {
         return new self(
             'Could not find extension with id "{{id}}".',
-            ['id' => $id]
+            ['id' => $id],
+            $previous
         );
     }
 

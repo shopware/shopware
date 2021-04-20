@@ -10,7 +10,7 @@ class PluginHasActiveDependantsException extends ShopwareHttpException
     /**
      * @param PluginEntity[] $dependants
      */
-    public function __construct(string $dependency, array $dependants)
+    public function __construct(string $dependency, array $dependants, ?\Throwable $previous = null)
     {
         $dependantNameList = array_map(static function ($plugin) {
             return sprintf('"%s"', $plugin->getName());
@@ -22,7 +22,8 @@ class PluginHasActiveDependantsException extends ShopwareHttpException
                 'dependency' => $dependency,
                 'dependants' => $dependants,
                 'dependantNames' => implode(', ', $dependantNameList),
-            ]
+            ],
+            $previous
         );
     }
 

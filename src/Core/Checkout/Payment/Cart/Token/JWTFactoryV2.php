@@ -48,7 +48,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             /** @var UnencryptedToken $jwtToken */
             $jwtToken = $this->configuration->parser()->parse($token);
         } catch (\Throwable $e) {
-            throw new InvalidTokenException($token);
+            throw new InvalidTokenException($token, $e);
         }
 
         if (!$this->configuration->validator()->validate($jwtToken, ...$this->configuration->validationConstraints())) {

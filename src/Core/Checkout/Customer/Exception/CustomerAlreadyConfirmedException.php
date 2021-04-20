@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerAlreadyConfirmedException extends ShopwareHttpException
 {
-    public function __construct(string $id)
+    public function __construct(string $id, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The customer with the id "{{ customerId }}" is already confirmed.',
-            ['customerId' => $id]
+            ['customerId' => $id],
+            $previous
         );
     }
 

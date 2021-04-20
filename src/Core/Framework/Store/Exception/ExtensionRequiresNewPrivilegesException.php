@@ -6,14 +6,15 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class ExtensionRequiresNewPrivilegesException extends ShopwareHttpException
 {
-    public static function fromPrivilegeList(string $appName, array $privileges): self
+    public static function fromPrivilegeList(string $appName, array $privileges, ?\Throwable $previous = null): self
     {
         return new self(
             'Updating "{{app}}" requires new privileges "{{privileges}}".',
             [
                 'app' => $appName,
                 'privileges' => implode(';', $privileges),
-            ]
+            ],
+            $previous
         );
     }
 

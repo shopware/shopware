@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DuplicateProductSearchConfigLanguageException extends ShopwareHttpException
 {
-    public function __construct(string $languageId, \Throwable $e)
+    public function __construct(string $languageId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Product search config with language_id {{ languageId }} already exists.',
             ['languageId' => $languageId],
-            $e
+            $previous
         );
     }
 

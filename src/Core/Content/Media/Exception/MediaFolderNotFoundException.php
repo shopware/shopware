@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MediaFolderNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $folderId)
+    public function __construct(string $folderId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Could not find media folder with id: "{{ folderId }}"',
-            ['folderId' => $folderId]
+            ['folderId' => $folderId],
+            $previous
         );
     }
 

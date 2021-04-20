@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ContextRulesLockedException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Context rules in application context already locked.');
+        parent::__construct('Context rules in application context already locked.', [], $previous);
     }
 
     public function getErrorCode(): string

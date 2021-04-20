@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class CanNotDeletePluginManagedByComposerException extends ShopwareHttpException
 {
-    public function __construct(string $reason)
+    public function __construct(string $reason, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Can not delete plugin. Please contact your system administrator. Error: {{ reason }}',
-            ['reason' => $reason]
+            ['reason' => $reason],
+            $previous
         );
     }
 

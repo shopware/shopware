@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class InvalidContextSourceException extends ShopwareHttpException
 {
-    public function __construct(string $expected, string $actual)
+    public function __construct(string $expected, string $actual, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Expected ContextSource of "{{expected}}", but got "{{actual}}".',
-            ['expected' => $expected, 'actual' => $actual]
+            ['expected' => $expected, 'actual' => $actual],
+            $previous
         );
     }
 

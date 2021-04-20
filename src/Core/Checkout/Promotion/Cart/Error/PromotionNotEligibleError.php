@@ -13,13 +13,13 @@ class PromotionNotEligibleError extends Error
      */
     protected $name;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ?\Throwable $previous = null)
     {
         $this->name = $name;
 
         $this->message = sprintf('Promotion %s not eligible for cart!', $this->name);
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function isPersistent(): bool

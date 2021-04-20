@@ -15,9 +15,9 @@ class WriteException extends ShopwareHttpException
      */
     private $exceptions = [];
 
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct(self::MESSAGE, ['errorCount' => 0]);
+        parent::__construct(self::MESSAGE, ['errorCount' => 0], $previous);
     }
 
     public function add(\Throwable $exception): WriteException

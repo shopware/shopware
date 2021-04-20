@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class PluginChangelogInvalidException extends ShopwareHttpException
 {
-    public function __construct(string $changelogPath)
+    public function __construct(string $changelogPath, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The changelog of "{{ changelogPath }}" is invalid.',
-            ['changelogPath' => $changelogPath]
+            ['changelogPath' => $changelogPath],
+            $previous
         );
     }
 

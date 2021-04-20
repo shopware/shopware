@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class InvalidPriceFieldTypeException extends ShopwareHttpException
 {
-    public function __construct(string $type)
+    public function __construct(string $type, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The price field does not contain a valid "type" value. Received {{ type }} ',
-            ['type' => $type]
+            ['type' => $type],
+            $previous
         );
     }
 

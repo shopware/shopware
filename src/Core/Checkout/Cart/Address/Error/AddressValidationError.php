@@ -24,7 +24,7 @@ class AddressValidationError extends Error
      */
     private $violations;
 
-    public function __construct(bool $isBillingAddress, ConstraintViolationList $violations)
+    public function __construct(bool $isBillingAddress, ConstraintViolationList $violations, ?\Throwable $previous = null)
     {
         $this->isBillingAddress = $isBillingAddress;
         $this->violations = $violations;
@@ -33,7 +33,7 @@ class AddressValidationError extends Error
             $isBillingAddress ? 'billing' : 'shipping'
         );
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function getId(): string

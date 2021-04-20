@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ConflictingPackageException extends RequirementException
 {
-    public function __construct(string $conflictSource, string $conflictTarget, string $actualVersion)
+    public function __construct(string $conflictSource, string $conflictTarget, string $actualVersion, ?\Throwable $previous = null)
     {
         parent::__construct(
             '"{{ conflictSource }}" conflicts with plugin/package "{{ conflictTarget }} {{ version }}"',
@@ -14,7 +14,8 @@ class ConflictingPackageException extends RequirementException
                 'conflictSource' => $conflictSource,
                 'conflictTarget' => $conflictTarget,
                 'version' => $actualVersion,
-            ]
+            ],
+            $previous
         );
     }
 

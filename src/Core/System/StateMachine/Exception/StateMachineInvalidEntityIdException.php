@@ -7,14 +7,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StateMachineInvalidEntityIdException extends ShopwareHttpException
 {
-    public function __construct(string $entityName, string $entityId)
+    public function __construct(string $entityName, string $entityId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Unable to read entity "{{ entityName }}" with id "{{ entityId }}".',
             [
                 'entityName' => $entityName,
                 'entityId' => $entityId,
-            ]
+            ],
+            $previous
         );
     }
 

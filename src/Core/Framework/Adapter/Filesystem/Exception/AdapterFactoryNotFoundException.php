@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class AdapterFactoryNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $type)
+    public function __construct(string $type, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Adapter factory for type "{{ type }}" was not found.',
-            ['type' => $type]
+            ['type' => $type],
+            $previous
         );
     }
 

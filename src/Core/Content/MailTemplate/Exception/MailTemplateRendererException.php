@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MailTemplateRendererException extends ShopwareHttpException
 {
-    public function __construct(string $twigMessage)
+    public function __construct(string $twigMessage, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Failed rendering mail template using Twig: {{ errorMessage }}',
-            ['errorMessage' => $twigMessage]
+            ['errorMessage' => $twigMessage],
+            $previous
         );
     }
 

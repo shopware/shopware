@@ -25,7 +25,7 @@ class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterfa
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.customer_wishlist.sales_channel_id__customer_id\'/', $e->getMessage())) {
             $payload = $command->getPayload();
 
-            return new DuplicateWishlistProductException(!empty($payload['product_id']) ? Uuid::fromBytesToHex($payload['product_id']) : '');
+            return new DuplicateWishlistProductException(!empty($payload['product_id']) ? Uuid::fromBytesToHex($payload['product_id']) : '', $e);
         }
 
         return null;

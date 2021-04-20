@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class CanNotDownloadPluginManagedByComposerException extends ShopwareHttpException
 {
-    public function __construct(string $reason)
+    public function __construct(string $reason, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Can not download plugin. Please contact your system administrator. Error: {{ reason }}',
-            ['reason' => $reason]
+            ['reason' => $reason],
+            $previous
         );
     }
 

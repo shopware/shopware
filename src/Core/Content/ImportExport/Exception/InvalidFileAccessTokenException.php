@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidFileAccessTokenException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Access to file denied due to invalid access token', []);
+        parent::__construct('Access to file denied due to invalid access token', [], $previous);
     }
 
     public function getStatusCode(): int

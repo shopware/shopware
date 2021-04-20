@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class NewsletterRecipientNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $identifier, string $value)
+    public function __construct(string $identifier, string $value, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The NewsletterRecipient with the identifier "{{ identifier }}" - {{ value }} was not found.',
-            ['identifier' => $identifier, 'value' => $value]
+            ['identifier' => $identifier, 'value' => $value],
+            $previous
         );
     }
 

@@ -210,7 +210,7 @@ class FileSaver
                 $this->getFileSystem($currentMedia)
             );
         } catch (\Exception $e) {
-            throw new CouldNotRenameFileException($currentMedia->getId(), $currentMedia->getFileName());
+            throw new CouldNotRenameFileException($currentMedia->getId(), $currentMedia->getFileName(), $e);
         }
 
         foreach ($currentMedia->getThumbnails() as $thumbnail) {

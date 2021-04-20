@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DuplicateProductNumberException extends ShopwareHttpException
 {
-    public function __construct(string $number, ?\Throwable $e = null)
+    public function __construct(string $number, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Product with number "{{ number }}" already exists.',
             ['number' => $number],
-            $e
+            $previous
         );
     }
 

@@ -6,9 +6,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class InvalidConditionException extends ShopwareHttpException
 {
-    public function __construct(string $conditionName)
+    public function __construct(string $conditionName, ?\Throwable $previous = null)
     {
-        parent::__construct('The condition "{{ condition }}" is invalid.', ['condition' => $conditionName]);
+        parent::__construct('The condition "{{ condition }}" is invalid.', ['condition' => $conditionName], $previous);
     }
 
     public function getErrorCode(): string

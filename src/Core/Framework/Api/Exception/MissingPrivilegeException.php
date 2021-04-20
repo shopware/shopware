@@ -9,14 +9,14 @@ class MissingPrivilegeException extends ShopwareHttpException
 {
     public const MISSING_PRIVILEGE_ERROR = 'FRAMEWORK__MISSING_PRIVILEGE_ERROR';
 
-    public function __construct(array $privilege = [])
+    public function __construct(array $privilege = [], ?\Throwable $previous = null)
     {
         $errorMessage = json_encode([
             'message' => 'Missing privilege',
             'missingPrivileges' => $privilege,
         ]);
 
-        parent::__construct($errorMessage ?: '');
+        parent::__construct($errorMessage ?: '', [], $previous);
     }
 
     public function getStatusCode(): int

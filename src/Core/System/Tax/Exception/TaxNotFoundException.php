@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TaxNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $taxId)
+    public function __construct(string $taxId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Tax with id "{{ id }}" not found.',
-            ['id' => $taxId]
+            ['id' => $taxId],
+            $previous
         );
     }
 

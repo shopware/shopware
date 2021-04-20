@@ -12,9 +12,9 @@ class SimpleShopwareHttpException extends ShopwareHttpException
     public const EXCEPTION_CODE = 'FRAMEWORK__TEST_EXCEPTION';
     public const EXCEPTION_MESSAGE = 'this is param 1: {{ paramOne }} and this is param 2: {{ paramTwo }}';
 
-    public function __construct(array $params)
+    public function __construct(array $params, ?\Throwable $previous = null)
     {
-        parent::__construct(self::EXCEPTION_MESSAGE, $params);
+        parent::__construct(self::EXCEPTION_MESSAGE, $params, $previous);
     }
 
     public function getErrorCode(): string

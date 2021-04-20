@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DiscountCalculatorNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $type)
+    public function __construct(string $type, ?\Throwable $previous = null)
     {
-        parent::__construct('Promotion Discount Calculator "{{ type }}" has not been found!', ['type' => $type]);
+        parent::__construct('Promotion Discount Calculator "{{ type }}" has not been found!', ['type' => $type], $previous);
     }
 
     public function getErrorCode(): string

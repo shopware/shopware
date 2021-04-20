@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class NoPluginFoundInZipException extends ShopwareHttpException
 {
-    public function __construct(string $archive)
+    public function __construct(string $archive, ?\Throwable $previous = null)
     {
         parent::__construct(
             'No plugin was found in the zip archive: {{ archive }}',
-            ['archive' => $archive]
+            ['archive' => $archive],
+            $previous
         );
     }
 

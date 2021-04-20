@@ -7,11 +7,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class UnsupportedCommandTypeException extends ShopwareHttpException
 {
-    public function __construct(WriteCommand $command)
+    public function __construct(WriteCommand $command, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Command of class {{ command }} is not supported by {{ definition }}',
-            ['command' => \get_class($command), 'definition' => $command->getDefinition()->getClass()]
+            ['command' => \get_class($command), 'definition' => $command->getDefinition()->getClass()],
+            $previous
         );
     }
 

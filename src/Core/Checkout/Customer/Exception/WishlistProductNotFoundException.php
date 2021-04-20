@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WishlistProductNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $productId)
+    public function __construct(string $productId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Wishlist product with id {{ productId }} not found',
-            ['productId' => $productId]
+            ['productId' => $productId],
+            $previous
         );
     }
 

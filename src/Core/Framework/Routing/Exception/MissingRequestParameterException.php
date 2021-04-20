@@ -17,12 +17,12 @@ class MissingRequestParameterException extends ShopwareHttpException
      */
     private $path;
 
-    public function __construct(string $name, string $path = '')
+    public function __construct(string $name, string $path = '', ?\Throwable $previous = null)
     {
         $this->name = $name;
         $this->path = $path;
 
-        parent::__construct('Parameter "{{ parameterName }}" is missing.', ['parameterName' => $name]);
+        parent::__construct('Parameter "{{ parameterName }}" is missing.', ['parameterName' => $name], $previous);
     }
 
     public function getName(): string

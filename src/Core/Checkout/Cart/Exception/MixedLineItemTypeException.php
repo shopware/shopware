@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MixedLineItemTypeException extends ShopwareHttpException
 {
-    public function __construct(string $id, string $type)
+    public function __construct(string $id, string $type, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Line item with id {{ id }} already exists with different type {{ type }}.',
-            ['id' => $id, 'type' => $type]
+            ['id' => $id, 'type' => $type],
+            $previous
         );
     }
 

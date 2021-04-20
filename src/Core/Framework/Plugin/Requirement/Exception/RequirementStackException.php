@@ -22,7 +22,8 @@ class RequirementStackException extends ShopwareHttpException
                 'method' => $method,
                 'failureCount' => \count($requirements),
                 'errors' => $this->getInnerExceptionsDetails(),
-            ]
+            ],
+            \current($requirements) ?: null
         );
     }
 

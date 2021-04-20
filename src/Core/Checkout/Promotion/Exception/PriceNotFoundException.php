@@ -8,9 +8,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PriceNotFoundException extends ShopwareHttpException
 {
-    public function __construct(LineItem $item)
+    public function __construct(LineItem $item, ?\Throwable $previous = null)
     {
-        parent::__construct('No calculated price found for item ' . $item->getId());
+        parent::__construct('No calculated price found for item ' . $item->getId(), [], $previous);
     }
 
     public function getErrorCode(): string

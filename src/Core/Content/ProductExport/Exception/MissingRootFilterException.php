@@ -6,9 +6,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class MissingRootFilterException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Missing root filter ');
+        parent::__construct('Missing root filter ', [], $previous);
     }
 
     public function getErrorCode(): string

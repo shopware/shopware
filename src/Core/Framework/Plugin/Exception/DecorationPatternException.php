@@ -12,12 +12,12 @@ class DecorationPatternException extends ShopwareHttpException
      */
     protected $class;
 
-    public function __construct(string $class)
+    public function __construct(string $class, ?\Throwable $previous = null)
     {
         parent::__construct(sprintf(
             'The getDecorated() function of core class %s cannot be used. This class is the base class.',
             $class
-        ));
+        ), [], $previous);
     }
 
     public function getErrorCode(): string

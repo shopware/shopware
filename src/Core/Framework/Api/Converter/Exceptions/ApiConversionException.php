@@ -17,7 +17,11 @@ class ApiConversionException extends ShopwareHttpException
     {
         $this->exceptions = $exceptions;
 
-        parent::__construct('Api Version conversion failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => \count($exceptions)]);
+        parent::__construct(
+            'Api Version conversion failed, got {{ numberOfFailures }} failure(s).',
+            ['numberOfFailures' => \count($exceptions)],
+            \current(\array_filter($exceptions, 'is_object')) ?: null
+        );
     }
 
     public function add(\Throwable $exception, string $pointer): void

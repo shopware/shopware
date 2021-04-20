@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class UpdateApiSignatureValidationException extends ShopwareHttpException
 {
-    public function __construct(string $reason)
+    public function __construct(string $reason, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Update-API signature validation failed. Error: {{ error }}',
-            ['error' => $reason]
+            ['error' => $reason],
+            $previous
         );
     }
 

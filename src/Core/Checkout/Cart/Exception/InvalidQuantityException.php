@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidQuantityException extends ShopwareHttpException
 {
-    public function __construct(int $quantity)
+    public function __construct(int $quantity, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The quantity must be a positive integer. Given: "{{ quantity }}"',
-            ['quantity' => $quantity]
+            ['quantity' => $quantity],
+            $previous
         );
     }
 

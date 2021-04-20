@@ -6,10 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class DisabledUrlUploadFeatureException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
         parent::__construct(
-            'The feature to upload a media via URL is disabled.'
+            'The feature to upload a media via URL is disabled.',
+            [],
+            $previous
         );
     }
 

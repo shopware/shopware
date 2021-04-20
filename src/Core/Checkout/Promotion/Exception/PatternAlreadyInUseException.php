@@ -9,10 +9,12 @@ class PatternAlreadyInUseException extends ShopwareHttpException
 {
     public const ERROR_CODE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';
 
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
         parent::__construct(
-            'Code pattern already exists in another promotion. Please provide a different pattern.'
+            'Code pattern already exists in another promotion. Please provide a different pattern.',
+            [],
+            $previous
         );
     }
 

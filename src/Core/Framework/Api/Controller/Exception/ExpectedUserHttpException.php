@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExpectedUserHttpException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('For this interaction an authenticated user login is required.');
+        parent::__construct('For this interaction an authenticated user login is required.', [], $previous);
     }
 
     public function getErrorCode(): string

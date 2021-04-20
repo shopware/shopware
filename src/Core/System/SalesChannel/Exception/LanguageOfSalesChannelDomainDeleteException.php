@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LanguageOfSalesChannelDomainDeleteException extends ShopwareHttpException
 {
-    public function __construct(string $language, $e)
+    public function __construct(string $language, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The language "{{ language }}" cannot be deleted because saleschannel domains with this language exist.',
             ['language' => $language],
-            $e
+            $previous
         );
     }
 

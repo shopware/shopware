@@ -12,12 +12,12 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
      */
     protected $parameters = [];
 
-    public function __construct(string $message, array $parameters = [], ?\Throwable $e = null)
+    public function __construct(string $message, array $parameters = [], ?\Throwable $previous = null)
     {
         $this->parameters = $parameters;
         $message = $this->parse($message, $parameters);
 
-        parent::__construct($this->getStatusCode(), $message, $e);
+        parent::__construct($this->getStatusCode(), $message, $previous);
     }
 
     public function getStatusCode(): int

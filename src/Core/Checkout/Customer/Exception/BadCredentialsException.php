@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class BadCredentialsException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Invalid username and/or password.');
+        parent::__construct('Invalid username and/or password.', [], $previous);
     }
 
     public function getErrorCode(): string

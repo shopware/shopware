@@ -7,8 +7,8 @@ namespace Shopware\Core\Framework\App\Exception;
  */
 class AppUrlChangeDetectedException extends \Exception
 {
-    public function __construct(string $previousUrl, string $currentUrl)
+    public function __construct(string $previousUrl, string $currentUrl, ?\Throwable $previous = null)
     {
-        parent::__construct(sprintf('Detected APP_URL change, was "%s" and is now "%s".', $previousUrl, $currentUrl));
+        parent::__construct(sprintf('Detected APP_URL change, was "%s" and is now "%s".', $previousUrl, $currentUrl), 0, $previous);
     }
 }

@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResourceNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $resourceType, array $primaryKey)
+    public function __construct(string $resourceType, array $primaryKey, ?\Throwable $previous = null)
     {
         $resourceIds = [];
         foreach ($primaryKey as $key => $value) {
@@ -16,7 +16,8 @@ class ResourceNotFoundException extends ShopwareHttpException
 
         parent::__construct(
             'The {{ type }} resource with the following primary key was not found: {{ primaryKeyString }}',
-            ['type' => $resourceType, 'primaryKey' => $primaryKey, 'primaryKeyString' => implode(' ', $resourceIds)]
+            ['type' => $resourceType, 'primaryKey' => $primaryKey, 'primaryKeyString' => implode(' ', $resourceIds)],
+            $previous
         );
     }
 

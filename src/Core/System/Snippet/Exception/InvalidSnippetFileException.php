@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidSnippetFileException extends ShopwareHttpException
 {
-    public function __construct(string $locale)
+    public function __construct(string $locale, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The base snippet file for locale {{ locale }} is not registered.',
-            ['locale' => $locale]
+            ['locale' => $locale],
+            $previous
         );
     }
 

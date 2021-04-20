@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidPayloadException extends ShopwareHttpException
 {
-    public function __construct(string $id, string $lineItemId)
+    public function __construct(string $id, string $lineItemId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Unable to save payload with id `{{ id }}` on line item `{{ lineItemId }}`. Only scalar data types are allowed.',
-            ['id' => $id, 'lineItemId' => $lineItemId]
+            ['id' => $id, 'lineItemId' => $lineItemId],
+            $previous
         );
     }
 

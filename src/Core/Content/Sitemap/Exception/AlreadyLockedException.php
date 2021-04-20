@@ -7,12 +7,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class AlreadyLockedException extends ShopwareHttpException
 {
-    public function __construct(SalesChannelContext $salesChannelContext)
+    public function __construct(SalesChannelContext $salesChannelContext, ?\Throwable $previous = null)
     {
         parent::__construct('Cannot acquire lock for sales channel {{salesChannelId}} and language {{languageId}}', [
             'salesChannelId' => $salesChannelContext->getSalesChannel()->getId(),
             'languageId' => $salesChannelContext->getSalesChannel()->getLanguageId(),
-        ]);
+        ], $previous);
     }
 
     public function getErrorCode(): string

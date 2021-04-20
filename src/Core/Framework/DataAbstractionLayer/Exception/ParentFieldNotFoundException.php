@@ -7,11 +7,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class ParentFieldNotFoundException extends ShopwareHttpException
 {
-    public function __construct(EntityDefinition $definition)
+    public function __construct(EntityDefinition $definition, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Can not find parent property \'parent\' field for definition {{ definition }',
-            ['definition' => $definition->getClass()]
+            ['definition' => $definition->getClass()],
+            $previous
         );
     }
 

@@ -7,13 +7,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StateMachineInvalidStateFieldException extends ShopwareHttpException
 {
-    public function __construct(string $fieldName)
+    public function __construct(string $fieldName, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Field "{{ fieldName }}" does not exists or isn\'t of type StateMachineStateField.',
             [
                 'fieldName' => $fieldName,
-            ]
+            ],
+            $previous
         );
     }
 

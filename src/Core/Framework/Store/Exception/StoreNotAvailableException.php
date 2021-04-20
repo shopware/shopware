@@ -6,9 +6,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class StoreNotAvailableException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Store is not available');
+        parent::__construct('Store is not available', [], $previous);
     }
 
     public function getErrorCode(): string

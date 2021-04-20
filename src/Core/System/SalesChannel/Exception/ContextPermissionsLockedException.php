@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ContextPermissionsLockedException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Context permission in SalesChannel context already locked.');
+        parent::__construct('Context permission in SalesChannel context already locked.', [], $previous);
     }
 
     public function getErrorCode(): string

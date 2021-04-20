@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class SalesChannelMappingException extends ShopwareHttpException
 {
-    public function __construct(string $url)
+    public function __construct(string $url, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Unable to find a matching sales channel for the request: {{url}}". Please make sure the domain mapping is correct.',
-            ['url' => $url]
+            ['url' => $url],
+            $previous
         );
     }
 

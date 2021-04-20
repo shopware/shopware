@@ -9,9 +9,9 @@ class ExceptionFailedException extends ShopwareHttpException
 {
     private array $fails = [];
 
-    public function __construct(array $failedExpectations)
+    public function __construct(array $failedExpectations, ?\Throwable $previous = null)
     {
-        parent::__construct('API Expectations failed', []);
+        parent::__construct('API Expectations failed', [], $previous);
         $this->fails = $failedExpectations;
     }
 

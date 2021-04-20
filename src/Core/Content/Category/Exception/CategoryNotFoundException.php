@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CategoryNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $categoryId)
+    public function __construct(string $categoryId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Category "{{ categoryId }}" not found.',
-            ['categoryId' => $categoryId]
+            ['categoryId' => $categoryId],
+            $previous
         );
     }
 

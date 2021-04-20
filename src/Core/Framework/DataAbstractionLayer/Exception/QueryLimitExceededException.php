@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class QueryLimitExceededException extends ShopwareHttpException
 {
-    public function __construct($maxLimit, $limit)
+    public function __construct($maxLimit, $limit, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The limit must be lower than or equal to MAX_LIMIT(={{ maxLimit }}). Given: {{ limit }}',
-            ['maxLimit' => $maxLimit, 'limit' => $limit]
+            ['maxLimit' => $maxLimit, 'limit' => $limit],
+            $previous
         );
     }
 

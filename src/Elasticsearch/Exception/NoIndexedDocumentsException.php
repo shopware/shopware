@@ -8,10 +8,12 @@ class NoIndexedDocumentsException extends ShopwareHttpException
 {
     public const CODE = 'ELASTICSEARCH_NO_INDEXED_DOCUMENTS';
 
-    public function __construct(string $entityName)
+    public function __construct(string $entityName, ?\Throwable $previous = null)
     {
         parent::__construct(
-            sprintf('No indexed documents found for entity %s', $entityName)
+            sprintf('No indexed documents found for entity %s', $entityName),
+            [],
+            $previous
         );
     }
 

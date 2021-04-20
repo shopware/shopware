@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidChildQuantityException extends ShopwareHttpException
 {
-    public function __construct(int $childQuantity, int $parentQuantity)
+    public function __construct(int $childQuantity, int $parentQuantity, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The quantity of a child "{{ childQuantity }}" must be a multiple of the parent quantity "{{ parentQuantity }}"',
-            ['childQuantity' => $childQuantity, 'parentQuantity' => $parentQuantity]
+            ['childQuantity' => $childQuantity, 'parentQuantity' => $parentQuantity],
+            $previous
         );
     }
 

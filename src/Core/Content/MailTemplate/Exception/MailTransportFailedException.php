@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MailTransportFailedException extends ShopwareHttpException
 {
-    public function __construct(array $failedRecipients, ?\Throwable $e = null)
+    public function __construct(array $failedRecipients, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Failed sending mail to following recipients: {{ recipients }} with Error: {{ errorMessage }}',
-            ['recipients' => $failedRecipients, 'recipientsString' => implode(', ', $failedRecipients), 'errorMessage' => $e ? $e->getMessage() : 'Unknown error'],
-            $e
+            ['recipients' => $failedRecipients, 'recipientsString' => implode(', ', $failedRecipients), 'errorMessage' => $previous ? $previous->getMessage() : 'Unknown error'],
+            $previous
         );
     }
 

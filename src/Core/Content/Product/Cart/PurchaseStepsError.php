@@ -22,7 +22,7 @@ class PurchaseStepsError extends Error
      */
     protected $quantity;
 
-    public function __construct(string $id, string $name, int $quantity)
+    public function __construct(string $id, string $name, int $quantity, ?\Throwable $previous = null)
     {
         $this->id = $id;
 
@@ -32,7 +32,7 @@ class PurchaseStepsError extends Error
             $quantity
         );
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
         $this->name = $name;
         $this->quantity = $quantity;
     }

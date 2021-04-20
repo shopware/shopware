@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LineItemTypeNotSupportedException extends ShopwareHttpException
 {
-    public function __construct(string $type)
+    public function __construct(string $type, ?\Throwable $previous = null)
     {
-        parent::__construct(sprintf('LineItem with type is not supported %s', $type), [], null);
+        parent::__construct(sprintf('LineItem with type is not supported %s', $type), [], $previous);
     }
 
     public function getStatusCode(): int

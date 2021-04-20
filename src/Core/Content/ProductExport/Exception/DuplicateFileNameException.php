@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DuplicateFileNameException extends ShopwareHttpException
 {
-    public function __construct(string $number, ?\Throwable $e = null)
+    public function __construct(string $number, ?\Throwable $previous = null)
     {
         parent::__construct(
             'File name "{{ fileName }}" already exists.',
             ['fileName' => $number],
-            $e
+            $previous
         );
     }
 

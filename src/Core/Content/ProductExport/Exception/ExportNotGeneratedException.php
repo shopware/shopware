@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExportNotGeneratedException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Export file has not been generated yet. Please make sure that the scheduled task are working or run the command manually.');
+        parent::__construct('Export file has not been generated yet. Please make sure that the scheduled task are working or run the command manually.', [], $previous);
     }
 
     public function getStatusCode(): int

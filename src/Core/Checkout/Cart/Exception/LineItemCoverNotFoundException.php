@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LineItemCoverNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $coverId, string $lineItemKey)
+    public function __construct(string $coverId, string $lineItemKey, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Line item cover with identifier "{{ lineItemId }}" for line item "{{ coverId }}" not found',
-            ['coverId' => $coverId, 'lineItemId' => $lineItemKey]
+            ['coverId' => $coverId, 'lineItemId' => $lineItemKey],
+            $previous
         );
     }
 

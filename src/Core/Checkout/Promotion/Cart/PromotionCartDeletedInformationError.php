@@ -19,7 +19,7 @@ class PromotionCartDeletedInformationError extends Error
      */
     private $discountLineItemId;
 
-    public function __construct(LineItem $discountLineItem)
+    public function __construct(LineItem $discountLineItem, ?\Throwable $previous = null)
     {
         $this->name = $discountLineItem->getLabel();
         $this->discountLineItemId = $discountLineItem->getId();
@@ -27,7 +27,7 @@ class PromotionCartDeletedInformationError extends Error
             'Discount %s has been added',
             $this->name
         );
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function getMessageKey(): string

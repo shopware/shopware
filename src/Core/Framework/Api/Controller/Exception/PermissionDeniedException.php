@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PermissionDeniedException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('The user does not have the permission to do this action.');
+        parent::__construct('The user does not have the permission to do this action.', [], $previous);
     }
 
     public function getErrorCode(): string

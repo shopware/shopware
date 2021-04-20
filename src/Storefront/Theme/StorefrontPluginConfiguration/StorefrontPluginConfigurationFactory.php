@@ -147,7 +147,8 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
                 sprintf(
                     'Got exception while parsing theme config. Exception message "%s"',
                     $e->getMessage()
-                )
+                ),
+                $e
             );
         }
 

@@ -8,13 +8,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidExtensionRatingValueException extends ShopwareHttpException
 {
-    public function __construct(int $rating, array $parameters = [], ?\Throwable $e = null)
+    public function __construct(int $rating, array $parameters = [], ?\Throwable $previous = null)
     {
         $parameters['rating'] = $rating;
         $parameters['maxRating'] = ReviewStruct::MAX_RATING;
         $parameters['minRating'] = ReviewStruct::MIN_RATING;
 
-        parent::__construct('Invalid rating value {{rating}}. The value must correspond to a number in the interval from {{minRating}} to {{maxRating}}.', $parameters, $e);
+        parent::__construct('Invalid rating value {{rating}}. The value must correspond to a number in the interval from {{minRating}} to {{maxRating}}.', $parameters, $previous);
     }
 
     public function getErrorCode(): string

@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class KernelPluginLoaderException extends ShopwareHttpException
 {
-    public function __construct(string $plugin, string $reason)
+    public function __construct(string $plugin, string $reason, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Failed to load plugin "{{ plugin }}". Reason: {{ reason }}',
-            ['plugin' => $plugin, 'reason' => $reason]
+            ['plugin' => $plugin, 'reason' => $reason],
+            $previous
         );
     }
 

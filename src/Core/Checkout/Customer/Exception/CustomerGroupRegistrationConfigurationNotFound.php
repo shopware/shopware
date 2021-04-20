@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerGroupRegistrationConfigurationNotFound extends ShopwareHttpException
 {
-    public function __construct(string $customerGroupId)
+    public function __construct(string $customerGroupId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Customer group registration for id {{ customerGroupId }} not found.',
-            ['customerGroupId' => $customerGroupId]
+            ['customerGroupId' => $customerGroupId],
+            $previous
         );
     }
 

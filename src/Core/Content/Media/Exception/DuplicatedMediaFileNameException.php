@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class DuplicatedMediaFileNameException extends ShopwareHttpException
 {
-    public function __construct(string $fileName, string $fileExtension)
+    public function __construct(string $fileName, string $fileExtension, ?\Throwable $previous = null)
     {
         parent::__construct(
             'A file with the name "{{ fileName }}.{{ fileExtension }}" already exists.',
-            ['fileName' => $fileName, 'fileExtension' => $fileExtension]
+            ['fileName' => $fileName, 'fileExtension' => $fileExtension],
+            $previous
         );
     }
 

@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidSettingValueException extends ShopwareHttpException
 {
-    public function __construct(string $key, ?string $neededType = null, ?string $actualType = null)
+    public function __construct(string $key, ?string $neededType = null, ?string $actualType = null, ?\Throwable $previous = null)
     {
         $message = "Invalid value for '{{ key }}'";
         if ($neededType !== null) {
@@ -21,7 +21,7 @@ class InvalidSettingValueException extends ShopwareHttpException
             'key' => $key,
             'neededType' => $neededType,
             'actualType' => $actualType,
-        ]);
+        ], $previous);
     }
 
     public function getStatusCode(): int

@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class FieldAccessorBuilderNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $field)
+    public function __construct(string $field, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The field accessor builder for field {{ field }} was not found.',
-            ['field' => $field]
+            ['field' => $field],
+            $previous
         );
     }
 

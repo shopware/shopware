@@ -7,9 +7,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class MediaValidatorMissingException extends ShopwareHttpException
 {
-    public function __construct(string $type)
+    public function __construct(string $type, ?\Throwable $previous = null)
     {
-        parent::__construct('No validator for {{ type }} was found.', ['type' => $type]);
+        parent::__construct('No validator for {{ type }} was found.', ['type' => $type], $previous);
     }
 
     public function getErrorCode(): string

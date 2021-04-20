@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PaymentMethodNotAvailableException extends ShopwareHttpException
 {
-    public function __construct(string $id)
+    public function __construct(string $id, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The order has no active payment method - {{ id }}',
-            ['id' => $id]
+            ['id' => $id],
+            $previous
         );
     }
 

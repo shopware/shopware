@@ -8,14 +8,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UnmappedFieldException extends ShopwareHttpException
 {
-    public function __construct(string $field, EntityDefinition $definition)
+    public function __construct(string $field, EntityDefinition $definition, ?\Throwable $previous = null)
     {
         $fieldParts = explode('.', $field);
         $name = array_pop($fieldParts);
 
         parent::__construct(
             'Field "{{ field }}" in entity "{{ entity }}" was not found.',
-            ['field' => $name, 'entity' => $definition->getEntityName()]
+            ['field' => $name, 'entity' => $definition->getEntityName()],
+            $previous
         );
     }
 

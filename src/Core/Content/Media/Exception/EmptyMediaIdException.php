@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmptyMediaIdException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('A media id must be provided.');
+        parent::__construct('A media id must be provided.', [], $previous);
     }
 
     public function getErrorCode(): string

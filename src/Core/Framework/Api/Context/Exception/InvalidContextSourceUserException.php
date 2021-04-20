@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class InvalidContextSourceUserException extends ShopwareHttpException
 {
-    public function __construct(string $contextSource)
+    public function __construct(string $contextSource, ?\Throwable $previous = null)
     {
         parent::__construct(
             '{{ contextSource }} does not have a valid user ID',
-            ['contextSource' => $contextSource]
+            ['contextSource' => $contextSource],
+            $previous
         );
     }
 

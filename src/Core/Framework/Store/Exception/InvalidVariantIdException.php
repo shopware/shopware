@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidVariantIdException extends ShopwareHttpException
 {
-    public function __construct(array $parameters = [], ?\Throwable $e = null)
+    public function __construct(array $parameters = [], ?\Throwable $previous = null)
     {
-        parent::__construct('The variant id must be an non empty numeric value.', $parameters, $e);
+        parent::__construct('The variant id must be an non empty numeric value.', $parameters, $previous);
     }
 
     public function getErrorCode(): string

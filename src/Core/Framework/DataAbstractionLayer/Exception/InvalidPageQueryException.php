@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidPageQueryException extends ShopwareHttpException
 {
-    public function __construct($page)
+    public function __construct($page, ?\Throwable $previous = null)
     {
-        parent::__construct('The page parameter must be a positive integer. Given: {{ page }}', ['page' => $page]);
+        parent::__construct('The page parameter must be a positive integer. Given: {{ page }}', ['page' => $page], $previous);
     }
 
     public function getStatusCode(): int

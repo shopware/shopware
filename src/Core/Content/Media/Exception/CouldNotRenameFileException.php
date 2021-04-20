@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class CouldNotRenameFileException extends ShopwareHttpException
 {
-    public function __construct(string $mediaId, string $oldFileName)
+    public function __construct(string $mediaId, string $oldFileName, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Could not rename File for media with id: {{ mediaId }}. Rollback to filename: "{{ oldFileName }}"',
-            ['mediaId' => $mediaId, 'oldFileName' => $oldFileName]
+            ['mediaId' => $mediaId, 'oldFileName' => $oldFileName],
+            $previous
         );
     }
 

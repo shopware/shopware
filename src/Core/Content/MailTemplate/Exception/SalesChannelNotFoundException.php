@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $salesChannelId)
+    public function __construct(string $salesChannelId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Sales channel with id "{{ salesChannelId }}" was not found.',
-            ['salesChannelId' => $salesChannelId]
+            ['salesChannelId' => $salesChannelId],
+            $previous
         );
     }
 

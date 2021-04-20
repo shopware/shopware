@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class XmlElementNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $element)
+    public function __construct(string $element, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Unable to locate element with the name "{{ element }}".',
-            ['element' => $element]
+            ['element' => $element],
+            $previous
         );
     }
 

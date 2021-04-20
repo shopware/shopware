@@ -9,7 +9,7 @@ class MissingTranslationError extends Error
 {
     private const KEY = 'manifest-missing-translation';
 
-    public function __construct(string $xmlElementClass, array $missingTranslations)
+    public function __construct(string $xmlElementClass, array $missingTranslations, ?\Throwable $previous = null)
     {
         $path = explode('\\', $xmlElementClass);
         $xmlClassName = array_pop($path);
@@ -25,7 +25,7 @@ class MissingTranslationError extends Error
             implode("\n- ", $validations)
         );
 
-        parent::__construct($message);
+        parent::__construct($message, 0, $previous);
     }
 
     public function getMessageKey(): string

@@ -7,12 +7,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidPriceDefinitionException extends ShopwareHttpException
 {
-    public function __construct(string $label, ?string $code)
+    public function __construct(string $label, ?string $code, ?\Throwable $previous = null)
     {
         if ($code === null) {
             parent::__construct(
                 'Invalid discount price definition for automated promotion "{{ label }}"',
-                ['label' => $label]
+                ['label' => $label],
+                $previous
             );
 
             return;
@@ -20,7 +21,8 @@ class InvalidPriceDefinitionException extends ShopwareHttpException
 
         parent::__construct(
             'Invalid discount price definition for promotion line item with code "{{ code }}"',
-            ['code' => $code]
+            ['code' => $code],
+            $previous
         );
     }
 

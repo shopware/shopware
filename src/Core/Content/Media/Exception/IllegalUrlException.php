@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class IllegalUrlException extends ShopwareHttpException
 {
-    public function __construct(string $url)
+    public function __construct(string $url, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Provided URL "{{ url }}" is not allowed.',
-            ['url' => $url]
+            ['url' => $url],
+            $previous
         );
     }
 

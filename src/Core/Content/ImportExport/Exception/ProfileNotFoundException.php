@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProfileNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $profileId)
+    public function __construct(string $profileId, ?\Throwable $previous = null)
     {
-        parent::__construct('Cannot find import/export profile with id {{ profileId }}', ['profileId' => $profileId]);
+        parent::__construct('Cannot find import/export profile with id {{ profileId }}', ['profileId' => $profileId], $previous);
     }
 
     public function getStatusCode(): int

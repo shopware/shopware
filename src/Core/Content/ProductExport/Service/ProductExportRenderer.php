@@ -67,7 +67,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
-            $renderHeaderException = new RenderHeaderException($exception->getMessage());
+            $renderHeaderException = new RenderHeaderException($exception->getMessage(), $exception);
             $this->logException($salesChannelContext->getContext(), $renderHeaderException);
 
             throw $renderHeaderException;
@@ -100,7 +100,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
-            $renderFooterException = new RenderFooterException($exception->getMessage());
+            $renderFooterException = new RenderFooterException($exception->getMessage(), $exception);
             $this->logException($salesChannelContext->getContext(), $renderFooterException);
 
             throw $renderFooterException;
@@ -121,7 +121,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
-            $renderProductException = new RenderProductException($exception->getMessage());
+            $renderProductException = new RenderProductException($exception->getMessage(), $exception);
             $this->logException($salesChannelContext->getContext(), $renderProductException);
 
             throw $renderProductException;

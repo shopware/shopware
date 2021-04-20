@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class ParentFieldForeignKeyConstraintMissingException extends ShopwareHttpException
 {
-    public function __construct(EntityDefinition $definition, Field $parentField)
+    public function __construct(EntityDefinition $definition, Field $parentField, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Foreign key property {{ propertyName }} of parent association in definition {{ definition }} expected to be an FkField got %s',
@@ -16,7 +16,8 @@ class ParentFieldForeignKeyConstraintMissingException extends ShopwareHttpExcept
                 'definition' => $definition->getClass(),
                 'propertyName' => $parentField->getPropertyName(),
                 'propertyClass' => \get_class($parentField),
-            ]
+            ],
+            $previous
         );
     }
 

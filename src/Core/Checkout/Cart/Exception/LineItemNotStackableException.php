@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LineItemNotStackableException extends ShopwareHttpException
 {
-    public function __construct(string $identifier)
+    public function __construct(string $identifier, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Line item with identifier "{{ identifier }}" is not stackable and the quantity cannot be changed.',
-            ['identifier' => $identifier]
+            ['identifier' => $identifier],
+            $previous
         );
     }
 

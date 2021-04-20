@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PluginBaseClassNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $baseClass)
+    public function __construct(string $baseClass, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The class "{{ baseClass }}" is not found. Probably an class loader error. Check your plugin composer.json',
-            ['baseClass' => $baseClass]
+            ['baseClass' => $baseClass],
+            $previous
         );
     }
 

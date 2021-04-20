@@ -7,8 +7,8 @@ namespace Shopware\Core\Framework\App\Exception;
  */
 class AppNotFoundException extends \Exception
 {
-    public function __construct(string $appId)
+    public function __construct(string $appId, ?\Throwable $previous = null)
     {
-        parent::__construct(sprintf('App for ID: "%s" could not be found.', $appId));
+        parent::__construct(sprintf('App for ID: "%s" could not be found.', $appId), 0, $previous);
     }
 }

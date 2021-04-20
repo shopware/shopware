@@ -12,11 +12,12 @@ class OrderDeliveryNotFoundException extends ShopwareHttpException
      */
     private $orderDeliveryId;
 
-    public function __construct(string $orderDeliveryId)
+    public function __construct(string $orderDeliveryId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Order delivery with id "{{ orderDeliveryId }}" not found.',
-            ['orderDeliveryId' => $orderDeliveryId]
+            ['orderDeliveryId' => $orderDeliveryId],
+            $previous
         );
 
         $this->orderDeliveryId = $orderDeliveryId;

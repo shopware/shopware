@@ -6,9 +6,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class SalesChannelDomainNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $id)
+    public function __construct(string $id, ?\Throwable $previous = null)
     {
-        parent::__construct('Sales channel domain with ID {{ id }} not found', ['id' => $id]);
+        parent::__construct('Sales channel domain with ID {{ id }} not found', ['id' => $id], $previous);
     }
 
     public function getErrorCode(): string

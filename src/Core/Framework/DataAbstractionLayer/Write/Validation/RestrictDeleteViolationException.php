@@ -16,7 +16,7 @@ class RestrictDeleteViolationException extends ShopwareHttpException
     /**
      * @param RestrictDeleteViolation[] $restrictions
      */
-    public function __construct(EntityDefinition $definition, array $restrictions)
+    public function __construct(EntityDefinition $definition, array $restrictions, ?\Throwable $previous = null)
     {
         $restriction = $restrictions[0];
         $usages = [];
@@ -37,7 +37,8 @@ class RestrictDeleteViolationException extends ShopwareHttpException
 
         parent::__construct(
             'The delete request for {{ entity }} was denied due to a conflict. The entity is currently in use by: {{ usagesString }}',
-            ['entity' => $definition->getEntityName(), 'usagesString' => implode(', ', $usagesStrings), 'usages' => $usages]
+            ['entity' => $definition->getEntityName(), 'usagesString' => implode(', ', $usagesStrings), 'usages' => $usages],
+            $previous
         );
     }
 

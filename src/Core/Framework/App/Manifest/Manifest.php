@@ -110,7 +110,7 @@ class Manifest
             $payments = $doc->getElementsByTagName('payments')->item(0);
             $payments = $payments === null ? null : Payments::fromXml($payments);
         } catch (\Exception $e) {
-            throw new XmlParsingException($xmlFile, $e->getMessage());
+            throw new XmlParsingException($xmlFile, $e->getMessage(), $e);
         }
 
         return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies, $payments);

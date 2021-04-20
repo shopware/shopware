@@ -12,11 +12,12 @@ class OrderInconsistentException extends ShopwareHttpException
      */
     private $orderId;
 
-    public function __construct(string $orderId, string $reason)
+    public function __construct(string $orderId, string $reason, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Inconsistent order with id "{{ orderId }}". Reason: {{ reason }}',
-            ['orderId' => $orderId, 'reason' => $reason]
+            ['orderId' => $orderId, 'reason' => $reason],
+            $previous
         );
 
         $this->orderId = $orderId;

@@ -66,7 +66,7 @@ class StorefrontMediaUploader
                 );
             });
         } catch (MediaNotFoundException $e) {
-            throw new UploadException($e->getMessage());
+            throw new UploadException($e->getMessage(), $e);
         }
 
         return $mediaId;

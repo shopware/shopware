@@ -9,11 +9,12 @@ class LanguageNotFoundException extends ShopwareHttpException
 {
     public const LANGUAGE_NOT_FOUND_ERROR = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
 
-    public function __construct($languageId)
+    public function __construct($languageId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The language "{{ languageId }}" was not found.',
-            ['languageId' => $languageId]
+            ['languageId' => $languageId],
+            $previous
         );
     }
 

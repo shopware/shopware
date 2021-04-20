@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IllegalTransitionException extends ShopwareHttpException
 {
-    public function __construct(string $currentState, string $transition, array $possibleTransitions)
+    public function __construct(string $currentState, string $transition, array $possibleTransitions, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Illegal transition "{{ transition }}" from state "{{ currentState }}". Possible transitions are: {{ possibleTransitionsString }}',
@@ -16,7 +16,8 @@ class IllegalTransitionException extends ShopwareHttpException
                 'currentState' => $currentState,
                 'possibleTransitionsString' => implode(', ', $possibleTransitions),
                 'possibleTransitions' => $possibleTransitions,
-            ]
+            ],
+            $previous
         );
     }
 

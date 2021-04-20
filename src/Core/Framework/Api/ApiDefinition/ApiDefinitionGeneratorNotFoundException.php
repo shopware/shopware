@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiDefinitionGeneratorNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $format)
+    public function __construct(string $format, ?\Throwable $previous = null)
     {
         parent::__construct(
             'A definition generator for format "{{ format }}" was not found.',
-            ['format' => $format]
+            ['format' => $format],
+            $previous
         );
     }
 

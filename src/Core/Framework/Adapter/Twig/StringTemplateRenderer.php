@@ -64,7 +64,7 @@ class StringTemplateRenderer
         try {
             return $this->twig->render($name, $data);
         } catch (Error $error) {
-            throw new StringTemplateRenderingException($error->getMessage());
+            throw new StringTemplateRenderingException($error->getMessage(), $error);
         }
     }
 

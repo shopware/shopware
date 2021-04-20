@@ -7,11 +7,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class ImpossibleWriteOrderException extends ShopwareHttpException
 {
-    public function __construct(array $remaining)
+    public function __construct(array $remaining, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Can not resolve write order for provided data. Remaining write order classes: {{ classesString }}',
-            ['classes' => $remaining, 'classesString' => implode(', ', $remaining)]
+            ['classes' => $remaining, 'classesString' => implode(', ', $remaining)],
+            $previous
         );
     }
 

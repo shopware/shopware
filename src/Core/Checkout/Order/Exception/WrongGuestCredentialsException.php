@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WrongGuestCredentialsException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Wrong credentials for guest authentication.');
+        parent::__construct('Wrong credentials for guest authentication.', [], $previous);
     }
 
     public function getErrorCode(): string

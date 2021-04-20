@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidThemeConfigException extends ShopwareHttpException
 {
-    public function __construct(string $fieldName)
+    public function __construct(string $fieldName, ?\Throwable $previous = null)
     {
-        parent::__construct('Unable to find setter for config field "{{ fieldName }}"', ['fieldName' => $fieldName]);
+        parent::__construct('Unable to find setter for config field "{{ fieldName }}"', ['fieldName' => $fieldName], $previous);
     }
 
     public function getErrorCode(): string

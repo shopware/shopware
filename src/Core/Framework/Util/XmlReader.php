@@ -23,7 +23,7 @@ abstract class XmlReader
         try {
             $dom = XmlUtils::loadFile($xmlFile, $this->xsdFile);
         } catch (\Exception $e) {
-            throw new XmlParsingException($xmlFile, $e->getMessage());
+            throw new XmlParsingException($xmlFile, $e->getMessage(), $e);
         }
 
         return $this->parseFile($dom);

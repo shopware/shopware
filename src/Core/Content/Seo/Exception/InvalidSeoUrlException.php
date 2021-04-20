@@ -7,11 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidSeoUrlException extends ShopwareHttpException
 {
-    public function __construct(string $message)
-    {
-        parent::__construct($message);
-    }
-
     public function getStatusCode(): int
     {
         return Response::HTTP_BAD_REQUEST;

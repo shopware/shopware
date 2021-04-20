@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
 class VersionMismatchException extends RequirementException
 {
-    public function __construct(string $requirement, string $requiredVersion, string $actualVersion)
+    public function __construct(string $requirement, string $requiredVersion, string $actualVersion, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Required plugin/package "{{ requirement }} {{ requiredVersion }}" does not match installed version {{ version }}.',
@@ -12,7 +12,8 @@ class VersionMismatchException extends RequirementException
                 'requirement' => $requirement,
                 'requiredVersion' => $requiredVersion,
                 'version' => $actualVersion,
-            ]
+            ],
+            $previous
         );
     }
 

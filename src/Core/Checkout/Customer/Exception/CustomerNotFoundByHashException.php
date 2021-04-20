@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerNotFoundByHashException extends ShopwareHttpException
 {
-    public function __construct(string $hash)
+    public function __construct(string $hash, ?\Throwable $previous = null)
     {
         parent::__construct(
             'No matching customer for the hash "{{ hash }}" was found.',
-            ['hash' => $hash]
+            ['hash' => $hash],
+            $previous
         );
     }
 

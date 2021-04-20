@@ -14,11 +14,12 @@ class WriteNotSupportedException extends ShopwareHttpException
      */
     private $field;
 
-    public function __construct(Field $field)
+    public function __construct(Field $field, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Writing to ReadOnly field "{{ field }}" is not supported.',
-            ['field' => \get_class($field)]
+            ['field' => \get_class($field)],
+            $previous
         );
 
         $this->field = $field;

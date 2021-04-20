@@ -13,11 +13,11 @@ class SearchRequestException extends ShopwareHttpException
      */
     private $exceptions;
 
-    public function __construct(array $exceptions = [])
+    public function __construct(array $exceptions = [], ?\Throwable $previous = null)
     {
         $this->exceptions = $exceptions;
 
-        parent::__construct('Mapping failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => \count($exceptions)]);
+        parent::__construct('Mapping failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => \count($exceptions)], $previous);
     }
 
     public function add(\Throwable $exception, string $pointer): void

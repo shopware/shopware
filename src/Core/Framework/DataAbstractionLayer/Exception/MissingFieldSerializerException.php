@@ -8,9 +8,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class MissingFieldSerializerException extends ShopwareHttpException
 {
-    public function __construct(Field $field)
+    public function __construct(Field $field, ?\Throwable $previous = null)
     {
-        parent::__construct('No field serializer class found for field class "{{ class }}".', ['class' => \get_class($field)]);
+        parent::__construct('No field serializer class found for field class "{{ class }}".', ['class' => \get_class($field)], $previous);
     }
 
     public function getErrorCode(): string

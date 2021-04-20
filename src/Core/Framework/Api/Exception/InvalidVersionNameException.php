@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidVersionNameException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Invalid version name given. Only alphanumeric characters are allowed');
+        parent::__construct('Invalid version name given. Only alphanumeric characters are allowed', [], $previous);
     }
 
     public function getErrorCode(): string

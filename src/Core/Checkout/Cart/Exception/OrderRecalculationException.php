@@ -12,11 +12,12 @@ class OrderRecalculationException extends ShopwareHttpException
      */
     protected $orderId;
 
-    public function __construct(string $orderId, string $details)
+    public function __construct(string $orderId, string $details, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Order with id "{{ orderId }}" could not be recalculated. {{ details }}',
-            ['orderId' => $orderId, 'details' => $details]
+            ['orderId' => $orderId, 'details' => $details],
+            $previous
         );
 
         $this->orderId = $orderId;

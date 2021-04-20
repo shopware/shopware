@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SetGroupNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $groupId)
+    public function __construct(string $groupId, ?\Throwable $previous = null)
     {
-        parent::__construct('Promotion SetGroup "{{ id }}" has not been found!', ['id' => $groupId]);
+        parent::__construct('Promotion SetGroup "{{ id }}" has not been found!', ['id' => $groupId], $previous);
     }
 
     public function getErrorCode(): string

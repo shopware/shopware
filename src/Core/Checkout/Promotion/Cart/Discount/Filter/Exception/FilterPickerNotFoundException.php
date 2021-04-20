@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FilterPickerNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $key)
+    public function __construct(string $key, ?\Throwable $previous = null)
     {
-        parent::__construct('Picker "{{ key }}" has not been found!', ['key' => $key]);
+        parent::__construct('Picker "{{ key }}" has not been found!', ['key' => $key], $previous);
     }
 
     public function getErrorCode(): string

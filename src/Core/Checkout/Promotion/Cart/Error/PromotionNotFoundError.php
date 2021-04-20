@@ -13,13 +13,13 @@ class PromotionNotFoundError extends Error
      */
     protected $promotionCode;
 
-    public function __construct(string $promotionCode)
+    public function __construct(string $promotionCode, ?\Throwable $previous = null)
     {
         $this->promotionCode = $promotionCode;
 
         $this->message = sprintf('Promotion with code %s not found!', $this->promotionCode);
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function getId(): string

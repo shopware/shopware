@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class ApiProtectionException extends ShopwareHttpException
 {
-    public function __construct(string $accessor)
+    public function __construct(string $accessor, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Accessor {{ accessor }} is not allowed in this api scope',
-            ['accessor' => $accessor]
+            ['accessor' => $accessor],
+            $previous
         );
     }
 

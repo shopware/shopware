@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProductSortingNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $key)
+    public function __construct(string $key, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Product sorting with key {{ key }} not found.',
-            ['key' => $key]
+            ['key' => $key],
+            $previous
         );
     }
 

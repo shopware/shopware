@@ -55,7 +55,7 @@ class AppActionLoader
         try {
             $shopId = $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException $e) {
-            throw new ActionNotFoundException();
+            throw new ActionNotFoundException($e);
         }
 
         /** @var string $secret */

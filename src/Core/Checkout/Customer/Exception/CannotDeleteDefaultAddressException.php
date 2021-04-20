@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CannotDeleteDefaultAddressException extends ShopwareHttpException
 {
-    public function __construct(string $id)
+    public function __construct(string $id, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Customer address with id "{{ addressId }}" is a default address and cannot be deleted.',
-            ['addressId' => $id]
+            ['addressId' => $id],
+            $previous
         );
     }
 

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class MigrateException extends ShopwareHttpException
 {
-    public function __construct(string $message, \Exception $previous)
+    public function __construct(string $message, ?\Throwable $previous = null)
     {
         parent::__construct('Migration error: {{ errorMessage }}', ['errorMessage' => $message], $previous);
     }

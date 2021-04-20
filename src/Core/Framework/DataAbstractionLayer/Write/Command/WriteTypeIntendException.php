@@ -7,11 +7,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class WriteTypeIntendException extends ShopwareHttpException
 {
-    public function __construct(EntityDefinition $definition, string $expectedClass, string $actualClass)
+    public function __construct(EntityDefinition $definition, string $expectedClass, string $actualClass, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Expected command for "{{ definition }}" to be "{{ expectedClass }}". (Got: {{ actualClass }})',
-            ['definition' => $definition->getClass(), 'expectedClass' => $expectedClass, 'actualClass' => $actualClass]
+            ['definition' => $definition->getClass(), 'expectedClass' => $expectedClass, 'actualClass' => $actualClass],
+            $previous
         );
     }
 

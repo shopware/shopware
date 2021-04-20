@@ -13,13 +13,14 @@ class InvalidCartException extends ShopwareHttpException
      */
     private $cartErrors;
 
-    public function __construct(ErrorCollection $errors)
+    public function __construct(ErrorCollection $errors, ?\Throwable $previous = null)
     {
         $this->cartErrors = $errors;
 
         parent::__construct(
             'The cart is invalid, got {{ errorCount }} error(s).',
-            ['errorCount' => $errors->count()]
+            ['errorCount' => $errors->count()],
+            $previous
         );
     }
 

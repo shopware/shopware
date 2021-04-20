@@ -6,9 +6,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class LiveVersionDeleteException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Live version can not be deleted. Delete entity instead.');
+        parent::__construct('Live version can not be deleted. Delete entity instead.', [], $previous);
     }
 
     public function getErrorCode(): string

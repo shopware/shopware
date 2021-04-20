@@ -7,11 +7,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DocumentNumberAlreadyExistsException extends ShopwareHttpException
 {
-    public function __construct(?string $number)
+    public function __construct(?string $number, ?\Throwable $previous = null)
     {
         parent::__construct('Document number {{number}} has already been allocated.', [
             'number' => $number,
-        ]);
+        ], $previous);
     }
 
     public function getStatusCode(): int

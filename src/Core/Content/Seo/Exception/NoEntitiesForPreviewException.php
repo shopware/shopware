@@ -9,11 +9,12 @@ class NoEntitiesForPreviewException extends ShopwareHttpException
 {
     public const ERROR_CODE = 'FRAMEWORK__NO_ENTRIES_FOR_SEO_URL_PREVIEW';
 
-    public function __construct(string $entityName, string $routeName)
+    public function __construct(string $entityName, string $routeName, ?\Throwable $previous = null)
     {
         parent::__construct(
             'No entites of type {{ entityName }} could be found to create a preview for route {{ routeName }}',
-            ['entityName' => $entityName, 'routeName' => $routeName]
+            ['entityName' => $entityName, 'routeName' => $routeName],
+            $previous
         );
     }
 

@@ -8,11 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UnknownPromotionDiscountTypeException extends ShopwareHttpException
 {
-    public function __construct(PromotionDiscountEntity $discount)
+    public function __construct(PromotionDiscountEntity $discount, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Unknown promotion discount type detected: {{ type }}',
-            ['type' => $discount->getType()]
+            ['type' => $discount->getType()],
+            $previous
         );
     }
 

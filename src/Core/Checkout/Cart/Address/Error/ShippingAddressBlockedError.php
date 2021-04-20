@@ -13,7 +13,7 @@ class ShippingAddressBlockedError extends Error
      */
     private $name;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ?\Throwable $previous = null)
     {
         $this->name = $name;
 
@@ -22,7 +22,7 @@ class ShippingAddressBlockedError extends Error
             $name
         );
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function getName(): string

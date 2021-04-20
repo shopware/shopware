@@ -22,7 +22,7 @@ class XmlValidationError extends Error
     /**
      * @param \LibXMLError[] $errors
      */
-    public function __construct(string $id, array $errors = [])
+    public function __construct(string $id, array $errors = [], ?\Throwable $previous = null)
     {
         $this->id = $id;
         $this->errors = $errors;
@@ -43,7 +43,7 @@ class XmlValidationError extends Error
 
         $this->message = 'The export did not generate a valid XML file';
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function getId(): string

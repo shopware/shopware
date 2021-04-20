@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PluginComposerRequireException extends ShopwareHttpException
 {
-    public function __construct(string $pluginName, string $pluginComposerName, string $output)
+    public function __construct(string $pluginName, string $pluginComposerName, string $output, ?\Throwable $previous = null)
     {
         parent::__construct(
             sprintf('Could not execute "composer require" for plugin "{{ pluginName }} ({{ pluginComposerName }}). Output:%s{{ output }}', \PHP_EOL),
@@ -15,7 +15,8 @@ class PluginComposerRequireException extends ShopwareHttpException
                 'pluginName' => $pluginName,
                 'pluginComposerName' => $pluginComposerName,
                 'output' => $output,
-            ]
+            ],
+            $previous
         );
     }
 

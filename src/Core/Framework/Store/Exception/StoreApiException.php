@@ -18,10 +18,10 @@ class StoreApiException extends ShopwareHttpException
      */
     protected $documentationLink;
 
-    public function __construct(ClientException $exception)
+    public function __construct(ClientException $previous)
     {
-        $data = json_decode($exception->getResponse()->getBody()->getContents(), true);
-        parent::__construct($data['description'] ?? $exception->getMessage());
+        $data = json_decode($previous->getResponse()->getBody()->getContents(), true);
+        parent::__construct($data['description'] ?? $previous->getMessage(), [], $previous);
 
         $this->title = $data['title'] ?? '';
         $this->documentationLink = $data['documentationLink'] ?? '';

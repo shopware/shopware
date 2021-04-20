@@ -7,14 +7,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProductLineItemInconsistentException extends ShopwareHttpException
 {
-    public function __construct(string $lineItemId)
+    public function __construct(string $lineItemId, ?\Throwable $previous = null)
     {
         $message = sprintf(
             'To change the product of line item (%s), the following properties must also be updated: `productId`, `referenceId`, `payload.productNumber`.',
             $lineItemId
         );
 
-        parent::__construct($message);
+        parent::__construct($message, [], $previous);
     }
 
     public function getErrorCode(): string

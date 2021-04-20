@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CountryNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $id)
+    public function __construct(string $id, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Country with id "{{ countryId }}" not found.',
-            ['countryId' => $id]
+            ['countryId' => $id],
+            $previous
         );
     }
 

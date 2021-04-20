@@ -9,14 +9,14 @@ class ConfigurationError extends Error
 {
     private const KEY = 'manifest-invalid-config';
 
-    public function __construct(array $violations)
+    public function __construct(array $violations, ?\Throwable $previous = null)
     {
         $this->message = sprintf(
             "The following custom components are not allowed to be used in app configuration:\n- %s",
             implode("\n- ", $violations)
         );
 
-        parent::__construct($this->message);
+        parent::__construct($this->message, 0, $previous);
     }
 
     public function getMessageKey(): string

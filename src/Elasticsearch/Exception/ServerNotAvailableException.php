@@ -8,9 +8,9 @@ class ServerNotAvailableException extends ShopwareHttpException
 {
     public const CODE = 'ELASTICSEARCH_SERVER_NOT_AVAILABLE';
 
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Elasticsearch server is not available');
+        parent::__construct('Elasticsearch server is not available', [], $previous);
     }
 
     public function getErrorCode(): string

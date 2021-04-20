@@ -7,14 +7,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MailEventConfigurationException extends ShopwareHttpException
 {
-    public function __construct(string $message, string $eventClass)
+    public function __construct(string $message, string $eventClass, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Failed processing the mail event: {{ errorMessage }}. {{ eventClass }}',
             [
                 'errorMessage' => $message,
                 'eventClass' => $eventClass,
-            ]
+            ],
+            $previous
         );
     }
 

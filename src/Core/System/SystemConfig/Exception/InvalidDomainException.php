@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidDomainException extends ShopwareHttpException
 {
-    public function __construct(string $domain)
+    public function __construct(string $domain, ?\Throwable $previous = null)
     {
-        parent::__construct('Invalid domain \'{{ domain }}\'', ['domain' => $domain]);
+        parent::__construct('Invalid domain \'{{ domain }}\'', ['domain' => $domain], $previous);
     }
 
     public function getStatusCode(): int

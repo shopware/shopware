@@ -31,7 +31,7 @@ class PackageProvider
         try {
             return Factory::createComposer($pluginPath, $composerIO)->getPackage();
         } catch (\InvalidArgumentException $e) {
-            throw new PluginComposerJsonInvalidException($pluginPath . '/composer.json', [$e->getMessage()]);
+            throw new PluginComposerJsonInvalidException($pluginPath . '/composer.json', [$e->getMessage()], $e);
         }
     }
 }

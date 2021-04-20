@@ -9,9 +9,9 @@ class UnsupportedEncoderInputException extends ShopwareHttpException
     /**
      * {@inheritdoc}
      */
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Unsupported encoder data provided. Only entities and entity collections are supported');
+        parent::__construct('Unsupported encoder data provided. Only entities and entity collections are supported', [], $previous);
     }
 
     public function getErrorCode(): string

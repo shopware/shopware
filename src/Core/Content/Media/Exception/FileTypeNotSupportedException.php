@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FileTypeNotSupportedException extends ShopwareHttpException
 {
-    public function __construct(string $mediaId)
+    public function __construct(string $mediaId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The File for media object with id: {{ mediaId }} is not supported for creating thumbnails.',
-            ['mediaId' => $mediaId]
+            ['mediaId' => $mediaId],
+            $previous
         );
     }
 

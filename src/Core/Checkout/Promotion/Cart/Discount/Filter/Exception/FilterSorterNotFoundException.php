@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FilterSorterNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $key)
+    public function __construct(string $key, ?\Throwable $previous = null)
     {
-        parent::__construct('Sorter "{{ key }}" has not been found!', ['key' => $key]);
+        parent::__construct('Sorter "{{ key }}" has not been found!', ['key' => $key], $previous);
     }
 
     public function getErrorCode(): string

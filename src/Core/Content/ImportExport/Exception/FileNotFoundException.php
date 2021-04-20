@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FileNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $fileId)
+    public function __construct(string $fileId, ?\Throwable $previous = null)
     {
-        parent::__construct('Cannot find import/export file with id {{ fileId }}', ['fileId' => $fileId]);
+        parent::__construct('Cannot find import/export file with id {{ fileId }}', ['fileId' => $fileId], $previous);
     }
 
     public function getStatusCode(): int

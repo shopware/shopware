@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LanguageOfNewsletterDeleteException extends ShopwareHttpException
 {
-    public function __construct(string $language, ?\Throwable $e = null)
+    public function __construct(string $language, ?\Throwable $previous = null)
     {
         parent::__construct(
             'The language "{{ language }}" cannot be deleted because newsletter recipients with this language exist.',
             ['language' => $language],
-            $e
+            $previous
         );
     }
 

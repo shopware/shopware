@@ -3436,11 +3436,6 @@ parameters:
 			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\Exception\\\\LanguageForeignKeyDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageValidator\\:\\:buildViolation\\(\\) has parameter \\$root with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/System/Language/LanguageValidator.php
@@ -3496,9 +3491,64 @@ parameters:
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Exception\\\\LanguageOfSalesChannelDomainDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\DataAbstractionLayer\\\\SalesChannelIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
 			count: 1
-			path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
+			path: src/Core/System/SalesChannel/DataAbstractionLayer/SalesChannelIndexer.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of static method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\RepositorySearchDetector\\:\\:isSearchRequired\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntitySearchResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntitySearchResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntityAggregatorInterface\\:\\:aggregate\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityAggregationResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Read\\\\EntityReaderInterface\\:\\:read\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntityLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearcherInterface\\:\\:search\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntityIdSearchResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+		-
+			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$maintenanceIpWhitelist \\(string\\) does not accept string\\|null\\.$#"

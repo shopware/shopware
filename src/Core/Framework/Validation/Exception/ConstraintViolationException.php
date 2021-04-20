@@ -19,14 +19,14 @@ class ConstraintViolationException extends ShopwareHttpException
      */
     private $inputData;
 
-    public function __construct(ConstraintViolationList $violations, array $inputData)
+    public function __construct(ConstraintViolationList $violations, array $inputData, ?\Throwable $previous = null)
     {
         $this->mapErrorCodes($violations);
 
         $this->violations = $violations;
         $this->inputData = $inputData;
 
-        parent::__construct('Caught {{ count }} violation errors.', ['count' => $violations->count()]);
+        parent::__construct('Caught {{ count }} violation errors.', ['count' => $violations->count()], $previous);
     }
 
     public function getRootViolations(): ConstraintViolationList

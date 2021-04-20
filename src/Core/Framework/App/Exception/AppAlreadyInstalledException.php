@@ -7,8 +7,8 @@ namespace Shopware\Core\Framework\App\Exception;
  */
 class AppAlreadyInstalledException extends \Exception
 {
-    public function __construct(string $appName)
+    public function __construct(string $appName, ?\Throwable $previous = null)
     {
-        parent::__construct(sprintf('App with name "%s" is already installed.', $appName));
+        parent::__construct(sprintf('App with name "%s" is already installed.', $appName), 0, $previous);
     }
 }

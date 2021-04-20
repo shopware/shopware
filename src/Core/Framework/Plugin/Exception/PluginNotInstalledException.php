@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class PluginNotInstalledException extends ShopwareHttpException
 {
-    public function __construct(string $pluginName)
+    public function __construct(string $pluginName, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Plugin "{{ plugin }}" is not installed.',
-            ['plugin' => $pluginName]
+            ['plugin' => $pluginName],
+            $previous
         );
     }
 

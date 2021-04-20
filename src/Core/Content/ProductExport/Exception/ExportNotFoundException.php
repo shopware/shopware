@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExportNotFoundException extends ShopwareHttpException
 {
-    public function __construct(?string $id = null, ?string $fileName = null)
+    public function __construct(?string $id = null, ?string $fileName = null, ?\Throwable $previous = null)
     {
         $message = 'No product exports found';
 
@@ -17,7 +17,7 @@ class ExportNotFoundException extends ShopwareHttpException
             $message = 'Product export with file name {{ fileName }} not found. Please check your access key.';
         }
 
-        parent::__construct($message, ['id' => $id, 'fileName' => $fileName]);
+        parent::__construct($message, ['id' => $id, 'fileName' => $fileName], $previous);
     }
 
     public function getStatusCode(): int

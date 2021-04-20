@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Exception;
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -12,7 +13,7 @@ class MissingTranslationLanguageException extends WriteConstraintViolationExcept
 {
     public const VIOLATION_MISSING_TRANSLATION_LANGUAGE = 'MISSING-TRANSLATION-LANGUAGE';
 
-    public function __construct(string $path, int $translationIndex)
+    public function __construct(string $path, int $translationIndex, ?\Throwable $previous = null)
     {
         $template = 'Translation requires a language id.';
         $constraintViolationList = new ConstraintViolationList([
@@ -27,6 +28,6 @@ class MissingTranslationLanguageException extends WriteConstraintViolationExcept
                 self::VIOLATION_MISSING_TRANSLATION_LANGUAGE
             ),
         ]);
-        parent::__construct($constraintViolationList, $path);
+        parent::__construct($constraintViolationList, $path, Response::HTTP_BAD_REQUEST, $previous);
     }
 }

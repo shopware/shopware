@@ -9,9 +9,9 @@ class SeoUrlRouteNotFoundException extends ShopwareHttpException
 {
     public const ERROR_CODE = 'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND';
 
-    public function __construct(string $routeName)
+    public function __construct(string $routeName, ?\Throwable $previous = null)
     {
-        parent::__construct('seo url route"{{ routeName }}" not found.', ['routeName' => $routeName]);
+        parent::__construct('seo url route"{{ routeName }}" not found.', ['routeName' => $routeName], $previous);
     }
 
     public function getStatusCode(): int

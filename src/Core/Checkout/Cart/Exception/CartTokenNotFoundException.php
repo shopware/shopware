@@ -12,11 +12,11 @@ class CartTokenNotFoundException extends ShopwareHttpException
      */
     private $token;
 
-    public function __construct(string $token)
+    public function __construct(string $token, ?\Throwable $previous = null)
     {
         $this->token = $token;
 
-        parent::__construct('Cart with token {{ token }} not found.', ['token' => $token]);
+        parent::__construct('Cart with token {{ token }} not found.', ['token' => $token], $previous);
     }
 
     public function getErrorCode(): string

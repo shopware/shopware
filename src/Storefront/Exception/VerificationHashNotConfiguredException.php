@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VerificationHashNotConfiguredException extends ShopwareHttpException
 {
-    public function __construct(?\Throwable $e = null)
+    public function __construct(?\Throwable $previous = null)
     {
         parent::__construct(
             'No verification hash configured.',
             [],
-            $e
+            $previous
         );
     }
 

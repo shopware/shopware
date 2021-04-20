@@ -12,9 +12,9 @@ class ExpectedArrayException extends ShopwareHttpException implements WriteField
      */
     private $path;
 
-    public function __construct(string $path)
+    public function __construct(string $path, ?\Throwable $previous = null)
     {
-        parent::__construct('Expected data to be array.');
+        parent::__construct('Expected data to be array.', [], $previous);
 
         $this->path = $path;
     }

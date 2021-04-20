@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class PluginNotActivatedException extends ShopwareHttpException
 {
-    public function __construct(string $pluginName)
+    public function __construct(string $pluginName, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Plugin "{{ plugin }}" is not activated.',
-            ['plugin' => $pluginName]
+            ['plugin' => $pluginName],
+            $previous
         );
     }
 

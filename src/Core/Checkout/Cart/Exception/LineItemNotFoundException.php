@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LineItemNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $identifier)
+    public function __construct(string $identifier, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Line item with identifier {{ identifier }} not found.',
-            ['identifier' => $identifier]
+            ['identifier' => $identifier],
+            $previous
         );
     }
 

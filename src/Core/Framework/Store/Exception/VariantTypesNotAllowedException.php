@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VariantTypesNotAllowedException extends ShopwareHttpException
 {
-    public function __construct(array $typeViolations)
+    public function __construct(array $typeViolations, ?\Throwable $previous = null)
     {
         $message = 'The variant types of the following cart positions are not allowed:';
 
@@ -15,7 +15,7 @@ class VariantTypesNotAllowedException extends ShopwareHttpException
             $message .= sprintf("\nType \"%s\" for \"%s\" (ID: %d)", $typeViolation['variantType'], $typeViolation['extensionName'], $typeViolation['extensionId']);
         }
 
-        parent::__construct($message, $typeViolations);
+        parent::__construct($message, $typeViolations, $previous);
     }
 
     public function getErrorCode(): string

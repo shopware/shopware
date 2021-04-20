@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ShippingMethodNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $id)
+    public function __construct(string $id, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Shipping method with id "{{ shippingMethodId }}" not found.',
-            ['shippingMethodId' => $id]
+            ['shippingMethodId' => $id],
+            $previous
         );
     }
 

@@ -6,11 +6,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class PluginNotAZipFileException extends ShopwareHttpException
 {
-    public function __construct(string $mimeType)
+    public function __construct(string $mimeType, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Given file must be a zip file. Given: {{ mimeType }}',
-            ['mimeType' => $mimeType]
+            ['mimeType' => $mimeType],
+            $previous
         );
     }
 

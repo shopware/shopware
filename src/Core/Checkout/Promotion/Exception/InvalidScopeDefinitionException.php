@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidScopeDefinitionException extends ShopwareHttpException
 {
-    public function __construct(string $scope)
+    public function __construct(string $scope, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Invalid discount calculator scope definition "{{ label }}"',
-            ['label' => $scope]
+            ['label' => $scope],
+            $previous
         );
     }
 

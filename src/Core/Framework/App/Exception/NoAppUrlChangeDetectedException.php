@@ -7,8 +7,8 @@ namespace Shopware\Core\Framework\App\Exception;
  */
 class NoAppUrlChangeDetectedException extends \RuntimeException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('No APP_URL change was detected, cannot run AppUrlChange strategies.');
+        parent::__construct('No APP_URL change was detected, cannot run AppUrlChange strategies.', 0, $previous);
     }
 }

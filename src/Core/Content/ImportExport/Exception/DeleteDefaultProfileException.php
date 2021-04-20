@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DeleteDefaultProfileException extends ShopwareHttpException
 {
-    public function __construct(array $ids)
+    public function __construct(array $ids, ?\Throwable $previous = null)
     {
-        parent::__construct('Cannot delete system default import_export_profile', ['ids' => $ids]);
+        parent::__construct('Cannot delete system default import_export_profile', ['ids' => $ids], $previous);
     }
 
     public function getErrorCode(): string

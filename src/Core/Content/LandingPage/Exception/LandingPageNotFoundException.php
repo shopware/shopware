@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LandingPageNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $landingPageId)
+    public function __construct(string $landingPageId, ?\Throwable $previous = null)
     {
         parent::__construct(
             'Landing page "{{ landingPageId }}" not found.',
-            ['landingPageId' => $landingPageId]
+            ['landingPageId' => $landingPageId],
+            $previous
         );
     }
 

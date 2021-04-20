@@ -6,9 +6,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class StoreLicenseDomainMissingException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $previous = null)
     {
-        parent::__construct('Store license domain is missing');
+        parent::__construct('Store license domain is missing', [], $previous);
     }
 
     public function getErrorCode(): string

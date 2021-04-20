@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiTypeNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $type)
+    public function __construct(string $type, ?\Throwable $previous = null)
     {
         parent::__construct(
             'A api type "{{ type }}" was not found.',
-            ['type' => $type]
+            ['type' => $type],
+            $previous
         );
     }
 

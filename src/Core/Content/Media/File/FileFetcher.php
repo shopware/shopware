@@ -155,7 +155,7 @@ class FileFetcher
         try {
             $inputStream = @fopen($url, 'rb', false, $streamContext);
         } catch (\Throwable $e) {
-            throw new UploadException("Could not open source stream from {$url}");
+            throw new UploadException("Could not open source stream from {$url}", $e);
         }
 
         if ($inputStream === false) {
@@ -175,7 +175,7 @@ class FileFetcher
         try {
             $inputStream = @fopen($filename, 'wb');
         } catch (\Throwable $e) {
-            throw new UploadException("Could not open Stream to write upload data: ${filename}");
+            throw new UploadException("Could not open Stream to write upload data: ${filename}", $e);
         }
 
         if ($inputStream === false) {

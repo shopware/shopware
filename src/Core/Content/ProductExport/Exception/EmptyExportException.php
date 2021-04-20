@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmptyExportException extends ShopwareHttpException
 {
-    public function __construct(?string $id = null)
+    public function __construct(?string $id = null, ?\Throwable $previous = null)
     {
         if (empty($id)) {
-            parent::__construct('No products for export found');
+            parent::__construct('No products for export found', [], $previous);
         } else {
-            parent::__construct('No products for export with ID {{ id }} found', ['id' => $id]);
+            parent::__construct('No products for export with ID {{ id }} found', ['id' => $id], $previous);
         }
     }
 

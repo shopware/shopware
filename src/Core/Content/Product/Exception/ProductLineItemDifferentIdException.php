@@ -7,10 +7,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProductLineItemDifferentIdException extends ShopwareHttpException
 {
-    public function __construct(string $lineItemId)
+    public function __construct(string $lineItemId, ?\Throwable $previous = null)
     {
         $message = sprintf('The `productId` and `referencedId` of the line item %s are not identical.', $lineItemId);
-        parent::__construct($message);
+        parent::__construct($message, [], $previous);
     }
 
     public function getErrorCode(): string

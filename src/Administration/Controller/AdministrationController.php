@@ -55,6 +55,8 @@ class AdministrationController extends AbstractController
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private string $shopwareCoreDir;
+
     public function __construct(
         TemplateFinder $finder,
         FirstRunWizardClient $firstRunWizardClient,
@@ -62,7 +64,8 @@ class AdministrationController extends AbstractController
         array $supportedApiVersions,
         KnownIpsCollectorInterface $knownIpsCollector,
         Connection $connection,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        string $shopwareCoreDir
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
@@ -71,6 +74,7 @@ class AdministrationController extends AbstractController
         $this->knownIpsCollector = $knownIpsCollector;
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+        $this->shopwareCoreDir = $shopwareCoreDir;
     }
 
     /**
@@ -153,11 +157,11 @@ class AdministrationController extends AbstractController
 
         switch ($context->getLanguageId()) {
             case $deLanguageId:
-                $defaultExcludedTerm = require \dirname(__DIR__) . './../Core/Migration/Fixtures/stopwords/de.php';
+                $defaultExcludedTerm = require $this->shopwareCoreDir . '/Migration/Fixtures/stopwords/de.php';
 
                 break;
             case $enLanguageId:
-                $defaultExcludedTerm = require \dirname(__DIR__) . './../Core/Migration/Fixtures/stopwords/en.php';
+                $defaultExcludedTerm = require $this->shopwareCoreDir . '/Migration/Fixtures/stopwords/en.php';
 
                 break;
             default:

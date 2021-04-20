@@ -54,7 +54,7 @@ export default function conditionService() {
             'width',
             'length',
             'sales',
-            'manufacturerId',
+            'manufacturer',
             'categoriesRo',
             'shippingFree',
             'visibilities',

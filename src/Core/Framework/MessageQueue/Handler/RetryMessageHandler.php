@@ -50,10 +50,14 @@ class RetryMessageHandler extends AbstractMessageHandler
             return;
         }
 
-        $handler = $this->findHandler($deadMessage->getHandlerClass());
+        if (!class_exists($deadMessage->getOriginalMessageClass())) {
+            $this->logger->warning(sprintf('Original message %s not found.', $deadMessage->getOriginalMessageClass()));
+        } else {
+            $handler = $this->findHandler($deadMessage->getHandlerClass());
 
-        if ($handler) {
-            $handler($deadMessage->getOriginalMessage());
+            if ($handler) {
+                $handler($deadMessage->getOriginalMessage());
+            }
         }
 
         $this->deadMessageRepository->delete([

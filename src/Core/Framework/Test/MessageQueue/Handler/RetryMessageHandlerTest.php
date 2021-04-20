@@ -148,6 +148,43 @@ class RetryMessageHandlerTest extends TestCase
         static::assertCount(0, $messages);
     }
 
+    public function testDoNotCallHandleIfOriginMessageIsMissing(): void
+    {
+        $message = new TestMessage();
+        $deadMessageId = Uuid::randomHex();
+        $e = new \Exception('will be thrown');
+
+        $dummyHandler = (new DummyHandler())->willThrowException($e);
+
+        $this->insertDeadMessage($deadMessageId, $message, $e);
+
+        $this->deadMessageRepository->update([
+            [
+                'id' => $deadMessageId,
+                'originalMessageClass' => '\Shopware\Core\Framework\MessageQueue\DeadMessage\AMessageThatDoesNotExist',
+            ],
+        ], $this->context);
+
+        $catched = null;
+
+        $retryMessageHandler = new RetryMessageHandler(
+            $this->deadMessageRepository,
+            [$dummyHandler],
+            $this->getContainer()->get('logger')
+        );
+
+        try {
+            ($retryMessageHandler)(new RetryMessage($deadMessageId));
+        } catch (MessageFailedException $exception) {
+            $catched = $exception;
+        }
+
+        $messages = $this->deadMessageRepository->search(new Criteria([$deadMessageId]), $this->context)->getEntities();
+
+        static::assertCount(0, $messages);
+        static::assertNull($catched);
+    }
+
     private function insertDeadMessage(string $deadMessageId, $message, \Exception $e, ?string $handlerClass = null): void
     {
         if (!$handlerClass) {

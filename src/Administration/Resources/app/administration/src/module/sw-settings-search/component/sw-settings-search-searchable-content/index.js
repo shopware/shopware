@@ -261,6 +261,7 @@ Component.register('sw-settings-search-searchable-content', {
         onAddNewConfig() {
             const item = this.createNewConfigItem();
             this.searchConfigFields.unshift(item);
+            this.$emit('edit-change', true);
         },
 
         createNewConfigItem() {
@@ -341,6 +342,7 @@ Component.register('sw-settings-search-searchable-content', {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-search.notification.saveSuccess')
                     });
+                    this.$emit('edit-change', false);
                 }).catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-search.notification.saveError')

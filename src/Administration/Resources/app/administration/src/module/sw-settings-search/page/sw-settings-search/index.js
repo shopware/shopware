@@ -34,7 +34,11 @@ Component.register('sw-settings-search', {
             searchTerms: '',
             searchResults: null,
             defaultConfig: null,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            nextRoute: null,
+            isDisplayingLeavePageWarning: false,
+            leaveConfirmation: false,
+            isEditing: false
         };
     },
 
@@ -85,6 +89,14 @@ Component.register('sw-settings-search', {
 
     created() {
         this.createdComponent();
+    },
+
+    beforeRouteUpdate(to, from, next) {
+        this.unsavedDataLeaveHandler(to, from, next);
+    },
+
+    beforeRouteLeave(to, from, next) {
+        this.unsavedDataLeaveHandler(to, from, next);
     },
 
     methods: {
@@ -197,6 +209,7 @@ Component.register('sw-settings-search', {
                 })
                 .finally(() => {
                     this.isLoading = false;
+                    this.isEditing = false;
                 });
         },
 
@@ -210,6 +223,23 @@ Component.register('sw-settings-search', {
             });
         },
 
+        unsavedDataLeaveHandler(to, from, next) {
+            if (this.leaveConfirmation) {
+                this.leaveConfirmation = false;
+                next();
+
+                return;
+            }
+
+            if (this.isEditing) {
+                this.isDisplayingLeavePageWarning = true;
+                this.nextRoute = to;
+                next(false);
+            } else {
+                next();
+            }
+        },
+
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
         },
@@ -217,6 +247,31 @@ Component.register('sw-settings-search', {
         onLiveSearchResultsChanged({ searchTerms, searchResults }) {
             this.searchTerms = searchTerms;
             this.searchResults = searchResults;
+        },
+
+        onEditChanged(isEditing) {
+            this.isEditing = isEditing;
+        },
+
+        onConfirmLeave() {
+            this.leaveConfirmation = true;
+            this.isDisplayingLeavePageWarning = false;
+            this.isEditing = false;
+
+            this.$nextTick(() => {
+                this.$router.push({
+                    name: this.nextRoute.name,
+                    params: this.nextRoute.params
+                });
+            });
+        },
+
+        onCloseLeaveModal() {
+            this.isDisplayingLeavePageWarning = false;
+        },
+
+        onCancelLeaveModal() {
+            this.isDisplayingLeavePageWarning = false;
         }
     }
 });

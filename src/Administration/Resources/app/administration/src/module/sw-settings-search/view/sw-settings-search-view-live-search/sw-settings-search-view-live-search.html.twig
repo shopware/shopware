@@ -1,7 +1,10 @@
 {% block sw_settings_search_view_live_search %}
 <div class="sw-settings-search__view-live-search">
     {% block sw_settings_search_view_live_search_search_index_card %}
-    <sw-settings-search-search-index :is-loading="isLoading" />
+    <sw-settings-search-search-index
+        :is-loading="isLoading"
+        v-on="$listeners"
+    />
     {% endblock %}
 
     {% block sw_settings_search_view_live_search_content_card %}

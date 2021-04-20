@@ -106,7 +106,8 @@
       "labelName": "Search result",
       "labelScore": "Ranking score",
       "textNoResult": "No results found. Please try again with another search term."
-    }
+    },
+    "textLeaveConfirm": "You have made changes on this page. If you leave without saving, your changes will be lost."
   },
   "sw-privileges": {
     "permissions": {

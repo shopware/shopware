@@ -32,6 +32,7 @@
     {% block sw_settings_search_searchable_content_customfields_grid %}
     <sw-entity-listing
         v-if="!isEmpty"
+        ref="customGrid"
         class="sw-settings-search__searchable-content-list"
         :columns="columns"
         :repository="repository"

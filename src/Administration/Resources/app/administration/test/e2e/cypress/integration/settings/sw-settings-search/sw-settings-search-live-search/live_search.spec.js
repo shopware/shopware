@@ -101,7 +101,6 @@ describe('Search settings: Live Search', () => {
         });
     });
 
-
     it('@settings: Search for a keyword with multiple results', () => {
         cy.server();
         cy.route({

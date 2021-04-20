@@ -211,6 +211,11 @@ class ThemeService
 
         /** @var string[] $mediaIds */
         $mediaIds = array_keys($mediaItems);
+
+        if (count($mediaIds) === 0) {
+            return $resolvedConfig;
+        }
+
         $criteria = new Criteria($mediaIds);
         $criteria->setTitle('theme-service::resolve-media');
         $result = $this->mediaRepository->search($criteria, $context);

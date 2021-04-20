@@ -2,7 +2,6 @@ UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
 # 6.4.0.0
-
 ## Breaking changes
 For a complete list of breaking changes please refer to the [bc changelog](/changelog/release-6-4-0-0/2021-03-18-6.4-breaking-changes.md) changelog file.
 
@@ -100,6 +99,17 @@ It will now display by default 2 fraction digits and up to 20, if available.
   System and plugin configurations made with `config.xml` can now have less than 4
   characters as configuration key but are not allowed anymore to start with a
   number.
+
+---
+
+## References to assets inside themes
+
+We've deprecated `$asset-path` because it was generated at compilation time and contained the `APP_URL` by default,
+which should only be relevant to administration. Instead, `$app-css-relative-asset-path` is to be used, which is an
+url that is relative to the `app.css` that points to the asset folder.
+
+As a side effect, the fonts are now loaded from the theme folder instead of the bundle asset folder. This should work out of the box,
+because all assets of the theme are also copied into the theme folder.
 
 ---
 

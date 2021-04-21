@@ -21,7 +21,7 @@ class ProductOutOfStockError extends Error
     {
         $this->id = $id;
 
-        $this->message = sprintf('The product %s is no more available', $name);
+        $this->message = sprintf('The product %s is no longer available', $name);
 
         parent::__construct($this->message);
         $this->name = $name;
@@ -49,7 +49,7 @@ class ProductOutOfStockError extends Error
 
     public function getLevel(): int
     {
-        return self::LEVEL_WARNING;
+        return self::LEVEL_ERROR;
     }
 
     public function blockOrder(): bool

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * How to use:
@@ -158,7 +159,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1): self
+    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false): self
     {
         $net = $net ?? $gross / 115 * 100;
 
@@ -190,6 +191,7 @@ class ProductBuilder
                 'id' => $this->ids->create($ruleKey),
                 'priority' => 1,
                 'name' => 'test',
+                'conditions' => $this->getRuleConditions($valid),
             ],
             'price' => [
                 $this->buildCurrencyPrice($currencyKey, $price),
@@ -288,6 +290,47 @@ class ProductBuilder
         ];
 
         return $this;
+    }
+
+    private function getRuleConditions(bool $valid): array
+    {
+        if ($valid) {
+            return [
+                [
+                    'type' => 'orContainer',
+                    'position' => 0,
+                    'children' => [
+                        [
+                            'type' => 'andContainer',
+                            'position' => 0,
+                            'children' => [
+                                ['type' => 'alwaysValid', 'position' => 0],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        return [
+            [
+                'type' => 'orContainer',
+                'position' => 0,
+                'children' => [
+                    [
+                        'type' => 'andContainer',
+                        'position' => 0,
+                        'children' => [
+                            [
+                                'type' => 'currency',
+                                'value' => ['operator' => '=', 'currencyIds' => [Uuid::randomHex()]],
+                                'position' => 0,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     private function fixPricesQuantity(): void

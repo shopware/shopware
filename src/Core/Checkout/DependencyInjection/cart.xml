@@ -205,6 +205,7 @@
 
             <tag name="shopware.cart.processor" priority="5000"/>
             <tag name="shopware.cart.collector" priority="5000"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductFeatureBuilder">

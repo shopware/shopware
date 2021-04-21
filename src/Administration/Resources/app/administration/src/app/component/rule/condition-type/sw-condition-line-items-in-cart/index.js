@@ -46,6 +46,17 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
+        },
+
+        productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
+        },
+
+        productContext() {
+            return { ...Shopware.Context.api, inheritance: true };
         }
     },
 
@@ -66,9 +77,10 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
             }
 
             const criteria = new Criteria();
+            criteria.addAssociation('options.group');
             criteria.setIds(this.identifiers);
 
-            return this.productRepository.search(criteria, Context.api).then((products) => {
+            return this.productRepository.search(criteria, this.productContext).then((products) => {
                 this.products = products;
             });
         },

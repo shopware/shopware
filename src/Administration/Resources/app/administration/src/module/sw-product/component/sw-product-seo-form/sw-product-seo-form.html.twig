@@ -5,6 +5,7 @@
                 v-model="product.metaTitle"
                 :hasParent="hasParent"
                 :label="$tc('sw-product.seoForm.labelMetaTitle')"
+                :helpText="$tc('sw-product.seoForm.helpTextMetaTitle')"
                 :inheritedValue="parentProduct.metaTitle">
                 <template #content="props">
                     <sw-field
@@ -24,6 +25,7 @@
                 v-model="product.metaDescription"
                 :hasParent="hasParent"
                 :label="$tc('sw-product.seoForm.labelMetaDescription')"
+                :helpText="$tc('sw-product.seoForm.helpTextMetaDescription')"
                 :inheritedValue="parentProduct.metaDescription">
                 <template #content="props">
                     <sw-field
@@ -43,6 +45,7 @@
                 v-model="product.keywords"
                 :hasParent="hasParent"
                 :label="$tc('sw-product.seoForm.labelKeywords')"
+                :helpText="$tc('sw-product.seoForm.helpTextKeywords')"
                 :inheritedValue="parentProduct.keywords">
                 <template #content="props">
                     <sw-field

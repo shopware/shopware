@@ -94,7 +94,10 @@
       "placeholderMetaTitle": "Enter meta title...",
       "placeholderMetaDescription": "Enter meta description...",
       "placeholderKeywords": "Enter one or more keywords...",
-      "placeholderCanonicalProduct": "Select a variant..."
+      "placeholderCanonicalProduct": "Select a variant...",
+      "helpTextMetaTitle": "The meta title is the most important SEO element and should be unique for each page. You should limit yourself in length to a maximum of 56 characters. Your keyword should ideally be placed at the very front.",
+      "helpTextMetaDescription": "With the meta description, you confirm to your customers that they are in the right place in your store. You create incentives, build trust and invite to an action. You should limit yourself to a maximum of 155 characters.",
+      "helpTextKeywords": "Here you can define optionally three to five keywords under which your product should be found."
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",

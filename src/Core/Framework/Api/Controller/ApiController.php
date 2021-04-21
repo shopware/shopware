@@ -44,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -180,8 +181,10 @@ class ApiController extends AbstractController
      */
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
-        /** @var string $term */
         $term = $request->query->get('term');
+        if ($term === null) {
+            throw new MissingRequestParameterException('term');
+        }
         $limit = $request->query->getInt('limit', 5);
 
         $results = $this->compositeEntitySearcher->search($term, $limit, $context);

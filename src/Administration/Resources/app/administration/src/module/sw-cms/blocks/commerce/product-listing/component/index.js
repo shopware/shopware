@@ -1,5 +1,4 @@
 import template from './sw-cms-block-product-listing.html.twig';
-import './sw-cms-block-product-listing.scss';
 
 const { Component } = Shopware;
 

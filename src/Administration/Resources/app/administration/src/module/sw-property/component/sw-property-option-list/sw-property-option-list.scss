@@ -1,9 +1,8 @@
 @import "~scss/variables";
 
 .sw-property-option-list {
-
     .sw-empty-state {
-        position: static
+        position: static;
     }
 
     .media-column .sw-grid__cell-content {
@@ -25,6 +24,7 @@
             .sw-icon {
                 color: $color-crimson-500;
             }
+
             &.sw-button--disabled {
                 opacity: 0.2;
             }

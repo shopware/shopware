@@ -17,8 +17,11 @@
     "hot-proxy": "NODE_ENV=development MODE=hot node ./build/start-hot-reload.js",
     "lint": "eslint --config .eslintrc.js ./src && stylelint --config stylelint.config.js ./src",
     "lint-fix": "eslint --fix --config .eslintrc.js ./src && stylelint --fix --config stylelint.config.js ./src/scss",
+    "lint:js": "eslint --config .eslintrc.js ./src",
+    "lint:scss": "stylelint --config stylelint.config.js ./src",
+    "lint:scss-fix": "npm run lint:scss -- --fix",
     "production": "NODE_ENV=production webpack --config webpack.config.js",
-    "unit": "jest --config jest.config.js --ci && npm run lint",
+    "unit": "jest --config jest.config.js --ci",
     "unit-watch": "jest --config jest.config.js --watch"
   },
   "dependencies": {
@@ -46,8 +49,9 @@
     "optimize-css-assets-webpack-plugin": "5.0.3",
     "popper.js": "1.15.0",
     "query-string": "6.8.2",
-    "report-validity": "^1.0.1",
+    "report-validity": "1.0.1",
     "sass-resources-loader": "2.0.1",
+    "stylelint-junit-formatter": "0.2.2",
     "stylelint-webpack-plugin": "0.10.5",
     "terser-webpack-plugin": "4.2.3",
     "tiny-slider": "2.9.2",

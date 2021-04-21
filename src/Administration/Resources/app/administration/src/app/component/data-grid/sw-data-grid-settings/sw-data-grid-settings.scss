@@ -6,6 +6,7 @@
     .sw-context-menu__content {
         padding: 0;
     }
+
     .sw-data-grid__settings-container {
         padding: 10px 18px;
     }
@@ -49,6 +50,6 @@
     }
 
     .columns-list-move {
-       transition: transform .2s ease-in-out;
+        transition: transform 0.2s ease-in-out;
     }
 }

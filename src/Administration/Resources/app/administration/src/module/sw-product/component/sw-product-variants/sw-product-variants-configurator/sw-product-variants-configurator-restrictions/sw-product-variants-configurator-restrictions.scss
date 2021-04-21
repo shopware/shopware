@@ -18,7 +18,7 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
     }
 
     .sw-product-variants-configurator-restrictions__modal.sw-modal .sw-modal__body {
-        min-height: 50vh
+        min-height: 50vh;
     }
 
     .sw-product-variants-configurator-restrictions__grid-wrapper {
@@ -34,7 +34,6 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
 
 // Modal for adding new restrictions
 .sw-modal.sw-modal--default.sw-product-variants-configurator-restrictions__modal {
-
     .sw-modal__dialog {
         max-width: 960px;
     }
@@ -55,5 +54,4 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
         text-transform: uppercase;
         margin-top: 10px;
     }
-
 }

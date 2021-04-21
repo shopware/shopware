@@ -25,14 +25,12 @@
             cursor: not-allowed;
             opacity: 0.3;
 
-            &.is--danger {
-                .sw-icon {
-                    color: $color-crimson-200;
-                }
+            &.is--danger .sw-icon {
+                color: $color-crimson-200;
+            }
 
-                &:hover {
-                    color: $color-menu-start;
-                }
+            &.is--danger:hover {
+                color: $color-menu-start;
             }
 
             .sw-icon {

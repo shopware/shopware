@@ -39,8 +39,9 @@ $sw-loader-z-index: $z-index-loader;
         stroke-dasharray: 187;
         stroke-dashoffset: 0;
         transform-origin: center;
-        animation: sw-loader-dash $sw-loader-rotate-duration ease-in-out infinite,
-                   sw-loader-colors $sw-loader-colors-duration ease-in-out infinite;
+        animation:
+            sw-loader-dash $sw-loader-rotate-duration ease-in-out infinite,
+            sw-loader-colors $sw-loader-colors-duration ease-in-out infinite;
     }
 
     @keyframes sw-loader-colors {

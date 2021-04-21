@@ -7,7 +7,7 @@
     }
 
     .sw-media-upload-v2__button {
-        margin: 0;
+        margin: 0 5px 0 0;
     }
 
     .sw-media-upload-v2__preview {
@@ -19,10 +19,6 @@
         flex-direction: row;
         justify-content: flex-end;
         align-items: stretch;
-    }
-
-    .sw-media-upload-v2__button {
-        margin-right: 5px;
     }
 
     .sw-media-compact-upload-v2__browse-button {
@@ -43,6 +39,4 @@
         font-weight: normal;
         user-select: none;
     }
-
 }
-

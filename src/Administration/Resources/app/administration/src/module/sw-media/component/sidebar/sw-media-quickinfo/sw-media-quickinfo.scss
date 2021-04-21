@@ -23,7 +23,7 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
         border: 1px solid $sw-media-quickinfo-border-color-preview;
         border-radius: $sw-media-quickinfo-border-radius-preview;
 
-        &:after {
+        &::after {
             content: "";
             display: block;
             padding-bottom: 75%;

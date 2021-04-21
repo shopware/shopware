@@ -15,7 +15,7 @@ $sw-grid-column-color-link: $color-shopware-brand-500;
         border-right: 0 none;
     }
 
-    .sw-field  {
+    .sw-field {
         margin-bottom: 0;
 
         &.sw-field--checkbox,
@@ -59,6 +59,7 @@ $sw-grid-column-color-link: $color-shopware-brand-500;
 
         &.is--truncate {
             @include truncate();
+
             display: block;
         }
 

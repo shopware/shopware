@@ -6,7 +6,7 @@ $sw-product-variants-configurator-selection-search-background: $color-gray-100;
 
 .sw-property-search__search-field.sw-product-variants-configurator-selection-search__search-field {
     padding: 30px;
-    border-bottom: 1px solid #D8DDE6;
+    border-bottom: 1px solid #d8dde6;
     background-color: $sw-product-variants-configurator-selection-search-background;
 
     .sw-simple-search-field {
@@ -43,9 +43,12 @@ $sw-product-variants-configurator-selection-search-background: $color-gray-100;
     }
 }
 
-.generate-variant-progress-bar--transition-enter-active, .generate-variant-progress-bar--transition-leave-active {
-    transition: opacity .3s ease-in-out;
+.generate-variant-progress-bar--transition-enter-active,
+.generate-variant-progress-bar--transition-leave-active {
+    transition: opacity 0.3s ease-in-out;
 }
-.generate-variant-progress-bar--transition-enter, .generate-variant-progress-bar--transition-leave-to {
+
+.generate-variant-progress-bar--transition-enter,
+.generate-variant-progress-bar--transition-leave-to {
     opacity: 0;
 }

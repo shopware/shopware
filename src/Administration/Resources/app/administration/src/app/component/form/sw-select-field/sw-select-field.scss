@@ -9,7 +9,6 @@ $sw-select-field-color-border: $color-gray-300;
 $sw-select-field-color-error: $color-crimson-500;
 
 .sw-field.sw-field--select {
-
     .sw-block-field__block {
         width: 100%;
         position: relative;
@@ -56,7 +55,6 @@ $sw-select-field-color-error: $color-crimson-500;
         &.is--placeholder {
             color: lighten($sw-select-field-color-text, 25%);
         }
-
     }
 
     .sw-field--select__load-placeholder {

@@ -3,11 +3,19 @@
   "plugins": [
     "stylelint-scss"
   ],
+  "ignoreFiles": ["build/**/*.scss"],
   "rules": {
     "indentation": 4,
     "color-hex-case": "lower",
     "no-missing-end-of-source-newline": true,
-    "property-no-unknown": [true, { "severity": "warning" }],
+    "property-no-unknown": [true, {
+        "severity": "warning",
+        "ignoreProperties": [
+            "user-focus",
+            "user-input",
+            "user-modify"
+        ]
+    }],
     "no-descending-specificity": null,
     "max-nesting-depth": [3, {
       "ignore": ["blockless-at-rules", "pseudo-classes"],

@@ -23,7 +23,6 @@ $select-result-customer-item-gutter: 10px;
 
 .sw-order-create-details-header {
     &__customer-result-item {
-
         &.has-many-childrens {
             display: flex;
             white-space: nowrap;
@@ -34,12 +33,12 @@ $select-result-customer-item-gutter: 10px;
 
                 display: inline-block;
                 width: auto;
-
             }
         }
 
         .text-truncate {
             @include truncate;
+
             min-width: $select-result-customer-item-last-width;
             max-width: $select-result-customer-item-last-width;
             color: $color-gray-500;

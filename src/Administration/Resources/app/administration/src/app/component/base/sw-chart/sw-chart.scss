@@ -18,7 +18,9 @@
     .apexcharts-xaxistooltip.dark {
         background: $color-darkgray-500;
     }
-    .apexcharts-xaxistooltip.dark:before, .apexcharts-xaxistooltip.dark:after {
+
+    .apexcharts-xaxistooltip.dark::before,
+    .apexcharts-xaxistooltip.dark::after {
         border-bottom-color: $color-darkgray-500;
     }
 }

@@ -53,12 +53,14 @@ $sw-media-folder-content-background-color:        $color-white;
 
     .sw-media-folder-content__folder-button {
         text-align: left;
+
         @include truncate();
     }
 
     .sw-media-folder-content__parent-folder {
         color: $sw-media-folder-content-parent-color;
         text-align: left;
+
         @include truncate();
     }
 }

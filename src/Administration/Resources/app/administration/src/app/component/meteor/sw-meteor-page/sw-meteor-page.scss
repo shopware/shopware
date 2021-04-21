@@ -124,80 +124,6 @@
         justify-content: flex-end;
     }
 
-    .sw-meteor-page__smart-bar {
-        grid-column: 2/3;
-
-        .sw-meteor-page__smart-bar-content {
-            display: grid;
-            grid-template-columns: 70% 1fr;
-            grid-template-rows: auto auto;
-            grid-column-gap: 16px;
-            grid-template-areas:
-                "module secondary"
-                "context context";
-        }
-
-        .sw-meteor-page__smart-bar-module-info {
-            display: grid;
-            width: 100%;
-            grid-template-columns: auto 1fr;
-            grid-template-rows: auto auto;
-            grid-template-areas:
-                "icon title"
-                "icon description";
-
-            .sw-meteor-page__smart-bar-module-icon {
-                grid-area: icon;
-                align-self: start;
-                margin-right: 8px;
-            }
-
-            .sw-meteor-page__smart-bar-header {
-                grid-area: title;
-                align-self: center;
-                display: flex;
-                align-items: end;
-                min-width: 100%;
-
-                .sw-meteor-page__smart-bar-title {
-                    @include truncate();
-
-                    color: #0c1f34;
-                    // 1,5 x font-size
-                    line-height: 42px;
-                    font-size: 28px;
-                    margin-right: 8px;
-                    margin-bottom: 0;
-                    min-width: 20%;
-                }
-            }
-
-            .sw-meteor-page__smart-bar-description {
-                grid-area: description;
-            }
-        }
-
-        .sw-meteor-page__smart-bar-actions {
-            grid-area: secondary;
-            display: flex;
-            align-items: flex-end;
-            flex-direction: column;
-
-            & > * {
-                margin: 5px 0;
-            }
-        }
-
-        .sw-meteor-page__smart-bar-context-buttons {
-            grid-area: context;
-            min-width: 20%;
-
-            .sw-button {
-                margin: 6px 4px;
-            }
-        }
-    }
-
     .sw-meteor-page__smart-bar-tabs {
         grid-column: 2/3;
 
@@ -213,6 +139,80 @@
 
         .sw-tabs__custom-content {
             display: none;
+        }
+    }
+}
+
+.sw-meteor-page__smart-bar {
+    grid-column: 2/3;
+
+    .sw-meteor-page__smart-bar-content {
+        display: grid;
+        grid-template-columns: 70% 1fr;
+        grid-template-rows: auto auto;
+        grid-column-gap: 16px;
+        grid-template-areas:
+            "module secondary"
+            "context context";
+    }
+
+    .sw-meteor-page__smart-bar-module-info {
+        display: grid;
+        width: 100%;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "icon title"
+            "icon description";
+
+        .sw-meteor-page__smart-bar-module-icon {
+            grid-area: icon;
+            align-self: start;
+            margin-right: 8px;
+        }
+
+        .sw-meteor-page__smart-bar-header {
+            grid-area: title;
+            align-self: center;
+            display: flex;
+            align-items: end;
+            min-width: 100%;
+
+            .sw-meteor-page__smart-bar-title {
+                @include truncate();
+
+                color: #0c1f34;
+                // 1,5 x font-size
+                line-height: 42px;
+                font-size: 28px;
+                margin-right: 8px;
+                margin-bottom: 0;
+                min-width: 20%;
+            }
+        }
+
+        .sw-meteor-page__smart-bar-description {
+            grid-area: description;
+        }
+    }
+
+    .sw-meteor-page__smart-bar-actions {
+        grid-area: secondary;
+        display: flex;
+        align-items: flex-end;
+        flex-direction: column;
+
+        & > * {
+            margin: 5px 0;
+        }
+    }
+
+    .sw-meteor-page__smart-bar-context-buttons {
+        grid-area: context;
+        min-width: 20%;
+
+        .sw-button {
+            margin: 6px 4px;
         }
     }
 }

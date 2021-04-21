@@ -4,7 +4,7 @@
     display: flex;
     height: 100%;
     padding: 0;
-    background-color: #F9FAFB;
+    background-color: #f9fafb;
 
     .sw-product-variants-delivery-order__groups {
         background-color: $color-white;
@@ -15,20 +15,25 @@
         border-right: 1px solid $color-gray-300;
 
         .sw-tree {
-            border-width: 0px;
+            border-width: 0;
         }
+
         .sw-tree-item .sw-tree-item__element {
             grid-template-columns: 30px 24px 1fr 30px;
         }
+
         .sw-tree .sw-tree-actions__headline {
             display: none;
         }
+
         .sw-tree-item__selection {
             display: none;
         }
+
         .sw-tree-item__actions {
             display: none;
         }
+
         .sw-icon {
             margin-right: 8px;
         }

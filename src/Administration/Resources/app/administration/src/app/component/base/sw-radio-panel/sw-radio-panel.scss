@@ -29,6 +29,7 @@
 
         &.is--truncate {
             @include truncate();
+
             display: block;
         }
     }
@@ -39,6 +40,7 @@
 
         &.is--truncate {
             @include truncate();
+
             display: block;
         }
     }

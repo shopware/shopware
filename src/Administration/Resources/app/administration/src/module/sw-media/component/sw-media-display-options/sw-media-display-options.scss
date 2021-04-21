@@ -5,7 +5,7 @@
     justify-content: end;
     justify-items: end;
 
-    @media(max-width: 1360px) {
+    @media (max-width: 1360px) {
         grid-auto-flow: row;
     }
 }

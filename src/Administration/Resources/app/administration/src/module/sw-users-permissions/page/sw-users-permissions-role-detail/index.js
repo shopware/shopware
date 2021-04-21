@@ -1,5 +1,4 @@
 import template from './sw-users-permissions-role-detail.html.twig';
-import './sw-users-permissions-role-detail.scss';
 
 const { Component, Mixin } = Shopware;
 

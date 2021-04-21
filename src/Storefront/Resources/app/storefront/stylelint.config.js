@@ -6,6 +6,9 @@ module.exports = {
         'max-nesting-depth': 3,
         'order/properties-alphabetical-order': null,
         'scss/at-extend-no-missing-placeholder': null,
+        'at-rule-blacklist': null,
+        'at-rule-disallowed-list': 'always',
+        'declaration-property-value-blacklist': null,
         'selector-class-pattern': [
             '^[a-z0-9\\-]+$',
             {

@@ -1667,6 +1667,107 @@ class DeliveryCalculatorTest extends TestCase
         static::assertEquals(10, $shippingCosts->getTaxRules()->first()->getTaxRate());
     }
 
+    /**
+     * @dataProvider mixedShippingProvider
+     */
+    public function testCalculateWithMixedFreeShipping(int $calculation, float $price, int $quantity): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+
+        $price1 = new ShippingMethodPriceEntity();
+        $price1->setUniqueIdentifier(Uuid::randomHex());
+        $price1->setQuantityStart(0);
+        $price1->setQuantityEnd(100);
+        $price1->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    1,
+                    1,
+                    false
+                ),
+            ],
+        ));
+        $price1->setCalculation($calculation);
+
+        $price2 = new ShippingMethodPriceEntity();
+        $price2->setUniqueIdentifier(Uuid::randomHex());
+        $price2->setQuantityStart(100.01);
+        $price2->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    2,
+                    2,
+                    false
+                ),
+            ],
+        ));
+        $price2->setCalculation($calculation);
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price1, $price2]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        $lineItem1 = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem1->setDeliveryInformation(
+            new DeliveryInformation(
+                100,
+                100.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem1->setPrice(new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $lineItem1->setStackable(true);
+        $lineItem1->setQuantity($quantity);
+
+        $lineItem2 = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem2->setDeliveryInformation(
+            new DeliveryInformation(
+                100,
+                100.0,
+                true,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem2->setPrice(new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $lineItem2->setStackable(true);
+        $lineItem2->setQuantity($quantity);
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem1, $lineItem2]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame((float) 1, $deliveries->getShippingCosts()->first()->getTotalPrice());
+    }
+
+    public function mixedShippingProvider(): array
+    {
+        return [
+            'Mixed shipping by quantity' => [DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT, 1, 100],
+            'Mixed shipping by cart price' => [DeliveryCalculator::CALCULATION_BY_PRICE, 100, 1],
+            'Mixed shipping by weight' => [DeliveryCalculator::CALCULATION_BY_WEIGHT, 1, 1],
+        ];
+    }
+
     private function buildDeliveries(LineItemCollection $lineItems, SalesChannelContext $context): DeliveryCollection
     {
         $data = new CartDataCollection();

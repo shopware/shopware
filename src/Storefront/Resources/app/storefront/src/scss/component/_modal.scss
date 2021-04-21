@@ -16,4 +16,28 @@ https://getbootstrap.com/docs/4.3/components/modal/
     .modal-close:focus {
         outline: 0;
     }
+
+    &.is-fullscreen {
+        .modal-dialog,
+        .modal-content {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            position: absolute;
+            max-width: 100%;
+            top: 0;
+            left: 0;
+            margin: 0;
+            overflow-y: scroll;
+            box-shadow: none;
+        }
+
+        .modal-dialog,
+        .modal-content,
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            border-radius: 0;
+        }
+    }
 }

@@ -47,10 +47,10 @@
       "currencyCountry": {
         "countryColumn": "Land",
         "itemDecimalsColumn": "Positionen Nachkommastellen",
-        "itemIntervalColumn": "Positionen Interval",
+        "itemIntervalColumn": "Positionen Intervall",
         "itemNetRoundingColumn": "Positionen Nettokunden",
         "totalDecimalsColumn": "Summe Nachkommastellen",
-        "totalIntervalColumn": "Summe Interval",
+        "totalIntervalColumn": "Summe Intervall",
         "totalNetRoundingColumn": "Summe Nettokunden"
       },
       "emptyCountryRoundings": "Hinzufügen von Nachkommastellen und Rundungsfaktoren für verschiedene Länder.",
@@ -68,7 +68,7 @@
       "itemsHeadline": "Positionen",
       "itemsSubline": "Rundung gilt für alle Positionen und deren Zwischensumme",
       "labelDecimals": "Nachkommastellen",
-      "labelInterval": "Rundungsinterval",
+      "labelInterval": "Rundungsintervall",
       "labelRoundForNet": "Auch für Nettokunden runden",
       "grandHeadline": "Summen",
       "grandSubline": "Rundung gilt für die Gesamtsumme des Warenkorbs",

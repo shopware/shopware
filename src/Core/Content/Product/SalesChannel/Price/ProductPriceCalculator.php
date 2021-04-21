@@ -21,15 +21,11 @@ use Shopware\Core\System\Unit\UnitCollection;
 
 class ProductPriceCalculator extends AbstractProductPriceCalculator
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $unitRepository;
+    private EntityRepositoryInterface $unitRepository;
 
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $calculator;
+    private QuantityPriceCalculator $calculator;
+
+    private ?UnitCollection $units = null;
 
     public function __construct(EntityRepositoryInterface $unitRepository, QuantityPriceCalculator $calculator)
     {
@@ -44,10 +40,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     public function calculate(iterable $products, SalesChannelContext $context): void
     {
-        /** @var UnitCollection $units */
-        $units = $this->unitRepository
-            ->search(new Criteria(), $context->getContext())
-            ->getEntities();
+        $units = $this->getUnits($context);
 
         /** @var SalesChannelProductEntity $product */
         foreach ($products as $product) {
@@ -231,5 +224,19 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         }
 
         return null;
+    }
+
+    private function getUnits(SalesChannelContext $context): UnitCollection
+    {
+        if ($this->units !== null) {
+            return $this->units;
+        }
+
+        /** @var UnitCollection $units */
+        $units = $this->unitRepository
+            ->search(new Criteria(), $context->getContext())
+            ->getEntities();
+
+        return $this->units = $units;
     }
 }

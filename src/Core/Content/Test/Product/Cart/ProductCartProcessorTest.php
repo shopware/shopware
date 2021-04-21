@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product\Cart;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
@@ -15,9 +16,11 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetD
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,6 +77,53 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals(101, $info->getHeight());
         static::assertEquals(102, $info->getWidth());
         static::assertEquals(103, $info->getLength());
+    }
+
+    /**
+     * @dataProvider advancedPricingProvider
+     */
+    public function testAdvancedPricing(bool $valid, float $price): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'test'))
+            ->price(100)
+            ->prices('rule-1', 200, 'default', null, 1, $valid)
+            ->visibility()
+            ->build();
+
+        $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $result = $this->getContainer()->get(CartRuleLoader::class)
+            ->loadByToken($context, 'test');
+
+        $cart = $result->getCart();
+
+        static::assertEquals($valid, \in_array($ids->get('rule-1'), $context->getRuleIds(), true));
+
+        $lineItem = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($ids->get('test'));
+
+        $cart = $this->getContainer()->get(CartService::class)
+            ->add($cart, [$lineItem], $context);
+
+        static::assertCount(1, $cart->getLineItems());
+
+        $lineItem = $cart->getLineItems()->first();
+        static::assertEquals('product', $lineItem->getType());
+        static::assertEquals($ids->get('test'), $lineItem->getReferencedId());
+
+        static::assertEquals($price, $lineItem->getPrice()->getTotalPrice());
+    }
+
+    public function advancedPricingProvider()
+    {
+        yield 'Test not matching rule' => [false, 100];
+
+        yield 'Test matching rule' => [true, 200];
     }
 
     public function testOverwriteLabelNoPermission(): void

@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,29 +33,24 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
 
-    /**
-     * @var ProductGatewayInterface
-     */
-    private $productGateway;
+    private ProductGatewayInterface $productGateway;
 
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $calculator;
+    private QuantityPriceCalculator $calculator;
 
-    /**
-     * @var ProductFeatureBuilder
-     */
-    private $featureBuilder;
+    private ProductFeatureBuilder $featureBuilder;
+
+    private ProductPriceCalculator $priceCalculator;
 
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
-        ProductFeatureBuilder $featureBuilder
+        ProductFeatureBuilder $featureBuilder,
+        ProductPriceCalculator $priceCalculator
     ) {
         $this->productGateway = $productGateway;
         $this->calculator = $calculator;
         $this->featureBuilder = $featureBuilder;
+        $this->priceCalculator = $priceCalculator;
     }
 
     public function collect(
@@ -82,7 +78,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         foreach ($lineItems as $lineItem) {
             // enrich all products in original cart
-            $this->enrich($original, $lineItem, $data, $behavior);
+            $this->enrich($original, $context, $lineItem, $data, $behavior);
         }
 
         $this->featureBuilder->prepare($lineItems, $data, $context);
@@ -161,6 +157,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             if ($lineItem->getQuantity() !== $fixedQuantity) {
                 $lineItem->setQuantity($fixedQuantity);
                 $definition->setQuantity($fixedQuantity);
+
                 $toCalculate->addErrors(
                     new PurchaseStepsError($product->getId(), (string) $product->getTranslation('name'), $fixedQuantity)
                 );
@@ -176,6 +173,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private function enrich(
         Cart $cart,
+        SalesChannelContext $context,
         LineItem $lineItem,
         CartDataCollection $data,
         CartBehavior $behavior
@@ -229,7 +227,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         //Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
             $lineItem->setPriceDefinition(
-                $this->getPriceDefinition($product, $lineItem->getQuantity())
+                $this->getPriceDefinition($product, $context, $lineItem->getQuantity())
             );
         }
 
@@ -278,8 +276,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->replacePayload($payload);
     }
 
-    private function getPriceDefinition(SalesChannelProductEntity $product, int $quantity): QuantityPriceDefinition
+    private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
     {
+        $this->priceCalculator->calculate([$product], $context);
+
         if ($product->getCalculatedPrices()->count() === 0) {
             return $this->buildPriceDefinition($product->getCalculatedPrice(), $quantity);
         }

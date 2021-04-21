@@ -57,11 +57,11 @@ Component.register('sw-settings-rule-list', {
         },
 
         onDuplicate(referenceRule) {
-            this.ruleRepository.clone(referenceRule.id, Shopware.Context.api).then(() => {
+            this.ruleRepository.clone(referenceRule.id, Shopware.Context.api).then((duplicatedData) => {
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',
-                        params: { id: referenceRule.id }
+                        params: { id: duplicatedData.id }
                     }
                 );
             });

@@ -256,6 +256,9 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     function logout() {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             cookieStorage.removeItem(storageKey);
+
+            // @deprecated tag:v6.5.0 - Was needed for old cookies set without domain
+            document.cookie = `bearerAuth=deleted; expires=Thu, 18 Dec 2013 12:00:00 UTC;path=${context.basePath + context.pathInfo}`;
         }
 
         context.authToken = null;

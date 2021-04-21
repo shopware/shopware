@@ -1728,7 +1728,10 @@ class DeliveryCalculatorTest extends TestCase
                 100.0,
                 false,
                 null,
-                $this->deliveryTime
+                $this->deliveryTime,
+                10,
+                10,
+                1,
             )
         );
         $lineItem1->setPrice(new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -1742,7 +1745,10 @@ class DeliveryCalculatorTest extends TestCase
                 100.0,
                 true,
                 null,
-                $this->deliveryTime
+                $this->deliveryTime,
+                10,
+                10,
+                1,
             )
         );
         $lineItem2->setPrice(new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -1765,6 +1771,7 @@ class DeliveryCalculatorTest extends TestCase
             'Mixed shipping by quantity' => [DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT, 1, 100],
             'Mixed shipping by cart price' => [DeliveryCalculator::CALCULATION_BY_PRICE, 100, 1],
             'Mixed shipping by weight' => [DeliveryCalculator::CALCULATION_BY_WEIGHT, 1, 1],
+            'Mixed shipping by volume' => [DeliveryCalculator::CALCULATION_BY_VOLUME, 1, 1],
         ];
     }
 

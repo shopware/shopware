@@ -32,10 +32,14 @@ Component.register('sw-dashboard-index', {
             }
 
             return this.$tc(
-                'sw-dashboard.introduction.headline',
+                this.getGreetingTimeKey('daytimeHeadline'),
                 1,
                 { greetingName: this.greetingName }
             );
+        },
+
+        welcomeSubline() {
+            return this.$tc(this.getGreetingTimeKey('daytimeWelcomeText'));
         },
 
         greetingName() {
@@ -269,6 +273,33 @@ Component.register('sw-dashboard-index', {
         parseDate(date) {
             const parsedDate = new Date(date.replace(/-/g, '/').replace('T', ' ').replace(/\..*|\+.*/, ''));
             return parsedDate.valueOf();
+        },
+
+        /**
+         * getGreetingTimeKey reads through the existing dictionary and returns a localtime aware
+         * `$tc ()` compatible String. The timebased dictionary keys look like `5h` or `11h` or `16h`
+         * and contains an array with different greeting messages.
+         * @param {String} type either 'daytimeHeadline' or 'daytimeWelcomeText'
+         * @returns {String}
+         */
+        getGreetingTimeKey(type = 'daytimeHeadline') {
+            const translateKey = `sw-dashboard.introduction.${type}`;
+            const localeRepository = this.$i18n.messages[this.$i18n.locale];
+            const greetings = localeRepository['sw-dashboard'].introduction[type];
+            const hourNow = new Date().getHours();
+
+            // to find the right timeslot, we user array.find() which will stop after first match
+            // for that reason the greetingTimes must be ordered from latest to earliest hour
+            const greetingTimes = Object.keys(greetings)
+                .map(entry => parseInt(entry.replace('h', ''), 10))
+                .sort((a, b) => a - b)
+                .reverse();
+
+            /* find the current time slot */
+            const greetingTime = greetingTimes.find(time => hourNow >= time) || greetingTimes[0];
+            const greetingIndex = Math.floor(Math.random() * greetings[`${greetingTime}h`].length);
+
+            return `${translateKey}.${greetingTime}h[${greetingIndex}]`;
         }
     }
 });

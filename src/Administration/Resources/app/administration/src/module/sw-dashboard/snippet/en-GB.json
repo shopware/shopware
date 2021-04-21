@@ -5,9 +5,50 @@
       "descriptionTextModule": "The Administration's front page, displaying statistics and system information"
     },
     "introduction": {
-      "headline": "Welcome to Shopware, {greetingName}.",
       "headlineUnkownUser": "Welcome to Shopware.",
-      "welcomeText": "Get familiar with everything, here are some ways to get started."
+      "daytimeHeadline": {
+        "5h": [
+          "Good morning, {greetingName}.",
+          "Have a nice day, {greetingName}"
+        ],
+        "11h": [
+          "Hello, {greetingName}.",
+          "Hello there, {greetingName}.",
+          "Howdy, {greetingName}"
+        ],
+        "18h": [
+          "Good afternoon, {greetingName}",
+          "Good afternoon, {greetingName}"
+        ],
+        "23h": [
+          "Good evening, {greetingName}",
+          "Still up, {greetingName}"
+        ]
+      },
+      "daytimeWelcomeText": {
+        "5h": [
+          "A great time for tea or coffee, right?",
+          "You’re off to a great start.",
+          "Too much on your to-do list today? Focus on the 20% of to-dos that makes 80% of the impact.",
+          "You look great today."
+        ],
+        "11h": [
+          "Another day, another chance to grow your business.",
+          "You can impact someone's life today.",
+          "You look great today.",
+          "Today is the opportunity to build the tomorrow you want."
+        ],
+        "18h": [
+          "Here are some insights on your latest shop activities.",
+          "Here’s how your shop is doing today.",
+          "Today is the opportunity to build the tomorrow you want"
+        ],
+        "23h": [
+          "Find beauty in everything to inspire yourself.",
+          "A great time for tea or coffee, right?",
+          "Almost everything will work again if you unplug it for a few minutes, including you. Take a short break."
+        ]
+      }
     },
     "helpcard": {
       "headline": "Get ready to sell your products.",

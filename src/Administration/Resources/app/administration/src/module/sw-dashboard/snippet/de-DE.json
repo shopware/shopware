@@ -5,9 +5,50 @@
       "descriptionTextModule": "Startseite, Statistiken und Systeminformationen"
     },
     "introduction": {
-      "headline": "Willkommen bei Shopware, {greetingName}.",
       "headlineUnkownUser": "Willkommen bei Shopware.",
-      "welcomeText": "Mach Dich mit allem vertraut, hier sind ein paar Tipps um anzufangen."
+      "daytimeHeadline": {
+        "5h": [
+          "Guten Morgen, {greetingName}.",
+          "Hab einen schönen Tag, {greetingName}."
+        ],
+        "11h": [
+          "Hallo, {greetingName}.",
+          "Guten Tag, {greetingName}.",
+          "Howdy, {greetingName}."
+        ],
+        "18h": [
+          "Guten Tag, {greetingName}.",
+          "Schönen Nachmittag, {greetingName}."
+        ],
+        "23h": [
+          "Guten Abend, {greetingName}.",
+          "Noch wach, {greetingName}"
+        ]
+      },
+      "daytimeWelcomeText": {
+        "5h": [
+          "Ein guter Zeitpunkt für eine Tasse Kaffee oder Tee. Oder nicht?",
+          "Du hast einen tollen Start hingelegt.",
+          "Heute zu viel auf Deiner To-do-Liste? Konzentriere Dich auf die 20 % der To-dos, die 80 % der Wirkung ausmachen.",
+          "Du siehst heute großartig aus."
+        ],
+        "11h": [
+          "Ein neuer Tag, eine neue Chance, Dein Geschäft zu erweitern.",
+          "Du kannst heute das Leben von jemandem beeinflussen.",
+          "Du siehst heute toll aus.",
+          "Du hast heute die Chance, das Morgen zu bauen, wie Du es Dir wünscht."
+        ],
+        "18h": [
+          "Hier sind einige Einblicke in Deine letzten Shop-Aktivitäten.",
+          "Hier siehst Du, was heute in Deinem Shop passiert ist.",
+          "Du kannst heute das morgen gestalten."
+        ],
+        "23h": [
+          "Finde die Schönheit in allem um Dich zu inspirieren.",
+          "Ein guter Zeitpunkt für eine Tasse Kaffee oder Tee. Oder nicht?",
+          "Fast alles funktioniert wieder, wenn Du den Stecker ein paar Minuten aus der Steckdose ziehst, auch Du. Mach eine Pause."
+        ]
+      }
     },
     "helpcard": {
       "headline": "Mach dich bereit, deine Produkte zu verkaufen.",

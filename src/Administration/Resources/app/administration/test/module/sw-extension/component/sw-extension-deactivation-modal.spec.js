@@ -16,8 +16,7 @@ function createWrapper(propsData = {}) {
                 }
 
                 return path;
-            },
-            $t: v => v
+            }
         },
         stubs: {
             'sw-modal': true,

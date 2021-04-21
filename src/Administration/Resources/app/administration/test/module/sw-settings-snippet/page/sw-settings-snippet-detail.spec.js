@@ -100,8 +100,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                     params: {
                         key: 'account.addressCreateBtn'
                     }
-                },
-                $tc: key => key
+                }
             },
             provide: {
                 repositoryFactory: {

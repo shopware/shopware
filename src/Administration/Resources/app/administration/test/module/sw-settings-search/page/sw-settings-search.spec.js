@@ -28,19 +28,6 @@ function createWrapper(privileges = []) {
 
     return shallowMount(Shopware.Component.build('sw-settings-search'), {
         localVue,
-        mocks: {
-            $tc: key => key,
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25
-                }
-            },
-            $device: {
-                onResize: () => {},
-                getSystemKey: () => {}
-            }
-        },
 
         provide: {
             repositoryFactory: {
@@ -59,9 +46,6 @@ function createWrapper(privileges = []) {
                         return {};
                     })
                 })
-            },
-            feature: {
-                isActive: () => true
             },
             acl: {
                 can: (identifier) => {
@@ -207,7 +191,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('should assign new value when the new language was switch', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.editor'
         ]);
 
@@ -216,6 +200,6 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         expect(wrapper.vm.productSearchConfigs.andLogic).toBe(mockData[0].andLogic);
         expect(wrapper.vm.productSearchConfigs.minSearchLength).toBe(mockData[0].minSearchLength);
         expect(wrapper.vm.productSearchConfigs.excludedTerms.length).toBe(0);
-        expect(wrapper.vm.productSearchConfigs.languageId).toBe(null);
+        expect(wrapper.vm.productSearchConfigs.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
     });
 });

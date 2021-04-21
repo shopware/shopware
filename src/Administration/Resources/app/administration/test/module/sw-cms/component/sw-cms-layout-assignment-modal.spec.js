@@ -105,10 +105,6 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
             'sw-cms-product-assignment': true
         },
         mocks: {
-            $tc: (value) => value,
-            $device: {
-                onResize: () => {}
-            },
             cloneDeep: cloneDeep
         },
         provide: {
@@ -154,19 +150,12 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         }
     });
 }
 
 describe('module/sw-cms/component/sw-cms-sidebar', () => {
-    beforeAll(() => {
-        Shopware.Feature.isActive = () => true;
-    });
-
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
 

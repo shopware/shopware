@@ -7,12 +7,6 @@ function createWrapper() {
 
     return shallowMount(Shopware.Component.build('sw-settings-price-rounding'), {
         localVue,
-        mocks: {
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => {}
-            }
-        },
         provide: {
         },
         stubs: {

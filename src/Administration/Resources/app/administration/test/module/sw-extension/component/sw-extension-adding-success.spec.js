@@ -16,9 +16,6 @@ describe('src/module/sw-extension/component/sw-extension-adding-success', () => 
                 'sw-circle-icon': Shopware.Component.build('sw-circle-icon'),
                 'sw-label': Shopware.Component.build('sw-label'),
                 'sw-icon': true
-            },
-            mocks: {
-                $tc: (key) => key
             }
         });
     }

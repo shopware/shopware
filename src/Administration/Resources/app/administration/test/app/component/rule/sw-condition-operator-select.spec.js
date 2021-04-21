@@ -7,10 +7,6 @@ function createWrapper(customProps = {}) {
             'sw-arrow-field': true,
             'sw-single-select': true
         },
-        provide: {},
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             condition: {},
             operators: [],

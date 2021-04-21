@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-document/page/sw-settings-document-detail';
 
 const documentBaseConfigRepositoryMock = {
@@ -78,11 +78,7 @@ const repositoryMockFactory = (entity) => {
 };
 
 const createWrapper = (customOptions, privileges = []) => {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     const options = {
-        localVue,
         stubs: {
             'sw-page': true,
             'sw-entity-single-select': true,
@@ -113,20 +109,14 @@ const createWrapper = (customOptions, privileges = []) => {
             'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
             'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] }
         },
-        mocks: {
-            $tc: snippetPath => snippetPath,
-            $device: { getSystemKey: () => {} }
-        },
         provide: {
             repositoryFactory: {
                 create: (entity) => repositoryMockFactory(entity)
             },
             acl: {
                 can: key => (key ? privileges.includes(key) : true)
-            },
-            feature: {
-                isActive: () => true
             }
+
         }
     };
 

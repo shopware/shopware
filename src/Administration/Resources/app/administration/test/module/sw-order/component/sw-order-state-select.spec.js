@@ -6,9 +6,6 @@ function createWrapper() {
         stubs: {
             'sw-field': true
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             transitionOptions: []
         }

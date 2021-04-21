@@ -20,10 +20,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 }
             },
             mocks: {
-                $tc: (translationPath) => translationPath,
-                $device: { onResize: () => {} },
-                $route: { name: 'sw.first.run.wizard.index.welcome' },
-                $router: { push: () => {} }
+                $route: { name: 'sw.first.run.wizard.index.welcome' }
             },
             provide: {
                 firstRunWizardService: { setFRWStart: () => {} },

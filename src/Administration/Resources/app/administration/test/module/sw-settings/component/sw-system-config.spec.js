@@ -212,16 +212,7 @@ function createWrapper(defaultValues = {}) {
                 })
             },
             validationService: {},
-            mediaService: {},
-            feature: {
-                isActive: () => false
-            }
-        },
-        mocks: {
-            $tc: key => key,
-            $device: {
-                onResize: () => {}
-            }
+            mediaService: {}
         }
     });
 }

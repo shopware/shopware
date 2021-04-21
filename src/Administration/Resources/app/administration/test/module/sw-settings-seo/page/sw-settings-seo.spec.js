@@ -29,7 +29,6 @@ function createWrapper() {
             'sw-app-actions': true
         },
         mocks: {
-            $tc: v => v,
             $route: {
                 meta: {
                 },
@@ -43,10 +42,8 @@ function createWrapper() {
                 getConfig: () => Promise.resolve({
                     'core.seo.redirectToCanonicalUrl': true
                 })
-            },
-            feature: {
-                isActive: () => true
             }
+
         }
     });
 }

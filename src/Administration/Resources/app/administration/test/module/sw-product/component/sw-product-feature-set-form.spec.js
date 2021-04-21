@@ -63,7 +63,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         const localVue = createLocalVue();
 
         localVue.use(VueRouter);
-        localVue.directive('tooltip', {});
 
         return shallowMount(Shopware.Component.build('sw-product-feature-set-form'), {
             localVue,
@@ -84,12 +83,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                 'sw-label': true,
                 i18n: true
             },
-            mocks: {
-                $tc: (translationPath) => translationPath,
-                $device: {
-                    onResize: () => {}
-                }
-            },
             provide: {
                 repositoryFactory: {
                     create() {
@@ -104,9 +97,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                     search() {
                         return {};
                     }
-                },
-                feature: {
-                    isActive: () => {}
                 }
             },
             computed: {

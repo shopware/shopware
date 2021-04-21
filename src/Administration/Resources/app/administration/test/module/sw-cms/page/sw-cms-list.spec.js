@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/page/sw-cms-list';
 import 'src/module/sw-cms/component/sw-cms-list-item';
 import 'src/app/component/context-menu/sw-context-button';
@@ -6,13 +6,7 @@ import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/data-grid/sw-data-grid';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-
-    localVue.directive('tooltip', {});
-    localVue.filter('date', v => v);
-
     return shallowMount(Shopware.Component.build('sw-cms-list'), {
-        localVue,
         stubs: {
             'sw-page': {
                 template: `
@@ -57,13 +51,7 @@ function createWrapper(privileges = []) {
             'sw-data-grid-skeleton': true
         },
         mocks: {
-            $tc: (value) => value,
-            $te: () => true,
-            $router: { replace: () => {} },
-            $route: { query: '' },
-            $device: {
-                onResize: () => {}
-            }
+            $route: { query: '' }
         },
         provide: {
             acl: {
@@ -75,10 +63,8 @@ function createWrapper(privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve() })
-            },
-            feature: {
-                isActive: () => true
             }
+
         }
     });
 }

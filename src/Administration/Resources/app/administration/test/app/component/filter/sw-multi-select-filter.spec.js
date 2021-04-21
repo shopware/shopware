@@ -66,9 +66,6 @@ function createWrapper(customOptions) {
                 }
             }
         },
-        mocks: {
-            $tc: t => t
-        },
         propsData: {
             filter: {
                 name: 'category-filter',

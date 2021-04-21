@@ -34,9 +34,6 @@ function createWrapper() {
                 label: 'Release Date'
             },
             active: true
-        },
-        mocks: {
-            $tc: key => key
         }
     });
 }

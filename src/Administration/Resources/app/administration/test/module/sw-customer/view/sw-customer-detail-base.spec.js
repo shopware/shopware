@@ -50,10 +50,6 @@ const customFields = [
 
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-customer-detail-base'), {
-        mocks: {
-            $tc: () => {}
-        },
-
         provide: {
             repositoryFactory: {
                 create: () => {
@@ -61,10 +57,8 @@ function createWrapper() {
                         search: () => Promise.resolve(customFields)
                     };
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
 
         propsData: {

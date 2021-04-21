@@ -6,9 +6,6 @@ function createWrapper() {
         propsData: {
             product: {}
         },
-        mocks: {
-            $tc: v => v
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({

@@ -34,8 +34,6 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
                 'sw-button': true
             },
             mocks: {
-                $t: v => v,
-                $tc: v => v,
                 $route: {
                     meta: { $module: {
                         title: 'sw-my-apps.general.mainMenuItemGeneral'

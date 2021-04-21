@@ -83,9 +83,6 @@ function createWrapper(roles = [], customOptions = {}) {
                 startEventListener: () => {}
             }
         },
-        mocks: {
-            $tc: key => key
-        },
         ...customOptions
     });
 }

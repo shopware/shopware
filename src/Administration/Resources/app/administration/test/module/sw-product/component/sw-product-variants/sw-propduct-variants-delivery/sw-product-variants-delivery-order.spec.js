@@ -36,9 +36,6 @@ function createWrapper() {
                 id: 'e6cea31f2d774b06ab6459c64cd3345h'
             }]
         },
-        mocks: {
-            $tc: () => {}
-        },
         provide: {
             repositoryFactory: {},
             mediaService: {}

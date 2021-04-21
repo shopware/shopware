@@ -20,9 +20,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                     `
                 }
             },
-            mocks: {
-                $tc: t => t
-            },
             propsData: {
                 role: {
                     privileges: []

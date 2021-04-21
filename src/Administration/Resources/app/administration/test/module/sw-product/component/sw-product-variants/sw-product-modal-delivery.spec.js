@@ -1,18 +1,11 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-product-modal-delivery'), {
-        localVue,
         propsData: {
             product: {},
             selectedGroups: []
-        },
-        mocks: {
-            $tc: () => {}
         },
         provide: {
             repositoryFactory: {},

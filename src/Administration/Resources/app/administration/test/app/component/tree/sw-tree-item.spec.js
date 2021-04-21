@@ -28,13 +28,6 @@ function createWrapper(customOptions = {}) {
             'sw-context-button': true,
             'sw-context-menu-item': true
         },
-        mocks: {
-            $route: {
-                params: {}
-            },
-            $tc: v => v
-        },
-        provide: {},
         propsData: {
             item: {
                 data: {

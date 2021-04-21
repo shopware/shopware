@@ -28,7 +28,6 @@ const createSingleSelect = (customOptions) => {
             'sw-select-result': Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': Shopware.Component.build('sw-highlight-text')
         },
-        mocks: { $tc: key => key },
         propsData: {
             value: null,
             options: [

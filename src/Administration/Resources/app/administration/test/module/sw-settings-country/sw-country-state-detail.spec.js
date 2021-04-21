@@ -1,21 +1,12 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-country-state-detail';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-country-state-detail'), {
-        localVue,
-
         propsData: {
             countryState: {
                 isNew: () => false
             }
-        },
-
-        mocks: {
-            $tc: key => key
         },
 
         provide: {

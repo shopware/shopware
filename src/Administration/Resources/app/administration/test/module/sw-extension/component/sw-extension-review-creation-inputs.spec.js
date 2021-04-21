@@ -23,9 +23,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
             provide: {
                 validationService: {}
             },
-            mocks: {
-                $tc: key => key
-            },
             stubs: {
                 'sw-text-field': Shopware.Component.build('sw-text-field'),
                 'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),

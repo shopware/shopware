@@ -1,20 +1,12 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
 
 function createWrapper(customOptions = {}, privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('droppable', {});
-
     return shallowMount(Shopware.Component.build('sw-media-upload-v2'), {
-        localVue,
         stubs: {
             'sw-icon': true,
             'sw-button': true,
             'sw-context-button': true
-        },
-        mocks: {
-            $t: v => v,
-            $tc: v => v
         },
         provide: {
             repositoryFactory: {},

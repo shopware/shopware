@@ -16,9 +16,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal
             provide: {
                 extensionStoreActionService: {}
             },
-            mocks: {
-                $tc: key => key
-            },
             stubs: {
                 'sw-modal': {
                     template: `<div class="sw-modal">

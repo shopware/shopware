@@ -16,10 +16,6 @@ function createWrapper(customProps = {}) {
         provide: {
             repositoryFactory: {}
         },
-        mocks: {
-            $tc: v => v,
-            $t: () => true
-        },
         propsData: {
             salesChannel: {},
             ...customProps

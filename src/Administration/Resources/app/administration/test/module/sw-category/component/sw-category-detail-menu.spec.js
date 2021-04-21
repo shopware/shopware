@@ -1,20 +1,14 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-detail-menu';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-
     return shallowMount(Shopware.Component.build('sw-category-detail-menu'), {
-        localVue,
         stubs: {
             'sw-card': true,
             'sw-switch-field': true,
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
             'sw-text-editor': true
-        },
-        mocks: {
-            $tc: v => v
         },
         provide: {
             acl: {

@@ -20,14 +20,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-custom-field-set-detail-base'), {
         localVue,
         mocks: {
-            $tc: () => {
-            },
-            $device: {
-                getSystemKey: () => {
-                },
-                onResize: () => {
-                }
-            },
             $i18n: {
                 fallbackLocale: 'en-GB'
             }

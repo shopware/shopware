@@ -49,7 +49,6 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                 }
             },
             mocks: {
-                $tc: translationKey => translationKey,
                 $store: new Vuex.Store({
                     modules: {
                         swProductDetail: {

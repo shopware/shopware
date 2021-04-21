@@ -11,7 +11,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-product-media-form'), {
         localVue,
         mocks: {
-            $tc: () => {},
             $store: new Vuex.Store({
                 modules: {
                     swProductDetail: {
@@ -31,10 +30,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
         stubs: {
             'sw-upload-listener': true,

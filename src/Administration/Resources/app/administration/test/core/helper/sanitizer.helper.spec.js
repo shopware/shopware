@@ -123,16 +123,11 @@ describe('core/helper/sanitizer.helper.js', () => {
             meta: { $module: { icon: null } }
         };
 
-        const $tc = (value) => {
-            return value;
-        };
-
         const wrapper = shallowMount(Shopware.Component.build('sw-empty-state'), {
             localVue,
             stubs: ['sw-icon'],
             mocks: {
-                $route,
-                $tc
+                $route
             },
             props: {
                 title: 'Foo bar',

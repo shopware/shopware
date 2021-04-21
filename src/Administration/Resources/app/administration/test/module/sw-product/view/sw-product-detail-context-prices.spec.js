@@ -24,7 +24,6 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         localVue.use(VueRouter);
         localVue.use(Vuex);
-        localVue.directive('tooltip', {});
         localVue.filter('asset', key => key);
 
         return shallowMount(Shopware.Component.build('sw-product-detail-context-prices'), {
@@ -49,14 +48,6 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                 'sw-context-button': true,
                 'sw-context-menu-item': true
             },
-            mocks: {
-                $tc: (translationPath) => translationPath,
-                $te: () => true,
-                $device: {
-                    onResize: () => {}
-                },
-                $store: Shopware.State._store
-            },
             provide: {
                 repositoryFactory: {
                     create: (repositoryName) => {
@@ -78,7 +69,6 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                     }
                 },
                 acl: { can: () => true },
-                feature: { isActive: () => true },
                 validationService: {}
             }
         });

@@ -5,7 +5,6 @@ import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
-    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-product-variants-overview'), {
         localVue,
@@ -13,10 +12,6 @@ function createWrapper(privileges = []) {
             selectedGroups: []
         },
         mocks: {
-            $tc: () => {},
-            $router: {
-                replace: () => {}
-            },
             $route: {
                 query: {}
             },
@@ -44,9 +39,6 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         },
         stubs: {

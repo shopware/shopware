@@ -37,9 +37,6 @@ function createWrapper() {
                 }
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         data() {
             return {
                 cmsPageState: {
@@ -50,9 +47,6 @@ function createWrapper() {
             };
         },
         provide: {
-            feature: {
-                isActive: () => true
-            },
             cmsService: {
                 getCmsElementRegistry: () => {
                     return { 'product-box': {

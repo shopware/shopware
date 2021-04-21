@@ -175,7 +175,8 @@ const Shopware = function Shopware() {
      */
     this.Filter = {
         register: FilterFactory.register,
-        getByName: FilterFactory.getByName
+        getByName: FilterFactory.getByName,
+        getRegistry: FilterFactory.getRegistry
     };
 
     /**
@@ -184,7 +185,8 @@ const Shopware = function Shopware() {
      */
     this.Directive = {
         register: DirectiveFactory.registerDirective,
-        getByName: DirectiveFactory.getDirectiveByName
+        getByName: DirectiveFactory.getDirectiveByName,
+        getDirectiveRegistry: DirectiveFactory.getDirectiveRegistry
     };
 
     /**

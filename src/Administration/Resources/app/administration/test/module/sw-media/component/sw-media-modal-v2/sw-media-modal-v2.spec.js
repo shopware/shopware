@@ -1,15 +1,11 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/component/sw-media-modal-v2';
 
 describe('src/module/sw-media/component/sw-media-modal-v2', () => {
     let wrapper;
 
     beforeEach(() => {
-        const localVue = createLocalVue();
-        localVue.directive('droppable', {});
-
         wrapper = shallowMount(Shopware.Component.build('sw-media-modal-v2'), {
-            localVue,
             stubs: {
                 'sw-modal': true,
                 'sw-tabs': {
@@ -20,10 +16,6 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
                 'sw-media-upload-v2': true,
                 'sw-upload-listener': true,
                 'sw-media-grid': true
-            },
-            mocks: {
-                $t: v => v,
-                $tc: v => v
             },
             provide: {
                 repositoryFactory: {},

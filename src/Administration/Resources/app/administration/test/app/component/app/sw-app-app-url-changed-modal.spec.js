@@ -59,18 +59,9 @@ function createWrapper() {
                 startEventListener() {},
                 stopEventListener() {}
             }
-        },
-        mocks: {
-            $tc: v => v
         }
     });
 }
-
-Shopware.Application.view = {
-    setReactive(object, property, value) {
-        object[property] = value;
-    }
-};
 
 describe('sw-app-app-url-changed-modal', () => {
     let wrapper = null;

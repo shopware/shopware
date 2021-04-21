@@ -1,12 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-document-card';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-order-document-card'), {
-        localVue,
         stubs: {
             'sw-card': {
                 template: '<div><slot name="grid"></slot></div>'
@@ -38,13 +34,9 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $router: {
-                replace: () => {}
-            },
             $route: {
                 query: ''
-            },
-            $tc: v => v
+            }
         },
         propsData: {
             order: {},

@@ -72,13 +72,8 @@ function createWrapper(activeTab = 'sorting') {
             },
             repositoryFactory: {
                 create: (entity) => repositoryMockFactory(entity)
-            },
-            feature: {
-                isActive: () => true
             }
-        },
-        mocks: {
-            $tc: t => t
+
         },
         propsData: Vue.observable({
             defaultConfig: {},

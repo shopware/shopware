@@ -24,9 +24,6 @@ function createWrapper(options = {}) {
         slots: {
             default: pages
         },
-        mocks: {
-            $tc: (t) => t
-        },
         provide: {
             shortcutService: {
                 startEventListener() {},

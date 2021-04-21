@@ -45,9 +45,6 @@ function createWrapper() {
             'sw-block-field': true,
             'sw-icon': true
         },
-        mocks: {
-            $tc: (value) => value
-        },
         provide: {
             cmsService: {
                 getCmsBlockRegistry: () => {

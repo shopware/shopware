@@ -24,13 +24,7 @@ function createWrapper(activeTab = 'content') {
     return shallowMount(Shopware.Component.build('sw-cms-el-config-image-gallery'), {
         localVue,
         sync: false,
-        mocks: {
-            $tc: v => v
-        },
         provide: {
-            feature: {
-                isActive: () => true
-            },
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {};

@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
 
 function createRuleMock(isNew) {
@@ -13,11 +13,7 @@ function createRuleMock(isNew) {
 }
 
 function createWrapper(privileges = [], isNewRule = false) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-settings-rule-detail'), {
-        localVue,
         stubs: {
             'sw-page': {
                 template: `
@@ -61,16 +57,10 @@ function createWrapper(privileges = [], isNewRule = false) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
         mocks: {
-            $tc: v => v,
-            $device: {
-                getSystemKey: () => {}
-            },
             $route: {
                 meta: {
                 },

@@ -62,14 +62,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 'sw-data-grid-skeleton': true,
                 i18n: true
             },
-            mocks: {
-                $tc: (translationPath) => translationPath,
-                $te: (translationPath) => translationPath,
-                $device: {
-                    onResize: () => {
-                    }
-                }
-            },
             data() {
                 return {
                     showPageOne: true,

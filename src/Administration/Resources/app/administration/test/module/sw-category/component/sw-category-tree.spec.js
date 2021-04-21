@@ -31,10 +31,6 @@ function createWrapper() {
             },
             'sw-tree-item': true
         },
-        mocks: {
-            $tc: v => v,
-            $store: Shopware.State._store
-        },
         provide: {
             syncService: {},
             repositoryFactory: {

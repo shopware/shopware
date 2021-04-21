@@ -39,9 +39,6 @@ function createWrapper() {
             },
             active: true
         },
-        mocks: {
-            $tc: key => key
-        },
         provide: {
             validationService: {}
         }

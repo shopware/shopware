@@ -7,12 +7,6 @@ function createWrapper(privileges = []) {
 
     return shallowMount(Shopware.Component.build('sw-settings-language-detail'), {
         localVue,
-        mocks: {
-            $tc: key => key,
-            $device: {
-                getSystemKey: () => {}
-            }
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({

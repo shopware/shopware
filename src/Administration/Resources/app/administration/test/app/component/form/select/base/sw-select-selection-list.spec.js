@@ -1,21 +1,12 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 
 function createWrapper(propsData = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-select-selection-list'), {
-        localVue,
         stubs: {
             'sw-label': {
                 template: '<div class="sw-label"><slot></slot></div>'
             }
-        },
-        provide: {
-        },
-        mocks: {
-            $tc: v => v
         },
         propsData: {
             ...propsData

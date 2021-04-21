@@ -61,9 +61,6 @@ describe('src/component/grid/sw-pagination', () => {
                 page: 1,
                 autoHide: false
             },
-            mocks: {
-                $tc: key => key
-            },
             stubs: {
                 'sw-icon': {
                     template: '<div class="icon"></div>'

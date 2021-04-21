@@ -60,8 +60,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-settings-listing-option-base'), {
             mocks: {
-                $tc: translationKey => translationKey,
-                $t: translationKey => translationKey,
                 $route: {
                     params: {
                         id: getProductSortingEntity().id

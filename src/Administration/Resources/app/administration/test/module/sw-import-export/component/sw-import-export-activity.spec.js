@@ -1,16 +1,11 @@
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-activity';
 import 'src/module/sw-import-export/component/sw-import-export-activity-detail-modal';
 
 describe('module/sw-import-export/components/sw-import-export-activity', () => {
     const createWrapper = (options = {}) => {
-        const localVue = createLocalVue();
-
-        localVue.filter('date', (date) => date);
-
         const defaultOptions = {
-            localVue,
             stubs: {
                 'sw-entity-listing': {
                     template: '<div></div>'
@@ -81,7 +76,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             Object.assign(defaultOptions, options)
         );
 
-        return { wrapper, localVue };
+        return { wrapper };
     };
 
     it('should be a Vue.js component', async () => {

@@ -29,10 +29,6 @@ describe('src/app/component/structure/sw-language-switch', () => {
                     `
                 },
                 'sw-button': true
-            },
-            mocks: {
-                $store: Shopware.State._store,
-                $tc: v => v
             }
         });
     });

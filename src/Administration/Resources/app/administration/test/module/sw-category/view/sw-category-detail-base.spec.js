@@ -46,8 +46,6 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                 }
             },
             mocks: {
-                $tc: key => key,
-                $store: Shopware.State._store,
                 placeholder: () => {}
             },
             propsData: {
@@ -64,9 +62,6 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                             get: () => Promise.resolve(null)
                         };
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });

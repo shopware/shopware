@@ -8,10 +8,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-search-searchable-content'), {
         localVue,
 
-        mocks: {
-            $tc: key => key
-        },
-
         propsData: {
             searchConfigId: ''
         },
@@ -30,10 +26,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
 
         stubs: {

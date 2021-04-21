@@ -361,8 +361,8 @@ class Tooltip {
      * @returns {string}
      */
     static validateMessage(message) {
-        if (!message) {
-            debug.warn('Tooltip Directive', 'The tooltip needs a message');
+        if (typeof message !== 'string') {
+            debug.warn('Tooltip Directive', 'The tooltip needs a message with type string');
         }
 
         return message;

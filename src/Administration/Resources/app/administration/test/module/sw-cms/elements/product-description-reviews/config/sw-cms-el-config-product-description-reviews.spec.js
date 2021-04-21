@@ -12,9 +12,6 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-el-config-product-description-reviews'), {
         localVue,
         sync: false,
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-tabs': {
                 template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'
@@ -27,9 +24,6 @@ function createWrapper() {
             'sw-alert': true
         },
         provide: {
-            feature: {
-                isActive: () => true
-            },
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {};

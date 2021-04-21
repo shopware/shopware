@@ -78,9 +78,6 @@ describe('components/sw-import-export-importer', () => {
                 'sw-button': true,
                 'sw-file-input': true
             },
-            mocks: {
-                $tc: snippetPath => snippetPath
-            },
             provide: {
                 importExport: {
                     import: (profileId, importFile, cb, config) => {
@@ -105,9 +102,6 @@ describe('components/sw-import-export-importer', () => {
                 },
                 repositoryFactory: {
                     create: () => repositoryMockFactory()
-                },
-                feature: {
-                    isActive: () => true
                 }
             }
         });

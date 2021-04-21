@@ -8,7 +8,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-language-list'), {
         localVue,
         mocks: {
-            $tc: key => key,
             $route: {
                 params: {
                     sortBy: 'sortBy'
@@ -17,9 +16,6 @@ function createWrapper(privileges = []) {
                     page: 1,
                     limit: 25
                 }
-            },
-            $router: {
-                replace: () => {}
             }
         },
         provide: {

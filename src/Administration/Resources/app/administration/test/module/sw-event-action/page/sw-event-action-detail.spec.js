@@ -50,14 +50,6 @@ function createWrapper(eventActionId = null, privileges = []) {
 
     return shallowMount(Shopware.Component.build('sw-event-action-detail'), {
         localVue,
-        mocks: {
-            $tc: (translationPath) => translationPath,
-            $router: { replace: () => {} },
-            $route: { query: '' },
-            $device: {
-                getSystemKey: () => {}
-            }
-        },
         stubs: {
             'sw-page': {
                 template: '<div class="sw-page">' +

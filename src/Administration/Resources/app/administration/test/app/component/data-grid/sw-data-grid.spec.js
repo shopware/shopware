@@ -87,11 +87,6 @@ describe('components/data-grid/sw-data-grid', () => {
                     { id: 'uuid4', company: 'Meetz', name: 'Dalston Top' },
                     { id: 'uuid5', company: 'Photojam', name: 'Neddy Jensen' }
                 ]
-            },
-            mocks: {
-                $tc: key => key,
-                $te: key => key,
-                $device: { onResize: () => {} }
             }
         });
     });

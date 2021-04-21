@@ -93,10 +93,6 @@ function createWrapper() {
             'sw-cms-sidebar-nav-element': true,
             'sw-entity-single-select': true
         },
-        mocks: {
-            $tc: (value) => value,
-            $store: Shopware.State._store
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({
@@ -110,12 +106,6 @@ function createWrapper() {
                 getCmsBlockRegistry: () => ({
                     'foo-bar': {}
                 })
-            },
-            feature: {
-                isActive: () => true
-            },
-            acl: {
-                can: () => true
             }
         }
     });

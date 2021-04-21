@@ -1,18 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-property/page/sw-property-detail';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-property-detail'), {
-        localVue,
-        mocks: {
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => {}
-            }
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({

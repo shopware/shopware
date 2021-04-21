@@ -32,10 +32,6 @@ function createWrapper(privileges = ['landing_page.creator', 'landing_page.edito
             'sw-tree-item': true,
             'sw-button': true
         },
-        mocks: {
-            $tc: v => v,
-            $store: Shopware.State._store
-        },
         provide: {
             syncService: {},
             repositoryFactory: {

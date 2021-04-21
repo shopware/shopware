@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/component/sidebar/sw-media-quickinfo-usage';
 
 const { Module } = Shopware;
@@ -23,22 +23,14 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         };
     };
 
-    let localVue;
     let wrapper;
     let moduleMock;
     beforeEach(() => {
-        localVue = createLocalVue();
-        localVue.directive('tooltip', {});
-
         wrapper = shallowMount(Shopware.Component.build('sw-media-quickinfo-usage'), {
-            localVue,
             stubs: {
                 'router-link': true,
                 'sw-icon': true,
                 'sw-alert': true
-            },
-            mocks: {
-                $tc: key => key
             },
             propsData: { item: itemDeleteMock() }
         });
@@ -64,7 +56,6 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
     });
 
     afterEach(() => {
-        localVue = null;
         wrapper.destroy();
     });
 

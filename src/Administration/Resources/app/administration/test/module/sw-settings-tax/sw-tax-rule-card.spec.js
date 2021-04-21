@@ -1,13 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/component/sw-tax-rule-card';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.filter('asset', () => {});
-
     return shallowMount(Shopware.Component.build('sw-tax-rule-card'), {
-        localVue,
         propsData: {
             tax: {
                 id: 'id',
@@ -16,9 +11,6 @@ function createWrapper(privileges = []) {
             },
             isLoading: false,
             disabled: false
-        },
-        mocks: {
-            $tc: key => key
         },
         provide: {
             repositoryFactory: {

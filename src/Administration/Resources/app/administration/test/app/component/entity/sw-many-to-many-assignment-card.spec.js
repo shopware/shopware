@@ -29,9 +29,6 @@ function createWrapper(customPropsData = {}) {
             entityCollection: entityCollection,
             localMode: true,
             ...customPropsData
-        },
-        mocks: {
-            $tc: v => v
         }
     });
 }

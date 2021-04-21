@@ -93,11 +93,7 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
-            $te: v => v,
-            $route: { query: '' },
-            $router: { replace: () => {} },
-            $device: { onResize: key => key }
+            $route: { query: '' }
         }
     });
 }

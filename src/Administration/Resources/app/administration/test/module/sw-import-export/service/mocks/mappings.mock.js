@@ -41,6 +41,11 @@ export const productProfileOnlyRequired = [
         id: '63fdbdae6cf64b90849b3e0a04677e25',
         key: 'id',
         mappedKey: 'id'
+    },
+    {
+        id: '63fdbdae6cf64b90849b3e0a04677e25',
+        key: 'cmsPageVersionId',
+        mappedKey: 'cms_page-version_id'
     }
 ];
 

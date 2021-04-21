@@ -10,9 +10,6 @@ function createWrapper(customProps = {}) {
         provide: {
             removeNodeFromTree: () => {}
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             condition: {},
             availableTypes: [],

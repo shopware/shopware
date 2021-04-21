@@ -29,7 +29,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-media-quickinfo'), {
         localVue,
         mocks: {
-            $tc: () => {},
             $route: {
                 query: {
                     page: 1,

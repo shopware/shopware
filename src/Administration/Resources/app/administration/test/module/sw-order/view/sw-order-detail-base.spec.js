@@ -104,13 +104,8 @@ function createWrapper(privileges = []) {
                         return Promise.resolve({});
                     }
                 })
-            },
-            feature: {
-                isActive: () => true
             }
-        },
-        mocks: {
-            $tc: v => v
+
         },
         propsData: {
             orderId: '1a2b3c',
@@ -194,6 +189,7 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
 
     it('should only display Total row when tax status tax free', async () => {
         await wrapper.destroy();
+
         orderMock.price.taxStatus = 'tax-free';
         wrapper = await createWrapper(['order.editor']);
         await wrapper.vm.$nextTick();

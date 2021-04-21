@@ -45,8 +45,6 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-settings-listing-option-create'), {
             mocks: {
-                $tc: translationKey => translationKey,
-                $t: translationKey => translationKey,
                 $router: {}
             },
             provide: {

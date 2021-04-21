@@ -19,9 +19,6 @@ const createWrapper = (componentOverride) => {
 
     return mount(baseComponent, {
         attachToDocument: true,
-        mocks: {
-            $device: { getSystemKey: () => 'CTRL' }
-        },
         localVue
     });
 };

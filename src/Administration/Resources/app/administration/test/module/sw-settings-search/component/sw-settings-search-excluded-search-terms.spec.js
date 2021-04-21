@@ -27,14 +27,6 @@ function createWrapper(privileges = [], resetError = false) {
             }
         },
 
-        mocks: {
-            $tc: key => key,
-            $te: () => {},
-            $device: {
-                onResize: () => {}
-            }
-        },
-
         provide: {
             validationService: {},
             repositoryFactory: {
@@ -52,9 +44,6 @@ function createWrapper(privileges = [], resetError = false) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             },
             excludedSearchTermService: {
                 resetExcludedSearchTerm: jest.fn(() => {

@@ -10,9 +10,7 @@ describe('components/base/sw-empty-state', () => {
                 'sw-icon': true
             },
             mocks: {
-                $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } },
-                $tc: key => key,
-                $sanitize: key => key
+                $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } }
             },
             propsData: {
                 title: 'Oh no, nothing was found.'

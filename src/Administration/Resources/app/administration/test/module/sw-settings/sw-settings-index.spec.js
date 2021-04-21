@@ -105,10 +105,6 @@ function createWrapper(privileges = [
                     return privileges.includes(key);
                 }
             }
-        },
-        mocks: {
-            $tc: (value) => value,
-            $device: { onResize: () => {} }
         }
     });
 }

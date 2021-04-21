@@ -21,9 +21,6 @@ function createWrapper() {
             'sw-cms-el-config-product-listing-config-delete-modal': Shopware.Component.build('sw-cms-el-config-product-listing-config-delete-modal')
         }
     }, {
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-modal': {
                 template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'

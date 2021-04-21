@@ -61,15 +61,11 @@ function createWrapper(privileges = []) {
         localVue,
 
         mocks: {
-            $tc: key => key,
             $route: {
                 query: {
                     page: 1,
                     limit: 25
                 }
-            },
-            $device: {
-                onResize: () => {}
             }
         },
 
@@ -87,10 +83,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
 
         stubs: {

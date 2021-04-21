@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid-settings';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/entity/sw-entity-listing';
@@ -6,9 +6,6 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
 function createWrapper(propsData = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     // mock entity functions
     const items = [
         { name: 'Apple' },
@@ -23,7 +20,6 @@ function createWrapper(propsData = {}) {
     };
 
     return shallowMount(Shopware.Component.build('sw-entity-listing'), {
-        localVue,
         stubs: {
             'sw-data-grid-settings': Shopware.Component.build('sw-data-grid-settings'),
             'sw-button': true,
@@ -36,13 +32,6 @@ function createWrapper(propsData = {}) {
             'sw-context-menu-item': true
         },
         provide: {},
-        mocks: {
-            $tc: t => t,
-            $te: () => true,
-            $device: {
-                onResize: () => {}
-            }
-        },
         propsData: {
             columns: [
                 { property: 'name', label: 'Name' }

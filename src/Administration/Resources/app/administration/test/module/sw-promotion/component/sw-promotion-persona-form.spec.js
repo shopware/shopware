@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion/component/sw-promotion-persona-form';
 import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
 
@@ -7,11 +7,7 @@ import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/sta
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-promotion-persona-form'), {
-        localVue,
         stubs: {
             'sw-entity-single-select': {
                 template: '<div class="sw-entity-single-select"></div>'
@@ -50,9 +46,6 @@ function createWrapper(privileges = []) {
                     } };
                 }
             }
-        },
-        mocks: {
-            $tc: v => v
         },
         propsData: {
             promotion: {

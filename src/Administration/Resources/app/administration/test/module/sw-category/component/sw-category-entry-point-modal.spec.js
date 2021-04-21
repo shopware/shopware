@@ -43,12 +43,6 @@ function createWrapper(privileges = [], additionalSalesChannels = []) {
             'sw-switch-field': true,
             'sw-button': true
         },
-        mocks: {
-            $route: {
-                params: {}
-            },
-            $tc: v => v
-        },
         provide: {
             acl: {
                 can: (identifier) => {
@@ -56,9 +50,6 @@ function createWrapper(privileges = [], additionalSalesChannels = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         },
         propsData: {

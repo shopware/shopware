@@ -8,13 +8,6 @@ function createWrapper(configRecipients = null, privileges = []) {
 
     return shallowMount(Shopware.Component.build('sw-event-action-detail-recipients'), {
         localVue,
-        mocks: {
-            $tc: (translationPath) => translationPath,
-            $te: (translationPath) => translationPath,
-            $device: {
-                onResize: () => {}
-            }
-        },
         stubs: {
             'sw-button': {
                 template: '<button class="sw-button"><slot></slot></button>'

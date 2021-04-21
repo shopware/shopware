@@ -19,12 +19,6 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
             mocks: {
                 $route: {
                     name: 'sw.product.detail.base'
-                },
-                $tc: translationKey => translationKey
-            },
-            provide: {
-                feature: {
-                    isActive: () => true
                 }
             },
 

@@ -11,7 +11,8 @@ module.exports = {
         Shopware: true,
         VueJS: true,
         Cypress: true,
-        cy: true
+        cy: true,
+        autoStub: true
     },
 
     plugins: ['jest'],

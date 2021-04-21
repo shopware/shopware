@@ -14,10 +14,6 @@ function createWrapper() {
             },
             'sw-sales-channel-switch': true
         },
-        mocks: {
-            $tc: v => v,
-            $store: Shopware.State._store
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({

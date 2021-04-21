@@ -10,8 +10,6 @@ function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-cms-detail'), {
         localVue,
         stubs: {
@@ -30,8 +28,6 @@ function createWrapper(privileges = []) {
             'sw-cms-missing-element-modal': true
         },
         mocks: {
-            $store: Shopware.State._store,
-            $tc: (value) => value,
             $route: { params: { id: '1a' } },
             $device: {
                 getSystemKey: () => 'Strg'
@@ -57,9 +53,6 @@ function createWrapper(privileges = []) {
                         save: jest.fn(() => Promise.resolve())
                     };
                 }
-            },
-            feature: {
-                isActive: () => true
             },
             entityFactory: {},
             entityHydrator: {},

@@ -53,9 +53,6 @@ function createWrapper(additionalPromotionData = {}) {
                 }
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             promotion: {
                 name: 'Test Promotion',

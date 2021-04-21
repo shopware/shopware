@@ -100,10 +100,6 @@ function createWrapper() {
                     save: () => Promise.resolve([])
                 })
             }
-        },
-        mocks: {
-            $tc: key => key,
-            $t: key => key
         }
     });
 }

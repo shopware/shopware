@@ -81,7 +81,6 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
             $device: {
                 getSystemKey: () => 'strg'
             }

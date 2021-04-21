@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-property/component/sw-property-option-list';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
@@ -71,22 +71,10 @@ function getOptionRepository() {
 }
 
 function createWrapper() {
-    const localVue = createLocalVue();
-
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-property-option-list'), {
-        localVue,
         propsData: {
             propertyGroup: propertyGroup,
             optionRepository: getOptionRepository()
-        },
-        mocks: {
-            $tc: () => {},
-            $te: () => {},
-            $device: {
-                onResize: () => {}
-            }
         },
         provide: {
             repositoryFactory: {
@@ -99,9 +87,6 @@ function createWrapper() {
             shortcutService: {
                 stopEventListener: () => {},
                 startEventListener: () => {}
-            },
-            acl: {
-                can: key => key
             }
         },
         stubs: {

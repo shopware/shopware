@@ -10,12 +10,6 @@ function createWrapper(privileges = []) {
 
     return shallowMount(Component.build('sw-product-detail-layout'), {
         localVue,
-        mocks: {
-            $t: key => key,
-            $tc: key => key,
-            $router: { push: () => {} },
-            $store: State._store
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({
@@ -41,9 +35,6 @@ function createWrapper(privileges = []) {
                         });
                     }
                 })
-            },
-            feature: {
-                isActive: () => true
             },
             cmsService: {
                 getEntityMappingTypes: () => {}

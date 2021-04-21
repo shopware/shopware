@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-pagination';
@@ -65,18 +65,8 @@ function mockCustomFieldRepository() {
 
 function createWrapper(privileges = []) {
     customFields = mockCustomFieldData();
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-custom-field-list'), {
-        localVue,
-        mocks: {
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => {},
-                onResize: () => {}
-            }
-        },
         propsData: {
             set: set
         },

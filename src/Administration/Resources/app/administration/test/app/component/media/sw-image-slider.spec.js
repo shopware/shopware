@@ -24,9 +24,6 @@ function createWrapper(propsData = {}, listeners = {}) {
         },
         provide: {
         },
-        mocks: {
-            $tc: v => v
-        },
         listeners,
         propsData: {
             ...{

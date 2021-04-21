@@ -24,7 +24,6 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
 
         return shallowMount(Shopware.Component.build('sw-product-deliverability-form'), {
             mocks: {
-                $tc: translationKey => translationKey,
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {

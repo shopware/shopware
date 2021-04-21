@@ -34,7 +34,6 @@ function createWrapper() {
             'sw-product-cross-selling-form': true
         },
         mocks: {
-            $tc: () => {},
             $store: store
         },
         provide: {

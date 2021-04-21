@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion/page/sw-promotion-detail';
 import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
 
@@ -7,9 +7,6 @@ import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/sta
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     const promotionData = {
         name: 'Test Promotion',
         active: true,
@@ -53,7 +50,6 @@ function createWrapper(privileges = []) {
     };
 
     return shallowMount(Shopware.Component.build('sw-promotion-detail'), {
-        localVue,
         stubs: {
             'sw-page': {
                 template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>'
@@ -86,7 +82,6 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
             $device: {
                 getSystemKey: () => 'strg'
             }

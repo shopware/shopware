@@ -13,12 +13,6 @@ function createWrapper(privileges = [], category = {}) {
             'sw-entity-single-select': true,
             'sw-switch-field': true
         },
-        mocks: {
-            $route: {
-                params: {}
-            },
-            $tc: v => v
-        },
         provide: {
             acl: {
                 can: (identifier) => {
@@ -27,11 +21,6 @@ function createWrapper(privileges = [], category = {}) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            },
-            feature: {
-                isActive() {
-                    return true;
                 }
             }
         },

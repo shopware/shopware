@@ -1,26 +1,15 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-currency/page/sw-settings-currency-list';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-settings-currency-list'), {
-        localVue,
         mocks: {
-            $tc: () => {},
             $route: {
                 query: {
                     page: 1,
                     limit: 25
                 }
-            },
-            $router: {
-                replace: () => {}
             }
-            // $device: {
-            //     getSystemKey: () => {}
-            // }
         },
         provide: {
             repositoryFactory: {

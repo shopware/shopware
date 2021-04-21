@@ -27,11 +27,7 @@ function createWrapper() {
             property: 'releaseDate',
             showResetButton: false,
             title: 'Release Date'
-        },
-        mocks: {
-            $tc: key => key
-        },
-        provide: {}
+        }
     });
 }
 

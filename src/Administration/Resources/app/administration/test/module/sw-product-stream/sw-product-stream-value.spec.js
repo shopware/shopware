@@ -20,10 +20,8 @@ function createWrapper(privileges = [], fieldType = null, conditionType = '', en
                     return privileges.includes(identifier);
                 }
             },
-            productCustomFields: [],
-            feature: {
-                isActive: () => true
-            }
+            productCustomFields: []
+
         },
         propsData: {
             definition: {
@@ -35,9 +33,6 @@ function createWrapper(privileges = [], fieldType = null, conditionType = '', en
             condition: {
                 type: conditionType
             }
-        },
-        mocks: {
-            $tc: key => key
         },
         stubs: {
             'sw-container': {

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/page/sw-customer-detail';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-custom-field-set-renderer';
@@ -6,14 +6,8 @@ import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-customer-detail'), {
-        localVue,
         mocks: {
-            $tc: () => {
-            },
             $route: {
                 query: {
                     edit: false,
@@ -22,39 +16,34 @@ function createWrapper(privileges = []) {
                 }
             }
         },
-        provide: {
-            feature: {
-                isActive: () => true
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve({
-                            id: 'test',
-                            requestedGroup: {
-                                translated: {
-                                    name: 'Test'
-                                }
+        provide: { repositoryFactory: {
+            create: () => {
+                return {
+                    get: () => Promise.resolve({
+                        id: 'test',
+                        requestedGroup: {
+                            translated: {
+                                name: 'Test'
                             }
-                        })
-                    };
-                }
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            },
-            customerGroupRegistrationService: {
-                accept: jest.fn().mockResolvedValue(true),
-                decline: jest.fn().mockResolvedValue(true)
-            },
-            systemConfigApiService: {
-                getValues: () => Promise.resolve([])
+                        }
+                    })
+                };
             }
         },
+        acl: {
+            can: (identifier) => {
+                if (!identifier) { return true; }
+
+                return privileges.includes(identifier);
+            }
+        },
+        customerGroupRegistrationService: {
+            accept: jest.fn().mockResolvedValue(true),
+            decline: jest.fn().mockResolvedValue(true)
+        },
+        systemConfigApiService: {
+            getValues: () => Promise.resolve([])
+        } },
         propsData: {
             customerEditMode: false,
             customerId: 'test',

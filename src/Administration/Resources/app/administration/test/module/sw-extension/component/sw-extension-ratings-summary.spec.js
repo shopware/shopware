@@ -22,9 +22,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
                     extensions: []
                 }
             },
-            mocks: {
-                $tc: key => key
-            },
             stubs: {
                 'sw-extension-rating-stars': true,
                 'sw-progress-bar': Shopware.Component.build('sw-progress-bar')

@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import Vue from 'vue';
 import 'src/module/sw-extension/component/sw-extension-file-upload';
 import 'src/app/component/base/sw-button';
 
@@ -8,10 +7,6 @@ const updateExtensionDataSpy = jest.fn();
 
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-extension-file-upload'), {
-        propsData: {},
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-icon': true
@@ -34,9 +29,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     let wrapper;
 
     beforeAll(() => {
-        Shopware.Application.view = {
-            setReactive: Vue.set
-        };
         Shopware.Service().register('shopwareExtensionService', () => {
             return {
                 updateExtensionData: updateExtensionDataSpy

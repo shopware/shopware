@@ -38,11 +38,6 @@ function createWrapper(privileges = []) {
             userService: {
                 getUser: () => Promise.resolve()
             }
-        },
-        mocks: {
-            $tc: v => v
-        },
-        propsData: {
         }
     });
 }

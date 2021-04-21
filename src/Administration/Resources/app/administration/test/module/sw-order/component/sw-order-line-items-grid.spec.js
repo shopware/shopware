@@ -181,9 +181,7 @@ function createWrapper({ privileges = [] }) {
                 }
 
                 return t;
-            },
-            $te: t => t,
-            $device: { onResize: () => {} }
+            }
         }
     });
 }

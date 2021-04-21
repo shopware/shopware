@@ -48,15 +48,11 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: t => t,
             $route: {
                 params: {
                     id: '1a2b3c4d'
                 },
                 name: ''
-            },
-            $device: {
-                getSystemKey: () => {}
             }
         }
     });

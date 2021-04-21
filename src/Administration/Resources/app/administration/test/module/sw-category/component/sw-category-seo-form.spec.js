@@ -1,19 +1,10 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-seo-form';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-
     return shallowMount(Shopware.Component.build('sw-category-seo-form'), {
-        localVue,
         stubs: {
             'sw-field': true
-        },
-        mocks: {
-            $route: {
-                params: {}
-            },
-            $tc: v => v
         },
         provide: {
             acl: {

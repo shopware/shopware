@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-multi-tag-select';
 import 'src/app/component/form/select/base/sw-multi-tag-ip-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -9,11 +9,7 @@ import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/utils/sw-popover';
 
 const createMultiDataIpSelect = (customOptions) => {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-
     const options = {
-        localVue,
         stubs: {
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
@@ -25,7 +21,6 @@ const createMultiDataIpSelect = (customOptions) => {
                 template: '<div></div>'
             }
         },
-        mocks: { $tc: key => key },
         propsData: {
             value: []
         }

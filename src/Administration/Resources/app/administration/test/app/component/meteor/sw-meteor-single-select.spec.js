@@ -47,9 +47,6 @@ function createWrapper(customConfig = {}) {
                 }],
             label: 'Rating'
         },
-        mocks: {
-            $tc: v => v
-        },
         stubs: {
             'sw-icon': true,
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),

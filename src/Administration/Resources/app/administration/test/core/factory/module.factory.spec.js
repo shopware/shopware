@@ -355,7 +355,7 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should add settings item if feature flag is active', () => {
-        Shopware.Feature.init({ testFlag: true });
+        global.activeFeatureFlags = ['testFlag'];
         Shopware.State.get('settingsItems').settingsGroups = {};
 
         register('sw-foo', {
@@ -392,7 +392,7 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should not add settings item if feature flag is deactivated', () => {
-        Shopware.Feature.init({ testFlag: false });
+        global.activeFeatureFlags = [];
         Shopware.State.get('settingsItems').settingsGroups = {};
 
         register('sw-foo', {
@@ -446,8 +446,6 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should allow core modules to create menu entries on first level', () => {
-        Shopware.Feature.isActive = () => true;
-
         // Check a core module without a "parent" in the navigation object
         const coreModule = register('sw-foobar', {
             type: 'core',

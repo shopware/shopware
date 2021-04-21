@@ -136,9 +136,6 @@ function createWrapper(salesChannels = [], privileges = []) {
                     ))
                 })
             }
-        },
-        mocks: {
-            $tc: v => v
         }
     });
 }

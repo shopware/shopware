@@ -8,9 +8,6 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
 
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-first-run-wizard-plugins'), {
-            mocks: {
-                $tc: key => key
-            },
             provide: {
                 recommendationsService: {
                     getRecommendationRegions() {

@@ -1,20 +1,12 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-rating-stars';
 
 function createWrapper(propsData = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-rating-stars'), {
-        localVue,
         stubs: {
             'sw-icon': true
         },
-        provide: {
-        },
-        mocks: {
-            $tc: () => {}
-        },
+        provide: {},
         propsData: {
             ...{
                 value: 3.5

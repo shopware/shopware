@@ -37,13 +37,6 @@ describe('src/module/sw-product/view/sw-product-detail-properties', () => {
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true
             },
-            mocks: {
-                $tc: (translationPath) => translationPath,
-                $device: {
-                    onResize: () => {}
-                },
-                $store: Shopware.State._store
-            },
             provide: {
                 repositoryFactory: {
                     create: (repositoryName) => {

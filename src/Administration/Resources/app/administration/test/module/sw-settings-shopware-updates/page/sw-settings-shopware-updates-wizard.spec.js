@@ -115,18 +115,9 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
 
                         return Promise.reject(error);
                     }
-                },
-                feature: {
-                    isActive: () => true
                 }
             },
             mocks: {
-                $t: () => {},
-                $te: () => {},
-                $tc: () => {},
-                $device: {
-                    onResize: () => {}
-                },
                 $route: {
                     name: '',
                     meta: {

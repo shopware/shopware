@@ -44,14 +44,6 @@ function createWrapper(allowInlineDataMapping = true) {
             'sw-container': Shopware.Component.build('sw-container'),
             'sw-button': Shopware.Component.build('sw-button')
         },
-        mocks: {
-            $tc: key => key,
-            $sanitize: v => v,
-            $device: {
-                onResize: () => {},
-                getViewportWidth: () => 1920
-            }
-        },
         data() {
             return {
                 cmsPageState: {
@@ -64,10 +56,7 @@ function createWrapper(allowInlineDataMapping = true) {
             };
         },
         provide: {
-            validationService: {},
-            feature: {
-                isActive: () => true
-            }
+            validationService: {}
         }
     });
 }

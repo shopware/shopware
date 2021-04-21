@@ -18,9 +18,7 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
     let wrapper;
 
     beforeAll(async () => {
-        Shopware.Feature.init({
-            FEATURE_NEXT_12608: true
-        });
+        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
 
         await import('src/app/component/meteor/sw-meteor-card');
         await import('src/app/component/base/sw-tabs');
@@ -176,11 +174,6 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                 'sw-meteor-card': Shopware.Component.build('sw-meteor-card'),
                 'sw-tabs': Shopware.Component.build('sw-tabs'),
                 'sw-tabs-item': Shopware.Component.build('sw-tabs-item')
-            },
-            mocks: {
-                $device: {
-                    onResize: () => {}
-                }
             }
         });
 
@@ -211,11 +204,6 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                 'sw-meteor-card': Shopware.Component.build('sw-meteor-card'),
                 'sw-tabs': Shopware.Component.build('sw-tabs'),
                 'sw-tabs-item': Shopware.Component.build('sw-tabs-item')
-            },
-            mocks: {
-                $device: {
-                    onResize: () => {}
-                }
             }
         });
 

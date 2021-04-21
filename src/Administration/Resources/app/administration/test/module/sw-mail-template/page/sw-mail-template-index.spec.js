@@ -17,15 +17,11 @@ const createWrapper = (privileges = []) => {
             }
         },
         mocks: {
-            $tc: (translationPath) => translationPath,
             $route: {
                 query: {
                     page: 1,
                     limit: 25
                 }
-            },
-            $router: {
-                replace: () => {}
             }
         },
         stubs: {

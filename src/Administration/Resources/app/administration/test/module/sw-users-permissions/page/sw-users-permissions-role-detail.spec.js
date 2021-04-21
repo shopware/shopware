@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
@@ -19,13 +19,9 @@ function createWrapper({
 }) {
     privilegeMappingEntries.forEach(mappingEntry => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     const $route = options.isNew ? { params: {} } : { params: { id: '12345789' } };
 
     return shallowMount(Shopware.Component.build('sw-users-permissions-role-detail'), {
-        localVue,
         sync: false,
         stubs: {
             'sw-page': { template: `
@@ -48,11 +44,7 @@ function createWrapper({
             'router-view': true
         },
         mocks: {
-            $tc: t => t,
-            $route: $route,
-            $device: {
-                getSystemKey: () => {}
-            }
+            $route: $route
         },
         propsData: {},
         provide: {

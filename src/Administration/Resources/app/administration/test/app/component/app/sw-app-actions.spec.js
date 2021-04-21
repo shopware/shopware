@@ -36,12 +36,8 @@ function createWrapper(router) {
         localVue,
         stubs,
 
-        $store: Shopware.State._store,
         router,
         provide: {
-            feature: {
-                isActive() { return true; }
-            },
             appActionButtonService: {
                 runAction: jest.fn(),
                 getActionButtonsPerView(entity, view) {
@@ -60,9 +56,6 @@ function createWrapper(router) {
                     return Promise.reject(new Error('error occured'));
                 }
             }
-        },
-        mocks: {
-            $tc: (translation) => { return translation; }
         }
     });
 }

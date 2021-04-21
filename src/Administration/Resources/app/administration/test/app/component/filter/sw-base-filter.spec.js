@@ -10,9 +10,6 @@ function createWrapper() {
             title: 'Example Filter',
             showResetButton: false,
             active: true
-        },
-        mocks: {
-            $tc: key => key
         }
     });
 }

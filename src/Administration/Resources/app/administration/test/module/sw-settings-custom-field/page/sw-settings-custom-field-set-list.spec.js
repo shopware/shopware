@@ -39,7 +39,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-custom-field-set-list'), {
         localVue,
         mocks: {
-            $tc: () => {},
             $route: {
                 params: {
                     id: '1234'
@@ -51,13 +50,6 @@ function createWrapper(privileges = []) {
                     sortBy: 'config.name',
                     sortDirection: 'ASC'
                 }
-            },
-            $router: {
-                replace: () => {}
-            },
-            $device: {
-                getSystemKey: () => {},
-                onResize: () => {}
             }
         },
         provide: {
@@ -74,9 +66,6 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             },
             mixins: [
                 Mixin.getByName('notification'),

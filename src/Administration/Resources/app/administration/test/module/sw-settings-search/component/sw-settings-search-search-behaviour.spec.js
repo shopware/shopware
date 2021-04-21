@@ -22,7 +22,6 @@ function createWrapper(privileges = []) {
         },
 
         mocks: {
-            $tc: key => key,
             $route: {
                 query: {
                     page: 1,
@@ -41,10 +40,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
+
         },
 
         stubs: {

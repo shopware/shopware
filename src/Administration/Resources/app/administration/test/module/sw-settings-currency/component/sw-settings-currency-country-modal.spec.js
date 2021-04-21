@@ -12,12 +12,6 @@ function createWrapper() {
                 currencyId: 'currencyId1'
             }
         },
-        mocks: {
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => {}
-            }
-        },
         provide: {
             repositoryFactory: {
                 create: () => {

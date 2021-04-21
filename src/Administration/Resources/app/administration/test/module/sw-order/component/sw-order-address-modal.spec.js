@@ -22,9 +22,6 @@ function createWrapper() {
                 })
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             address: {},
             countries: [],

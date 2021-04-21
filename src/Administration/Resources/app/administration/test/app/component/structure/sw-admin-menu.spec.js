@@ -37,17 +37,7 @@ function createWrapper() {
             'sw-avatar': true,
             'sw-shortcut-overview': true
         },
-        mocks: {
-            $tc: key => key,
-            $device: {
-                onResize: () => {},
-                getViewportWidth: () => {}
-            }
-        },
         provide: {
-            feature: {
-                isActive: () => true
-            },
             menuService,
             loginService: {
                 notifyOnLoginListener: () => {}
@@ -69,8 +59,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     beforeAll(() => {
         Shopware.State.get('session').currentLocale = 'en-GB';
         Shopware.Context.app.fallbackLocale = 'en-GB';
-
-        Shopware.Feature.isActive = () => true;
 
         Shopware.State.registerModule('settingsItems', {
             namespaced: true,

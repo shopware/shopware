@@ -57,16 +57,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         return shallowMount(Shopware.Component.build('sw-product-detail'), {
             localVue,
             mocks: {
-                $store: Shopware.State._store,
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {
                         id: '1234'
                     }
-                },
-                $tc: translationKey => translationKey,
-                $device: {
-                    getSystemKey: () => {}
                 }
             },
             provide: {
@@ -87,9 +82,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             });
                         }
                     })
-                },
-                acl: {
-                    can: () => true
                 }
             },
 

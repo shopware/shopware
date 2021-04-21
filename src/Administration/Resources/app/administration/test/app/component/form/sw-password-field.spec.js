@@ -21,9 +21,6 @@ describe('components/form/sw-password-field', () => {
             },
             provide: {
                 validationService: {}
-            },
-            mocks: {
-                $tc: key => key
             }
         });
     });

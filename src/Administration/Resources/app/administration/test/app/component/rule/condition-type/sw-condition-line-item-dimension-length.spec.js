@@ -36,9 +36,6 @@ describe('components/rule/condition-type/sw-condition-line-item-dimension-length
             },
             propsData: {
                 condition: {}
-            },
-            mocks: {
-                $tc: key => key
             }
         });
     });

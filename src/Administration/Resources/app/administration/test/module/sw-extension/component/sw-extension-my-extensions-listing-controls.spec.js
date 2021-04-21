@@ -15,9 +15,6 @@ describe('src/Administration/Resources/app/administration/src/module/sw-extensio
 
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-extension-my-extensions-listing-controls'), {
-            mocks: {
-                $tc: key => key
-            },
             stubs: {
                 'sw-switch-field': Shopware.Component.build('sw-switch-field'),
                 'sw-base-field': Shopware.Component.build('sw-base-field'),

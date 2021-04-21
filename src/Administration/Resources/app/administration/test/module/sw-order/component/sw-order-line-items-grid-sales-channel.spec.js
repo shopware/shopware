@@ -126,9 +126,6 @@ function createWrapper() {
         }
     });
 
-    localVue.filter('asset', key => key);
-    localVue.filter('currency', key => key);
-
     return shallowMount(Shopware.Component.build('sw-order-line-items-grid-sales-channel'), {
         localVue,
         propsData: {
@@ -162,9 +159,7 @@ function createWrapper() {
                 }
 
                 return t;
-            },
-            $te: t => t,
-            $device: { onResize: key => key }
+            }
         }
     });
 }

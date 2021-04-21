@@ -9,11 +9,7 @@ describe('app/component/utils/sw-shortcut-overview', () => {
             stubs: {
                 'sw-modal': true,
                 'sw-shortcut-overview-item': true
-            },
-            mocks: {
-                $tc: (t) => t
-            },
-            provide: {}
+            }
         });
     });
 

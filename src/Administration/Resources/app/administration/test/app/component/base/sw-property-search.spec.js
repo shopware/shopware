@@ -42,10 +42,6 @@ function createWrapper() {
                 template: '<div class="checkbox"></div>'
             }
         },
-        mocks: {
-            $tc: (translationPath) => translationPath,
-            $device: { onResize: () => {} }
-        },
         provide: {
             validationService: {},
             repositoryFactory: {

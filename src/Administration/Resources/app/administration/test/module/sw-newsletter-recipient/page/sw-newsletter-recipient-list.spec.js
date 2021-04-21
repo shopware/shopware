@@ -143,21 +143,6 @@ function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: (type) => new MockRepositoryFactory(type)
             }
-        },
-        mocks: {
-            $tc: v => v,
-            $te: v => v,
-            $route: {},
-            $router: {
-                replace: () => {
-                }
-            },
-            $device: {
-                onResize: () => {
-                },
-                getSystemKey: () => {
-                }
-            }
         }
     });
 }

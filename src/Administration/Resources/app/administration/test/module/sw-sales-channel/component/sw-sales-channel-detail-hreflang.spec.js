@@ -8,9 +8,6 @@ function createWrapper(customProps = {}) {
             'sw-switch-field': true,
             'sw-entity-single-select': true
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             salesChannel: {
                 hreflangActive: true

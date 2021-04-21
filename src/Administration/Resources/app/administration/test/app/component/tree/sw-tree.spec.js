@@ -22,7 +22,6 @@ function createWrapper() {
             'sw-tree-item': Shopware.Component.build('sw-tree-item')
         },
         mocks: {
-            $tc: v => v,
             $route: {
                 params: [
                     { id: null }

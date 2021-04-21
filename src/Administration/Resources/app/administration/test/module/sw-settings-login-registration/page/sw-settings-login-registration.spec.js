@@ -15,21 +15,15 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-settings-login-registration'), {
         localVue,
         mocks: {
-            $tc: () => {},
             $route: {
                 meta: {}
             }
         },
-        provide: {
-            feature: {
-                isActive: () => true
-            },
-            systemConfigApiService: {
-                getConfig: () => Promise.resolve({
-                    'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel': true
-                })
-            }
-        },
+        provide: { systemConfigApiService: {
+            getConfig: () => Promise.resolve({
+                'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel': true
+            })
+        } },
         stubs: {
             'sw-page': {
                 template: `

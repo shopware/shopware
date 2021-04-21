@@ -52,12 +52,7 @@ const createWrapper = (privileges = []) => {
             }
         },
         mocks: {
-            $tc: (translationPath) => translationPath,
-            $router: { replace: () => {} },
-            $route: { params: { id: Shopware.Utils.createId() } },
-            $device: {
-                getSystemKey: () => 'CTRL'
-            }
+            $route: { params: { id: Shopware.Utils.createId() } }
         },
         stubs: {
             'sw-page': {

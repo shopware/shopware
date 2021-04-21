@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-promotion/component/sw-promotion-individualcodes';
 import 'src/app/component/form/sw-field';
@@ -13,11 +13,7 @@ import 'src/app/component/base/sw-button';
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-promotion-individualcodes'), {
-        localVue,
         stubs: {
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'

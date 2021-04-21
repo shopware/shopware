@@ -14,17 +14,19 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-el-image'), {
         localVue,
         sync: false,
-        provide: { cmsService: {
-            getCmsBlockRegistry: () => {
-                return {};
-            },
-            getCmsElementRegistry: () => {
-                return { image: {} };
-            },
-            getPropertyByMappingPath: () => {
-                return {};
+        provide: {
+            cmsService: {
+                getCmsBlockRegistry: () => {
+                    return {};
+                },
+                getCmsElementRegistry: () => {
+                    return { image: {} };
+                },
+                getPropertyByMappingPath: () => {
+                    return {};
+                }
             }
-        } },
+        },
         propsData: {
             element: {
                 config: {},

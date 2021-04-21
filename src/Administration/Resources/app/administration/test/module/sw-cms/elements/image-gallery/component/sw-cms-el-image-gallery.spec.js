@@ -34,17 +34,19 @@ function createWrapper(propsOverride, dataOverride) {
     return shallowMount(Shopware.Component.build('sw-cms-el-image-gallery'), {
         localVue,
         sync: false,
-        provide: { cmsService: {
-            getCmsBlockRegistry: () => {
-                return {};
-            },
-            getCmsElementRegistry: () => {
-                return { 'image-gallery': {} };
-            },
-            getPropertyByMappingPath: () => {
-                return {};
+        provide: {
+            cmsService: {
+                getCmsBlockRegistry: () => {
+                    return {};
+                },
+                getCmsElementRegistry: () => {
+                    return { 'image-gallery': {} };
+                },
+                getPropertyByMappingPath: () => {
+                    return {};
+                }
             }
-        } },
+        },
         stubs: {
             'sw-cms-el-image-slider': true,
             'sw-media-list-selection-item-v2': true,

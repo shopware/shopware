@@ -44,14 +44,16 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-el-image-slider'), {
         localVue,
         sync: false,
-        provide: { cmsService: {
-            getCmsBlockRegistry: () => {
-                return {};
-            },
-            getCmsElementRegistry: () => {
-                return { 'image-slider': {} };
+        provide: {
+            cmsService: {
+                getCmsBlockRegistry: () => {
+                    return {};
+                },
+                getCmsElementRegistry: () => {
+                    return { 'image-slider': {} };
+                }
             }
-        } },
+        },
         stubs: {
             'sw-icon': true
         },

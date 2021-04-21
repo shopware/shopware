@@ -47,22 +47,24 @@ function createWrapper(customCmsElementConfig) {
             'sw-alert': true,
             'sw-icon': true
         },
-        provide: { cmsService: {
-            getCmsBlockRegistry: () => {
-                return {};
+        provide: {
+            cmsService: {
+                getCmsBlockRegistry: () => {
+                    return {};
+                },
+                getCmsElementRegistry: () => {
+                    return {};
+                }
             },
-            getCmsElementRegistry: () => {
-                return {};
+            repositoryFactory: {
+                create: () => {
+                    return {
+                        get: () => Promise.resolve(productMock),
+                        search: () => Promise.resolve(productMock)
+                    };
+                }
             }
-        },
-        repositoryFactory: {
-            create: () => {
-                return {
-                    get: () => Promise.resolve(productMock),
-                    search: () => Promise.resolve(productMock)
-                };
-            }
-        } }
+        }
     });
 }
 

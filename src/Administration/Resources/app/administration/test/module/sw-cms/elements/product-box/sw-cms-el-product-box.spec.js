@@ -46,16 +46,18 @@ function createWrapper() {
                 }
             };
         },
-        provide: { cmsService: {
-            getCmsElementRegistry: () => {
-                return { 'product-box': {
-                    defaultData: {
-                        boxLayout: 'standard',
-                        product: null
-                    }
-                } };
+        provide: {
+            cmsService: {
+                getCmsElementRegistry: () => {
+                    return { 'product-box': {
+                        defaultData: {
+                            boxLayout: 'standard',
+                            product: null
+                        }
+                    } };
+                }
             }
-        } }
+        }
     });
 }
 

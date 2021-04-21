@@ -24,21 +24,23 @@ function createWrapper(activeTab = 'content') {
     return shallowMount(Shopware.Component.build('sw-cms-el-config-image-gallery'), {
         localVue,
         sync: false,
-        provide: { cmsService: {
-            getCmsBlockRegistry: () => {
-                return {};
+        provide: {
+            cmsService: {
+                getCmsBlockRegistry: () => {
+                    return {};
+                },
+                getCmsElementRegistry: () => {
+                    return { 'image-gallery': {} };
+                }
             },
-            getCmsElementRegistry: () => {
-                return { 'image-gallery': {} };
+            repositoryFactory: {
+                create: () => {
+                    return {
+                        search: () => Promise.resolve(mediaDataMock)
+                    };
+                }
             }
         },
-        repositoryFactory: {
-            create: () => {
-                return {
-                    search: () => Promise.resolve(mediaDataMock)
-                };
-            }
-        } },
         stubs: {
             'sw-tabs': {
                 data() {

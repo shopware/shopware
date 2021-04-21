@@ -12,14 +12,16 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-el-product-description-reviews'), {
         localVue,
         sync: false,
-        provide: { cmsService: {
-            getCmsBlockRegistry: () => {
-                return {};
-            },
-            getCmsElementRegistry: () => {
-                return { 'product-description-reviews': {} };
+        provide: {
+            cmsService: {
+                getCmsBlockRegistry: () => {
+                    return {};
+                },
+                getCmsElementRegistry: () => {
+                    return { 'product-description-reviews': {} };
+                }
             }
-        } },
+        },
         propsData: {
             element: {
                 config: {},

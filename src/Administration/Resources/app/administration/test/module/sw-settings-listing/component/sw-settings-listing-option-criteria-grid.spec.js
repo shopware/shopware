@@ -28,7 +28,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         return shallowMount(Shopware.Component.build('sw-settings-listing-option-criteria-grid'), {
             localVue,
             provide: {
-                next5983: true,
                 repositoryFactory: {
                     create: repository => {
                         if (repository === 'custom_field_set_relation') {

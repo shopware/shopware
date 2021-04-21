@@ -555,6 +555,7 @@
 
         <service id="Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListRoute"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
     </services>

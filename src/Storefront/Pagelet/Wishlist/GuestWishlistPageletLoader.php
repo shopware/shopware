@@ -4,11 +4,13 @@ namespace Shopware\Storefront\Pagelet\Wishlist;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -20,11 +22,15 @@ class GuestWishlistPageletLoader
 
     private AbstractProductListRoute $productListRoute;
 
+    private SystemConfigService $systemConfigService;
+
     public function __construct(
         AbstractProductListRoute $productListRoute,
+        SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->productListRoute = $productListRoute;
+        $this->systemConfigService = $systemConfigService;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -32,7 +38,7 @@ class GuestWishlistPageletLoader
     {
         $page = new GuestWishlistPagelet();
 
-        $criteria = $this->createCriteria($request);
+        $criteria = $this->createCriteria($request, $context);
         $this->eventDispatcher->dispatch(new GuestWishListPageletProductCriteriaEvent($criteria, $context, $request));
 
         if (empty($criteria->getIds())) {
@@ -55,7 +61,7 @@ class GuestWishlistPageletLoader
         return $page;
     }
 
-    private function createCriteria(Request $request): Criteria
+    private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
         $criteria = new Criteria();
 
@@ -72,9 +78,17 @@ class GuestWishlistPageletLoader
         $criteria->setLimit(self::LIMIT);
         $criteria->setIds($productIds);
 
-        return $criteria
-            ->addAssociation('manufacturer')
+        $criteria->addAssociation('manufacturer')
             ->addAssociation('options.group')
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        if ($this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addFilter(new ProductCloseoutFilter());
+        }
+
+        return $criteria;
     }
 }

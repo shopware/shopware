@@ -67,9 +67,7 @@
 
                 {{ block('component_product_box_price') }}
 
-                {% block component_product_box_action %}
-                    {% sw_include '@Storefront/storefront/component/wishlist/card/action.html.twig' %}
-                {% endblock %}
+                {{ block('component_product_box_action') }}
             </div>
         {% endblock %}
     </div>

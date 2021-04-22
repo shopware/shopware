@@ -11,6 +11,12 @@ For a complete list of breaking changes please refer to the [bc changelog](/chan
 The minimum required PHP version for Shopware 6.4.0.0 is now PHP 7.4.
 Please make sure, that your system has at least this PHP version activated.
 
+We've also added support for PHP 8.0. While Shopware is de-facto ready for PHP 8.0,
+some dependencies do not support PHP 8.0 in their `composer.json` in theory.
+Until these dependencies add official PHP 8.0 support in their `composer.json`, 
+we decided to set the `config.platform.php` of the development root composer.json to `7.4.0`.
+This is to prevent composer failing to update dependencies, because of PHP version constraints.
+
 ---
 
 ## Sodium is now a requirement

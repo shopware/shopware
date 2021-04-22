@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,8 +51,10 @@ class PromotionController extends AbstractController
      */
     public function generateIndividualCodes(Request $request): Response
     {
-        /** @var string $codePattern */
         $codePattern = $request->query->get('codePattern');
+        if ($codePattern === null) {
+            throw new MissingRequestParameterException('codePattern');
+        }
         $amount = (int) $request->query->get('amount');
 
         return new JsonResponse($this->codeService->generateIndividualCodes($codePattern, $amount));
@@ -101,8 +104,10 @@ class PromotionController extends AbstractController
      */
     public function getCodePreview(Request $request): Response
     {
-        /** @var string $codePattern */
         $codePattern = $request->query->get('codePattern');
+        if ($codePattern === null) {
+            throw new MissingRequestParameterException('codePattern');
+        }
 
         return new JsonResponse($this->codeService->getPreview($codePattern));
     }

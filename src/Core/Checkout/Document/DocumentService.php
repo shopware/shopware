@@ -258,8 +258,10 @@ class DocumentService
 
         $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest);
 
-        /** @var string $fileName */
         $fileName = $uploadedFileRequest->query->get('fileName');
+        if ($fileName === null) {
+            throw new DocumentGenerationException('Parameter "fileName" is missing');
+        }
 
         $mediaService = $this->mediaService;
         $mediaId = null;

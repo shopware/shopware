@@ -2,6 +2,7 @@ const { Application } = Shopware;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 const { warn } = Shopware.Utils.debug;
+const types = Shopware.Utils.types;
 
 Application.addServiceProvider('cmsDataResolverService', () => {
     return {
@@ -37,6 +38,12 @@ function resolve(page) {
                     slotEntityList[slot.id] = slotData;
                 }
             });
+
+            /**
+             * We're only getting existing slots from the server.
+             * When a block was updated with new fields they are not included, so we need to create them.
+             */
+            initMissingSlots(cmsService, block, repoFactory);
         });
     });
 
@@ -85,6 +92,39 @@ function initSlotDefaultData(slot) {
     const defaultData = slotConfig.defaultData || {};
 
     slot.data = merge(cloneDeep(defaultData), slot.data || {});
+}
+
+function initMissingSlots(cmsService, block, repoFactory) {
+    const cmsBlocks = cmsService.getCmsBlockRegistry();
+    const slotRepository = repoFactory.create('cms_slot');
+
+    const blockConfig = cmsBlocks[block.type];
+    const existingSlots = new Set();
+
+    block.slots.forEach((slot) => existingSlots.add(slot.slot));
+
+    Object.keys(blockConfig.slots).forEach((slotName) => {
+        if (existingSlots.has(slotName)) {
+            return;
+        }
+
+        const slotConfig = blockConfig.slots[slotName];
+        const element = slotRepository.create(Shopware.Context.api);
+        element.blockId = block.id;
+        element.slot = slotName;
+
+        if (typeof slotConfig === 'string') {
+            element.type = slotConfig;
+        } else if (types.isPlainObject(slotConfig)) {
+            element.type = slotConfig.type;
+
+            if (slotConfig.default && types.isPlainObject(slotConfig.default)) {
+                Object.assign(element, cloneDeep(slotConfig.default));
+            }
+        }
+
+        block.slots.add(element);
+    });
 }
 
 function optimizeCriteriaObjects(slotEntityCollection) {

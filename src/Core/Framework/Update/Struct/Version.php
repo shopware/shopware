@@ -27,7 +27,7 @@ class Version extends Struct
     public $uri;
 
     /**
-     * @var int
+     * @var string
      */
     public $size;
 

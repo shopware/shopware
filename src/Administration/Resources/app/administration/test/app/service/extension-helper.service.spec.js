@@ -13,15 +13,13 @@ describe('src/app/service/extension-helper.service.js', () => {
 
     beforeEach(() => {
         extensionHelperService = new ExtensionHelperService({
-            storeService: {
-                downloadPlugin: jest.fn(() => Promise.resolve())
-            },
             extensionStoreActionService: {
                 getMyExtensions: () => {
                     return Promise.resolve([
                         extensionMock
                     ]);
                 },
+                downloadExtension: jest.fn(() => Promise.resolve()),
                 installExtension: jest.fn(() => Promise.resolve()),
                 activateExtension: jest.fn(() => Promise.resolve())
             }
@@ -33,21 +31,24 @@ describe('src/app/service/extension-helper.service.js', () => {
         {
             name: 'SwagDummyExtension',
             installedAt: null,
-            active: null
+            active: null,
+            source: 'local'
         },
         {
             name: 'SwagDummyExtension',
             installedAt: {
                 date: '2021-01-02 09:59:46.324000'
             },
-            active: null
+            active: null,
+            source: 'local'
         },
         {
             name: 'SwagDummyExtension',
             installedAt: {
                 date: '2021-01-02 09:59:46.324000'
             },
-            active: true
+            active: true,
+            source: 'local'
         }
     ].forEach((mock) => {
         // eslint-disable-next-line max-len
@@ -57,9 +58,9 @@ describe('src/app/service/extension-helper.service.js', () => {
             await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');
 
             if (!mock) {
-                expect(extensionHelperService.storeService.downloadPlugin).toHaveBeenCalled();
+                expect(extensionHelperService.extensionStoreActionService.downloadExtension).toHaveBeenCalled();
             } else {
-                expect(extensionHelperService.storeService.downloadPlugin).not.toHaveBeenCalled();
+                expect(extensionHelperService.extensionStoreActionService.downloadExtension).not.toHaveBeenCalled();
             }
 
             if (!mock || !mock.installedAt) {

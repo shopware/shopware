@@ -2,7 +2,7 @@ const { Application } = Shopware;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 const { warn } = Shopware.Utils.debug;
-const types = Shopware.Utils.types;
+import { initMissingSlots } from '../util/create-slots';
 
 Application.addServiceProvider('cmsDataResolverService', () => {
     return {
@@ -92,42 +92,6 @@ function initSlotDefaultData(slot) {
     const defaultData = slotConfig.defaultData || {};
 
     slot.data = merge(cloneDeep(defaultData), slot.data || {});
-}
-
-function initMissingSlots(block) {
-    repoFactory = repoFactory || Shopware.Service('repositoryFactory');
-    cmsService = cmsService || Shopware.Service('cmsService');
-
-    const cmsBlocks = cmsService.getCmsBlockRegistry();
-    const slotRepository = repoFactory.create('cms_slot');
-
-    const blockConfig = cmsBlocks[block.type];
-    const existingSlots = new Set();
-
-    block.slots.forEach((slot) => existingSlots.add(slot.slot));
-
-    Object.keys(blockConfig.slots).forEach((slotName) => {
-        if (existingSlots.has(slotName)) {
-            return;
-        }
-
-        const slotConfig = blockConfig.slots[slotName];
-        const element = slotRepository.create(Shopware.Context.api);
-        element.blockId = block.id;
-        element.slot = slotName;
-
-        if (typeof slotConfig === 'string') {
-            element.type = slotConfig;
-        } else if (types.isPlainObject(slotConfig)) {
-            element.type = slotConfig.type;
-
-            if (slotConfig.default && types.isPlainObject(slotConfig.default)) {
-                Object.assign(element, cloneDeep(slotConfig.default));
-            }
-        }
-
-        block.slots.add(element);
-    });
 }
 
 function optimizeCriteriaObjects(slotEntityCollection) {

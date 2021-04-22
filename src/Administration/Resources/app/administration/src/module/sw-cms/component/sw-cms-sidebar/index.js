@@ -1,10 +1,10 @@
 import template from './sw-cms-sidebar.html.twig';
 import './sw-cms-sidebar.scss';
+import { createSlotFromConfig } from '../../util/create-slots';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const types = Shopware.Utils.types;
 
 
 Component.register('sw-cms-sidebar', {
@@ -302,21 +302,8 @@ Component.register('sw-cms-sidebar', {
 
             Object.keys(blockConfig.slots).forEach((slotName) => {
                 const slotConfig = blockConfig.slots[slotName];
-                const element = this.slotRepository.create(Shopware.Context.api);
-                element.blockId = newBlock.id;
-                element.slot = slotName;
-
-                if (typeof slotConfig === 'string') {
-                    element.type = slotConfig;
-                } else if (types.isPlainObject(slotConfig)) {
-                    element.type = slotConfig.type;
-
-                    if (slotConfig.default && types.isPlainObject(slotConfig.default)) {
-                        Object.assign(element, cloneDeep(slotConfig.default));
-                    }
-                }
-
-                newBlock.slots.add(element);
+                const slotElement = createSlotFromConfig(this.slotRepository, newBlock.id, slotName, slotConfig);
+                newBlock.slots.add(slotElement);
             });
 
             this.page.sections[section.position].blocks.splice(dropData.dropIndex, 0, newBlock);

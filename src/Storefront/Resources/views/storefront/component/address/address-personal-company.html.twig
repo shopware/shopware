@@ -2,7 +2,7 @@
     {% set accountTypeRequired = config('core.loginRegistration.showAccountTypeSelection') %}
 
     {% if accountTypeRequired or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}
-        <div class="{% if prefix == "shippingAddress" or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
+        <div class="{% if hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} d-none{% endif %}">
             {% block component_address_form_company_fields %}
                 <div class="form-row">
                     {% block component_address_form_company_name %}
@@ -16,7 +16,7 @@
                             {% block component_address_form_company_name_label %}
                                 <label class="form-label"
                                        for="{{ prefix }}company">
-                                    {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if prefix != "shippingAddress" and accountTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
+                                    {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if accountTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
                                 </label>
                             {% endblock %}
 
@@ -27,7 +27,7 @@
                                        placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                        name="{{ prefix }}[company]"
                                        value="{{ address.get('company') }}"
-                                       {% if prefix != "shippingAddress" and accountTypeRequired %}required="required"{% endif %}>
+                                       {% if accountTypeRequired %}required="required"{% endif %}>
                             {% endblock %}
 
                             {% block component_address_form_company_name_input_error %}
@@ -72,11 +72,13 @@
                     {% endblock %}
 
                     {% block component_address_form_company_vatId %}
-                        <div class="form-group col-md-6">
-                            {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
-                                'vatIds': data.get('vatIds')
-                            } %}
-                        </div>
+                        {% if prefix != 'shippingAddress' %}
+                            <div class="form-group col-md-6">
+                                {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                    'vatIds': data.get('vatIds')
+                                } %}
+                            </div>
+                        {% endif %}
                     {% endblock %}
                 </div>
             {% endblock %}

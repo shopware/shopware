@@ -306,8 +306,17 @@
                                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                                             'prefix': 'shippingAddress',
                                                             'data': data.get('shippingAddress'),
-                                                            'hideCustomerTypeSelect': true,
+                                                            'hideCustomerTypeSelect': false,
+                                                            'customToggleTarget': true,
                                                             'accountType': data.get('accountType')
+                                                        } %}
+                                                    {% endblock %}
+
+                                                    {% block component_account_register_address_shipping_fields_company %}
+                                                        {% sw_include '@Storefront/storefront/component/address/address-personal-company.html.twig' with {
+                                                            'prefix': 'shippingAddress',
+                                                            'customToggleTarget': true,
+                                                            'address': data.get('shippingAddress')
                                                         } %}
                                                     {% endblock %}
 

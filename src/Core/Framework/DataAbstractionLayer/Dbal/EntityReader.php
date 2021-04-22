@@ -987,13 +987,35 @@ class EntityReader implements EntityReaderInterface
         $fields = $referenceDefinition->getFields()->getBasicFields();
         $fields = $this->addAssociationFieldsToCriteria($associationCriteria, $referenceDefinition, $fields);
 
-        $this->fetchAssociations(
-            $associationCriteria,
-            $referenceDefinition,
-            $context,
-            new $collectionClass($related),
-            $fields
-        );
+        /** @var EntityCollection $related */
+        // This line removes duplicate entries, so after fetchAssociations the association must be reassigned
+        $related = new $collectionClass($related);
+
+        $this->fetchAssociations($associationCriteria, $referenceDefinition, $context, $related, $fields);
+
+        /** @var Entity $entity */
+        foreach ($collection as $entity) {
+            if ($association->is(Extension::class)) {
+                $item = $entity->getExtension($association->getPropertyName());
+            } else {
+                $item = $entity->get($association->getPropertyName());
+            }
+
+            /** @var Entity|null $item */
+            if ($item === null) {
+                continue;
+            }
+
+            if ($association->is(Extension::class)) {
+                $entity->addExtension($association->getPropertyName(), $related->get($item->getUniqueIdentifier()));
+
+                continue;
+            }
+
+            $entity->assign([
+                $association->getPropertyName() => $related->get($item->getUniqueIdentifier()),
+            ]);
+        }
     }
 
     private function fetchAssociations(

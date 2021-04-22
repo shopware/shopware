@@ -57,6 +57,20 @@
                 :delay=1000
                 :disabled="!isSearchEnable"
                 @search-term-change="searchOnStorefront">
+
+                {% block sw_settings_search_view_live_search_search_icon_wrapper %}
+                    <template #sw-simple-search-field-icon>
+                        {% block sw_settings_search_view_live_search_search_icon %}
+                            <sw-icon
+                                class="sw-settings-search-live-search__search-icon"
+                                name="small-search"
+                                small
+                                @click="searchOnStorefront"
+                            ></sw-icon>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
             </sw-simple-search-field>
         {% endblock %}
 

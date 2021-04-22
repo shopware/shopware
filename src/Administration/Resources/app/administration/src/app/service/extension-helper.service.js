@@ -21,7 +21,7 @@ export default class ExtensionHelperService {
     }
 
     downloadStoreExtension(extensionName) {
-        return this.storeService.downloadPlugin(extensionName, true, true);
+        return this.extensionStoreActionService.downloadExtension(extensionName);
     }
 
     installStoreExtension(extensionName, type) {
@@ -45,7 +45,7 @@ export default class ExtensionHelperService {
         }
 
         return {
-            downloaded: true,
+            downloaded: extension.source === 'local',
             installedAt: extension.installedAt,
             active: extension.active
         };

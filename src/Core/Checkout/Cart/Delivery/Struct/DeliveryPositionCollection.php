@@ -90,6 +90,17 @@ class DeliveryPositionCollection extends Collection
         return array_sum($quantities);
     }
 
+    public function getWithoutDeliveryFree(): DeliveryPositionCollection
+    {
+        return $this->filter(function (DeliveryPosition $position) {
+            if ($position->getLineItem()->getDeliveryInformation() !== null && !$position->getLineItem()->getDeliveryInformation()->getFreeDelivery()) {
+                return $position;
+            }
+
+            return null;
+        });
+    }
+
     public function getApiAlias(): string
     {
         return 'cart_delivery_position_collection';

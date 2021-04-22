@@ -158,19 +158,19 @@ class DeliveryCalculator
 
         switch ($shippingMethodPrice->getCalculation()) {
             case self::CALCULATION_BY_PRICE:
-                $value = $delivery->getPositions()->getPrices()->sum()->getTotalPrice();
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->sum()->getTotalPrice();
 
                 break;
             case self::CALCULATION_BY_LINE_ITEM_COUNT:
-                $value = $delivery->getPositions()->getQuantity();
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getQuantity();
 
                 break;
             case self::CALCULATION_BY_WEIGHT:
-                $value = $delivery->getPositions()->getWeight();
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getWeight();
 
                 break;
             default:
-                $value = $delivery->getPositions()->getLineItems()->getPrices()->sum()->getTotalPrice() / 100;
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->sum()->getTotalPrice() / 100;
 
                 break;
         }

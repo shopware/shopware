@@ -94,7 +94,37 @@ class DeliveryPositionCollectionTest extends TestCase
         static::assertEquals(100, $deliveryPositionCollection->getWeight());
     }
 
-    private function getLineItem(float $weight = 10.0, int $quantity = 1): LineItem
+    public function testCalculateWithoutFreeDelivery(): void
+    {
+        $deliveryPositionCollection = new DeliveryPositionCollection();
+
+        $lineItem1 = $this->getLineItem(10, 2);
+        $lineItem2 = $this->getLineItem(20, 4, false);
+
+        $deliveryPositionCollection->add(
+            new DeliveryPosition(
+                Uuid::randomHex(),
+                $lineItem1,
+                $lineItem1->getQuantity(),
+                $lineItem1->getPrice(),
+                $this->createMock(DeliveryDate::class)
+            )
+        );
+
+        $deliveryPositionCollection->add(
+            new DeliveryPosition(
+                Uuid::randomHex(),
+                $lineItem2,
+                $lineItem2->getQuantity(),
+                $lineItem2->getPrice(),
+                $this->createMock(DeliveryDate::class)
+            )
+        );
+
+        static::assertEquals(80, $deliveryPositionCollection->getWithoutDeliveryFree()->getWeight());
+    }
+
+    private function getLineItem(float $weight = 10.0, int $quantity = 1, bool $freeDelivery = true): LineItem
     {
         return (new LineItem(Uuid::randomHex(), 'product', null, $quantity))
             ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -102,7 +132,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 new DeliveryInformation(
                     $quantity,
                     $weight,
-                    true
+                    $freeDelivery
                 )
             );
     }

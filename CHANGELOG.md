@@ -335,6 +335,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14820 - Fix cms saving in category module](/changelog/release-6-4-0-0/2021-04-19-fix-cms-saving-in-category-module.md)
 *  [NEXT-14845 - Use repository in global admin search](/changelog/release-6-4-0-0/2021-04-19-use-repository-instead-of-non-existing-service-in-global-admin-search.md)
 *  [NEXT-14896 - Remove bearerAuth cookie without domain also on logout](/changelog/release-6-4-0-0/2021-04-21-remove-bearerauth-cookie-without-domain-also-on-logout.md)
+*  [NEXT-14918 - Load administration even if plugin js does not exist](/changelog/release-6-4-0-0/2021-01-15-prevent-missing-plugin-file-from-crashing-administration.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

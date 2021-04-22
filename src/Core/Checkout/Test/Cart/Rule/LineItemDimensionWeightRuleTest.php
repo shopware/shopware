@@ -87,6 +87,9 @@ class LineItemDimensionWeightRuleTest extends TestCase
             'match / operator lower than equals / lower weight' => [Rule::OPERATOR_LTE, 100, 50, true],
             'match / operator lower than equals / same weight' => [Rule::OPERATOR_LTE, 100, 100, true],
             'no match / operator lower than equals / higher weight' => [Rule::OPERATOR_LTE, 100, 200, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / null weight' => [Rule::OPERATOR_EMPTY, 100, 0, true],
+            'no match / operator empty / weight' => [Rule::OPERATOR_EMPTY, 100, 200, false],
         ];
     }
 
@@ -175,6 +178,10 @@ class LineItemDimensionWeightRuleTest extends TestCase
             'match / operator lower than equals / lower weight' => [Rule::OPERATOR_LTE, 100, 50, 120, true],
             'match / operator lower than equals / same weight' => [Rule::OPERATOR_LTE, 100, 100, 120, true],
             'no match / operator lower than equals / higher weight' => [Rule::OPERATOR_LTE, 100, 200, 120, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / null weight 1' => [Rule::OPERATOR_EMPTY, 100, 0, 120, true],
+            'match / operator empty / null weight 2' => [Rule::OPERATOR_EMPTY, 100, 100, 0, true],
+            'no match / operator empty / weight' => [Rule::OPERATOR_EMPTY, 100, 200, 120, false],
         ];
     }
 

@@ -40,7 +40,10 @@ class BillingZipCodeRule extends Rule
         }
 
         $zipCode = $customer->getActiveBillingAddress()->getZipcode();
-        $this->zipCodes = array_map('strtolower', $this->zipCodes);
+
+        if ($this->zipCodes !== null) {
+            $this->zipCodes = array_map('strtolower', $this->zipCodes);
+        }
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
@@ -49,6 +52,9 @@ class BillingZipCodeRule extends Rule
             case self::OPERATOR_NEQ:
                 return !\in_array(mb_strtolower($zipCode), $this->zipCodes, true);
 
+            case self::OPERATOR_EMPTY:
+                return empty(trim($zipCode));
+
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
@@ -56,10 +62,20 @@ class BillingZipCodeRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'zipCodes' => [new NotBlank(), new ArrayOfType('string')],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+        $constraints = [
+            'operator' => [
+                new NotBlank(),
+                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
+            ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['zipCodes'] = [new NotBlank(), new ArrayOfType('string')];
+
+        return $constraints;
     }
 
     public function getName(): string

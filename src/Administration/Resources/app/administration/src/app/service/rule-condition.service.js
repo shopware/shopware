@@ -53,6 +53,10 @@ export default function createConditionService() {
             identifier: true,
             label: 'global.sw-condition.operator.net',
         },
+        empty: {
+            identifier: 'empty',
+            label: 'global.sw-condition.operator.empty',
+        },
     };
     const operatorSets = {
         defaultSet: [
@@ -96,6 +100,9 @@ export default function createConditionService() {
             operators.gross,
             operators.net,
         ],
+        empty: [
+            operators.empty,
+        ],
         zipCode: [
             operators.isOneOf,
             operators.greaterThan,
@@ -135,6 +142,7 @@ export default function createConditionService() {
         isOrContainer,
         getPlaceholderData,
         getComponentByCondition,
+        addEmptyOperatorToOperatorSet,
     };
 
     function getByType(type) {
@@ -152,6 +160,10 @@ export default function createConditionService() {
 
     function getOperatorSet(operatorSetName) {
         return operatorSets[operatorSetName];
+    }
+
+    function addEmptyOperatorToOperatorSet(operatorSet) {
+        return operatorSet.concat(operatorSets.empty);
     }
 
     function getOperatorSetByComponent(component) {

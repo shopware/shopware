@@ -14,9 +14,17 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-last-name', 'sw-condition-base', {
     template,
 
+    data() {
+        return {
+            inputKey: 'lastName',
+        };
+    },
+
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('string');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('string'),
+            );
         },
 
         lastName: {

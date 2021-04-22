@@ -14,9 +14,17 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
     template,
 
+    data() {
+        return {
+            inputKey: 'zipCodes',
+        };
+    },
+
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('zipCode');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('zipCode'),
+            );
         },
 
         zipCodes: {

@@ -9,6 +9,7 @@
 
     {% block sw_condition_line_item_dimension_length_field_amount %}
     <sw-number-field
+        v-if="!isEmpty"
         v-model="amount"
         number-type="float"
         size="medium"

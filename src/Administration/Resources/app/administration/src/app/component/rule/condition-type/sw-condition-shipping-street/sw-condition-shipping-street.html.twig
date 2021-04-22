@@ -9,6 +9,7 @@
 
     {% block sw_condition_shipping_street_field_street_name %}
     <sw-text-field
+        v-if="!isEmpty"
         v-model="streetName"
         size="medium"
         :disabled="disabled"

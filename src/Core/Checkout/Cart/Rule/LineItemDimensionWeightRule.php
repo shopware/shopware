@@ -52,8 +52,7 @@ class LineItemDimensionWeightRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'amount' => [new NotBlank(), new Type('numeric')],
+        $constraints = [
             'operator' => [
                 new NotBlank(),
                 new Choice(
@@ -64,10 +63,19 @@ class LineItemDimensionWeightRule extends Rule
                         self::OPERATOR_EQ,
                         self::OPERATOR_GT,
                         self::OPERATOR_LT,
+                        self::OPERATOR_EMPTY,
                     ]
                 ),
             ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['amount'] = [new NotBlank(), new Type('numeric')];
+
+        return $constraints;
     }
 
     /**
@@ -103,6 +111,9 @@ class LineItemDimensionWeightRule extends Rule
 
             case self::OPERATOR_NEQ:
                 return FloatComparator::notEquals($weight, $this->amount);
+
+            case self::OPERATOR_EMPTY:
+                return empty($weight);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

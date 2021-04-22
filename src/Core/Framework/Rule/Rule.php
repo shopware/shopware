@@ -18,6 +18,8 @@ abstract class Rule extends Struct
 
     public const OPERATOR_NEQ = '!=';
 
+    public const OPERATOR_EMPTY = 'empty';
+
     /**
      * @var string
      */

@@ -50,6 +50,7 @@ class LineItemReleaseDateRuleTest extends TestCase
             Rule::OPERATOR_EQ,
             Rule::OPERATOR_GT,
             Rule::OPERATOR_LT,
+            Rule::OPERATOR_EMPTY,
         ];
 
         $ruleConstraints = $this->rule->getConstraints();
@@ -86,6 +87,9 @@ class LineItemReleaseDateRuleTest extends TestCase
             'LTE - positive 1' => [true, '2020-02-05 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LTE],
             'LTE - positive 2' => [true, '2020-02-06 02:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LTE],
             'LTE - negative' => [false, '2020-02-07 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LTE],
+            'EMPTY - negative' => [false, '2020-02-07 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_LTE],
+            'EMPTY - negative 2' => [false, '2020-02-07 00:00:00', null, Rule::OPERATOR_EMPTY],
+            'EMPTY - positive' => [true, null, '2020-02-06 02:00:00', Rule::OPERATOR_EMPTY],
         ];
     }
 
@@ -95,7 +99,7 @@ class LineItemReleaseDateRuleTest extends TestCase
      *
      * @dataProvider getMatchValues
      */
-    public function testRuleMatching(bool $expected, string $itemReleased, string $ruleDate, string $operator): void
+    public function testRuleMatching(bool $expected, ?string $itemReleased, ?string $ruleDate, string $operator): void
     {
         $this->rule->assign(['lineItemReleaseDate' => $ruleDate, 'operator' => $operator]);
 
@@ -214,8 +218,12 @@ class LineItemReleaseDateRuleTest extends TestCase
         ];
     }
 
-    private function createLineItemWithReleaseDate(string $releaseDate): LineItem
+    private function createLineItemWithReleaseDate(?string $releaseDate): LineItem
     {
+        if ($releaseDate === null) {
+            $this->createLineItem();
+        }
+
         return ($this->createLineItem())->setPayloadValue(self::PAYLOAD_KEY, $releaseDate);
     }
 }

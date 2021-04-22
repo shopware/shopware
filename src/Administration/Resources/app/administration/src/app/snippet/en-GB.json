@@ -525,7 +525,8 @@
         "isOneOf": "Is one of",
         "isNoneOf": "Is none of",
         "gross": "Gross",
-        "net": "Net"
+        "net": "Net",
+        "empty": "Is empty"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",

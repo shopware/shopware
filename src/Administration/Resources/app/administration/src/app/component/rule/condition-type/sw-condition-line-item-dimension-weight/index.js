@@ -6,9 +6,17 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-line-item-dimension-weight', 'sw-condition-base', {
     template,
 
+    data() {
+        return {
+            inputKey: 'amount',
+        };
+    },
+
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('number');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('number'),
+            );
         },
 
         amount: {

@@ -67,12 +67,23 @@ Component.register('sw-condition-base', {
 
             return component === 'sw-condition-not-found';
         },
+
+        operator() {
+            return this.condition.value?.operator ?? null;
+        },
+
+        isEmpty() {
+            return this.operator === this.conditionDataProviderService.getOperatorSet('empty')[0].identifier;
+        },
     },
 
     watch: {
         value() {
             if (this.hasError) {
                 this.$store.commit('error/removeApiError', { expression: this.valueErrorPath });
+            }
+            if (this.isEmpty && !!this.inputKey) {
+                this.$delete(this.condition.value, this.inputKey);
             }
         },
     },

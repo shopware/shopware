@@ -525,7 +525,8 @@
         "isOneOf": "Ist eine von",
         "isNoneOf": "Ist keine von",
         "gross": "Brutto",
-        "net": "Netto"
+        "net": "Netto",
+        "empty": "Ist leer"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",

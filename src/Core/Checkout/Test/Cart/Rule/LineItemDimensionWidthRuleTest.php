@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @group rules
@@ -46,7 +49,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         float $amount,
-        float $lineItemAmount,
+        ?float $lineItemAmount,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -87,6 +90,9 @@ class LineItemDimensionWidthRuleTest extends TestCase
             'match / operator lower than equals / lower width' => [Rule::OPERATOR_LTE, 100, 50, true],
             'match / operator lower than equals / same width' => [Rule::OPERATOR_LTE, 100, 100, true],
             'no match / operator lower than equals / higher width' => [Rule::OPERATOR_LTE, 100, 200, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / null width' => [Rule::OPERATOR_EMPTY, 100, null, true],
+            'no match / operator empty / width' => [Rule::OPERATOR_EMPTY, 100, 200, false],
         ];
     }
 
@@ -96,8 +102,8 @@ class LineItemDimensionWidthRuleTest extends TestCase
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
         float $amount,
-        float $lineItemAmount1,
-        float $lineItemAmount2,
+        ?float $lineItemAmount1,
+        ?float $lineItemAmount2,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -126,8 +132,8 @@ class LineItemDimensionWidthRuleTest extends TestCase
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
         float $amount,
-        float $lineItemAmount1,
-        float $lineItemAmount2,
+        ?float $lineItemAmount1,
+        ?float $lineItemAmount2,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -139,6 +145,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
             $this->createLineItemWithWidth($lineItemAmount1),
             $this->createLineItemWithWidth($lineItemAmount2),
         ]);
+
         $containerLineItem = $this->createContainerLineItem($lineItemCollection);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
@@ -176,6 +183,10 @@ class LineItemDimensionWidthRuleTest extends TestCase
             'match / operator lower than equals / lower width' => [Rule::OPERATOR_LTE, 100, 50, 120, true],
             'match / operator lower than equals / same width' => [Rule::OPERATOR_LTE, 100, 100, 120, true],
             'no match / operator lower than equals / higher width' => [Rule::OPERATOR_LTE, 100, 200, 120, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / lower width' => [Rule::OPERATOR_EMPTY, 100, null, 120, true],
+            'match / operator empty / same width' => [Rule::OPERATOR_EMPTY, 100, 100, null, true],
+            'no match / operator empty / higher width' => [Rule::OPERATOR_EMPTY, 100, 200, 120, false],
         ];
     }
 
@@ -194,7 +205,33 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    private function createLineItemWithWidth(float $width): LineItem
+    public function testConstraints(): void
+    {
+        $expectedOperators = [
+            Rule::OPERATOR_NEQ,
+            Rule::OPERATOR_GTE,
+            Rule::OPERATOR_LTE,
+            Rule::OPERATOR_EQ,
+            Rule::OPERATOR_GT,
+            Rule::OPERATOR_LT,
+            Rule::OPERATOR_EMPTY,
+        ];
+
+        $ruleConstraints = $this->rule->getConstraints();
+
+        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
+        $operators = $ruleConstraints['operator'];
+        static::assertEquals(new NotBlank(), $operators[0]);
+        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+
+        $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
+        static::assertArrayHasKey('amount', $ruleConstraints, 'Constraint amount not found in Rule');
+        $amount = $ruleConstraints['amount'];
+        static::assertEquals(new NotBlank(), $amount[0]);
+        static::assertEquals(new Type('numeric'), $amount[1]);
+    }
+
+    private function createLineItemWithWidth(?float $width): LineItem
     {
         return $this->createLineItemWithDeliveryInfo(false, 1, 50.0, null, $width);
     }

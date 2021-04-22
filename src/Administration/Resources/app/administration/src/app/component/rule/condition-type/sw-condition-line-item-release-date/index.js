@@ -16,12 +16,15 @@ Component.extend('sw-condition-line-item-release-date', 'sw-condition-base', {
                 dateFormat: 'H:i',
                 altFormat: 'H:i',
             },
+            inputKey: 'lineItemReleaseDate',
         };
     },
 
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('date');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('date'),
+            );
         },
 
         lineItemReleaseDate: {

@@ -48,6 +48,9 @@ class BillingCountryRule extends Rule
             case self::OPERATOR_NEQ:
                 return !\in_array($id, $this->countryIds, true);
 
+            case self::OPERATOR_EMPTY:
+                return empty($id);
+
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
@@ -55,10 +58,20 @@ class BillingCountryRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'countryIds' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+        $constraints = [
+            'operator' => [
+                new NotBlank(),
+                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
+            ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['countryIds'] = [new NotBlank(), new ArrayOfUuid()];
+
+        return $constraints;
     }
 
     public function getName(): string

@@ -9,6 +9,7 @@
 
     {% block sw_condition_days_since_last_order_field_days_passed %}
     <sw-number-field
+        v-if="!isEmpty"
         v-model="daysPassed"
         name="daysPassed"
         :step="1"

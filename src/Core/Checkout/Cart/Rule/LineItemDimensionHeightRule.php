@@ -52,8 +52,7 @@ class LineItemDimensionHeightRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'amount' => [new NotBlank(), new Type('numeric')],
+        $constraints = [
             'operator' => [
                 new NotBlank(),
                 new Choice(
@@ -64,10 +63,19 @@ class LineItemDimensionHeightRule extends Rule
                         self::OPERATOR_EQ,
                         self::OPERATOR_GT,
                         self::OPERATOR_LT,
+                        self::OPERATOR_EMPTY,
                     ]
                 ),
             ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['amount'] = [new NotBlank(), new Type('numeric')];
+
+        return $constraints;
     }
 
     /**
@@ -84,7 +92,7 @@ class LineItemDimensionHeightRule extends Rule
         $height = $deliveryInformation->getHeight();
 
         if ($height === null) {
-            return false;
+            return $this->operator === self::OPERATOR_EMPTY;
         }
 
         $this->amount = (float) $this->amount;
@@ -107,6 +115,9 @@ class LineItemDimensionHeightRule extends Rule
 
             case self::OPERATOR_NEQ:
                 return FloatComparator::notEquals($height, $this->amount);
+
+            case self::OPERATOR_EMPTY:
+                return false;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

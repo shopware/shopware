@@ -57,7 +57,7 @@ class DaysSinceLastOrderRule extends Rule
         $lastOrderDate = $customer->getLastOrderDate();
 
         if ($lastOrderDate === null) {
-            return false;
+            return $this->operator === self::OPERATOR_EMPTY;
         }
 
         $interval = $lastOrderDate->diff($currentDate);
@@ -97,6 +97,8 @@ class DaysSinceLastOrderRule extends Rule
                 return $interval->days > $this->daysPassed;
             case self::OPERATOR_GTE:
                 return $interval->days >= $this->daysPassed;
+            case self::OPERATOR_EMPTY:
+                return false;
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
@@ -104,8 +106,7 @@ class DaysSinceLastOrderRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'daysPassed' => [new NotBlank(), new Type('int')],
+        $constraints = [
             'operator' => [
                 new NotBlank(),
                 new Choice(
@@ -116,9 +117,18 @@ class DaysSinceLastOrderRule extends Rule
                         self::OPERATOR_NEQ,
                         self::OPERATOR_GT,
                         self::OPERATOR_LT,
+                        self::OPERATOR_EMPTY,
                     ]
                 ),
             ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['daysPassed'] = [new NotBlank(), new Type('int')];
+
+        return $constraints;
     }
 }

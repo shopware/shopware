@@ -13,6 +13,7 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base', 
     data() {
         return {
             manufacturers: null,
+            inputKey: 'manufacturerIds',
         };
     },
 
@@ -22,7 +23,9 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base', 
         },
 
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('multiStore');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
         },
 
         manufacturerIds: {

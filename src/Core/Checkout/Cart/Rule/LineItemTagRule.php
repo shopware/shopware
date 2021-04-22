@@ -53,10 +53,20 @@ class LineItemTagRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+        $constraints = [
+            'operator' => [
+                new NotBlank(),
+                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
+            ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['identifiers'] = [new NotBlank(), new ArrayOfUuid()];
+
+        return $constraints;
     }
 
     private function lineItemMatches(LineItem $lineItem): bool
@@ -68,15 +78,17 @@ class LineItemTagRule extends Rule
 
     private function tagsMatches(array $tags): bool
     {
-        if ($this->identifiers === null) {
+        if ($this->identifiers === null && $this->operator !== self::OPERATOR_EMPTY) {
             return false;
         }
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return !empty(array_intersect($tags, $this->identifiers));
+                return $this->identifiers && !empty(array_intersect($tags, $this->identifiers));
             case self::OPERATOR_NEQ:
-                return empty(array_intersect($tags, $this->identifiers));
+                return $this->identifiers && empty(array_intersect($tags, $this->identifiers));
+            case self::OPERATOR_EMPTY:
+                return empty($tags);
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }

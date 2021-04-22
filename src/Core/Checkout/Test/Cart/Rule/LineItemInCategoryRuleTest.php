@@ -11,7 +11,10 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @group rules
@@ -68,6 +71,8 @@ class LineItemInCategoryRuleTest extends TestCase
             'single product / equal / match category id' => [['1', '2'], Rule::OPERATOR_EQ, ['1'], true],
             'single product / equal / no match' => [['1', '2'], Rule::OPERATOR_EQ, ['3'], false],
             'single product / not equal / match category id' => [['1', '2'], Rule::OPERATOR_NEQ, ['3'], true],
+            'single product / empty / match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, [], true],
+            'single product / empty / no match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, ['3'], false],
         ];
     }
 
@@ -136,6 +141,8 @@ class LineItemInCategoryRuleTest extends TestCase
             'multiple products / equal / no match' => [['4', '5'], Rule::OPERATOR_EQ, ['2'], false],
             'multiple products / not equal / match category id' => [['5', '6'], Rule::OPERATOR_NEQ, ['2'], true],
             'multiple products / not equal / no match category id' => [['1', '2'], Rule::OPERATOR_NEQ, ['2'], false],
+            'multiple products / empty / match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, [], true],
+            'multiple products / empty / no match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, ['2'], false],
         ];
     }
 
@@ -152,6 +159,28 @@ class LineItemInCategoryRuleTest extends TestCase
             $this->createLineItemWithCategories(['3']),
             $this->createMock(SalesChannelContext::class)
         ));
+    }
+
+    public function testConstraints(): void
+    {
+        $expectedOperators = [
+            Rule::OPERATOR_EQ,
+            Rule::OPERATOR_NEQ,
+            Rule::OPERATOR_EMPTY,
+        ];
+
+        $ruleConstraints = $this->rule->getConstraints();
+
+        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
+        $operators = $ruleConstraints['operator'];
+        static::assertEquals(new NotBlank(), $operators[0]);
+        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+
+        $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
+        static::assertArrayHasKey('categoryIds', $ruleConstraints, 'Constraint categoryIds not found in Rule');
+        $categoryIds = $ruleConstraints['categoryIds'];
+        static::assertEquals(new NotBlank(), $categoryIds[0]);
+        static::assertEquals(new ArrayOfUuid(), $categoryIds[1]);
     }
 
     private function createLineItemWithCategories(array $categoryIds): LineItem

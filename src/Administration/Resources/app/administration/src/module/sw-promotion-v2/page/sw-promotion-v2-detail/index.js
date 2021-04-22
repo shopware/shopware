@@ -156,12 +156,6 @@ Component.register('sw-promotion-v2-detail', {
                     // Needed to enrich the VueX state below
                     this.promotion.hasOrders = (promotion.orderCount !== null) ? promotion.orderCount > 0 : false;
 
-                    this.promotion.discounts.forEach((discount) => {
-                        if (discount.type === 'percentage' && discount.value === 100 && discount.maxValue === null) {
-                            discount.type = 'free';
-                        }
-                    });
-
                     Shopware.State.commit('swPromotionDetail/setPromotion', this.promotion);
                 }).finally(() => {
                     this.isLoading = false;
@@ -214,11 +208,6 @@ Component.register('sw-promotion-v2-detail', {
                 this.promotion.code = '';
             }
 
-            const stateDiscounts = Shopware.State.get('swPromotionDetail').discounts;
-            if (stateDiscounts) {
-                this.promotion.discounts = stateDiscounts;
-            }
-
             if (this.promotion.discounts) {
                 this.promotion.discounts.forEach((discount) => {
                     if (discount.type === 'free') {
@@ -237,7 +226,6 @@ Component.register('sw-promotion-v2-detail', {
                 })
                 .then(() => {
                     Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
-                    Shopware.State.commit('swPromotionDetail/setDiscounts', null);
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {

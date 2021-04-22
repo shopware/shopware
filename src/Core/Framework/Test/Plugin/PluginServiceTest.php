@@ -26,6 +26,7 @@ use SwagTestNoDefaultLang\SwagTestNoDefaultLang;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class PluginServiceTest extends TestCase
 {

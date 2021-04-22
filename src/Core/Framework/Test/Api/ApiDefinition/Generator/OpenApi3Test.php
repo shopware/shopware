@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class OpenApi3Test extends TestCase
 {

@@ -63,7 +63,7 @@
             <argument type="service" id="shopware.store_client"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Store\Services\StoreService">
+        <service id="Shopware\Core\Framework\Store\Services\StoreService" lazy="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%kernel.shopware_version%</argument>
             <argument>%instance_id%</argument>
@@ -73,8 +73,7 @@
 
         <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">
             <argument type="collection">
-                <argument>%kernel.project_dir%/vendor/shopware/platform/src/Core/Framework/Store/public.key</argument>
-                <argument>%kernel.project_dir%/vendor/shopware/core/Framework/Store/public.key</argument>
+                <argument>%kernel.shopware_core_dir%/Framework/Store/public.key</argument>
             </argument>
         </service>
 
@@ -188,7 +187,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
         </service>
 
-        <service id="shopware.store_client" class="GuzzleHttp\Client">
+        <service id="shopware.store_client" class="GuzzleHttp\Client" lazy="true">
             <factory service="Shopware\Core\Framework\Store\Services\StoreClientFactory" method="create"/>
         </service>
 

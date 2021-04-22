@@ -577,7 +577,7 @@ class PluginLifecycleService
         $tmpStaticPluginLoader = new StaticKernelPluginLoader($pluginLoader->getClassLoader(), $pluginDir, $plugins);
         $kernel->reboot(null, $tmpStaticPluginLoader);
 
-        // If symfony throws an exception when calling getContainer on an not booted kernel and catch it here
+        // If symfony throws an exception when calling getContainer on a not booted kernel and catch it here
         /** @var ContainerInterface|null $newContainer */
         $newContainer = $kernel->getContainer();
         if (!$newContainer) {

@@ -29,10 +29,15 @@ class ServiceDefinitionTest extends TestCase
 
     public function testEverythingIsInstantiatable(): void
     {
-        $seperateKernel = KernelLifecycleManager::createKernel(TestKernel::class);
-        $seperateKernel->boot();
+        $separateKernel = KernelLifecycleManager::createKernel(
+            TestKernel::class,
+            true,
+            'h8f3f0ee9c61829627676afd6294bb029',
+            $this->getKernel()->getProjectDir()
+        );
+        $separateKernel->boot();
 
-        $testContainer = $seperateKernel->getContainer()->get('test.service_container');
+        $testContainer = $separateKernel->getContainer()->get('test.service_container');
 
         static::assertIsObject($testContainer);
 
@@ -41,7 +46,7 @@ class ServiceDefinitionTest extends TestCase
             try {
                 $testContainer->get($serviceId);
             } catch (\Throwable $t) {
-                $errors[] = $serviceId;
+                $errors[] = $serviceId . ':' . $t->getMessage();
             }
         }
 

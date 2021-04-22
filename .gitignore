@@ -30,6 +30,7 @@ Thumbs.db
 /public/*
 !/public/index.php
 !/public/.htaccess
+!/public/.htaccess.dist
 /public/css/*
 !/public/css/
 !/public/css/.gitkeep
@@ -70,6 +71,7 @@ src/Docs/Command/wiki.secret
 /.psh.yaml.override
 /.psh.yml.override
 /.env
+.env.local
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 /src/Docs/**/dist
@@ -97,3 +99,8 @@ src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 ###< symfony/framework-bundle ###
 
 .gitkeep
+config/jwt/
+public
+custom
+install.lock
+docker-compose.override.yaml

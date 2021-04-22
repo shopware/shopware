@@ -18,6 +18,8 @@ class MailerTransportFactoryTest extends TestCase
 
         $factory = $this->getContainer()->get('mailer.transport_factory');
 
+        $_SERVER['MAILER_URL'] = 'smtp://example.com:1025';
+
         $mailer = $factory->create(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => null,

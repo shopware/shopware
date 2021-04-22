@@ -14,6 +14,9 @@ use SwagExampleTest\SwagExampleTest;
 use SwagInvalidTest\SwagInvalidTest;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
+/**
+ * @group skip-paratest
+ */
 class ConfigurationServiceInFlagTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -70,6 +70,9 @@ use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group skip-paratest
+ */
 class ElasticsearchProductTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;

@@ -9,6 +9,9 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group skip-paratest
+ */
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

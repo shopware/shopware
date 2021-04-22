@@ -23,6 +23,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class SeoUrlTest extends TestCase
 {

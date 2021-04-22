@@ -132,7 +132,8 @@
         "symfony/var-dumper": "~5.2.3",
         "symfony/stopwatch": "~5.2.3",
         "symfony/web-profiler-bundle": "~5.2.3",
-        "symfony/dom-crawler": "~5.2.3"
+        "symfony/dom-crawler": "~5.2.3",
+        "brianium/paratest": "^6.2"
     },
     "conflict": {
         "symfony/symfony": "*"

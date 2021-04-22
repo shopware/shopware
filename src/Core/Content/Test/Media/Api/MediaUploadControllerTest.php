@@ -105,9 +105,6 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromURL(): void
     {
-        $target = $this->getContainer()->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
-        copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
-
         $baseUrl = 'http://assets.shopware.com/sw_logo_white.png';
 
         $url = sprintf(
@@ -115,21 +112,17 @@ class MediaUploadControllerTest extends TestCase
             $this->mediaId
         );
 
-        try {
-            $this->getBrowser()->request(
-                'POST',
-                $url . '?extension=png',
-                [],
-                [],
-                [
-                    'HTTP_CONTENT-TYPE' => 'application/json',
-                ],
-                json_encode(['url' => $baseUrl])
-            );
-            $response = $this->getBrowser()->getResponse();
-        } finally {
-            unlink($target);
-        }
+        $this->getBrowser()->request(
+            'POST',
+            $url . '?extension=png',
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'application/json',
+            ],
+            json_encode(['url' => $baseUrl])
+        );
+        $response = $this->getBrowser()->getResponse();
 
         $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
 

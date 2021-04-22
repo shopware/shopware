@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -16,8 +15,6 @@ use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippetSet;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
-use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class SnippetFileLoaderTest extends TestCase
 {
@@ -234,16 +231,5 @@ class SnippetFileLoaderTest extends TestCase
         static::assertEquals('en-GB', $snippetFile->getIso());
         static::assertEquals('Plugin Manufacturer', $snippetFile->getAuthor());
         static::assertTrue($snippetFile->isBase());
-    }
-}
-
-/**
- * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
- */
-class MockedKernel extends Kernel
-{
-    public function __construct(array $bundles)
-    {
-        $this->bundles = $bundles;
     }
 }

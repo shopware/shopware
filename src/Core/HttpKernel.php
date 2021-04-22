@@ -214,7 +214,7 @@ class HttpKernel
             }
 
             $dir = $rootDir = \dirname($dir);
-            while (!file_exists($dir . '/composer.json')) {
+            while (!file_exists($dir . '/vendor')) {
                 if ($dir === \dirname($dir)) {
                     return $this->projectDir = $rootDir;
                 }

@@ -44,13 +44,13 @@ class LanguageRouteTest extends TestCase
                     'languageId' => $this->ids->get('language'),
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'http://localhost',
+                    'url' => 'http://example.com',
                 ],
                 [
                     'languageId' => $this->ids->get('language2'),
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'http://localhost/second',
+                    'url' => 'http://example.com/second',
                 ],
             ],
         ]);

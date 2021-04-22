@@ -43,9 +43,9 @@ describe('Promotion: Visual tests', () => {
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
-            method: 'post'
-        }).as('saveDiscount');
+            url: `${Cypress.env('apiPath')}/promotion/**`,
+            method: 'patch'
+        }).as('patchPromotion');
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
@@ -100,7 +100,7 @@ describe('Promotion: Visual tests', () => {
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@saveDiscount').then((xhr) => {
+        cy.wait('@patchPromotion').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
 

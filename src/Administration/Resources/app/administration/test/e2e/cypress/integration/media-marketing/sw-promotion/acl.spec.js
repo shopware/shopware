@@ -63,9 +63,9 @@ describe('Promotion: Test ACL privileges', () => {
 
     it('@acl: can edit promotion', () => {
         cy.route({
-            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
-            method: 'post'
-        }).as('saveDiscount');
+            url: `${Cypress.env('apiPath')}/promotion/**`,
+            method: 'patch'
+        }).as('patchPromotion');
 
         const page = new ProductPageObject();
 
@@ -115,7 +115,7 @@ describe('Promotion: Test ACL privileges', () => {
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@saveDiscount').then((xhr) => {
+        cy.wait('@patchPromotion').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
 

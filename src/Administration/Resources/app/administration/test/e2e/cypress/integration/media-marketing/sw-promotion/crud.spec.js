@@ -40,9 +40,9 @@ describe('Promotion: Test crud operations', () => {
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
-            method: 'post'
-        }).as('saveDiscount');
+            url: `${Cypress.env('apiPath')}/promotion/**`,
+            method: 'patch'
+        }).as('patchPromotion');
 
         cy.get('a[href="#/sw/promotion/create"]').click();
 
@@ -86,7 +86,7 @@ describe('Promotion: Test crud operations', () => {
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@saveDiscount').then((xhr) => {
+        cy.wait('@patchPromotion').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
 

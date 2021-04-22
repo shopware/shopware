@@ -1,7 +1,7 @@
 import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
-import { initMissingSlots } from '../../../sw-cms/util/create-slots'
+import { initMissingSlots } from '../../../sw-cms/util/create-slots';
 
 const { Component, Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;

@@ -1,8 +1,9 @@
+import { initMissingSlots } from '../util/create-slots';
+
 const { Application } = Shopware;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 const { warn } = Shopware.Utils.debug;
-import { initMissingSlots } from '../util/create-slots';
 
 Application.addServiceProvider('cmsDataResolverService', () => {
     return {

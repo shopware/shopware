@@ -215,7 +215,7 @@ Component.register('sw-extension-card-base', {
 
         async closeModalAndRemoveExtension() {
             // we close the modal in the called methods before updating the listing
-            if (this.extension.storeLicense === null) {
+            if (this.extension.storeLicense === null || this.extension.storeLicense.variant !== 'rent') {
                 await this.removeExtension();
                 this.showRemovalModal = false;
 

@@ -175,7 +175,7 @@
                 <sw-extension-removal-modal
                     v-if="showRemovalModal"
                     :extensionName="extension.label"
-                    :isLicensed="extension.storeLicense !== null"
+                    :isLicensed="extension.storeLicense !== null && extension.storeLicense.variant === 'rent'"
                     :isLoading="isLoading"
                     @modal-close="closeRemovalModal"
                     @remove-extension="closeModalAndRemoveExtension">

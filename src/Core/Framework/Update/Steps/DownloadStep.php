@@ -34,7 +34,7 @@ class DownloadStep
         }
 
         if (is_file($this->destination) && filesize($this->destination) > 0) {
-            return new FinishResult($offset, $this->version->size);
+            return new FinishResult($offset, (int) $this->version->size);
         }
 
         $download = new Download();
@@ -43,8 +43,8 @@ class DownloadStep
             return microtime(true) - $startTime > 10;
         });
 
-        $offset = $download->downloadFile($this->version->uri, $this->destination, ($this->version->size), $this->version->sha1);
+        $offset = $download->downloadFile($this->version->uri, $this->destination, (int) ($this->version->size), $this->version->sha1);
 
-        return new ValidResult($offset, ($this->version->size));
+        return new ValidResult($offset, (int) ($this->version->size));
     }
 }

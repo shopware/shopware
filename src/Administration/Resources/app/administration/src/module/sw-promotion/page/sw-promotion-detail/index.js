@@ -112,7 +112,7 @@ Component.register('sw-promotion-detail', {
         },
 
         discounts() {
-            return Shopware.State.get('swPromotionDetail').discounts;
+            return Shopware.State.get('swPromotionDetail').promotion.discounts;
         },
 
         personaCustomerIdsAdd() {
@@ -270,7 +270,7 @@ Component.register('sw-promotion-detail', {
                 throw error;
             }
 
-            const discounts = this.discounts === null ? this.promotion.discounts : this.discounts;
+            const discounts = this.discounts;
             const discountRepository = this.repositoryFactory.create(
                 discounts.entity,
                 discounts.source

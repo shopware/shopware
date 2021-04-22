@@ -7,7 +7,6 @@ export default {
     state() {
         return {
             promotion: null,
-            discounts: null,
             personaCustomerIdsAdd: null,
             personaCustomerIdsDelete: null,
             setGroupIdsDelete: [],
@@ -18,10 +17,6 @@ export default {
     mutations: {
         setPromotion(state, promotion) {
             state.promotion = promotion;
-        },
-
-        setDiscounts(state, discounts) {
-            state.discounts = discounts;
         },
 
         setPersonaCustomerIdsAdd(state, customerIds) {

@@ -43,7 +43,7 @@ function resolve(page) {
              * We're only getting existing slots from the server.
              * When a block was updated with new fields they are not included, so we need to create them.
              */
-            initMissingSlots(cmsService, block, repoFactory);
+            initMissingSlots(block);
         });
     });
 
@@ -94,7 +94,10 @@ function initSlotDefaultData(slot) {
     slot.data = merge(cloneDeep(defaultData), slot.data || {});
 }
 
-function initMissingSlots(cmsService, block, repoFactory) {
+function initMissingSlots(block) {
+    repoFactory = repoFactory || Shopware.Service('repositoryFactory');
+    cmsService = cmsService || Shopware.Service('cmsService');
+
     const cmsBlocks = cmsService.getCmsBlockRegistry();
     const slotRepository = repoFactory.create('cms_slot');
 

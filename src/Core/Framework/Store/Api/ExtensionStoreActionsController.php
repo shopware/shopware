@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
-use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ExtensionStoreActionsController extends AbstractController
 {
-    private ExtensionLifecycleService $extensionLifecycleService;
+    private AbstractExtensionLifecycle $extensionLifecycleService;
 
     private ExtensionDownloader $extensionDownloader;
 
@@ -34,7 +34,7 @@ class ExtensionStoreActionsController extends AbstractController
     private PluginManagementService $pluginManagementService;
 
     public function __construct(
-        ExtensionLifecycleService $extensionLifecycleService,
+        AbstractExtensionLifecycle $extensionLifecycleService,
         ExtensionDownloader $extensionDownloader,
         PluginService $pluginService,
         PluginManagementService $pluginManagementService

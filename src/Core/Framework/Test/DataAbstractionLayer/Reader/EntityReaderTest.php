@@ -7,25 +7,31 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
 class EntityReaderTest extends TestCase
@@ -1843,5 +1849,46 @@ class EntityReaderTest extends TestCase
         }
 
         static::assertInstanceOf(ParentAssociationCanNotBeFetched::class, $exception);
+    }
+
+    public function testLoadToOneWithToMany(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'product-1'))
+                ->price(100)
+                ->category('test-1')
+                ->build(),
+            (new ProductBuilder($ids, 'product-2'))
+                ->price(100)
+                ->category('test-2')
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, $ids->getContext());
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('translations.language.categoryTranslations');
+
+        $products = $this->getContainer()->get('product.repository')->search($criteria, $ids->getContext());
+
+        /** @var ProductEntity $product */
+        foreach ($products as $product) {
+            static::assertInstanceOf(EntityCollection::class, $product->getTranslations());
+            static::assertTrue($product->getTranslations()->count() > 0);
+
+            $first = $product->getTranslations()->first();
+
+            static::assertInstanceOf(ProductTranslationEntity::class, $first);
+
+            static::assertInstanceOf(LanguageEntity::class, $first->getLanguage());
+
+            static::assertInstanceOf(CategoryTranslationCollection::class, $first->getLanguage()->getCategoryTranslations());
+
+            $translations = $first->getLanguage()->getCategoryTranslations();
+
+            static::assertTrue($translations->count() >= 2);
+        }
     }
 }

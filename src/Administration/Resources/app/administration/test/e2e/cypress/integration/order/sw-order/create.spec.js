@@ -411,11 +411,6 @@ describe('Order: Create order', () => {
             method: 'post'
         }).as('savePromotion');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
-            method: 'post'
-        }).as('saveDiscount');
-
         // Create promotion
         cy.get('.sw-promotion-v2-detail').should('be.visible');
         cy.get('#sw-field--promotion-name').typeAndCheck('New year promotion');
@@ -462,9 +457,14 @@ describe('Order: Create order', () => {
             .clear()
             .type('10');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/promotion/**`,
+            method: 'patch'
+        }).as('patchPromotion');
+
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.wait('@saveDiscount').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@patchPromotion').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
 
         // Verify promotion in Administration

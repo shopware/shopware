@@ -71,10 +71,6 @@ describe('Product: Edit property assignment', () => {
                             optionId: '3ecc7075aaad49c69c013cb1e58bfc4e'
                         },
                         {
-                            id: 'f4fe600c00e64da4941726183dc2da83',
-                            optionId: 'f1d2554b0ce847cd82f3ac9bd1c0dfba'
-                        },
-                        {
                             id: '39efd9cadee44eb8a63fa3c211b823a5',
                             optionId: '98a3f7d70c4542cbaee991ed16913ef8'
                         },

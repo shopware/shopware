@@ -72,6 +72,7 @@
       "labelRoundForNet": "Auch für Nettokunden runden",
       "grandHeadline": "Summen",
       "grandSubline": "Rundung gilt für die Gesamtsumme des Warenkorbs",
+      "infoDescription": "Wenn Du die Rundungsintervalle unterschiedlich konfigurierst, stelle sicher, dass Deine angeschlossenen Service-Anbieter diese Konfiguration unterstützen, um Buchhaltungsprobleme zu vermeiden.",
       "helpTextDecimals": "Nachkommastellen geben die maximale Anzahl von Ziffern nach dem Dezimaltrennzeichen an.",
       "helpTextInterval": "Verwende Rundungsintervalle, um Märkte zu berücksichtigen, bei denen die niedrigsten physischen Stückelungen der Währung abgeschafft wurden und Rundungen vorhanden sind. <br><br> Tipp: Wähle \"Keine\", wenn Du keine Bargeld-Rundung anwenden möchtest. Z.B. bei Verwendung von mehr als zwei Nachkommastellen.",
       "helpTextRoundForNet": "Aktiviere zusätzlich die Rundung für Netto-Kundengruppen.",

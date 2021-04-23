@@ -90,6 +90,36 @@ class DeliveryPositionCollection extends Collection
         return array_sum($quantities);
     }
 
+    public function getVolume(): float
+    {
+        $volumes = $this->getLineItems()->map(function (LineItem $deliverable) {
+            $information = $deliverable->getDeliveryInformation();
+            if ($information === null) {
+                return 0;
+            }
+
+            $length = $information->getLength();
+            $width = $information->getWidth();
+            $height = $information->getHeight();
+
+            if ($length === null || $length <= 0.0) {
+                return 0;
+            }
+
+            if ($width === null || $width <= 0.0) {
+                return 0;
+            }
+
+            if ($height === null || $height <= 0.0) {
+                return 0;
+            }
+
+            return ($length * $width * $height) * $deliverable->getQuantity();
+        });
+
+        return array_sum($volumes);
+    }
+
     public function getWithoutDeliveryFree(): DeliveryPositionCollection
     {
         return $this->filter(function (DeliveryPosition $position) {

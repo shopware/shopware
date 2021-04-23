@@ -31,6 +31,8 @@ class DeliveryCalculator
 
     public const CALCULATION_BY_WEIGHT = 3;
 
+    public const CALCULATION_BY_VOLUME = 4;
+
     /**
      * @var QuantityPriceCalculator
      */
@@ -167,6 +169,10 @@ class DeliveryCalculator
                 break;
             case self::CALCULATION_BY_WEIGHT:
                 $value = $delivery->getPositions()->getWithoutDeliveryFree()->getWeight();
+
+                break;
+            case self::CALCULATION_BY_VOLUME:
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getVolume();
 
                 break;
             default:

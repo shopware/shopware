@@ -10,6 +10,7 @@
                 name="sw-field--confirm-password"
                 :passwordToggleAble="true"
                 :copyAble="false"
+                autocomplete="new-password"
                 @keypress.enter="onSubmitConfirmPassword"
                 :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
                 :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')">

@@ -37,11 +37,6 @@ abstract class AbstractElasticsearchDefinition
         ];
     }
 
-    public function extendDocuments(array $documents, Context $context): array
-    {
-        return $documents;
-    }
-
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
         $bool = new BoolQuery();

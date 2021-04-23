@@ -63,6 +63,7 @@
         "keywords": "Keywords",
         "length": "Length",
         "linked": "Linked",
+        "manufacturerId": "Manufacturer",
         "manufacturer": "Manufacturer",
         "manufacturerNumber": "Manufacturer number",
         "markAsTopseller": "Marked as topseller",

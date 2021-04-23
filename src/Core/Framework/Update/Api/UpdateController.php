@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
@@ -52,57 +52,27 @@ class UpdateController extends AbstractController
     public const UPDATE_TOKEN_KEY = 'core.update.token';
     public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';
 
-    /**
-     * @var ApiClient
-     */
-    private $apiClient;
+    private ApiClient $apiClient;
 
-    /**
-     * @var string
-     */
-    private $rootDir;
+    private string $rootDir;
 
-    /**
-     * @var RequirementsValidator
-     */
-    private $requirementsValidator;
+    private RequirementsValidator $requirementsValidator;
 
-    /**
-     * @var PluginCompatibility
-     */
-    private $pluginCompatibility;
+    private PluginCompatibility $pluginCompatibility;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfig;
+    private SystemConfigService $systemConfig;
 
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
+    private PluginLifecycleService $pluginLifecycleService;
 
-    /**
-     * @var string
-     */
-    private $shopwareVersion;
+    private string $shopwareVersion;
 
-    /**
-     * @var bool
-     */
-    private $isUpdateTest;
+    private bool $isUpdateTest;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
+    private EntityRepositoryInterface $userRepository;
 
-    private ?ExtensionLifecycleService $extensionLifecycleService;
+    private ?AbstractExtensionLifecycle $extensionLifecycleService;
 
     public function __construct(
         string $rootDir,
@@ -115,7 +85,7 @@ class UpdateController extends AbstractController
         EntityRepositoryInterface $userRepository,
         string $shopwareVersion,
         bool $isUpdateTest = false,
-        ?ExtensionLifecycleService $extensionLifecycleService = null
+        ?AbstractExtensionLifecycle $extensionLifecycleService = null
     ) {
         $this->rootDir = $rootDir;
         $this->apiClient = $apiClient;

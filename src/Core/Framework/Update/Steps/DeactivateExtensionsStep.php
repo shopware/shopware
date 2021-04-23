@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Update\Steps;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
@@ -22,7 +22,7 @@ class DeactivateExtensionsStep
 
     private Context $context;
 
-    private ExtensionLifecycleService $extensionLifecycleService;
+    private AbstractExtensionLifecycle $extensionLifecycleService;
 
     private SystemConfigService $systemConfigService;
 
@@ -30,7 +30,7 @@ class DeactivateExtensionsStep
         Version $toVersion,
         string $deactivationFilter,
         PluginCompatibility $pluginCompatibility,
-        ExtensionLifecycleService $extensionLifecycleService,
+        AbstractExtensionLifecycle $extensionLifecycleService,
         SystemConfigService $systemConfigService,
         Context $context
     ) {

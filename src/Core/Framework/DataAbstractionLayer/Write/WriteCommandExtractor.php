@@ -198,11 +198,8 @@ class WriteCommandExtractor
         }
 
         if (!$existence->exists()) {
-            if ($existence->isChild()) {
-                $rawData = $this->integrateChildDefaults($definition, $rawData);
-            } else {
-                $rawData = $this->integrateDefaults($definition, $rawData);
-            }
+            $defaults = $existence->isChild() ? $definition->getChildDefaults() : $definition->getDefaults();
+            $rawData = $this->fillRawDataWithDefaults($definition, $parameters, $rawData, $defaults);
         }
 
         $mainFields = $this->getMainFields($fields);
@@ -367,28 +364,31 @@ class WriteCommandExtractor
         return new KeyValuePair($field->getPropertyName(), null, true);
     }
 
-    private function integrateDefaults(EntityDefinition $definition, array $rawData): array
+    private function fillRawDataWithDefaults(EntityDefinition $definition, WriteParameterBag $parameters, array $rawData, array $defaults): array
     {
-        $defaults = $definition->getDefaults();
+        if ($defaults === []) {
+            return $rawData;
+        }
 
-        return $this->fillRawDataWithDefaults($rawData, $defaults);
-    }
-
-    private function integrateChildDefaults(EntityDefinition $definition, array $rawData): array
-    {
-        $defaults = $definition->getChildDefaults();
-
-        return $this->fillRawDataWithDefaults($rawData, $defaults);
-    }
-
-    private function fillRawDataWithDefaults(array $rawData, array $defaults): array
-    {
+        $toBeNormalized = $rawData;
         foreach ($defaults as $key => $value) {
             if (\array_key_exists($key, $rawData)) {
                 continue;
             }
 
-            $rawData[$key] = $value;
+            $toBeNormalized[$key] = $value;
+        }
+
+        // clone write context so that the normalize of the default values does not affect the normal write
+        $parameters = new WriteParameterBag($definition, clone $parameters->getContext(), $parameters->getPath(), $parameters->getCommandQueue(), $parameters->getPrimaryKeyBag());
+        $normalized = $this->normalizeSingle($definition, $toBeNormalized, $parameters);
+
+        foreach ($defaults as $key => $_) {
+            if (\array_key_exists($key, $rawData)) {
+                continue;
+            }
+
+            $rawData[$key] = $normalized[$key];
         }
 
         return $rawData;

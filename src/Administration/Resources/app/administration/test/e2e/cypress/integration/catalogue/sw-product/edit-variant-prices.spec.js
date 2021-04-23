@@ -24,7 +24,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it.skip('@catalogue: add variant with surcharge to product', () => {
+    it('@catalogue: add variant with surcharge to product', () => {
         cy.window().then((win) => {
             const page = new ProductPageObject();
 
@@ -66,6 +66,7 @@ describe('Product: Test variants', () => {
 
             // Get green variant
             cy.get('.sw-simple-search-field--form').should('be.visible');
+            cy.get('.sw-simple-search-field--form input').should('be.visible');
             cy.get('.sw-simple-search-field--form input').typeAndCheck('Green');
             cy.get('.sw-data-grid-skeleton').should('not.exist');
             cy.get('.sw-data-grid__row--1').should('not.exist');

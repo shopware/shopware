@@ -332,6 +332,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14896 - Remove bearerAuth cookie without domain also on logout](/changelog/release-6-4-0-0/2021-04-21-remove-bearerauth-cookie-without-domain-also-on-logout.md)
 *  [NEXT-14918 - Load administration even if plugin js does not exist](/changelog/release-6-4-0-0/2021-01-15-prevent-missing-plugin-file-from-crashing-administration.md)
 *  [NEXT-14897 - Fix discount tab in promotions](/changelog/release-6-4-0-0/2021-04-21-fix-discount-tab-in-promotions.md)
+*  [NEXT-14959 - Fix regression to support custom entities in TreeUpdater](/changelog/release-6-4-0-0/2021-04-23-fix-regression-to-support-custom-entities-in-treeupdater.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

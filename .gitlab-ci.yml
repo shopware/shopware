@@ -587,12 +587,8 @@ Upload Component Library:
     only:
         refs:
             - trunk
-            - /^6\..*$/
-        changes:
-            - src/Administration/**/*
-            - src/Storefront/**/*
         variables:
-            - $CI_COMMIT_REF_PROTECTED == "true"
+            - $CI_PIPELINE_SOURCE == "schedule"
     dependencies:
         - Component Library
     script:

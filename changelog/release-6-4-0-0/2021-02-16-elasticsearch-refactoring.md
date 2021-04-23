@@ -36,8 +36,9 @@ ___
 * Added new method `Shopware\Elasticsearch\Product\ElasticsearchProductDefinition:fetch`
 * Removed parameter `$data` from method `Shopware\Elasticsearch\Test\Product\ElasticsearchProductTest:testStorefrontListing`
 * Deprecated `AbstractElasticsearchDefinition::extendCriteria`, use `fetch` instead
-* Deprecated `AbstractElasticsearchDefinition::extendEntities`, use `extendDocuments` instead
+* Deprecated `AbstractElasticsearchDefinition::extendEntities`, use `fetch` instead
 * Changed `\Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer` to register it as own message handler and depend no longer on the entity indexer
+* Removed method `\Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer:extendDocuments`
 * Removed method `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition:extendCriteria`
 * Removed method `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition:extendEntities`
 * Removed parameter `$collection` from method `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition:extendDocuments`
@@ -64,7 +65,7 @@ For adding more information from the Database you should execute a single query 
 ```xml
 <service id="MyDecorator" decorates="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
     <argument type="service" id="MyDecorator.inner"/>
-    <argument type="service" id="\Doctrine\DBAL\Connection"/>
+    <argument type="service" id="dbal_connection"/>
 </service>
 ```
 
@@ -112,10 +113,9 @@ class MyDecorator extends AbstractElasticsearchDefinition
         return $mapping;
     }
 
-    public function extendDocuments(array $documents, Context $context): array
+    public function fetch(array $ids, Context $context): array
     {
-        $documents = $this->productDefinition->extendDocuments($documents, $context);
-        $productIds = array_column($documents, 'id');
+        $documents = $this->productDefinition->fetch($ids, $context);
 
         $query = <<<SQL
 SELECT LOWER(HEX(mytable.product_id)) as id, GROUP_CONCAT(LOWER(HEX(mytable.myFkField)) SEPARATOR "|") as relationIds
@@ -129,8 +129,8 @@ SQL;
         $associationData = $this->connection->fetchAllKeyValue(
             $query,
             [
-                'ids' => Uuid::fromHexToBytesList($productIds),
-                'liveVersion' => Defaults::LIVE_VERSION
+                'ids' => $ids,
+                'liveVersion' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)
             ],
             [
                 'ids' => Connection::PARAM_STR_ARRAY

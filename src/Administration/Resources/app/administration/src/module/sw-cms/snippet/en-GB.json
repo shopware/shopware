@@ -502,6 +502,9 @@
             "productDetailElement": "This element's product data is automatically loaded by the product associated with this layout. The content just shows a sample preview."
           }
         }
+      },
+      "productName": {
+        "label": "Product Name"
       }
     },
     "blocks": {

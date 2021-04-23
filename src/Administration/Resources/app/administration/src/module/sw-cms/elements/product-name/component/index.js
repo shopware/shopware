@@ -25,7 +25,15 @@ Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
 
         updateDemoValue() {
             if (this.element.config.content.source === 'mapped') {
-                this.demoValue = '<div class="sw-cms-el-product-name__skeleton"></div>';
+                let label = '';
+                let className = 'sw-cms-el-product-name__skeleton';
+
+                if (this.element.config.content.value === 'product.name') {
+                    className = 'sw-cms-el-product-name__placeholder';
+                    label = this.$tc('sw-cms.elements.productName.label');
+                }
+
+                this.demoValue = `<h1 class="${className}">${label}</h1>`;
 
                 if (this.cmsPageState.currentDemoEntity) {
                     this.demoValue = this.getDemoValue(this.element.config.content.value);

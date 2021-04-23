@@ -95,6 +95,56 @@ describe('module/sw-cms/elements/product-name/component', () => {
             }
         });
 
+        expect(wrapper.find('.sw-cms-el-product-name__placeholder').exists()).toBeTruthy();
+    });
+
+    it('should display placeholder on product name block if data mapping is set to "product.name"', async () => {
+        await wrapper.setProps({
+            element: {
+                config: {
+                    content: {
+                        source: 'mapped',
+                        value: 'product.name'
+                    },
+                    verticalAlign: {
+                        source: 'static',
+                        value: null
+                    }
+                }
+            }
+        });
+
+        await wrapper.setData({
+            cmsPageState: {
+                currentDemoEntity: null
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-el-product-name__placeholder').exists()).toBeTruthy();
+    });
+
+    it('should display skeleton on product name block if data mapping is not set to "product.name"', async () => {
+        await wrapper.setProps({
+            element: {
+                config: {
+                    content: {
+                        source: 'mapped',
+                        value: 'product.ean'
+                    },
+                    verticalAlign: {
+                        source: 'static',
+                        value: null
+                    }
+                }
+            }
+        });
+
+        await wrapper.setData({
+            cmsPageState: {
+                currentDemoEntity: null
+            }
+        });
+
         expect(wrapper.find('.sw-cms-el-product-name__skeleton').exists()).toBeTruthy();
     });
 });

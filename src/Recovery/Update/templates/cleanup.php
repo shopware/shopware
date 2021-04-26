@@ -40,7 +40,7 @@ echo $renderer->fetch('_header.php', ['tab' => 'cleanup']); ?>
 
             <div class="fileCounterContainer flex-item">
                 <span class="counter">0</span>
-                <span class="description"><?= sprintf($language['deleted_files'], count($cleanupList)); ?></span>
+                <span class="description"><?= sprintf($language['deleted_files'], \count($cleanupList)); ?></span>
             </div>
         </div>
 

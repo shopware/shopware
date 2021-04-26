@@ -4,12 +4,12 @@ if (\function_exists('opcache_reset')) {
     opcache_reset();
 }
 
-$parent = dirname(__DIR__, 2);
+$parent = \dirname(__DIR__, 2);
 // root/platform/src/Recovery and root/vendor/shopware/recovery
-$rootDir = dirname($parent, 2);
-if (basename(dirname($rootDir)) === 'vendor') {
+$rootDir = \dirname($parent, 2);
+if (basename(\dirname($rootDir)) === 'vendor') {
     // root/vendor/shopware/platform/src/Recovery
-    $rootDir = dirname($rootDir, 2);
+    $rootDir = \dirname($rootDir, 2);
 }
 
 $lockFile = $rootDir . '/install.lock';
@@ -39,7 +39,7 @@ set_time_limit(0);
 use Shopware\Recovery\Install\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
-require_once dirname(__DIR__) . '/autoload.php';
+require_once \dirname(__DIR__) . '/autoload.php';
 
 if (\PHP_SAPI === 'cli') {
     $input = new ArgvInput();

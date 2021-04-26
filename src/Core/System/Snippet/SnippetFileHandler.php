@@ -20,7 +20,7 @@ class SnippetFileHandler
 
     public function writeJsonFile(string $path, array $content): void
     {
-        $json = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $json = json_encode($content, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
 
         file_put_contents($path, $json);
     }

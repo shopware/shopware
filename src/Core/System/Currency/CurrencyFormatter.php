@@ -52,7 +52,7 @@ class CurrencyFormatter
             return $formatter->formatCurrency($price, $currency);
         }
 
-        $string = htmlentities($formatter->formatCurrency($price, $currency), ENT_COMPAT, 'utf-8');
+        $string = htmlentities($formatter->formatCurrency($price, $currency), \ENT_COMPAT, 'utf-8');
         $content = str_replace('&nbsp;', ' ', $string);
 
         return html_entity_decode($content);

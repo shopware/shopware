@@ -76,7 +76,7 @@ class SystemSetupCommand extends Command
                 throw new \RuntimeException('Shop URL is required.');
             }
 
-            if (!filter_var($value, FILTER_VALIDATE_URL)) {
+            if (!filter_var($value, \FILTER_VALIDATE_URL)) {
                 throw new \RuntimeException('Invalid URL.');
             }
 
@@ -171,7 +171,7 @@ class SystemSetupCommand extends Command
         $envFile = $this->projectDir . '/.env';
 
         foreach ($configuration as $key => $value) {
-            $envVars .= $key . '="' . str_replace('"', '\\"', $value) . '"' . PHP_EOL;
+            $envVars .= $key . '="' . str_replace('"', '\\"', $value) . '"' . \PHP_EOL;
         }
 
         $output->text($envFile);

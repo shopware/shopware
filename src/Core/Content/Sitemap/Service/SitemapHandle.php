@@ -143,12 +143,12 @@ class SitemapHandle implements SitemapHandleInterface
             return;
         }
 
-        $host = parse_url($domain, PHP_URL_HOST);
+        $host = parse_url($domain, \PHP_URL_HOST);
         if ($host) {
             $host = str_replace('.', '-', $host);
         }
 
-        $path = parse_url($domain, PHP_URL_PATH);
+        $path = parse_url($domain, \PHP_URL_PATH);
         if ($path) {
             $path = str_replace('/', '-', $path);
         }

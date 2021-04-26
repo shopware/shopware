@@ -29,7 +29,7 @@ class TokenFilterTest extends TestCase
     {
         $mockConnection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
         $mockConnection->expects(static::any())->method('fetchAssoc')->willReturn([
-            'excluded_terms' => \json_encode([
+            'excluded_terms' => json_encode([
                 'between',
                 'against',
                 'surprise',

@@ -71,14 +71,14 @@ class PayloadService
             return null;
         }
 
-        return $responseClass::create($payload->getOrderTransaction()->getId(), \json_decode($content, true));
+        return $responseClass::create($payload->getOrderTransaction()->getId(), json_decode($content, true));
     }
 
     private function buildRequest(string $method, string $url, PaymentPayloadInterface $payload, AppEntity $app): RequestInterface
     {
         $payload->setSource($this->buildSource($app));
         $encoded = $this->encode($payload);
-        $jsonPayload = \json_encode($encoded);
+        $jsonPayload = json_encode($encoded);
 
         if (!$jsonPayload) {
             throw new AsyncPaymentProcessException($payload->getOrderTransaction()->getId(), 'Invalid payload');
@@ -104,7 +104,7 @@ class PayloadService
             throw new AsyncPaymentProcessException($orderTransaction->getId(), 'App secret missing');
         }
 
-        $hmac = \hash_hmac('sha256', $content, $secret);
+        $hmac = hash_hmac('sha256', $content, $secret);
 
         $signature = current($response->getHeader('shopware-app-signature'));
 
@@ -124,7 +124,7 @@ class PayloadService
 
         $headers = [
             'Content-Type' => 'application/json',
-            'shopware-shop-signature' => \hash_hmac('sha256', $jsonPayload, $secret),
+            'shopware-shop-signature' => hash_hmac('sha256', $jsonPayload, $secret),
             'sw-version' => $this->shopwareVersion,
         ];
 

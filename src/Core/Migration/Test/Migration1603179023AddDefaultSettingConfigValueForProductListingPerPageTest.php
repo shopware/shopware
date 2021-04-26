@@ -59,7 +59,7 @@ class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPageTes
         );
 
         $jsonValue = json_decode($value, true);
-        if (json_last_error() === JSON_ERROR_NONE) {
+        if (json_last_error() === \JSON_ERROR_NONE) {
             return $jsonValue['_value'];
         }
 

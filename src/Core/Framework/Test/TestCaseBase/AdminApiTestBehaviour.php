@@ -139,7 +139,7 @@ trait AdminApiTestBehaviour
             'first_name' => $username,
             'last_name' => '',
             'username' => $username,
-            'password' => password_hash($password, PASSWORD_BCRYPT),
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -225,7 +225,7 @@ trait AdminApiTestBehaviour
             'id' => $id,
             'write_access' => true,
             'access_key' => $accessKey,
-            'secret_access_key' => password_hash($secretAccessKey, PASSWORD_BCRYPT),
+            'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
             'label' => 'test integration',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);

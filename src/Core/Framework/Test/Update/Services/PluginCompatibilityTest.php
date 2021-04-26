@@ -108,7 +108,7 @@ class PluginCompatibilityTest extends TestCase
 
     public function testGetExtensionFutureCompatibility(): void
     {
-        $extensionResponse = \file_get_contents(__DIR__ . './../_fixtures/responses/extension-yellow.json');
+        $extensionResponse = file_get_contents(__DIR__ . './../_fixtures/responses/extension-yellow.json');
         $this->getRequestHandler()->append(new Response(
             200,
             [],
@@ -128,7 +128,7 @@ class PluginCompatibilityTest extends TestCase
 
     public function testGetExtensionCompatibility(): void
     {
-        $extensionResponse = \file_get_contents(__DIR__ . './../_fixtures/responses/extension-green.json');
+        $extensionResponse = file_get_contents(__DIR__ . './../_fixtures/responses/extension-green.json');
         $this->getRequestHandler()->append(new Response(
             200,
             [],
@@ -148,7 +148,7 @@ class PluginCompatibilityTest extends TestCase
 
     public function testGetExtensionNotCompatibility(): void
     {
-        $extensionResponse = \file_get_contents(__DIR__ . './../_fixtures/responses/extension-red.json');
+        $extensionResponse = file_get_contents(__DIR__ . './../_fixtures/responses/extension-red.json');
         $this->getRequestHandler()->append(new Response(
             200,
             [],

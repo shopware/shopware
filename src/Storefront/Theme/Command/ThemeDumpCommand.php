@@ -116,7 +116,7 @@ class ThemeDumpCommand extends Command
 
         file_put_contents(
             $this->projectDir . \DIRECTORY_SEPARATOR . 'var' . \DIRECTORY_SEPARATOR . 'theme-files.json',
-            json_encode($dump, JSON_PRETTY_PRINT)
+            json_encode($dump, \JSON_PRETTY_PRINT)
         );
 
         return 0;

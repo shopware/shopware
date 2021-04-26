@@ -30,7 +30,7 @@ if (empty($_SESSION)) {
     $sessionPath = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
 
     if (!headers_sent()) {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
+        if (session_status() !== \PHP_SESSION_ACTIVE) {
             session_set_cookie_params(600, $sessionPath);
         }
 
@@ -104,11 +104,11 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
             $selectedLanguage = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
             $selectedLanguage = mb_strtolower(mb_substr($selectedLanguage[0], 0, 2));
         }
-        if (empty($selectedLanguage) || !in_array($selectedLanguage, $allowedLanguages, true)) {
+        if (empty($selectedLanguage) || !\in_array($selectedLanguage, $allowedLanguages, true)) {
             $selectedLanguage = 'en';
         }
 
-        if (isset($_REQUEST['language']) && in_array($_REQUEST['language'], $allowedLanguages, true)) {
+        if (isset($_REQUEST['language']) && \in_array($_REQUEST['language'], $allowedLanguages, true)) {
             $selectedLanguage = $_REQUEST['language'];
 
             if (isset($_SESSION['parameters']['c_config_shop_currency'])) {
@@ -123,7 +123,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
             return $selectedLanguage;
         }
 
-        if (isset($_SESSION['language']) && in_array($_SESSION['language'], $allowedLanguages, true)) {
+        if (isset($_SESSION['language']) && \in_array($_SESSION['language'], $allowedLanguages, true)) {
             $selectedLanguage = $_SESSION['language'];
 
             return $selectedLanguage;
@@ -237,7 +237,7 @@ $app->any('/license', function (ServerRequestInterface $request, ResponseInterfa
     $tosUrls = $container->offsetGet('config')['tos.urls'];
     $tosUrl = $tosUrls['en'];
 
-    if (array_key_exists($container->offsetGet('install.language'), $tosUrls)) {
+    if (\array_key_exists($container->offsetGet('install.language'), $tosUrls)) {
         $tosUrl = $tosUrls[$container->offsetGet('install.language')];
     }
     $viewAttributes['tosUrl'] = $tosUrl;
@@ -523,10 +523,10 @@ $app->any('/finish/', function (ServerRequestInterface $request, ResponseInterfa
 
     $schema = 'http';
     // This is for supporting Apache 2.2
-    if (array_key_exists('HTTPS', $_SERVER) && mb_strtolower($_SERVER['HTTPS']) === 'on') {
+    if (\array_key_exists('HTTPS', $_SERVER) && mb_strtolower($_SERVER['HTTPS']) === 'on') {
         $schema = 'https';
     }
-    if (array_key_exists('REQUEST_SCHEME', $_SERVER)) {
+    if (\array_key_exists('REQUEST_SCHEME', $_SERVER)) {
         $schema = $_SERVER['REQUEST_SCHEME'];
     }
 
@@ -608,7 +608,7 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     }
 
     if (!$total) {
-        $total = count($coreMigrations->getExecutableMigrations()) * 2;
+        $total = \count($coreMigrations->getExecutableMigrations()) * 2;
     }
 
     try {

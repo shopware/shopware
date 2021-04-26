@@ -70,7 +70,7 @@ class ServiceDefinitionTest extends TestCase
         }
 
         $errors = array_filter($errors);
-        $errorMessage = 'Found some issues in the following files:' . PHP_EOL . PHP_EOL . print_r($errors, true);
+        $errorMessage = 'Found some issues in the following files:' . \PHP_EOL . \PHP_EOL . print_r($errors, true);
 
         static::assertCount(0, $errors, $errorMessage);
     }
@@ -82,7 +82,7 @@ class ServiceDefinitionTest extends TestCase
         $commandTester = new CommandTester($command);
 
         set_error_handler(function (): void {// ignore symfony deprecations
-        }, E_USER_DEPRECATED);
+        }, \E_USER_DEPRECATED);
         $commandTester->execute([]);
         restore_error_handler();
 
@@ -100,7 +100,7 @@ class ServiceDefinitionTest extends TestCase
             '/<argument (?!type="[^"]+").*id="(?<id>[^"]+)".*>/',
             $content,
             $matches,
-            PREG_OFFSET_CAPTURE | PREG_SET_ORDER
+            \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
         );
 
         if (!$result) {
@@ -128,7 +128,7 @@ class ServiceDefinitionTest extends TestCase
             '<service\s+(?=.*class="(?<class>[^"]+)")(?=.*id="\k{class}").*>',
             $content,
             $matches,
-            PREG_OFFSET_CAPTURE | PREG_SET_ORDER
+            \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
         );
 
         // only continue if a Shopware service definition doesn't start with class followed by id
@@ -153,6 +153,6 @@ class ServiceDefinitionTest extends TestCase
     {
         list($before) = str_split($content, $position);
 
-        return mb_strlen($before) - mb_strlen(str_replace(PHP_EOL, '', $before)) + 1;
+        return mb_strlen($before) - mb_strlen(str_replace(\PHP_EOL, '', $before)) + 1;
     }
 }

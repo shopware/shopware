@@ -50,7 +50,7 @@ class IdleFeatureFlagTest extends TestCase
 
     public function testNoIdleFeatureFlagsArePresent(): void
     {
-        if (!\file_exists($this->getContainer()->get('kernel')->getProjectDir() . '/vendor/shopware/platform')) {
+        if (!file_exists($this->getContainer()->get('kernel')->getProjectDir() . '/vendor/shopware/platform')) {
             static::markTestSkipped('Test skipped because platform is not in vendor directory.');
         }
 
@@ -75,7 +75,7 @@ class IdleFeatureFlagTest extends TestCase
                     static::assertContains(
                         $flag,
                         $registeredFlags,
-                        \sprintf('Found idle feature flag in: %s', $file->getPathname())
+                        sprintf('Found idle feature flag in: %s', $file->getPathname())
                     );
                 }
             }

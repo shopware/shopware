@@ -15,7 +15,7 @@ class Migration1607415095PromotionRedemptionsNullable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = \str_replace(
+        $sql = str_replace(
             ['#table#'],
             [PromotionDefinition::ENTITY_NAME],
             'ALTER TABLE `#table#`

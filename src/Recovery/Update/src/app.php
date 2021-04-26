@@ -37,7 +37,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
     }
 
     if (!headers_sent()) {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
+        if (session_status() !== \PHP_SESSION_ACTIVE) {
             session_set_cookie_params(7200, $baseUrl);
         }
 

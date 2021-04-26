@@ -60,15 +60,15 @@ class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
     private function getRequestUri(Request $request): string
     {
         $params = $request->query->all();
-        foreach (\array_keys($params) as $key) {
+        foreach (array_keys($params) as $key) {
             if (\in_array($key, $this->ignoredParameters, true)) {
                 unset($params[$key]);
             }
         }
-        \ksort($params);
-        $params = \http_build_query($params);
+        ksort($params);
+        $params = http_build_query($params);
 
-        return \sprintf(
+        return sprintf(
             '%s%s%s%s',
             $request->getSchemeAndHttpHost(),
             $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),

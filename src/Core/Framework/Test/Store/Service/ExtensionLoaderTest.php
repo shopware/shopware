@@ -188,15 +188,15 @@ class ExtensionLoaderTest extends TestCase
 
     private function getDetailResponseFixture(): array
     {
-        $content = \file_get_contents(__DIR__ . '/../_fixtures/responses/extension-detail.json');
+        $content = file_get_contents(__DIR__ . '/../_fixtures/responses/extension-detail.json');
 
-        return \json_decode($content, true);
+        return json_decode($content, true);
     }
 
     private function getListingResponseFixture(): array
     {
-        $content = \file_get_contents(__DIR__ . '/../_fixtures/responses/extension-listing.json');
+        $content = file_get_contents(__DIR__ . '/../_fixtures/responses/extension-listing.json');
 
-        return \json_decode($content, true);
+        return json_decode($content, true);
     }
 }

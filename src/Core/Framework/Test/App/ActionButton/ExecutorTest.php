@@ -186,7 +186,7 @@ class ExecutorTest extends TestCase
 
         foreach ($result->getErrors() as $validationError) {
             $message .= sprintf("Validation error at '%s' : %s \n", implode(',', $validationError->dataPointer()), $validationError->keyword());
-            $message .= json_encode($validationError->keywordArgs(), JSON_PRETTY_PRINT);
+            $message .= json_encode($validationError->keywordArgs(), \JSON_PRETTY_PRINT);
         }
 
         return $message;

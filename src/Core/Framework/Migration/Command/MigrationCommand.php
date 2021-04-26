@@ -159,7 +159,7 @@ class MigrationCommand extends Command
         } catch (\Exception $e) {
             $this->finishProgress($migratedCounter, $migrationCount);
 
-            throw new MigrateException($e->getMessage() . PHP_EOL . 'Trace: ' . PHP_EOL . $e->getTraceAsString(), $e);
+            throw new MigrateException($e->getMessage() . \PHP_EOL . 'Trace: ' . \PHP_EOL . $e->getTraceAsString(), $e);
         }
 
         $this->finishProgress($migratedCounter, $migrationCount);

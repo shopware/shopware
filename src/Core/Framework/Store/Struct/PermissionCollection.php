@@ -23,7 +23,7 @@ class PermissionCollection extends StoreCollection
             $elements = $this->generatePrivileges((array) $elements);
         }
 
-        $elements = array_unique((array) $elements, SORT_REGULAR);
+        $elements = array_unique((array) $elements, \SORT_REGULAR);
 
         parent::__construct($elements);
     }

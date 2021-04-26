@@ -66,7 +66,7 @@ class DeprecationTagTester
          */
         $annotationPattern = '/@deprecated\s*([^\s]*)\s?/';
         $matches = [];
-        preg_match_all($annotationPattern, $content, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
+        preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
 
         $this->validateMatches($matches);
     }
@@ -83,7 +83,7 @@ class DeprecationTagTester
         );
 
         $matches = [];
-        preg_match_all($elementPattern, $content, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
+        preg_match_all($elementPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
 
         $this->validateMatches($matches);
     }
@@ -95,7 +95,7 @@ class DeprecationTagTester
          */
         $tagPattern = '/\<tag name="shopware.deprecated".*version="(.*)".*\/?\>/';
         $matches = [];
-        preg_match_all($tagPattern, $content, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
+        preg_match_all($tagPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
 
         $this->validateMatches($matches);
     }
@@ -114,7 +114,7 @@ class DeprecationTagTester
     private function validateVersion(string $versionTag): void
     {
         $match = [];
-        preg_match('/(tag|manifest):v(.*)/', $versionTag, $match, PREG_UNMATCHED_AS_NULL);
+        preg_match('/(tag|manifest):v(.*)/', $versionTag, $match, \PREG_UNMATCHED_AS_NULL);
 
         $tag = $match[1] ?? '';
         $version = $match[2] ?? '';

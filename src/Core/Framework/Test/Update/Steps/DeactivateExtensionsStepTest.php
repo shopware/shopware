@@ -122,7 +122,7 @@ class DeactivateExtensionsStepTest extends TestCase
             'version' => '6.6.0.0',
         ]);
 
-        $extensionResponse = \file_get_contents(__DIR__ . './../_fixtures/responses/extension-yellow.json');
+        $extensionResponse = file_get_contents(__DIR__ . './../_fixtures/responses/extension-yellow.json');
         $this->getRequestHandler()->append(new Response(
             200,
             [],

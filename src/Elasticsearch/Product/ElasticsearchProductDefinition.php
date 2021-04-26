@@ -260,7 +260,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         foreach (['product_translation_main', 'product_translation_parent'] as $join) {
             foreach ($fields as $field) {
-                $coalesce .= \sprintf('%s.`%s`', $join, $field) . ',';
+                $coalesce .= sprintf('%s.`%s`', $join, $field) . ',';
             }
         }
 

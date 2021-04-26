@@ -49,7 +49,7 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
             ]);
 
             $responseRaw = $response->getBody()->getContents();
-            $response = \json_decode($responseRaw, true);
+            $response = json_decode($responseRaw, true);
 
             return $response && (bool) $response['success'];
         } catch (ClientExceptionInterface $exception) {

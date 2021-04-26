@@ -235,7 +235,7 @@ class EntityWriter implements EntityWriterInterface
                 $field = $command->getDefinition()->getFields()->getByStorageName($command->getStorageName());
                 $decodedPayload = $field->getSerializer()->decode(
                     $field,
-                    json_encode($command->getPayload(), JSON_PRESERVE_ZERO_FRACTION)
+                    json_encode($command->getPayload(), \JSON_PRESERVE_ZERO_FRACTION)
                 );
                 $mergedPayload = array_merge($payload, [$field->getPropertyName() => $decodedPayload]);
 

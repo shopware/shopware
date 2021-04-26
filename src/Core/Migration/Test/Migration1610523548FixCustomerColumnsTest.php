@@ -154,7 +154,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
     {
         $salutationIds = $this->connection->executeQuery('SELECT id FROM salutation')->fetchAll(FetchMode::COLUMN);
 
-        return Uuid::fromBytesToHex($salutationIds[\array_rand($salutationIds)]);
+        return Uuid::fromBytesToHex($salutationIds[array_rand($salutationIds)]);
     }
 
     private function getDefaultPaymentMethodId(): ?string

@@ -159,7 +159,7 @@ class GoogleReCaptchaV3Test extends TestCase
                     GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], \json_encode(['success' => false])),
+                    new Response(200, [], json_encode(['success' => false])),
                 ]),
                 self::IS_INVALID,
                 'secret123',
@@ -179,7 +179,7 @@ class GoogleReCaptchaV3Test extends TestCase
                     GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], \json_encode(['success' => true, 'score' => '0.1'])),
+                    new Response(200, [], json_encode(['success' => true, 'score' => '0.1'])),
                 ]),
                 self::IS_INVALID,
                 'secret123',
@@ -189,7 +189,7 @@ class GoogleReCaptchaV3Test extends TestCase
                     GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], \json_encode(['success' => true, 'score' => '0.6'])),
+                    new Response(200, [], json_encode(['success' => true, 'score' => '0.6'])),
                 ]),
                 self::IS_VALID,
                 'secret123',
@@ -199,7 +199,7 @@ class GoogleReCaptchaV3Test extends TestCase
                     GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], \json_encode(['success' => true, 'score' => '0.6'])),
+                    new Response(200, [], json_encode(['success' => true, 'score' => '0.6'])),
                 ]),
                 self::IS_INVALID,
                 'secret123',
@@ -210,7 +210,7 @@ class GoogleReCaptchaV3Test extends TestCase
                     GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], \json_encode(['success' => true, 'score' => '0.8'])),
+                    new Response(200, [], json_encode(['success' => true, 'score' => '0.8'])),
                 ]),
                 self::IS_VALID,
                 'secret123',

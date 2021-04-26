@@ -43,7 +43,7 @@ class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoder
                 'position' => $tax->getPosition(),
                 'customFields' => null,
                 'translated' => [],
-                'createdAt' => $tax->getCreatedAt()->format(DATE_RFC3339_EXTENDED),
+                'createdAt' => $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED),
                 'updatedAt' => null,
                 'extensions' => [
                     'foreignKeys' => [

@@ -31,8 +31,8 @@ class EntryPointValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->categoryRepository = $this->getContainer()->get(\sprintf('%s.repository', CategoryDefinition::ENTITY_NAME));
-        $this->salesChannelRepository = $this->getContainer()->get(\sprintf('%s.repository', SalesChannelDefinition::ENTITY_NAME));
+        $this->categoryRepository = $this->getContainer()->get(sprintf('%s.repository', CategoryDefinition::ENTITY_NAME));
+        $this->salesChannelRepository = $this->getContainer()->get(sprintf('%s.repository', SalesChannelDefinition::ENTITY_NAME));
     }
 
     public function testChangeNavigationFail(): void

@@ -29,7 +29,7 @@ class ApiService {
     getApiBasePath(id, prefix = '') {
         let url = '';
 
-        if (prefix && prefix.length) {
+        if (prefix?.length) {
             url += `${prefix}/`;
         }
 
@@ -71,7 +71,7 @@ class ApiService {
         let data = response.data;
         const headers = response.headers;
 
-        if (headers && headers['content-type'] && headers['content-type'] === 'application/vnd.api+json') {
+        if (headers?.['content-type'] && headers['content-type'] === 'application/vnd.api+json') {
             data = ApiService.parseJsonApiData(data);
         }
 

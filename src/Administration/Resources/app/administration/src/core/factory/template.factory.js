@@ -333,7 +333,7 @@ function mergeTokens(token, tokens) {
             return [...acc, ...token.token.output];
         }
 
-        if (t.token && t.token.output) {
+        if (t.token?.output) {
             t.token.output = resolveSubTokens(t.token.output, token.token.output);
         }
 

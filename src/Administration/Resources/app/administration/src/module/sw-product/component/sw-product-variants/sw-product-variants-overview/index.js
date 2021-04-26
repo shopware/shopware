@@ -521,7 +521,7 @@ Component.register('sw-product-variants-overview', {
         },
 
         onOptionEdit(variant) {
-            if (variant && variant.id) {
+            if (variant?.id) {
                 this.$router.push({
                     name: 'sw.product.detail',
                     params: {

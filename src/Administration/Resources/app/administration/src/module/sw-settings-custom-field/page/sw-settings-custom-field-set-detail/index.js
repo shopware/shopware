@@ -151,7 +151,7 @@ Component.register('sw-settings-custom-field-set-detail', {
 
                 return this.loadEntityData();
             }).catch((error) => {
-                const errorMessage = Shopware.Utils.get(error, 'response.data.errors[0].detail', 'Error');
+                const errorMessage = error?.response?.data?.errors?.[0]?.detail ?? 'Error';
 
                 this.createNotificationError({
                     message: errorMessage

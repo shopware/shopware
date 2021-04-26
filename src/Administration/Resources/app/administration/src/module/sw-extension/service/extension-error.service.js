@@ -9,7 +9,7 @@ export default class ExtensionErrorService {
     }
 
     handleErrorResponse(errorResponse, translator) {
-        const errors = Shopware.Utils.get(errorResponse, 'response.data.errors', []);
+        const errors = errorResponse?.response?.data?.errors ?? [];
 
         if (!Array.isArray(errors)) {
             return [];

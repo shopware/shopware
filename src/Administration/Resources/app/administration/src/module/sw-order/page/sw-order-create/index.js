@@ -3,7 +3,6 @@ import './sw-order-create.scss';
 import swOrderState from '../../state/order.store';
 
 const { Component, State, Mixin } = Shopware;
-const { get } = Shopware.Utils;
 
 Component.register('sw-order-create', {
     template,
@@ -76,7 +75,7 @@ Component.register('sw-order-create', {
                     })
                     .then((response) => {
                         this.isSaveSuccessful = true;
-                        this.orderId = get(response, 'data.id');
+                        this.orderId = response?.data?.id;
                     })
                     .catch((error) => this.showError(error))
                     .finally(() => {
@@ -104,7 +103,7 @@ Component.register('sw-order-create', {
         },
 
         showError(error) {
-            const errorMessage = get(error, 'response.data.errors[0].detail') || null;
+            const errorMessage = error?.response?.data?.errors?.[0]?.detail || null;
 
             this.createNotificationError({
                 message: errorMessage || this.$tc('sw-order.create.messageSaveError')

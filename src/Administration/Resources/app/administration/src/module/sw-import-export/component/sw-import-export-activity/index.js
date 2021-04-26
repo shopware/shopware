@@ -94,13 +94,13 @@ Shopware.Component.register('sw-import-export-activity', {
                     allowResize: true,
                     primary: false
                 },
-                ...this.type === 'import' ? [{
+                ...(this.type === 'import' ? [{
                     property: 'invalidRecords',
                     dataIndex: 'records',
                     label: 'sw-import-export.activity.columns.invalidRecords',
                     allowResize: true,
                     primary: false
-                }] : [],
+                }] : []),
                 {
                     property: 'file.size',
                     dataIndex: 'file.size',

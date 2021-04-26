@@ -3,7 +3,6 @@ import './sw-custom-field-set-renderer.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const utils = Shopware.Utils;
 
 /**
  * @public
@@ -184,7 +183,7 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         getInheritedCustomField(customFieldName) {
-            const value = utils.get(this.parentEntity, `translated.customFields.${customFieldName}`, null);
+            const value = this.parentEntity?.translated?.customFields?.[customFieldName] ?? null;
 
             if (value) {
                 return value;
@@ -237,14 +236,14 @@ Component.register('sw-custom-field-set-renderer', {
 
         getInheritValue(field) {
             // Search field in translated
-            const value = utils.get(this.parentEntity, `translated.${field}`, null);
+            const value = this.parentEntity?.translated?.[field] ?? null;
 
             if (value) {
                 return value;
             }
 
             // Search field on top level of entity
-            return utils.get(this.parentEntity, `${field}`, null);
+            return this.parentEntity?.[field] ?? null;
         },
 
         getParentCustomFieldSetSelectionSwitchState() {

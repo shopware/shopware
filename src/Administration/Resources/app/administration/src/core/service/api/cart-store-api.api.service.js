@@ -98,8 +98,8 @@ class CartStoreService extends ApiService {
 
     shouldPriceUpdated(item, isNewProductItem) {
         const isUnitPriceEdited = item.price.unitPrice !== item.priceDefinition.price;
-        const isTaxRateEdited = Shopware.Utils.get(item, 'price.taxRules[0].taxRate', null)
-            !== Shopware.Utils.get(item, 'priceDefinition.taxRules[0].taxRate', null);
+        const isTaxRateEdited = (item?.price?.taxRules?.[0]?.taxRate ?? null)
+            !== (item?.priceDefinition?.taxRules?.[0]?.taxRate ?? null);
         const isCustomItem = item.type === this.getLineItemTypes().CUSTOM;
 
         const isExistingProductAndUnitPriceIsEdited = !isNewProductItem && isUnitPriceEdited;

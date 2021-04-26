@@ -162,7 +162,7 @@ Component.register('sw-customer-detail', {
                 this.customer.birthday = null;
             }
 
-            if (!await this.validPassword(this.customer)) {
+            if (!(await this.validPassword(this.customer))) {
                 this.isLoading = false;
                 return false;
             }

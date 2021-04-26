@@ -323,9 +323,9 @@ Component.register('sw-data-grid', {
                 }
                 this.currentSetting = response[0];
                 const gridColumns = response[0].value;
-                this.currentColumns = utils.get(gridColumns, 'columns', gridColumns);
-                this.compact = utils.get(gridColumns, 'compact', this.compact);
-                this.previews = utils.get(gridColumns, 'previews', this.previews);
+                this.currentColumns = gridColumns?.columns ?? gridColumns;
+                this.compact = gridColumns?.compact ?? this.compact;
+                this.previews = gridColumns?.previews ?? this.previews;
             });
         },
 
@@ -336,9 +336,9 @@ Component.register('sw-data-grid', {
                 }
                 this.currentSetting = response;
                 const gridColumns = response.value;
-                this.currentColumns = utils.get(gridColumns, 'columns', gridColumns);
-                this.compact = utils.get(gridColumns, 'compact', this.compact);
-                this.previews = utils.get(gridColumns, 'previews', this.previews);
+                this.currentColumns = gridColumns?.columns ?? gridColumns;
+                this.compact = gridColumns?.compact ?? this.compact;
+                this.previews = gridColumns?.previews ?? this.previews;
             });
         },
 
@@ -494,12 +494,12 @@ Component.register('sw-data-grid', {
             let workingProperty = column.property;
 
             if (accessor.lastIndexOf('last()') !== -1) {
-                item = utils.get(item, accessor.splice(0, accessor.lastIndexOf('last()'))).last();
+                item = item?.[accessor.splice(0, accessor.lastIndexOf('last()'))].last();
                 accessor = accessor.splice(accessor.lastIndexOf('last()') + 1, accessor.length - 1);
                 workingProperty = accessor.join('.');
             }
             accessor.splice(accessor.length - 1, 0, 'translated');
-            const translated = utils.get(item, accessor);
+            const translated = item?.[accessor];
             if (translated) {
                 return translated;
             }
@@ -609,7 +609,7 @@ Component.register('sw-data-grid', {
             this.originalTarget = null;
             this.columnIndex = null;
 
-            utils.debounce(() => {
+            Shopware.Utils.debounce(() => {
                 this._isResizing = false;
             }, 50)();
 

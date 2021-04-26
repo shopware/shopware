@@ -86,7 +86,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
 
     // Handle sync-api errors
     if (status === 400 &&
-        Shopware.Utils.get(error, 'response.config.url', '').includes('_action/sync')) {
+        (error?.response?.config?.url ?? '').includes('_action/sync')) {
         if (!data) {
             return;
         }

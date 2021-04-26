@@ -1,5 +1,3 @@
-const utils = Shopware.Utils;
-
 export default class AclService {
     state;
 
@@ -39,7 +37,7 @@ export default class AclService {
             return this.hasActiveSettingModules();
         }
 
-        if (!utils.get(Shopware, 'Application.view.root.$router')) {
+        if (!Shopware?.Application?.view?.root?.$router) {
             return true;
         }
 

@@ -1,7 +1,7 @@
 import template from './sw-cms-el-buy-box.html.twig';
 import './sw-cms-el-buy-box.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-buy-box', {
     template,
@@ -31,11 +31,11 @@ Component.register('sw-cms-el-buy-box', {
                 };
             }
 
-            return Utils.get(this.element, 'data.product', null);
+            return this.element?.data?.product ?? null;
         },
 
         pageType() {
-            return Utils.get(this.cmsPageState, 'currentPage.type', '');
+            return this.cmsPageState?.currentPage?.type ?? '';
         },
 
         isProductPageType() {

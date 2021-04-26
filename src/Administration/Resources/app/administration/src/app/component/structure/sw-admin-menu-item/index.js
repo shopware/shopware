@@ -132,7 +132,7 @@ Component.register('sw-admin-menu-item', {
 
                 foundPaths.push(foundEntry.path || foundEntry.id);
 
-                if (foundEntry.parent && foundEntry.parent.length) {
+                if (foundEntry.parent?.length) {
                     return findRootEntry(foundEntry.parent, foundPaths);
                 }
 
@@ -149,7 +149,7 @@ Component.register('sw-admin-menu-item', {
             }
 
             if (meta.$module) {
-                if (meta.$module.navigation && meta.$module.navigation[0].parent) {
+                if (meta.$module.navigation?.[0].parent) {
                     compareTo = meta.$module.navigation[0].parent;
                 }
             }

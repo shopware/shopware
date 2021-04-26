@@ -199,7 +199,7 @@ export default class ChangesetGenerator {
             }
         });
 
-        if (field.flags && field.flags.cascade_delete) {
+        if (field.flags?.cascade_delete) {
             originIds.forEach((id) => {
                 if (!draft.has(id)) {
                     // still existing?

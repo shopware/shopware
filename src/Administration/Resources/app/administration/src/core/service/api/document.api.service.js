@@ -57,7 +57,7 @@ class DocumentApiService extends ApiService {
 
                 return docCreated;
             }).catch((error) => {
-                if (error.response && error.response.data && error.response.data.errors) {
+                if (error.response?.data?.errors) {
                     this.$listener(
                         this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop())
                     );

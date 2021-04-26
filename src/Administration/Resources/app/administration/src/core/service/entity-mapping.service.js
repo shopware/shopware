@@ -44,7 +44,7 @@ function getEntityMapping(entityName, entityNameMapping) {
             if (val === '') {
                 lastEntityName = lastVal;
             }
-            if (schema.properties[cleanVal] && schema.properties[cleanVal].entity) {
+            if (schema.properties[cleanVal]?.entity) {
                 schema = Entity.getDefinition(schema.properties[cleanVal].entity);
                 lastEntityName = dubbedVal;
                 if (typeof mappingTypesCache[lastEntityName] === 'undefined') {

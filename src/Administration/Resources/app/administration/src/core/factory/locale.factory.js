@@ -183,7 +183,7 @@ function getBrowserLanguages() {
     }
 
     // Chrome only
-    if (navigator.languages && navigator.languages.length) {
+    if (navigator.languages?.length) {
         navigator.languages.forEach((lang) => {
             languages.push(lang);
         });

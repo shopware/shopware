@@ -160,7 +160,7 @@ Component.register('sw-settings-shipping-list', {
 
             const tax = this.shippingCostTaxOptions.find((i) => taxName === i.value) || '';
 
-            return tax && tax.label;
+            return tax?.label;
         }
     }
 });

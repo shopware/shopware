@@ -20,7 +20,7 @@ Mixin.register('placeholder', {
                     return entry.id === `${entity.id}-${parentLanguageId}`;
                 });
 
-                if (translation && translation[field] && translation[field].length > 0) {
+                if (translation?.[field] && translation[field].length > 0) {
                     return translation[field];
                 }
             }

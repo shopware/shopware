@@ -92,7 +92,7 @@ Component.register('sw-system-config', {
                     });
                 })
                 .catch((error) => {
-                    if (error && error.response && error.response.data && error.response.data.errors) {
+                    if (error?.response?.data?.errors) {
                         this.createErrorNotification(error.response.data.errors);
                     }
                 });
@@ -202,7 +202,7 @@ Component.register('sw-system-config', {
                 return value;
             }
 
-            if (element.config && element.config.componentName) {
+            if (element.config?.componentName) {
                 const componentName = element.config.componentName;
 
                 if (componentName === 'sw-switch-field') {

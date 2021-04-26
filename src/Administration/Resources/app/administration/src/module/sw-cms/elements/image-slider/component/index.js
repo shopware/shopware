@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
 
-const { Component, Mixin, Filter, Utils } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 
 Component.register('sw-cms-el-image-slider', {
     template,
@@ -40,7 +40,7 @@ Component.register('sw-cms-el-image-slider', {
         },
 
         sliderItems() {
-            if (Utils.get(this.element, 'config.sliderItems.source') === 'mapped') {
+            if (this.element?.config?.sliderItems?.source === 'mapped') {
                 return this.getDemoValue(this.element.config.sliderItems.value) || [];
             }
 

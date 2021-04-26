@@ -76,8 +76,8 @@ Component.register('sw-product-price-form', {
             },
 
             set(newValue) {
-                this.product.price = (newValue && newValue.price) || null;
-                this.product.purchasePrices = (newValue && newValue.purchasePrices) || null;
+                this.product.price = (newValue?.price) || null;
+                this.product.purchasePrices = (newValue?.purchasePrices) || null;
             }
         },
 

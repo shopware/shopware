@@ -51,7 +51,7 @@ Component.register('sw-mail-header-footer-list', {
 
     methods: {
         onEdit(mailHeaderFooter) {
-            if (mailHeaderFooter && mailHeaderFooter.id) {
+            if (mailHeaderFooter?.id) {
                 this.$router.push({
                     name: 'sw.mail.template.detail_head_foot',
                     params: {

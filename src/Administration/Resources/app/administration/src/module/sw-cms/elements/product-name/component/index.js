@@ -1,6 +1,6 @@
 import './sw-cms-el-product-name.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
     mixins: [
@@ -9,7 +9,7 @@ Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
 
     computed: {
         isProductPage() {
-            return Utils.get(this.cmsPageState, 'currentPage.type', '') === 'product_detail';
+            return this.cmsPageState?.currentPage?.type ?? '' === 'product_detail';
         }
     },
 
@@ -17,7 +17,7 @@ Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
         createdComponent() {
             this.initElementConfig('product-name');
 
-            if (this.isProductPage && !Utils.get(this.element, 'translated.config.content')) {
+            if (this.isProductPage && !this.element?.translated?.config?.content) {
                 this.element.config.content.source = 'mapped';
                 this.element.config.content.value = 'product.name';
             }

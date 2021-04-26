@@ -85,7 +85,7 @@ Component.register('sw-category-tree-field', {
         },
 
         selectedTreeItem(newValue) {
-            if (newValue && newValue.id) {
+            if (newValue?.id) {
                 utils.debounce(() => {
                     const newElement = this.findTreeItemVNodeById(newValue.id).$el;
 
@@ -406,7 +406,7 @@ Component.register('sw-category-tree-field', {
             switch (key) {
                 case 'arrowdown': {
                     // check if actual selection was found
-                    if (actualSelection && actualSelection.item && actualSelection.item.id) {
+                    if (actualSelection?.item?.id) {
                         // when selection is open
                         if (actualSelection.opened) {
                             // get first item of child
@@ -438,7 +438,7 @@ Component.register('sw-category-tree-field', {
 
                 case 'arrowup': {
                     // check if actual selection was found
-                    if (actualSelection && actualSelection.item && actualSelection.item.id) {
+                    if (actualSelection?.item?.id) {
                         // when selection is first item in folder
                         if (actualSelection.item.data.afterCategoryId === null && actualSelection.item.parentId) {
                             // then get the parent folder
@@ -559,7 +559,7 @@ Component.register('sw-category-tree-field', {
         toggleSelectedTreeItem(shouldOpen) {
             const vnode = this.findTreeItemVNodeById();
 
-            if (vnode && vnode.openTreeItem && vnode.opened !== shouldOpen) {
+            if (vnode?.openTreeItem && vnode.opened !== shouldOpen) {
                 vnode.openTreeItem();
                 vnode.getTreeItemChildren(vnode.item);
                 return true;
@@ -573,12 +573,12 @@ Component.register('sw-category-tree-field', {
 
             if (Array.isArray(children)) {
                 found = children.find((child) => {
-                    if (child && child.item && child.item.id) {
+                    if (child?.item?.id) {
                         return child.item.id === itemId;
                     }
                     return false;
                 });
-            } else if (children && children.item && children.item.id) {
+            } else if (children?.item?.id) {
                 found = children.item.id === itemId;
             }
 

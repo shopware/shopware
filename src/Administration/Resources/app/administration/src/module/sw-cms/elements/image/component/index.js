@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
-const { Component, Mixin, Filter, Utils } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 
 Component.register('sw-cms-el-image', {
     template,
@@ -35,18 +35,18 @@ Component.register('sw-cms-el-image', {
             if (mediaSource === 'mapped') {
                 const demoMedia = this.getDemoValue(this.element.config.media.value);
 
-                if (demoMedia && demoMedia.url) {
+                if (demoMedia?.url) {
                     return demoMedia.url;
                 }
 
                 return this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg');
             }
 
-            if (elemData && elemData.id) {
+            if (elemData?.id) {
                 return this.element.data.media.url;
             }
 
-            if (elemData && elemData.url) {
+            if (elemData?.url) {
                 return this.assetFilter(elemData.url);
             }
 
@@ -58,7 +58,7 @@ Component.register('sw-cms-el-image', {
         },
 
         mediaConfigValue() {
-            return Utils.get(this.element, 'config.sliderItems.value');
+            return this.element?.config?.sliderItems?.value;
         }
     },
 
@@ -71,8 +71,8 @@ Component.register('sw-cms-el-image', {
         },
 
         mediaConfigValue(value) {
-            const mediaId = Utils.get(this.element, 'data.media.id');
-            const isSourceStatic = Utils.get(this.element, 'config.media.source') === 'static';
+            const mediaId = this.element?.data?.media?.id;
+            const isSourceStatic = this.element?.config?.media?.source === 'static';
 
             if (isSourceStatic && mediaId && value !== mediaId) {
                 this.element.config.media.value = mediaId;

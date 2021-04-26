@@ -191,7 +191,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 return;
             }
 
-            const parentPath = to.meta && to.meta.parentPath ? to.meta.parentPath : undefined;
+            const parentPath = to.meta?.parentPath ? to.meta.parentPath : undefined;
 
             if (parentPath && module.routes.has(to.meta.parentPath)) {
                 foundModule = module;
@@ -334,7 +334,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Object}
      */
     function iterateChildRoutes(route) {
-        if (route.children && route.children.length) {
+        if (route.children?.length) {
             route.children = route.children.map((child) => {
                 let component = child.component;
 

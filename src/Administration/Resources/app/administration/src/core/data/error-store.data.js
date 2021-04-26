@@ -52,7 +52,7 @@ function removeApiError(expression, state, deleteReactive = null) {
     const field = path.pop();
 
     const store = path.reduce((currentStore, next) => {
-        if (currentStore && currentStore[next]) {
+        if (currentStore?.[next]) {
             return currentStore[next];
         }
 

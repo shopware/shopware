@@ -37,9 +37,7 @@ Shopware.Component.register('sw-extension-store-landing-page', {
                 .catch(error => {
                     this.activationStatus = 'error';
 
-                    if (error &&
-                        error.response &&
-                        error.response.data &&
+                    if (error?.response?.data &&
                         Array.isArray(error.response.data.errors) &&
                         error.response.data.errors[0]
                     ) {

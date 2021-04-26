@@ -358,7 +358,7 @@ export default class VueAdapter extends ViewAdapter {
      */
     resolveMixins(componentConfig) {
         // If the mixin is a string, use our mixin registry
-        if (componentConfig.mixins && componentConfig.mixins.length) {
+        if (componentConfig.mixins?.length) {
             componentConfig.mixins = componentConfig.mixins.map((mixin) => {
                 if (typeof mixin === 'string') {
                     return Mixin.getByName(mixin);

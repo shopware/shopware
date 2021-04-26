@@ -28,7 +28,7 @@ export default class FilterService {
 
                 this._filterEntity = this._userConfigRepository.create(Shopware.Context.api);
                 this._filterEntity.key = storeKey;
-                this._filterEntity.userId = currentUser && currentUser.id;
+                this._filterEntity.userId = currentUser?.id;
                 this._filterEntity.value = {};
             }
 
@@ -109,7 +109,7 @@ export default class FilterService {
         const criteria = new Criteria();
 
         criteria.addFilter(Criteria.equals('key', storeKey));
-        criteria.addFilter(Criteria.equals('userId', currentUser && currentUser.id));
+        criteria.addFilter(Criteria.equals('userId', currentUser?.id));
 
         return criteria;
     }
@@ -119,7 +119,7 @@ export default class FilterService {
         const urlEncodedValue = encodeURIComponent(JSON.stringify(urlFilterValue));
 
         const router = Shopware.Application.view.router;
-        const route = router && router.currentRoute;
+        const route = router?.currentRoute;
 
         const query = { ...route.query };
         delete query[this._filterEntity.key];
@@ -135,8 +135,8 @@ export default class FilterService {
 
     _getQueryFilterValue(storeKey) {
         const router = Shopware.Application.view.router;
-        const route = router && router.currentRoute;
+        const route = router?.currentRoute;
 
-        return route && route.query[storeKey];
+        return route?.query[storeKey];
     }
 }

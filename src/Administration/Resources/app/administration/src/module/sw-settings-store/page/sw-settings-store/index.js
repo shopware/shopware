@@ -51,7 +51,7 @@ Component.register('sw-settings-store', {
         trimHost() {
             const actualConfigData = this.$refs.systemConfig.actualConfigData;
 
-            if (actualConfigData.null && actualConfigData.null['core.store.licenseHost']) {
+            if (actualConfigData.null?.['core.store.licenseHost']) {
                 actualConfigData.null['core.store.licenseHost'] = actualConfigData.null['core.store.licenseHost'].trim();
             }
         }

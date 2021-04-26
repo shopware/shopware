@@ -325,7 +325,7 @@ Component.register('sw-cms-detail', {
 
             return this.defaultFolderRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 const defaultFolder = searchResult.first();
-                if (defaultFolder.folder && defaultFolder.folder.id) {
+                if (defaultFolder.folder?.id) {
                     return defaultFolder.folder.id;
                 }
 
@@ -544,7 +544,7 @@ Component.register('sw-cms-detail', {
                 });
 
                 let hasEmptyConfig = false;
-                if (exception.response.data && exception.response.data.errors) {
+                if (exception.response.data?.errors) {
                     exception.response.data.errors.forEach((error) => {
                         if (error.code === 'c1051bb4-d103-4f74-8988-acbcafc7fdc3') {
                             hasEmptyConfig = true;

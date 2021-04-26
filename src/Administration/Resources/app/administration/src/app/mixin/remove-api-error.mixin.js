@@ -9,7 +9,7 @@ Mixin.register('remove-api-error', {
 
     $apiErrorHandler($vm) {
         let property = 'value';
-        if ($vm.$options.model && $vm.$options.model.prop) {
+        if ($vm.$options.model?.prop) {
             property = $vm.$options.model.prop;
         }
 

@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-cross-selling.html.twig';
 import './sw-cms-el-config-cross-selling.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-cms-el-config-cross-selling', {
@@ -40,7 +40,7 @@ Component.register('sw-cms-el-config-cross-selling', {
         },
 
         isProductPageType() {
-            return Utils.get(this.cmsPageState, 'currentPage.type') === 'product_detail';
+            return this.cmsPageState?.currentPage?.type === 'product_detail';
         }
     },
 

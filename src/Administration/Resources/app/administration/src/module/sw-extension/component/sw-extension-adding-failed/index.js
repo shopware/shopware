@@ -1,7 +1,7 @@
 import template from './sw-extension-adding-failed.html.twig';
 import './sw-extension-adding-failed.scss';
 
-const { Component, Utils } = Shopware;
+const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -49,10 +49,7 @@ Component.register('sw-extension-adding-failed', {
         },
 
         isRent() {
-            return Utils.get(
-                this.extension,
-                'storeLicense.variant'
-            ) === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
+            return this.extension?.storeLicense?.variant === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
         },
 
         headline() {

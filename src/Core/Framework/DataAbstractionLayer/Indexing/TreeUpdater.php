@@ -298,7 +298,7 @@ class TreeUpdater
         foreach ($updateIds as $updateId) {
             $entity = $this->updatePath($updateId, $bag);
             if ($entity !== null) {
-                $this->updateEntity($entity, $pathField, $levelField, $context, $bag);
+                $this->updateEntity($entity, $definition, $pathField, $levelField, $context, $bag);
             }
         }
 
@@ -307,16 +307,15 @@ class TreeUpdater
         $this->updateLevelRecursively($childIds, $definition, $context, $bag);
     }
 
-    private function updateEntity(array $entity, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context, TreeUpdaterBag $bag): void
+    private function updateEntity(array $entity, EntityDefinition $definition, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context, TreeUpdaterBag $bag): void
     {
         if ($pathField === null && $levelField) {
             throw new \RuntimeException('`TreePathField` or `TreeLevelField` required.');
         }
 
         if ($this->updateEntityStatement === null) {
-            $sql = '
-                UPDATE `category`
-                SET ';
+            $tableName = EntityDefinitionQueryHelper::escape($definition->getEntityName());
+            $sql = 'UPDATE ' . $tableName . ' SET ';
 
             $sets = [];
             if ($pathField !== null) {

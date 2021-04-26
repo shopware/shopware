@@ -131,7 +131,7 @@ parameters:
 			path: src/Core/Checkout/Cart/Order/Transformer/LineItemTransformer.php
 
 		-
-			message: "#^Parameter \\#1 \\$type of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\:\\:setType\\(\\) expects string, string\\|null given\\.$#"
+			message: "#^Parameter \\#2 \\$type of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem constructor expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Order/Transformer/LineItemTransformer.php
 

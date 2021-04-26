@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class LineItemTransformer
 {
-    private const LINE_ITEM_PLACEHOLDER = 'lineItemPlaceholder';
-
     public static function transformCollection(LineItemCollection $lineItems, ?string $parentId = null): array
     {
         $output = [];
@@ -83,7 +81,7 @@ class LineItemTransformer
 
         foreach ($lineItems as $id => $lineItem) {
             if (!\array_key_exists($id, $index)) {
-                $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
+                $index[$id] = self::createLineItem($lineItem);
             }
 
             $currentLineItem = $index[$id];
@@ -97,7 +95,12 @@ class LineItemTransformer
             }
 
             if (!\array_key_exists($lineItem->getParentId(), $index)) {
-                $index[$lineItem->getParentId()] = new LineItem($lineItem->getParentId(), self::LINE_ITEM_PLACEHOLDER);
+                $parentItem = $lineItems->get($lineItem->getParentId());
+                if ($parentItem === null) {
+                    continue;
+                }
+
+                $index[$lineItem->getParentId()] = self::createLineItem($parentItem);
             }
 
             $index[$lineItem->getParentId()]->addChild($currentLineItem);
@@ -109,11 +112,6 @@ class LineItemTransformer
     private static function updateLineItem(LineItem $lineItem, OrderLineItemEntity $entity, string $id): void
     {
         $lineItem->setId($entity->getIdentifier())
-            ->setType($entity->getType())
-            ->setReferencedId($entity->getReferencedId())
-            ->setStackable(true)
-            ->setQuantity($entity->getQuantity())
-            ->setStackable($entity->getStackable())
             ->setLabel($entity->getLabel())
             ->setGood($entity->getGood())
             ->setRemovable($entity->getRemovable())
@@ -131,5 +129,15 @@ class LineItemTransformer
         if ($entity->getPriceDefinition() !== null) {
             $lineItem->setPriceDefinition($entity->getPriceDefinition());
         }
+    }
+
+    private static function createLineItem(OrderLineItemEntity $entity): LineItem
+    {
+        return new LineItem(
+            $entity->getIdentifier(),
+            $entity->getType(),
+            $entity->getReferencedId(),
+            $entity->getQuantity()
+        );
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
@@ -181,27 +182,30 @@ class CheckoutController extends StorefrontController
             return $this->redirectToRoute('frontend.checkout.register.page');
         }
 
-        $formViolations = null;
-
-        $orderId = null;
-
         try {
             $this->addAffiliateTracking($data, $request->getSession());
+
             $orderId = $this->orderService->createOrder($data, $context);
+        } catch (ConstraintViolationException $formViolations) {
+            return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);
+        } catch (InvalidCartException | Error | EmptyCartException $error) {
+            $this->addCartErrors(
+                $this->cartService->getCart($context->getToken(), $context)
+            );
+
+            return $this->forwardToRoute('frontend.checkout.confirm.page');
+        }
+
+        try {
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
             $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
             $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
 
             return $response ?? new RedirectResponse($finishUrl);
-        } catch (ConstraintViolationException $formViolations) {
-        } catch (Error $blockedError) {
-        } catch (EmptyCartException $blockedError) {
         } catch (PaymentProcessException | InvalidOrderException | UnknownPaymentMethodException $e) {
             return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => false, 'paymentFailed' => true]);
         }
-
-        return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);
     }
 
     /**

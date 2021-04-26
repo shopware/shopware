@@ -40,6 +40,9 @@ module.exports = async function testTeardown(globalConfig) {
         });
     });
 
+    // reset sources to default
+    coberture.coverage.sources = [{ source: ['.'] }];
+
     writeObjectAsXml(coberture, cobertureFilePath);
 };
 

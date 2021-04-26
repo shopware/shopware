@@ -8,7 +8,7 @@ module.exports = {
         adminPath: process.env.ADMIN_PATH
     },
 
-    globalTeardown: '<rootDir>test/_setup_/globalTeardown.js',
+    globalTeardown: '<rootDir>test/globalTeardown.js',
 
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
 
@@ -18,7 +18,6 @@ module.exports = {
 
     coverageReporters: [
         'text',
-        'text-summary',
         'cobertura',
         'html-spa'
     ],

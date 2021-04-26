@@ -1,8 +1,9 @@
 {% block sw_order_detail %}
-    <sw-page class="sw-order-detail" v-if="orderId">
+    <sw-page v-if="orderId" class="sw-order-detail">
 
         {% block sw_order_detail_header %}
             <template #smart-bar-header>
+
                 {% block sw_order_detail_header_title %}
                     <h2 v-if="identifier">
                         {{ $tc('sw-order.detail.textHeadline') }} {{ identifier }}
@@ -21,38 +22,39 @@
                 {% block sw_order_detail_header_title_new %}
                     <h2 v-else>{{ $tc('sw-order.detail.textHeadlineNew') }}</h2>
                 {% endblock %}
+
             </template>
         {% endblock %}
 
         {% block sw_order_detail_language_switch %}
-            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+            <sw-language-switch #language-switch @on-change="onChangeLanguage"></sw-language-switch>
         {% endblock %}
 
         {% block sw_order_detail_actions %}
             <template #smart-bar-actions>
+
                 {% block sw_order_detail_actions_slot_smart_bar_actions %}
                     {% block sw_order_detail_actions_abort %}
                         <sw-button class="sw-order-detail__smart-bar-cancel-button"
                                    v-if="isEditing"
                                    :disabled="isLoading"
                                    @click="onCancelEditing">
-                            {{ $tc('sw-product.detail.buttonCancel') }}
+                            {{ $tc('global.default.cancel') }}
                         </sw-button>
                     {% endblock %}
 
-
                     {% block sw_order_detail_actions_edit %}
-                        <sw-button class="sw-order-detail__smart-bar-edit-button"
-                                   v-if="!isEditing"
-                                   :disabled="isLoading || !acl.can('order.editor')"
+                        <sw-button v-if="!isEditing"
                                    v-tooltip="{
-                                        message: $tc('sw-privileges.tooltip.warning'),
-                                        disabled: acl.can('order.editor'),
-                                        showOnDisabledElements: true
-                                    }"
+                                       message: $tc('sw-privileges.tooltip.warning'),
+                                       disabled: acl.can('order.editor'),
+                                       showOnDisabledElements: true
+                                   }"
+                                   class="sw-order-detail__smart-bar-edit-button"
                                    variant="primary"
+                                   :disabled="isLoading || !acl.can('order.editor')"
                                    @click="onStartEditing">
-                            {{ $tc('sw-order.detail.buttonEdit') }}
+                            {{ $tc('global.default.edit') }}
                         </sw-button>
                     {% endblock %}
 
@@ -60,16 +62,17 @@
                         <sw-button-process
                             v-if="isEditing"
                             class="sw-order-detail__smart-bar-save-button"
+                            variant="primary"
                             :disabled="isLoading"
                             :isLoading="isLoading"
                             :processSuccess="isSaveSuccessful"
-                            variant="primary"
                             @process-finish="saveEditsFinish"
                             @click.prevent="onSaveEdits">
-                            {{ $tc('sw-order.detail.buttonSave') }}
+                            {{ $tc('global.default.save') }}
                         </sw-button-process>
                     {% endblock %}
                 {% endblock %}
+
             </template>
         {% endblock %}
 
@@ -78,27 +81,29 @@
 
                 {% block sw_order_detail_content_tabs %}
                     <sw-tabs v-if="showTabs" class="sw-order-detail__tabs">
+
                         {% block sw_order_detail_content_tabs_general %}
                             <sw-tabs-item :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
                                           :title="$tc('sw-order.detail.tabGeneral')">
                                 {{ $tc('sw-order.detail.tabGeneral') }}
                             </sw-tabs-item>
                         {% endblock %}
+
                     </sw-tabs>
                 {% endblock %}
 
                 {% block sw_order_detail_content_view %}
                     <router-view
-                            :orderId="orderId"
-                            ref="baseComponent"
-                            :isEditing="isEditing"
-                            :isLoading="isLoading"
-                            :isSaveSuccessful="isSaveSuccessful"
-                            @identifier-change="updateIdentifier"
-                            @created-by-id-change="updateCreatedById"
-                            @loading-change="onUpdateLoading"
-                            @editing-change="onUpdateEditing"
-                            @error="onError">
+                        :orderId="orderId"
+                        ref="baseComponent"
+                        :isEditing="isEditing"
+                        :isLoading="isLoading"
+                        :isSaveSuccessful="isSaveSuccessful"
+                        @identifier-change="updateIdentifier"
+                        @created-by-id-change="updateCreatedById"
+                        @loading-change="onUpdateLoading"
+                        @editing-change="onUpdateEditing"
+                        @error="onError">
                     </router-view>
                 {% endblock %}
 

@@ -106,6 +106,11 @@ class OrderLineItemEntity extends Entity
     protected $parentId;
 
     /**
+     * @var OrderLineItemEntity|null
+     */
+    protected $parent;
+
+    /**
      * @var string|null
      */
     protected $type;
@@ -302,6 +307,16 @@ class OrderLineItemEntity extends Entity
         $this->parentId = $parentId;
     }
 
+    public function getParent(): ?OrderLineItemEntity
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?OrderLineItemEntity $parent): void
+    {
+        $this->parent = $parent;
+    }
+
     public function getType(): ?string
     {
         return $this->type;
@@ -367,7 +382,7 @@ class OrderLineItemEntity extends Entity
         return $this->children;
     }
 
-    public function setChildren(?OrderLineItemCollection $children): void
+    public function setChildren(OrderLineItemCollection $children): void
     {
         $this->children = $children;
     }

@@ -8,13 +8,14 @@ const { get, format } = Utils;
 Component.register('sw-order-line-items-grid', {
     template,
 
-    inject: ['repositoryFactory', 'orderService', 'acl'],
+    inject: ['repositoryFactory', 'orderService', 'acl', 'feature'],
 
     data() {
         return {
             isLoading: false,
             selectedItems: {},
-            searchTerm: ''
+            searchTerm: '',
+            nestedLineItemsModal: null
         };
     },
     props: {
@@ -85,6 +86,7 @@ Component.register('sw-order-line-items-grid', {
                 allowResize: false,
                 primary: true,
                 inlineEdit: true,
+                multiLine: true,
                 width: '200px'
             }, {
                 property: 'unitPrice',
@@ -299,6 +301,18 @@ Component.register('sw-order-line-items-grid', {
             };
         },
 
+        openNestedLineItemsModal(item) {
+            this.nestedLineItemsModal = item;
+        },
+
+        closeNestedLineItemsModal() {
+            this.nestedLineItemsModal = null;
+        },
+
+        hasChildren(item) {
+            return item.children && item.children.length > 0;
+        },
+
         hasMultipleTaxes(item) {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
         },
@@ -309,6 +323,13 @@ Component.register('sw-order-line-items-grid', {
             }
 
             item.priceDefinition.quantity = item.quantity;
+        },
+
+        showTaxRulesInlineEdit(item) {
+            return !this.itemCreatedFromProduct(item.id) &&
+                item.priceDefinition &&
+                item.priceDefinition.taxRules &&
+                !this.isCreditItem(item.id);
         }
     }
 });

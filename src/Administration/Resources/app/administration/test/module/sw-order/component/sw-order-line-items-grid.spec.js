@@ -160,6 +160,9 @@ function createWrapper({ privileges = [] }) {
 
                     return privileges.includes(key);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
         stubs: {

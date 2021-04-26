@@ -153,10 +153,23 @@ Component.register('sw-order-detail-base', {
             const criteria = new Criteria(this.page, this.limit);
 
             criteria
-                .addAssociation('lineItems')
                 .addAssociation('currency')
                 .addAssociation('orderCustomer')
                 .addAssociation('language');
+
+            criteria
+                .getAssociation('lineItems')
+                .addSorting(Criteria.sort('label', 'ASC'));
+
+            if (Shopware.Feature.isActive('FEATURE_NEXT_12635')) {
+                criteria
+                    .getAssociation('lineItems')
+                    .addFilter(Criteria.equals('parentId', null));
+
+                criteria
+                    .getAssociation('lineItems.children')
+                    .addSorting(Criteria.sort('label'));
+            }
 
             criteria
                 .getAssociation('deliveries')

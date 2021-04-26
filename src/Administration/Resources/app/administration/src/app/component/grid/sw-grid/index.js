@@ -15,7 +15,7 @@ const { dom } = Shopware.Utils;
  *     {company:'Skidoo',name:'Arturo Staker'},
  *     {company:'Meetz',name:'Dalston Top'},
  *     {company:'Photojam',name:'Neddy Jensen'}]">
- *     <template slot="columns" slot-scope="{ item }">
+ *     <template #columns="{ item }">
  *         <sw-grid-column flex="minmax(200px, 1fr)" label="Company">
  *             <strong>{{ item.company }}</strong>
  *         </sw-grid-column>

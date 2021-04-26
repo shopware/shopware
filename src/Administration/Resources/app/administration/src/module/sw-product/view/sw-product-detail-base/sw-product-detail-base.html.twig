@@ -1,11 +1,13 @@
 {% block sw_product_detail_base %}
     <div class="sw-product-detail-base">
+
         {% block sw_product_detail_base_basic_info_card %}
             <sw-card
                 v-show="showProductCard('general_information')"
                 class="sw-product-detail-base__info"
                 :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
                 :isLoading="isLoading">
+
                 {% block sw_product_detail_base_basic_info_form %}
                     <sw-product-basic-form
                         v-if="!isLoading"
@@ -13,6 +15,7 @@
                         :allowEdit="acl.can('product.editor')">
                     </sw-product-basic-form>
                 {% endblock %}
+
             </sw-card>
         {% endblock %}
 
@@ -22,23 +25,26 @@
                 class="sw-product-detail-base__prices"
                 :title="$tc('sw-product.detailBase.cardTitlePrices')"
                 :isLoading="loading.product">
+
                 {% block sw_product_detail_base_price_form %}
                     <sw-product-price-form :allowEdit="acl.can('product.editor')">
                     </sw-product-price-form>
                 {% endblock %}
 
                 {% block sw_product_detail_base_advanced_prices_link %}
-                <sw-container
-                    v-if="productId"
-                    columns="1fr"
-                    justify="end" >
-                    <router-link
-                        :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                        class="sw-card__quick-link">
-                        {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                    </router-link>
-                </sw-container>
+                    <sw-container
+                        v-if="productId"
+                        columns="1fr"
+                        justify="end">
+
+                        <router-link
+                            :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                            class="sw-card__quick-link">
+                            {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                        </router-link>
+                    </sw-container>
                 {% endblock %}
+
             </sw-card>
         {% endblock %}
 
@@ -48,12 +54,14 @@
                 class="sw-product-detail-base__deliverability"
                 :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
                 :isLoading="isLoading">
+
                 {% block sw_product_detail_deliverability_info_form %}
                     <sw-product-deliverability-form
                         v-if="!isLoading"
                         :allowEdit="acl.can('product.editor')">
                     </sw-product-deliverability-form>
                 {% endblock %}
+                I
             </sw-card>
         {% endblock %}
 
@@ -63,9 +71,11 @@
                 class="sw-product-detail-base__visibility-structure"
                 :title="$tc('sw-product.detailBase.cardTitleAssignment')"
                 :isLoading="loading.product">
+
                 {% block sw_product_detail_base_category_form %}
                     <sw-product-category-form :allowEdit="acl.can('product.editor')"></sw-product-category-form>
                 {% endblock %}
+
             </sw-card>
         {% endblock %}
 
@@ -74,17 +84,18 @@
                 v-show="showProductCard('media')"
                 v-model="product.media"
                 class="sw-product-detail-base__media"
+                ref="productMediaInheritance"
                 :inheritedValue="parentProduct.media"
                 :customRestoreInheritanceFunction="mediaRestoreInheritanceFunction"
                 :customRemoveInheritanceFunction="mediaRemoveInheritanceFunction"
-                isAssociation
-                ref="productMediaInheritance">
+                isAssociation>
                 <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
 
                     {% block sw_product_detail_base_media_card %}
                         <sw-card :isLoading="loading.product || loading.customFieldSets || loading.media"
                                  :class="{ 'sw-card__inherited': isInherited }">
                             <template #title>
+
                                 {% block sw_product_detail_base_media_card_title %}
                                     <div class="sw-card__title" :class="{ 'sw-card__title__inherited': isInherited }">
                                         <sw-inheritance-switch
@@ -97,6 +108,7 @@
                                         {{ $tc('sw-product.detailBase.cardTitleMedia') }}
                                     </div>
                                 {% endblock %}
+
                             </template>
 
                             {% block sw_product_detail_base_media_card_form %}
@@ -109,6 +121,7 @@
                                     @media-open="onOpenMediaModal">
                                 </sw-product-media-form>
                             {% endblock %}
+
                         </sw-card>
                     {% endblock %}
 
@@ -132,9 +145,11 @@
                 class="sw-product-detail-base__labelling-card"
                 :title="$tc('sw-product.detailBase.cardTitleSettings')"
                 :isLoading="loading.product">
+
                 {% block sw_product_detail_base_settings_form %}
                     <sw-product-settings-form :allowEdit="acl.can('product.editor')"></sw-product-settings-form>
                 {% endblock %}
+
             </sw-card>
         {% endblock %}
 

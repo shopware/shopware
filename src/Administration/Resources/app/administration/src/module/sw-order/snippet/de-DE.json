@@ -36,8 +36,6 @@
     },
     "detail": {
       "buttonCancel": "Änderungen verwerfen",
-      "buttonSave": "Speichern",
-      "buttonEdit": "Bearbeiten",
       "tabOrderDetails": "Bestelldetails",
       "tabDeliveries": "Lieferungen",
       "textHeadline": "Bestellung",
@@ -181,6 +179,7 @@
       "buttonAddBlankProduct": "Leere Position hinzufügen",
       "buttonAddCredit": "Gutschrift hinzufügen",
       "buttonEditAddress": "Bearbeiten",
+      "tooltipNestedLineItemsButton": "Diese Bestellposition enthält Unterpositionen.",
       "labelNoPhoneNumber": "Keine",
       "labelNoEmail": "Keine",
       "labelCustomerPhoneNumber": "Telefonnummer",
@@ -207,6 +206,14 @@
       "enterValidTrackingCode": "Tracking-Code eingeben",
       "textCreditTax": "auto",
       "taxDetail": "{taxRate}%: {tax}"
+    },
+    "nestedLineItemsModal": {
+      "titlePrefix": "Position: {lineItemLabel} - {price}",
+      "headerLabel": "Name",
+      "headerUnitPrice": "Bruttopreis",
+      "headerQuantity": "Menge",
+      "headerTotalPrice": "Gesamt",
+      "headerTax": "Steuersatz"
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",

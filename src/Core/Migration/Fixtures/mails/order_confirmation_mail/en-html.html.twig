@@ -61,7 +61,7 @@ You may use this link to edit your order, change the payment method or make addi
             </td>
             <td style="text-align: center">{{ nestedItem.quantity }}</td>
             <td>{{ nestedItem.unitPrice|currency(currencyIsoCode) }}</td>
-            <td>{% if nestingLevel == 0 %}{{ nestedItem.totalPrice|currency(currencyIsoCode) }}{% endif %}</td>
+            <td>{{ nestedItem.totalPrice|currency(currencyIsoCode) }}</td>
         </tr>
 
             {% if nestedItem.children.count > 0 %}

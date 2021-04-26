@@ -134,12 +134,15 @@ export default class ShopwareExtensionService {
     }
 
     canBeOpened(extension) {
-        return !!this.getOpenLink(extension);
+        return this.getOpenLink(extension).then(res => {
+            return !!res;
+        });
     }
 
-    getOpenLink(extension) {
+    async getOpenLink(extension) {
         if (extension.isTheme) {
-            return this._getLinkToTheme(extension);
+            // eslint-disable-next-line no-return-await
+            return await this._getLinkToTheme(extension);
         }
 
         if (extension.type === this.EXTENSION_TYPES.APP) {
@@ -177,6 +180,11 @@ export default class ShopwareExtensionService {
         criteria.addFilter(Criteria.equals('technicalName', extension.name));
 
         const { data: ids } = await themeRepository.searchIds(criteria, Shopware.Context.api);
+        const hasIds = ids.length > 0;
+
+        if (!hasIds) {
+            return null;
+        }
 
         return {
             name: 'sw.theme.manager.detail',

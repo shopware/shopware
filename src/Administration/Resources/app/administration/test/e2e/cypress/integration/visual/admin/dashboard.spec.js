@@ -52,6 +52,10 @@ describe('Dashboard:  Visual tests', () => {
     it('@visual: check appearance of basic dashboard workflow', () => {
         // Take snapshot for visual testing
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color : #fff');
+        cy.get('.sw-dashboard-index__welcome-title')
+            .invoke('prop', 'innerText', 'Oh, hello Cypress.');
+        cy.get('.sw-dashboard-index__welcome-message')
+            .invoke('prop', 'innerText', 'If it wasn\'t for you… This message would never happened.');
         cy.takeSnapshot('Dashboard overview', '.sw-dashboard-index__content');
     });
 });

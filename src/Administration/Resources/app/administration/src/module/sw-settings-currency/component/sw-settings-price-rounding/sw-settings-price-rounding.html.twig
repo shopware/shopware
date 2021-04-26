@@ -79,6 +79,13 @@
             </p>
         {% endblock %}
 
+        {% block sw_settings_price_rounding_subline_description %}
+            <sw-alert class="sw-settings-price-rounding__info-description"
+                      variant="warning">
+                {{ $tc('sw-settings-currency.price-rounding.infoDescription') }}
+            </sw-alert>
+        {% endblock %}
+
         {% block sw_settings_price_rounding_container_grand %}
             <sw-container
                 class="sw-settings-price-rounding__rounding-container"

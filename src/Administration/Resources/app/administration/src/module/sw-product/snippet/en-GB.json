@@ -221,6 +221,7 @@
       "columnInStock": "In stock",
       "columnAvailableStock": "Available",
       "columnActions": "Action(s)",
+      "columnMedia": "Media",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",

@@ -192,6 +192,32 @@
                             </template>
                         {% endblock %}
 
+                        {% block sw_product_variant_modal_body_grid_column_media %}
+                            <template v-if="feature.isActive('FEATURE_NEXT_6544')"
+                                      #column-media="{ item, isInlineEdit, compact }">
+                                {% block sw_product_variant_modal_body_grid_column_media_inline_edit %}
+                                    {% block sw_product_variant_modal_body_grid_column_media_inherit %}
+                                        <sw-inheritance-switch :isInherited="isMediaFieldInherited(item)"
+                                                               :disabled="!isInlineEdit"
+                                                               class="sw-product-variant-modal__media-inherited-icon"
+                                                               @inheritance-restore="onMediaInheritanceRestore(item, isInlineEdit)"
+                                                               @inheritance-remove="onMediaInheritanceRemove(item, isInlineEdit)">
+                                        </sw-inheritance-switch>
+                                    {% endblock %}
+
+                                    {% block sw_product_variant_modal_body_grid_column_media_content %}
+                                        <sw-product-variants-media-upload
+                                            :source="item"
+                                            :uploadTag="item.id"
+                                            :isInherited="isMediaFieldInherited(item)"
+                                            :disabled="isInlineEdit ? isMediaFieldInherited(item) : true"
+                                            :parentProduct="productEntity">
+                                        </sw-product-variants-media-upload>
+                                    {% endblock %}
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
                         {% block sw_product_variant_modal_body_grid_actions %}
                             <template #actions="{item}">
 

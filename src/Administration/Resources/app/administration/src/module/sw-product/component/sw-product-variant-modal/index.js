@@ -1,13 +1,14 @@
 import template from './sw-product-variant-modal.html.twig';
 import './sw-product-variant-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-variant-modal', {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'acl'
     ],
@@ -53,6 +54,10 @@ Component.register('sw-product-variant-modal', {
             return this.repositoryFactory.create('product');
         },
 
+        productMediaRepository() {
+            return this.repositoryFactory.create(this.productEntity.media.entity);
+        },
+
         currencyRepository() {
             return this.repositoryFactory.create('currency');
         },
@@ -78,6 +83,11 @@ Component.register('sw-product-variant-modal', {
                 .addAssociation('group');
             criteria.addAssociation('cover');
 
+            if (this.feature.isActive('FEATURE_NEXT_6544')) {
+                criteria.addAssociation('media');
+                criteria.addAssociation('cover');
+            }
+
             if (this.searchTerm) {
                 // Split each word for search
                 const terms = this.searchTerm.split(' ');
@@ -98,7 +108,7 @@ Component.register('sw-product-variant-modal', {
         },
 
         gridColumns() {
-            return [
+            const columns = [
                 {
                     property: 'name',
                     dataIndex: 'name',
@@ -140,6 +150,19 @@ Component.register('sw-product-variant-modal', {
                     align: 'right'
                 }
             ];
+
+            if (this.feature.isActive('FEATURE_NEXT_6544')) {
+                columns.push({
+                    property: 'media',
+                    dataIndex: 'media',
+                    label: this.$tc('sw-product.list.columnMedia'),
+                    allowResize: true,
+                    inlineEdit: true,
+                    sortable: false
+                });
+            }
+
+            return columns;
         },
 
         canBeDeletedCriteria() {
@@ -453,6 +476,48 @@ Component.register('sw-product-variant-modal', {
                 showOnDisabledElements,
                 disabled: this.acl.can(role)
             };
+        },
+
+        isMediaFieldInherited(variant) {
+            if (variant.forceMediaInheritanceRemove) {
+                return false;
+            }
+
+            if (variant.media) {
+                return variant.media.length <= 0;
+            }
+
+            return !!variant.media;
+        },
+
+        onMediaInheritanceRestore(variant, isInlineEdit) {
+            if (!isInlineEdit) {
+                return;
+            }
+
+            variant.forceMediaInheritanceRemove = false;
+            variant.coverId = null;
+
+            variant.media.getIds().forEach((mediaId) => {
+                variant.media.remove(mediaId);
+            });
+        },
+
+        onMediaInheritanceRemove(variant, isInlineEdit) {
+            if (!isInlineEdit) {
+                return;
+            }
+
+            variant.forceMediaInheritanceRemove = true;
+            this.productEntity.media.forEach(({ id, mediaId, position }) => {
+                const media = this.productMediaRepository.create(Context.api);
+                Object.assign(media, { mediaId, position, productId: this.productEntity.id });
+                if (this.productEntity.coverId === id) {
+                    variant.coverId = media.id;
+                }
+
+                variant.media.push(media);
+            });
         }
     }
 });

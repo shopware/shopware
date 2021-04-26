@@ -1,4 +1,6 @@
 @import "~scss/variables";
+@import "~scss/mixins";
+
 $sw-products-variants-generated-variants-toolbar-background: #f8f9fa;
 $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
 
@@ -130,11 +132,15 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         padding-left: 10px;
     }
 
-    .sw-data-grid.is--compact {
-        .sw-data-grid__body {
+    .sw-data-grid .sw-data-grid__body {
+        .sw-data-grid__cell--media {
             .sw-data-grid__cell-content {
                 height: auto;
             }
+        }
+
+        .sw-media-preview-v2 {
+            @include square(32px);
         }
     }
 }

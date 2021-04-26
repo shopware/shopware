@@ -401,7 +401,11 @@ Component.register('sw-product-variants-overview', {
             this.$set(variant.price, variant.price.length, newPrice);
         },
 
-        onMediaInheritanceRestore(variant) {
+        onMediaInheritanceRestore(variant, isInlineEdit) {
+            if (!isInlineEdit) {
+                return;
+            }
+
             variant.forceMediaInheritanceRemove = false;
             variant.coverId = null;
 
@@ -410,7 +414,11 @@ Component.register('sw-product-variants-overview', {
             });
         },
 
-        onMediaInheritanceRemove(variant) {
+        onMediaInheritanceRemove(variant, isInlineEdit) {
+            if (!isInlineEdit) {
+                return;
+            }
+
             variant.forceMediaInheritanceRemove = true;
             this.product.media.forEach(({ id, mediaId, position }) => {
                 const media = this.productMediaRepository.create(Context.api);

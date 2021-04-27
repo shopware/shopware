@@ -108,7 +108,7 @@
         "titleCard": "Information",
         "labelName": "Name",
         "labelDescription": "Description",
-        "labelSalesChannels": "Sales channels",
+        "labelSalesChannels": "Sales Channels",
         "placeholderName": "Enter a name...",
         "placeholderDescription": "Enter a description...",
         "placeholderSalesChannels": "Choose related Sales Channels..."

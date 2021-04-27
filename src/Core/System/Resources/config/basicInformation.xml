@@ -29,6 +29,21 @@
             <helpText lang="de-DE">Setzt den Metatag "isFamilyFriendly" für Suchmaschinen</helpText>
         </input-field>
 
+        <input-field type="text-editor">
+            <name>address</name>
+            <label>Shop owner's address</label>
+            <label lang="de-DE">Shopbetreiber-Adresse</label>
+            <placeholder>Enter address...</placeholder>
+            <placeholder lang="de-DE">Adresse eingeben ...</placeholder>
+        </input-field>
+
+        <input-field type="text-editor">
+            <name>bankAccount</name>
+            <label>Shop owner's banking information</label>
+            <label lang="de-DE">Shopbetreiber-Bankinformationen</label>
+            <placeholder>Enter banking information...</placeholder>
+            <placeholder lang="de-DE">Bankinformationen eingeben ...</placeholder>
+        </input-field>
     </card>
 
     <card>

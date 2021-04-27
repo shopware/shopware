@@ -37,12 +37,9 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $this->repository = $this->getContainer()->get('mail_header_footer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-    }
 
-    protected function tearDown(): void
-    {
         try {
-            $this->connection->executeUpdate('DELETE FROM mail_header_footer');
+            $this->connection->executeStatement('DELETE FROM mail_header_footer');
         } catch (\Exception $e) {
             static::assertTrue(false . 'Failed to remove testdata: ' . $e->getMessage());
         }
@@ -163,7 +160,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
                         JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];

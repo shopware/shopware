@@ -9,9 +9,6 @@ describe('Mail templates: Test acl privileges', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createDefaultFixture('mail-header-footer');
-            })
-            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
     });
@@ -51,8 +48,8 @@ describe('Mail templates: Test acl privileges', () => {
             `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
         );
 
-        cy.get('#sw-field--mailHeaderFooter-name').should('have.value', 'Header and Footer');
-        cy.get('#sw-field--mailHeaderFooter-description').should('have.value', 'Default Description');
+        cy.get('#sw-field--mailHeaderFooter-name').should('have.value', 'Default email footer');
+        cy.get('#sw-field--mailHeaderFooter-description').should('have.value', 'Default email footer derived from basic information');
     });
 
     it('@settings: edit email template', () => {
@@ -382,9 +379,8 @@ describe('Mail templates: Test acl privileges', () => {
 
         // verify fields
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Header and Footer');
-
+            .contains('Default email footer');
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--1 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Header and Footer');
+            .contains('Default email footer');
     });
 });

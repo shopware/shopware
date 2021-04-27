@@ -180,6 +180,10 @@ Component.register('sw-system-config', {
                 bind.config.valueProperty = 'id';
             }
 
+            if (element.type === 'text-editor') {
+                bind.config.componentName = 'sw-text-editor';
+            }
+
             return bind;
         },
 
@@ -217,7 +221,8 @@ Component.register('sw-system-config', {
                 case 'password':
                 case 'url':
                 case 'text':
-                case 'textarea': {
+                case 'textarea':
+                case 'text-editor': {
                     return '';
                 }
 

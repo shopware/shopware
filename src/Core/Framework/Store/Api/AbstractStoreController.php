@@ -14,6 +14,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0 - Will be removed. Use AbstractStoreRequestOptionsProvider provide store token.
  */
 abstract class AbstractStoreController extends AbstractController
 {

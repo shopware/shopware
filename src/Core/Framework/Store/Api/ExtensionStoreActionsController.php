@@ -144,7 +144,7 @@ class ExtensionStoreActionsController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/extension/deactivate/{type}/{technicalName}", name="api.extension.deacctivate", methods={"PUT"})
+     * @Route("/api/_action/extension/deactivate/{type}/{technicalName}", name="api.extension.deactivate", methods={"PUT"})
      */
     public function deactivateExtension(string $type, string $technicalName, Context $context): Response
     {

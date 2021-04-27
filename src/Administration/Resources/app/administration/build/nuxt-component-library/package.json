@@ -13,7 +13,7 @@
     "license": "MIT",
     "dependencies": {
         "docblock-parser": "1.0.0",
-        "espree": "6.0.0",
+        "espree": "7.3.1",
         "glob": "7.1.4",
         "html-loader": "0.5.5",
         "node-sass": "4.12.0",

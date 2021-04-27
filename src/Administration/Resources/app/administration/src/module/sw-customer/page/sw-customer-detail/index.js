@@ -13,7 +13,8 @@ Component.register('sw-customer-detail', {
         'systemConfigApiService',
         'repositoryFactory',
         'customerGroupRegistrationService',
-        'acl'
+        'acl',
+        'customerValidationService'
     ],
 
     mixins: [
@@ -40,7 +41,8 @@ Component.register('sw-customer-detail', {
             isSaveSuccessful: false,
             customer: null,
             customerAddressCustomFieldSets: [],
-            customerCustomFieldSets: []
+            customerCustomFieldSets: [],
+            errorEmailCustomer: null
         };
     },
 
@@ -117,6 +119,15 @@ Component.register('sw-customer-detail', {
             };
         },
 
+        emailHasChanged() {
+            const origin = this.customer.getOrigin();
+            if (this.customer.isNew() || !origin.email) {
+                return true;
+            }
+
+            return origin.email !== this.customer.email;
+        },
+
         ...mapPageErrors(errorConfig)
     },
 
@@ -150,12 +161,49 @@ Component.register('sw-customer-detail', {
             this.editMode = false;
         },
 
+        validateEmail() {
+            const { id, email, boundSalesChannelId } = this.customer;
+
+            return this.customerValidationService.checkCustomerEmail({
+                id,
+                email,
+                boundSalesChannelId
+            }).then((emailIsValid) => {
+                if (this.errorEmailCustomer) {
+                    Shopware.State.dispatch('error/addApiError',
+                        {
+                            expression: `customer.${this.customer.id}.email`,
+                            error: null
+                        });
+                }
+
+                return emailIsValid;
+            }).catch((exception) => {
+                this.emailIsValid = false;
+                Shopware.State.dispatch('error/addApiError',
+                    {
+                        expression: `customer.${this.customer.id}.email`,
+                        error: exception.response.data.errors[0]
+                    });
+            });
+        },
+
         async onSave() {
+            this.isLoading = true;
+
             if (!this.editMode) {
                 return false;
             }
 
-            this.isLoading = true;
+            if (this.customer.email && this.emailHasChanged) {
+                const response = await this.validateEmail();
+
+                if (!response || !response.isValid) {
+                    this.isLoading = false;
+                    return false;
+                }
+            }
+
             this.isSaveSuccessful = false;
 
             if (!this.customer.birthday) {

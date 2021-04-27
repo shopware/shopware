@@ -5,7 +5,12 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-customer-create', {
     template,
 
-    inject: ['repositoryFactory', 'numberRangeService', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'numberRangeService',
+        'systemConfigApiService',
+        'customerValidationService'
+    ],
 
     mixins: [
         Mixin.getByName('notification')
@@ -18,7 +23,8 @@ Component.register('sw-customer-create', {
             customerNumberPreview: '',
             isSaveSuccessful: false,
             salesChannels: null,
-            isLoading: false
+            isLoading: false,
+            errorEmailCustomer: null
         };
     },
 
@@ -68,8 +74,42 @@ Component.register('sw-customer-create', {
             this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
         },
 
+        validateEmail() {
+            const { id, email, boundSalesChannelId } = this.customer;
+
+            return this.customerValidationService.checkCustomerEmail({
+                id,
+                email,
+                boundSalesChannelId
+            }).then((emailIsValid) => {
+                if (this.errorEmailCustomer) {
+                    Shopware.State.dispatch('error/addApiError',
+                        {
+                            expression: `customer.${this.customer.id}.email`,
+                            error: null
+                        });
+                }
+
+                return emailIsValid;
+            }).catch((exception) => {
+                Shopware.State.dispatch('error/addApiError',
+                    {
+                        expression: `customer.${this.customer.id}.email`,
+                        error: exception.response.data.errors[0]
+                    });
+            });
+        },
+
         onSave() {
             this.isLoading = true;
+            if (this.customer.email) {
+                this.validateEmail().then((response) => {
+                    if (!response || !response.isValid) {
+                        this.isLoading = false;
+                    }
+                });
+            }
+
             this.isSaveSuccessful = false;
 
             let numberRangePromise = Promise.resolve();

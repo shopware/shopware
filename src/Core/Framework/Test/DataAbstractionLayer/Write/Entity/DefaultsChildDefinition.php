@@ -27,6 +27,11 @@ class DefaultsChildDefinition extends EntityDefinition
         return 'defaults_child';
     }
 
+    public function since(): ?string
+    {
+        return '6.4.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

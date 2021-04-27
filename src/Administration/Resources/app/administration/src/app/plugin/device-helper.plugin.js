@@ -5,9 +5,6 @@ let pluginInstalled = false;
 
 export default {
     install(Vue) {
-        // eslint-disable-next-line no-alert
-        window.alert('Ich bin nicht getestet!!');
-
         if (pluginInstalled) {
             warn('DeviceHelper', 'This plugin is already installed');
             return false;

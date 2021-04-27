@@ -199,11 +199,6 @@ class DeprecationPlugin {
         warn(componentName, this.getComponentTrace(component));
     }
 
-    fooBar() {
-        // eslint-disable-next-line no-alert
-        window.alert('Ich bin NICHT getestet!!');
-    }
-
     /**
      * Creates a component trace string
      *
@@ -212,9 +207,6 @@ class DeprecationPlugin {
      */
     getComponentTrace(component) {
         const trace = [];
-
-        // eslint-disable-next-line no-alert
-        window.alert('Ich bin getestet!!');
 
         let actualComponent = component;
 

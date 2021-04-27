@@ -8,7 +8,19 @@ module.exports = {
         adminPath: process.env.ADMIN_PATH
     },
 
-    coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts'),
+    globalTeardown: '<rootDir>test/globalTeardown.js',
+
+    coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
+
+    collectCoverageFrom: [
+        'src/**/*.js'
+    ],
+
+    coverageReporters: [
+        'text',
+        'cobertura',
+        'html-spa'
+    ],
 
     setupFilesAfterEnv: [
         resolve(join(__dirname, '/test/_setup/prepare_environment.js'))
@@ -23,7 +35,7 @@ module.exports = {
         'default',
         ['jest-junit', {
             suiteName: 'Shopware 6 Unit Tests',
-            outputDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts'),
+            outputDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
             outputName: 'administration.junit.xml'
         }]
     ]

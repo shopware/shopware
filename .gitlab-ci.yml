@@ -286,8 +286,12 @@ Jest (Administration):
         - ./psh.phar administration:unit
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
+        when: always
+        paths:
+            - development/build/artifacts/jest
         reports:
-            junit: development/build/artifacts/administration.junit.xml
+            junit: development/build/artifacts/jest/administration.junit.xml
+            cobertura: development/build/artifacts/jest/cobertura-coverage.xml
 
 Jest (Storefront):
     only:

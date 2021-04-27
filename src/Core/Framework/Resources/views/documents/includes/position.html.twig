@@ -80,9 +80,7 @@ All blocks of this template are available in the template which renders this tem
                         <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
                     {% endblock %}
                     {% block document_line_item_table_row_total_price %}
-                        {% if level <= 0 %}
-                            <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
-                        {% endif %}
+                        <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
                     {% endblock %}
                 {% endif %}
             {% endblock %}

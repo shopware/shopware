@@ -138,6 +138,13 @@ abstract class StorefrontController extends AbstractController
             'danger' => $errors->getErrors(),
         ];
 
+        $exists = $this->container->get('session')->getFlashBag()->peekAll();
+
+        $flat = [];
+        foreach ($exists as $messages) {
+            $flat = array_merge($flat, $messages);
+        }
+
         foreach ($groups as $type => $errors) {
             foreach ($errors as $error) {
                 $parameters = [];
@@ -146,6 +153,10 @@ abstract class StorefrontController extends AbstractController
                 }
 
                 $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
+
+                if (\in_array($message, $flat, true)) {
+                    continue;
+                }
 
                 $this->addFlash($type, $message);
             }

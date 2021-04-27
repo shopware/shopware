@@ -10,6 +10,14 @@
             type: "info",
             content: "checkout.cartEmpty"|trans|sw_sanitize
         } %}
+
+        {% set messages = app.flashes %}
+
+        {% if messages.danger|length > 0 %}
+            <div class="flashbags">
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: 'danger', list: messages.danger } %}
+            </div>
+        {% endif %}
     {% else %}
         {{ parent() }}
     {% endif %}

@@ -24,7 +24,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it.skip('@catalogue: add variant with surcharge to product', () => {
+    it('@catalogue: add variant with surcharge to product', () => {
         cy.window().then((win) => {
             const page = new ProductPageObject();
 
@@ -34,6 +34,10 @@ describe('Product: Test variants', () => {
                 url: `${Cypress.env('apiPath')}/product/*`,
                 method: 'patch'
             }).as('saveData');
+            cy.route({
+                url: `${Cypress.env('apiPath')}/search/property-group`,
+                method: 'post'
+            }).as('searchVariantGroup');
             cy.route({
                 url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
                 method: 'get'
@@ -65,8 +69,14 @@ describe('Product: Test variants', () => {
             cy.get('.sw-data-grid__body').contains('.3');
 
             // Get green variant
-            cy.get('.sw-simple-search-field--form').should('be.visible');
-            cy.get('.sw-simple-search-field--form input').typeAndCheck('Green');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-simple-search-field--form input').should('be.visible');
+
+            cy.wait('@searchVariantGroup').then((xhr) => {
+                expect(xhr).to.have.property('status', 200);
+                cy.get('.sw-simple-search-field--form input').type('Green');
+            });
+
             cy.get('.sw-data-grid-skeleton').should('not.exist');
             cy.get('.sw-data-grid__row--1').should('not.exist');
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');

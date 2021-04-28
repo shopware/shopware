@@ -218,10 +218,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         fetchCustomFieldSetIds() {
-            return this.customFieldSetRelationsRepository.search(
-                this.customFieldsRelationsCriteria,
-                Shopware.Context.api
-            ).then(response => {
+            return this.customFieldSetRelationsRepository.search(this.customFieldsRelationsCriteria).then(response => {
                 this.customFieldSetIDs = response.map(currentField => {
                     return currentField.customFieldSetId;
                 });
@@ -229,7 +226,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         fetchCustomFields() {
-            this.customFieldRepository.search(this.customFieldCriteria, Shopware.Context.api).then(response => {
+            this.customFieldRepository.search(this.customFieldCriteria).then(response => {
                 this.customFields = response;
             });
         },

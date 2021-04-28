@@ -126,7 +126,7 @@ Component.register('sw-property-detail', {
         loadEntityData() {
             this.isLoading = true;
 
-            this.propertyRepository.get(this.groupId, Shopware.Context.api, this.defaultCriteria)
+            this.propertyRepository.get(this.groupId, undefined, this.defaultCriteria)
                 .then((currentGroup) => {
                     this.propertyGroup = currentGroup;
                     this.isLoading = false;
@@ -161,7 +161,7 @@ Component.register('sw-property-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.propertyRepository.save(this.propertyGroup, Shopware.Context.api).then(() => {
+            return this.propertyRepository.save(this.propertyGroup).then(() => {
                 this.loadEntityData();
                 this.isLoading = false;
                 this.isSaveSuccessful = true;

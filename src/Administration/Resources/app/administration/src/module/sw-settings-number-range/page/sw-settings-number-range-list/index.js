@@ -70,7 +70,7 @@ Component.register('sw-settings-number-range-list', {
             criteria.addAssociation('numberRangeSalesChannels');
             criteria.addAssociation('numberRangeSalesChannels.salesChannel');
 
-            this.numberRangeRepository.search(criteria, Shopware.Context.api).then((items) => {
+            this.numberRangeRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.numberRange = items;
                 this.isLoading = false;
@@ -109,7 +109,7 @@ Component.register('sw-settings-number-range-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.numberRangeRepository.delete(id, Shopware.Context.api).then(() => {
+            return this.numberRangeRepository.delete(id).then(() => {
                 this.getList();
             });
         },

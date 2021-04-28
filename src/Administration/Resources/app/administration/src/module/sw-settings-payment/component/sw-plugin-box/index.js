@@ -47,7 +47,7 @@ Component.register('sw-plugin-box', {
 
     methods: {
         createdComponent() {
-            this.pluginRepository.get(this.pluginId, Shopware.Context.api)
+            this.pluginRepository.get(this.pluginId)
                 .then((plugin) => {
                     this.plugin = plugin;
                 });

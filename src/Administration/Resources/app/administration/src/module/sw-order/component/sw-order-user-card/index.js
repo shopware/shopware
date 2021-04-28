@@ -129,7 +129,7 @@ Component.register('sw-order-user-card', {
         },
 
         reload() {
-            this.countryRepository.search(this.countryCriteria(), Shopware.Context.api).then((response) => {
+            this.countryRepository.search(this.countryCriteria()).then((response) => {
                 this.countries = response;
             });
         },
@@ -211,7 +211,7 @@ Component.register('sw-order-user-card', {
         },
 
         onRemoveTag(item) {
-            this.OrderTagRepository.delete(item.id, Shopware.Context.api).then(() => {
+            this.OrderTagRepository.delete(item.id).then(() => {
                 this.emitChange();
             });
         },

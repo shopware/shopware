@@ -69,7 +69,7 @@ Component.register('sw-cms-el-config-vimeo-video', {
         },
 
         async onImageUpload({ targetId }) {
-            const mediaEntity = await this.mediaRepository.get(targetId, Shopware.Context.api);
+            const mediaEntity = await this.mediaRepository.get(targetId);
 
             this.element.config.previewMedia.value = mediaEntity.id;
 

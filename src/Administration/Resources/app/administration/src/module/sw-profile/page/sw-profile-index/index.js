@@ -138,7 +138,7 @@ Component.register('sw-profile-index', {
             languageCriteria.addFilter(Criteria.equalsAny('locale.code', registeredLocales));
             languageCriteria.limit = 500;
 
-            return this.languageRepository.search(languageCriteria, Shopware.Context.api).then((result) => {
+            return this.languageRepository.search(languageCriteria).then((result) => {
                 this.languages = [];
                 const localeIds = [];
                 let fallbackId = '';
@@ -166,11 +166,11 @@ Component.register('sw-profile-index', {
         async getUserData() {
             const routeUser = this.$route.params.user;
             if (routeUser) {
-                return this.userRepository.get(routeUser.id, Shopware.Context.api);
+                return this.userRepository.get(routeUser.id);
             }
 
             const user = await this.userService.getUser();
-            return this.userRepository.get(user.data.id, Shopware.Context.api);
+            return this.userRepository.get(user.data.id);
         },
 
         async saveFinish() {
@@ -266,7 +266,7 @@ Component.register('sw-profile-index', {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId, Shopware.Context.api).then((response) => {
+            this.mediaRepository.get(targetId).then((response) => {
                 this.avatarMediaItem = response;
             });
             this.user.avatarId = targetId;

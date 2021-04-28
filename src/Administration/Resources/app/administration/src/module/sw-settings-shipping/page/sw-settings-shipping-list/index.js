@@ -93,7 +93,7 @@ Component.register('sw-settings-shipping-list', {
     methods: {
         getList() {
             this.isLoading = true;
-            this.shippingRepository.search(this.listingCriteria, Shopware.Context.api).then((items) => {
+            this.shippingRepository.search(this.listingCriteria).then((items) => {
                 this.total = items.total;
                 this.shippingMethods = items;
 
@@ -107,7 +107,7 @@ Component.register('sw-settings-shipping-list', {
             this.isLoading = true;
             const name = item.name || item.translated.name;
 
-            return this.entityRepository.save(item, Shopware.Context.api)
+            return this.entityRepository.save(item)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-shipping.list.messageSaveSuccess', 0, { name })
@@ -129,7 +129,7 @@ Component.register('sw-settings-shipping-list', {
             const name = this.shippingMethods.find((item) => item.id === id).name;
 
             this.onCloseDeleteModal();
-            this.shippingRepository.delete(id, Shopware.Context.api)
+            this.shippingRepository.delete(id)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-shipping.list.messageDeleteSuccess', 0, { name })

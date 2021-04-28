@@ -143,10 +143,7 @@ Component.register('sw-order-state-history-card', {
         },
 
         getStateHistoryEntries() {
-            return this.stateMachineHistoryRepository.search(
-                this.stateMachineHistoryCriteria,
-                Shopware.Context.api
-            ).then((fetchedEntries) => {
+            return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria).then((fetchedEntries) => {
                 this.orderHistory = this.buildStateHistory(this.order, fetchedEntries);
                 if (this.transaction) {
                     this.transactionHistory = this.buildStateHistory(this.transaction, fetchedEntries);
@@ -238,7 +235,7 @@ Component.register('sw-order-state-history-card', {
         },
 
         getAllStates() {
-            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria(), Shopware.Context.api);
+            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria());
         },
 
         stateMachineStateCriteria() {

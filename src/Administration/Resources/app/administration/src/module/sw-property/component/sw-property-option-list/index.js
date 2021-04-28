@@ -85,7 +85,7 @@ Component.register('sw-property-option-list', {
                 return Promise.resolve();
             }
 
-            return this.optionRepository.delete(option.id, Shopware.Context.api);
+            return this.optionRepository.delete(option.id);
         },
 
         onSingleOptionDelete(option) {
@@ -140,7 +140,7 @@ Component.register('sw-property-option-list', {
         },
 
         saveGroupRemote() {
-            return this.optionRepository.save(this.currentOption, Shopware.Context.api).then(() => {
+            return this.optionRepository.save(this.currentOption).then(() => {
                 // closing modal
                 this.currentOption = null;
                 this.$refs.grid.load();

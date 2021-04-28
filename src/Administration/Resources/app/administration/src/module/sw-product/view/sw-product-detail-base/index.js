@@ -314,7 +314,7 @@ Component.register('sw-product-detail-base', {
         onConfirmReviewDelete() {
             this.onCloseReviewDeleteModal();
 
-            this.reviewRepository.delete(this.toDeleteReviewId, Shopware.Context.api).then(() => {
+            this.reviewRepository.delete(this.toDeleteReviewId).then(() => {
                 this.toDeleteReviewId = null;
                 this.reloadReviews();
             });
@@ -361,7 +361,7 @@ Component.register('sw-product-detail-base', {
 
             // load all our individual codes of our promotion
             // into our local promotion object.
-            this.reviewRepository.search(criteria, Shopware.Context.api).then((reviewCollection) => {
+            this.reviewRepository.search(criteria).then((reviewCollection) => {
                 // assign our ui data
                 this.total = reviewCollection.total;
                 this.reviewItemData = reviewCollection;
@@ -423,7 +423,7 @@ Component.register('sw-product-detail-base', {
 
             Shopware.State.commit('swProductDetail/setProduct', this.product);
 
-            this.cmsPageRepository.get(selectedLayout, Shopware.Context.api).then((cmsPage) => {
+            this.cmsPageRepository.get(selectedLayout).then((cmsPage) => {
                 Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
             });
         },

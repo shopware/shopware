@@ -213,7 +213,7 @@ Component.register('sw-customer-list', {
             this.activeFilterNumber = criteria.filters.length;
 
             try {
-                const items = await this.customerRepository.search(this.defaultCriteria, Shopware.Context.api);
+                const items = await this.customerRepository.search(this.defaultCriteria);
 
                 this.total = items.total;
                 this.customers = items;
@@ -235,7 +235,7 @@ Component.register('sw-customer-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.customerRepository.delete(id, Shopware.Context.api).then(() => {
+            return this.customerRepository.delete(id).then(() => {
                 this.getList();
             });
         },
@@ -319,7 +319,7 @@ Component.register('sw-customer-list', {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.customerRepository.search(this.filterSelectCriteria, Shopware.Context.api)
+            return this.customerRepository.search(this.filterSelectCriteria)
                 .then(({ aggregations }) => {
                     this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
                     this.availableCampaignCodes = aggregations.campaignCodes.buckets;

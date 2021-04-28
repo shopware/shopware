@@ -91,7 +91,7 @@ Component.register('sw-customer-detail-order', {
             criteria.addAssociation('stateMachineState')
                 .addAssociation('currency');
 
-            this.orderRepository.search(criteria, Shopware.Context.api).then((orders) => {
+            this.orderRepository.search(criteria).then((orders) => {
                 this.orders = orders;
                 this.isLoading = false;
             });

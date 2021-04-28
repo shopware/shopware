@@ -151,8 +151,7 @@ Component.register('sw-category-detail-products', {
         },
 
         loadProductStreamPreview() {
-            this.productStreamRepository
-                .get(this.category.productStreamId, Shopware.Context.api)
+            this.productStreamRepository.get(this.category.productStreamId)
                 .then((response) => {
                     this.productStreamFilter = response.apiFilter;
                     this.productStreamInvalid = response.invalid;

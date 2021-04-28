@@ -141,7 +141,7 @@ Component.register('sw-settings-custom-field-set-detail', {
                 this.set.relations = [];
             }
 
-            this.customFieldSetRepository.save(this.set, Shopware.Context.api).then(() => {
+            this.customFieldSetRepository.save(this.set).then(() => {
                 this.isSaveSuccessful = true;
 
                 this.createNotificationSuccess({

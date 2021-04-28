@@ -104,7 +104,7 @@ Component.register('sw-settings-language-list', {
     methods: {
         getList() {
             this.isLoading = true;
-            return this.languageRepository.search(this.listingCriteria, Shopware.Context.api).then((languageResult) => {
+            return this.languageRepository.search(this.listingCriteria).then((languageResult) => {
                 this.total = languageResult.total || this.total;
 
                 const parentCriteria = (new Criteria(1, this.limit));
@@ -117,7 +117,7 @@ Component.register('sw-settings-language-list', {
                 });
 
                 parentCriteria.setIds(Object.keys(parentIds));
-                return this.languageRepository.search(parentCriteria, Shopware.Context.api).then((parentResult) => {
+                return this.languageRepository.search(parentCriteria).then((parentResult) => {
                     this.languages = languageResult;
                     this.parentLanguages = parentResult;
                     this.isLoading = false;

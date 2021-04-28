@@ -73,7 +73,7 @@ Component.register('sw-integration-list', {
         getList() {
             this.isLoading = true;
 
-            this.integrationRepository.search(this.integrationCriteria, Shopware.Context.api)
+            this.integrationRepository.search(this.integrationCriteria)
                 .then((integrations) => {
                     this.integrations = integrations;
                 })
@@ -99,7 +99,7 @@ Component.register('sw-integration-list', {
         updateIntegration(integration) {
             this.isModalLoading = true;
 
-            this.integrationRepository.save(integration, Shopware.Context.api)
+            this.integrationRepository.save(integration)
                 .then(() => {
                     this.createSavedSuccessNotification();
                     this.onCloseDetailModal();
@@ -118,7 +118,7 @@ Component.register('sw-integration-list', {
 
             this.isModalLoading = true;
 
-            this.integrationRepository.save(this.currentIntegration, Shopware.Context.api)
+            this.integrationRepository.save(this.currentIntegration)
                 .then(() => {
                     this.createSavedSuccessNotification();
                     this.getList();
@@ -192,7 +192,7 @@ Component.register('sw-integration-list', {
 
             this.onCloseDeleteModal();
 
-            this.integrationRepository.delete(id, Shopware.Context.api)
+            this.integrationRepository.delete(id)
                 .then(() => {
                     this.getList();
                 });

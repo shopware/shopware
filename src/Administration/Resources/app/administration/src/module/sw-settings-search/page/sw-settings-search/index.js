@@ -95,7 +95,7 @@ Component.register('sw-settings-search', {
 
         getProductSearchConfigs() {
             this.isLoading = true;
-            this.productSearchRepository.search(this.productSearchConfigsCriteria, Shopware.Context.api)
+            this.productSearchRepository.search(this.productSearchConfigsCriteria)
                 .then((items) => {
                     if (!items.total) {
                         this.onSaveDefaultSearchConfig();
@@ -114,7 +114,7 @@ Component.register('sw-settings-search', {
         },
 
         getDefaultSearchConfig() {
-            this.productSearchRepository.search(this.productDefaultConfigsCriteria, Shopware.Context.api)
+            this.productSearchRepository.search(this.productDefaultConfigsCriteria)
                 .then((items) => {
                     this.defaultConfig = items.first();
                 })
@@ -126,7 +126,7 @@ Component.register('sw-settings-search', {
         },
 
         createDefaultSearchConfig() {
-            const defaultConfig = this.productSearchRepository.create(Shopware.Context.api);
+            const defaultConfig = this.productSearchRepository.create();
             defaultConfig.andLogic = this.defaultConfig.andLogic;
             defaultConfig.minSearchLength = this.defaultConfig.minSearchLength;
             defaultConfig.excludedTerms = [];
@@ -145,7 +145,7 @@ Component.register('sw-settings-search', {
                 Shopware.Context.api
             );
             this.defaultConfig.configFields.forEach(item => {
-                const newConfigField = this.productSearchFieldRepository.create(Shopware.Context.api);
+                const newConfigField = this.productSearchFieldRepository.create();
                 newConfigField.field = item.field;
                 newConfigField.ranking = item.ranking;
                 newConfigField.searchable = item.searchable;
@@ -160,7 +160,7 @@ Component.register('sw-settings-search', {
         onSaveDefaultSearchConfig() {
             this.productSearchConfigs = this.createDefaultSearchConfig();
             this.productSearchConfigs.configFields = this.createConfigFields();
-            this.productSearchRepository.save(this.productSearchConfigs, Shopware.Context.api)
+            this.productSearchRepository.save(this.productSearchConfigs)
                 .then(() => {
                     this.getProductSearchConfigs();
                 })
@@ -182,7 +182,7 @@ Component.register('sw-settings-search', {
 
         onSaveSearchSettings() {
             this.isLoading = true;
-            this.productSearchRepository.save(this.productSearchConfigs, Shopware.Context.api)
+            this.productSearchRepository.save(this.productSearchConfigs)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-search.notification.saveSuccess')
@@ -205,7 +205,7 @@ Component.register('sw-settings-search', {
         },
 
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
+            this.salesChannelRepository.search(new Criteria()).then((response) => {
                 this.salesChannels = response;
             });
         },

@@ -238,7 +238,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
         saveConfig() {
             this.searchConfigs.excludedTerms = this.originalItems;
 
-            return this.searchRepository.save(this.searchConfigs, Shopware.Context.api)
+            return this.searchRepository.save(this.searchConfigs)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.responseMessage

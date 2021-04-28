@@ -232,8 +232,7 @@ Component.register('sw-category-detail-base', {
 
         // @deprecated tag:v6.5.0 - can be removed completely
         loadProductStreamPreview() {
-            this.productStreamRepository
-                .get(this.category.productStreamId, Shopware.Context.api)
+            this.productStreamRepository.get(this.category.productStreamId)
                 .then((response) => {
                     this.productStreamFilter = response.apiFilter;
                     this.productStreamInvalid = response.invalid;

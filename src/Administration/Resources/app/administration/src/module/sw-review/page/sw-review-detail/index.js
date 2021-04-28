@@ -142,7 +142,7 @@ Component.register('sw-review-detail', {
                 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
             );
 
-            this.repository.save(this.review, Shopware.Context.api).then(() => {
+            this.repository.save(this.review).then(() => {
                 this.isSaveSuccessful = true;
             }).catch(() => {
                 this.createNotificationError({

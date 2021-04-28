@@ -64,7 +64,7 @@ Component.register('sw-property-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.propertyRepository.delete(id, Shopware.Context.api).then(() => {
+            return this.propertyRepository.delete(id).then(() => {
                 this.getList();
             });
         },
@@ -76,7 +76,7 @@ Component.register('sw-property-list', {
         getList() {
             this.isLoading = true;
 
-            return this.propertyRepository.search(this.defaultCriteria, Shopware.Context.api).then((items) => {
+            return this.propertyRepository.search(this.defaultCriteria).then((items) => {
                 this.total = items.total;
                 this.propertyGroup = items;
                 this.isLoading = false;

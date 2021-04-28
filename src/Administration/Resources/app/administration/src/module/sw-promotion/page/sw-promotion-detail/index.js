@@ -157,7 +157,7 @@ Component.register('sw-promotion-detail', {
                 Shopware.State.commit('context/resetLanguageToDefault');
                 Shopware.State.commit('shopwareApps/setSelectedIds', []);
 
-                this.promotion = this.promotionRepository.create(Shopware.Context.api);
+                this.promotion = this.promotionRepository.create();
                 // hydrate and extend promotion with additional data
                 entityHydrator.hydrate(this.promotion);
                 this.isLoading = false;
@@ -280,7 +280,7 @@ Component.register('sw-promotion-detail', {
                 // first save our discounts
                 return discountRepository.sync(discounts, discounts.context).then(() => {
                     // finally save our promotion
-                    return this.promotionRepository.save(this.promotion, Shopware.Context.api)
+                    return this.promotionRepository.save(this.promotion)
                         .then(() => {
                             this.isSaveSuccessful = true;
                             const criteria = new Criteria(1, 1);
@@ -334,7 +334,7 @@ Component.register('sw-promotion-detail', {
             // remove deleted groups. UPSERT will be done automatically
             if (this.setGroupIdsDelete !== null) {
                 await this.setGroupIdsDelete.forEach((groupId) => {
-                    this.promotionGroupRepository.delete(groupId, Shopware.Context.api);
+                    this.promotionGroupRepository.delete(groupId);
                 });
             }
 

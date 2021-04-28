@@ -76,7 +76,7 @@ Component.register('sw-settings-product-feature-sets-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.productFeatureSetsRepository.search(criteria, Shopware.Context.api).then((items) => {
+            this.productFeatureSetsRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.productFeatureSets = items;
 
@@ -129,7 +129,7 @@ Component.register('sw-settings-product-feature-sets-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.productFeatureSetsRepository.delete(id, Shopware.Context.api).then(() => {
+            return this.productFeatureSetsRepository.delete(id).then(() => {
                 this.getList();
             });
         },

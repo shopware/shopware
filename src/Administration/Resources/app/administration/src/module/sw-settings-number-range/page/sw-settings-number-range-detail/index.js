@@ -217,8 +217,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         async loadEntityData() {
-            const context = Shopware.Context.api;
-            this.numberRange = await this.numberRangeRepository.get(this.numberRangeId, context, this.numberRangeCriteria);
+            this.numberRange = await this.numberRangeRepository.get(this.numberRangeId, undefined, this.numberRangeCriteria);
             this.getState();
             this.splitPattern();
             await this.loadSalesChannels();
@@ -263,7 +262,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         getState() {
-            return this.numberRangeStateRepository.search(this.numberRangeStateCriteria, Shopware.Context.api)
+            return this.numberRangeStateRepository.search(this.numberRangeStateCriteria)
                 .then((numberRangeStates) => {
                     if (numberRangeStates.total === 1) {
                         this.state = numberRangeStates[0].lastValue;
@@ -276,7 +275,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         loadSalesChannels() {
-            return this.salesChannelRepository.search(this.salesChannelCriteria, Shopware.Context.api)
+            return this.salesChannelRepository.search(this.salesChannelCriteria)
                 .then((salesChannel) => {
                     this.salesChannels = salesChannel;
                 });
@@ -312,7 +311,7 @@ Component.register('sw-settings-number-range-detail', {
 
             this.isLoading = true;
 
-            return this.numberRangeRepository.save(this.numberRange, Shopware.Context.api).then(() => {
+            return this.numberRangeRepository.save(this.numberRange).then(() => {
                 this.isSaveSuccessful = true;
             })
                 .catch((exception) => {

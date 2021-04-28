@@ -131,7 +131,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
 
     methods: {
         createdComponent() {
-            this.currencyRepository.search(this.currencyCriteria, Shopware.Context.api).then((response) => {
+            this.currencyRepository.search(this.currencyCriteria).then((response) => {
                 this.currencies = response;
 
                 this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
@@ -232,7 +232,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
         prepareAdvancedPrices(currency, basePrice = 0.0) {
             const setPrice = Math.max(basePrice * currency.factor, 0.0);
 
-            const newAdvancedCurrencyPrices = this.advancedPricesRepo.create(Shopware.Context.api);
+            const newAdvancedCurrencyPrices = this.advancedPricesRepo.create();
             Object.assign(newAdvancedCurrencyPrices, {
                 discountId: this.discount.id,
                 price: setPrice,

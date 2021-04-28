@@ -137,13 +137,13 @@ Shopware.Component.register('sw-import-export-activity', {
         async fetchActivities() {
             this.isLoading = true;
 
-            this.logs = await this.logRepository.search(this.activityCriteria, Shopware.Context.api);
+            this.logs = await this.logRepository.search(this.activityCriteria);
 
             this.isLoading = false;
         },
 
         async onOpenProfile(id) {
-            this.selectedProfile = await this.profileRepository.get(id, Shopware.Context.api);
+            this.selectedProfile = await this.profileRepository.get(id);
         },
 
         closeSelectedProfile() {
@@ -164,7 +164,7 @@ Shopware.Component.register('sw-import-export-activity', {
 
         saveSelectedProfile() {
             this.isLoading = true;
-            this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
+            this.profileRepository.save(this.selectedProfile).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
                     message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)

@@ -61,8 +61,7 @@ Component.register('sw-settings-customer-group-list', {
         getList() {
             this.isLoading = true;
 
-            this.customerGroupRepository
-                .search(this.allCustomerGroupsCriteria, Shopware.Context.api)
+            this.customerGroupRepository.search(this.allCustomerGroupsCriteria)
                 .then((searchResult) => {
                     this.total = searchResult.total;
                     this.customerGroups = searchResult;
@@ -114,7 +113,7 @@ Component.register('sw-settings-customer-group-list', {
                 this.createErrorNotification();
             }
 
-            this.customerGroupRepository.delete(customerGroup.id, Shopware.Context.api)
+            this.customerGroupRepository.delete(customerGroup.id)
                 .then(() => {
                     this.$refs.listing.resetSelection();
                     this.$refs.listing.doSearch();
@@ -126,8 +125,7 @@ Component.register('sw-settings-customer-group-list', {
                 return currentProxy.id;
             });
 
-            this.customerGroupRepository
-                .search(this.customerGroupCriteriaWithFilter(selectedCustomerGroups), Shopware.Context.api)
+            this.customerGroupRepository.search(this.customerGroupCriteriaWithFilter(selectedCustomerGroups))
                 .then(response => {
                     const hasError = response.reduce((accumulator, customerGroup) => {
                         if (accumulator) {

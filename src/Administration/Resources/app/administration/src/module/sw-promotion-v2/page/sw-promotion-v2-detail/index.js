@@ -131,7 +131,7 @@ Component.register('sw-promotion-v2-detail', {
             this.isLoading = true;
 
             if (!this.promotionId) {
-                this.promotion = this.promotionRepository.create(Shopware.Context.api);
+                this.promotion = this.promotionRepository.create();
                 this.isLoading = false;
 
                 return;
@@ -220,7 +220,7 @@ Component.register('sw-promotion-v2-detail', {
                 });
             }
 
-            return this.promotionRepository.save(this.promotion, Shopware.Context.api)
+            return this.promotionRepository.save(this.promotion)
                 .then(() => {
                     return this.savePromotionSetGroups();
                 })
@@ -247,7 +247,7 @@ Component.register('sw-promotion-v2-detail', {
 
             if (setGroupIdsDelete !== null) {
                 const deletePromises = setGroupIdsDelete.map((groupId) => {
-                    return this.promotionGroupRepository.delete(groupId, Shopware.Context.api);
+                    return this.promotionGroupRepository.delete(groupId);
                 });
 
                 return Promise.all(deletePromises);

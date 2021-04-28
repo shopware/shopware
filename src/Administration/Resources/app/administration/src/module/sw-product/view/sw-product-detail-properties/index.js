@@ -64,7 +64,7 @@ Component.register('sw-product-detail-properties', {
         },
 
         checkIfPropertiesExists() {
-            this.propertyRepository.search(new Criteria(1, 1), Shopware.Context.api).then((res) => {
+            this.propertyRepository.search(new Criteria(1, 1)).then((res) => {
                 this.propertiesAvailable = res.total > 0;
             });
         },

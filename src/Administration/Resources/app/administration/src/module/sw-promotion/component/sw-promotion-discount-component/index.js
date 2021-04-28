@@ -312,7 +312,7 @@ Component.register('sw-promotion-discount-component', {
             this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
-            this.currencyRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
+            this.currencyRepository.search(new Criteria()).then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;
@@ -477,7 +477,7 @@ Component.register('sw-promotion-discount-component', {
                 Criteria.equals('promotionId', this.promotion.id)
             );
 
-            await this.repositoryGroups.search(criteria, Shopware.Context.api).then((groups) => {
+            await this.repositoryGroups.search(criteria).then((groups) => {
                 this.availableSetGroups = groups;
             });
 

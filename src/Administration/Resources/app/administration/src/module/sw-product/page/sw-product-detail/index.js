@@ -402,7 +402,7 @@ Component.register('sw-product-detail', {
         },
 
         createUserModeSetting() {
-            const newModeSettings = this.userModeSettingsRepository.create(Shopware.Context.api);
+            const newModeSettings = this.userModeSettingsRepository.create();
             newModeSettings.key = 'mode.setting.advancedModeSettings';
             newModeSettings.userId = this.currentUser && this.currentUser.id;
             return newModeSettings;
@@ -424,8 +424,7 @@ Component.register('sw-product-detail', {
         },
 
         getAdvancedModeSetting() {
-            return this.userModeSettingsRepository
-                .search(this.userModeSettingsCriteria, Shopware.Context.api)
+            return this.userModeSettingsRepository.search(this.userModeSettingsCriteria)
                 .then((items) => {
                     if (!items.total) {
                         return;
@@ -438,7 +437,7 @@ Component.register('sw-product-detail', {
 
         saveAdvancedMode() {
             Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', true]);
-            this.userModeSettingsRepository.save(this.advancedModeSetting, Shopware.Context.api)
+            this.userModeSettingsRepository.save(this.advancedModeSetting)
                 .then(() => {
                     this.getAdvancedModeSetting().then(() => {
                         Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', false]);
@@ -495,7 +494,7 @@ Component.register('sw-product-detail', {
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
             // create empty product
-            Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create(Shopware.Context.api));
+            Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create());
             Shopware.State.commit('swProductDetail/setProductId', this.product.id);
 
             // fill empty data
@@ -557,7 +556,7 @@ Component.register('sw-product-detail', {
         loadParentProduct() {
             Shopware.State.commit('swProductDetail/setLoading', ['parentProduct', true]);
 
-            return this.productRepository.get(this.product.parentId, Shopware.Context.api, this.productCriteria)
+            return this.productRepository.get(this.product.parentId, undefined, this.productCriteria)
                 .then((res) => {
                     Shopware.State.commit('swProductDetail/setParentProduct', res);
                 }).then(() => {
@@ -568,7 +567,7 @@ Component.register('sw-product-detail', {
         loadCurrencies() {
             Shopware.State.commit('swProductDetail/setLoading', ['currencies', true]);
 
-            return this.currencyRepository.search(new Criteria(1, 500), Shopware.Context.api).then((res) => {
+            return this.currencyRepository.search(new Criteria(1, 500)).then((res) => {
                 Shopware.State.commit('swProductDetail/setCurrencies', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['currencies', false]);
@@ -578,7 +577,7 @@ Component.register('sw-product-detail', {
         loadTaxes() {
             Shopware.State.commit('swProductDetail/setLoading', ['taxes', true]);
 
-            return this.taxRepository.search(this.taxCriteria, Shopware.Context.api).then((res) => {
+            return this.taxRepository.search(this.taxCriteria).then((res) => {
                 Shopware.State.commit('swProductDetail/setTaxes', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['taxes', false]);
@@ -588,10 +587,7 @@ Component.register('sw-product-detail', {
         loadAttributeSet() {
             Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', true]);
 
-            return this.customFieldSetRepository.search(
-                this.customFieldSetCriteria,
-                Shopware.Context.api
-            ).then((res) => {
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
                 Shopware.State.commit('swProductDetail/setAttributeSet', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', false]);
@@ -601,7 +597,7 @@ Component.register('sw-product-detail', {
         loadDefaultFeatureSet() {
             Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', true]);
 
-            return this.featureSetRepository.search(this.defaultFeatureSetCriteria, Shopware.Context.api).then((res) => {
+            return this.featureSetRepository.search(this.defaultFeatureSetCriteria).then((res) => {
                 Shopware.State.commit('swProductDetail/setDefaultFeatureSet', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', false]);
@@ -798,7 +794,7 @@ Component.register('sw-product-detail', {
                 }
 
                 // save product
-                this.productRepository.save(this.product, Shopware.Context.api).then(() => {
+                this.productRepository.save(this.product).then(() => {
                     this.loadAll().then(() => {
                         Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
 
@@ -851,7 +847,7 @@ Component.register('sw-product-detail', {
                 return Promise.reject('A media item with this id exists');
             }
 
-            const newMedia = this.mediaRepository.create(Shopware.Context.api);
+            const newMedia = this.mediaRepository.create();
             newMedia.mediaId = mediaItem.id;
             newMedia.media = {
                 url: mediaItem.url,

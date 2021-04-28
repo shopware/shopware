@@ -61,8 +61,8 @@ Component.register('sw-product-clone-modal', {
                 }
             };
 
-            await this.repository.save(this.product, Shopware.Context.api);
-            const clone = await this.repository.clone(this.product.id, Shopware.Context.api, behavior);
+            await this.repository.save(this.product);
+            const clone = await this.repository.clone(this.product.id, undefined, behavior);
 
             return { id: clone.id, productNumber: number.number };
         },
@@ -93,7 +93,7 @@ Component.register('sw-product-clone-modal', {
             );
 
             return this.repository
-                .searchIds(criteria, Shopware.Context.api)
+                .searchIds(criteria)
                 .then((response) => {
                     return response.data;
                 });
@@ -115,7 +115,7 @@ Component.register('sw-product-clone-modal', {
             };
 
             this.repository
-                .clone(id, Shopware.Context.api, behavior)
+                .clone(id, undefined, behavior)
                 .then(() => {
                     this.cloneProgress += 1;
                     this.duplicateVariant(duplicate, ids, callback);

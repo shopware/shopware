@@ -189,7 +189,7 @@ Component.register('sw-product-media-form', {
         },
 
         createMediaAssociation(targetId) {
-            const productMedia = this.productMediaRepository.create(Shopware.Context.api);
+            const productMedia = this.productMediaRepository.create();
 
             productMedia.productId = this.product.id;
             productMedia.mediaId = targetId;

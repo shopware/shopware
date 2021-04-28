@@ -140,7 +140,7 @@ Component.register('sw-cms-list', {
 
             this.addLinkedLayoutsAggregation(criteria);
 
-            return this.pageRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return this.pageRepository.search(criteria).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
 
@@ -195,7 +195,7 @@ Component.register('sw-cms-list', {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', 'cms_page'));
 
-            return this.defaultFolderRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
                 const defaultFolder = searchResult.first();
                 if (defaultFolder.folder?.id) {
                     return defaultFolder.folder.id;
@@ -290,7 +290,7 @@ Component.register('sw-cms-list', {
 
         onDuplicateCmsPage(page) {
             this.isLoading = true;
-            this.pageRepository.clone(page.id, Shopware.Context.api).then(() => {
+            this.pageRepository.clone(page.id).then(() => {
                 this.resetList();
                 this.isLoading = false;
             }).catch(() => {
@@ -312,7 +312,7 @@ Component.register('sw-cms-list', {
 
         saveCmsPage(page) {
             this.isLoading = true;
-            return this.pageRepository.save(page, Shopware.Context.api).then(() => {
+            return this.pageRepository.save(page).then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
@@ -324,7 +324,7 @@ Component.register('sw-cms-list', {
             const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
-            return this.pageRepository.delete(page.id, Shopware.Context.api).then(() => {
+            return this.pageRepository.delete(page.id).then(() => {
                 this.resetList();
             }).catch(() => {
                 this.isLoading = false;

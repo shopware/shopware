@@ -81,7 +81,7 @@ Component.register('sw-users-permissions-role-listing', {
             this.isLoading = true;
             this.roles = [];
 
-            return this.roleRepository.search(this.roleCriteria, Shopware.Context.api).then((roles) => {
+            return this.roleRepository.search(this.roleCriteria).then((roles) => {
                 this.roles = roles;
             }).finally(() => {
                 this.isLoading = false;

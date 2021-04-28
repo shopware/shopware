@@ -41,7 +41,7 @@ Component.register('sw-category-detail-menu', {
 
     methods: {
         onSetMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId, Shopware.Context.api).then((updatedMedia) => {
+            this.mediaRepository.get(targetId).then((updatedMedia) => {
                 this.category.mediaId = targetId;
                 this.category.media = updatedMedia;
             });

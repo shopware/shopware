@@ -112,7 +112,7 @@ Component.register('sw-settings-snippet-detail', {
             }
             this.translationKey = this.$route.params.key || '';
 
-            this.snippetSetRepository.search(this.snippetSetCriteria, Shopware.Context.api).then((sets) => {
+            this.snippetSetRepository.search(this.snippetSetCriteria).then((sets) => {
                 this.sets = sets;
                 this.initializeSnippet();
             }).finally(() => {
@@ -160,7 +160,7 @@ Component.register('sw-settings-snippet-detail', {
         createSnippetDummy() {
             const snippets = [];
             this.sets.forEach((set) => {
-                const snippetDummy = this.snippetRepository.create(Shopware.Context.api);
+                const snippetDummy = this.snippetRepository.create();
 
                 snippetDummy.author = this.currentAuthor;
                 snippetDummy.id = null;
@@ -223,7 +223,7 @@ Component.register('sw-settings-snippet-detail', {
                     // On TranslationKey change, delete old snippets, but insert a copy with the new translationKey
                     if (snippet.id !== null) {
                         responses.push(
-                            this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                            this.snippetRepository.delete(snippet.id)
                         );
                     }
 
@@ -235,17 +235,17 @@ Component.register('sw-settings-snippet-detail', {
                     snippet.id = null;
 
                     responses.push(
-                        this.snippetRepository.save(snippet, Shopware.Context.api)
+                        this.snippetRepository.save(snippet)
                     );
                 } else if (snippet.origin !== snippet.value) {
                     // Only save if values differs from origin
                     responses.push(
-                        this.snippetRepository.save(snippet, Shopware.Context.api)
+                        this.snippetRepository.save(snippet)
                     );
                 } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
                     // There's no need to keep a snippet which is exactly like the file-snippet, so delete
                     responses.push(
-                        this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                        this.snippetRepository.delete(snippet.id)
                     );
                 }
             });

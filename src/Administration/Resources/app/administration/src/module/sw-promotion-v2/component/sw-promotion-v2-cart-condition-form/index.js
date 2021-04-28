@@ -110,13 +110,13 @@ Component.register('sw-promotion-v2-cart-condition-form', {
                 Criteria.equals('promotionId', this.promotion.id)
             );
 
-            this.promotionGroupRepository.search(criteria, Shopware.Context.api).then((groups) => {
+            this.promotionGroupRepository.search(criteria).then((groups) => {
                 this.promotion.setgroups = groups;
             });
         },
 
         addSetGroup() {
-            const newGroup = this.promotionGroupRepository.create(Shopware.Context.api);
+            const newGroup = this.promotionGroupRepository.create();
             newGroup.promotionId = this.promotion.id;
             newGroup.value = 2;
             newGroup.packagerKey = 'COUNT';
@@ -126,7 +126,7 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         },
 
         duplicateSetGroup(group) {
-            const newGroup = this.promotionGroupRepository.create(Shopware.Context.api);
+            const newGroup = this.promotionGroupRepository.create();
             newGroup.promotionId = group.promotionId;
             newGroup.value = group.value;
             newGroup.packagerKey = group.packagerKey;

@@ -115,7 +115,7 @@ Component.register('sw-settings-country-detail', {
 
         loadEntityData() {
             this.isLoading = true;
-            this.countryRepository.get(this.countryId, Shopware.Context.api).then(country => {
+            this.countryRepository.get(this.countryId).then(country => {
                 this.country = country;
 
                 this.isLoading = false;
@@ -126,7 +126,7 @@ Component.register('sw-settings-country-detail', {
                 );
             });
 
-            this.currencyRepository.get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api).then(currency => {
+            this.currencyRepository.get(Shopware.Context.app.systemCurrencyId).then(currency => {
                 this.systemCurrency = currency;
             });
         },
@@ -145,8 +145,8 @@ Component.register('sw-settings-country-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.countryRepository.save(this.country, Shopware.Context.api).then(() => {
-                this.countryRepository.get(this.countryId, Shopware.Context.api).then(country => {
+            return this.countryRepository.save(this.country).then(() => {
+                this.countryRepository.get(this.countryId).then(country => {
                     this.country = country;
                 });
                 this.isLoading = false;
@@ -181,7 +181,7 @@ Component.register('sw-settings-country-detail', {
         },
 
         onAddCountryState() {
-            this.currentCountryState = this.countryStateRepository.create(Shopware.Context.api);
+            this.currentCountryState = this.countryStateRepository.create();
         },
 
         onSearchCountryState() {
@@ -202,7 +202,7 @@ Component.register('sw-settings-country-detail', {
             if (this.country.isNew()) {
                 this.country.states.add(this.currentCountryState);
             } else {
-                this.countryStateRepository.save(this.currentCountryState, Shopware.Context.api).then(() => {
+                this.countryStateRepository.save(this.currentCountryState).then(() => {
                     this.refreshCountryStateList();
                 });
             }
@@ -216,7 +216,7 @@ Component.register('sw-settings-country-detail', {
 
         onClickCountryState(item) {
             // Create a copy with the same id which will be edited
-            const copy = this.countryStateRepository.create(Shopware.Context.api, item.id);
+            const copy = this.countryStateRepository.create(undefined, item.id);
             copy._isNew = false;
 
             this.currentCountryState = Object.assign(copy, item);

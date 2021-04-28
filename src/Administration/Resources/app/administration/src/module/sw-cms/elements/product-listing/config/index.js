@@ -197,7 +197,7 @@ Component.register('sw-cms-el-config-product-listing', {
         },
 
         fetchProductSortings() {
-            return this.productSortingRepository.search(this.productSortingsCriteria, Shopware.Context.api)
+            return this.productSortingRepository.search(this.productSortingsCriteria)
                 .then(productSortings => this.updateValuesFromConfig(productSortings));
         },
 
@@ -236,7 +236,7 @@ Component.register('sw-cms-el-config-product-listing', {
 
                 criteria.addFilter(Criteria.equals('key', defaultSortingKey));
 
-                this.productSortingRepository.search(criteria, Shopware.Context.api)
+                this.productSortingRepository.search(criteria)
                     .then(response => {
                         this.defaultSorting = response.first();
                     });
@@ -244,7 +244,7 @@ Component.register('sw-cms-el-config-product-listing', {
         },
 
         loadFilterableProperties() {
-            return this.propertyRepository.search(this.propertyCriteria, Shopware.Context.api)
+            return this.propertyRepository.search(this.propertyCriteria)
                 .then(properties => {
                     this.properties = this.sortProperties(properties);
                 });

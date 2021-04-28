@@ -127,8 +127,7 @@ Component.register('sw-first-run-wizard-data-import', {
                 )
                 .setLimit(5);
 
-            this.pluginRepository
-                .search(pluginCriteria, Shopware.Context.api)
+            this.pluginRepository.search(pluginCriteria)
                 .then((result) => {
                     if (result.total < 1) {
                         return;

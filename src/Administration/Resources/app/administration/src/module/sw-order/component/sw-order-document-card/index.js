@@ -159,7 +159,7 @@ Component.register('sw-order-document-card', {
         createdComponent() {
             this.cardLoading = true;
 
-            this.documentTypeRepository.search(this.documentTypeCriteria, Shopware.Context.api).then((response) => {
+            this.documentTypeRepository.search(this.documentTypeCriteria).then((response) => {
                 this.documentTypes = response;
                 this.cardLoading = false;
             });
@@ -190,7 +190,7 @@ Component.register('sw-order-document-card', {
         getList() {
             this.documentsLoading = true;
 
-            return this.documentRepository.search(this.documentCriteria, Shopware.Context.api).then((response) => {
+            return this.documentRepository.search(this.documentCriteria).then((response) => {
                 this.total = response.total;
                 this.documents = response;
                 this.documentsLoading = false;

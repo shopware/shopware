@@ -147,7 +147,7 @@ Component.register('sw-customer-detail', {
 
             this.customerRepository.get(
                 this.customerId,
-                Shopware.Context.api,
+                undefined,
                 this.defaultCriteria
             ).then((customer) => {
                 this.customer = customer;
@@ -219,7 +219,7 @@ Component.register('sw-customer-detail', {
                 this.customer.password = this.customer.passwordNew;
             }
 
-            return this.customerRepository.save(this.customer, Shopware.Context.api).then(() => {
+            return this.customerRepository.save(this.customer).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 this.createdComponent();

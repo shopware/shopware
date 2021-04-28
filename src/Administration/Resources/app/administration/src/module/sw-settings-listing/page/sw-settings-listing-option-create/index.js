@@ -30,7 +30,7 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
         },
 
         createProductSortingEntity() {
-            const productSortingEntity = this.productSortingRepository.create(Shopware.Context.api);
+            const productSortingEntity = this.productSortingRepository.create();
             productSortingEntity.fields = [];
             productSortingEntity.priority = 1;
             productSortingEntity.active = false;
@@ -47,7 +47,7 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
 
             this.productSortingEntity.key = kebabCase(this.productSortingEntity.label);
 
-            return this.productSortingRepository.save(this.productSortingEntity, Shopware.Context.api)
+            return this.productSortingRepository.save(this.productSortingEntity)
                 .then(response => {
                     const encodedResponse = JSON.parse(response.config.data);
 

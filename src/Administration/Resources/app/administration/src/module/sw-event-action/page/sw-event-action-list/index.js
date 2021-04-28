@@ -126,8 +126,7 @@ Component.register('sw-event-action-list', {
         getList() {
             this.isLoading = true;
 
-            return this.eventActionRepository
-                .search(this.eventActionCriteria, Shopware.Context.api)
+            return this.eventActionRepository.search(this.eventActionCriteria)
                 .then((response) => {
                     this.items = response;
                     this.total = response.total;
@@ -144,8 +143,7 @@ Component.register('sw-event-action-list', {
 
             this.mailTemplateCriteria.setIds(mailTemplateIds);
 
-            return this.mailTemplateRepository
-                .search(this.mailTemplateCriteria, Shopware.Context.api)
+            return this.mailTemplateRepository.search(this.mailTemplateCriteria)
                 .then((mailTemplates) => {
                     this.mailTemplates = mailTemplates;
                     this.isLoading = false;

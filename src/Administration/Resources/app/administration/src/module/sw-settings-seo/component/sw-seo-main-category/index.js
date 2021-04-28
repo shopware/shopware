@@ -94,7 +94,7 @@ Component.register('sw-seo-main-category', {
                 return;
             }
 
-            const mainCategory = this.mainCategoryRepository.create(Shopware.Context.api);
+            const mainCategory = this.mainCategoryRepository.create();
             mainCategory.salesChannelId = this.currentSalesChannelId;
             mainCategory.category = selectedCategory;
             mainCategory.categoryId = selectedCategory.id;

@@ -78,7 +78,7 @@ Component.register('sw-settings-logging-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            return this.logEntryRepository.search(criteria, Shopware.Context.api).then((response) => {
+            return this.logEntryRepository.search(criteria).then((response) => {
                 this.total = response.total;
                 this.logs = response;
                 this.isLoading = false;

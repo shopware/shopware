@@ -261,7 +261,7 @@ Component.register('sw-order-list', {
             this.activeFilterNumber = criteria.filters.length;
 
             try {
-                const response = await this.orderRepository.search(criteria, Shopware.Context.api);
+                const response = await this.orderRepository.search(criteria);
 
                 this.total = response.total;
                 this.orders = response;
@@ -372,7 +372,7 @@ Component.register('sw-order-list', {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.orderRepository.search(this.filterSelectCriteria, Shopware.Context.api).then(({ aggregations }) => {
+            return this.orderRepository.search(this.filterSelectCriteria).then(({ aggregations }) => {
                 this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
                 this.availableCampaignCodes = aggregations.campaignCodes.buckets;
                 this.filterLoading = false;
@@ -406,7 +406,7 @@ Component.register('sw-order-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.orderRepository.delete(id, Shopware.Context.api).then(() => {
+            return this.orderRepository.delete(id).then(() => {
                 this.getList();
             });
         },

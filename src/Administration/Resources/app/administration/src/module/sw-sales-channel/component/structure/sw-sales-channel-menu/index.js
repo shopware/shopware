@@ -82,7 +82,7 @@ Component.register('sw-sales-channel-menu', {
         },
 
         loadEntityData() {
-            this.salesChannelRepository.search(this.salesChannelCriteria, Shopware.Context.api).then((response) => {
+            this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
                 this.salesChannels = response;
             });
         },

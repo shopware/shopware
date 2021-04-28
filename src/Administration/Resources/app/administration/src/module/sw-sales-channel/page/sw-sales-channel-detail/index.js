@@ -61,7 +61,7 @@ Component.register('sw-sales-channel-detail', {
             }
 
             // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            this.productComparison.newProductExport = this.productExportRepository.create(Shopware.Context.api);
+            this.productComparison.newProductExport = this.productExportRepository.create();
             // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.productComparison.newProductExport.interval = 0;
             // eslint-disable-next-line vue/no-side-effects-in-computed-properties

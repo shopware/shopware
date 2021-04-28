@@ -395,8 +395,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {
-            this.salesChannelRepository
-                .get(storefrontSalesChannelId, Shopware.Context.api)
+            this.salesChannelRepository.get(storefrontSalesChannelId)
                 .then((entity) => {
                     this.salesChannel.languageId = entity.languageId;
                     this.salesChannel.currencyId = entity.currencyId;
@@ -410,8 +409,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onStorefrontDomainSelectionChange(storefrontSalesChannelDomainId) {
-            this.globalDomainRepository
-                .get(storefrontSalesChannelDomainId, Shopware.Context.api)
+            this.globalDomainRepository.get(storefrontSalesChannelDomainId)
                 .then((entity) => {
                     this.productExport.salesChannelDomain = entity;
                     this.productExport.currencyId = entity.currencyId;
@@ -424,8 +422,7 @@ Component.register('sw-sales-channel-detail-base', {
 
             criteria.addFilter(Criteria.equals('salesChannelId', storefrontSalesChannelId));
 
-            this.globalDomainRepository
-                .search(criteria, Shopware.Context.api)
+            this.globalDomainRepository.search(criteria)
                 .then((searchResult) => {
                     this.storefrontDomains = searchResult;
                 });
@@ -460,7 +457,7 @@ Component.register('sw-sales-channel-detail-base', {
                 )
             );
 
-            this.productExportRepository.search(criteria, Shopware.Context.api).then(({ total }) => {
+            this.productExportRepository.search(criteria).then(({ total }) => {
                 this.invalidFileName = total > 0;
                 this.isFileNameChecking = false;
             }).catch(() => {

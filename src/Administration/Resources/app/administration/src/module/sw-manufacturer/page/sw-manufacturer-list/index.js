@@ -67,7 +67,7 @@ Component.register('sw-manufacturer-list', {
         getList() {
             this.isLoading = true;
 
-            return this.manufacturerRepository.search(this.manufacturerCriteria, Shopware.Context.api)
+            return this.manufacturerRepository.search(this.manufacturerCriteria)
                 .then(searchResult => {
                     this.manufacturers = searchResult;
                     this.total = searchResult.total;

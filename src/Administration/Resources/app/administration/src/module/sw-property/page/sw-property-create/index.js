@@ -18,7 +18,7 @@ Component.extend('sw-property-create', 'sw-property-detail', {
                 Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
             }
 
-            this.propertyGroup = this.propertyRepository.create(Shopware.Context.api);
+            this.propertyGroup = this.propertyRepository.create();
             this.propertyGroup.sortingType = 'alphanumeric';
             this.propertyGroup.displayType = 'text';
             this.propertyGroup.position = 1;

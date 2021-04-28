@@ -107,7 +107,7 @@ Component.register('sw-settings-customer-group-detail', {
             },
             set(value) {
                 if (value) {
-                    this.customerGroup.registration = this.customerGroupRegistrationRepository.create(Shopware.Context.api);
+                    this.customerGroup.registration = this.customerGroupRegistrationRepository.create();
                 } else {
                     this.customerGroup.registration = null;
                 }
@@ -164,7 +164,7 @@ Component.register('sw-settings-customer-group-detail', {
             }
 
             Shopware.State.commit('context/resetLanguageToDefault');
-            this.customerGroup = this.customerGroupRepository.create(Shopware.Context.api);
+            this.customerGroup = this.customerGroupRepository.create();
             this.isLoading = false;
         },
 
@@ -177,7 +177,7 @@ Component.register('sw-settings-customer-group-detail', {
             criteria.addGroupField('seoPathInfo');
             criteria.addGroupField('salesChannelId');
 
-            this.seoUrls = await this.seoUrlRepository.search(criteria, Shopware.Context.api);
+            this.seoUrls = await this.seoUrlRepository.search(criteria);
         },
 
         loadCustomFieldSets() {
@@ -229,7 +229,7 @@ Component.register('sw-settings-customer-group-detail', {
             }
 
             try {
-                await this.customerGroupRepository.save(this.customerGroup, Shopware.Context.api);
+                await this.customerGroupRepository.save(this.customerGroup);
 
                 this.isSaveSuccessful = true;
                 if (!this.customerGroupId) {

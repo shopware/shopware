@@ -91,7 +91,7 @@ Component.register('sw-order-create-address-modal', {
 
             // Get the latest addresses from customer's db
             try {
-                this.addresses = await this.addressRepository.search(this.addressCriteria, Shopware.Context.api);
+                this.addresses = await this.addressRepository.search(this.addressCriteria);
 
                 this.selectedAddressId = this.activeCustomer[this.address.contextId]
                     || this.activeCustomer[this.address.contextDataDefaultId];
@@ -160,7 +160,7 @@ Component.register('sw-order-create-address-modal', {
                 this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
             }
 
-            return this.customerRepository.save(this.activeCustomer, Shopware.Context.api);
+            return this.customerRepository.save(this.activeCustomer);
         },
 
         async saveCurrentAddress() {
@@ -170,7 +170,7 @@ Component.register('sw-order-create-address-modal', {
                 this.addresses.push(this.currentAddress);
             }
 
-            return this.addressRepository.save(this.currentAddress, Shopware.Context.api);
+            return this.addressRepository.save(this.currentAddress);
         },
 
         closeModal() {
@@ -251,7 +251,7 @@ Component.register('sw-order-create-address-modal', {
         },
 
         createNewCustomerAddress() {
-            const newAddress = this.addressRepository.create(Shopware.Context.api);
+            const newAddress = this.addressRepository.create();
             newAddress.customerId = this.activeCustomer.id;
 
             this.currentAddress = newAddress;

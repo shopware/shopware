@@ -72,7 +72,7 @@ Component.register('sw-promotion-v2-discounts', {
         },
 
         createNewDiscount() {
-            const discount = this.promotionDiscountRepository.create(Shopware.Context.api);
+            const discount = this.promotionDiscountRepository.create();
             Object.assign(discount, {
                 promotionId: this.promotion.id,
                 value: 0,

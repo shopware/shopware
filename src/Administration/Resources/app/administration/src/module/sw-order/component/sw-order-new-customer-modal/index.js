@@ -65,7 +65,7 @@ Component.register('sw-order-new-customer-modal', {
                     return;
                 }
 
-                const shippingAddress = this.addressRepository.create(Shopware.Context.api);
+                const shippingAddress = this.addressRepository.create();
                 this.customer.addresses.add(shippingAddress);
                 this.customer.defaultShippingAddressId = shippingAddress.id;
             }
@@ -78,9 +78,9 @@ Component.register('sw-order-new-customer-modal', {
 
     methods: {
         createdComponent() {
-            this.customer = this.customerRepository.create(Shopware.Context.api);
+            this.customer = this.customerRepository.create();
 
-            const billingAddress = this.addressRepository.create(Shopware.Context.api);
+            const billingAddress = this.addressRepository.create();
             this.customer.addresses.add(billingAddress);
 
             this.customer.defaultShippingAddressId = billingAddress.id;
@@ -99,7 +99,7 @@ Component.register('sw-order-new-customer-modal', {
         },
 
         saveCustomer() {
-            return this.customerRepository.save(this.customer, Shopware.Context.api).then(() => {
+            return this.customerRepository.save(this.customer).then(() => {
                 this.$emit('on-select-existing-customer', this.customer.id);
                 this.isLoading = false;
                 this.onClose();

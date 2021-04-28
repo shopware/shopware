@@ -92,7 +92,7 @@ Component.register('sw-users-permissions-role-detail', {
         createNewRole() {
             this.isLoading = true;
 
-            this.role = this.roleRepository.create(Shopware.Context.api);
+            this.role = this.roleRepository.create();
 
             this.role.name = '';
             this.role.description = '';
@@ -104,7 +104,7 @@ Component.register('sw-users-permissions-role-detail', {
         getRole() {
             this.isLoading = true;
 
-            this.roleRepository.get(this.roleId, Shopware.Context.api)
+            this.roleRepository.get(this.roleId)
                 .then((role) => {
                     this.role = role;
 

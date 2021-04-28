@@ -17,7 +17,7 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
 
     methods: {
         async createdComponent() {
-            this.set = await this.customFieldSetRepository.create(Shopware.Context.api, this.$route.params.id);
+            this.set = await this.customFieldSetRepository.create(undefined, this.$route.params.id);
             this.set.name = 'custom_';
             this.$set(this.set, 'config', {});
             this.setId = this.set.id;
@@ -31,7 +31,7 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('name', this.set.name));
 
-            return this.customFieldSetRepository.search(criteria, Shopware.Context.api).then((res) => {
+            return this.customFieldSetRepository.search(criteria).then((res) => {
                 if (res.length === 0) {
                     this.$super('onSave');
 

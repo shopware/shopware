@@ -171,8 +171,8 @@ Component.register('sw-settings-shipping-detail', {
             if (!this.shippingMethodId) {
                 Shopware.State.commit('context/resetLanguageToDefault');
 
-                const shippingMethod = this.shippingMethodRepository.create(Shopware.Context.api);
-                const shippingMethodPrice = this.shippingMethodPricesRepository.create(Shopware.Context.api);
+                const shippingMethod = this.shippingMethodRepository.create();
+                const shippingMethodPrice = this.shippingMethodPricesRepository.create();
                 shippingMethodPrice.calculation = 1;
                 shippingMethodPrice.quantityStart = 1;
                 shippingMethodPrice.shippingMethodId = shippingMethod.id;

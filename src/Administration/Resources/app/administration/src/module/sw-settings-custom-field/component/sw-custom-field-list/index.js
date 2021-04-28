@@ -88,10 +88,7 @@ Component.register('sw-custom-field-list', {
                 criteria.setTerm(this.term);
             }
 
-            return this.customFieldRepository.search(
-                criteria,
-                Shopware.Context.api
-            ).then((response) => {
+            return this.customFieldRepository.search(criteria).then((response) => {
                 this.customFields = response;
                 this.total = response.total;
 
@@ -114,7 +111,7 @@ Component.register('sw-custom-field-list', {
         },
 
         onAddCustomField() {
-            const customField = this.customFieldRepository.create(Shopware.Context.api);
+            const customField = this.customFieldRepository.create();
             this.onCustomFieldEdit(customField);
         },
 
@@ -130,7 +127,7 @@ Component.register('sw-custom-field-list', {
         onSaveCustomField(field = this.currentCustomField) {
             this.removeEmptyProperties(field.config);
 
-            return this.customFieldRepository.save(field, Shopware.Context.api).finally(() => {
+            return this.customFieldRepository.save(field).finally(() => {
                 this.currentCustomField = null;
 
                 // Wait for modal to be closed
@@ -168,7 +165,7 @@ Component.register('sw-custom-field-list', {
             // Search the server for the customField name
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('name', customField.name));
-            return this.globalCustomFieldRepository.search(criteria, Shopware.Context.api).then((res) => {
+            return this.globalCustomFieldRepository.search(criteria).then((res) => {
                 return res.length === 0;
             });
         },

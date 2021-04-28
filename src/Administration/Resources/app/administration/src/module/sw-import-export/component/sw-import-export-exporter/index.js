@@ -93,7 +93,7 @@ Shopware.Component.register('sw-import-export-exporter', {
             this.importExport.export(this.selectedProfileId, this.handleProgress, this.config).then(res => {
                 const logEntry = res.data.log;
 
-                this.logRepository.get(logEntry.id, Shopware.Context.api).then((entry) => {
+                this.logRepository.get(logEntry.id).then((entry) => {
                     this.progressLogEntry = entry;
                 });
             }).catch((error) => {

@@ -50,7 +50,7 @@ Component.register('sw-promotion-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            return this.promotionRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return this.promotionRepository.search(criteria).then((searchResult) => {
                 this.total = searchResult.total;
                 this.promotions = searchResult;
 

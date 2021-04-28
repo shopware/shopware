@@ -139,7 +139,7 @@ Component.register('sw-first-run-wizard-welcome', {
         setUserData(userProfile) {
             this.userProfile = userProfile;
             return new Promise((resolve) => {
-                resolve(this.userRepository.get(this.userProfile.id, Shopware.Context.api));
+                resolve(this.userRepository.get(this.userProfile.id));
             });
         },
 
@@ -264,7 +264,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         loadSnippets() {
-            return this.snippetRepository.search(this.snippetCriteria, Shopware.Context.api).then((result) => {
+            return this.snippetRepository.search(this.snippetCriteria).then((result) => {
                 return result.map(snippet => snippet.iso);
             });
         },
@@ -292,7 +292,7 @@ Component.register('sw-first-run-wizard-welcome', {
         getMissingSnippets() {
             const languageCriteria = this.getLanguageCriteria();
 
-            return this.languageRepository.search(languageCriteria, Shopware.Context.api).then(async (result) => {
+            return this.languageRepository.search(languageCriteria).then(async (result) => {
                 const snippets = await this.loadSnippets();
                 const missingSnippets = [];
 
@@ -370,7 +370,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         loadLanguages() {
-            return this.languageRepository.search(this.languageCriteria, Shopware.Context.api).then((result) => {
+            return this.languageRepository.search(this.languageCriteria).then((result) => {
                 this.languages = [];
 
                 result.forEach((lang) => {

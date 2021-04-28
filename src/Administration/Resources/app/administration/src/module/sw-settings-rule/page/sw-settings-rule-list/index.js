@@ -45,7 +45,7 @@ Component.register('sw-settings-rule-list', {
             const naturalSort = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
-            this.ruleRepository.search(criteria, Shopware.Context.api).then((items) => {
+            this.ruleRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.rules = items;
                 this.isLoading = false;
@@ -57,7 +57,7 @@ Component.register('sw-settings-rule-list', {
         },
 
         onDuplicate(referenceRule) {
-            this.ruleRepository.clone(referenceRule.id, Shopware.Context.api).then((duplicatedData) => {
+            this.ruleRepository.clone(referenceRule.id).then((duplicatedData) => {
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',

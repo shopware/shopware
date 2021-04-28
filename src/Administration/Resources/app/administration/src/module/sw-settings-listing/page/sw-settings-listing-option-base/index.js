@@ -91,7 +91,7 @@ Component.register('sw-settings-listing-option-base', {
         },
 
         fetchCustomFields() {
-            return this.customFieldRepository.search(this.customFieldCriteria, Shopware.Context.api).then(response => {
+            return this.customFieldRepository.search(this.customFieldCriteria).then(response => {
                 this.customFields = response;
             });
         },
@@ -108,7 +108,7 @@ Component.register('sw-settings-listing-option-base', {
         },
 
         saveProductSorting() {
-            return this.productSortingRepository.save(this.productSortingEntity, Shopware.Context.api);
+            return this.productSortingRepository.save(this.productSortingEntity);
         },
 
         onSave() {

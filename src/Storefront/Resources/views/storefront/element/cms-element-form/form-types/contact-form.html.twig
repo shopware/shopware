@@ -104,7 +104,11 @@
         {% endblock %}
 
         {% block cms_form_contact_captcha %}
-            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
+            {% if feature('FEATURE_NEXT_12455') %}
+                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchasV2') } %}
+            {% else %}
+                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
+            {% endif %}
         {% endblock %}
 
         {% block cms_form_contact_privacy %}

@@ -1,0 +1,12 @@
+{% block component_captcha_google_re_captcha_v3 %}
+    {% set googleReCaptchaV3Options = {
+        siteKey: config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.config.siteKey')
+    } %}
+    <div class="captcha-google-re-captcha-v3" data-google-re-captcha-v3="true" data-google-re-captcha-v3-options="{{ googleReCaptchaV3Options|json_encode }}">
+        <input type="text" data-skip-report-validity="true" class="d-none grecaptcha_v3-input" name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER') }}" required>
+
+        <div class="data-protection-information grecaptcha-protection-information">
+            {{ "captcha.googleReCaptcha.dataProtectionInformation"|trans|sw_sanitize }}
+        </div>
+    </div>
+{% endblock %}

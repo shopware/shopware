@@ -557,6 +557,11 @@
     "excludeVat": "* Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "copyrightInfo": "Realisiert mit Shopware"
   },
+  "captcha": {
+    "googleReCaptcha": {
+      "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\\\"https://policies.google.com/privacy?hl=de\\\">Datenschutzrichtlinie</a> und\\n<a href=\\\"https://policies.google.com/terms?hl=de\\\">Nutzungsbedingungen</a>."
+    }
+  },
   "cookie": {
     "message": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
     "deny": "Ablehnen",
@@ -570,7 +575,7 @@
     "groupRequiredSession": "Sitzung",
     "groupRequiredCsrf": "CSRF-Schutz",
     "groupRequiredTimezone": "Zeitzone",
-    "groupRequiredGoogleReCaptcha": "Google reCAPTCHA",
+    "groupRequiredCaptcha": "Captcha-Integration",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",
     "groupStatisticalGoogleAnalytics": "Google Analytics",

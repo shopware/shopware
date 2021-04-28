@@ -1,0 +1,23 @@
+{% block component_captcha_google_re_captcha_v2 %}
+    {% set googleReCaptchaV2Options = {
+        siteKey: config('core.basicInformation.activeCaptchasV2.googleReCaptchaV2.config.siteKey'),
+        invisible: config('core.basicInformation.activeCaptchasV2.googleReCaptchaV2.config.invisible')
+    } %}
+
+    <div class="captcha-google-re-captcha-v2" data-google-re-captcha-v2="true" data-google-re-captcha-v2-options="{{ googleReCaptchaV2Options|json_encode }}">
+        <input type="text" data-skip-report-validity="true"  class="d-none grecaptcha-v2-input" name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER') }}" required>
+
+        <div class="grecaptcha-v2-container"></div>
+
+        {% if googleReCaptchaV2Options.invisible %}
+
+            {% set recaptchaV3Active = config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.isActive') %}
+
+            {% if not recaptchaV3Active %}
+                <div class="data-protection-information grecaptcha-protection-information">
+                    {{ "captcha.googleReCaptcha.dataProtectionInformation"|trans|sw_sanitize }}
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

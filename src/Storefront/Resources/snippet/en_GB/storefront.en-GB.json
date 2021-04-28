@@ -557,6 +557,11 @@
     "excludeVat": "* All prices excl. VAT plus <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "copyrightInfo": "Realised with Shopware"
   },
+  "captcha": {
+    "googleReCaptcha": {
+      "dataProtectionInformation": "This site is protected by reCAPTCHA and the Google\n<a href=\"https://policies.google.com/privacy\">Privacy Policy</a> and\n<a href=\"https://policies.google.com/terms\">Terms of Service</a> apply."
+    }
+  },
   "cookie": {
     "message": "This website uses cookies to ensure the best experience possible. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
     "deny": "Deny",
@@ -570,7 +575,7 @@
     "groupRequiredSession": "Session",
     "groupRequiredCsrf": "CSRF protection",
     "groupRequiredTimezone": "Timezone",
-    "groupRequiredGoogleReCaptcha": "Google reCAPTCHA",
+    "groupRequiredCaptcha": "Captcha Integration",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",
     "groupStatisticalGoogleAnalytics": "Google Analytics",

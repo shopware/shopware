@@ -1,0 +1,16 @@
+{% block component_head_javascript_recaptcha %}
+    {% set recaptchaV2Active = config('core.basicInformation.activeCaptchasV2.googleReCaptchaV2.isActive') %}
+    {% set recaptchaV3Active = config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.isActive') %}
+
+    {% if recaptchaV2Active or recaptchaV3Active %}
+        <script type="text/javascript" src='https://www.google.com/recaptcha/api.js{% if recaptchaV3Active %}?render={{ config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.config.siteKey') }}{% endif %}' async defer></script>
+        <script>
+            {% if recaptchaV2Active %}
+                window.googleReCaptchaV2Active = true;
+            {% endif %}
+            {% if recaptchaV3Active %}
+                window.googleReCaptchaV3Active = true;
+            {% endif %}
+        </script>
+    {% endif %}
+{% endblock %}

@@ -20,6 +20,13 @@ export default class FormCmsHandler extends Plugin {
         this._getConfirmationText();
     }
 
+    sendAjaxFormSubmit() {
+        const { _client, el, options } = this;
+        const _data = new FormData(el);
+
+        _client.post(el.action, _data, this._handleResponse.bind(this), options.contentType);
+    }
+
     _registerEvents() {
         this.el.addEventListener('submit', this._handleSubmit.bind(this));
 
@@ -63,10 +70,9 @@ export default class FormCmsHandler extends Plugin {
     }
 
     _submitForm() {
-        const { _client, el, options } = this;
-        const _data = new FormData(el);
+        this.$emitter.publish('beforeSubmit');
 
-        _client.post(el.action, _data, this._handleResponse.bind(this), options.contentType);
+        this.sendAjaxFormSubmit();
     }
 
     _handleResponse(res) {

@@ -77,6 +77,8 @@ import CrossSellingPlugin from 'src/plugin/cross-selling/cross-selling.plugin';
 import CountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
 import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
+import GoogleReCaptchaV2Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin';
+import GoogleReCaptchaV3Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin';
 import SwagBlockLink from 'src/helper/block-link.helper';
 import StoreApiClient from 'src/service/store-api-client.service';
 import ClearInputPlugin from 'src/plugin/clear-input-button/clear-input.plugin';
@@ -178,6 +180,14 @@ if (window.csrf.enabled && window.csrf.mode === 'ajax') {
 
 if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);
+}
+
+if (Feature.isActive('FEATURE_NEXT_12455') && window.googleReCaptchaV2Active) {
+    PluginManager.register('GoogleReCaptchaV2', GoogleReCaptchaV2Plugin, '[data-google-re-captcha-v2]');
+}
+
+if (Feature.isActive('FEATURE_NEXT_12455') && window.googleReCaptchaV3Active) {
+    PluginManager.register('GoogleReCaptchaV3', GoogleReCaptchaV3Plugin, '[data-google-re-captcha-v3]');
 }
 
 window.storeApiClient = StoreApiClient;

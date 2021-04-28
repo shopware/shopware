@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -480,7 +481,10 @@ class EntityDefinitionQueryHelper
 
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
-            if ($primaryKeyField instanceof IdField) {
+            /** @feature-deprecated (flag:FEATURE_NEXT_14872) remove FeatureCheck
+             * if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
+             */
+            if ($primaryKeyField instanceof IdField || (Feature::isActive('FEATURE_NEXT_14872') && $primaryKeyField instanceof FkField)) {
                 $primaryKeys = array_map(function ($id) {
                     if (\is_array($id)) {
                         /** @var string $shiftedId */

@@ -1,0 +1,45 @@
+@import "~scss/variables";
+
+.sw-order-nested-line-items-row {
+    &__content {
+        display: flex;
+    }
+
+    &__item {
+        flex-grow: 1;
+        padding: 9px;
+        border-bottom: 1px solid $color-gray-400;
+        font-size: 14px;
+
+        &:first-child {
+            padding-left: 30px;
+        }
+
+        &:last-child {
+            padding-right: 30px;
+        }
+    }
+
+    &__quantity {
+        width: 100px;
+        flex-grow: 0;
+        text-align: right;
+    }
+
+    &__unit-price,
+    &__tax,
+    &__total-price {
+        width: 120px;
+        flex-grow: 0;
+        text-align: right;
+    }
+}
+
+// Dynamic indentation of nested line items
+@for $i from 1 through 10 {
+    $margin: ($i - 1) * 18px;
+
+    .nesting-level-#{$i} {
+        margin-left: $margin;
+    }
+}

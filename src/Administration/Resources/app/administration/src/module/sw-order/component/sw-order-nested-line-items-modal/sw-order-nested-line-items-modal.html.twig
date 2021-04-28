@@ -1,0 +1,76 @@
+{% block sw_order_nested_line_item_modal %}
+    <sw-modal class="sw-order-nested-line-items-modal"
+              variant="large"
+              :title="modalTitle"
+              @modal-close="onCloseModal">
+
+        {% block sw_order_nested_line_item_modal_loader %}
+            <sw-loader v-if="isLoading" class="sw-order-nested-line-items-modal__loader"></sw-loader>
+        {% endblock %}
+
+        {% block sw_order_nested_line_item_modal_container %}
+            <div v-else class="sw-order-nested-line-items-modal__container">
+
+                {% block sw_order_nested_line_item_modal_header_container %}
+                    <div class="sw-order-nested-line-items-modal__header-container">
+
+                        {% block sw_order_nested_line_item_modal_header_label %}
+                            <div class="sw-order-nested-line-items-modal__header-label sw-order-nested-line-items-modal__header-item">
+                                {{ $tc('sw-order.nestedLineItemsModal.headerLabel') }}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_order_nested_line_item_modal_header_unit_price %}
+                            <div class="sw-order-nested-line-items-modal__header-unit-price sw-order-nested-line-items-modal__header-item">
+                                {{ $tc('sw-order.nestedLineItemsModal.headerUnitPrice') }}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_order_nested_line_item_modal_header_quantity %}
+                            <div class="sw-order-nested-line-items-modal__header-quantity sw-order-nested-line-items-modal__header-item">
+                                {{ $tc('sw-order.nestedLineItemsModal.headerQuantity') }}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_order_nested_line_item_modal_header_total_price %}
+                            <div class="sw-order-nested-line-items-modal__header-total-price sw-order-nested-line-items-modal__header-item">
+                                {{ $tc('sw-order.nestedLineItemsModal.headerTotalPrice') }}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_order_nested_line_item_modal_header_tax %}
+                            <div class="sw-order-nested-line-items-modal__header-tax sw-order-nested-line-items-modal__header-item">
+                                {{ $tc('sw-order.nestedLineItemsModal.headerTax') }}
+                            </div>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+                {% block sw_order_nested_line_item_modal_content %}
+                    <sw-order-nested-line-items-row
+                        class="sw-order-nested-line-items-modal__content"
+                        :lineItem="lineItem"
+                        :currency="order.currency">
+                    </sw-order-nested-line-items-row>
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+
+        {% block sw_order_nested_line_item_modal_footer %}
+            <template #modal-footer>
+
+                {% block sw_order_nested_line_item_modal_footer_content %}
+                    <sw-button variant="primary"
+                               size="small"
+                               @click="onCloseModal">
+                        {{ $tc('global.default.close') }}
+                    </sw-button>
+                {% endblock %}
+
+            </template>
+        {% endblock %}
+
+    </sw-modal>
+{% endblock %}

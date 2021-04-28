@@ -36,8 +36,6 @@
     },
     "detail": {
       "buttonCancel": "Discard changes",
-      "buttonSave": "Save",
-      "buttonEdit": "Edit",
       "tabOrderDetails": "Order details",
       "tabDeliveries": "Deliveries",
       "textHeadline": "Order",
@@ -148,7 +146,7 @@
     "detailBase": {
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Items",
-      "columnProductName": "Item",
+      "columnProductName": "Name",
       "columnQuantity": "Quantity",
       "columnPriceNet": "Price (net)",
       "columnPriceGross": "Price (gross)",
@@ -181,6 +179,7 @@
       "buttonAddBlankProduct": "Add custom item",
       "buttonAddCredit": "Add credit",
       "buttonEditAddress": "Edit",
+      "tooltipNestedLineItemsButton": "This line item contains sub-items.",
       "labelNoPhoneNumber": "No phone number yet",
       "labelNoEmail": "No emails yet",
       "labelCustomerPhoneNumber": "Phone number",
@@ -207,6 +206,14 @@
       "enterValidTrackingCode": "Enter tracking code",
       "textCreditTax": "auto",
       "taxDetail": "{taxRate}%: {tax}"
+    },
+    "nestedLineItemsModal": {
+      "titlePrefix": "Item: {lineItemLabel} - {price}",
+      "headerLabel": "Name",
+      "headerUnitPrice": "Price (gross)",
+      "headerQuantity": "Quantity",
+      "headerTotalPrice": "Subtotal",
+      "headerTax": "VAT"
     },
     "detailDeliveries": {
       "cardTitleItems": "Shipment {count}",

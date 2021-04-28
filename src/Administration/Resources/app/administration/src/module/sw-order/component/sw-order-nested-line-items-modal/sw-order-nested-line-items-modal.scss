@@ -1,0 +1,42 @@
+@import "~scss/variables";
+
+.sw-order-nested-line-items-modal {
+    &__header-container {
+        display: flex;
+    }
+
+    &__header-item {
+        flex-grow: 1;
+        padding: 9px;
+        border-bottom: 1px solid $color-gray-400;
+        font-size: 14px;
+        font-weight: $font-weight-semi-bold;
+
+        &:first-child {
+            padding-left: 30px;
+        }
+
+        &:last-child {
+            padding-right: 30px;
+        }
+    }
+
+    &__header-quantity {
+        width: 100px;
+        flex-grow: 0;
+        text-align: right;
+    }
+
+    &__header-unit-price,
+    &__header-tax,
+    &__header-total-price {
+        width: 120px;
+        flex-grow: 0;
+        text-align: right;
+    }
+
+    &.sw-modal .sw-modal__body {
+        padding: 20px 0;
+        min-height: 100px;
+    }
+}

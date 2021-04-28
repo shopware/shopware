@@ -1,16 +1,21 @@
+import './acl';
+
 import './page/sw-order-list';
 import './page/sw-order-detail';
 import './page/sw-order-create';
+
 import './view/sw-order-detail-base';
 import './view/sw-order-create-base';
+
+import './component/sw-order-nested-line-items-modal';
+import './component/sw-order-nested-line-items-row';
+
 import './component/sw-order-line-items-grid';
 import './component/sw-order-line-items-grid-sales-channel';
 import './component/sw-order-delivery-metadata';
 import './component/sw-order-customer-comment';
 import './component/sw-order-product-select';
 import './component/sw-order-saveable-field';
-import './../sw-customer/component/sw-customer-address-form';
-import './../sw-customer/component/sw-customer-address-form-options';
 import './component/sw-order-address-modal';
 import './component/sw-order-leave-page-modal';
 import './component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
@@ -28,7 +33,9 @@ import './component/sw-order-new-customer-modal';
 import './component/sw-order-promotion-tag-field';
 import './component/sw-order-create-invalid-promotion-modal';
 import './component/sw-order-create-promotion-modal';
-import './acl';
+
+import './../sw-customer/component/sw-customer-address-form';
+import './../sw-customer/component/sw-customer-address-form-options';
 
 const { Module } = Shopware;
 

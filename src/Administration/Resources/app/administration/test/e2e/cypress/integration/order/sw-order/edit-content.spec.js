@@ -156,22 +156,17 @@ describe('Order: Read order', () => {
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
 
+        // assert save successful
         cy.wait('@orderSaveCall').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        // assert save successful
-        // cy.get('.sw-data-grid__row').assertRowWithLabelContains('1','.sw-data-grid__cell--quantity','Product name','.sw-data-grid__cell--label');
-        cy.get('.sw-data-grid__row').children().get('.sw-data-grid__cell--label').contains('Product name')
-            .parent()
-            .parent()
-            .parent()
-            .within(() => { cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('1'); });
-        cy.get('.sw-data-grid__row').children().get('.sw-data-grid__cell--label').contains('Awesome product')
-            .parent()
-            .parent()
-            .parent()
-            .within(() => { cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('10'); });
+        // Get correct quantity of both items
+        cy.get('.sw-data-grid__row--0')
+            .within(() => { cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('10'); });
+
+        cy.get('.sw-data-grid__row--1')
+            .within(() => { cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('1'); });
     });
 
     it('@base @order: can add custom products', () => {

@@ -1,0 +1,39 @@
+{% block sw_product_visibility_detail %}
+    <sw-grid table slot="grid" :items="items" :selectable="false">
+        {% block sw_settings_listing_visibility_detail_columns %}
+            <template #columns="{ item }">
+                {% block sw_settings_listing_visibility_detail_columns_sales_channel %}
+                    <sw-grid-column flex="minmax(100px, auto)">
+                        {% block sw_settings_listing_visibility_detail_columns_sales_channel_label %}
+                            <span>{{ item.name }}</span>
+                        {% endblock %}
+                    </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_settings_listing_visibility_detail_columns_all %}
+                    <sw-grid-column flex="0.5fr" :label="$tc('sw-product.visibility.columnAll')" align="center">
+                        <sw-radio-field :disabled="disabled" :value="item.visibility" @change="changeVisibilityValue($event, item)" :name="'visibility' + item.id" :options="[{ value: 30 }]"></sw-radio-field>
+                    </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_settings_listing_visibility_detail_columns_search_only %}
+                    <sw-grid-column flex="1fr" :label="$tc('sw-product.visibility.columnSearchOnly')" align="center">
+                        <sw-radio-field :disabled="disabled" :value="item.visibility" @change="changeVisibilityValue($event, item)" :name="'visibility' + item.id" :options="[{ value: 20 }]"></sw-radio-field>
+                    </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_settings_listing_visibility_detail_columns_link_only %}
+                    <sw-grid-column flex="1fr" :label="$tc('sw-product.visibility.columnLinkOnly')" align="center">
+                        <sw-radio-field type="radio" :disabled="disabled" :value="item.visibility" @change="changeVisibilityValue($event, item)" :name="'visibility' + item.id" :options="[{ value: 10 }]"></sw-radio-field>
+                    </sw-grid-column>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_listing_visibility_detail_pagination %}
+            <template #pagination>
+                <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="10" @page-change="onPageChange" :steps="[10]"></sw-pagination>
+            </template>
+        {% endblock %}
+    </sw-grid>
+{% endblock %}

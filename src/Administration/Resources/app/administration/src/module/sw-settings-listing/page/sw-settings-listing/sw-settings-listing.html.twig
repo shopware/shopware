@@ -1,5 +1,5 @@
 {% block sw_settings_listing_index %}
-    <sw-page class="sw-settings-listing">
+    <sw-page class="sw-settings-listing-index">
 
         {% block sw_settings_listing_search_bar %}
             <template slot="search-bar">
@@ -52,6 +52,70 @@
 
                 {% block sw_settings_listing_content_card_view %}
                     <sw-card-view>
+                        {% block sw_settings_listing_content_card_view_default_sales_channel %}
+                            <sw-card
+                                v-if="feature.isActive('FEATURE_NEXT_12437')"
+                                class="sw-settings-listing-index__default-sales-channel-card"
+                                :title="$tc('sw-settings-listing.index.defaultSalesChannel.title')"
+                                :isLoading="isDefaultSalesChannelLoading">
+
+                                {% block sw_settings_listing_content_card_view_default_sales_channel_description %}
+                                    <p class="sw-settings-listing-index__default-sales-channel-description">
+                                        {{ $tc('sw-settings-listing.index.defaultSalesChannel.description') }}
+                                    </p>
+                                {% endblock %}
+
+                                {% block sw_settings_listing_content_card_view_default_sales_channel_select %}
+                                    <sw-entity-multi-id-select
+                                        v-model="configData[null]['core.defaultSalesChannel.salesChannel']"
+                                        :repository="salesChannelRepository"
+                                        :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                                        :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+                                        @change="updateSalesChannel">
+                                    </sw-entity-multi-id-select>
+                                {% endblock %}
+
+                                {% block sw_settings_listing_content_card_view_default_sales_channel_setting %}
+                                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
+                                        {% block sw_settings_listing_content_card_view_default_sales_channel_setting_active %}
+                                            <sw-switch-field
+                                                v-model="configData[null]['core.defaultSalesChannel.active']"
+                                                :label="$tc('sw-product.settingsForm.labelActive')">
+                                            </sw-switch-field>
+                                        {% endblock %}
+
+                                        {% block sw_settings_listing_content_card_view_default_sales_channel_setting_visibility %}
+                                            <a v-if="salesChannel.length > 0"
+                                               class="sw-card__quick-link"
+                                               @click="displayAdvancedVisibility">
+                                                {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                                            </a>
+                                        {% endblock %}
+                                    </sw-container>
+                                {% endblock %}
+
+                                {% block sw_settings_listing_content_card_view_default_sales_channel_select_visibiliy_modal %}
+                                    <sw-modal
+                                        v-if="displayVisibilityDetail"
+                                        class="sw-settings-listing-index__visibility-modal"
+                                        :title="$tc('sw-product.visibility.textHeadline')"
+                                        @modal-close="closeAdvancedVisibility">
+                                        <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
+
+                                        <sw-settings-listing-visibility-detail
+                                            ref="visibilityConfig"
+                                            :config="visibilityConfig">
+                                        </sw-settings-listing-visibility-detail>
+
+                                        <template #modal-footer>
+                                            <sw-button variant="primary" size="small" @click="closeAdvancedVisibility">
+                                                {{ $tc('sw-product.visibility.closeModal') }}
+                                            </sw-button>
+                                        </template>
+                                    </sw-modal>
+                                {% endblock %}
+                            </sw-card>
+                        {% endblock %}
 
                         {% block sw_settings_listing_content_card_view_system_config %}
                             <sw-system-config

@@ -37,6 +37,11 @@
       }
     },
     "index": {
+      "defaultSalesChannel": {
+        "title": "Standard-Verkaufskanal",
+        "description": "Wähle Standard-Verkaufskanäle, denen neuerstellte Produkte automatisch zugewiesen werden.",
+        "linkAdvancedVisibility": "Sichtbarkeit für ausgewählte Verkaufskanäle einstellen"
+      },
       "productSorting": {
         "title": "Sortier-Optionen",
         "addButton": "Option hinzufügen",

@@ -1,10 +1,27 @@
 import { shallowMount } from '@vue/test-utils';
+import uuid from 'src/../test/_helper_/uuid';
 import 'src/module/sw-settings-listing/page/sw-settings-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/grid/sw-pagination';
 import 'src/app/component/form/sw-field';
+import 'src/app/component/form/select/entity/sw-entity-multi-select';
+import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
+import 'src/app/component/form/sw-switch-field';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-field-error';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/select/base/sw-select-selection-list';
+import 'src/app/component/form/select/base/sw-select-result-list';
+import 'src/app/component/form/select/base/sw-select-result';
+import 'src/app/component/base/sw-highlight-text';
+import 'src/app/component/utils/sw-popover';
+import 'src/app/component/base/sw-label';
 
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
+    let defaultSalesChannelData = {};
+
     function getProductSortingEntities() {
         const entities = [
             {
@@ -304,15 +321,35 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         return shallowMount(Shopware.Component.build('sw-settings-listing'), {
             provide: {
                 next5983: true,
+                feature: {
+                    isActive: () => true
+                },
                 repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve(getProductSortingEntities())
+                    create: (entity) => ({
+                        search: () => {
+                            if (entity === 'sales_channel') {
+                                return Promise.resolve(createEntityCollection([
+                                    {
+                                        name: 'Storefront',
+                                        translated: { name: 'Storefront' },
+                                        id: uuid.get('storefront')
+                                    },
+                                    {
+                                        name: 'Headless',
+                                        translated: { name: 'Headless' },
+                                        id: uuid.get('headless')
+                                    }
+                                ]));
+                            }
+
+                            return Promise.resolve(getProductSortingEntities());
+                        }
                     })
                 },
-                systemConfigApiService: () => ({
+                systemConfigApiService: {
                     getConfig: () => Promise.resolve(),
-                    getValues: () => Promise.resolve()
-                })
+                    getValues: () => Promise.resolve(defaultSalesChannelData)
+                }
             },
             stubs: {
                 'sw-page': {
@@ -329,17 +366,37 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                     template: '<div class="sw-empty-state"></div>'
                 },
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-                'sw-checkbox-field': {
-                    template: '<div class="sw-checkbox-field"></div>'
-                },
+                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'router-link': true,
                 'sw-pagination': Shopware.Component.build('sw-pagination'),
                 'sw-icon': true,
-                'sw-field': true
+                'sw-field': true,
+                'sw-container': true,
+                'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
+                'sw-entity-multi-id-select': Shopware.Component.build('sw-entity-multi-id-select'),
+                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+                'sw-select-base': Shopware.Component.build('sw-select-base'),
+                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-field-error': Shopware.Component.build('sw-field-error'),
+                'sw-block-field': Shopware.Component.build('sw-block-field'),
+                'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
+                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+                'sw-select-result': Shopware.Component.build('sw-select-result'),
+                'sw-popover': Shopware.Component.build('sw-popover'),
+                'sw-label': Shopware.Component.build('sw-label'),
+                'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+                'sw-loader': true,
+                'sw-modal': true,
+                'sw-settings-listing-visibility-detail': true,
+                'sw-button': true
             }
         });
+    }
+
+    function createEntityCollection(entities = []) {
+        return new Shopware.Data.EntityCollection('sales_channel', 'sales_channel', {}, null, entities);
     }
 
     let wrapper;
@@ -415,5 +472,69 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         wrapper.vm.setDefaultSortingActive();
 
         expect(defaultSorting.active).toBeTruthy();
+    });
+
+    it('should render data correctly at Default Sales Channel card when there is no default sales channel data', async () => {
+        const setVisibilityButton = wrapper.find('.sw-settings-listing-index__default-sales-channel-card .sw-card__quick-link');
+        const activeSwitch = wrapper.find('.sw-settings-listing-index__default-sales-channel-card .sw-field--switch input');
+
+        expect(activeSwitch.element.checked).toBe(true);
+        expect(setVisibilityButton.exists()).toBeFalsy();
+    });
+
+    it('should render data correctly at Default Sales Channel card when there is default sales channel data', async () => {
+        defaultSalesChannelData = {
+            'core.defaultSalesChannel.active': false,
+            'core.defaultSalesChannel.salesChannel': [{
+                id: '98432def39fc4624b33213a56b8c944d',
+                name: 'Headless'
+            }],
+            'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 }
+        };
+
+        wrapper = createWrapper();
+        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'name-asc' } };
+        await wrapper.vm.$nextTick();
+
+        const setVisibilityButton = wrapper.find('.sw-settings-listing-index__default-sales-channel-card .sw-card__quick-link');
+        const activeSwitch = wrapper.find('.sw-settings-listing-index__default-sales-channel-card .sw-field--switch input');
+
+        expect(activeSwitch.element.checked).toBe(false);
+        expect(setVisibilityButton.exists()).toBeTruthy();
+    });
+
+    it('should display "Set visibility for selected Sales Channels" button when a sales channel is selected', async () => {
+        const salesChannelCard = wrapper.find('.sw-settings-listing-index__default-sales-channel-card');
+
+        salesChannelCard.find('.sw-select__selection').trigger('click');
+
+        await salesChannelCard.find('input').trigger('change');
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(salesChannelCard.find('.sw-card__quick-link').exists()).toBeTruthy();
+    });
+
+    it('should display modal when clicking "Set visibility for selected Sales Channels" button', async () => {
+        const salesChannelCard = wrapper.find('.sw-settings-listing-index__default-sales-channel-card');
+
+        salesChannelCard.find('.sw-select__selection').trigger('click');
+
+        await salesChannelCard.find('input').trigger('change');
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+        await wrapper.vm.$nextTick();
+
+        salesChannelCard.find('.sw-card__quick-link').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-settings-listing-index__visibility-modal').exists()).toBeTruthy();
     });
 });

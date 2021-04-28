@@ -2,7 +2,9 @@ import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
 
 const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
+const { isEmpty } = Shopware.Utils.types;
+const { cloneDeep } = Shopware.Utils.object;
 
 Component.register('sw-settings-listing', {
     template,
@@ -25,7 +27,17 @@ Component.register('sw-settings-listing', {
             toBeDeletedProductSortingOption: null,
             productSortingOptionsSearchTerm: null,
             isProductSortingOptionsCardLoading: false,
-            customFields: []
+            isDefaultSalesChannelLoading: false,
+            customFields: [],
+            displayVisibilityDetail: false,
+            configData: {
+                null: {
+                    'core.defaultSalesChannel.salesChannel': [],
+                    'core.defaultSalesChannel.active': true,
+                    'core.defaultSalesChannel.visibility': {}
+                }
+            },
+            visibilityConfig: []
         };
     },
 
@@ -36,6 +48,19 @@ Component.register('sw-settings-listing', {
 
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field');
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        salesChannel: {
+            get() {
+                return this.configData?.null?.['core.defaultSalesChannel.salesChannel'];
+            },
+            set(salesChannel) {
+                this.configData.null['core.defaultSalesChannel.salesChannel'] = salesChannel;
+            }
         },
 
         productSortingsOptionsCriteria() {
@@ -95,6 +120,33 @@ Component.register('sw-settings-listing', {
         }
     },
 
+    watch: {
+        salesChannel: {
+            handler() {
+                if (!this.salesChannel.length) {
+                    this.visibilityConfig = [];
+                    return;
+                }
+
+                const salesChannelIds = this.salesChannel.map(el => el.id);
+                this.visibilityConfig = this.visibilityConfig.filter(el => salesChannelIds.includes(el.id));
+
+                const configData = new Map();
+                this.visibilityConfig.forEach(el => configData.set(el.id, { ...el }));
+
+                this.salesChannel.forEach(el => {
+                    configData.set(el, {
+                        id: el,
+                        visibility: this.configData.null?.['core.defaultSalesChannel.visibility'][el] || 30
+                    });
+                });
+
+                this.visibilityConfig = [...configData.values()];
+            },
+            deep: true
+        }
+    },
+
     created() {
         this.createdComponent();
     },
@@ -107,6 +159,10 @@ Component.register('sw-settings-listing', {
         createdComponent() {
             this.fetchProductSortingOptions();
             this.fetchCustomFields();
+
+            if (this.feature.isActive('FEATURE_NEXT_12437')) {
+                this.fetchSalesChannelsSystemConfig();
+            }
         },
 
         fetchProductSortingOptions() {
@@ -135,7 +191,9 @@ Component.register('sw-settings-listing', {
 
             const saveProductSortingOptions = await this.saveProductSortingOptions();
 
-            Promise.all([saveSalesChannelConfig, saveProductSortingOptions])
+            const saveSalesChannelVisibilityConfig = await this.saveSalesChannelVisibilityConfig();
+
+            Promise.all([saveSalesChannelConfig, saveProductSortingOptions, saveSalesChannelVisibilityConfig])
                 .then(() => {
                     this.isSaveSuccessful = true;
 
@@ -315,6 +373,53 @@ Component.register('sw-settings-listing', {
             }
 
             return sortingKey === this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
+        },
+
+        fetchSalesChannelsSystemConfig() {
+            this.isDefaultSalesChannelLoading = true;
+
+            const salesChannelEntity = new EntityCollection(
+                this.salesChannelRepository.route,
+                this.salesChannelRepository.entityName,
+                Shopware.Context.api
+            );
+
+            this.systemConfigApiService.getValues('core.defaultSalesChannel').then(configData => {
+                this.isDefaultSalesChannelLoading = false;
+
+                if (!isEmpty(configData)) {
+                    this.configData.null = configData;
+                    this.salesChannel.forEach(el => salesChannelEntity.add(el));
+                    this.salesChannel = salesChannelEntity;
+
+                    return;
+                }
+
+                this.salesChannel = salesChannelEntity;
+            });
+        },
+
+        displayAdvancedVisibility() {
+            this.displayVisibilityDetail = true;
+        },
+
+        closeAdvancedVisibility() {
+            this.displayVisibilityDetail = false;
+
+            this.visibilityConfig = cloneDeep(this.$refs.visibilityConfig.items);
+
+            this.configData.null['core.defaultSalesChannel.visibility'] = {};
+            this.visibilityConfig.forEach(el => {
+                this.configData.null['core.defaultSalesChannel.visibility'][el.id] = el.visibility;
+            });
+        },
+
+        updateSalesChannel(salesChannel) {
+            this.salesChannel = salesChannel;
+        },
+
+        saveSalesChannelVisibilityConfig() {
+            return this.systemConfigApiService.batchSave(this.configData);
         }
     }
 });

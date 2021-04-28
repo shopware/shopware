@@ -22,7 +22,9 @@ describe('Listing: Test product pagination', () => {
             });
 
             it('Run pagination', () => {
-                cy.get('input[name="core.listing.productsPerPage"]').clearTypeAndCheck(testCase.toString());
+                cy.get('input[name="core.listing.productsPerPage"]').scrollIntoView().then(() => {
+                    cy.get('input[name="core.listing.productsPerPage"]').clearTypeAndCheck(testCase.toString());
+                });
                 cy.get('label').eq(0).click();
                 cy.get('.sw-settings-listing__save-action').click();
                 cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
@@ -59,7 +61,9 @@ describe('Listing: Test product pagination', () => {
             });
 
             it('Run pagination on search', () => {
-                cy.get('input[name="core.listing.productsPerPage"]').clearTypeAndCheck(testCase.toString());
+                cy.get('input[name="core.listing.productsPerPage"]').scrollIntoView().then(() => {
+                    cy.get('input[name="core.listing.productsPerPage"]').clearTypeAndCheck(testCase.toString());
+                });
                 cy.get('label').eq(0).click();
                 cy.get('.sw-settings-listing__save-action').click();
                 cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');

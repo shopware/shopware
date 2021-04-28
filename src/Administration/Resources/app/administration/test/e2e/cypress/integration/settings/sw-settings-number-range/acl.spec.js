@@ -84,13 +84,15 @@ describe('Number Range: Test acl privileges', () => {
 
         cy.get('input[name=sw-field--numberRange-name]').type('Name e2e');
         cy.get('input[name=sw-field--numberRange-description]').type('description e2e');
-        cy.wait('@searchNumberRangeType').then(({ response }) => {
-            const { attributes } = response.body.data[0];
-            cy.get('#numberRangeTypes')
-                .typeSingleSelectAndCheck(
-                    attributes.typeName,
-                    '#numberRangeTypes'
-                );
+
+        cy.get('#numberRangeTypes')
+            .typeSingleSelectAndCheck(
+                'Cancellation',
+                '#numberRangeTypes'
+            );
+
+        cy.wait('@searchNumberRangeType').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
         cy.wait('@searchSalesChannel').then(({ response }) => {
             const { attributes } = response.body.data[0];

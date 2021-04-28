@@ -36,7 +36,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
         },
 
         priceInfo() {
-            return Shopware.Utils.get(this.extension, 'storeLicense.paymentText', '');
+            return this.extension?.storeLicense?.paymentText ?? '';
         },
 
         detailLink() {
@@ -49,7 +49,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
         },
 
         subscriptionExpiredText() {
-            const expirationDate = Shopware.Utils.get(this.extension, 'storeLicense.expirationDate', null);
+            const expirationDate = this.extension?.storeLicense?.expirationDate ?? null;
 
             if (expirationDate === null) {
                 return null;

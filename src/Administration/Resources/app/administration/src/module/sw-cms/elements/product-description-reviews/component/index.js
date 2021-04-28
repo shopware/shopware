@@ -1,7 +1,7 @@
 import template from './sw-cms-el-product-description-reviews.html.twig';
 import './sw-cms-el-product-description-reviews.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-product-description-reviews', {
     template,
@@ -35,7 +35,7 @@ Component.register('sw-cms-el-product-description-reviews', {
         },
 
         pageType() {
-            return Utils.get(this.cmsPageState, 'currentPage.type');
+            return this.cmsPageState?.currentPage?.type;
         },
 
         isProductPageType() {

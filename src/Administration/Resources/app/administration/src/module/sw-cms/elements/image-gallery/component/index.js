@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
 
-const { Component, Mixin, Utils, Filter } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 
 Component.register('sw-cms-el-image-gallery', {
     template,
@@ -43,15 +43,15 @@ Component.register('sw-cms-el-image-gallery', {
         },
 
         mediaUrls() {
-            if (Utils.get(this.element, 'config.sliderItems.source') === 'mapped') {
+            if (this.element?.config?.sliderItems?.source === 'mapped') {
                 return this.getDemoValue(this.element.config.sliderItems.value) || [];
             }
 
-            return Utils.get(this.element, 'data.sliderItems') || [];
+            return this.element?.data?.sliderItems || [];
         },
 
         isProductPage() {
-            return Utils.get(this.cmsPageState, 'currentPage.type', '') === 'product_detail';
+            return (this.cmsPageState?.currentPage?.type ?? '') === 'product_detail';
         },
 
         assetFilter() {
@@ -108,8 +108,8 @@ Component.register('sw-cms-el-image-gallery', {
             this.initElementData('image-gallery');
 
             if (!this.isProductPage
-                || Utils.get(this.element, 'translated.config')
-                || Utils.get(this.element, 'data.sliderItems')) {
+                || this.element?.translated?.config
+                || this.element?.data?.sliderItems) {
                 return;
             }
 

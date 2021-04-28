@@ -69,7 +69,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
             }
 
             this.searchConfigs.forEach(item => {
-                if (item && item.customFieldId) {
+                if (item?.customFieldId) {
                     this.addedCustomFieldIds.push(item.customFieldId);
                 }
             });
@@ -115,7 +115,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
 
         showCustomFieldWithSet(field) {
             let setName = '';
-            if (field && field.customFieldSet) {
+            if (field?.customFieldSet) {
                 setName = this.getInlineSnippet(field.customFieldSet.config.label) || field.customFieldSet.name;
             }
 

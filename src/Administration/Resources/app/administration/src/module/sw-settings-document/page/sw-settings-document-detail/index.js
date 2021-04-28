@@ -342,7 +342,7 @@ Component.register('sw-settings-document-detail', {
 
             const documentConfig = cloneDeep(this.documentConfig);
 
-            return documentConfig.config && documentConfig.config.displayAdditionalNoteDelivery;
+            return documentConfig.config?.displayAdditionalNoteDelivery;
         },
         documentBaseConfig() {
             return this.documentConfig;

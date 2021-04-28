@@ -27,7 +27,7 @@ Component.register('sw-cms-page-form', {
 
     methods: {
         getBlockTitle(block) {
-            if (block.config && block.config.name) {
+            if (block.config?.name) {
                 return block.config.name;
             }
 

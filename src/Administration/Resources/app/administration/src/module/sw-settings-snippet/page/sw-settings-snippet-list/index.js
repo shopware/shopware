@@ -220,7 +220,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onEdit(snippet) {
-            if (snippet && snippet.id) {
+            if (snippet?.id) {
                 this.$router.push({
                     name: 'sw.settings.snippet.detail',
                     params: {

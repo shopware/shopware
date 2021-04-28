@@ -27,7 +27,7 @@ export default class EntityHydrator {
             context,
             criteria,
             entities,
-            response.data.meta && response.data.meta.total,
+            response.data.meta?.total,
             response.data.aggregations
         );
     }

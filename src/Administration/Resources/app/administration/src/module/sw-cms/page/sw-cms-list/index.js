@@ -144,7 +144,7 @@ Component.register('sw-cms-list', {
                 this.total = searchResult.total;
                 this.pages = searchResult;
 
-                if (searchResult.aggregations && searchResult.aggregations.linkedLayouts) {
+                if (searchResult.aggregations?.linkedLayouts) {
                     this.linkedLayouts = searchResult.aggregations.linkedLayouts.entities;
                 }
 
@@ -197,7 +197,7 @@ Component.register('sw-cms-list', {
 
             return this.defaultFolderRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 const defaultFolder = searchResult.first();
-                if (defaultFolder.folder && defaultFolder.folder.id) {
+                if (defaultFolder.folder?.id) {
                     return defaultFolder.folder.id;
                 }
 

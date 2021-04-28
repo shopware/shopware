@@ -101,7 +101,7 @@ Component.register('sw-settings-search-search-index', {
             this.isLoading = true;
             this.productRepository.search(this.productCriteria, Context.api)
                 .then((result) => {
-                    this.totalProduct = result && result.total;
+                    this.totalProduct = result?.total;
                 })
                 .catch((err) => {
                     this.createNotificationError({

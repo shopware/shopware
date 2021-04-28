@@ -103,14 +103,14 @@ export default {
         },
 
         isChild(state) {
-            if (state.product && state.product.parentId) {
+            if (state.product?.parentId) {
                 return !!state.product.parentId;
             }
             return false;
         },
 
         showModeSetting(state) {
-            if (state.product && state.product.parentId) {
+            if (state.product?.parentId) {
                 return true;
             }
 
@@ -119,7 +119,7 @@ export default {
 
         showProductCard(state, getters) {
             return (key) => {
-                if (state.product && state.product.parentId) {
+                if (state.product?.parentId) {
                     return true;
                 }
 

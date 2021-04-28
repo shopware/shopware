@@ -1,5 +1,4 @@
-const { Utils, Service } = Shopware;
-const { get } = Utils;
+const { Service } = Shopware;
 
 function filterEmptyLineItems(items) {
     return items.filter(item => item.label === '');
@@ -76,15 +75,15 @@ export default {
 
     getters: {
         isCustomerActive(state) {
-            return get(state, 'customer.active', false);
+            return state?.customer?.active ?? false;
         },
 
         isCartTokenAvailable(state) {
-            return get(state, 'cart.token', null);
+            return state?.cart?.token ?? null;
         },
 
         currencyId(state) {
-            return get(state, 'currency.id', '');
+            return state?.currency?.id ?? '';
         },
 
         invalidPromotionCodes(state) {
@@ -92,14 +91,14 @@ export default {
         },
 
         cartErrors(state) {
-            return get(state, 'cart.errors', null);
+            return state?.cart?.errors ?? null;
         }
     },
 
     actions: {
         selectExistingCustomer({ commit }, { customer }) {
             commit('setCustomer', customer);
-            commit('setDefaultSalesChannel', { ...get(customer, 'salesChannel', null) });
+            commit('setDefaultSalesChannel', { ...(customer?.salesChannel ?? null) });
         },
 
         createCart({ commit }, { salesChannelId }) {

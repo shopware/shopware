@@ -80,7 +80,7 @@ Component.register('sw-login-login', {
                 return;
             }
 
-            if (previousRoute && previousRoute.fullPath) {
+            if (previousRoute?.fullPath) {
                 this.$router.push(previousRoute.fullPath);
                 return;
             }
@@ -111,7 +111,7 @@ Component.register('sw-login-login', {
             let error = response.response.data.errors;
             error = error.length > 1 ? error : error[0];
 
-            if (error.code && error.code.length) {
+            if (error.code?.length) {
                 const { message, title } = getErrorCode(parseInt(error.code, 10));
 
                 this.createNotificationError({

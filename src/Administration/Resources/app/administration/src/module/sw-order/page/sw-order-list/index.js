@@ -234,7 +234,7 @@ Component.register('sw-order-list', {
         },
 
         onEdit(order) {
-            if (order && order.id) {
+            if (order?.id) {
                 this.$router.push({
                     name: 'sw.order.detail',
                     params: {

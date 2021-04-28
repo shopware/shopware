@@ -365,7 +365,7 @@ Component.register('sw-media-upload-v2', {
             }
             const defaultFolder = items[0];
 
-            if (defaultFolder.folder && defaultFolder.folder.id) {
+            if (defaultFolder.folder?.id) {
                 return defaultFolder.folder.id;
             }
 

@@ -2,7 +2,7 @@ import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Context, Utils } = Shopware;
+const { Component, Context } = Shopware;
 const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
@@ -133,7 +133,7 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         associationValue() {
-            return Utils.get(this.crossSelling, 'productStreamId') || '';
+            return this.crossSelling?.productStreamId || '';
         }
     },
 

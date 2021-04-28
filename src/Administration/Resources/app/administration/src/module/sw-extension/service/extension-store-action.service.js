@@ -91,7 +91,7 @@ export default class ExtensionStoreActionService extends ApiService {
             Authorization: `Bearer ${this.loginService.getToken()}`
         };
 
-        if (context && context.languageId) {
+        if (context?.languageId) {
             headers['sw-language-id'] = context.languageId;
         }
 

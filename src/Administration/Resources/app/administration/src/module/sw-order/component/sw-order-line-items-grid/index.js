@@ -130,7 +130,7 @@ Component.register('sw-order-line-items-grid', {
         },
 
         salesChannelId() {
-            return Utils.get(this.order, 'salesChannelId', '');
+            return this.order?.salesChannelId ?? '';
         }
     },
     methods: {

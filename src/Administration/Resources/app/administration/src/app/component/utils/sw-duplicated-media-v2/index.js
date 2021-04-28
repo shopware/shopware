@@ -202,7 +202,7 @@ Component.register('sw-duplicated-media-v2', {
                 );
 
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
-            if (searchResult && searchResult[0]) {
+            if (searchResult?.[0]) {
                 this.existingMedia = searchResult[0];
             }
 

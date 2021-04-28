@@ -424,7 +424,7 @@ Component.register('sw-tree-item', {
         },
 
         getActiveIconColor(item) {
-            if (item.data && item.data.active) {
+            if (item.data?.active) {
                 return item.data.active === true ? '#37d046' : '#d1d9e0';
             }
 

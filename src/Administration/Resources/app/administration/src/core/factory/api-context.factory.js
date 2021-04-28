@@ -45,7 +45,7 @@ function getInstallationPath(context, isDevMode) {
     }
 
     let fullPath = '';
-    if (context.schemeAndHttpHost && context.schemeAndHttpHost.length) {
+    if (context.schemeAndHttpHost?.length) {
         fullPath = `${context.schemeAndHttpHost}${context.basePath}`;
     }
 

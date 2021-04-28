@@ -83,7 +83,7 @@ Component.register('sw-product-detail-layout', {
     methods: {
         createdComponent() {
             // Keep current layout configuration if page sections exist
-            const sections = Utils.get(this.currentPage, 'sections', []);
+            const sections = this.currentPage?.sections ?? [];
 
             if (sections.length) {
                 return;

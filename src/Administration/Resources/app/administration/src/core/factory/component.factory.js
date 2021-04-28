@@ -525,7 +525,7 @@ function findMethodInChain(extension, methodName, methodsOrComputed) {
         return resolveGetterSetterChain(extension, splitPath, methodsOrComputed);
     }
 
-    if (extension[methodsOrComputed] && extension[methodsOrComputed][methodName]) {
+    if (extension[methodsOrComputed]?.[methodName]) {
         return extension[methodsOrComputed][methodName];
     }
 

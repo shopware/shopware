@@ -87,7 +87,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
                 this.isInstallingPlugin = false;
                 this.pluginInstallationFailed = true;
 
-                if (error.response && error.response.data && error.response.data.errors) {
+                if (error.response?.data?.errors) {
                     this.pluginError = error.response.data.errors.pop();
                 }
 

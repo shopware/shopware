@@ -370,7 +370,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             const inlineSnippet = customField && this.getInlineSnippet(customField.config.label);
 
             if (!inlineSnippet) {
-                return customField && customField.name;
+                return customField?.name;
             }
 
             return inlineSnippet;

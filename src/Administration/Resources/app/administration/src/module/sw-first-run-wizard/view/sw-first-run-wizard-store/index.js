@@ -122,9 +122,7 @@ Component.register('sw-first-run-wizard-store', {
                 .catch((error) => {
                     this.activationError = true;
 
-                    if (error &&
-                        error.response &&
-                        error.response.data &&
+                    if (error?.response?.data &&
                         Array.isArray(error.response.data.errors) &&
                         error.response.data.errors[0]
                     ) {

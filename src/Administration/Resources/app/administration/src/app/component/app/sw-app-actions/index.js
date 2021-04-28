@@ -1,7 +1,7 @@
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-app-actions', {
     template,
@@ -19,15 +19,15 @@ Component.register('sw-app-actions', {
 
     computed: {
         entity() {
-            return Utils.get(this.$route, 'meta.$module.entity');
+            return this.$route?.meta?.$module?.entity;
         },
 
         view() {
             const matchedRoute = this.matchedRoutes.filter((match) => {
-                return !!Utils.get(match, 'meta.appSystem.view');
+                return !!match?.meta?.appSystem?.view;
             }).pop();
 
-            return Utils.get(matchedRoute, 'meta.appSystem.view');
+            return matchedRoute?.meta?.appSystem?.view;
         },
 
         areActionsAvailable() {

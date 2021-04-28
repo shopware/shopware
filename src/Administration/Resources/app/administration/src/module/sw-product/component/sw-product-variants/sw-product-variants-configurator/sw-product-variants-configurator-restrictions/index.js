@@ -136,7 +136,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
                             return idOfOption === sOption.optionId;
                         });
 
-                        if (actualOption && actualOption.option) {
+                        if (actualOption?.option) {
                             acc.push(actualOption.option.translated.name);
                         }
                         return acc;

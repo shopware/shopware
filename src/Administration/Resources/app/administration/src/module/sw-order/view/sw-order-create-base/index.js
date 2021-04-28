@@ -129,7 +129,7 @@ Component.register('sw-order-create-base', {
         },
 
         salesChannelId() {
-            return Utils.get(this.customer, 'salesChannelId', '');
+            return this.customer?.salesChannelId ?? '';
         },
 
         isCustomerActive() {

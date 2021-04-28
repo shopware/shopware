@@ -208,7 +208,7 @@ Component.register('sw-product-detail-base', {
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
 
-                    if (defaultFolder.folder && defaultFolder.folder.id) {
+                    if (defaultFolder.folder?.id) {
                         return defaultFolder.folder.id;
                     }
 

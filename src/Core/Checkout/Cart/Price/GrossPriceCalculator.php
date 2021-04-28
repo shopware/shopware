@@ -105,6 +105,10 @@ class GrossPriceCalculator
             return null;
         }
 
+        if ($definition->getPurchaseUnit() <= 0 || $definition->getReferenceUnit() <= 0) {
+            return null;
+        }
+
         $price = $price / $definition->getPurchaseUnit() * $definition->getReferenceUnit();
 
         $price = $this->priceRounding->mathRound($price, $config);

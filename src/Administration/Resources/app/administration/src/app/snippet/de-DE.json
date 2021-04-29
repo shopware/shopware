@@ -593,7 +593,7 @@
         "alwaysValidRule": "Immer zutreffend",
         "lineItemPropertyRule": "Positionen mit Eigenschaften",
         "lineItemNoveltyRule": "Neuheiten",
-        "lineItemCustomFieldRule": "Positionen mit Attribut",
+        "lineItemCustomFieldRule": "Positionen mit Zusatzfeld",
         "lineItemIsNewRule": "Neuheiten",
         "lineItemOfManufacturerRule": "Hersteller",
         "lineItemPurchasePriceRule": "Positionen Einkaufspreis",

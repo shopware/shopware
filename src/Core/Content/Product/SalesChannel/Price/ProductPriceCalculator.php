@@ -188,13 +188,13 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     private function buildReferencePriceDefinition(ReferencePriceDto $definition, UnitCollection $units): ?ReferencePriceDefinition
     {
-        if ($definition->getPurchase() === null) {
+        if ($definition->getPurchase() === null || $definition->getPurchase() <= 0) {
             return null;
         }
         if ($definition->getUnitId() === null) {
             return null;
         }
-        if ($definition->getReference() === null) {
+        if ($definition->getReference() === null || $definition->getReference() <= 0) {
             return null;
         }
         if ($definition->getPurchase() === $definition->getReference()) {

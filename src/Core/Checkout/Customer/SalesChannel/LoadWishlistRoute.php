@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -131,6 +132,8 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
             new FieldSorting('wishlists.createdAt', FieldSorting::DESCENDING)
         );
 
+        $criteria = $this->handleAvailableStock($criteria, $context);
+
         $event = new CustomerWishlistLoaderCriteriaEvent($criteria, $context);
         $this->eventDispatcher->dispatch($event);
 
@@ -140,5 +143,21 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         $this->eventDispatcher->dispatch($event);
 
         return $products;
+    }
+
+    private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): Criteria
+    {
+        $hide = $this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        );
+
+        if (!$hide) {
+            return $criteria;
+        }
+
+        $criteria->addFilter(new ProductCloseoutFilter());
+
+        return $criteria;
     }
 }

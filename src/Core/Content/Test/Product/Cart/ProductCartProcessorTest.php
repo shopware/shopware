@@ -79,6 +79,29 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals(103, $info->getLength());
     }
 
+    public function testReferencePriceWithZeroPurchaseUnit(): void
+    {
+        $this->createProduct([
+            'purchaseUnit' => 0.0,
+            'referenceUnit' => 1.0,
+            'unit' => [
+                'shortCode' => 't',
+                'name' => 'test',
+            ],
+        ]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(QuantityPriceDefinition::class, $lineItem->getPriceDefinition());
+
+        /** @var QuantityPriceDefinition $priceDefinition */
+        $priceDefinition = $lineItem->getPriceDefinition();
+        static::assertNull($priceDefinition->getReferencePriceDefinition());
+
+        static::assertNull($lineItem->getPrice()->getReferencePrice());
+    }
+
     /**
      * @dataProvider advancedPricingProvider
      */

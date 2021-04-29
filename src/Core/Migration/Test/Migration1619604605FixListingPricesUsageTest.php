@@ -9,6 +9,8 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
+use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -129,20 +131,29 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             ]],
         ];
 
-        $this->getContainer()->get('product_stream.repository')
+        $writtenEvent = $this->getContainer()->get('product_stream.repository')
             ->create([$stream], $ids->getContext());
+
+        $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
+        $productStreamIndexer->handle(
+            $productStreamIndexer->update($writtenEvent)
+        );
 
         $migration = new Migration1619604605FixListingPricesUsage();
         $migration->update($this->getContainer()->get(Connection::class));
 
-        $field = $this->getContainer()
-            ->get(Connection::class)
-            ->fetchOne(
-                'SELECT field FROM product_stream_filter WHERE id = :id',
-                ['id' => $ids->getBytes('filters')]
-            );
+        $criteria = new Criteria([$ids->get('stream')]);
+        $criteria->addAssociation('filters');
+        /** @var ProductStreamEntity $stream */
+        $stream = $this->getContainer()->get('product_stream.repository')->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertEquals('cheapestPrice', $field);
+        static::assertEquals([[
+            'type' => 'equals',
+            'field' => 'product.cheapestPrice',
+            'value' => '100',
+        ]], $stream->getApiFilter());
+
+        static::assertEquals('cheapestPrice', $stream->getFilters()->first()->getField());
     }
 
     public function testStreamsWithPurchasePrice(): void
@@ -160,20 +171,29 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             ]],
         ];
 
-        $this->getContainer()->get('product_stream.repository')
+        $writtenEvent = $this->getContainer()->get('product_stream.repository')
             ->create([$stream], $ids->getContext());
+
+        $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
+        $productStreamIndexer->handle(
+            $productStreamIndexer->update($writtenEvent)
+        );
 
         $migration = new Migration1619604605FixListingPricesUsage();
         $migration->update($this->getContainer()->get(Connection::class));
 
-        $field = $this->getContainer()
-            ->get(Connection::class)
-            ->fetchOne(
-                'SELECT field FROM product_stream_filter WHERE id = :id',
-                ['id' => $ids->getBytes('filters')]
-            );
+        $criteria = new Criteria([$ids->get('stream')]);
+        $criteria->addAssociation('filters');
+        /** @var ProductStreamEntity $stream */
+        $stream = $this->getContainer()->get('product_stream.repository')->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertEquals('purchasePrices', $field);
+        static::assertEquals([[
+            'type' => 'equals',
+            'field' => 'product.purchasePrices',
+            'value' => '100',
+        ]], $stream->getApiFilter());
+
+        static::assertEquals('purchasePrices', $stream->getFilters()->first()->getField());
     }
 
     public function testCmsSlotConfigWithPurchasePrice(): void

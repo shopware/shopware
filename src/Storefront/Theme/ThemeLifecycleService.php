@@ -128,6 +128,26 @@ class ThemeLifecycleService
         $this->themeRepository->upsert([$themeData], $context);
     }
 
+    public function removeTheme(string $technicalName, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('childThemes');
+        $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
+
+        $theme = $this->themeRepository->search($criteria, $context)->first();
+
+        if ($theme === null) {
+            return;
+        }
+
+        $ids = array_merge(array_values($theme->getChildThemes()->getIds()), [$theme->getId()]);
+
+        $this->removeOldMedia($technicalName, $context);
+        $this->themeRepository->delete(array_map(function (string $id) {
+            return ['id' => $id];
+        }, $ids), $context);
+    }
+
     private function getThemeByTechnicalName(string $technicalName, Context $context): ?ThemeEntity
     {
         $criteria = new Criteria();

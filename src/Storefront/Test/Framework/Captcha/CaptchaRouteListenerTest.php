@@ -4,6 +4,8 @@ namespace Shopware\Storefront\Test\Framework\Captcha;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha as CaptchaAnnotation;
 use Shopware\Storefront\Framework\Captcha\CaptchaRouteListener;
@@ -16,6 +18,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class CaptchaRouteListenerTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testGetSubscribedEventsReturnsCorrectEvents(): void
     {
         static::assertSame([
@@ -32,7 +36,7 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $this->expectException(CaptchaInvalidException::class);
 
-        (new CaptchaRouteListener($this->getCaptchas(true, false)))
+        (new CaptchaRouteListener($this->getCaptchas(true, false), $this->getContainer()->get(SystemConfigService::class)))
             ->validateCaptcha($event);
     }
 
@@ -47,7 +51,7 @@ class CaptchaRouteListenerTest extends TestCase
 
     private function getCaptchas(bool $supports, bool $isValid)
     {
-        $captcha = $this->getMockForAbstractClass(AbstractCaptcha::class);
+        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
 
         $captcha->expects(static::once())
             ->method('supports')

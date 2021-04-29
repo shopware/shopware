@@ -119,11 +119,15 @@ parameters:
         -
             message: '#Cannot call method getPluginInfos\(\) on Shopware\\Core\\Framework\\Plugin\\KernelPluginLoader\\KernelPluginLoader\|null\.#'
             path: src/Core/Kernel.php
+        -
+            message: '#Method Shopware\\Storefront\\Framework\\Captcha\\AbstractCaptcha::isValid\(\) invoked with 2 parameters, 1 required\.#'
+            path: src/Storefront/Framework/Captcha/CaptchaRouteListener.php
 
         - '#Method .*FieldSerializer::decode\(\) has no return typehint specified\.#'
         - '#Method .*FieldSerializer::decode\(\) has parameter \$value with no typehint specified\.#'
         - '#Method .*CustomFieldsSerializer::decode\(\) has no return typehint specified\.#'
         - '#Method .*FieldSerializerInterface::decode\(\) has no return typehint specified\.#'
+
         # Inheritance checks for not nullable fields of the product entity (for example product.price contains always a value inside a sales channel context) - Could be fixed if php allows function type hint override
         -
             message: '#Parameter \#2 \$prices of method Shopware\\Core\\Content\\Product\\SalesChannel\\Price\\ProductPriceCalculator::buildDefinition\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Pricing\\PriceCollection, Shopware\\Core\\Framework\\DataAbstractionLayer\\Pricing\\PriceCollection\|null given\.#'

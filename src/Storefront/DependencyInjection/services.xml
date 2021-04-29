@@ -504,6 +504,7 @@
 
         <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
             <argument type="tagged" tag="shopware.storefront.captcha"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -515,12 +516,20 @@
             <tag name="shopware.storefront.captcha"/>
         </service>
 
+        <service id="shopware.captcha.client" class="GuzzleHttp\Client">
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2">
+            <argument type="service" id="shopware.captcha.client"/>
+
             <tag name="shopware.storefront.captcha"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
+            <argument type="service" id="shopware.captcha.client"/>
+
             <tag name="shopware.storefront.captcha"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>

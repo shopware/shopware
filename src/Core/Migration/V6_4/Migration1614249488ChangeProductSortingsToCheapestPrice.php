@@ -80,7 +80,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
             if ($sorting['value'] === 'listingPrices:ASC') {
                 $config['productStreamSorting']['value'] = 'cheapestPrice:ASC';
             } elseif ($sorting['value'] === 'listingPrices:DESC') {
-                $config['productStreamSorting']['value'] = 'cheapestPrice:ASC';
+                $config['productStreamSorting']['value'] = 'cheapestPrice:DESC';
             } else {
                 continue;
             }

@@ -68,7 +68,7 @@
                                                 variant="ghost"
                                                 size="small"
                                                 @click="onClickUpload">
-                                                {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
+                                                {{ $tc('global.sw-media-upload-v2.buttonFilesUpload') }}
                                             </sw-button>
                                         {% endblock %}
 
@@ -97,7 +97,9 @@
                                         <sw-context-button class="sw-product-variants-media-upload__context-button" :disabled="disabled">
                                             {% block sw_product_variants_media_upload_actions_compact_button_context %}
                                                 {% block sw_product_variants_media_upload_actions_compact_button_context_upload_action %}
-                                                    <sw-context-menu-item @click="onClickUpload">{{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}</sw-context-menu-item>
+                                                    <sw-context-menu-item @click="onClickUpload">
+                                                        {{ $tc('global.sw-media-upload-v2.buttonFilesUpload') }}
+                                                    </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_product_variants_media_upload_actions_compact_button_context_open_action %}
@@ -125,13 +127,24 @@
                        @change="onFileInputChange"/>
             </form>
         {% endblock %}
+
         {% block sw_product_variants_media_upload_actions_media_modal %}
             <sw-media-modal-v2
                 v-if="showMediaModal"
+                :initialFolderId="mediaDefaultFolderId"
                 :entityContext="product.getEntityName()"
                 @modal-close="showMediaModal = false"
-                @media-modal-selection-change="">
+                @media-modal-selection-change="onAddMedia">
             </sw-media-modal-v2>
+        {% endblock %}
+
+        {% block sw_product_variants_media_upload_listener %}
+            <sw-upload-listener
+                autoUpload
+                :uploadTag="uploadTag"
+                @media-upload-finish="onUploadMediaSuccessful"
+                @media-upload-fail="onUploadMediaFailed">
+            </sw-upload-listener>
         {% endblock %}
     </div>
 {% endblock %}

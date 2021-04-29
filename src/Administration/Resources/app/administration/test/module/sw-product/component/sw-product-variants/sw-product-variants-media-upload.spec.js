@@ -20,14 +20,31 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 'sw-icon': true,
                 'sw-button': true,
                 'sw-media-url-form': true,
-                'sw-media-preview-v2': true
+                'sw-media-preview-v2': true,
+                'sw-upload-listener': true
             },
             mocks: {
                 $t: v => v,
                 $tc: v => v
             },
             provide: {
-                repositoryFactory: {},
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            create: () => {
+                                return Promise.resolve();
+                            },
+                            search: () => {
+                                return Promise.resolve();
+                            }
+                        };
+                    }
+                },
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => {
+                        return Promise.resolve('id');
+                    }
+                },
                 configService: {},
                 mediaService: {}
             },
@@ -229,5 +246,111 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await button.trigger('click');
         expect(wrapper.findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image').length).toBe(1);
         expect(wrapper.find('sw-media-preview-v2-stub[source="mediaId2"]').exists()).toBeFalsy();
+    });
+
+    it('should get media default folder id when component got created', async () => {
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
+            return Promise.resolve('id');
+        });
+
+        wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.getMediaDefaultFolderId).toHaveBeenCalledTimes(1);
+        wrapper.vm.getMediaDefaultFolderId.mockRestore();
+    });
+
+    it('should get media default folder id successfully', async () => {
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
+            return Promise.resolve('id');
+        });
+
+        wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.mediaDefaultFolderId).toEqual('id');
+        wrapper.vm.getMediaDefaultFolderId.mockRestore();
+    });
+
+    it('should be able to add a new media', async () => {
+        await wrapper.vm.$nextTick();
+
+        const newMedia = [{ id: 'id', fileName: 'fileName', fileSize: 101 }];
+        wrapper.vm.addMedia = jest.fn(() => {
+            return Promise.resolve();
+        });
+
+        await wrapper.vm.onAddMedia(newMedia);
+        await wrapper.setProps({ source: { media: newMedia } });
+
+        expect(wrapper.vm.addMedia).toHaveBeenCalledWith(newMedia[0]);
+        expect(wrapper.vm.source.media).toEqual(expect.arrayContaining(newMedia));
+
+        wrapper.vm.addMedia.mockRestore();
+    });
+
+    it('should not be able to add a new media', async () => {
+        await wrapper.vm.$nextTick();
+
+        const newMedia = [{ id: 'id', fileName: 'fileName', fileSize: 101 }];
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.addMedia = jest.fn(() => {
+            return Promise.reject(newMedia[0]);
+        });
+
+        await wrapper.vm.onAddMedia(newMedia);
+
+        expect(wrapper.vm.addMedia).toHaveBeenCalledWith(newMedia[0]);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-product.mediaForm.errorMediaItemDuplicated'
+        });
+
+        wrapper.vm.addMedia.mockRestore();
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should be able to upload a new media', async () => {
+        await wrapper.vm.$nextTick();
+
+        const entities = [{ productId: 101, mediaId: 'mediaId', position: 0 }];
+
+        await wrapper.setProps({
+            source: {
+                id: 'id',
+                media: new EntityCollection('', '', {}, null, entities)
+            }
+        });
+
+        await wrapper.vm.onUploadMediaSuccessful({ targetId: 'targetId' });
+
+        expect(wrapper.vm.source.media).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ mediaId: 'mediaId' }),
+                expect.objectContaining({ mediaId: 'targetId' })
+            ])
+        );
+    });
+
+    it('should not be able to upload a new media', async () => {
+        await wrapper.vm.$nextTick();
+
+        const entities = [{ productId: 101, mediaId: 'mediaId', position: 0 }];
+
+        await wrapper.setProps({
+            source: {
+                id: 'id',
+                media: new EntityCollection('', '', {}, null, entities)
+            }
+        });
+
+        await wrapper.vm.onUploadMediaFailed({ targetId: 'mediaId' });
+
+        expect(wrapper.vm.source.media).not.toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ mediaId: 'mediaId' })
+            ])
+        );
     });
 });

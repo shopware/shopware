@@ -31,7 +31,7 @@ framework:
     messenger:
         transports:
             default:
-                dsn: "enqueue://default"
+                dsn: "enqueue://default?receiveTimeout=100"
         default_bus: messenger.bus.shopware
         buses:
             messenger.bus.shopware:

@@ -19,6 +19,13 @@ stages:
 include:
     -   local: .gitlab/ci/split.yml
 
+workflow:
+    rules:
+        # do not run on push
+        -   if: '$CI_PIPELINE_SOURCE == "push"'
+            when: never
+        -   when: always
+
 default:
     image: shopware/development:7.4-composer-2
     before_script:
@@ -58,12 +65,6 @@ default:
         TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch docs"
     timeout: 1h 00m
     script:
-        - echo matrix config
-        - echo EACH_MR $EACH_MR
-        - echo Mysql $MYSQL_IMAGE
-        - echo Mysql cmd $MYSQL_CMD
-        - echo Dev template $DEV_IMAGE
-        - echo Features $FEATURE_ALL
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         - mkdir -p build/artifacts/
@@ -108,15 +109,14 @@ PHP Unit:
           - "Migration*.php"
           - "**/Migration*.php"
           - "src/Core/Framework/Resources/config/packages/shopware.yaml"
-      - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/) && $EACH_MR == "true"'
+      - if: '$SKIP_ON_MR != "true" && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/)'
       - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         when: manual
         allow_failure: true
     parallel:
         matrix:
-            -   EACH_MR: 'true'
-                MYSQL_IMAGE: mariadb:10.4
+            -   MYSQL_IMAGE: mariadb:10.4
                 DEV_IMAGE: shopware/development:8.0-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
@@ -124,20 +124,15 @@ PHP Unit:
                     - mariadb:10.3
                 DEV_IMAGE: shopware/development:8.0-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
+                SKIP_ON_MR: 'true'
             -   MYSQL_IMAGE:
                     - mysql:8.0.19
                 DEV_IMAGE: ["shopware/development:7.4-composer-2", "shopware/development:8.0-composer-2"]
                 FEATURE_ALL: ["false", "minor", "major"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+                SKIP_ON_MR: 'true'
 
 ESLint (Administration):
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
-            - schedules
-            - pipelines
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -150,13 +145,6 @@ ESLint (Administration):
             junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 ESLint (Storefront):
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
-            - schedules
-            - pipelines
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -188,13 +176,6 @@ Stylelint (Administration):
             junit: src/Administration/Resources/app/administration/stylelint.junit.xml
 
 Stylelint (Storefront):
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
-            - schedules
-            - pipelines
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -208,11 +189,6 @@ Stylelint (Storefront):
 
 PHP analysis:
     image: shopware/development:7.4-composer-2
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
     stage: unit
     services:
         -   name: mysql:5.7
@@ -235,11 +211,6 @@ PHP analysis:
             codequality: development/phpstan-report.json
 
 Check generated Docs:
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
     stage: unit
     services:
         -   name: mysql:5.7
@@ -269,12 +240,6 @@ Check generated Docs:
 
 # jest
 Jest (Administration):
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
-            - pipelines
     stage: unit
     timeout: 1h 00m
     services:
@@ -294,12 +259,6 @@ Jest (Administration):
             cobertura: development/build/artifacts/jest/cobertura-coverage.xml
 
 Jest (Storefront):
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
-            - pipelines
     stage: unit
     timeout: 1h 00m
     variables:
@@ -320,10 +279,6 @@ Jest (Storefront):
 
 Validate snippets:
     only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
         changes:
             - src/**/snippet/**/*.json
     stage: unit
@@ -352,15 +307,8 @@ E2E:
         - echo "$DOCKER_AUTH_CONFIG" > $HOME/.docker/config.json
         - docker login
         - rm $HOME/.docker/config.json
-        - echo matrix config
-        - echo cypress_grep $cypress_grep
-        - echo SECTION $SECTION
-        - echo TEST_DIRECTORY $TEST_DIRECTORY
         - mkdir -p config/packages/
         - cp platform/src/Core/Framework/Resources/config/packages/e2e/e2e.yaml config/packages/shopware.yaml
-        - echo FEATURE_ALL $FEATURE_ALL
-        - echo BROWSER $BROWSER
-        - echo cypress_usePercy $cypress_usePercy
         - ./psh.phar init --APP_ENV="prod"
         - ./psh.phar administration:init --APP_ENV="prod"
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
@@ -388,62 +336,21 @@ E2E:
         reports:
             junit: development/build/artifacts/e2e/*.xml
     rules:
-        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ || ($cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::only_base.*/)'
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/'
             when: never
-            # run full tests if trigger by scheduled or another pipeline (production)
-        -   if: '$cypress_grep == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline")'
-            # skip @base jobs if trigger by scheduled or another pipeline (production)
-        -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline")'
-            when: never
-            # run full tests if there are changes to migrations
-        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
-            changes:
-                - "Migration*.php"
-                - "**/Migration*.php"
-                - "src/Core/Framework/Resources/config/packages/shopware.yaml"
-            # skip @base jobs if there are changes to migrations, because the full set runs
-        -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS !~ /.*E2E::only_base.*/'
-            changes:
-                - "Migration*.php"
-                - "**/Migration*.php"
-                - "src/Core/Framework/Resources/config/packages/shopware.yaml"
-            when: never
-        -   if: '$cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
-        -   if: '$cypress_grep && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
-            when: never
-        -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/)'
-        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+        -   if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline"'
+        -   if: '$SKIP_ON_MR != "true" && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/)'
+        -   if: '$SKIP_ON_MR == "true" && $CI_PIPELINE_SOURCE == "merge_request_event"'
             when: manual
             allow_failure: true
     parallel:
         matrix:
-            -   cypress_grep: '@base'
-                SECTION: 'Storefront'
-                TEST_DIRECTORY:  "cypress/integration/**/*"
-                FEATURE_ALL: ["false", "minor", "major"]
-                BROWSER: 'chrome'
-                CYPRESS_PARAMS: "--config numTestsKeptInMemory=0"
-                cypress_usePercy: 'false'
-            -   cypress_grep: '@base'
-                SECTION: 'Administration'
-                TEST_DIRECTORY:
-                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/*"
-                    - "cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/general/**/* cypress/integration/order/**/*"
-                    - "cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
-                FEATURE_ALL: "false" # ["false", "true"]
-                BROWSER: 'chrome'
-                CYPRESS_PARAMS: "--config numTestsKeptInMemory=0"
-                cypress_usePercy: 'false'
+            # all test cases in chrome
             -   SECTION: 'Storefront'
                 TEST_DIRECTORY: "cypress/integration/**/**/*"
-                BROWSER: ['chrome']
+                BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "minor", "major"]
-                cypress_usePercy: 'false'
-            -   SECTION: 'Storefront'
-                TEST_DIRECTORY: "cypress/integration/**/**/*"
-                BROWSER: 'firefox'
-                FEATURE_ALL: 'false'
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
@@ -452,6 +359,13 @@ E2E:
                 BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "minor", "major"]
                 cypress_usePercy: 'false'
+            # firefox
+            -   SECTION: 'Storefront'
+                TEST_DIRECTORY: "cypress/integration/**/**/*"
+                BROWSER: 'firefox'
+                FEATURE_ALL: 'false'
+                cypress_usePercy: 'false'
+                SKIP_ON_MR: 'true'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
                     - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
@@ -459,20 +373,19 @@ E2E:
                 BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
                 cypress_usePercy: 'false'
+                SKIP_ON_MR: 'true'
+            # Visual
             -   SECTION: 'Administration'
                 TEST_DIRECTORY: "cypress/integration/visual/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: "false"
                 cypress_usePercy: $CYPRESS_PERCY_USAGE
+                SKIP_ON_MR: 'true'
 
 # Stage: build
 
 Component Library:
     only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
         changes:
             - src/Administration/**/*
             - src/Storefront/**/*
@@ -499,10 +412,6 @@ Component Library:
 
 Generating docs:
     only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
         changes:
             - src/Docs/**/*
     stage: Generate docs
@@ -522,13 +431,6 @@ Generating docs:
 
 Symfony security check:
     stage: unit
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
-            - schedules
-            - pipelines
     image: shopware/development:7.4-composer-2
     script:
         - composer install --no-interaction --no-scripts
@@ -542,13 +444,6 @@ Symfony security check:
 
 NPM security check:
     stage: Security
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
-            - schedules
-            - pipelines
     image: shopware/development:7.4-composer-2
     before_script: []
     dependencies: []
@@ -564,25 +459,6 @@ NPM security check:
         - node node_modules/.bin/audit-ci --moderate --allowlist dot-prop http-proxy acorn jquery elliptic
 
 # Stage: deploy
-
-.Scrutinizer:
-    stage: Deploy
-    image: php:7.4-alpine
-    allow_failure: true
-    before_script: []
-    only:
-        - trunk
-        - /^6\..*$/
-    dependencies:
-        - PHPUnit (MySQL)
-    script:
-        - wget https://scrutinizer-ci.com/ocular.phar
-        - php ocular.phar code-coverage:upload
-            --repository="g/shopware/platform"
-            --revision="$CI_COMMIT_SHA"
-            --format=php-clover
-            development/build/artifacts/phpunit.clover.xml
-    interruptible: false
 
 Upload Component Library:
     stage: Deploy

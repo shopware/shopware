@@ -81,7 +81,7 @@ export default class Repository {
      * @param {Criteria} criteria
      * @returns {Promise}
      */
-    get(id, context, criteria = Shopware.Context.api) {
+    get(id, context = Shopware.Context.api, criteria) {
         criteria = criteria || new Criteria();
         criteria.setIds([id]);
 

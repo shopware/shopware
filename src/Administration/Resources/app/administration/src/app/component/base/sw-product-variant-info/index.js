@@ -91,10 +91,9 @@ Component.register('sw-product-variant-info', {
         },
 
         setHelpText() {
-            this.helpText = '';
-            this.helpText += this.titleTerm ? this.titleTerm : this.getFirstSlot();
+            this.helpText = this.titleTerm ? this.titleTerm : this.getFirstSlot();
 
-            if (this.variations && this.variations.length > 0) {
+            if (this.helpText && this.variations && this.variations.length > 0) {
                 this.tooltipWidth = 500;
                 this.helpText += ' (';
                 this.variations.forEach((variant) => {

@@ -1,0 +1,50 @@
+{
+    "orderNumber": "11001",
+    "orderDateTime": "2020-02-02 01:02:03.000",
+    "shippingCosts": {
+        "unitPrice": 0.0,
+        "quantity": 1,
+        "totalPrice": 0.0,
+        "calculatedTaxes": [
+            {
+                "tax": 0.0,
+                "taxRate": 19.0,
+                "price": 0.0,
+                "extensions": []
+            }
+        ],
+        "taxRules": [
+            {
+                "taxRate": 19.0,
+                "percentage": 100.0,
+                "extensions": []
+            }
+        ],
+        "referencePrice": null,
+        "listPrice": null,
+        "extensions": []
+    },
+    "price": {
+        "netPrice": 478.99,
+        "totalPrice": 570.0,
+        "calculatedTaxes": [
+            {
+                "tax": 91.01,
+                "taxRate": 19.0,
+                "price": 570.0,
+                "extensions": []
+            }
+        ],
+        "taxRules": [
+            {
+                "taxRate": 19.0,
+                "percentage": 100.0,
+                "extensions": []
+            }
+        ],
+        "positionPrice": 570.0,
+        "taxStatus": "gross",
+        "rawTotal": 570.0,
+        "extensions": []
+    }
+}

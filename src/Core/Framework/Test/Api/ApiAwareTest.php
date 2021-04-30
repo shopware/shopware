@@ -1,0 +1,72 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\Api;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+
+class ApiAwareTest extends TestCase
+{
+    use KernelTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
+
+    public function testApiAware(): void
+    {
+        $kernel = KernelLifecycleManager::createKernel(null, true, Uuid::randomHex());
+        $kernel->boot();
+        $registry = $kernel->getContainer()->get(DefinitionInstanceRegistry::class);
+
+        $mapping = [];
+
+        foreach ($registry->getDefinitions() as $definition) {
+            $entity = $definition->getEntityName();
+
+            foreach ($definition->getFields() as $field) {
+                /** @var ApiAware|null $flag */
+                $flag = $field->getFlag(ApiAware::class);
+                if ($flag === null) {
+                    continue;
+                }
+
+                if ($flag->isSourceAllowed(SalesChannelApiSource::class)) {
+                    $mapping[] = $entity . '.' . $field->getPropertyName();
+                }
+            }
+        }
+
+//        file_put_contents(__DIR__ . '/fixtures/api-aware-fields.json', json_encode($mapping));
+
+        // To update the mapping you can simply comment the following line and run the test once. The mapping will then be updated.
+        // The line to update the mapping must of course be commented out again afterwards.
+        $expected = file_get_contents(__DIR__ . '/fixtures/api-aware-fields.json');
+
+        $expected = json_decode($expected, true);
+
+        if (Feature::isActive('FEATURE_NEXT_14357')) {
+            $expected[] = 'app_payment_method.createdAt';
+            $expected[] = 'app_payment_method.updatedAt';
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $expected[] = 'country.vatIdRequired';
+            $expected[] = 'country.taxFreeFrom';
+            $expected[] = 'currency.taxFreeFrom';
+        }
+
+        $message = 'One or more fields have been changed in their visibility for the Store Api.
+        This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';
+
+        $diff = array_diff($mapping, $expected);
+        static::assertEquals([], $diff, $message);
+
+        $diff = array_diff($expected, $mapping);
+        static::assertEquals([], $diff, $message);
+    }
+}

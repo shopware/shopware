@@ -3,8 +3,10 @@
 namespace Shopware\Core\System\Currency;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -42,7 +44,18 @@ class CurrencyFormatter
         $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
-        return $formatter->formatCurrency($price, $currency);
+        if (Feature::isActive('FEATURE_NEXT_15053')) {
+            return $formatter->formatCurrency($price, $currency);
+        }
+
+        if (!$context->hasState(DocumentService::GENERATING_PDF_STATE)) {
+            return $formatter->formatCurrency($price, $currency);
+        }
+
+        $string = htmlentities($formatter->formatCurrency($price, $currency), ENT_COMPAT, 'utf-8');
+        $content = str_replace('&nbsp;', ' ', $string);
+
+        return html_entity_decode($content);
     }
 
     private function getFormatter(string $locale, int $format): \NumberFormatter

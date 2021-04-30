@@ -41,7 +41,7 @@ class ApiAwareTest extends TestCase
             }
         }
 
-//        file_put_contents(__DIR__ . '/fixtures/api-aware-fields.json', json_encode($mapping));
+//        file_put_contents(__DIR__ . '/fixtures/api-aware-fields.json', json_encode($mapping, JSON_PRETTY_PRINT));
 
         // To update the mapping you can simply comment the following line and run the test once. The mapping will then be updated.
         // The line to update the mapping must of course be commented out again afterwards.

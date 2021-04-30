@@ -45,13 +45,25 @@ Bestellnummer: {{ order.orderNumber }}<br>
                     </div>
 
                     {% if nestedItem.payload.options is defined and nestedItem.payload.options|length >= 1 %}
-                        <br/>
-                        {% for option in nestedItem.payload.options %}
-                            {{ option.group }}: {{ option.option }}
-                            {% if nestedItem.payload.options|last != option %}
-                                {{ " | " }}
-                            {% endif %}
-                        {% endfor %}
+                        <div>
+                            {% for option in nestedItem.payload.options %}
+                                {{ option.group }}: {{ option.option }}
+                                {% if nestedItem.payload.options|last != option %}
+                                    {{ " | " }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if nestedItem.payload.features is defined and nestedItem.payload.features|length >= 1 %}
+                        {% set referencePriceFeatures = nestedItem.payload.features|filter(feature => feature.type == 'referencePrice') %}
+                        {% if referencePriceFeatures|length >= 1 %}
+                            {% set referencePriceFeature = referencePriceFeatures|first %}
+                            <div>
+                                {{ referencePriceFeature.value.purchaseUnit }} {{ referencePriceFeature.value.unitName }}
+                                ({{ referencePriceFeature.value.price|currency(currencyIsoCode) }}* / {{ referencePriceFeature.value.referenceUnit }} {{ referencePriceFeature.value.unitName }})
+                            </div>
+                        {% endif %}
                     {% endif %}
                 </td>
                 <td style="text-align: center">{{ nestedItem.quantity }}</td>

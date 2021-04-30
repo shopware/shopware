@@ -48,10 +48,10 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         expect(typeof googleReCaptchaBasePlugin).toBe('object');
     });
 
-    test('Throw error if input field for Google reCaptcha is missing', () => {
+    test('Throw error if input field for Google reCAPTCHA is missing', () => {
         const mockForm = document.createElement('form');
 
-        expect(() => new GoogleReCaptchaBasePlugin(mockForm)).toThrow(Error('Input field for Google reCaptcha is missing!'));
+        expect(() => new GoogleReCaptchaBasePlugin(mockForm)).toThrow(Error('Input field for Google reCAPTCHA is missing!'));
 
         const inputField = document.createElement('input');
         inputField.className = 'grecaptcha-input';

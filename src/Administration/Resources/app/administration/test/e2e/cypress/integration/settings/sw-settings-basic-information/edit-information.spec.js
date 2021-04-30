@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />delete country
+// / <reference types="Cypress" />delete country
 
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
 
@@ -148,7 +148,7 @@ describe('Basic Informaion: Edit assignments', () => {
 
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select')
-            .typeMultiSelectAndCheck('Google reCaptcha V3');
+            .typeMultiSelectAndCheck('Google reCAPTCHA v3');
 
         cy.get('.smart-bar__content .sw-button--primary').click();
         cy.wait('@saveData').then((xhr) => {

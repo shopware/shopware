@@ -13,7 +13,7 @@ export default class GoogleReCaptchaBasePlugin extends Plugin
         this.grecaptchaInput = this.el.querySelector(this.options.grecaptchaInputSelector);
 
         if (!this.grecaptchaInput) {
-            throw new Error('Input field for Google reCaptcha is missing!');
+            throw new Error('Input field for Google reCAPTCHA is missing!');
         }
 
         this.grecaptcha = window.grecaptcha;

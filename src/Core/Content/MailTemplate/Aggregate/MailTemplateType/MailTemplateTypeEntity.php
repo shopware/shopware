@@ -41,6 +41,8 @@ class MailTemplateTypeEntity extends Entity
      */
     protected $customFields;
 
+    protected ?array $templateData;
+
     public function getName(): string
     {
         return $this->name;
@@ -99,5 +101,15 @@ class MailTemplateTypeEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getTemplateData(): ?array
+    {
+        return $this->templateData;
+    }
+
+    public function setTemplateData(?array $templateData): void
+    {
+        $this->templateData = $templateData;
     }
 }

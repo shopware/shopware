@@ -212,6 +212,26 @@
                                 </sw-code-editor>
                             {% endblock %}
                         </sw-card>
+                        {% block sw_mail_template_detail_preview_modal %}
+                            <sw-modal class="sw-mail-template-preview-modal"
+                                      :title="$tc('sw-mail-template.detail.previewModalTitle')"
+                                      v-if="mailPreview"
+                                      :isLoading="isLoading">
+                                <template v-if="!isLoading">
+                                    <span v-html="mailPreview"></span>
+                                </template>
+                                {% block sw_mail_template_detail_preview_modal_footer %}
+                                    <template slot="modal-footer">
+                                        {% block sw_mail_template_detail_preview_modal_footer_cancel %}
+                                            <sw-button size="small"
+                                                       @click="onCancelShowPreview">
+                                                {{ $tc('global.default.close') }}
+                                            </sw-button>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            </sw-modal>
+                        {% endblock %}
                     {% endblock %}
                 </sw-card-view>
             </template>
@@ -250,6 +270,53 @@
                                     </sw-button>
                                 {% endblock %}
                             </div>
+                        </sw-sidebar-item>
+
+                        <sw-sidebar-item icon="default-text-code"
+                                         :title="$tc('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
+                                         class="sw-mail-template-detail__show-available-variables"
+                                         v-if="feature.isActive('FEATURE_NEXT_12654')">
+                            <div class="sw-mail-template-detail__available-variables-sidebar-container">
+                                {% block sw_mail_template_available_variables_tree %}
+                                    <sw-tree
+                                        class="sw-mail-template-detail__available-variables-sidebar-container__tree"
+                                        :searchable="false"
+                                        :disableContextMenu="true"
+                                        :onChangeRoute="() => { return false; }"
+                                        :items="loadedAvailableVariables"
+                                        :sortable="false"
+                                        @get-tree-items="onGetTreeItems">
+                                        <template slot="headline"><span></span></template>
+                                        <template slot="items" slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }">
+                                            <sw-tree-item
+                                                v-for="(item, index) in treeItems"
+                                                :key="item.id"
+                                                :item="item"
+                                                :disableContextMenu="disableContextMenu"
+                                                :onChangeRoute="onChangeRoute"
+                                                :sortable="false"
+                                                :displayCheckbox="false">
+                                                <template slot="grip"><span></span></template>
+                                                <template #actions="{ item }">
+                                                    <sw-icon name="small-copy"
+                                                             class="sw-mail-template-detail__copy_icon"
+                                                             v-tooltip="{message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
+                                                                         width: 150,
+                                                                         position: 'bottom'}"
+                                                             @click="onCopyVariable(item.id)"></sw-icon>
+                                                </template>
+                                            </sw-tree-item>
+                                        </template>
+                                    </sw-tree>
+                                {% endblock %}
+                            </div>
+                        </sw-sidebar-item>
+
+                        <sw-sidebar-item icon="default-eye-open"
+                                         :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
+                                         class="sw-mail-template-detail__show-preview-sidebar"
+                                         @click="onClickShowPreview"
+                                         v-if="feature.isActive('FEATURE_NEXT_12654')">
                         </sw-sidebar-item>
 
                         <sw-sidebar-media-item ref="mediaSidebarItem">

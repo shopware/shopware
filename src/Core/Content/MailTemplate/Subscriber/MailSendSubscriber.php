@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\EventData\EventDataType;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -43,6 +44,11 @@ class MailSendSubscriber implements EventSubscriberInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_12654)
+     */
+    private EntityRepositoryInterface $mailTemplateTypeRepository;
+
     public function __construct(
         AbstractMailService $emailService,
         EntityRepositoryInterface $mailTemplateRepository,
@@ -51,7 +57,8 @@ class MailSendSubscriber implements EventSubscriberInterface
         EntityRepositoryInterface $documentRepository,
         DocumentService $documentService,
         LoggerInterface $logger,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        EntityRepositoryInterface $mailTemplateTypeRepository
     ) {
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;
@@ -61,6 +68,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         $this->logger = $logger;
         $this->emailService = $emailService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -129,6 +137,15 @@ class MailSendSubscriber implements EventSubscriberInterface
         }
 
         $this->eventDispatcher->dispatch(new MailSendSubscriberBridgeEvent($data, $mailTemplate, $event));
+
+        if (Feature::isActive('FEATURE_NEXT_12654')) {
+            if ($data->has('templateId')) {
+                $this->mailTemplateTypeRepository->update([[
+                    'id' => $mailTemplate->getMailTemplateTypeId(),
+                    'templateData' => $this->getTemplateData($mailEvent),
+                ]], $mailEvent->getContext());
+            }
+        }
 
         try {
             $this->emailService->send(

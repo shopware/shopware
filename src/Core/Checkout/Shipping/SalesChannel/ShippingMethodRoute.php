@@ -46,11 +46,11 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      *      operationId="readShippingMethod",
      *      tags={"Store API", "Payment & Shipping"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(property="onlyAvailable", description="List only available", type="boolean")
-     *          )
+     *      @OA\Parameter(
+     *          name="onlyAvailable",
+     *          description="List only available shipping methods. This filters shipping methods methods which can not be used in the actual context because of their availability rule.",
+     *          @OA\Schema(type="boolean"),
+     *          in="query"
      *      ),
      *      @OA\Response(
      *          response="200",

@@ -93,10 +93,16 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      *      description="This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
      *      operationId="readProductDetail",
      *      tags={"Store API","Product"},
-     *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(
+     *          name="productId",
+     *          description="Product ID",
+     *          @OA\Schema(type="string"),
+     *          in="path",
+     *          required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Found product",
+     *          description="The full data of a product",
      *          @OA\JsonContent(ref="#/components/schemas/product_flat")
      *     )
      * )

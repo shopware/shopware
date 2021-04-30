@@ -40,14 +40,21 @@ class ProductReviewRoute extends AbstractProductReviewRoute
      * @Entity("product_review")
      * @OA\Post(
      *      path="/product/{productId}/reviews",
-     *      summary="Fetch product reviews",
+     *      summary="Fetch product reviews by criteria",
      *      operationId="readProductReviews",
      *      tags={"Store API","Product"},
-     *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *      @OA\Parameter(
+     *          name="productId",
+     *          description="Product ID",
+     *          @OA\Schema(type="string"),
+     *          in="path",
+     *          required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Found reviews",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/product_review_flat"))
+     *          description="Entity search result containing product reviews",
+     *          @OA\Schema(ref="#/components/schemas/EntitySearchResult")
      *     )
      * )
      * @Route("/store-api/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"})

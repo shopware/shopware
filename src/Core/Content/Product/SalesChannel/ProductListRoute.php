@@ -38,29 +38,14 @@ class ProductListRoute extends AbstractProductListRoute
      * @OA\Post(
      *      path="/product",
      *      summary="Fetch a list of products by criteria",
+     *      description="List products that match the given criteria. For performance ressons a limit should always be set.",
      *      operationId="readProduct",
      *      tags={"Store API", "Product"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/product_flat")
-     *              )
-     *          )
+     *          description="Entity search result containing products",
+     *          @OA\Schema(ref="#/components/schemas/EntitySearchResult")
      *     )
      * )
      * @Route("/store-api/product", name="store-api.product.search", methods={"GET", "POST"})

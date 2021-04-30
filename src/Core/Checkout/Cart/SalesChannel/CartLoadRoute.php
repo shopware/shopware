@@ -49,6 +49,12 @@ class CartLoadRoute extends AbstractCartLoadRoute
      *      summary="Fetch or create a cart",
      *      operationId="readCart",
      *      tags={"Store API", "Cart"},
+     *      @OA\Parameter(
+     *          name="name",
+     *          description="The name of the new cart. This parameter will only be used when creating a new cart.",
+     *          @OA\Schema(type="string"),
+     *          in="query",
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Cart",

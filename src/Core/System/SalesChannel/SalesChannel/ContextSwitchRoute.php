@@ -75,14 +75,14 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="currencyId", description="Currency", type="string", format="uuid"),
-     *              @OA\Property(property="languageId", description="Language", type="string", format="uuid"),
-     *              @OA\Property(property="billingAddressId", description="Billing Address", type="string", format="uuid"),
-     *              @OA\Property(property="shippingAddressId", description="Shipping Address", type="string", format="uuid"),
-     *              @OA\Property(property="paymentMethodId", description="Payment Method", type="string", format="uuid"),
-     *              @OA\Property(property="shippingMethodId", description="Shipping Method", type="string", format="uuid"),
-     *              @OA\Property(property="countryId", description="Country", type="string", format="uuid"),
-     *              @OA\Property(property="countryStateId", description="Country State", type="string", format="uuid")
+     *              @OA\Property(property="currencyId", description="Currency", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="languageId", description="Language", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="billingAddressId", description="Billing Address", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="shippingAddressId", description="Shipping Address", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="paymentMethodId", description="Payment Method", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="shippingMethodId", description="Shipping Method", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="countryId", description="Country", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="countryStateId", description="Country State", type="string", pattern="^[0-9a-f]{32}$")
      *          )
      *      ),
      *      @OA\Response(

@@ -47,12 +47,6 @@
         },
         "sorting": {
           "type": "string"
-        },
-        "elements": {
-          "type": "array",
-          "items": {
-            "$ref": "#/components/schemas/product_flat"
-          }
         }
       }
     }

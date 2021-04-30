@@ -41,35 +41,21 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      * @Entity("payment_method")
      * @OA\Post (
      *      path="/payment-method",
-     *      summary="Fetch payment methods",
+     *      summary="Fetch payment methods by criteria",
+     *      description="Lists active payment methods which can be used in the checkout process.",
      *      operationId="readPaymentMethod",
      *      tags={"Store API", "Payment & Shipping"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(property="onlyAvailable", description="List only available", type="boolean")
-     *          )
+     *      @OA\Parameter(
+     *          name="onlyAvailable",
+     *          description="List only available payment methods. This filters payment methods which can not be used in the actual context because of their availability rule.",
+     *          @OA\Schema(type="boolean"),
+     *          in="query"
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/payment_method_flat")
-     *              )
+     *          description="Entity search result containing payment methods",
+     *          @OA\Schema(ref="#/components/schemas/EntitySearchResult")
      *       )
      *    )
      * )

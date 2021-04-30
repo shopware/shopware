@@ -64,8 +64,20 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="paymentMethodId", description="The id of the paymentMethod to be set", type="string"),
-     *              @OA\Property(property="orderId", description="The id of the order", type="string")
+     *              required={
+     *                  "paymentMethodId",
+     *                  "orderId"
+     *              },
+     *              @OA\Property(
+     *                  property="paymentMethodId",
+     *                  description="The id of the paymentMethod to be set",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="orderId",
+     *                  description="The id of the order",
+     *                  type="string"
+     *              )
      *          )
      *      ),
      *      @OA\Response(

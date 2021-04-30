@@ -64,13 +64,14 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
      * @OA\Post(
      *      path="/newsletter/confirm",
      *      summary="Confirm a newsletter registration",
+     *      description="The link for this route is normally send out via email, when a customer regsiters for the newsletter. The customer will not receive any newsletters until the newsletter registration is done.",
      *      operationId="confirmNewsletter",
      *      tags={"Store API", "Newsletter"},
      *      @OA\Parameter(name="hash", description="Hash from Mail", in="query", @OA\Schema(type="string")),
      *      @OA\Parameter(name="em", description="Hash from Mail", in="query", @OA\Schema(type="string")),
      *      @OA\Response(
      *          response="200",
-     *          description="Success",
+     *          description="The newsletter confirmation was successful.",
      *     )
      * )
      * @Route("/store-api/newsletter/confirm", name="store-api.newsletter.confirm", methods={"POST"})

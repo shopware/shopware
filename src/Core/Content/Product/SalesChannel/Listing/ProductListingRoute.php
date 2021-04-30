@@ -71,7 +71,13 @@ class ProductListingRoute extends AbstractProductListingRoute
      *      summary="Fetch a product listing by category",
      *      operationId="readProductListing",
      *      tags={"Store API","Product"},
-     *      @OA\Parameter(name="categoryId", description="Category ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(
+     *          name="categoryId",
+     *          description="Category ID",
+     *          @OA\Schema(type="string"),
+     *          in="path",
+     *          required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Found products",

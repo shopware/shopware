@@ -78,7 +78,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="categoryId", description="Id of the category", type="string", format="uuid")
+     *              @OA\Property(property="categoryId", description="Id of the category", type="string", pattern="^[0-9a-f]{32}$")
      *          )
      *      ),
      *      @OA\Parameter(name="Api-Basic-Parameters"),

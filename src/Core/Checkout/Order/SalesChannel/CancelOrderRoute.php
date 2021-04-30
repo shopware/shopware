@@ -42,12 +42,18 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="orderId", description="The id of the order to be changed", type="string")
+     *              @OA\Property(
+     *                  property="orderId",
+     *                  description="The id of the order to be canceled",
+     *                  type="string"
+     *              )
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="State Machine",
+     *          description="Returns the state of the state machine
+
+example: More information about the state machine can be found in the corresponding guide: [Using the state machine](https://developer.shopware.com/docs/guides/plugins/plugins/checkout/order/using-the-state-machine)",
      *          @OA\JsonContent(ref="#/components/schemas/state_machine_state_flat")
      *     )
      * )

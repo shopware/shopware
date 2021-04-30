@@ -59,27 +59,33 @@ class CategoryRoute extends AbstractCategoryRoute
     /**
      * @Since("6.2.0.0")
      * @OA\Post(
-     *      path="/category/{categoryId}",
-     *      summary="Fetch a single category",
-     *      description="This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
-     *      operationId="readCategory",
-     *      tags={"Store API", "Category"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(property="categoryId", description="Id of the category", type="string", format="uuid")
-     *          )
-     *      ),
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(name="categoryId", description="Category ID", @OA\Schema(type="string"), in="path", required=true),
-     *      @OA\Response(
+     *     path="/category/{categoryId}",
+     *     summary="Fetch a single category",
+     *     description="This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
+     *     operationId="readCategory",
+     *     tags={"Store API", "Category"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={
+     *                  "categoryId"
+     *             },
+     *             @OA\Property(
+     *                 property="categoryId",
+     *                 description="ID of the category to be fetched",
+     *                 @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *             )
+     *         )
+     *     ),
+     *     @OA\Parameter(name="Api-Basic-Parameters"),
+     *     @OA\Response(
      *          response="200",
      *          description="The loaded category with cms page",
      *          @OA\JsonContent(ref="#/components/schemas/category_flat")
      *     ),
      *     @OA\Response(
      *          response="404",
-     *          ref="#/components/responses/404"
+     *          @OA\JsonContent(ref="#/components/schemas/failure")
      *     ),
      * )
      *

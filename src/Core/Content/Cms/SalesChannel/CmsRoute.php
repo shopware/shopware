@@ -37,11 +37,24 @@ class CmsRoute extends AbstractCmsRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/cms/{id}",
-     *      summary="Fetch and resolve a CMS page",
+     *      summary="Fetch and resolve a CMS page by criteria.",
+     *      description="Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.",
      *      operationId="readCms",
      *      tags={"Store API", "Content"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(name="id", description="CMS ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Identifier of the CMS page to be resolved",
+     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *          in="path",
+     *          required=true
+     *      ),
+     *      @OA\Parameter(
+     *          name="slots",
+     *          description="Resolves only the given slot ids. The ids have to be seperated by a '|' character",
+     *          @OA\Schema(type="string"),
+     *          in="query",
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="The loaded cms page",

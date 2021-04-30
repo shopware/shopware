@@ -44,23 +44,17 @@ class CategoryListRoute extends AbstractCategoryListRoute
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/category_flat")
-     *              )
+     *          description="Entity search result containing categories.",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/ListingResult"),
+     *                  @OA\Property(
+     *                      type="array",
+     *                      property="elements",
+     *                      @OA\Items(ref="#/components/schemas/category_flat"),
+     *                  )
+     *              }
      *          )
      *     )
      * )

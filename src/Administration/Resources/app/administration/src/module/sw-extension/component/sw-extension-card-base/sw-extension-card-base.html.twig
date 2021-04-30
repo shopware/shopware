@@ -90,7 +90,8 @@
                         {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
                     </span>
 
-                    <span v-else-if="canBeOpened" class="sw-extension-card-base__open-extension" @click="openExtension">
+                    {# @deprecated tag:v6.5.0 - will be removed use `sw_extension_card_base_context_menu_theme_settings` as a replacement #}
+                    <span v-else-if="extensionCanBeOpened" class="sw-extension-card-base__open-extension" @click="openExtension" style="display: none;">
                         {{ $tc(openLinkInformation.label || 'sw-extension-store.component.sw-extension-card-base.openExtensionLabel') }}
                     </span>
                 {% endblock %}
@@ -104,7 +105,15 @@
                         <sw-context-menu-item
                             v-if="isInstalled && extension.configurable"
                             :routerLink="{ name: 'sw.extension.config', params: { namespace: extension.name } }">
+                            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
+                        </sw-context-menu-item>
+                    {% endblock %}
 
+                    {% block sw_extension_card_base_context_menu_theme_settings %}
+                        <sw-context-menu-item
+                            v-if="extensionCanBeOpened && extension.active"
+                            :disabled="!openLinkExists"
+                            :routerLink="openLink">
                             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
                         </sw-context-menu-item>
                     {% endblock %}

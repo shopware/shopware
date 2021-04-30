@@ -30,7 +30,9 @@ Component.register('sw-extension-card-base', {
             showPermissionsModal: false,
             permissionsAccepted: false,
             showPrivacyModal: false,
-            permissionModalActionLabel: null
+            permissionModalActionLabel: null,
+            openLink: null,
+            extensionCanBeOpened: false
         };
     },
 
@@ -98,12 +100,14 @@ Component.register('sw-extension-card-base', {
             return this.extension.installedAt !== null;
         },
 
+        /* @deprecated tag:v6.5.0 - use data "extensionCanBeOpened" */
         canBeOpened() {
-            return this.shopwareExtensionService.canBeOpened(this.extension);
+            return this.extensionCanBeOpened;
         },
 
+        /* @deprecated tag:v6.5.0 - use data "openLink" */
         openLinkInformation() {
-            return this.shopwareExtensionService.getOpenLink(this.extension);
+            return this.openLink;
         },
 
         privacyPolicyLink() {
@@ -141,10 +145,23 @@ Component.register('sw-extension-card-base', {
             }
 
             return this.extension.latestVersion !== this.extension.version;
+        },
+
+        openLinkExists() {
+            return !!this.openLink;
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        async createdComponent() {
+            this.openLink = await this.shopwareExtensionService.getOpenLink(this.extension);
+            this.extensionCanBeOpened = await this.shopwareExtensionService.canBeOpened(this.extension);
+        },
+
         emitUpdateList() {
             this.$emit('updateList');
         },

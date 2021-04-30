@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-extension-card-base';
 
-function createWrapper(propsData = {}) {
+function createWrapper(propsData = {}, provide = {}) {
     return shallowMount(Shopware.Component.build('sw-extension-card-base'), {
         propsData: {
             extension: { installedAt: null },
@@ -20,7 +20,8 @@ function createWrapper(propsData = {}) {
                 getOpenLink: () => null
             },
             extensionStoreActionService: {},
-            cacheApiService: {}
+            cacheApiService: {},
+            ...provide
         }
     });
 }
@@ -137,5 +138,64 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
 
         expect(wrapper.vm.isInstalled).toEqual(false);
+    });
+
+    it('should not show config menu item: not active and not activated once', async () => {
+        wrapper = await createWrapper({
+            extension: {
+                installedAt: null,
+                active: false
+            }
+        },
+        {
+            shopwareExtensionService: {
+                canBeOpened: () => false,
+                getOpenLink: () => null
+            }
+        });
+        await wrapper.vm.$nextTick();
+
+        const state = wrapper.findAll('sw-context-menu-item-stub');
+        expect(state.length).toBe(0);
+    });
+
+    it('should show config menu item: active and activated once', async () => {
+        wrapper.destroy();
+        wrapper = await createWrapper({
+            extension: {
+                installedAt: null,
+                active: true
+            }
+        },
+        {
+            shopwareExtensionService: {
+                canBeOpened: () => true,
+                getOpenLink: () => null
+            }
+        });
+        await wrapper.vm.$nextTick();
+
+        const state = wrapper.findAll('sw-context-menu-item-stub');
+        expect(state.length).toBe(1);
+    });
+
+    it('should not show config menu item: not active and activated once', async () => {
+        wrapper.destroy();
+        wrapper = await createWrapper({
+            extension: {
+                installedAt: null,
+                active: false
+            }
+        },
+        {
+            shopwareExtensionService: {
+                canBeOpened: () => true,
+                getOpenLink: () => null
+            }
+        });
+        await wrapper.vm.$nextTick();
+
+        const state = wrapper.findAll('sw-context-menu-item-stub');
+        expect(state.length).toBe(0);
     });
 });

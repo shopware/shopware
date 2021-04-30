@@ -580,3 +580,15 @@ Removed `node-sass` package because it is deprecated. Added the `sass` package a
 ## Twig system config /theme access
 The `shopware.config` variable was removed. To access a system config value inside twig, use `config('my_config_key')`.
 The `shopware.theme` variable was removed. To access the theme config value inside twig, use `theme_config('my_config_key')`.
+
+---
+
+## Changed product streams from blacklist to allowed list
+The properties in the product stream are now defined with a allowed list. This can cause some missing fields which were available in earlier releases. If you need them also in feature releases then you can add them to the allowed list with an plugin.
+
+Just use the method `addToEntityAllowList` or `addToGeneralAllowList` from the productStreamConditionService. 
+
+Example:
+```js
+Shopware.Service('productStreamConditionService').addToEntityAllowList('product', 'yourProperty');
+```

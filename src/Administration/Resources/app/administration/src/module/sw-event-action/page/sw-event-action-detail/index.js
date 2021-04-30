@@ -11,7 +11,8 @@ Component.register('sw-event-action-detail', {
     inject: [
         'repositoryFactory',
         'businessEventService',
-        'acl'
+        'acl',
+        'customFieldDataProviderService'
     ],
 
     mixins: [
@@ -49,7 +50,8 @@ Component.register('sw-event-action-detail', {
             eventAction: null,
             isLoading: false,
             recipients: [],
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            customFieldSets: null
         };
     },
 
@@ -119,6 +121,10 @@ Component.register('sw-event-action-detail', {
                 disabled: this.acl.can('event_action.editor'),
                 showOnDisabledElements: true
             };
+        },
+
+        showCustomFields() {
+            return this.eventAction && this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -135,16 +141,17 @@ Component.register('sw-event-action-detail', {
             this.isLoading = true;
 
             return Promise
-                .all([this.getBusinessEvents(), this.getEventAction()])
-                .then(([businessEvents, eventAction]) => {
+                .all([this.getBusinessEvents(), this.getEventAction(), this.loadCustomFieldSets()])
+                .then(([businessEvents, eventAction, customFieldSets]) => {
                     this.businessEvents = this.filterMailAwareEvents(this.addTranslatedEventNames(businessEvents));
                     this.eventAction = eventAction;
+                    this.customFieldSets = customFieldSets;
 
                     this.isLoading = false;
 
                     this.buildRecipients();
 
-                    return Promise.resolve([businessEvents, eventAction]);
+                    return Promise.resolve([businessEvents, eventAction, customFieldSets]);
                 })
                 .catch((exception) => {
                     this.createNotificationError({
@@ -154,6 +161,10 @@ Component.register('sw-event-action-detail', {
 
                     return Promise.reject(exception);
                 });
+        },
+
+        loadCustomFieldSets() {
+            return this.customFieldDataProviderService.getCustomFieldSets('event_action');
         },
 
         getEventAction() {
@@ -206,7 +217,7 @@ Component.register('sw-event-action-detail', {
             return this.eventActionRepository
                 .save(this.eventAction, Shopware.Context.api)
                 .then(() => {
-                    if (this.eventAction.isNew()) {
+                    if (typeof this.eventAction.isNew === 'function' && this.eventAction.isNew()) {
                         this.$router.push({
                             name: 'sw.event.action.detail', params: { id: this.eventAction.id }
                         });

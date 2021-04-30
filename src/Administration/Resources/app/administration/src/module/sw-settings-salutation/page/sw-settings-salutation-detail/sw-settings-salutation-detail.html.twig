@@ -101,6 +101,18 @@
                             </template>
                         </sw-card>
                     {% endblock %}
+
+                    {% block sw_settings_salutation_detail_custom_field_sets %}
+                        <sw-card v-if="showCustomFields"
+                                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                                 :isLoading="isLoading">
+                            <sw-custom-field-set-renderer
+                                :entity="salutation"
+                                :disabled="!acl.can('salutation.editor')"
+                                :sets="customFieldSets">
+                            </sw-custom-field-set-renderer>
+                        </sw-card>
+                    {% endblock %}
                 </sw-card-view>
             </template>
         {% endblock %}

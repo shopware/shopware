@@ -231,6 +231,18 @@
                             </sw-textarea-field>
                         {% endblock %}
                     </sw-card>
+
+                    {% block sw_review_detail_custom_field_sets %}
+                        <sw-card v-if="showCustomFields"
+                                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                                 :isLoading="isLoading">
+                            <sw-custom-field-set-renderer
+                                :entity="review"
+                                :disabled="!acl.can('review.editor')"
+                                :sets="customFieldSets">
+                            </sw-custom-field-set-renderer>
+                        </sw-card>
+                    {% endblock %}
                 </sw-card-view>
             </template>
         {% endblock %}

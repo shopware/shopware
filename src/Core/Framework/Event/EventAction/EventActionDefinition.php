@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Event\EventAction;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -60,6 +62,7 @@ class EventActionDefinition extends EntityDefinition
             (new StringField('title', 'title', 500))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new ManyToManyAssociationField('rules', RuleDefinition::class, EventActionRuleDefinition::class, 'event_action_id', 'rule_id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, EventActionSalesChannelDefinition::class, 'event_action_id', 'sales_channel_id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
 
         return $fields;

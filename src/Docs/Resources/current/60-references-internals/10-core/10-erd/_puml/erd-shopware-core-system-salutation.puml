@@ -27,6 +27,7 @@ Table(ShopwareCoreSystemSalutationSalutationDefinition, "salutation\n(Salutation
    not_null(salutationKey) string
    displayName translated
    letterName translated
+   customFields translated
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -34,6 +35,7 @@ Table(ShopwareCoreSystemSalutationSalutationDefinition, "salutation\n(Salutation
 TranslationTable(ShopwareCoreSystemSalutationAggregateSalutationTranslationSalutationTranslationDefinition, "salutation_translation\n((Translations))") {
    not_null(displayName) string
    not_null(letterName) string
+   customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
    primary_key(salutationId) foreignKey

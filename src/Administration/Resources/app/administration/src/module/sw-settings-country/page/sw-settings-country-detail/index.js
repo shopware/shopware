@@ -7,7 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-settings-country-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -36,7 +36,8 @@ Component.register('sw-settings-country-detail', {
             countryStateLoading: false,
             isSaveSuccessful: false,
             deleteButtonDisabled: true,
-            systemCurrency: {}
+            systemCurrency: {},
+            customFieldSets: null
         };
     },
 
@@ -92,7 +93,11 @@ Component.register('sw-settings-country-detail', {
             };
         },
 
-        ...mapPropertyErrors('country', ['name'])
+        ...mapPropertyErrors('country', ['name']),
+
+        showCustomFields() {
+            return this.customFieldSets && this.customFieldSets.length > 0;
+        }
     },
 
     created() {
@@ -104,6 +109,7 @@ Component.register('sw-settings-country-detail', {
             if (this.$route.params.id) {
                 this.countryId = this.$route.params.id;
                 this.loadEntityData();
+                this.loadCustomFieldSets();
             }
         },
 
@@ -122,6 +128,12 @@ Component.register('sw-settings-country-detail', {
 
             this.currencyRepository.get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api).then(currency => {
                 this.systemCurrency = currency;
+            });
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('country').then((sets) => {
+                this.customFieldSets = sets;
             });
         },
 

@@ -9,7 +9,8 @@ Component.register('sw-property-detail', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
+        'customFieldDataProviderService'
     ],
 
     mixins: [
@@ -43,7 +44,8 @@ Component.register('sw-property-detail', {
         return {
             propertyGroup: null,
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            customFieldSets: null
         };
     },
 
@@ -103,6 +105,10 @@ Component.register('sw-property-detail', {
 
         useNaturalSorting() {
             return this.sortBy === 'property.name';
+        },
+
+        showCustomFields() {
+            return this.propertyGroup && this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -113,6 +119,7 @@ Component.register('sw-property-detail', {
     methods: {
         createdComponent() {
             this.loadEntityData();
+            this.loadCustomFieldSets();
         },
 
         loadEntityData() {
@@ -125,6 +132,12 @@ Component.register('sw-property-detail', {
                 }).catch(() => {
                     this.isLoading = false;
                 });
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('property_group').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         saveFinish() {

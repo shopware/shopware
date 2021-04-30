@@ -3,11 +3,10 @@ import template from './sw-settings-tax-detail.html.twig';
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-
 Component.register('sw-settings-tax-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -35,7 +34,8 @@ Component.register('sw-settings-tax-detail', {
         return {
             tax: {},
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            customFieldSets: null
         };
     },
 
@@ -91,6 +91,10 @@ Component.register('sw-settings-tax-detail', {
 
         label() {
             return this.isShopwareDefaultTax ? this.$tc(`global.tax-rates.${this.tax.name}`) : this.tax.name;
+        },
+
+        showCustomFields() {
+            return this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -115,11 +119,18 @@ Component.register('sw-settings-tax-detail', {
                     this.tax = tax;
                     this.isLoading = false;
                 });
+                this.loadCustomFieldSets();
                 return;
             }
 
             this.tax = this.taxRepository.create(Shopware.Context.api);
             this.isLoading = false;
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('tax').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         saveAndReload() {

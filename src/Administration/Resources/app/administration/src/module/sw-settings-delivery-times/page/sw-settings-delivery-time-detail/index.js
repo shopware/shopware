@@ -11,7 +11,7 @@ Component.register('sw-settings-delivery-time-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -28,7 +28,8 @@ Component.register('sw-settings-delivery-time-detail', {
         return {
             deliveryTime: null,
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            customFieldSets: null
         };
     },
 
@@ -45,6 +46,7 @@ Component.register('sw-settings-delivery-time-detail', {
     methods: {
         createdComponent() {
             this.isLoading = true;
+            this.loadCustomFieldSets();
 
             this.deliveryTimeRepository
                 .get(this.$route.params.id, Shopware.Context.api)
@@ -60,6 +62,12 @@ Component.register('sw-settings-delivery-time-detail', {
                     this.isLoading = false;
                     throw exception;
                 });
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('delivery_time').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         onSave() {
@@ -175,6 +183,10 @@ Component.register('sw-settings-delivery-time-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        showCustomFields() {
+            return this.deliveryTime && this.customFieldSets && this.customFieldSets.length > 0;
         }
     }
 });

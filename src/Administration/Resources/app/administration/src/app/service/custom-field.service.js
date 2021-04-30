@@ -1,4 +1,6 @@
 const { remove } = Shopware.Utils.array;
+const { Service } = Shopware;
+const { Criteria } = Shopware.Data;
 
 /**
  * @module app/service/custom-field
@@ -97,7 +99,24 @@ export default function createCustomFieldService() {
         'order',
         'sales_channel',
         'media',
-        'landing_page'
+        'landing_page',
+        'promotion',
+        'product_stream',
+        'property_group',
+        'product_review',
+        'event_action',
+        'country',
+        'currency',
+        'customer_group',
+        'delivery_time',
+        'document_base_config',
+        'language',
+        'number_range',
+        'payment_method',
+        'rule',
+        'salutation',
+        'shipping_method',
+        'tax'
     ];
 
     return {
@@ -106,7 +125,8 @@ export default function createCustomFieldService() {
         getTypes,
         getEntityNames,
         addEntityName,
-        removeEntityName
+        removeEntityName,
+        getCustomFieldSets
     };
 
     function getTypeByName(type) {
@@ -131,5 +151,22 @@ export default function createCustomFieldService() {
 
     function removeEntityName(entityName) {
         remove($entityNameStore, (storeItem) => { return storeItem === entityName; });
+    }
+
+    function getCustomFieldSets(entityName) {
+        const customFieldSetRepository = Service('repositoryFactory').create('custom_field_set');
+
+        return customFieldSetRepository.search(customFieldSetCriteria(entityName), Shopware.Context.api).then((sets) => {
+            return sets.filter((set) => set.customFields.length > 0);
+        });
+    }
+
+    function customFieldSetCriteria(entityName) {
+        const criteria = new Criteria();
+
+        criteria.addFilter(Criteria.equals('relations.entityName', entityName));
+        criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition'));
+
+        return criteria;
     }
 }

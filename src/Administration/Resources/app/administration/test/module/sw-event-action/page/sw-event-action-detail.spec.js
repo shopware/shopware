@@ -70,7 +70,10 @@ function createWrapper(eventActionId = null, privileges = []) {
             'sw-switch-field': true,
             'sw-event-action-detail-recipients': true,
             'router-link': true,
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-select-rule-create': true,
+            'sw-field': true,
+            'sw-custom-field-set-renderer': true
         },
         propsData: {
             eventActionId: eventActionId
@@ -102,6 +105,9 @@ function createWrapper(eventActionId = null, privileges = []) {
                         return Promise.resolve();
                     })
                 })
+            },
+            customFieldDataProviderService: {
+                getCustomFieldSets: () => Promise.resolve([])
             }
         }
     });

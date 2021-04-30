@@ -8,7 +8,8 @@ Component.register('sw-promotion-v2-detail-base', {
 
     inject: [
         'acl',
-        'promotionCodeApiService'
+        'promotionCodeApiService',
+        'customFieldDataProviderService'
     ],
 
     mixins: [
@@ -49,7 +50,8 @@ Component.register('sw-promotion-v2-detail-base', {
                 NONE: '0',
                 FIXED: '1',
                 INDIVIDUAL: '2'
-            })
+            }),
+            customFieldSets: null
         };
     },
 
@@ -61,7 +63,11 @@ Component.register('sw-promotion-v2-detail-base', {
             }));
         },
 
-        ...mapPropertyErrors('promotion', ['name', 'validUntil'])
+        ...mapPropertyErrors('promotion', ['name', 'validUntil']),
+
+        showCustomFields() {
+            return this.customFieldSets && this.customFieldSets.length > 0;
+        }
     },
 
     watch: {
@@ -88,6 +94,7 @@ Component.register('sw-promotion-v2-detail-base', {
             }
 
             this.setNewCodeType(this.promotion.useCodes ? this.CODE_TYPES.FIXED : this.CODE_TYPES.NONE);
+            this.loadCustomFieldSets();
         },
 
         initialSort() {
@@ -132,6 +139,12 @@ Component.register('sw-promotion-v2-detail-base', {
             this.promotion.useIndividualCodes = value === this.CODE_TYPES.INDIVIDUAL;
 
             this.selectedCodeType = value;
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('promotion').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         onGenerateCodeFixed() {

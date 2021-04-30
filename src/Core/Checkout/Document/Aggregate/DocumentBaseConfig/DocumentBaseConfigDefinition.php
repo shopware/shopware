@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -65,6 +66,7 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware()),
             (new JsonField('config', 'config'))->addFlags(new ApiAware()),
             (new CreatedAtField())->addFlags(new ApiAware()),
+            (new CustomFields())->addFlags(new ApiAware()),
 
             (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id')),
             (new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),

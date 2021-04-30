@@ -173,6 +173,18 @@
                             @update-list="onUpdateRecipientsList">
                         </sw-event-action-detail-recipients>
                     {% endblock %}
+
+                    {% block sw_event_action_detail_custom_field_sets %}
+                        <sw-card v-if="showCustomFields"
+                                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                                 :isLoading="isLoading">
+                            <sw-custom-field-set-renderer
+                                :entity="eventAction"
+                                :disabled="!acl.can('event_action.editor')"
+                                :sets="customFieldSets">
+                            </sw-custom-field-set-renderer>
+                        </sw-card>
+                    {% endblock %}
                 </sw-card-view>
             </template>
         {% endblock %}

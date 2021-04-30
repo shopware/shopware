@@ -34,6 +34,9 @@ function createWrapper(privileges = [], isShopwareDefaultTax = true) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            customFieldDataProviderService: {
+                getCustomFieldSets: () => Promise.resolve([])
             }
         },
         stubs: {

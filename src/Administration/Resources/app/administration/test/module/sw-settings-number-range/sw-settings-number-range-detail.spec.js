@@ -42,6 +42,9 @@ function createWrapper(privileges = []) {
             },
             acl: {
                 can: key => (key ? privileges.includes(key) : true)
+            },
+            customFieldDataProviderService: {
+                getCustomFieldSets: () => Promise.resolve([])
             }
         },
         stubs: {
@@ -68,7 +71,8 @@ function createWrapper(privileges = []) {
             'sw-language-info': true,
             'sw-help-text': true,
             'sw-multi-select': true,
-            'sw-entity-single-select': true
+            'sw-entity-single-select': true,
+            'sw-alert': true
         }
     });
 }

@@ -11,7 +11,7 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-settings-shipping-detail', {
     template,
 
-    inject: ['ruleConditionDataProviderService', 'repositoryFactory', 'acl'],
+    inject: ['ruleConditionDataProviderService', 'repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -38,7 +38,8 @@ Component.register('sw-settings-shipping-detail', {
             isSaveSuccessful: false,
             isProcessLoading: false,
             isLoading: false,
-            currenciesLoading: false
+            currenciesLoading: false,
+            customFieldSets: null
         };
     },
 
@@ -131,6 +132,10 @@ Component.register('sw-settings-shipping-detail', {
             criteria.getAssociation('prices').addAssociation('rule');
 
             return criteria;
+        },
+
+        showCustomFields() {
+            return this.customFieldSets && this.customFieldSets.length > 0;
         }
     },
 
@@ -176,6 +181,7 @@ Component.register('sw-settings-shipping-detail', {
                 Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);
             } else {
                 this.loadEntityData();
+                this.loadCustomFieldSets();
             }
             this.loadCurrencies();
         },
@@ -202,6 +208,12 @@ Component.register('sw-settings-shipping-detail', {
             ).then(res => {
                 Shopware.State.commit('swShippingDetail/setShippingMethod', res);
                 this.isLoading = false;
+            });
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('shipping_method').then((sets) => {
+                this.customFieldSets = sets;
             });
         },
 

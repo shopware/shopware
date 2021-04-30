@@ -12,7 +12,15 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
     static options = {
         useAjax: false,
-        ajaxContainerSelector: false
+        ajaxContainerSelector: false,
+
+        /**
+         * When this option is used the plugin only submits the form when
+         * elements with one of the given selectors triggered the change event.
+         *
+         * @type null|[]String
+         */
+        changeTriggerSelectors: null
     };
 
     init() {
@@ -26,8 +34,12 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
         if (this.options.useAjax) {
             if (!this.options.ajaxContainerSelector) {
-                throw new Error('The option "ajaxContainerSelector" must ge given when using ajax.');
+                throw new Error(`[${this.constructor.name}] The option "ajaxContainerSelector" must be given when using ajax.`);
             }
+        }
+
+        if (this.options.changeTriggerSelectors && !Array.isArray(this.options.changeTriggerSelectors)) {
+            throw new Error(`[${this.constructor.name}] The option "changeTriggerSelectors" must be an array of selector strings.`);
         }
 
         this._registerEvents();
@@ -65,11 +77,26 @@ export default class FormAutoSubmitPlugin extends Plugin {
     }
 
     /**
+     * Checks if an event target element matches a selector from changeTriggerSelectors option.
+     *
+     * @param event
+     * @return {boolean}
+     * @private
+     */
+    _targetMatchesSelector(event) {
+        return !!this.options.changeTriggerSelectors.find(selector => event.target.matches(selector));
+    }
+
+    /**
      * on change callback for the form
      *
      * @private
      */
-    _onChange() {
+    _onChange(event) {
+        if (this.options.changeTriggerSelectors && !this._targetMatchesSelector(event)) {
+            return;
+        }
+
         if (window.csrf.enabled && window.csrf.mode === 'ajax') {
             // A new csrf token needs to be appended to the form if ajax csrf mode is used
             this._client.fetchCsrfToken((token) => {

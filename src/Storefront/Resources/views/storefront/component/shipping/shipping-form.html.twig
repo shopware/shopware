@@ -1,23 +1,31 @@
 {% block page_checkout_change_shipping_form %}
-    <form id="changeShippingForm"
-          name="changeShippingForm"
-          action="{{ actionPath }}"
-          data-form-csrf-handler="true"
-          data-form-auto-submit="true"
-          method="post">
 
-        {% block page_checkout_change_shipping_form_csrf %}
-            {{ sw_csrf(action) }}
-        {% endblock %}
+    {% set formAjaxSubmitOptions = {
+        changeTriggerSelectors: ['.shipping-method-input']
+    } %}
 
-        {% block page_checkout_change_shipping_form_redirect %}
-            <input type="hidden" name="redirectTo" value="{{ redirect }}">
-        {% endblock %}
+    {% block page_checkout_change_shipping_form_element %}
+        <form id="changeShippingForm"
+              name="changeShippingForm"
+              action="{{ actionPath }}"
+              data-form-csrf-handler="true"
+              data-form-auto-submit="true"
+              data-form-auto-submit-options='{{ formAjaxSubmitOptions|json_encode }}'
+              method="post">
 
-        {% block page_checkout_change_shipping_form_fields %}
-            {% sw_include '@Storefront/storefront/component/shipping/shipping-fields.html.twig' with {
-                'visibleShippingMethodsLimit': 5
-            } %}
-        {% endblock %}
-    </form>
+            {% block page_checkout_change_shipping_form_csrf %}
+                {{ sw_csrf(action) }}
+            {% endblock %}
+
+            {% block page_checkout_change_shipping_form_redirect %}
+                <input type="hidden" name="redirectTo" value="{{ redirect }}">
+            {% endblock %}
+
+            {% block page_checkout_change_shipping_form_fields %}
+                {% sw_include '@Storefront/storefront/component/shipping/shipping-fields.html.twig' with {
+                    'visibleShippingMethodsLimit': 5
+                } %}
+            {% endblock %}
+        </form>
+    {% endblock %}
 {% endblock %}

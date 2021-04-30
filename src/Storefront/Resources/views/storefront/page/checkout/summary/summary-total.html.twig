@@ -7,7 +7,7 @@
 
     {% block page_checkout_summary_total_value %}
         <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
-            {{ summary.price.totalPrice|currency }}{% if page.cart.price.taxStatus == "gross" %}{{ "general.star"|trans|sw_sanitize|trim }}{% endif %}
+            {{ summary.price.rawTotal|currency }}{% if page.cart.price.taxStatus == "gross" %}{{ "general.star"|trans|sw_sanitize|trim }}{% endif %}
         </dd>
     {% endblock %}
 {% endblock %}

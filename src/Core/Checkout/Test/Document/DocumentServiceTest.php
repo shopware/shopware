@@ -34,6 +34,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
@@ -208,6 +209,10 @@ class DocumentServiceTest extends TestCase
 
         static::assertEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         $documentService->getDocument($document, $this->context);
+
+        if (!Feature::isActive('FEATURE_NEXT_15053')) {
+            static::assertTrue($this->context->hasState(DocumentService::GENERATING_PDF_STATE));
+        }
 
         $document = $documentRepository->search($criteria, $this->context)->first();
         static::assertNotEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
@@ -674,6 +679,10 @@ class DocumentServiceTest extends TestCase
         $document = $documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
 
         $documentService->getDocument($document, $this->context);
+
+        if (!Feature::isActive('FEATURE_NEXT_15053')) {
+            static::assertTrue($this->context->hasState(DocumentService::GENERATING_PDF_STATE));
+        }
 
         /** @var DocumentEntity $document */
         $document = $documentRepository->search($criteria, $this->context)->get($documentStruct->getId());

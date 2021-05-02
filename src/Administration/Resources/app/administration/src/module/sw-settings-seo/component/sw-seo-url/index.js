@@ -210,12 +210,16 @@ Component.register('sw-seo-url', {
 
             if (!currentSeoUrl) {
                 const entity = this.seoUrlRepository.create();
-                entity.foreignKey = this.defaultSeoUrl.foreignKey;
+                const { foreignKey, routeName, pathInfo } = this.seoUrlCollection.find((item) => {
+                    return item.salesChannelId && item.salesChannelId === this.currentSalesChannelId;
+                }) || {};
+
+                entity.foreignKey = this.defaultSeoUrl?.foreignKey ?? foreignKey;
                 entity.isCanonical = true;
                 entity.languageId = actualLanguageId;
                 entity.salesChannelId = this.currentSalesChannelId;
-                entity.routeName = this.defaultSeoUrl.routeName;
-                entity.pathInfo = this.defaultSeoUrl.pathInfo;
+                entity.routeName = this.defaultSeoUrl?.routeName ?? routeName;
+                entity.pathInfo = this.defaultSeoUrl?.pathInfo ?? pathInfo;
                 entity.isModified = true;
 
                 this.seoUrlCollection.add(entity);

@@ -200,7 +200,7 @@ Component.register('sw-customer-detail-addresses', {
             let address = this.activeCustomer.addresses.get(this.currentAddress.id);
 
             if (typeof address === 'undefined' || address === null) {
-                address = this.addressRepository.create(undefined, this.currentAddress.id);
+                address = this.addressRepository.create(Shopware.Context.api, this.currentAddress.id);
             }
 
             Object.assign(address, this.currentAddress);
@@ -243,7 +243,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onEditAddress(id) {
-            const currentAddress = this.addressRepository.create(undefined, id);
+            const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
 
             // assign values and id to new address
             Object.assign(currentAddress, this.activeCustomer.addresses.get(id));

@@ -21,7 +21,7 @@ Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
             }
 
             if (this.$route.params.id) {
-                this.mailTemplate = this.mailTemplateRepository.create(undefined, this.$route.params.id);
+                this.mailTemplate = this.mailTemplateRepository.create(Shopware.Context.api, this.$route.params.id);
             } else {
                 this.mailTemplate = this.mailTemplateRepository.create();
             }

@@ -216,7 +216,7 @@ Component.register('sw-settings-country-detail', {
 
         onClickCountryState(item) {
             // Create a copy with the same id which will be edited
-            const copy = this.countryStateRepository.create(undefined, item.id);
+            const copy = this.countryStateRepository.create(Shopware.Context.api, item.id);
             copy._isNew = false;
 
             this.currentCountryState = Object.assign(copy, item);

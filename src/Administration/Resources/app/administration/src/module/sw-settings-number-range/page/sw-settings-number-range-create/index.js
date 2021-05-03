@@ -21,7 +21,7 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
             }
 
             if (this.$route.params.id) {
-                this.numberRange = this.numberRangeRepository.create(undefined, this.$route.params.id);
+                this.numberRange = this.numberRangeRepository.create(Shopware.Context.api, this.$route.params.id);
             } else {
                 this.numberRange = this.numberRangeRepository.create();
             }

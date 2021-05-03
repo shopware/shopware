@@ -20,7 +20,7 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
                 Shopware.State.commit('context/resetLanguageToDefault');
             }
 
-            this.paymentMethod = this.paymentMethodRepository.create(undefined, this.$route.params.id);
+            this.paymentMethod = this.paymentMethodRepository.create(Shopware.Context.api, this.$route.params.id);
         },
 
         saveFinish() {

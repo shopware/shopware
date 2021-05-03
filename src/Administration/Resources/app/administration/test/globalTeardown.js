@@ -26,15 +26,18 @@ module.exports = async function testTeardown(globalConfig) {
 
     const coberture = await readXmlAsObject(cobertureFilePath);
 
-    const packages = coberture.coverage.packages;
+    const packages = coberture?.coverage?.packages ?? [];
 
     // add sourcePath to filename for each class
-    packages.forEach((_package) => {
-        _package.package.forEach(singlePackage => {
-            singlePackage.classes.forEach((_class) => {
-                _class.class.forEach(c => {
+    packages.forEach((packagesEntry) => {
+        // run through all sub packages
+        (packagesEntry?.package ?? []).forEach(packageEntry => {
+            // run through all classes
+            (packageEntry?.classes ?? []).forEach((classesEntry) => {
+                // run through all sub classes
+                (classesEntry?.class ?? []).forEach(classEntry => {
                     // add full relative path from platform before filename
-                    c.$.filename = path.join('src/Administration/Resources/app/administration', c.$.filename);
+                    classEntry.$.filename = path.join('src/Administration/Resources/app/administration', classEntry.$.filename);
                 })
             });
         });

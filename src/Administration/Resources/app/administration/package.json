@@ -17,7 +17,7 @@
     "build": "mode=production webpack",
     "unit": "jest --config jest.config.js --ci",
     "unit-watch": "jest --config jest.config.js --watch",
-    "test-debug": "node --inspec-brk node_modules/.bin/jest --watch --config jest.config.js --runInBand --no-cache",
+    "test-debug": "node --inspect-brk node_modules/.bin/jest --watch --config jest.config.js --runInBand --no-cache",
     "lint": "eslint --ext .js,.vue src test",
     "lint:junit": "eslint --ext .js,.vue --format junit src test > eslint.junit.xml",
     "lint-fix": "eslint --fix --ext .js,.vue src test",

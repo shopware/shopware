@@ -38,12 +38,12 @@
                                                     class="sw-extension-permissions-details-modal__operation">
                                                     <sw-icon v-if="permissions.includes(operation.operation)"
                                                              name="small-default-checkmark-line-medium"
-                                                             small="true" color="#37D046">
+                                                             :small="true" color="#37D046">
                                                     </sw-icon>
 
                                                     <sw-icon v-else
                                                              name="small-default-x-line-medium"
-                                                             small="true" color="#DE294C">
+                                                             :small="true" color="#DE294C">
                                                     </sw-icon>
                                                 </td>
                                             {% endblock %}

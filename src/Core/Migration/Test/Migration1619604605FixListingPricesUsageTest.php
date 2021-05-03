@@ -194,6 +194,23 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
         ]], $stream->getApiFilter());
 
         static::assertEquals('purchasePrices', $stream->getFilters()->first()->getField());
+
+        // Test it does not modify purchasePrices
+        $migration = new Migration1619604605FixListingPricesUsage();
+        $migration->update($this->getContainer()->get(Connection::class));
+
+        $criteria = new Criteria([$ids->get('stream')]);
+        $criteria->addAssociation('filters');
+        /** @var ProductStreamEntity $stream */
+        $stream = $this->getContainer()->get('product_stream.repository')->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertEquals([[
+            'type' => 'equals',
+            'field' => 'product.purchasePrices',
+            'value' => '100',
+        ]], $stream->getApiFilter());
+
+        static::assertEquals('purchasePrices', $stream->getFilters()->first()->getField());
     }
 
     public function testCmsSlotConfigWithPurchasePrice(): void
@@ -237,6 +254,17 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
         $repository = $this->getContainer()->get('product_sorting.repository');
         $repository->create([$data], Context::createDefaultContext());
 
+        $migration = new Migration1619604605FixListingPricesUsage();
+        $migration->update($this->getContainer()->get(Connection::class));
+
+        /** @var ProductSortingEntity $productSorting */
+        $productSorting = $repository->search(new Criteria([$id]), Context::createDefaultContext())->first();
+
+        static::assertEquals([
+            ['field' => 'product.purchasePrices', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 1],
+        ], $productSorting->getFields());
+
+        // Test it does not modify purchasePrices
         $migration = new Migration1619604605FixListingPricesUsage();
         $migration->update($this->getContainer()->get(Connection::class));
 

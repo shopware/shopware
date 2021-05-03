@@ -186,7 +186,9 @@ The `base.scss` for the previous example directory would look like this in order
 ---
 
 ## Swift_Mailer exchanged with Symfony/Mailer
-The current default mailer `Swift_Mailer` was exchanged with `Symfony\Mailer`.
+The current default mailer `Swift_Mailer` was exchanged with `Symfony\Mailer`. 
+If you have configured the Mailer using the environment variable `MAILER_URL`, you have to change this to the new syntax.
+Refer to the [Symfony Documentation](https://symfony.com/doc/current/mailer.html#using-built-in-transports) for the updated syntax.
 
 ---
 

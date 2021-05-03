@@ -13,7 +13,7 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
             });
     });
 
-    it.skip('@general: open analytics tab', () => {
+    it('@general: open analytics tab', () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -22,14 +22,14 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         cy.get('.sw-sales-channel-detail-analytics__headline-text').should('exist');
     });
 
-    it.skip('@general: there\'s no analytics tab for non-storefront sales channels', () => {
+    it('@general: there\'s no analytics tab for non-storefront sales channels', () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Headless', 0);
         cy.get('.sw-tabs-item').contains('Analytics').should('not.exist');
     });
 
-    it.skip('@general: save analytics data', () => {
+    it('@general: save analytics data', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later
@@ -42,7 +42,7 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         page.openSalesChannel('Storefront', 1);
         cy.get('.sw-tabs-item').contains('Analytics').click();
 
-        cy.get('input[name=analyticsId]').typeAndCheck('Example analytics ID');
+        cy.get('input[name=trackingId]').typeAndCheck('Example analytics ID');
         cy.get('input[name=analyticsActive]').click();
 
         cy.get(page.elements.salesChannelSaveAction).click();
@@ -50,6 +50,6 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        cy.get('input[name=analyticsId]').should('have.value', 'Example analytics ID');
+        cy.get('input[name=trackingId]').should('have.value', 'Example analytics ID');
     });
 });

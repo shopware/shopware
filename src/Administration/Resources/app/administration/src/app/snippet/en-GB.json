@@ -594,7 +594,7 @@
         "alwaysValidRule": "Always valid",
         "lineItemPropertyRule": "Line item property",
         "lineItemNoveltyRule": "Novelties",
-        "lineItemCustomFieldRule": "Line item with attribute",
+        "lineItemCustomFieldRule": "Line item with custom field",
         "lineItemIsNewRule": "Line item is new",
         "lineItemOfManufacturerRule": "Manufacturer",
         "lineItemPurchasePriceRule": "Line item purchase price",

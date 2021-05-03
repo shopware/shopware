@@ -126,7 +126,7 @@ Component.register('sw-property-detail', {
         loadEntityData() {
             this.isLoading = true;
 
-            this.propertyRepository.get(this.groupId, undefined, this.defaultCriteria)
+            this.propertyRepository.get(this.groupId, Shopware.Context.api, this.defaultCriteria)
                 .then((currentGroup) => {
                     this.propertyGroup = currentGroup;
                     this.isLoading = false;

@@ -342,7 +342,7 @@ Component.register('sw-cms-detail', {
         loadPage(pageId) {
             this.isLoading = true;
 
-            this.pageRepository.get(pageId, undefined, this.loadPageCriteria).then((page) => {
+            this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
                 this.page = { sections: [] };
                 this.page = page;
 
@@ -531,7 +531,7 @@ Component.register('sw-cms-detail', {
         onSaveEntity() {
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page, undefined, false).then(() => {
+            return this.pageRepository.save(this.page, Shopware.Context.api, false).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 

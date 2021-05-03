@@ -168,7 +168,7 @@ Component.register('sw-cms-el-config-product-slider', {
 
         loadProductStream() {
             this.productStreamRepository
-                .get(this.element.config.products.value, undefined, new Criteria())
+                .get(this.element.config.products.value, Shopware.Context.api, new Criteria())
                 .then((result) => {
                     this.productStream = result;
                 });

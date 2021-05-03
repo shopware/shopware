@@ -208,7 +208,7 @@ Component.register('sw-landing-page-tree', {
                 }
             };
 
-            this.landingPageRepository.clone(contextItem.id, undefined, behavior).then((clone) => {
+            this.landingPageRepository.clone(contextItem.id, Shopware.Context.api, behavior).then((clone) => {
                 const criteria = new Criteria();
                 criteria.setIds([clone.id]);
                 this.landingPageRepository.search(criteria).then((landingPages) => {

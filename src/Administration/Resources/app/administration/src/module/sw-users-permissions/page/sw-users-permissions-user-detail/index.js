@@ -229,7 +229,7 @@ Component.register('sw-users-permissions-user-detail', {
         loadUser() {
             this.userId = this.$route.params.id;
 
-            return this.userRepository.get(this.userId, undefined, this.userCriteria).then((user) => {
+            return this.userRepository.get(this.userId, Shopware.Context.api, this.userCriteria).then((user) => {
                 this.user = user;
 
                 if (this.user.avatarId) {

@@ -217,7 +217,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         async loadEntityData() {
-            this.numberRange = await this.numberRangeRepository.get(this.numberRangeId, undefined, this.numberRangeCriteria);
+            this.numberRange = await this.numberRangeRepository.get(this.numberRangeId, Shopware.Context.api, this.numberRangeCriteria);
             this.getState();
             this.splitPattern();
             await this.loadSalesChannels();

@@ -258,7 +258,7 @@ Component.register('sw-order-create-base', {
             this.isLoadingDetail = true;
 
             try {
-                const customer = await this.customerRepository.get(customerId, undefined, this.defaultCriteria);
+                const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.defaultCriteria);
 
                 if (!this.cart.token) {
                     await this.createCart(customer.salesChannelId);
@@ -345,7 +345,7 @@ Component.register('sw-order-create-base', {
             ];
 
             this.customerAddressRepository
-                .get(data.id, undefined, this.customerAddressCriteria)
+                .get(data.id, Shopware.Context.api, this.customerAddressCriteria)
                 .then((updatedAddress) => {
                     availableCustomerAddresses.forEach(customerAddress => {
                         if (customerAddress.id === data.id) {

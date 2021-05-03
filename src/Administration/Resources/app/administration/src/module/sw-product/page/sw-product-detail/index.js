@@ -556,7 +556,7 @@ Component.register('sw-product-detail', {
         loadParentProduct() {
             Shopware.State.commit('swProductDetail/setLoading', ['parentProduct', true]);
 
-            return this.productRepository.get(this.product.parentId, undefined, this.productCriteria)
+            return this.productRepository.get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then((res) => {
                     Shopware.State.commit('swProductDetail/setParentProduct', res);
                 }).then(() => {

@@ -8,6 +8,7 @@ use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -152,7 +153,12 @@ class ProductStreamUpdater extends EntityIndexer
                 continue;
             }
 
-            $matches = $this->repository->searchIds($criteria, $context);
+            try {
+                $matches = $this->repository->searchIds($criteria, $context);
+            } catch (UnmappedFieldException $e) {
+                // skip if filter field is not found
+                continue;
+            }
 
             foreach ($matches->getIds() as $id) {
                 if (!\is_string($id)) {

@@ -1,6 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
-import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-snippet-field';
@@ -64,7 +63,7 @@ function createWrapper(roles = [], customOptions = {}) {
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-loader': true,
-            'sw-icon': Shopware.Component.build('sw-icon'),
+            'sw-icon': true,
             'sw-modal': Shopware.Component.build('sw-modal'),
             'sw-button': Shopware.Component.build('sw-button')
         },
@@ -74,6 +73,11 @@ function createWrapper(roles = [], customOptions = {}) {
                 can: (identifier) => {
                     return roles.includes(identifier);
                 }
+            },
+            repositoryFactory: {
+                create: () => ({
+                    create: () => ({})
+                })
             },
             snippetService: {
                 save: () => {}

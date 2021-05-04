@@ -38,9 +38,7 @@
                                                                         {% block component_address_address_editor_modal_list_address_action_billing %}
                                                                             {% if changeBilling %}
                                                                                 <div class="col-sm-6">
-                                                                                    {% set formAjaxSubmitOptions = {
-                                                                                        replaceSelectors: '.js-address-editor'
-                                                                                    }%}
+                                                                                    {% set formAjaxSubmitOptions = {} %}
 
                                                                                     {% block component_address_address_editor_modal_list_address_action_billing_form %}
                                                                                         <form action="{{ path('frontend.account.addressbook') }}"
@@ -88,9 +86,7 @@
                                                                         {% block component_address_address_editor_modal_list_address_action_shipping %}
                                                                             {% if changeShipping %}
                                                                                 <div class="col-6">
-                                                                                    {% set formAjaxSubmitOptions = {
-                                                                                        replaceSelectors: '.js-address-editor'
-                                                                                    } %}
+                                                                                    {% set formAjaxSubmitOptions = {} %}
 
                                                                                     {% block component_address_address_editor_modal_list_address_action_shipping_form %}
                                                                                         <form action="{{ path('frontend.account.addressbook') }}"

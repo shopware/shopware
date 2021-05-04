@@ -5,6 +5,10 @@ namespace Shopware\Core\Framework\Test\MessageQueue\Api;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\MessageQueue\MessageQueueStatsEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -49,5 +53,15 @@ class ConsumeMessagesControllerTest extends TestCase
         static::assertArrayHasKey('handledMessages', $response);
         static::assertIsInt($response['handledMessages']);
         static::assertEquals(1, $response['handledMessages']);
+
+        /** @var EntityRepositoryInterface $queueRepo */
+        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
+        $context = Context::createDefaultContext();
+        $criteria = new Criteria();
+        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', RequeueDeadMessagesTask::class));
+        /** @var MessageQueueStatsEntity $queueStatus */
+        $queueStatus = $queueRepo->search($criteria, $context)->first();
+
+        static::assertEquals(0, $queueStatus->getSize());
     }
 }

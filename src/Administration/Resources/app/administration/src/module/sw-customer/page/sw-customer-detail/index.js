@@ -147,7 +147,7 @@ Component.register('sw-customer-detail', {
 
             this.customerRepository.get(
                 this.customerId,
-                undefined,
+                Shopware.Context.api,
                 this.defaultCriteria
             ).then((customer) => {
                 this.customer = customer;

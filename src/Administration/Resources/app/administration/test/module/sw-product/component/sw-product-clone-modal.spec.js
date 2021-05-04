@@ -48,7 +48,7 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
             number: 250
         });
 
-        expect(wrapper.vm.repository.clone).toHaveBeenCalledWith(undefined, undefined, {
+        expect(wrapper.vm.repository.clone).toHaveBeenCalledWith(undefined, expect.anything(), {
             cloneChildren: false,
             overwrites: {
                 active: false,

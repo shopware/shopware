@@ -73,11 +73,13 @@
       "grandHeadline": "Grand total",
       "grandSubline": "Rounding applies to grand totals",
       "infoDescription": "If rounding intervals are configured differently, be sure to check back with your individual service providers to avoid accounting problems.",
+      "headerWarning": "Different rounding intervals - Be sure to check back with your individual service providers to avoid accounting problems.",
+      "headerInfo": "Tax calculation is based on unrounded totals. Rounding differences are not subject to tax calculation.",
       "helpTextDecimals": "Decimals indicate the maximum number of digits after the decimal separator.",
-      "helpTextInterval": "Use rounding intervals to account for markets where the lowest physical denominations of the currency have been abolished and cash roundings are in place. <br><br> Hint: Select \"None\" if you don't want to apply any cash rounding. E.g. when utilising decimals larger than 2.",
+      "helpTextInterval": "Use rounding intervals to account for markets where the lowest physical denominations of the currency have been abolished and cash roundings are in place. <br><br> Hint: Select \"None\" if you don't want to apply any price rounding. E.g. when utilising decimals larger than 2.",
       "helpTextRoundForNet": "Activate rounding for net customer groups additionally.",
       "labelIntervalNone": "None",
-      "tooltipIntervalDisabled": "Cash rounding is not applied if decimals is larger than 2."
+      "tooltipIntervalDisabled": "Price rounding is not applied if decimals larger than 2 are configured."
     }
   },
   "sw-privileges": {

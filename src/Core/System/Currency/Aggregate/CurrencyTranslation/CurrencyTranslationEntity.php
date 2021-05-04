@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
 class CurrencyTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -26,11 +29,6 @@ class CurrencyTranslationEntity extends TranslationEntity
      * @var CurrencyEntity|null
      */
     protected $currency;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getCurrencyId(): string
     {
@@ -70,15 +68,5 @@ class CurrencyTranslationEntity extends TranslationEntity
     public function setCurrency(CurrencyEntity $currency): void
     {
         $this->currency = $currency;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

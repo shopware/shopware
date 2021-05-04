@@ -9,11 +9,13 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class OrderLineItemEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -124,11 +126,6 @@ class OrderLineItemEntity extends Entity
      * @var OrderDeliveryPositionCollection|null
      */
     protected $orderDeliveryPositions;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var MediaEntity|null
@@ -345,16 +342,6 @@ class OrderLineItemEntity extends Entity
     public function setOrderDeliveryPositions(OrderDeliveryPositionCollection $orderDeliveryPositions): void
     {
         $this->orderDeliveryPositions = $orderDeliveryPositions;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getCoverId(): ?string

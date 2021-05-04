@@ -5,11 +5,13 @@ namespace Shopware\Core\System\Integration;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class IntegrationEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -35,11 +37,6 @@ class IntegrationEntity extends Entity
      * @var \DateTimeInterface|null
      */
     protected $lastUsageAt;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var AppEntity|null
@@ -89,16 +86,6 @@ class IntegrationEntity extends Entity
     public function setLastUsageAt(\DateTimeInterface $lastUsageAt): void
     {
         $this->lastUsageAt = $lastUsageAt;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getApp(): ?AppEntity

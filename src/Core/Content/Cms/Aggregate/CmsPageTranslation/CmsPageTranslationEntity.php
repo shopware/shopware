@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class CmsPageTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string|null
      */
@@ -21,11 +24,6 @@ class CmsPageTranslationEntity extends TranslationEntity
      * @var CmsPageEntity|null
      */
     protected $cmsPage;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getCmsPageId(): string
     {
@@ -55,15 +53,5 @@ class CmsPageTranslationEntity extends TranslationEntity
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

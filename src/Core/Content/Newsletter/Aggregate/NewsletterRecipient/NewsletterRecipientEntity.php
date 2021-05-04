@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\System\Tag\TagCollection;
 class NewsletterRecipientEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -87,11 +89,6 @@ class NewsletterRecipientEntity extends Entity
      * @var SalesChannelEntity|null
      */
     protected $salesChannel;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var \DateTimeInterface|null
@@ -261,16 +258,6 @@ class NewsletterRecipientEntity extends Entity
     public function setConfirmedAt(\DateTimeInterface $confirmedAt): void
     {
         $this->confirmedAt = $confirmedAt;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getTags(): ?TagCollection

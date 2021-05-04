@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 
 class LocaleTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -26,11 +29,6 @@ class LocaleTranslationEntity extends TranslationEntity
      * @var LocaleEntity|null
      */
     protected $locale;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getLocaleId(): string
     {
@@ -70,15 +68,5 @@ class LocaleTranslationEntity extends TranslationEntity
     public function setLocale(LocaleEntity $locale): void
     {
         $this->locale = $locale;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

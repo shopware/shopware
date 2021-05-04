@@ -25,6 +25,7 @@ use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\System\Country\CountryCollection;
@@ -44,6 +45,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 class SalesChannelEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -254,11 +256,6 @@ class SalesChannelEntity extends Entity
      * @var SystemConfigCollection|null
      */
     protected $systemConfigs;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var CategoryEntity|null
@@ -708,16 +705,6 @@ class SalesChannelEntity extends Entity
     public function setSystemConfigs(SystemConfigCollection $systemConfigs): void
     {
         $this->systemConfigs = $systemConfigs;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getNavigationCategoryId(): string

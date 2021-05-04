@@ -3,11 +3,14 @@
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 
 class CategoryTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -32,11 +35,6 @@ class CategoryTranslationEntity extends TranslationEntity
      * @var LanguageEntity|null
      */
     protected $language;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var array|null
@@ -111,16 +109,6 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setCategory(CategoryEntity $category): void
     {
         $this->category = $category;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getSlotConfig(): ?array

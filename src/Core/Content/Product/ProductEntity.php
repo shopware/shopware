@@ -26,6 +26,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -38,6 +39,7 @@ use Shopware\Core\System\Unit\UnitEntity;
 class ProductEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -396,11 +398,6 @@ class ProductEntity extends Entity
      * @var array|null
      */
     protected $whitelistIds;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var ProductVisibilityCollection|null
@@ -1126,16 +1123,6 @@ class ProductEntity extends Entity
     public function setWhitelistIds(?array $whitelistIds): void
     {
         $this->whitelistIds = $whitelistIds;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getVisibilities(): ?ProductVisibilityCollection

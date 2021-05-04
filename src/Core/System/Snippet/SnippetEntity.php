@@ -3,12 +3,14 @@
 namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 
 class SnippetEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -34,11 +36,6 @@ class SnippetEntity extends Entity
      * @var SnippetSetEntity|null
      */
     protected $set;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getSetId(): string
     {
@@ -88,15 +85,5 @@ class SnippetEntity extends Entity
     public function setSet(SnippetSetEntity $set): void
     {
         $this->set = $set;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

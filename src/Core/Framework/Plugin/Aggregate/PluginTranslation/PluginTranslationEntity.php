@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 class PluginTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -44,11 +46,6 @@ class PluginTranslationEntity extends TranslationEntity
      * @var PluginEntity|null
      */
     protected $plugin;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getPluginId(): string
     {
@@ -118,15 +115,5 @@ class PluginTranslationEntity extends TranslationEntity
     public function setPlugin(PluginEntity $plugin): void
     {
         $this->plugin = $plugin;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

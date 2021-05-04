@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
@@ -28,6 +29,7 @@ use Shopware\Core\System\User\UserEntity;
 class MediaEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -158,11 +160,6 @@ class MediaEntity extends Entity
      * @var MailTemplateMediaCollection|null
      */
     protected $mailTemplateMedia;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var TagCollection|null
@@ -478,16 +475,6 @@ class MediaEntity extends Entity
     public function setMailTemplateMedia(MailTemplateMediaCollection $mailTemplateMedia): void
     {
         $this->mailTemplateMedia = $mailTemplateMedia;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getTags(): ?TagCollection

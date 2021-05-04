@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class MediaTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -26,11 +29,6 @@ class MediaTranslationEntity extends TranslationEntity
      * @var MediaEntity|null
      */
     protected $media;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getMediaId(): string
     {
@@ -70,15 +68,5 @@ class MediaTranslationEntity extends TranslationEntity
     public function setMedia(MediaEntity $media): void
     {
         $this->media = $media;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

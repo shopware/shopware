@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class ProductManufacturerTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -26,11 +29,6 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
      * @var ProductManufacturerEntity|null
      */
     protected $productManufacturer;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getProductManufacturerId(): string
     {
@@ -70,15 +68,5 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     public function setProductManufacturer(ProductManufacturerEntity $productManufacturer): void
     {
         $this->productManufacturer = $productManufacturer;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

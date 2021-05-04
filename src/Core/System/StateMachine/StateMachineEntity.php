@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 class StateMachineEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -47,11 +49,6 @@ class StateMachineEntity extends Entity
      * @var StateMachineHistoryCollection|null
      */
     protected $historyEntries;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -132,15 +129,5 @@ class StateMachineEntity extends Entity
     public function setTranslations(StateMachineTranslationCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

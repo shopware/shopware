@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
@@ -12,6 +13,7 @@ use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 class ThemeEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -67,11 +69,6 @@ class ThemeEntity extends Entity
      * @var bool
      */
     protected $active;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var ThemeCollection|null
@@ -196,16 +193,6 @@ class ThemeEntity extends Entity
     public function setConfigValues(?array $configValues): void
     {
         $this->configValues = $configValues;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function isActive(): bool

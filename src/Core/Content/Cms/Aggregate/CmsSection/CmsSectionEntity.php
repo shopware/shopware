@@ -6,11 +6,13 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class CmsSectionEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -78,11 +80,6 @@ class CmsSectionEntity extends Entity
     protected $cssClass;
 
     /**
-     * @var array|null
-     */
-    protected $customFields;
-
-    /**
      * @var bool
      */
     protected $locked;
@@ -135,16 +132,6 @@ class CmsSectionEntity extends Entity
     public function setPosition(int $position): void
     {
         $this->position = $position;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getName(): ?string

@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 
 class SalesChannelTypeTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -36,11 +39,6 @@ class SalesChannelTypeTranslationEntity extends TranslationEntity
      * @var SalesChannelTypeEntity|null
      */
     protected $salesChannelType;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getSalesChannelTypeId(): string
     {
@@ -100,15 +98,5 @@ class SalesChannelTypeTranslationEntity extends TranslationEntity
     public function setSalesChannelType(SalesChannelTypeEntity $salesChannelType): void
     {
         $this->salesChannelType = $salesChannelType;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class LandingPageTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -16,11 +19,6 @@ class LandingPageTranslationEntity extends TranslationEntity
      * @var LandingPageEntity|null
      */
     protected $landingPage;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var string|null
@@ -70,16 +68,6 @@ class LandingPageTranslationEntity extends TranslationEntity
     public function setLandingPage(?LandingPageEntity $landingPage): void
     {
         $this->landingPage = $landingPage;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getName(): ?string

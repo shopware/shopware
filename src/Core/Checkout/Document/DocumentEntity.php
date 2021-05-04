@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class DocumentEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -61,11 +63,6 @@ class DocumentEntity extends Entity
      * @var string
      */
     protected $deepLinkCode;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var DocumentTypeEntity|null
@@ -160,16 +157,6 @@ class DocumentEntity extends Entity
     public function setDeepLinkCode(string $deepLinkCode): void
     {
         $this->deepLinkCode = $deepLinkCode;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getDocumentType(): ?DocumentTypeEntity

@@ -4,12 +4,14 @@ namespace Shopware\Core\System\Unit;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class UnitEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -30,11 +32,6 @@ class UnitEntity extends Entity
      * @var ProductCollection|null
      */
     protected $products;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getShortCode(): ?string
     {
@@ -74,15 +71,5 @@ class UnitEntity extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

@@ -10,11 +10,13 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class CmsPageEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -65,11 +67,6 @@ class CmsPageEntity extends Entity
      * @var MediaEntity|null
      */
     protected $previewMedia;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var bool
@@ -134,16 +131,6 @@ class CmsPageEntity extends Entity
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getCategories(): ?CategoryCollection

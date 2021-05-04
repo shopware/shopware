@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class ProductTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -51,11 +54,6 @@ class ProductTranslationEntity extends TranslationEntity
      * @var ProductEntity|null
      */
     protected $product;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var array|null
@@ -145,16 +143,6 @@ class ProductTranslationEntity extends TranslationEntity
     public function setProduct(ProductEntity $product): void
     {
         $this->product = $product;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getSlotConfig(): ?array

@@ -9,11 +9,13 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class PropertyGroupOptionEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -69,11 +71,6 @@ class PropertyGroupOptionEntity extends Entity
      * @var MediaEntity|null
      */
     protected $media;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var ProductConfiguratorSettingEntity|null
@@ -197,16 +194,6 @@ class PropertyGroupOptionEntity extends Entity
     public function setPosition(?int $position): void
     {
         $this->position = $position;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getConfiguratorSetting(): ?ProductConfiguratorSettingEntity

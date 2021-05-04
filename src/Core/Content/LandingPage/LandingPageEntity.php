@@ -6,6 +6,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\System\Tag\TagCollection;
 class LandingPageEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var bool
@@ -68,11 +70,6 @@ class LandingPageEntity extends Entity
      * @var string|null
      */
     protected $url;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var array|null
@@ -192,16 +189,6 @@ class LandingPageEntity extends Entity
     public function setUrl(?string $url): void
     {
         $this->url = $url;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getSlotConfig(): ?array

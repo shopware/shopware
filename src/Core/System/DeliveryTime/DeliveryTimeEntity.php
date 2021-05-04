@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class DeliveryTimeEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
     public const DELIVERY_TIME_DAY = 'day';
     public const DELIVERY_TIME_WEEK = 'week';
     public const DELIVERY_TIME_MONTH = 'month';
@@ -44,11 +46,6 @@ class DeliveryTimeEntity extends Entity
      * @var EntityCollection
      */
     protected $translations;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var ProductCollection|null
@@ -113,16 +110,6 @@ class DeliveryTimeEntity extends Entity
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getProducts(): ?ProductCollection

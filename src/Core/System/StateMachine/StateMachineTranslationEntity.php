@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class StateMachineTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string|null
      */
@@ -20,11 +23,6 @@ class StateMachineTranslationEntity extends TranslationEntity
      * @var StateMachineEntity|null
      */
     protected $stateMachine;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getName(): ?string
     {
@@ -54,15 +52,5 @@ class StateMachineTranslationEntity extends TranslationEntity
     public function setStateMachine(StateMachineEntity $stateMachine): void
     {
         $this->stateMachine = $stateMachine;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

@@ -5,12 +5,14 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class CustomerWishlistEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -37,11 +39,6 @@ class CustomerWishlistEntity extends Entity
      */
     protected $products;
 
-    /**
-     * @var array|null
-     */
-    protected $customFields;
-
     public function getCustomerId(): string
     {
         return $this->customerId;
@@ -50,16 +47,6 @@ class CustomerWishlistEntity extends Entity
     public function setCustomerId(string $customerId): void
     {
         $this->customerId = $customerId;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getProducts(): ?CustomerWishlistProductCollection

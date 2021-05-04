@@ -4,10 +4,13 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleEntity;
 
 class ProductPriceEntity extends PriceRuleEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -32,11 +35,6 @@ class ProductPriceEntity extends PriceRuleEntity
      * @var RuleEntity|null
      */
     protected $rule;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getProduct(): ?ProductEntity
     {
@@ -86,15 +84,5 @@ class ProductPriceEntity extends PriceRuleEntity
     public function setProductId(string $productId): void
     {
         $this->productId = $productId;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

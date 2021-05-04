@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodColle
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\System\Integration\IntegrationEntity;
 class AppEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -104,11 +106,6 @@ class AppEntity extends Entity
      * @var string|null
      */
     protected $privacyPolicyExtensions;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var string|null
@@ -331,16 +328,6 @@ class AppEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getIntegrationId(): string

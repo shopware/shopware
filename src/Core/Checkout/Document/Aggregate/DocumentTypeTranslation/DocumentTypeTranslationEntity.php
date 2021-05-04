@@ -3,10 +3,13 @@
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class DocumentTypeTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -21,11 +24,6 @@ class DocumentTypeTranslationEntity extends TranslationEntity
      * @var string|null
      */
     protected $name;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getDocumentTypeId(): string
     {
@@ -55,15 +53,5 @@ class DocumentTypeTranslationEntity extends TranslationEntity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Seo\SeoUrl;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class SeoUrlEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -75,11 +77,6 @@ class SeoUrlEntity extends Entity
      * @var string
      */
     protected $url;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var string|null
@@ -194,16 +191,6 @@ class SeoUrlEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getLanguage(): ?LanguageEntity

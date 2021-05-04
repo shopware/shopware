@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Shipping
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 class ShippingMethodEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     public const TAX_TYPE_AUTO = 'auto';
     public const TAX_TYPE_FIXED = 'fixed';
@@ -71,11 +73,6 @@ class ShippingMethodEntity extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannels;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var RuleEntity|null
@@ -225,16 +222,6 @@ class ShippingMethodEntity extends Entity
     public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getPrices(): ShippingMethodPriceCollection

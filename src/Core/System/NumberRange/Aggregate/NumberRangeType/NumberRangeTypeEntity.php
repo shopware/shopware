@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelEntity;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationCollection;
@@ -11,6 +12,7 @@ use Shopware\Core\System\NumberRange\NumberRangeCollection;
 class NumberRangeTypeEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -36,11 +38,6 @@ class NumberRangeTypeEntity extends Entity
      * @var NumberRangeSalesChannelEntity|null
      */
     protected $numberRangeSalesChannels;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var NumberRangeTypeTranslationCollection|null
@@ -75,16 +72,6 @@ class NumberRangeTypeEntity extends Entity
     public function setNumberRanges(NumberRangeCollection $numberRanges): void
     {
         $this->numberRanges = $numberRanges;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getTranslations(): ?NumberRangeTypeTranslationCollection

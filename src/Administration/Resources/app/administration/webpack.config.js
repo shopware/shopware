@@ -234,7 +234,7 @@ const webpackConfig = {
                 include: [
                     path.resolve(__dirname, 'src'),
                     path.resolve(__dirname, 'test'),
-                    ...pluginEntries.map(plugin => plugin.filePath)
+                    ...pluginEntries.map(plugin => plugin.path)
                 ],
                 options: {
                     compact: true,

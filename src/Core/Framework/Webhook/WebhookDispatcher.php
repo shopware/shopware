@@ -13,12 +13,15 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
+use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class WebhookDispatcher implements EventDispatcherInterface
 {
@@ -41,6 +44,11 @@ class WebhookDispatcher implements EventDispatcherInterface
     private string $shopwareVersion;
 
     /**
+     * @internal (flag:FEATURE_NEXT_14363)
+     */
+    private MessageBusInterface $bus;
+
+    /**
      * @psalm-suppress ContainerDependency
      */
     public function __construct(
@@ -50,7 +58,8 @@ class WebhookDispatcher implements EventDispatcherInterface
         string $shopUrl,
         ContainerInterface $container,
         HookableEventFactory $eventFactory,
-        string $shopwareVersion
+        string $shopwareVersion,
+        MessageBusInterface $bus
     ) {
         $this->dispatcher = $dispatcher;
         $this->connection = $connection;
@@ -61,6 +70,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         $this->container = $container;
         $this->eventFactory = $eventFactory;
         $this->shopwareVersion = $shopwareVersion;
+        $this->bus = $bus;
     }
 
     /**
@@ -179,31 +189,38 @@ class WebhookDispatcher implements EventDispatcherInterface
                 $payload['source']['shopId'] = $shopId;
             }
 
-            /** @var string $jsonPayload */
-            $jsonPayload = json_encode($payload);
+            if (Feature::isActive('FEATURE_NEXT_14363')) {
+                $webhookEventMessage = new WebhookEventMessage($payload, $webhook->getApp()->getId(), $webhook->getId(), $this->shopwareVersion, $webhook->getUrl());
+                $this->bus->dispatch($webhookEventMessage);
+            } else {
+                /** @var string $jsonPayload */
+                $jsonPayload = json_encode($payload);
 
-            $request = new Request(
-                'POST',
-                $webhook->getUrl(),
-                [
-                    'Content-Type' => 'application/json',
-                    'sw-version' => $this->shopwareVersion,
-                ],
-                $jsonPayload
-            );
-
-            if ($webhook->getApp() && $webhook->getApp()->getAppSecret()) {
-                $request = $request->withHeader(
-                    'shopware-shop-signature',
-                    hash_hmac('sha256', $jsonPayload, $webhook->getApp()->getAppSecret())
+                $request = new Request(
+                    'POST',
+                    $webhook->getUrl(),
+                    [
+                        'Content-Type' => 'application/json',
+                        'sw-version' => $this->shopwareVersion,
+                    ],
+                    $jsonPayload
                 );
-            }
 
-            $requests[] = $request;
+                if ($webhook->getApp() && $webhook->getApp()->getAppSecret()) {
+                    $request = $request->withHeader(
+                        'shopware-shop-signature',
+                        hash_hmac('sha256', $jsonPayload, $webhook->getApp()->getAppSecret())
+                    );
+                }
+
+                $requests[] = $request;
+            }
         }
 
-        $pool = new Pool($this->guzzle, $requests);
-        $pool->promise()->wait();
+        if (!Feature::isActive('FEATURE_NEXT_14363')) {
+            $pool = new Pool($this->guzzle, $requests);
+            $pool->promise()->wait();
+        }
     }
 
     private function getWebhooks(): WebhookCollection

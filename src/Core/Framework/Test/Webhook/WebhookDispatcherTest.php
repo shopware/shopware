@@ -25,9 +25,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
+use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -35,35 +37,33 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class WebhookDispatcherTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $webhookRepository;
+    private EntityRepositoryInterface $webhookRepository;
 
-    /**
-     * @var string
-     */
-    private $shopUrl;
+    private string $shopUrl;
 
-    /**
-     * @var ShopIdProvider
-     */
-    private $shopIdProvider;
+    private ShopIdProvider $shopIdProvider;
+
+    private MessageBusInterface $bus;
 
     public function setUp(): void
     {
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
+        $this->bus = $this->createMock(MessageBusInterface::class);
     }
 
     public function testDispatchesBusinessEventToWebhookWithoutApp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_14363', $this);
+
         $this->webhookRepository->upsert([
             [
                 'name' => 'hook1',
@@ -107,6 +107,8 @@ class WebhookDispatcherTest extends TestCase
 
     public function testDispatchesWrappedEntityWrittenEventToWebhookWithoutApp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_14363', $this);
+
         $this->webhookRepository->upsert([
             [
                 'name' => 'hook1',
@@ -215,7 +217,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->dispatch($event);
@@ -250,7 +253,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->dispatch($event);
@@ -269,7 +273,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->addSubscriber(new MockSubscriber());
@@ -288,7 +293,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->removeSubscriber(new MockSubscriber());
@@ -296,6 +302,8 @@ class WebhookDispatcherTest extends TestCase
 
     public function testDispatchesAccessKeyIfWebhookHasApp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_14363', $this);
+
         $appId = Uuid::randomHex();
 
         $appRepository = $this->getContainer()->get('app.repository');
@@ -424,7 +432,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->dispatch($event);
@@ -478,7 +487,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->dispatch($event);
@@ -486,6 +496,8 @@ class WebhookDispatcherTest extends TestCase
 
     public function testDispatchesBusinessEventIfAppHasPermission(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_14363', $this);
+
         $appId = Uuid::randomHex();
         $aclRoleId = Uuid::randomHex();
         $appRepository = $this->getContainer()->get('app.repository');
@@ -631,7 +643,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->dispatch($event);
@@ -683,7 +696,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->dispatch($event);
@@ -691,6 +705,8 @@ class WebhookDispatcherTest extends TestCase
 
     public function testDispatchesEntityWrittenEventIfAppHasPermission(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_14363', $this);
+
         $appId = Uuid::randomHex();
         $aclRoleId = Uuid::randomHex();
         $appRepository = $this->getContainer()->get('app.repository');
@@ -819,7 +835,8 @@ class WebhookDispatcherTest extends TestCase
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
         );
 
         $webhookDispatcher->dispatch($event);
@@ -827,6 +844,8 @@ class WebhookDispatcherTest extends TestCase
 
     public function testDispatchesAppLifecycleEventForTouchedApp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_14363', $this);
+
         $aclRoleId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -898,6 +917,8 @@ class WebhookDispatcherTest extends TestCase
 
     public function testItDoesDispatchAppLifecycleEventForInactiveApp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_14363', $this);
+
         $aclRoleId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -963,6 +984,166 @@ class WebhookDispatcherTest extends TestCase
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
+    }
+
+    public function testItDoesDispatchWebhookMessageQueueWithAppActive(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_14363', $this);
+
+        $aclRoleId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'writeAccess' => false,
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $aclRoleId,
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'eventName' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
+        $permissions = Permissions::fromArray([
+            'product' => ['read'],
+        ]);
+
+        $permissionPersister->updatePrivileges($permissions, $aclRoleId);
+
+        $entityId = Uuid::randomHex();
+        $event = $this->getEntityWrittenEvent($entityId);
+
+        $clientMock = $this->createMock(Client::class);
+        $clientMock->expects(static::never())
+            ->method('sendAsync');
+
+        $payload = [
+            'data' => [
+                'payload' => [
+                    [
+                        'entity' => 'product',
+                        'operation' => 'delete',
+                        'primaryKey' => $entityId,
+                        'updatedFields' => ['id'],
+                    ],
+                ],
+                'event' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+            ],
+            'source' => [
+                'url' => $this->shopUrl,
+                'appVersion' => '0.0.1',
+                'shopId' => $this->shopIdProvider->getShopId(),
+            ],
+        ];
+
+        $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
+
+        $this->bus->expects(static::once())
+            ->method('dispatch')
+            ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
+                static::assertEquals($payload, $message->getPayload());
+                static::assertEquals($appId, $message->getAppId());
+                static::assertEquals($webhookId, $message->getWebhookId());
+                static::assertEquals($shopwareVersion, $message->getShopwareVersion());
+
+                return true;
+            }))
+            ->willReturn(new Envelope(new WebhookEventMessage($payload, $appId, $webhookId, $shopwareVersion, 'https://test.com')));
+
+        $webhookDispatcher = new WebhookDispatcher(
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(Connection::class),
+            $clientMock,
+            $this->shopUrl,
+            $this->getContainer(),
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
+        );
+        $webhookDispatcher->dispatch($event);
+    }
+
+    public function testItDoesNotDispatchWebhookMessageQueueWithAppInActive(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_14363', $this);
+
+        $aclRoleId = Uuid::randomHex();
+        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository->create([[
+            'name' => 'SwagApp',
+            'active' => false,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'writeAccess' => false,
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $aclRoleId,
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'name' => 'hook1',
+                    'eventName' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
+        $permissions = Permissions::fromArray([
+            'product' => ['read'],
+        ]);
+
+        $permissionPersister->updatePrivileges($permissions, $aclRoleId);
+
+        $entityId = Uuid::randomHex();
+        $event = $this->getEntityWrittenEvent($entityId);
+
+        $clientMock = $this->createMock(Client::class);
+        $clientMock->expects(static::never())
+            ->method('sendAsync');
+
+        $this->bus->expects(static::never())
+            ->method('dispatch');
+
+        $webhookDispatcher = new WebhookDispatcher(
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(Connection::class),
+            $clientMock,
+            $this->shopUrl,
+            $this->getContainer(),
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus
+        );
+        $webhookDispatcher->dispatch($event);
     }
 
     private function getEntityWrittenEvent(string $entityId): EntityWrittenContainerEvent

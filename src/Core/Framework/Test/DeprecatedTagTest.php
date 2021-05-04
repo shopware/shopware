@@ -28,6 +28,10 @@ class DeprecatedTagTest extends TestCase
         'Recovery/vendor',
         'recovery/vendor',
         'storefront/vendor',
+        // we cannot remove the method, because old migrations could still use it
+        'Migration/MigrationStep.php',
+        // example plugin
+        'deprecation.plugin.js',
     ];
 
     private string $rootDir;

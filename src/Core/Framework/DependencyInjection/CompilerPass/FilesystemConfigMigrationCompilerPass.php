@@ -27,7 +27,6 @@ class FilesystemConfigMigrationCompilerPass implements CompilerPassInterface
             $container->setParameter($configKey, '%shopware.filesystem.public.config%');
         }
 
-        /* @deprecated tag:v6.4.0 Remove using fallback from shopware.cdn.url */
         if (!$container->hasParameter('shopware.filesystem.public.url')) {
             $container->setParameter('shopware.filesystem.public.url', '%shopware.cdn.url%');
         }

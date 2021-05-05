@@ -36,9 +36,9 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageRules;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
@@ -69,7 +69,7 @@ class PromotionCalculator
     private $groupBuilder;
 
     /**
-     * @var AdvancedPackageFilter
+     * @var PackageFilter
      */
     private $advancedFilter;
 
@@ -79,7 +79,7 @@ class PromotionCalculator
     private $advancedPicker;
 
     /**
-     * @var AdvancedPackageRules
+     * @var SetGroupScopeFilter
      */
     private $advancedRules;
 
@@ -118,9 +118,9 @@ class PromotionCalculator
         AbsolutePriceCalculator $absolutePriceCalculator,
         LineItemGroupBuilder $groupBuilder,
         DiscountCompositionBuilder $compositionBuilder,
-        AdvancedPackageFilter $filter,
+        PackageFilter $filter,
         AdvancedPackagePicker $picker,
-        AdvancedPackageRules $advancedRules,
+        SetGroupScopeFilter $advancedRules,
         LineItemQuantitySplitter $lineItemQuantitySplitter,
         PercentagePriceCalculator $percentagePriceCalculator,
         DiscountPackager $cartScopeDiscountPackager,

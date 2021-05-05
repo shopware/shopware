@@ -10,11 +10,17 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class AdvancedPackageRules
+class AdvancedPackageRules extends SetGroupScopeFilter
 {
+    public function getDecorated(): SetGroupScopeFilter
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     public function filter(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountPackageCollection
     {
         $priceDefinition = $discount->getPriceDefinition();
@@ -25,12 +31,12 @@ class AdvancedPackageRules
             $foundItems = [];
 
             foreach ($package->getMetaData() as $item) {
-                $lineitem = $package->getCartItem($item->getLineItemId());
+                $lineItem = $package->getCartItem($item->getLineItemId());
 
-                if ($this->isRulesFilterValid($lineitem, $priceDefinition, $context)) {
+                if ($this->isRulesFilterValid($lineItem, $priceDefinition, $context)) {
                     $item = new LineItemQuantity(
-                        $lineitem->getId(),
-                        $lineitem->getQuantity()
+                        $lineItem->getId(),
+                        $lineItem->getQuantity()
                     );
 
                     $foundItems[] = $item;

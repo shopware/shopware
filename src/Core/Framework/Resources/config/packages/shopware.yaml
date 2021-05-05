@@ -128,6 +128,11 @@ shopware:
               major: false
               description: "Preview available variables of email templates in the administration"
               # issue: NEXT-12654
+            - name: FEATURE_NEXT_6061
+              default: false
+              major: false
+              description: "Bulk Edit for Orders and Products"
+              # issue: NEXT-6061
 
     logger:
         file_rotation_count: 14

@@ -9,7 +9,9 @@ use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\PathItem;
 use OpenApi\Annotations\Property;
 use OpenApi\Annotations\RequestBody;
+use OpenApi\Annotations\Schema;
 use OpenApi\Context;
+use OpenApi\Tests\Fixtures\ExtendedWithoutAllOf;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -145,147 +147,11 @@ class OpenApiLoader
                     if ($parameter->name === 'Api-Basic-Parameters') {
                         unset($operation->parameters[$parameterKey]);
 
-                        $operation->tags[] = 'supports Criteria filtering';
-
-                        $limit = new Property([
-                            'property' => 'limit',
-                            'description' => 'Limit',
-                            'type' => 'integer',
-                        ]);
-
-                        $page = new Property([
-                            'property' => 'page',
-                            'description' => 'page',
-                            'type' => 'integer',
-                        ]);
-
-                        $term = new Property([
-                            'property' => 'term',
-                            'description' => 'The term to search for',
-                            'type' => 'string',
-                        ]);
-
-                        $filter = new Property([
-                            'property' => 'filter',
-                            'description' => 'SwagQL',
-                            'type' => 'array',
-                            'items' => [
-                                'properties' => [
-                                    'type' => [
-                                        'type' => 'string',
-                                    ],
-                                    'field' => [
-                                        'type' => 'string',
-                                    ],
-                                    'value' => [
-                                        'type' => 'string',
-                                    ],
-                                ],
-                            ],
-                        ]);
-
-                        $postFilter = new Property([
-                            'property' => 'post-filter',
-                            'description' => 'SwagQL',
-                            'type' => 'array',
-                            'items' => [
-                                'properties' => [
-                                    'type' => [
-                                        'type' => 'string',
-                                    ],
-                                    'field' => [
-                                        'type' => 'string',
-                                    ],
-                                    'value' => [
-                                        'type' => 'string',
-                                    ],
-                                ],
-                            ],
-                        ]);
-
-                        $aggregations = new Property([
-                            'property' => 'aggregations',
-                            'description' => 'Encoded SwagQL in JSON',
-                            'type' => 'array',
-                            'items' => [
-                                'properties' => [
-                                    'name' => [
-                                        'type' => 'string',
-                                    ],
-                                    'type' => [
-                                        'type' => 'string',
-                                    ],
-                                    'field' => [
-                                        'type' => 'string',
-                                    ],
-                                ],
-                            ],
-                        ]);
-
-                        $associations = new Property([
-                            'property' => 'associations',
-                            'description' => 'Encoded SwagQL in JSON',
-                            'type' => 'object',
-                        ]);
-
-                        $query = new Property([
-                            'property' => 'query',
-                            'description' => 'Encoded SwagQL in JSON',
-                            'type' => 'array',
-                            'items' => [
-                                'properties' => [
-                                    'score' => [
-                                        'type' => 'integer',
-                                    ],
-                                    'query' => [
-                                        'type' => 'object',
-                                        'properties' => [
-                                            'type' => [
-                                                'type' => 'string',
-                                            ],
-                                            'field' => [
-                                                'type' => 'string',
-                                            ],
-                                            'value' => [
-                                                'type' => 'string',
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ]);
-
-                        $sorting = new Property([
-                            'property' => 'sort',
-                            'description' => 'Encoded SwagQL in JSON',
-                            'type' => 'array',
-                            'items' => [
-                                'properties' => [
-                                    'field' => [
-                                        'type' => 'string',
-                                    ],
-                                    'order' => [
-                                        'type' => 'string',
-                                    ],
-                                    'naturalSorting' => [
-                                        'type' => 'boolean',
-                                    ],
-                                ],
-                            ],
-                        ]);
-
-                        $grouping = new Property([
-                            'property' => 'grouping',
-                            'description' => 'Encoded SwagQL in JSON',
-                            'type' => 'array',
-                            'items' => [
-                                'type' => 'string',
-                            ],
-                        ]);
+                        $operation->tags[] = 'Endpoints supporting Criteria ';
 
                         if ($operation->requestBody === UNDEFINED) {
                             $operation->requestBody = new RequestBody([
-                                'required' => true,
+                                'required' => false,
                                 'content' => [],
                             ]);
                         }
@@ -299,7 +165,12 @@ class OpenApiLoader
                             ]);
                         }
 
-                        array_unshift($operation->requestBody->content['application/json']->schema->properties, $page, $limit, $term, $filter, $sorting, $postFilter, $associations, $aggregations, $query, $grouping);
+                        $operation->requestBody->content['application/json']->schema = new Schema([
+                            'allOf' => [
+                                $operation->requestBody->content['application/json']->schema,
+                                ['$ref' => '#/components/schemas/Criteria']
+                            ]
+                        ]);
                     }
                 }
 

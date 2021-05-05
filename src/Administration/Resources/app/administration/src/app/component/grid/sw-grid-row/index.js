@@ -18,7 +18,8 @@ Component.register('sw-grid-row', {
 
         index: {
             type: Number,
-            required: false
+            required: false,
+            default: null
         },
 
         allowInlineEdit: {

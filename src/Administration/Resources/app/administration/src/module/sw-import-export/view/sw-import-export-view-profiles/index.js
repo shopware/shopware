@@ -16,12 +16,6 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         Mixin.getByName('notification')
     ],
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     data() {
         return {
             isLoading: false,
@@ -30,6 +24,12 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             searchTerm: null,
             sortBy: 'name',
             sortDirection: 'ASC'
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 

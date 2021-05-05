@@ -1,4 +1,4 @@
-import './../sw-category/page/sw-category-detail';
+import '../sw-category/page/sw-category-detail';
 
 const { Module } = Shopware;
 

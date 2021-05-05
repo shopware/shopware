@@ -36,6 +36,7 @@ Shopware.Component.register('sw-media-url-form', {
             try {
                 return new URL(this.url);
             } catch (e) {
+                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.extensionFromUrl = '';
                 return null;
             }

@@ -10,16 +10,18 @@ const { debounce, get, flow } = Shopware.Utils;
 Component.register('sw-import-export-entity-path-select', {
     template,
 
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
+
     model: {
         prop: 'value',
         event: 'change'
     },
 
-    mixins: [
-        Mixin.getByName('remove-api-error')
-    ],
-
     props: {
+        // FIXME: add type attribute
+        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true
         },

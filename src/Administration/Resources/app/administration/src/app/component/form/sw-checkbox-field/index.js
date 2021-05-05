@@ -16,15 +16,15 @@ Component.register('sw-checkbox-field', {
     template,
     inheritAttrs: false,
 
-    model: {
-        prop: 'value',
-        event: 'change'
-    },
-
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error')
     ],
+
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
 
     props: {
         disabled: {

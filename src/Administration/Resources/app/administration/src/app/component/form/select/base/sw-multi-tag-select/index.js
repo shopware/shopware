@@ -20,14 +20,14 @@ Component.register('sw-multi-tag-select', {
 
     inheritAttrs: false,
 
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
+
     model: {
         prop: 'value',
         event: 'change'
     },
-
-    mixins: [
-        Mixin.getByName('remove-api-error')
-    ],
 
     props: {
         value: {

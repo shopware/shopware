@@ -7,6 +7,8 @@ Component.register('sw-order-saveable-field', {
     template,
 
     props: {
+        // FIXME: add type to value property
+        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
             default: null
@@ -16,6 +18,8 @@ Component.register('sw-order-saveable-field', {
             required: true,
             default: 'text'
         },
+        // FIXME: add type to placeholder property
+        // eslint-disable-next-line vue/require-prop-types
         placeholder: {
             required: false,
             default: null

@@ -60,8 +60,11 @@ Component.register('sw-sales-channel-detail', {
                 return this.productComparison.newProductExport;
             }
 
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.productComparison.newProductExport = this.productExportRepository.create(Shopware.Context.api);
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.productComparison.newProductExport.interval = 0;
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.productComparison.newProductExport.generateByCronjob = false;
 
             return this.productComparison.newProductExport;
@@ -123,14 +126,14 @@ Component.register('sw-sales-channel-detail', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         '$route.params.id'() {
             this.createdComponent();
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

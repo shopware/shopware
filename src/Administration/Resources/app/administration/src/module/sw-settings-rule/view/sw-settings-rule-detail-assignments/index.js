@@ -22,10 +22,6 @@ Component.register('sw-settings-rule-detail-assignments', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     data() {
         return {
             associationLimit: 5,
@@ -198,6 +194,10 @@ Component.register('sw-settings-rule-detail-assignments', {
                 return item.loadedData && item.loadedData.total > 0;
             });
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

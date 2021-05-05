@@ -36,11 +36,13 @@ Component.register('sw-help-text', {
         },
         showDelay: {
             type: Number,
-            required: false
+            required: false,
+            default: null
         },
         hideDelay: {
             type: Number,
-            required: false
+            required: false,
+            default: null
         }
     }
 });

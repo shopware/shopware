@@ -53,19 +53,6 @@ Component.register('sw-step-display', {
         };
     },
 
-    mounted() {
-        // read child step items
-        this.$children.forEach((child) => {
-            if (child.$options._componentTag === 'sw-step-item') {
-                this.items.push(child);
-            }
-        });
-
-        this.setItemVariants(this.initialItemVariants);
-        this.setItemActive(this.itemIndex, true);
-        this.setVariantForCurrentItem(this.itemVariant);
-    },
-
     watch: {
         itemIndex(newIndex, oldIndex) {
             this.setItemActive(oldIndex, false);
@@ -81,6 +68,19 @@ Component.register('sw-step-display', {
                 this.setItemVariants(newItemVariants);
             }
         }
+    },
+
+    mounted() {
+        // read child step items
+        this.$children.forEach((child) => {
+            if (child.$options._componentTag === 'sw-step-item') {
+                this.items.push(child);
+            }
+        });
+
+        this.setItemVariants(this.initialItemVariants);
+        this.setItemActive(this.itemIndex, true);
+        this.setVariantForCurrentItem(this.itemVariant);
     },
 
     methods: {

@@ -23,6 +23,7 @@ Component.extend('sw-condition-time-range', 'sw-condition-base', {
             get() {
                 this.ensureValueExist();
                 if (!this.condition.value.fromTime) {
+                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.condition.value.fromTime = defaultTimeValue;
                 }
 
@@ -37,6 +38,7 @@ Component.extend('sw-condition-time-range', 'sw-condition-base', {
             get() {
                 this.ensureValueExist();
                 if (!this.condition.value.toTime) {
+                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.condition.value.toTime = defaultTimeValue;
                 }
 

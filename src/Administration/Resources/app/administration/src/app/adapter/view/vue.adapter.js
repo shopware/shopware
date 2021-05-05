@@ -53,14 +53,14 @@ export default class VueAdapter extends ViewAdapter {
             router,
             store,
             i18n,
+            provide() {
+                return providers;
+            },
             components,
             data() {
                 return {
                     initError: {}
                 };
-            },
-            provide() {
-                return providers;
             }
         });
 

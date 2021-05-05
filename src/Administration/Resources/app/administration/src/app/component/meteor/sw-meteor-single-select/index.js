@@ -7,14 +7,14 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-meteor-single-select', {
     template,
 
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
+
     model: {
         prop: 'value',
         event: 'change'
     },
-
-    mixins: [
-        Mixin.getByName('remove-api-error')
-    ],
 
     props: {
         options: {
@@ -22,6 +22,8 @@ Component.register('sw-meteor-single-select', {
             type: Array
         },
 
+        // FIXME: add type for property
+        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true
         },

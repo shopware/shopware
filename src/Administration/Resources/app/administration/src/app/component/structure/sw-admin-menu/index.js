@@ -10,6 +10,18 @@ const { dom, types } = Shopware.Utils;
 Component.register('sw-admin-menu', {
     template,
 
+    inject: [
+        'menuService',
+        'loginService',
+        'userService',
+        'appModulesService',
+        'feature'
+    ],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
+
     props: {
         mouseLocationsTracked: {
             type: Number,
@@ -26,18 +38,6 @@ Component.register('sw-admin-menu', {
             }
         }
     },
-
-    mixins: [
-        Mixin.getByName('notification')
-    ],
-
-    inject: [
-        'menuService',
-        'loginService',
-        'userService',
-        'appModulesService',
-        'feature'
-    ],
 
     data() {
         return {

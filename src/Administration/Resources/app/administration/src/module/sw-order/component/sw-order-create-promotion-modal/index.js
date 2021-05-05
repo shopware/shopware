@@ -15,7 +15,8 @@ Component.register('sw-order-create-promotion-modal', {
         },
         salesChannelId: {
             type: String,
-            required: false
+            required: false,
+            default: null
         }
     },
 

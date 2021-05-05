@@ -9,7 +9,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
     props: {
         detailRoute: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         repository: {
@@ -23,6 +24,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             default: null
         },
 
+        // FIXME: add default value to this property
+        // eslint-disable-next-line vue/require-default-prop
         dataSource: {
             type: [Array, Object],
             required: false

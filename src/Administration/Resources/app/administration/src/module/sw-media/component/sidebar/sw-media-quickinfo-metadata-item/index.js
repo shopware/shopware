@@ -3,13 +3,6 @@ import './sw-media-quickinfo-metadata-item.scss';
 Shopware.Component.register('sw-media-quickinfo-metadata-item', {
     functional: true,
 
-    props: {
-        labelName: {
-            required: true,
-            type: String
-        }
-    },
-
     render(createElement, context) {
         const title = createElement(
             'dt',
@@ -37,5 +30,12 @@ Shopware.Component.register('sw-media-quickinfo-metadata-item', {
         );
 
         return [title, description];
+    },
+
+    props: {
+        labelName: {
+            required: true,
+            type: String
+        }
     }
 });

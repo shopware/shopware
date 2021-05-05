@@ -64,24 +64,6 @@ Component.register('sw-tabs', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
-    mounted() {
-        this.mountedComponent();
-    },
-
-    watch: {
-        '$route'() {
-            this.updateActiveItem();
-        },
-
-        activeTabHasErrors() {
-            this.recalculateSlider();
-        }
-    },
-
     computed: {
         tabClasses() {
             return {
@@ -149,6 +131,24 @@ Component.register('sw-tabs', {
                 'padding-bottom': `${this.scrollbarOffset}px`
             };
         }
+    },
+
+    watch: {
+        '$route'() {
+            this.updateActiveItem();
+        },
+
+        activeTabHasErrors() {
+            this.recalculateSlider();
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {

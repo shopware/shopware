@@ -16,6 +16,8 @@ Component.register('sw-admin-menu-item', {
             type: Object,
             required: true
         },
+        // FIXME: add default property `() => []` ?
+        // eslint-disable-next-line vue/require-default-prop
         parentEntries: {
             type: Array,
             required: false

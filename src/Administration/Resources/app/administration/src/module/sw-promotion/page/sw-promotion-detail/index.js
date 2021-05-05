@@ -131,6 +131,12 @@ Component.register('sw-promotion-detail', {
 
     },
 
+    watch: {
+        promotionId() {
+            this.createdComponent();
+        }
+    },
+
     beforeCreate() {
         Shopware.State.registerModule('swPromotionDetail', swPromotionDetailState);
     },
@@ -141,12 +147,6 @@ Component.register('sw-promotion-detail', {
 
     beforeDestroy() {
         Shopware.State.unregisterModule('swPromotionDetail');
-    },
-
-    watch: {
-        promotionId() {
-            this.createdComponent();
-        }
     },
 
     methods: {

@@ -27,6 +27,8 @@ Component.register('sw-maintain-currencies-modal', {
             required: true
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         hideListPrices: {
             required: false,
             default: false

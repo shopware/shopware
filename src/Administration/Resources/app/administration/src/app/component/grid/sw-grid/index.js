@@ -56,7 +56,8 @@ Component.register('sw-grid', {
 
         sortBy: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         sortDirection: {

@@ -18,7 +18,7 @@ Component.register('sw-order-address-modal', {
         address: {
             type: Object,
             required: true,
-            default: {}
+            default: () => {}
         },
 
         countries: {
@@ -32,13 +32,13 @@ Component.register('sw-order-address-modal', {
         order: {
             type: Object,
             required: true,
-            default: {}
+            default: () => {}
         },
 
         versionContext: {
             type: Object,
             required: true,
-            default: {}
+            default: () => {}
         }
     },
 

@@ -116,14 +116,14 @@ Component.register('sw-promotion-v2-detail', {
         ...mapPageErrors(errorConfig)
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         promotionId() {
             this.createdComponent();
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

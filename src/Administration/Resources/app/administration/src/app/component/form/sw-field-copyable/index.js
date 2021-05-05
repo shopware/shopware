@@ -17,7 +17,8 @@ Component.register('sw-field-copyable', {
     props: {
         copyableText: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         tooltip: {

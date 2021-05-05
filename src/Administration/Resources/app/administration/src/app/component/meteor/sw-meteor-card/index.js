@@ -29,9 +29,11 @@ Component.register('sw-meteor-card', {
     template,
 
     props: {
+        // eslint-disable-next-line vue/require-default-prop
         title: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         hero: {
             type: Boolean,
@@ -62,10 +64,6 @@ Component.register('sw-meteor-card', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         hasTabs() {
             return !!this.$slots.tabs || !!this.$scopedSlots.tabs;
@@ -92,6 +90,10 @@ Component.register('sw-meteor-card', {
                 'has--header': this.hasHeader && !this.isToolbarLastHeaderElement
             };
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

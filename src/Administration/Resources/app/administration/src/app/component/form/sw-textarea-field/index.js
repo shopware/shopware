@@ -22,7 +22,8 @@ Component.register('sw-textarea-field', {
     props: {
         value: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         placeholder: {

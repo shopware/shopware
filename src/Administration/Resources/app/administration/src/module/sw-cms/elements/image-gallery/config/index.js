@@ -8,11 +8,11 @@ const Criteria = Shopware.Data.Criteria;
 Component.register('sw-cms-el-config-image-gallery', {
     template,
 
+    inject: ['repositoryFactory', 'feature'],
+
     mixins: [
         Mixin.getByName('cms-element')
     ],
-
-    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {

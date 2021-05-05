@@ -8,12 +8,12 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-mail-header-footer-detail', {
     template,
 
+    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification')
     ],
-
-    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -111,14 +111,14 @@ Component.register('sw-mail-header-footer-detail', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         '$route.params.id'() {
             this.createdComponent();
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

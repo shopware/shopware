@@ -8,16 +8,16 @@ Component.register('sw-entity-multi-select', {
     template,
     inheritAttrs: false,
 
-    model: {
-        prop: 'entityCollection',
-        event: 'change'
-    },
-
     inject: { repositoryFactory: 'repositoryFactory' },
 
     mixins: [
         Mixin.getByName('remove-api-error')
     ],
+
+    model: {
+        prop: 'entityCollection',
+        event: 'change'
+    },
 
     props: {
         labelProperty: {

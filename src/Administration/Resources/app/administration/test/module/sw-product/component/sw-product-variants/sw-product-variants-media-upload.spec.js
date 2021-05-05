@@ -244,7 +244,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const button = media.findAll('sw-context-button-stub .sw-context-menu-item').at(2);
 
         await button.trigger('click');
-        expect(wrapper.findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image').length).toBe(1);
+        expect(wrapper
+            .findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image')
+            .length).toBe(1);
         expect(wrapper.find('sw-media-preview-v2-stub[source="mediaId2"]').exists()).toBeFalsy();
     });
 

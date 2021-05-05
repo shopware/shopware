@@ -32,15 +32,6 @@ Shopware.Component.register('sw-event-action-list-expand-labels', {
         };
     },
 
-    methods: {
-        increaseLimit() {
-            if (this.disabled) {
-                return;
-            }
-            this.limit += this.increaseBy;
-        }
-    },
-
     computed: {
         classes() {
             return {
@@ -54,6 +45,15 @@ Shopware.Component.register('sw-event-action-list-expand-labels', {
 
         remainingItemsAmount() {
             return this.items.length - this.limitedItems.length;
+        }
+    },
+
+    methods: {
+        increaseLimit() {
+            if (this.disabled) {
+                return;
+            }
+            this.limit += this.increaseBy;
         }
     }
 });

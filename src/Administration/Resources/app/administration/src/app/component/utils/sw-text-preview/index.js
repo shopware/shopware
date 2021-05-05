@@ -18,13 +18,6 @@ const lineBreak = '<br />';
 Component.register('sw-text-preview', {
     template,
 
-    data() {
-        return {
-            shortened: false,
-            showModal: false
-        };
-    },
-
     props: {
         text: {
             type: String,
@@ -46,9 +39,17 @@ Component.register('sw-text-preview', {
         }
     },
 
+    data() {
+        return {
+            shortened: false,
+            showModal: false
+        };
+    },
+
     computed: {
         shortenedText() {
             let text = this.text;
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.shortened = false;
             if (this.maximumNewLines > 0) {
                 const splitted = text.split(lineExpr).filter((element) => {
@@ -56,10 +57,12 @@ Component.register('sw-text-preview', {
                 });
                 if (splitted.length > this.maximumNewLines) {
                     text = splitted.slice(0, this.maximumNewLines).join('\n');
+                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.shortened = true;
                 }
             }
             if (text.length > this.maximumLength) {
+                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.shortened = true;
             }
             return text.slice(0, this.maximumLength).replace(lineExpr, lineBreak);

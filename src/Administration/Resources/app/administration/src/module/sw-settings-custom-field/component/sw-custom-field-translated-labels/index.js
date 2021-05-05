@@ -8,15 +8,17 @@ Component.register('sw-custom-field-translated-labels', {
 
     inject: ['acl'],
 
-    model: {
-        prop: 'config'
-    },
-
     mixins: [
         Mixin.getByName('sw-inline-snippet')
     ],
 
+    model: {
+        prop: 'config'
+    },
+
     props: {
+        // FIXME: add type to locales
+        // eslint-disable-next-line vue/require-prop-types
         locales: {
             required: true
         },

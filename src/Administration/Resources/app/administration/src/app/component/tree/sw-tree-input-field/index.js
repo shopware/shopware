@@ -15,6 +15,8 @@ Component.register('sw-tree-input-field', {
     template,
 
     props: {
+        // FIXME: add default value
+        // eslint-disable-next-line vue/require-default-prop
         currentValue: {
             type: String,
             required: false

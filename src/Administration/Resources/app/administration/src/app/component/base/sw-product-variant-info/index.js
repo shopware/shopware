@@ -65,6 +65,12 @@ Component.register('sw-product-variant-info', {
         };
     },
 
+    computed: {
+        productName() {
+            return this.$slots.default[0].text;
+        }
+    },
+
     watch: {
         titleTerm() {
             this.setHelpText();
@@ -73,12 +79,6 @@ Component.register('sw-product-variant-info', {
 
     mounted() {
         this.mountedComponent();
-    },
-
-    computed: {
-        productName() {
-            return this.$slots.default[0].text;
-        }
     },
 
     methods: {

@@ -9,12 +9,12 @@ Component.register('sw-settings-shopware-updates-requirements', {
         updateInfo: {
             type: Object,
             required: true,
-            default: {}
+            default: () => {}
         },
         requirements: {
             type: Array,
             required: true,
-            default: []
+            default: () => []
         },
         isLoading: {
             type: Boolean

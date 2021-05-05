@@ -17,6 +17,20 @@ Component.register('sw-product-variant-modal', {
         Mixin.getByName('notification')
     ],
 
+    filters: {
+        stockColorVariant(value) {
+            if (value >= 25) {
+                return 'success';
+            }
+
+            if (value < 25 && value > 0) {
+                return 'warning';
+            }
+
+            return 'error';
+        }
+    },
+
     props: {
         // this is the parent product entity from wich we will get all the variants
         productEntity: {
@@ -171,20 +185,6 @@ Component.register('sw-product-variant-modal', {
             criteria.addFilter(Criteria.equalsAny('canonicalProductId', variantIds));
 
             return criteria;
-        }
-    },
-
-    filters: {
-        stockColorVariant(value) {
-            if (value >= 25) {
-                return 'success';
-            }
-
-            if (value < 25 && value > 0) {
-                return 'warning';
-            }
-
-            return 'error';
         }
     },
 

@@ -78,6 +78,7 @@ Component.register('sw-settings-product-feature-sets-values-card', {
 
         featureGridTranslationService() {
             if (this.translationService === null) {
+                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.translationService = new FeatureGridTranslationService(
                     this,
                     this.propertyGroupRepository,

@@ -18,6 +18,12 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
 
     inject: ['repositoryFactory'],
 
+    data() {
+        return {
+            products: null
+        };
+    },
+
     computed: {
         operators() {
             return this.conditionDataProviderService.getOperatorSet('multiStore');
@@ -61,12 +67,6 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
         productContext() {
             return { ...Shopware.Context.api, inheritance: true };
         }
-    },
-
-    data() {
-        return {
-            products: null
-        };
     },
 
     created() {

@@ -18,10 +18,6 @@ Component.extend('sw-condition-customer-group', 'sw-condition-base', {
 
     inject: ['repositoryFactory'],
 
-    created() {
-        this.createdComponent();
-    },
-
     data() {
         return {
             customerGroups: null
@@ -53,6 +49,10 @@ Component.extend('sw-condition-customer-group', 'sw-condition-base', {
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCustomerGroupIdsError;
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

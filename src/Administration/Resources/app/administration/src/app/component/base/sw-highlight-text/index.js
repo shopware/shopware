@@ -13,6 +13,16 @@ const { Component } = Shopware;
 Component.register('sw-highlight-text', {
     template: '',
 
+    render(createElement) {
+        return createElement(
+            'div',
+            {
+                class: 'sw-highlight-text',
+                domProps: { innerHTML: this.searchAndReplace() }
+            }
+        );
+    },
+
     props: {
         searchTerm: {
             type: String,
@@ -24,16 +34,6 @@ Component.register('sw-highlight-text', {
             required: false,
             default: null
         }
-    },
-
-    render(createElement) {
-        return createElement(
-            'div',
-            {
-                class: 'sw-highlight-text',
-                domProps: { innerHTML: this.searchAndReplace() }
-            }
-        );
     },
 
     methods: {

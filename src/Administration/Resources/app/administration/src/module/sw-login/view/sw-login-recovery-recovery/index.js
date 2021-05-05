@@ -22,10 +22,6 @@ Component.register('sw-login-recovery-recovery', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         hashValid(val) {
             if (val === true) {
@@ -33,6 +29,10 @@ Component.register('sw-login-recovery-recovery', {
                     .$el.querySelector('input').focus());
             }
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

@@ -72,20 +72,6 @@ Component.register('sw-product-detail-base', {
         };
     },
 
-    watch: {
-        product() {
-            /**
-             * @deprecated tag:v6.5.0 - The logic `reloadReviews` will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            this.reloadReviews();
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         ...mapState('swProductDetail', [
             'product',
@@ -186,6 +172,21 @@ Component.register('sw-product-detail-base', {
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
         }
+    },
+
+
+    watch: {
+        product() {
+            /**
+             * @deprecated tag:v6.5.0 - The logic `reloadReviews` will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
+            this.reloadReviews();
+        }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

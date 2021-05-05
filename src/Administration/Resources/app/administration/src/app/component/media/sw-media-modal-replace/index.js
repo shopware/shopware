@@ -15,16 +15,17 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-media-modal-replace', {
     template,
 
+    inject: ['mediaService', 'repositoryFactory'],
+
     mixins: [
         Mixin.getByName('notification')
     ],
 
-    inject: ['mediaService', 'repositoryFactory'],
-
     props: {
         itemToReplace: {
             type: Object,
-            required: false
+            required: false,
+            default: null
         }
     },
 

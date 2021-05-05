@@ -176,6 +176,7 @@ Component.register('sw-chart', {
         },
 
         convertedSeriesStructure() {
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.generatedLabels = [];
 
             return this.series.map((serie) => {

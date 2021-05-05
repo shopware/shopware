@@ -12,16 +12,20 @@ Component.register('sw-grid-column', {
     props: {
         label: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         iconLabel: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         align: {
             type: String,
             default: 'left'
         },
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         flex: {
             required: false,
             default: 1
@@ -48,10 +52,6 @@ Component.register('sw-grid-column', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         label(newLabel, oldLabel) {
             const index = this.$parent.columns.findIndex((col) => col.label === oldLabel);
@@ -60,6 +60,10 @@ Component.register('sw-grid-column', {
                 this.$parent.columns[index].label = newLabel;
             }
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

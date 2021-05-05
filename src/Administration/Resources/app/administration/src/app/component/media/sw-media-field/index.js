@@ -30,12 +30,14 @@ Component.register('sw-media-field', {
 
         mediaId: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         label: {
             type: String,
-            required: false
+            required: false,
+            default: null
         }
     },
 
@@ -52,17 +54,6 @@ Component.register('sw-media-field', {
         };
     },
 
-    watch: {
-        mediaId(newValue) {
-            this.fetchItem(newValue);
-            this.$emit('media-id-change', newValue);
-        },
-
-        searchTerm() {
-            this.fetchSuggestions();
-        }
-    },
-
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
@@ -77,6 +68,17 @@ Component.register('sw-media-field', {
             return this.showUploadField ?
                 this.$tc('global.sw-media-field.labelToggleSearchExisting') :
                 this.$tc('global.sw-media-field.labelToggleUploadNew');
+        }
+    },
+
+    watch: {
+        mediaId(newValue) {
+            this.fetchItem(newValue);
+            this.$emit('media-id-change', newValue);
+        },
+
+        searchTerm() {
+            this.fetchSuggestions();
         }
     },
 

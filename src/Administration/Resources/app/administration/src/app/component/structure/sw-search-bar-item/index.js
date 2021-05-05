@@ -40,6 +40,13 @@ Component.register('sw-search-bar-item', {
         }
     },
 
+    data() {
+        return {
+            isActive: false,
+            searchTypes: null
+        };
+    },
+
     computed: {
         componentClasses() {
             return [
@@ -48,13 +55,6 @@ Component.register('sw-search-bar-item', {
                 }
             ];
         }
-    },
-
-    data() {
-        return {
-            isActive: false,
-            searchTypes: null
-        };
     },
 
     created() {

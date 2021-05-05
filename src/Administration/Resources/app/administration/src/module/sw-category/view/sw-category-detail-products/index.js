@@ -15,19 +15,19 @@ Component.register('sw-category-detail-products', {
         'placeholder'
     ],
 
+    props: {
+        isLoading: {
+            type: Boolean,
+            required: true
+        }
+    },
+
     data() {
         return {
             productStreamFilter: null,
             productStreamInvalid: false,
             manualAssignedProductsCount: 0
         };
-    },
-
-    props: {
-        isLoading: {
-            type: Boolean,
-            required: true
-        }
     },
 
     computed: {

@@ -23,27 +23,6 @@ Component.register('sw-cms-el-config-product-listing', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
-    watch: {
-        productSortings: {
-            handler() {
-                this.element.config.availableSortings.value = this.transformProductSortings();
-            },
-            deep: true
-        },
-
-        defaultSorting() {
-            if (Object.keys(this.defaultSorting).length === 0) {
-                this.element.config.defaultSorting.value = '';
-            } else {
-                this.element.config.defaultSorting.value = this.defaultSorting.key;
-            }
-        }
-    },
-
     computed: {
         showSortingGrid() {
             return this.element.config.useCustomSorting.value;
@@ -172,6 +151,27 @@ Component.register('sw-cms-el-config-product-listing', {
         showPropertySelection() {
             return !this.properties.length < 1;
         }
+    },
+
+    watch: {
+        productSortings: {
+            handler() {
+                this.element.config.availableSortings.value = this.transformProductSortings();
+            },
+            deep: true
+        },
+
+        defaultSorting() {
+            if (Object.keys(this.defaultSorting).length === 0) {
+                this.element.config.defaultSorting.value = '';
+            } else {
+                this.element.config.defaultSorting.value = this.defaultSorting.key;
+            }
+        }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

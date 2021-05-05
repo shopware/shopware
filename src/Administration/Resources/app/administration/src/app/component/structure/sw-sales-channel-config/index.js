@@ -14,6 +14,8 @@ Component.register('sw-sales-channel-config', {
             required: false,
             default: ''
         },
+        // FIXME: add default value
+        // eslint-disable-next-line vue/require-default-prop
         value: {
             type: Object,
             required: false
@@ -35,23 +37,6 @@ Component.register('sw-sales-channel-config', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
-    watch: {
-        actualConfigData: {
-            handler(configData) {
-                if (!configData) {
-                    return;
-                }
-
-                this.$emit('input', configData);
-            },
-            deep: true
-        }
-    },
-
     computed: {
         actualConfigData: {
             get() {
@@ -68,6 +53,23 @@ Component.register('sw-sales-channel-config', {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         }
+    },
+
+    watch: {
+        actualConfigData: {
+            handler(configData) {
+                if (!configData) {
+                    return;
+                }
+
+                this.$emit('input', configData);
+            },
+            deep: true
+        }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

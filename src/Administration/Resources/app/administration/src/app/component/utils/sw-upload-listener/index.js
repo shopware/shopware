@@ -62,17 +62,17 @@ Component.register('sw-upload-listener', {
         }
     },
 
-    computed: {
-        mediaRepository() {
-            return this.repositoryFactory.create('media');
-        }
-    },
-
     data() {
         return {
             id: utils.createId(),
             notificationId: null
         };
+    },
+
+    computed: {
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        }
     },
 
     watch: {

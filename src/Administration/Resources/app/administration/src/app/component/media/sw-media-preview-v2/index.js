@@ -43,6 +43,8 @@ Component.register('sw-media-preview-v2', {
     },
 
     props: {
+        // FIXME: add type to property
+        // eslint-disable-next-line vue/require-prop-types
         source: {
             required: true
         },

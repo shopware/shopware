@@ -5,16 +5,15 @@ const { Component, Mixin } = Shopware;
 const { object, string: { kebabCase } } = Shopware.Utils;
 
 Component.register('sw-system-config', {
-    name: 'sw-system-config',
 
     template,
+
+    inject: ['systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('sw-inline-snippet')
     ],
-
-    inject: ['systemConfigApiService'],
 
     props: {
         domain: {
@@ -49,15 +48,6 @@ Component.register('sw-system-config', {
         };
     },
 
-    watch: {
-        actualConfigData: {
-            handler() {
-                this.emitConfig();
-            },
-            deep: true
-        }
-    },
-
     computed: {
         isNotDefaultSalesChannel() {
             return this.currentSalesChannelId !== null;
@@ -75,6 +65,15 @@ Component.register('sw-system-config', {
                 'checkbox',
                 'colorpicker'
             ];
+        }
+    },
+
+    watch: {
+        actualConfigData: {
+            handler() {
+                this.emitConfig();
+            },
+            deep: true
         }
     },
 

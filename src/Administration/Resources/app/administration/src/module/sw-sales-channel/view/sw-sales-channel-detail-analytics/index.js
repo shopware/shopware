@@ -17,6 +17,9 @@ Component.register('sw-sales-channel-detail-analytics', {
             type: Boolean,
             default: false
         },
+
+        // FIXME: add type to salesChannel property
+        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true
         }

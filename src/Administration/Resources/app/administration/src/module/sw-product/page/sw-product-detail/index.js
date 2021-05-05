@@ -312,6 +312,13 @@ Component.register('sw-product-detail', {
         }
     },
 
+    watch: {
+        productId() {
+            this.destroyedComponent();
+            this.createdComponent();
+        }
+    },
+
     beforeCreate() {
         Shopware.State.registerModule('swProductDetail', swProductDetailState);
     },
@@ -326,13 +333,6 @@ Component.register('sw-product-detail', {
 
     destroyed() {
         this.destroyedComponent();
-    },
-
-    watch: {
-        productId() {
-            this.destroyedComponent();
-            this.createdComponent();
-        }
     },
 
     methods: {

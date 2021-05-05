@@ -13,10 +13,10 @@ Component.register('sw-extension-review-creation-inputs', {
         errors: {
             type: Object,
             required: false,
-            default: {
+            default: () => ({
                 headlineError: null,
                 ratingError: null
-            }
+            })
         }
     },
 

@@ -10,10 +10,6 @@ Component.extend('sw-condition-line-item-taxation', 'sw-condition-base', {
 
     inject: ['repositoryFactory'],
 
-    created() {
-        this.createdComponent();
-    },
-
     data() {
         return {
             taxes: null
@@ -45,6 +41,10 @@ Component.extend('sw-condition-line-item-taxation', 'sw-condition-base', {
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueTaxIdsError;
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

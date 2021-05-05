@@ -1,7 +1,9 @@
 const path = require('path');
 
 module.exports = {
-    extends: '@shopware-ag/eslint-config-base',
+    extends: [
+        '@shopware-ag/eslint-config-base'
+    ],
     env: {
         browser: true,
         'jest/globals': true
@@ -48,5 +50,46 @@ module.exports = {
             js: 'never',
             vue: 'never'
         }]
-    }
+    },
+
+    overrides: [
+        {
+            extends: [
+                'plugin:vue/recommended',
+                '@shopware-ag/eslint-config-base'
+            ],
+            files: ['**/*.js'],
+            excludedFiles: '*.spec.js',
+            rules: {
+                'vue/require-prop-types': 'error',
+                'vue/require-default-prop': 'error',
+                'vue/no-mutating-props': ['off'],
+                'vue/component-definition-name-casing': ['error', 'kebab-case'],
+                'vue/order-in-components': ['error', {
+                    order: [
+                        'el',
+                        'name',
+                        'parent',
+                        'functional',
+                        ['template', 'render'],
+                        'inheritAttrs',
+                        ['provide', 'inject'],
+                        'extends',
+                        'mixins',
+                        'model',
+                        ['components', 'directives', 'filters'],
+                        ['props', 'propsData'],
+                        'data',
+                        'metaInfo',
+                        'computed',
+                        'watch',
+                        'LIFECYCLE_HOOKS',
+                        'methods',
+                        ['delimiters', 'comments'],
+                        'renderError'
+                    ]
+                }]
+            }
+        }
+    ]
 };

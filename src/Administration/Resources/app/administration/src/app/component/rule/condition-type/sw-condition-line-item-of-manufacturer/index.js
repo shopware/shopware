@@ -10,10 +10,6 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base', 
 
     inject: ['repositoryFactory'],
 
-    created() {
-        this.createdComponent();
-    },
-
     data() {
         return {
             manufacturers: null
@@ -45,6 +41,10 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base', 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueManufacturerIdsError;
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

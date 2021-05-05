@@ -12,11 +12,6 @@ Component.register('sw-cms-el-config-form', {
         Mixin.getByName('cms-element')
     ],
 
-    created() {
-        this.createdComponent();
-        this.setShopMail();
-    },
-
     computed: {
         getLastMailClass() {
             if (this.element.config.mailReceiver.value.length === 1) {
@@ -24,6 +19,11 @@ Component.register('sw-cms-el-config-form', {
             }
             return '';
         }
+    },
+
+    created() {
+        this.createdComponent();
+        this.setShopMail();
     },
 
     methods: {

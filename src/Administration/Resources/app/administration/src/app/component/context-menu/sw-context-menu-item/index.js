@@ -12,7 +12,8 @@ Component.register('sw-context-menu-item', {
     props: {
         icon: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         disabled: {
@@ -23,7 +24,8 @@ Component.register('sw-context-menu-item', {
 
         routerLink: {
             type: Object,
-            required: false
+            required: false,
+            default: null
         },
 
         target: {

@@ -70,21 +70,25 @@ Component.register('sw-form-field-renderer', {
     template,
     inheritAttrs: false,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet')
     ],
 
-    inject: ['repositoryFactory'],
-
     props: {
         type: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         config: {
             type: Object,
-            required: false
+            required: false,
+            default: null
         },
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true
         }

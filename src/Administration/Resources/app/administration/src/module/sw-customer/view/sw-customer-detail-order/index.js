@@ -27,10 +27,6 @@ Component.register('sw-customer-detail-order', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         orderColumns() {
             return this.getOrderColumns();
@@ -45,6 +41,10 @@ Component.register('sw-customer-detail-order', {
                 this.$tc('sw-customer.detailOrder.emptySearchTitle') :
                 this.$tc('sw-customer.detailOrder.emptyTitle');
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

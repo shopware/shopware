@@ -18,10 +18,6 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
 
     inject: ['repositoryFactory'],
 
-    created() {
-        this.createdComponent();
-    },
-
     data() {
         return {
             currencies: null
@@ -53,6 +49,10 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCurrencyIdsError;
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

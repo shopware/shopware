@@ -40,8 +40,9 @@ Component.register('sw-media-modal-folder-settings', {
             configuration: null,
             mediaFolderConfigurationThumbnailSizeRepository: null,
             originalConfiguration: null,
-            deselectedMediaThumbnailSizes: [],
-            disabled: false
+            deselectedMediaThumbnailSizes: []
+            // eslint-disable-next-line vue/no-dupe-keys
+            // disabled: false
         };
     },
 

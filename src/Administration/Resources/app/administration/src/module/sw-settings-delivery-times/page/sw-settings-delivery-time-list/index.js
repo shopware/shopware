@@ -7,12 +7,12 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-delivery-time-list', {
     template,
 
+    inject: ['repositoryFactory', 'acl'],
+
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('placeholder')
     ],
-
-    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {

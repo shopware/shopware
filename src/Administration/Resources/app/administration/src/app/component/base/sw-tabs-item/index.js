@@ -66,24 +66,6 @@ Component.register('sw-tabs-item', {
         };
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
-    beforeUpdate() {
-        this.beforeUpdateComponent();
-    },
-
-    watch: {
-        '$route'() {
-            this.checkIfRouteMatchesLink();
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         isNative() {
             return types.isEmpty(this.route);
@@ -96,6 +78,24 @@ Component.register('sw-tabs-item', {
                 'sw-tabs-item--is-disabled': this.disabled
             };
         }
+    },
+
+    watch: {
+        '$route'() {
+            this.checkIfRouteMatchesLink();
+        }
+    },
+
+    mounted() {
+        this.mountedComponent();
+    },
+
+    beforeUpdate() {
+        this.beforeUpdateComponent();
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

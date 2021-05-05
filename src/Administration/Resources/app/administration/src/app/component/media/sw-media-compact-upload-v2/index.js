@@ -4,12 +4,6 @@ import './sw-media-compact-upload-v2.scss';
 Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', {
     template,
 
-    data() {
-        return {
-            mediaModalIsOpen: false
-        };
-    },
-
     props: {
         allowMultiSelect: {
             type: Boolean,
@@ -38,6 +32,12 @@ Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', {
             required: false,
             default: 'image/*'
         }
+    },
+
+    data() {
+        return {
+            mediaModalIsOpen: false
+        };
     },
 
     methods: {

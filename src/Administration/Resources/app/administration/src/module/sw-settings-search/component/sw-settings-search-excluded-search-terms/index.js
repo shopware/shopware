@@ -45,12 +45,6 @@ Component.register('sw-settings-search-excluded-search-terms', {
         };
     },
 
-    watch: {
-        searchConfigs() {
-            this.createdComponent();
-        }
-    },
-
     computed: {
         searchRepository() {
             return this.repositoryFactory.create('product_search_config');
@@ -63,6 +57,12 @@ Component.register('sw-settings-search-excluded-search-terms', {
                 inlineEdit: 'string',
                 sortable: false
             }];
+        }
+    },
+
+    watch: {
+        searchConfigs() {
+            this.createdComponent();
         }
     },
 

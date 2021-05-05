@@ -19,7 +19,8 @@ Component.register('sw-newsletter-recipient-filter-switch', {
 
         group: {
             type: String,
-            required: false
+            required: false,
+            default: null
         }
     },
 

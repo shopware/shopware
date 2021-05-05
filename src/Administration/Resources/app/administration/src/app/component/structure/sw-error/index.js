@@ -31,7 +31,7 @@ Component.register('sw-error', {
                 return {};
             }
         },
-        LinkText: {
+        linkText: {
             type: String,
             required: false,
             default: ''

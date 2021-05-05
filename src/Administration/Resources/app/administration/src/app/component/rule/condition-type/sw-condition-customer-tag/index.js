@@ -18,10 +18,6 @@ Component.extend('sw-condition-customer-tag', 'sw-condition-base', {
 
     inject: ['repositoryFactory'],
 
-    created() {
-        this.createdComponent();
-    },
-
     data() {
         return {
             tags: null
@@ -53,6 +49,10 @@ Component.extend('sw-condition-customer-tag', 'sw-condition-base', {
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

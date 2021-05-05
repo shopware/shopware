@@ -49,9 +49,6 @@ Component.register('sw-promotion-discount-component', {
             pickerKeys: []
         };
     },
-    created() {
-        this.createdComponent();
-    },
 
     computed: {
         advancedPricesRepo() {
@@ -306,6 +303,9 @@ Component.register('sw-promotion-discount-component', {
             return true;
         }
 
+    },
+    created() {
+        this.createdComponent();
     },
     methods: {
         createdComponent() {

@@ -107,15 +107,15 @@ Component.register('sw-extension-my-extensions-listing', {
         }
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
     watch: {
         '$route.name'() {
             this.updateList();
             this.filterByActiveState = false;
         }
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {

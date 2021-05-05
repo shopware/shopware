@@ -51,7 +51,8 @@ Component.register('sw-avatar', {
         },
         size: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         firstName: {
             type: String,
@@ -65,7 +66,8 @@ Component.register('sw-avatar', {
         },
         imageUrl: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         placeholder: {
             type: Boolean,
@@ -92,14 +94,6 @@ Component.register('sw-avatar', {
             fontSize: 16,
             lineHeight: 16
         };
-    },
-
-    watch: {
-        size() {
-            this.$nextTick(() => {
-                this.generateAvatarInitialsSize();
-            });
-        }
     },
 
     computed: {
@@ -170,6 +164,14 @@ Component.register('sw-avatar', {
 
         showInitials() {
             return !this.placeholder && !this.hasAvatarImage;
+        }
+    },
+
+    watch: {
+        size() {
+            this.$nextTick(() => {
+                this.generateAvatarInitialsSize();
+            });
         }
     },
 

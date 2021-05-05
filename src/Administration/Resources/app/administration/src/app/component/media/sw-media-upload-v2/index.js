@@ -58,9 +58,11 @@ Component.register('sw-media-upload-v2', {
             default: true
         },
 
+        // eslint-disable-next-line vue/require-default-prop
         label: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         defaultFolder: {

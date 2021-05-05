@@ -31,7 +31,8 @@ Component.register('sw-icon', {
         },
         color: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         small: {
             type: Boolean,
@@ -45,7 +46,8 @@ Component.register('sw-icon', {
         },
         size: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         title: {
             type: String,
@@ -61,21 +63,6 @@ Component.register('sw-icon', {
             type: Boolean,
             required: false,
             default: false
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        createdComponent() {
-            if (this.color && this.multicolor) {
-                warn(
-                    this.$options.name,
-                    `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`
-                );
-            }
         }
     },
 
@@ -107,6 +94,21 @@ Component.register('sw-icon', {
                 width: size,
                 height: size
             };
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            if (this.color && this.multicolor) {
+                warn(
+                    this.$options.name,
+                    `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`
+                );
+            }
         }
     }
 });

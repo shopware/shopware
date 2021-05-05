@@ -143,6 +143,7 @@ Component.register('sw-tree', {
             contextItem: null,
             currentEditMode: null,
             addElementPosition: null,
+            // eslint-disable-next-line vue/no-reserved-keys
             _eventFromEdit: null,
             createdItem: null,
             checkedElements: {},
@@ -151,21 +152,6 @@ Component.register('sw-tree', {
             toDeleteItem: null,
             checkedElementsChildCount: 0
         };
-    },
-
-    watch: {
-        items: {
-            immediate: true,
-            handler() {
-                this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
-            }
-        },
-
-        activeTreeItemId(val) {
-            if (val && this.activeElementId) {
-                this.openTreeById();
-            }
-        }
     },
 
     computed: {
@@ -194,6 +180,21 @@ Component.register('sw-tree', {
                 return true;
             }
             return this.items.length < 1;
+        }
+    },
+
+    watch: {
+        items: {
+            immediate: true,
+            handler() {
+                this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
+            }
+        },
+
+        activeTreeItemId(val) {
+            if (val && this.activeElementId) {
+                this.openTreeById();
+            }
         }
     },
 

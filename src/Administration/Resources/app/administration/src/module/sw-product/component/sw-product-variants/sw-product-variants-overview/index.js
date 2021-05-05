@@ -19,6 +19,13 @@ Component.register('sw-product-variants-overview', {
         Mixin.getByName('listing')
     ],
 
+    props: {
+        selectedGroups: {
+            type: Array,
+            required: true
+        }
+    },
+
     data() {
         return {
             showDeleteModal: false,
@@ -30,19 +37,6 @@ Component.register('sw-product-variants-overview', {
             filterWindowOpen: false,
             toBeDeletedVariantId: null
         };
-    },
-
-    props: {
-        selectedGroups: {
-            type: Array,
-            required: true
-        }
-    },
-
-    watch: {
-        'selectedGroups'() {
-            this.getFilterOptions();
-        }
     },
 
     computed: {
@@ -115,7 +109,8 @@ Component.register('sw-product-variants-overview', {
         },
 
         currencyColumns() {
-            return this.currencies.sort((a, b) => {
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            return this.currencies.sort((_a, b) => {
                 return b.isSystemDefault ? 1 : -1;
             }).map((currency) => {
                 return {
@@ -136,6 +131,12 @@ Component.register('sw-product-variants-overview', {
             criteria.addFilter(Criteria.equals('canonicalProductId', this.toBeDeletedVariantId));
 
             return criteria;
+        }
+    },
+
+    watch: {
+        'selectedGroups'() {
+            this.getFilterOptions();
         }
     },
 

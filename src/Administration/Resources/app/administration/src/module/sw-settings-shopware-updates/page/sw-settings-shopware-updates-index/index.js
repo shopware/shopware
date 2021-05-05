@@ -26,6 +26,12 @@ Component.register('sw-settings-shopware-updates-index', {
         };
     },
 
+    computed: {
+        shopwareVersion() {
+            return Shopware.Context.app.config.version;
+        }
+    },
+
     methods: {
         searchForUpdates() {
             this.isSearchingForUpdates = true;
@@ -68,12 +74,6 @@ Component.register('sw-settings-shopware-updates-index', {
                     message: err
                 });
             });
-        }
-    },
-
-    computed: {
-        shopwareVersion() {
-            return Shopware.Context.app.config.version;
         }
     }
 });

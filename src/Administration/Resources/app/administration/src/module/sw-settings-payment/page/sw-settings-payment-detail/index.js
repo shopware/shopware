@@ -8,12 +8,12 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-settings-payment-detail', {
     template,
 
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder')
     ],
-
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -40,14 +40,6 @@ Component.register('sw-settings-payment-detail', {
         return {
             title: this.$createTitle(this.identifier)
         };
-    },
-
-    watch: {
-        'paymentMethod.mediaId'() {
-            if (this.paymentMethod.mediaId) {
-                this.setMediaItem({ targetId: this.paymentMethod.mediaId });
-            }
-        }
     },
 
     computed: {
@@ -107,6 +99,14 @@ Component.register('sw-settings-payment-detail', {
 
         showCustomFields() {
             return this.paymentMethod && this.customFieldSets && this.customFieldSets.length > 0;
+        }
+    },
+
+    watch: {
+        'paymentMethod.mediaId'() {
+            if (this.paymentMethod.mediaId) {
+                this.setMediaItem({ targetId: this.paymentMethod.mediaId });
+            }
         }
     },
 

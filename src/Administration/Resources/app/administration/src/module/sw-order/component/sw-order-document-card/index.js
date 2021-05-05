@@ -1,11 +1,11 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
-import '../sw-order-document-settings-invoice-modal/';
-import '../sw-order-document-settings-storno-modal/';
-import '../sw-order-document-settings-delivery-note-modal/';
-import '../sw-order-document-settings-credit-note-modal/';
-import '../sw-order-document-settings-modal/';
+import '../sw-order-document-settings-invoice-modal';
+import '../sw-order-document-settings-storno-modal';
+import '../sw-order-document-settings-delivery-note-modal';
+import '../sw-order-document-settings-credit-note-modal';
+import '../sw-order-document-settings-modal';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -35,7 +35,11 @@ Component.register('sw-order-document-card', {
             type: Boolean,
             required: true
         },
-        attachView: false
+        attachView: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
     },
 
     data() {

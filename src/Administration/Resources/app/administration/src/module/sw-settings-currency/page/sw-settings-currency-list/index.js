@@ -13,12 +13,6 @@ Component.register('sw-settings-currency-list', {
         Mixin.getByName('notification')
     ],
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     data() {
         return {
             entityName: 'currency',
@@ -28,6 +22,12 @@ Component.register('sw-settings-currency-list', {
             sortDirection: 'ASC',
             naturalSorting: true,
             showDeleteModal: false
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 

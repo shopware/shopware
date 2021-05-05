@@ -37,10 +37,14 @@ Component.register('sw-inherit-wrapper', {
     template,
 
     props: {
+        // FIXME: add type property
+        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true
         },
 
+        // FIXME: add type property
+        // eslint-disable-next-line vue/require-prop-types
         inheritedValue: {
             required: true
         },

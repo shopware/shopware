@@ -40,7 +40,8 @@ Component.register('sw-select-selection-list', {
         },
         size: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         placeholder: {
             type: String,

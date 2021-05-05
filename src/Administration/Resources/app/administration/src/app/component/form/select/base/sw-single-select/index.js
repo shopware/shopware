@@ -7,20 +7,22 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-single-select', {
     template,
 
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
+
     model: {
         prop: 'value',
         event: 'change'
     },
-
-    mixins: [
-        Mixin.getByName('remove-api-error')
-    ],
 
     props: {
         options: {
             required: true,
             type: Array
         },
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true
         },

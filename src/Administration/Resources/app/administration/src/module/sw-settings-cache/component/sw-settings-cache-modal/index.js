@@ -9,23 +9,35 @@ Component.register('sw-settings-cache-modal', {
         'SYSTEMKEY+c': 'openModal'
     },
 
-    mixins: [
-        Mixin.getByName('notification')
-    ],
-
     inject: [
         'cacheApiService',
         'acl'
     ],
 
-    created() {
-        this.createdComponent();
-    },
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     data() {
         return {
             open: false
         };
+    },
+
+    watch: {
+        open() {
+            if (!this.open) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                this.$refs.button.$el.focus();
+            });
+        }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
@@ -65,18 +77,6 @@ Component.register('sw-settings-cache-modal', {
             });
 
             this.open = false;
-        }
-    },
-
-    watch: {
-        open() {
-            if (!this.open) {
-                return;
-            }
-
-            this.$nextTick(() => {
-                this.$refs.button.$el.focus();
-            });
         }
     }
 });

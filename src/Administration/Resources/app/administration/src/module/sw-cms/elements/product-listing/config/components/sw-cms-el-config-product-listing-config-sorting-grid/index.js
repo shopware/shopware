@@ -22,33 +22,6 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
         };
     },
 
-    methods: {
-        formatProductSortingFields(fields) {
-            const fieldNames = fields.map(currentField => {
-                return currentField.field;
-            });
-
-            return fieldNames.join(', ');
-        },
-
-        onDelete(productSorting) {
-            this.productSortings.remove(productSorting.id);
-        },
-
-        isDefaultSorting(productSorting) {
-            if (!this.defaultSorting) {
-                return false;
-            }
-
-            return productSorting.id === this.defaultSorting.id;
-        },
-
-        onPageChange({ page, limit }) {
-            this.page = page;
-            this.limit = limit;
-        }
-    },
-
     computed: {
         visibleProductSortings() {
             return this.productSortings.slice((this.page - 1) * this.limit, (this.page - 1) * this.limit + this.limit);
@@ -79,6 +52,33 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
                     inlineEdit: 'number'
                 }
             ];
+        }
+    },
+
+    methods: {
+        formatProductSortingFields(fields) {
+            const fieldNames = fields.map(currentField => {
+                return currentField.field;
+            });
+
+            return fieldNames.join(', ');
+        },
+
+        onDelete(productSorting) {
+            this.productSortings.remove(productSorting.id);
+        },
+
+        isDefaultSorting(productSorting) {
+            if (!this.defaultSorting) {
+                return false;
+            }
+
+            return productSorting.id === this.defaultSorting.id;
+        },
+
+        onPageChange({ page, limit }) {
+            this.page = page;
+            this.limit = limit;
         }
     }
 });

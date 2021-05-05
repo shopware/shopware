@@ -9,14 +9,14 @@ Component.register('sw-media-library', {
 
     inject: ['repositoryFactory', 'acl'],
 
+    mixins: [
+        Mixin.getByName('media-grid-listener')
+    ],
+
     model: {
         prop: 'selection',
         event: 'media-selection-change'
     },
-
-    mixins: [
-        Mixin.getByName('media-grid-listener')
-    ],
 
     props: {
         selection: {

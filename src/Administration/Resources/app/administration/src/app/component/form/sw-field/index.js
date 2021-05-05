@@ -9,12 +9,6 @@ const { Component } = Shopware;
 Component.register('sw-field', {
     functional: true,
 
-    watch: {
-        type() {
-            this.$forceUpdate();
-        }
-    },
-
     render(createElement, context) {
         function getComponentName() {
             const components = {
@@ -80,6 +74,12 @@ Component.register('sw-field', {
                     'email'
                 ].includes(value);
             }
+        }
+    },
+
+    watch: {
+        type() {
+            this.$forceUpdate();
         }
     }
 });

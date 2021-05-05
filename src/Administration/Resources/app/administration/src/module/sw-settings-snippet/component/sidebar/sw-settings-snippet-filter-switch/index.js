@@ -20,7 +20,8 @@ Component.register('sw-settings-snippet-filter-switch', {
 
         group: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         borderTop: {

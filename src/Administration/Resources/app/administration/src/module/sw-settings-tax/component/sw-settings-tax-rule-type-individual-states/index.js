@@ -15,6 +15,12 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
         }
     },
 
+    data() {
+        return {
+            individualStates: null
+        };
+    },
+
     computed: {
         exclusionCriteria() {
             const criteria = new Criteria();
@@ -25,12 +31,6 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
         stateRepository() {
             return this.repositoryFactory.create('country_state');
         }
-    },
-
-    data() {
-        return {
-            individualStates: null
-        };
     },
 
     created() {

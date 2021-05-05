@@ -71,6 +71,7 @@ Component.register('sw-customer-list', {
 
         defaultCriteria() {
             const defaultCriteria = new Criteria(this.page, this.limit);
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.naturalSorting = this.sortBy === 'customerNumber';
 
             defaultCriteria.setTerm(this.term);
@@ -172,10 +173,6 @@ Component.register('sw-customer-list', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         defaultCriteria: {
             handler() {
@@ -183,6 +180,10 @@ Component.register('sw-customer-list', {
             },
             deep: true
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

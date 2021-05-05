@@ -128,6 +128,11 @@ shopware:
               major: false
               description: "Preview available variables of email templates in the administration"
               # issue: NEXT-12654
+            - name: FEATURE_NEXT_8225
+              default: false
+              major: false
+              description: "Flow builder"
+              # issue: NEXT-8225
             - name: FEATURE_NEXT_6061
               default: false
               major: false

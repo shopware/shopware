@@ -1,0 +1,156 @@
+{% block sw_sales_channel_detail_products %}
+    <sw-card
+        v-if="feature.isActive('FEATURE_NEXT_12437') && salesChannel && products"
+        class="sw-sales-channel-detail-products"
+        :isLoading="isLoading">
+        {% block sw_sales_channel_detail_products_filled_state %}
+            <template v-if="products.length > 0 || searchTerm" #grid>
+                {% block sw_sales_channel_detail_products_card_section %}
+                    <sw-container rows="auto 500px">
+                        {% block sw_sales_channel_detail_products_card_section_secondary %}
+                            <sw-card-section secondary>
+                                <sw-container columns="1fr 100px" gap="0 15px">
+                                    {% block sw_sales_channel_detail_products_card_section_secondary_input %}
+                                        <sw-simple-search-field
+                                            v-model="searchTerm"
+                                            variant="form"
+                                            size="small"
+                                            @search-term-change="onChangeSearchTerm">
+                                        </sw-simple-search-field>
+                                    {% endblock %}
+
+                                    {% block sw_sales_channel_detail_products_card_section_secondary_button %}
+                                        <sw-button
+                                            v-tooltip="{
+                                                message: $tc('sw-privileges.tooltip.warning'),
+                                                disabled: acl.can('sales_channel.editor'),
+                                                showOnDisabledElements: true
+                                            }"
+                                            variant="ghost"
+                                            size="small"
+                                            :disabled="!acl.can('sales_channel.editor')"
+                                            @click="onAddProducts">
+                                            {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </sw-container>
+                            </sw-card-section>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_products_card_section_primary %}
+                            <sw-card-section divider="top">
+                                {% block sw_sales_channel_detail_products_card_section_primary_filled_state %}
+                                    <sw-entity-listing
+                                        v-if="products.length > 0"
+                                        class="sw-sales-channel-detail-products__list"
+                                        ref="entityListing"
+                                        identifier="sw-sales-channel-detail-products-list"
+                                        detailRoute="sw.product.detail"
+                                        :repository="productRepository"
+                                        :items="products"
+                                        :dataSource="products"
+                                        :columns="productColumns"
+                                        :plainAppearance="true"
+                                        :skeletonItemAmount="skeletonItemAmount"
+                                        :isLoading="isLoading"
+                                        :allowInlineEdit="false"
+                                        :allowView="acl.can('sales_channel.editor')"
+                                        :allowEdit="acl.can('sales_channel.editor')"
+                                        :allowDelete="acl.can('sales_channel.deleter')">
+                                        <template #column-active="{ item }">
+                                            {% block sw_sales_channel_detail_products_listing_column_active %}
+                                                <sw-icon
+                                                    small
+                                                    :name="item.active ? 'small-default-checkmark-line-medium' : 'small-default-x-line-medium'"
+                                                    :color="item.active ? '#37d046' : '#de294c'">
+                                                </sw-icon>
+                                            {% endblock %}
+                                        </template>
+
+                                        <template #pagination>
+                                            {% block sw_sales_channel_detail_products_listing_pagination %}
+                                                <sw-pagination
+                                                    :page="page"
+                                                    :limit="limit"
+                                                    :total="total"
+                                                    :total-visible="7"
+                                                    :steps="[10]"
+                                                    @page-change="onChangePage">
+                                                </sw-pagination>
+                                            {% endblock %}
+                                        </template>
+
+                                        <template #delete-modal-delete-item="{ item }">
+                                            {% block sw_sales_channel_detail_products_listing_delete_modal_delete_item %}
+                                                <sw-button
+                                                    variant="danger"
+                                                    size="small"
+                                                    @click="onDeleteProduct(item)">
+                                                    {{ $tc('global.default.delete') }}
+                                                </sw-button>
+                                            {% endblock %}
+                                        </template>
+
+                                        <template #bulk-modal-delete-items>
+                                            {% block sw_sales_channel_detail_products_listing_bulk_modal_delete_items %}
+                                                <sw-button
+                                                    variant="danger"
+                                                    size="small"
+                                                    :isLoading="isBulkLoading"
+                                                    @click="onDeleteProducts">
+                                                    {{ $tc('global.default.delete') }}
+                                                </sw-button>
+                                            {% endblock %}
+                                        </template>
+                                    </sw-entity-listing>
+                                {% endblock %}
+
+                                {% block sw_sales_channel_detail_products_card_section_primary_empty_state %}
+                                    <sw-empty-state
+                                        v-else
+                                        :showDescription="false"
+                                        :title="$tc('sw-sales-channel.detail.products.titleEmptyStateTable')">
+                                        <template #icon>
+                                            {% block sw_sales_channel_detail_products_card_section_primary_image %}
+                                                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                                            {% endblock %}
+                                        </template>
+                                    </sw-empty-state>
+                                {% endblock %}
+                            </sw-card-section>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_products_empty_state %}
+            <sw-empty-state
+                v-if="products.length <= 0 && !searchTerm"
+                :showDescription="false"
+                :title="$tc('sw-sales-channel.detail.products.titleEmptyState')">
+                <template #icon>
+                    {% block sw_sales_channel_detail_products_empty_state_image %}
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                    {% endblock %}
+                </template>
+
+                <template #actions>
+                    {% block sw_sales_channel_detail_products_empty_state_button %}
+                        <sw-button
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('sales_channel.editor'),
+                                showOnDisabledElements: true
+                            }"
+                            variant="ghost"
+                            :disabled="!acl.can('sales_channel.editor')"
+                            @click="onAddProducts">
+                            {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-empty-state>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

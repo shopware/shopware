@@ -52,6 +52,17 @@
                             </sw-tabs-item>
                         {% endblock %}
 
+                        <template v-if="feature.isActive('FEATURE_NEXT_12437')">
+                            {% block sw_sales_channel_detail_content_tab_products %}
+                                <sw-tabs-item
+                                    v-if="isHeadless || isStoreFront"
+                                    :route="{ name: 'sw.sales.channel.detail.products', params: { id: $route.params.id } }"
+                                    :title="$tc('sw-sales-channel.detail.tabProducts')">
+                                    {{ $tc('sw-sales-channel.detail.tabProducts') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+                        </template>
+
                         <template>
                             {% block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
                         </template>

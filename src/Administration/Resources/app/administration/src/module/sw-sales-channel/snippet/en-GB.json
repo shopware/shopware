@@ -110,6 +110,14 @@
       "ipAddressWhitleListHelpText": "Add IP addresses to the white list in order to allow selective access to your shop. You may add IPv4 and IPv6 addresses as needed.",
       "basicinformationLink": "Change default maintenance layout here",
       "columnDomainCurrency": "Currency",
+      "products": {
+        "titleEmptyState": "No products added yet",
+        "titleEmptyStateTable": "No matching products found",
+        "buttonAddProducts": "Add products",
+        "columnProductName": "Product name",
+        "columnActive": "Active",
+        "columnProductNumber": "Product number"
+      },
       "productComparison": {
         "inputHeaderLabel": "Header row",
         "inputBodyLabel": "Product row",

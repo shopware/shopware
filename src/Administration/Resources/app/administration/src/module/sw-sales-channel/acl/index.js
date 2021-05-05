@@ -29,7 +29,11 @@ Shopware.Service('privileges')
                     'customer_group:read',
                     Shopware.Service('privileges').getPrivileges('media.viewer'),
                     'product_export:read',
-                    'product_stream:read'
+                    'product_stream:read',
+                    'product_visibility:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },
@@ -60,7 +64,9 @@ Shopware.Service('privileges')
                     'theme_sales_channel:create',
                     'theme_sales_channel:delete',
                     'product_export:create',
-                    'product_export:update'
+                    'product_export:update',
+                    'product_visibility:create',
+                    'product_visibility:delete'
                 ],
                 dependencies: ['sales_channel.viewer']
             },
@@ -75,7 +81,8 @@ Shopware.Service('privileges')
             },
             deleter: {
                 privileges: [
-                    'sales_channel:delete'
+                    'sales_channel:delete',
+                    'product_visibility:delete'
                 ],
                 dependencies: ['sales_channel.viewer']
             }

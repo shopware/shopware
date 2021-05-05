@@ -1,0 +1,11 @@
+.sw-sales-channel-detail-products {
+    &.sw-card .sw-card__content {
+        min-height: 420px;
+        padding: 0;
+    }
+
+    .sw-card-section.sw-card-section--divider-top {
+        position: relative;
+        padding: 0;
+    }
+}

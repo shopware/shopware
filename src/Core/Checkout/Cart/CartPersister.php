@@ -15,6 +15,50 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CartPersister implements CartPersisterInterface
 {
+    private string $cartSql = <<<'SQL'
+        INSERT INTO `cart` (
+            `token`,
+            `name`,
+            `currency_id`,
+            `shipping_method_id`,
+            `payment_method_id`,
+            `country_id`,
+            `sales_channel_id`,
+            `customer_id`,
+            `price`,
+            `line_item_count`,
+            `cart`,
+            `created_at`
+        )
+        VALUES (
+            :token,
+            :name,
+            :currency_id,
+            :shipping_method_id,
+            :payment_method_id,
+            :country_id,
+            :sales_channel_id,
+            :customer_id,
+            :price,
+            :line_item_count,
+            :cart,
+            :now
+        )
+        ON DUPLICATE KEY UPDATE
+            `name` = :name,
+            `currency_id` = :currency_id,
+            `shipping_method_id` = :shipping_method_id,
+            `payment_method_id` = :payment_method_id,
+            `country_id` = :country_id,
+            `sales_channel_id` = :sales_channel_id,
+            `customer_id` = :customer_id,
+            `price` = :price,
+            `line_item_count` = :line_item_count,
+            `cart` = :cart,
+            `updated_at` = :now
+        ;
+SQL;
+
     /**
      * @var Connection
      */
@@ -65,8 +109,6 @@ class CartPersister implements CartPersisterInterface
             return;
         }
 
-        $this->delete($cart->getToken(), $context);
-
         $customerId = $context->getCustomer() ? Uuid::fromHexToBytes($context->getCustomer()->getId()) : null;
 
         $data = [
@@ -81,20 +123,17 @@ class CartPersister implements CartPersisterInterface
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getLineItems()->count(),
             'cart' => $this->serializeCart($cart),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->connection->insert('cart', $data);
+        $this->connection->executeUpdate($this->cartSql, $data);
 
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
     public function delete(string $token, SalesChannelContext $context): void
     {
-        $this->connection->executeUpdate(
-            'DELETE FROM cart WHERE `token` = :token',
-            ['token' => $token]
-        );
+        $this->connection->delete('`cart`', ['token' => $token]);
     }
 
     private function serializeCart(Cart $cart): string

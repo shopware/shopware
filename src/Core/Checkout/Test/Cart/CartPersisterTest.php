@@ -59,7 +59,12 @@ class CartPersisterTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $connection->expects(static::never())->method('insert');
+
+        // Cart should be deleted (in case it exists).
+        $connection->expects(static::once())->method('delete');
+
+        // Cart should not be inserted or updated.
+        $connection->expects(static::never())->method('executeUpdate');
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
@@ -72,6 +77,11 @@ class CartPersisterTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
+
+        // Verify that cart deletion is never called.
+        $connection->expects(static::never())->method('delete');
+
+        // Check that cart insert or update is called.
         $connection->expects(static::once())->method('executeUpdate');
 
         $persister = new CartPersister($connection, $eventDispatcher);

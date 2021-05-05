@@ -42,6 +42,24 @@ All blocks of this template are available in the template which renders this tem
                             {{ config.companyAddress|replace({' - ': '</td></tr><tr><td>'})|raw }}
                         </td>
                     </tr>
+                    {% if config.companyEmail %}
+                        {% block document_side_info_email %}
+                            <tr>
+                                <td>
+                                    {{'document.email'|trans({'%email%': config.companyEmail })|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+                    {% endif %}
+                    {% if config.companyPhone %}
+                        {% block document_side_info_phone_number %}
+                            <tr>
+                                <td>
+                                    {{'document.phoneNumber'|trans({'%phoneNumber%': config.companyPhone })|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+                    {% endif %}
                 </table>
             {% endblock %}
             {% block document_side_info %}

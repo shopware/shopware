@@ -48,15 +48,6 @@ The blocks from the templates in the /includes folder can be overwritten directl
             {{ block('document_side_info_date') }}
             {{ block('document_side_info_customer_number') }}
             {{ block('document_side_info_order_number') }}
-            {% if config.companyPhone %}
-                {% block document_side_info_phone_number %}
-                    <tr>
-                        <td>
-                            {{'document.phoneNumber'|trans({'%phoneNumber%': config.companyPhone })|sw_sanitize }}
-                        </td>
-                    </tr>
-                {% endblock %}
-            {% endif %}
             {{ block('document_side_info_order_date') }}
         {% endblock %}
     </table><br/>

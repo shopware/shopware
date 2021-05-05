@@ -45,7 +45,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
 
 Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.
 
-**A customer must have at least one address (which can be used for shipping and billing).**
+     **A customer must have at least one address (which can be used for shipping and billing).**
 
 An automatic fallback is not applied.",
      *      operationId="deleteCustomerAddress",

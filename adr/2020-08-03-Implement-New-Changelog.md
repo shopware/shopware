@@ -34,9 +34,9 @@ Next to the changelog information it is important to add the necessary meta info
 
 *  `flag`: When you are developing a new feature, which is still behind a feature flag, you can add the flag in your changelog file during the development. Changelog files with an active flag will not be considered during a release. If you also do refactoring during the development of the feature which is not hidden behind a flag, create an additional changelog file for the changes of the refactoring.  
 
-*  `author`: This field is optional for shopware employees, but required for all external developers. It can be used to identify the author of code changes, or to display the name in a changelog.  
+*  `author`(Required): This field is optional for shopware employees, but required for all external developers. It can be used to identify the author of code changes, or to display the name in a changelog.  
 
-*  `author_email`: This field is optional for shopware employees, but required for all external developers.  
+*  `author_email`(Required): This field is optional for shopware employees, but required for all external developers.  
 
 *  `author_github` (Optional): This is also mainly intended for external developers to get some reputation for the GitHub profile.  
 

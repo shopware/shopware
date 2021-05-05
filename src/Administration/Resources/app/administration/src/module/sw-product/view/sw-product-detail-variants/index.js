@@ -118,7 +118,7 @@ Component.register('sw-product-detail-variants', {
                         .setLimit(100)
                         .setPage(1);
 
-                    this.groupRepository.search(groupCriteria, Shopware.Context.api).then((searchResult) => {
+                    this.groupRepository.search(groupCriteria).then((searchResult) => {
                         this.groups = searchResult;
                         resolve();
                     });

@@ -25,7 +25,7 @@ Shopware.Component.register('sw-media-tag', {
     },
     methods: {
         handleChange() {
-            this.mediaRepository.save(this.media, Shopware.Context.api);
+            this.mediaRepository.save(this.media);
         }
     }
 });

@@ -88,7 +88,7 @@ Component.register('sw-settings-units', {
         loadUnits() {
             this.isLoading = true;
 
-            this.unitRepository.search(this.unitsCriteria, Shopware.Context.api).then((searchResult) => {
+            this.unitRepository.search(this.unitsCriteria).then((searchResult) => {
                 this.units = searchResult;
                 this.placeholderAmount = searchResult.total;
                 this.isLoading = false;
@@ -96,7 +96,7 @@ Component.register('sw-settings-units', {
         },
 
         createNewUnit() {
-            this.newUnit = this.unitRepository.create(Shopware.Context.api);
+            this.newUnit = this.unitRepository.create();
             this.newUnit.name = '';
             this.newUnit.shortCode = '';
 
@@ -106,7 +106,7 @@ Component.register('sw-settings-units', {
         saveUnit(unit) {
             this.isLoading = true;
 
-            this.unitRepository.save(unit, Shopware.Context.api).then(() => {
+            this.unitRepository.save(unit).then(() => {
                 this.isLoading = false;
 
                 this.loadUnits();
@@ -146,7 +146,7 @@ Component.register('sw-settings-units', {
 
         deleteUnit(unit) {
             this.isLoading = true;
-            this.unitRepository.delete(unit.id, Shopware.Context.api).then(() => {
+            this.unitRepository.delete(unit.id).then(() => {
                 this.isLoading = false;
                 this.loadUnits();
             });

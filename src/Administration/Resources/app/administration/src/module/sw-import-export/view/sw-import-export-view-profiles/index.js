@@ -80,7 +80,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         async loadProfiles() {
             this.isLoading = true;
 
-            this.profiles = await this.profileRepository.search(this.profileCriteria, Shopware.Context.api);
+            this.profiles = await this.profileRepository.search(this.profileCriteria);
 
             this.isLoading = false;
         },
@@ -94,7 +94,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         onAddNewProfile() {
-            this.selectedProfile = this.profileRepository.create(Shopware.Context.api);
+            this.selectedProfile = this.profileRepository.create();
             this.selectedProfile.fileType = 'text/csv';
             this.selectedProfile.mapping = [];
             this.$set(this.selectedProfile, 'config', {});
@@ -104,7 +104,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         async onEditProfile(id) {
-            this.selectedProfile = await this.profileRepository.get(id, Shopware.Context.api);
+            this.selectedProfile = await this.profileRepository.get(id);
 
             if (Array.isArray(this.selectedProfile.config) && this.selectedProfile.config.length <= 0) {
                 this.$set(this.selectedProfile, 'config', {});
@@ -112,7 +112,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         onDuplicateProfile(item) {
-            this.selectedProfile = this.profileRepository.create(Shopware.Context.api);
+            this.selectedProfile = this.profileRepository.create();
 
             this.selectedProfile.label = `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || ''}`;
             this.$set(this.selectedProfile, 'translated', {});
@@ -135,7 +135,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
 
         saveSelectedProfile() {
             this.isLoading = true;
-            this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
+            this.profileRepository.save(this.selectedProfile).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
                     message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)

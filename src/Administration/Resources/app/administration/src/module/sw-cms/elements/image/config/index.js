@@ -47,7 +47,7 @@ Component.register('sw-cms-el-config-image', {
         },
 
         async onImageUpload({ targetId }) {
-            const mediaEntity = await this.mediaRepository.get(targetId, Shopware.Context.api);
+            const mediaEntity = await this.mediaRepository.get(targetId);
 
             this.element.config.media.value = mediaEntity.id;
 

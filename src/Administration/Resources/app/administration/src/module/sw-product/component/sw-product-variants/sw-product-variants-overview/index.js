@@ -186,7 +186,7 @@ Component.register('sw-product-variants-overview', {
 
                 // Start search
                 this.productRepository
-                    .search(searchCriteria, Shopware.Context.api)
+                    .search(searchCriteria)
                     .then((res) => {
                         this.total = res.total;
                         Shopware.State.commit('swProductDetail/setVariants', res);
@@ -459,7 +459,7 @@ Component.register('sw-product-variants-overview', {
                 return `${acc}${index > 0 ? ' - ' : ''}${option.translated.name}`;
             }, '');
 
-            this.productRepository.save(variation, Shopware.Context.api).then(() => {
+            this.productRepository.save(variation).then(() => {
                 // create success notification
                 const titleSaveSuccess = this.$tc('global.default.success');
                 const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
@@ -510,7 +510,7 @@ Component.register('sw-product-variants-overview', {
                     return;
                 }
 
-                this.productRepository.delete(item.id, Shopware.Context.api).then(() => {
+                this.productRepository.delete(item.id).then(() => {
                     this.modalLoading = false;
                     this.toBeDeletedVariantId = null;
 
@@ -524,7 +524,7 @@ Component.register('sw-product-variants-overview', {
         },
 
         async canVariantBeDeleted() {
-            const products = await this.productRepository.search(this.canBeDeletedCriteria, Shopware.Context.api);
+            const products = await this.productRepository.search(this.canBeDeletedCriteria);
 
             return products.length === 0;
         },

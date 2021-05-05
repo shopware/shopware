@@ -105,7 +105,7 @@ Component.register('sw-customer-detail-addresses', {
             this.isLoading = true;
 
             if (!this.activeCustomer.id && this.$route.params.id) {
-                this.customerRepository.get(this.$route.params.id, Shopware.Context.api).then((customer) => {
+                this.customerRepository.get(this.$route.params.id).then((customer) => {
                     this.activeCustomer = customer;
                     this.isLoading = false;
                 });
@@ -120,7 +120,7 @@ Component.register('sw-customer-detail-addresses', {
             customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
                 .addAssociation('customFields');
 
-            this.customFieldSetRepository.search(customFieldSetCriteria, Shopware.Context.api).then((customFieldSets) => {
+            this.customFieldSetRepository.search(customFieldSetCriteria).then((customFieldSets) => {
                 this.customerAddressCustomFieldSets = customFieldSets;
             });
 
@@ -179,7 +179,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         createNewCustomerAddress() {
-            const newAddress = this.addressRepository.create(Shopware.Context.api);
+            const newAddress = this.addressRepository.create();
             newAddress.customerId = this.activeCustomer.id;
 
             this.currentAddress = newAddress;
@@ -262,7 +262,7 @@ Component.register('sw-customer-detail-addresses', {
         onConfirmDeleteAddress(id) {
             this.onCloseDeleteAddressModal();
 
-            return this.customerAddressRepository.delete(id, Shopware.Context.api).then(() => {
+            return this.customerAddressRepository.delete(id).then(() => {
                 this.refreshList();
             });
         },
@@ -287,7 +287,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onDuplicateAddress(addressId) {
-            this.customerAddressRepository.clone(addressId, Shopware.Context.api).then(() => {
+            this.customerAddressRepository.clone(addressId).then(() => {
                 this.refreshList();
             });
         },

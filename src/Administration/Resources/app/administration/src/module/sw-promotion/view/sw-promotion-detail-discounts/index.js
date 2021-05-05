@@ -48,7 +48,7 @@ Component.register('sw-promotion-detail-discounts', {
                 this.discounts.entity,
                 this.discounts.source
             );
-            const newDiscount = promotionDiscountRepository.create(Shopware.Context.api);
+            const newDiscount = promotionDiscountRepository.create();
             newDiscount.promotionId = this.promotion.id;
             newDiscount.scope = DiscountScopes.CART;
             newDiscount.type = DiscountTypes.PERCENTAGE;

@@ -257,7 +257,7 @@ Component.register('sw-order-detail-base', {
             this.$root.$on('order-edit-save', this.onSaveEdits);
             this.$root.$on('order-edit-cancel', this.onCancelEditing);
 
-            this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api).then((result) => {
+            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
                 this.customFieldSets = result;
             });
         },

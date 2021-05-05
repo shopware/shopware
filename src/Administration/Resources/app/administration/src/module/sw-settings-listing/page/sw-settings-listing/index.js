@@ -112,10 +112,7 @@ Component.register('sw-settings-listing', {
         fetchProductSortingOptions() {
             this.isProductSortingOptionsCardLoading = true;
 
-            this.productSortingOptionRepository.search(
-                this.productSortingsOptionsCriteria,
-                Shopware.Context.api
-            ).then(response => {
+            this.productSortingOptionRepository.search(this.productSortingsOptionsCriteria).then(response => {
                 this.productSortingOptions = response;
 
                 this.isProductSortingOptionsCardLoading = false;
@@ -123,7 +120,7 @@ Component.register('sw-settings-listing', {
         },
 
         fetchCustomFields() {
-            this.customFieldRepository.search(this.customFieldCriteria, Shopware.Context.api).then(response => {
+            this.customFieldRepository.search(this.customFieldCriteria).then(response => {
                 this.customFields = response;
             });
         },
@@ -157,14 +154,14 @@ Component.register('sw-settings-listing', {
         },
 
         saveProductSortingOptions() {
-            return this.productSortingOptionRepository.saveAll(this.productSortingOptions, Shopware.Context.api);
+            return this.productSortingOptionRepository.saveAll(this.productSortingOptions);
         },
 
         onDeleteProductSorting(item) {
             // closes modal
             this.toBeDeletedProductSortingOption = null;
 
-            this.productSortingOptionRepository.delete(item.id, Shopware.Context.api)
+            this.productSortingOptionRepository.delete(item.id)
                 .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError')
@@ -253,10 +250,7 @@ Component.register('sw-settings-listing', {
                 return;
             }
 
-            this.productSortingOptionRepository.search(
-                this.productSortingOptionsSearchCriteria,
-                Shopware.Context.api
-            ).then(response => {
+            this.productSortingOptionRepository.search(this.productSortingOptionsSearchCriteria).then(response => {
                 this.productSortingOptions = response;
             });
         },

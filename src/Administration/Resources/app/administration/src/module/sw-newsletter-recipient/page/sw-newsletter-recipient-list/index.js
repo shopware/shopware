@@ -62,7 +62,7 @@ Component.register('sw-newsletter-recipient-list', {
                 this.languageFilters = items;
             });
 
-            this.salesChannelRepository.search(new Criteria(1, 100), Shopware.Context.api).then((salesChannels) => {
+            this.salesChannelRepository.search(new Criteria(1, 100)).then((salesChannels) => {
                 this.salesChannelFilters = salesChannels;
             });
 
@@ -80,7 +80,7 @@ Component.register('sw-newsletter-recipient-list', {
             });
 
             this.repository = this.repositoryFactory.create('newsletter_recipient');
-            this.repository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            this.repository.search(criteria).then((searchResult) => {
                 this.items = searchResult;
                 this.total = searchResult.total;
 

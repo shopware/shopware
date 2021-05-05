@@ -146,7 +146,7 @@ Component.register('sw-order-create-details-footer', {
         },
 
         getCurrency() {
-            return this.currencyRepository.get(this.context.currencyId, Shopware.Context.api).then((currency) => {
+            return this.currencyRepository.get(this.context.currencyId).then((currency) => {
                 State.commit('swOrder/setCurrency', currency);
             });
         }

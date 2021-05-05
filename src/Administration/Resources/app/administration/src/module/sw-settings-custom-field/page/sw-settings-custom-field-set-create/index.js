@@ -31,7 +31,7 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('name', this.set.name));
 
-            return this.customFieldSetRepository.search(criteria, Shopware.Context.api).then((res) => {
+            return this.customFieldSetRepository.search(criteria).then((res) => {
                 if (res.length === 0) {
                     this.$super('onSave');
 

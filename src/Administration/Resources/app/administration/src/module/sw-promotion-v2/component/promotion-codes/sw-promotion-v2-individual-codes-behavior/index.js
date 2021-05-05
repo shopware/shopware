@@ -195,7 +195,7 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
         },
 
         routeToCustomer(redeemedCustomer) {
-            return this.customerRepository.get(redeemedCustomer.customerId, Shopware.Context.api).then((result) => {
+            return this.customerRepository.get(redeemedCustomer.customerId).then((result) => {
                 if (result === null) {
                     this.createRoutingErrorNotification(redeemedCustomer.customerName);
                     return;

@@ -61,7 +61,7 @@ Component.register('sw-mail-template-list', {
                 criteria.setTerm(this.searchTerm);
             }
 
-            this.mailTemplateRepository.search(criteria, Shopware.Context.api).then(items => {
+            this.mailTemplateRepository.search(criteria).then(items => {
                 this.total = items.total;
                 this.mailTemplates = items;
                 this.isLoading = false;
@@ -91,7 +91,7 @@ Component.register('sw-mail-template-list', {
 
         onDuplicate(id) {
             this.isLoading = true;
-            this.mailTemplateRepository.clone(id, Shopware.Context.api).then((mailTemplate) => {
+            this.mailTemplateRepository.clone(id).then((mailTemplate) => {
                 this.getList();
                 this.isLoading = false;
                 this.$router.push(

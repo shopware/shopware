@@ -115,7 +115,7 @@ Component.register('sw-settings-search-live-search', {
         },
 
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
+            this.salesChannelRepository.search(new Criteria()).then((response) => {
                 this.salesChannels = response;
             });
         },

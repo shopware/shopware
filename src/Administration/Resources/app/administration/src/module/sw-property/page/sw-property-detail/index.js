@@ -161,7 +161,7 @@ Component.register('sw-property-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.propertyRepository.save(this.propertyGroup, Shopware.Context.api).then(() => {
+            return this.propertyRepository.save(this.propertyGroup).then(() => {
                 this.loadEntityData();
                 this.isLoading = false;
                 this.isSaveSuccessful = true;

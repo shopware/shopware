@@ -43,8 +43,7 @@ Component.register('sw-settings-delivery-time-list', {
 
             this.isLoading = true;
 
-            this.deliveryTimeRepository
-                .search(criteria, Shopware.Context.api)
+            this.deliveryTimeRepository.search(criteria)
                 .then((deliveryTime) => {
                     this.total = deliveryTime.total;
                     this.deliveryTimes = deliveryTime;

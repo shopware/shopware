@@ -55,7 +55,7 @@ Component.register('sw-settings-country-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.countryRepository.search(criteria, Shopware.Context.api).then((items) => {
+            this.countryRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.country = items;
                 this.isLoading = false;
@@ -95,7 +95,7 @@ Component.register('sw-settings-country-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.countryRepository.delete(id, Shopware.Context.api).then(() => {
+            return this.countryRepository.delete(id).then(() => {
                 this.getList();
             });
         },

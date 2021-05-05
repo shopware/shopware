@@ -77,7 +77,7 @@ Component.register('sw-product-detail-cross-selling', {
                 this.product.crossSellings.entity,
                 this.product.crossSellings.source
             );
-            this.crossSelling = crossSellingRepository.create(Shopware.Context.api);
+            this.crossSelling = crossSellingRepository.create();
             this.crossSelling.productId = this.product.id;
             this.crossSelling.position = this.product.crossSellings.length + 1;
             this.crossSelling.type = 'productStream';

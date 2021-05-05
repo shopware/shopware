@@ -36,7 +36,7 @@ Shopware.Component.register('sw-property-option-detail', {
 
         async successfulUpload({ targetId }) {
             this.currentOption.mediaId = targetId;
-            await this.mediaRepository.get(targetId, Shopware.Context.api);
+            await this.mediaRepository.get(targetId);
         },
 
         removeMedia() {

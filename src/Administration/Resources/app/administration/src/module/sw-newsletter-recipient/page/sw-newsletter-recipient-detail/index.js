@@ -51,7 +51,7 @@ Component.register('sw-newsletter-recipient-detail', {
 
             recipientCriteria.addFilter(Criteria.equals('id', this.$route.params.id));
             recipientCriteria.addAssociation('tags');
-            this.newsletterRecipientStore.search(recipientCriteria, Shopware.Context.api).then((newsletterRecipient) => {
+            this.newsletterRecipientStore.search(recipientCriteria).then((newsletterRecipient) => {
                 this.newsletterRecipient = newsletterRecipient.first();
                 this.isLoading = false;
             });

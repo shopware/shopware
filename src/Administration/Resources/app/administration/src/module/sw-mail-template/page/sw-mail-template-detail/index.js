@@ -177,10 +177,7 @@ Component.register('sw-mail-template-detail', {
 
         getMailTemplateType() {
             if (this.mailTemplate.mailTemplateTypeId) {
-                this.mailTemplateTypeRepository.get(
-                    this.mailTemplate.mailTemplateTypeId,
-                    Shopware.Context.api
-                ).then((item) => {
+                this.mailTemplateTypeRepository.get(this.mailTemplate.mailTemplateTypeId).then((item) => {
                     this.mailTemplateType = item;
                     this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
                     this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
@@ -229,7 +226,7 @@ Component.register('sw-mail-template-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            updatePromises.push(this.mailTemplateRepository.save(this.mailTemplate, Shopware.Context.api).then(() => {
+            updatePromises.push(this.mailTemplateRepository.save(this.mailTemplate).then(() => {
                 Promise.all(updatePromises).then(() => {
                     this.loadEntityData();
                     this.saveFinish();
@@ -321,7 +318,7 @@ Component.register('sw-mail-template-detail', {
             }
             this.isLoading = true;
             this.getMailTemplateType();
-            this.mailTemplateTypeRepository.get(id, Shopware.Context.api).then((item) => {
+            this.mailTemplateTypeRepository.get(id).then((item) => {
                 this.selectedType = item;
                 this.isLoading = false;
             });
@@ -340,7 +337,7 @@ Component.register('sw-mail-template-detail', {
                 return;
             }
 
-            this.mediaRepository.get(targetId, Shopware.Context.api).then((mediaItem) => {
+            this.mediaRepository.get(targetId).then((mediaItem) => {
                 this.createMailTemplateMediaAssoc(mediaItem);
             });
         },
@@ -350,7 +347,7 @@ Component.register('sw-mail-template-detail', {
         },
 
         createMailTemplateMediaAssoc(mediaItem) {
-            const mailTemplateMedia = this.mailTemplateMediaRepository.create(Shopware.Context.api);
+            const mailTemplateMedia = this.mailTemplateMediaRepository.create();
             mailTemplateMedia.mailTemplateId = this.mailTemplateId;
             mailTemplateMedia.languageId = Shopware.Context.api.languageId;
             mailTemplateMedia.mediaId = mediaItem.id;

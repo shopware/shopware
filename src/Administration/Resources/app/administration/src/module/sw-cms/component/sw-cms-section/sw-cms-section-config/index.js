@@ -55,7 +55,7 @@ Component.register('sw-cms-section-config', {
         successfulUpload(media) {
             this.section.backgroundMediaId = media.targetId;
 
-            this.mediaRepository.get(media.targetId, Shopware.Context.api).then((mediaItem) => {
+            this.mediaRepository.get(media.targetId).then((mediaItem) => {
                 this.section.backgroundMedia = mediaItem;
             });
         },

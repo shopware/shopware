@@ -198,7 +198,7 @@ Component.register('sw-product-detail-context-prices', {
             );
 
             Shopware.State.commit('swProductDetail/setLoading', ['rules', true]);
-            this.ruleRepository.search(ruleCriteria, Shopware.Context.api).then((res) => {
+            this.ruleRepository.search(ruleCriteria).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;
 
@@ -239,7 +239,7 @@ Component.register('sw-product-detail-context-prices', {
                 return;
             }
 
-            const newPriceRule = this.priceRepository.create(Shopware.Context.api);
+            const newPriceRule = this.priceRepository.create();
 
             newPriceRule.ruleId = ruleId;
             newPriceRule.productId = this.product.id;
@@ -404,7 +404,7 @@ Component.register('sw-product-detail-context-prices', {
 
         createPriceRule(priceGroup) {
             // create new price rule
-            const newPriceRule = this.priceRepository.create(Shopware.Context.api);
+            const newPriceRule = this.priceRepository.create();
             newPriceRule.productId = this.product.id;
             newPriceRule.ruleId = priceGroup.ruleId;
 
@@ -440,7 +440,7 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         duplicatePriceRule(referencePrice, ruleId = null) {
-            const newPriceRule = this.priceRepository.create(Shopware.Context.api);
+            const newPriceRule = this.priceRepository.create();
 
             newPriceRule.productId = referencePrice.productId;
             newPriceRule.quantityEnd = referencePrice.quantityEnd;

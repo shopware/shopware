@@ -146,7 +146,7 @@ Component.register('sw-settings-payment-detail', {
         loadEntityData() {
             this.isLoading = true;
 
-            this.paymentMethodRepository.get(this.paymentMethodId, Shopware.Context.api)
+            this.paymentMethodRepository.get(this.paymentMethodId)
                 .then((paymentMethod) => {
                     this.paymentMethod = paymentMethod;
                     this.setMediaItem({ targetId: this.paymentMethod.mediaId });
@@ -173,7 +173,7 @@ Component.register('sw-settings-payment-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.paymentMethodRepository.save(this.paymentMethod, Shopware.Context.api)
+            return this.paymentMethodRepository.save(this.paymentMethod)
                 .then(() => {
                     this.isSaveSuccessful = true;
                     this.$refs.mediaSidebarItem.getList();
@@ -196,7 +196,7 @@ Component.register('sw-settings-payment-detail', {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId, Shopware.Context.api)
+            this.mediaRepository.get(targetId)
                 .then((updatedMedia) => {
                     this.mediaItem = updatedMedia;
                     this.paymentMethod.mediaId = targetId;

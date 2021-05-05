@@ -264,7 +264,7 @@ Component.register('sw-settings-search-searchable-content', {
         },
 
         createNewConfigItem() {
-            const newItem = this.productSearchFieldRepository.create(Shopware.Context.api);
+            const newItem = this.productSearchFieldRepository.create();
 
             newItem.searchConfigId = this.searchConfigId;
             newItem.searchable = false;
@@ -319,7 +319,7 @@ Component.register('sw-settings-search-searchable-content', {
             this.isLoading = true;
             const criteria = this.productSearchFieldCriteria;
 
-            this.productSearchFieldRepository.search(criteria, Shopware.Context.api)
+            this.productSearchFieldRepository.search(criteria)
                 .then((items) => {
                     this.total = items.total;
                     this.isEnabledReset = !items.total;
@@ -336,7 +336,7 @@ Component.register('sw-settings-search-searchable-content', {
         saveConfig() {
             this.isLoading = true;
             this.productSearchFieldRepository
-                .saveAll(this.searchConfigFields, Shopware.Context.api)
+                .saveAll(this.searchConfigFields)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-search.notification.saveSuccess')
@@ -357,7 +357,7 @@ Component.register('sw-settings-search-searchable-content', {
             }
 
             this.isLoading = true;
-            this.productSearchFieldRepository.delete(configFieldId, Shopware.Context.api)
+            this.productSearchFieldRepository.delete(configFieldId)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-search.notification.saveSuccess')

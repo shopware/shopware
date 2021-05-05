@@ -167,7 +167,7 @@ Component.register('sw-mail-header-footer-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.mailHeaderFooterRepository.save(this.mailHeaderFooter, Shopware.Context.api)
+            return this.mailHeaderFooterRepository.save(this.mailHeaderFooter)
                 .then(() => {
                     return this.loadEntityData();
                 })

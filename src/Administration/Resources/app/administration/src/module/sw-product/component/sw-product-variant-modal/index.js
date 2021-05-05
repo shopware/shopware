@@ -201,13 +201,13 @@ Component.register('sw-product-variant-modal', {
         fetchSystemCurrency() {
             const systemCurrencyId = Shopware.Context.app.systemCurrencyId;
 
-            this.currencyRepository.get(systemCurrencyId, Shopware.Context.api).then(response => {
+            this.currencyRepository.get(systemCurrencyId).then(response => {
                 this.currency = response;
             });
         },
 
         fetchProductVariants() {
-            this.productRepository.search(this.productVariantCriteria, Shopware.Context.api).then(response => {
+            this.productRepository.search(this.productVariantCriteria).then(response => {
                 this.productVariants = response;
             });
         },
@@ -385,7 +385,7 @@ Component.register('sw-product-variant-modal', {
                     return;
                 }
 
-                this.productRepository.syncDeleted(variantIds, Shopware.Context.api)
+                this.productRepository.syncDeleted(variantIds)
                     .then(() => {
                         this.createNotificationSuccess({
                             message: this.$tc(
@@ -414,7 +414,7 @@ Component.register('sw-product-variant-modal', {
         },
 
         async canVariantsBeDeleted() {
-            const products = await this.productRepository.search(this.canBeDeletedCriteria, Shopware.Context.api);
+            const products = await this.productRepository.search(this.canBeDeletedCriteria);
 
             return products.length === 0;
         },
@@ -422,7 +422,7 @@ Component.register('sw-product-variant-modal', {
         onInlineEditSave(editedVariant) {
             const variantName = this.buildVariantName(editedVariant);
 
-            this.productRepository.save(editedVariant, Shopware.Context.api).then(() => {
+            this.productRepository.save(editedVariant).then(() => {
                 this.createNotificationSuccess({
                     message: this.$t('sw-product.list.notificationVariantSaveSuccess', { variantName })
                 });

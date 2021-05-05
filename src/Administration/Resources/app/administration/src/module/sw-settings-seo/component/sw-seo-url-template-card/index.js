@@ -94,7 +94,7 @@ Component.register('sw-seo-url-template-card', {
 
             this.isLoading = true;
 
-            this.seoUrlTemplateRepository.search(criteria, Shopware.Context.api).then((response) => {
+            this.seoUrlTemplateRepository.search(criteria).then((response) => {
                 response.forEach(entity => {
                     if (!this.seoUrlTemplates.has(entity.id)) {
                         this.seoUrlTemplates.add(entity);
@@ -135,7 +135,7 @@ Component.register('sw-seo-url-template-card', {
                 });
 
                 if (!entityAlreadyExists) {
-                    const entity = this.seoUrlTemplateRepository.create(Shopware.Context.api);
+                    const entity = this.seoUrlTemplateRepository.create();
                     entity.routeName = defaultEntity.routeName;
                     entity.salesChannelId = salesChannelId;
                     entity.entityName = defaultEntity.entityName;
@@ -201,7 +201,7 @@ Component.register('sw-seo-url-template-card', {
                 }
             });
 
-            this.seoUrlTemplateRepository.sync(this.seoUrlTemplates, Shopware.Context.api).then(() => {
+            this.seoUrlTemplateRepository.sync(this.seoUrlTemplates).then(() => {
                 this.seoUrlTemplates = new EntityCollection(
                     this.seoUrlTemplateRepository.route,
                     this.seoUrlTemplateRepository.schema.entity,
@@ -288,7 +288,7 @@ Component.register('sw-seo-url-template-card', {
             });
         },
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
+            this.salesChannelRepository.search(new Criteria()).then((response) => {
                 this.salesChannels = response;
             });
         },

@@ -111,7 +111,7 @@ Component.register('sw-customer-address-form', {
                     return Promise.resolve();
                 }
 
-                return this.countryRepository.get(this.countryId, Shopware.Context.api).then((country) => {
+                return this.countryRepository.get(this.countryId).then((country) => {
                     this.country = country;
                 });
             }

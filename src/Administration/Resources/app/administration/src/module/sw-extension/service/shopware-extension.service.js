@@ -179,7 +179,7 @@ export default class ShopwareExtensionService {
         const criteria = new Criteria(1, 1);
         criteria.addFilter(Criteria.equals('technicalName', extension.name));
 
-        const { data: ids } = await themeRepository.searchIds(criteria, Shopware.Context.api);
+        const { data: ids } = await themeRepository.searchIds(criteria);
         const hasIds = ids.length > 0;
 
         if (!hasIds) {

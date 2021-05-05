@@ -52,7 +52,7 @@ Component.register('sw-sales-channel-modal', {
     methods: {
         createdComponent() {
             this.productStreamsLoading = true;
-            this.productStreamRepository.search(new Criteria(1, 1), Shopware.Context.api).then((result) => {
+            this.productStreamRepository.search(new Criteria(1, 1)).then((result) => {
                 if (result.total > 0) {
                     this.productStreamsExist = true;
                 }

@@ -61,7 +61,7 @@ Component.register('sw-cms-el-config-image-slider', {
                 const criteria = new Criteria();
                 criteria.setIds(mediaIds);
 
-                const searchResult = await this.mediaRepository.search(criteria, Shopware.Context.api);
+                const searchResult = await this.mediaRepository.search(criteria);
                 this.mediaItems = mediaIds.map((mediaId) => {
                     return searchResult.get(mediaId);
                 });

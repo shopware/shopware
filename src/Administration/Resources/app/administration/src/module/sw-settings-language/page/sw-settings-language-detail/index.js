@@ -148,23 +148,20 @@ Component.register('sw-settings-language-detail', {
         createdComponent() {
             if (!this.languageId) {
                 Shopware.State.commit('context/resetLanguageToDefault');
-                this.language = this.languageRepository.create(Shopware.Context.api);
+                this.language = this.languageRepository.create();
             } else {
                 this.loadEntityData();
                 this.loadCustomFieldSets();
             }
 
-            this.languageRepository.search(
-                this.usedLocaleCriteria,
-                Shopware.Context.api
-            ).then(({ aggregations }) => {
+            this.languageRepository.search(this.usedLocaleCriteria).then(({ aggregations }) => {
                 this.usedLocales = aggregations.usedLocales.buckets;
             });
         },
 
         loadEntityData() {
             this.isLoading = true;
-            this.languageRepository.get(this.languageId, Shopware.Context.api).then((language) => {
+            this.languageRepository.get(this.languageId).then((language) => {
                 this.isLoading = false;
                 this.language = language;
             }).catch(() => {
@@ -205,7 +202,7 @@ Component.register('sw-settings-language-detail', {
 
         onSave() {
             this.isLoading = true;
-            this.languageRepository.save(this.language, Shopware.Context.api).then(() => {
+            this.languageRepository.save(this.language).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 if (!this.languageId) {

@@ -70,7 +70,7 @@ Component.register('sw-cms-layout-modal', {
         getList() {
             this.isLoading = true;
 
-            return this.pageRepository.search(this.cmsPageCriteria, Shopware.Context.api).then((searchResult) => {
+            return this.pageRepository.search(this.cmsPageCriteria).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;

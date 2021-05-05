@@ -63,7 +63,7 @@ Component.register('sw-cms-block-config', {
         successfulUpload(media) {
             this.block.backgroundMediaId = media.targetId;
 
-            this.mediaRepository.get(media.targetId, Shopware.Context.api).then((mediaItem) => {
+            this.mediaRepository.get(media.targetId).then((mediaItem) => {
                 this.block.backgroundMedia = mediaItem;
             });
         },

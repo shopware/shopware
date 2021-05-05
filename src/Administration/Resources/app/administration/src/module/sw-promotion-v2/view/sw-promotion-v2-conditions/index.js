@@ -102,7 +102,7 @@ Component.register('sw-promotion-v2-conditions', {
             const promotionRepository = this.repositoryFactory.create('promotion');
             const criteria = (new Criteria()).addFilter(Criteria.equalsAny('id', this.promotion.exclusionIds));
 
-            promotionRepository.search(criteria, Shopware.Context.api).then((excluded) => {
+            promotionRepository.search(criteria).then((excluded) => {
                 this.excludedPromotions = excluded;
             });
         },

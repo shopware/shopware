@@ -131,19 +131,19 @@ Component.register('sw-manufacturer-detail', {
             }
 
             Shopware.State.commit('context/resetLanguageToDefault');
-            this.manufacturer = this.manufacturerRepository.create(Shopware.Context.api);
+            this.manufacturer = this.manufacturerRepository.create();
         },
 
         loadEntityData() {
             this.isLoading = true;
 
-            this.manufacturerRepository.get(this.manufacturerId, Shopware.Context.api).then((manufacturer) => {
+            this.manufacturerRepository.get(this.manufacturerId).then((manufacturer) => {
                 this.isLoading = false;
                 this.manufacturer = manufacturer;
             });
 
             this.customFieldSetRepository
-                .search(this.customFieldSetCriteria, Shopware.Context.api)
+                .search(this.customFieldSetCriteria)
                 .then((result) => {
                     this.customFieldSets = result.filter((set) => set.customFields.length > 0);
                 });
@@ -188,7 +188,7 @@ Component.register('sw-manufacturer-detail', {
 
             this.isLoading = true;
 
-            this.manufacturerRepository.save(this.manufacturer, Shopware.Context.api).then(() => {
+            this.manufacturerRepository.save(this.manufacturer).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 if (this.manufacturerId === null) {

@@ -53,14 +53,14 @@ Component.register('sw-customer-create', {
         createdComponent() {
             Shopware.State.commit('context/resetLanguageToDefault');
 
-            this.customer = this.customerRepository.create(Shopware.Context.api);
+            this.customer = this.customerRepository.create();
 
             const addressRepository = this.repositoryFactory.create(
                 this.customer.addresses.entity,
                 this.customer.addresses.source
             );
 
-            this.address = addressRepository.create(Shopware.Context.api);
+            this.address = addressRepository.create();
 
             this.customer.addresses.add(this.address);
             this.customer.defaultBillingAddressId = this.address.id;
@@ -122,7 +122,7 @@ Component.register('sw-customer-create', {
             }
 
             numberRangePromise.then(() => {
-                this.customerRepository.save(this.customer, Shopware.Context.api).then(() => {
+                this.customerRepository.save(this.customer).then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
                 }).catch(() => {

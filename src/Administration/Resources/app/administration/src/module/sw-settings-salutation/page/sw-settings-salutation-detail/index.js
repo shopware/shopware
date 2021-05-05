@@ -131,7 +131,7 @@ Component.register('sw-settings-salutation-detail', {
         createdComponent() {
             this.isLoading = true;
             if (this.salutationId) {
-                this.salutationRepository.get(this.salutationId, Shopware.Context.api).then((salutation) => {
+                this.salutationRepository.get(this.salutationId).then((salutation) => {
                     this.salutation = salutation;
                     this.isLoading = false;
                 });
@@ -140,7 +140,7 @@ Component.register('sw-settings-salutation-detail', {
             }
 
             Shopware.State.commit('context/resetLanguageToDefault');
-            this.salutation = this.salutationRepository.create(Shopware.Context.api);
+            this.salutation = this.salutationRepository.create();
             this.isLoading = false;
         },
 
@@ -162,13 +162,13 @@ Component.register('sw-settings-salutation-detail', {
             this.isLoading = true;
             this.isSaveSuccessful = false;
 
-            return this.salutationRepository.save(this.salutation, Shopware.Context.api).then(() => {
+            return this.salutationRepository.save(this.salutation).then(() => {
                 this.isSaveSuccessful = true;
                 if (!this.salutationId) {
                     this.$router.push({ name: 'sw.settings.salutation.detail', params: { id: this.salutation.id } });
                 }
 
-                this.salutationRepository.get(this.salutation.id, Shopware.Context.api).then((updatedSalutation) => {
+                this.salutationRepository.get(this.salutation.id).then((updatedSalutation) => {
                     this.salutation = updatedSalutation;
                     this.isLoading = false;
                 });
@@ -213,7 +213,7 @@ Component.register('sw-settings-salutation-detail', {
                 )
             );
 
-            this.salutationRepository.search(criteria, Shopware.Context.api).then(({ total }) => {
+            this.salutationRepository.search(criteria).then(({ total }) => {
                 this.invalidKey = total > 0;
                 this.isKeyChecking = false;
             }).catch(() => {

@@ -294,7 +294,7 @@ Component.register('sw-promotion-individualcodes', {
                 // thus we iterate through ids that need to be deleted in here.
                 // wait for this async call, because the calling
                 // function might need to refresh our grid afterwards.
-                const promise = await this.repository.delete(code.id, Shopware.Context.api)
+                const promise = await this.repository.delete(code.id)
                     .then(() => {
                         return true;
                     })
@@ -334,7 +334,7 @@ Component.register('sw-promotion-individualcodes', {
 
             // load all our individual codes of our promotion
             // into our local promotion object.
-            this.repository.search(criteria, Shopware.Context.api).then((codeCollection) => {
+            this.repository.search(criteria).then((codeCollection) => {
                 // assign our ui data
                 this.totalCodesCount = codeCollection.total;
                 this.gridPageDataSource = codeCollection;

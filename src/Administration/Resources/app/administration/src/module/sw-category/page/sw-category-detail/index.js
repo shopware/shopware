@@ -323,7 +323,7 @@ Component.register('sw-category-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('slots');
 
-            return this.cmsPageRepository.search(criteria, Shopware.Context.api).then((response) => {
+            return this.cmsPageRepository.search(criteria).then((response) => {
                 const cmsPage = response.get(cmsPageId);
 
                 if (cmsPageId !== this.cmsPageId) {
@@ -377,7 +377,7 @@ Component.register('sw-category-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('slots');
 
-            return this.cmsPageRepository.search(criteria, Shopware.Context.api).then((response) => {
+            return this.cmsPageRepository.search(criteria).then((response) => {
                 const cmsPage = response.get(cmsPageId);
                 if (cmsPageId !== this.cmsPageId) {
                     return null;
@@ -481,7 +481,7 @@ Component.register('sw-category-detail', {
         loadCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api)
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria)
                 .then((customFieldSet) => {
                     return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
                 }).finally(() => {
@@ -492,7 +492,7 @@ Component.register('sw-category-detail', {
         loadLandingPageCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository.search(this.customFieldSetLandingPageCriteria, Shopware.Context.api)
+            return this.customFieldSetRepository.search(this.customFieldSetLandingPageCriteria)
                 .then((customFieldSet) => {
                     return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
                 }).finally(() => {
@@ -501,7 +501,7 @@ Component.register('sw-category-detail', {
         },
 
         onSaveCategories() {
-            return this.categoryRepository.save(this.category, Shopware.Context.api);
+            return this.categoryRepository.save(this.category);
         },
 
         openChangeModal(destination) {
@@ -537,7 +537,7 @@ Component.register('sw-category-detail', {
 
         setMediaItemFromSidebar(sideBarMedia) {
             // be consistent and fetch from repository
-            this.mediaRepository.get(sideBarMedia.id, Shopware.Context.api).then((media) => {
+            this.mediaRepository.get(sideBarMedia.id).then((media) => {
                 this.category.mediaId = media.id;
                 this.category.media = media;
             });
@@ -660,7 +660,7 @@ Component.register('sw-category-detail', {
             }
 
             this.isLoading = true;
-            this.landingPageRepository.save(this.landingPage, Shopware.Context.api).then(() => {
+            this.landingPageRepository.save(this.landingPage).then(() => {
                 this.isSaveSuccessful = true;
 
                 if (this.landingPageId === 'create') {

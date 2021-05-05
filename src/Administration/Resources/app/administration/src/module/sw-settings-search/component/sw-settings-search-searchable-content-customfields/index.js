@@ -102,7 +102,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
 
     methods: {
         createdComponent() {
-            this.customFieldRepository.search(this.customFieldCriteria, Shopware.Context.api)
+            this.customFieldRepository.search(this.customFieldCriteria)
                 .then(items => {
                     this.customFields = items;
                 })

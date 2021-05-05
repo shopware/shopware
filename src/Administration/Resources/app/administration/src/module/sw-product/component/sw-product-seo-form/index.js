@@ -168,7 +168,7 @@ Component.register('sw-product-seo-form', {
 
     methods: {
         fetchVariants() {
-            return this.productRepository.search(this.variantCriteria, Shopware.Context.api).then(variants => {
+            return this.productRepository.search(this.variantCriteria).then(variants => {
                 this.variants = variants;
 
                 return variants;

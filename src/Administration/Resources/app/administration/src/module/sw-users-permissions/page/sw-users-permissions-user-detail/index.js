@@ -215,7 +215,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         loadLanguages() {
-            return this.languageRepository.search(this.languageCriteria, Shopware.Context.api).then((result) => {
+            return this.languageRepository.search(this.languageCriteria).then((result) => {
                 this.languages = [];
                 result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
@@ -252,7 +252,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         addAccessKey() {
-            const newKey = this.keyRepository.create(Shopware.Context.api);
+            const newKey = this.keyRepository.create();
 
             this.isModalLoading = true;
             newKey.quantityStart = 1;
@@ -298,7 +298,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId, Shopware.Context.api).then((media) => {
+            this.mediaRepository.get(targetId).then((media) => {
                 this.mediaItem = media;
                 this.user.avatarMedia = media;
                 this.user.avatarId = targetId;

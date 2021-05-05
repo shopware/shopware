@@ -169,7 +169,7 @@ Component.register('sw-event-action-detail', {
 
         getEventAction() {
             if (!this.eventActionId) {
-                const newEventAction = this.eventActionRepository.create(Shopware.Context.api);
+                const newEventAction = this.eventActionRepository.create();
                 newEventAction.eventName = '';
                 newEventAction.actionName = 'action.mail.send';
                 newEventAction.active = false;
@@ -214,8 +214,7 @@ Component.register('sw-event-action-detail', {
 
             this.processRecipientList();
 
-            return this.eventActionRepository
-                .save(this.eventAction, Shopware.Context.api)
+            return this.eventActionRepository.save(this.eventAction)
                 .then(() => {
                     if (typeof this.eventAction.isNew === 'function' && this.eventAction.isNew()) {
                         this.$router.push({

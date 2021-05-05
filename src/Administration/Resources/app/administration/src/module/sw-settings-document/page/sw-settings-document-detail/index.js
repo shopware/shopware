@@ -366,7 +366,7 @@ Component.register('sw-settings-document-detail', {
             if (this.documentConfigId) {
                 await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             } else {
-                this.documentConfig = this.documentBaseConfigRepository.create(Shopware.Context.api);
+                this.documentConfig = this.documentBaseConfigRepository.create();
                 this.documentConfig.global = false;
                 this.documentConfig.config = {};
             }
@@ -409,7 +409,7 @@ Component.register('sw-settings-document-detail', {
         },
 
         async loadAvailableSalesChannel() {
-            this.salesChannels = await this.salesChannelRepository.search(new Criteria(1, 500), Shopware.Context.api);
+            this.salesChannels = await this.salesChannelRepository.search(new Criteria(1, 500));
         },
 
         showOption(item) {
@@ -441,7 +441,7 @@ Component.register('sw-settings-document-detail', {
                 Criteria.equals('documentTypeId', documentType.id)
             );
 
-            this.documentBaseConfigSalesChannelRepository.search(documentSalesChannelCriteria, Shopware.Context.api)
+            this.documentBaseConfigSalesChannelRepository.search(documentSalesChannelCriteria)
                 .then((responseSalesChannels) => {
                     this.alreadyAssignedSalesChannelIdsToType = [];
                     responseSalesChannels.forEach((salesChannel) => {
@@ -485,7 +485,7 @@ Component.register('sw-settings-document-detail', {
             this.isLoading = true;
             this.onChangeSalesChannel();
 
-            this.documentBaseConfigRepository.save(this.documentConfig, Shopware.Context.api).then(() => {
+            this.documentBaseConfigRepository.save(this.documentConfig).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch(() => {

@@ -61,7 +61,7 @@ Component.register('sw-product-clone-modal', {
                 }
             };
 
-            await this.repository.save(this.product, Shopware.Context.api);
+            await this.repository.save(this.product);
             const clone = await this.repository.clone(this.product.id, Shopware.Context.api, behavior);
 
             return { id: clone.id, productNumber: number.number };
@@ -93,7 +93,7 @@ Component.register('sw-product-clone-modal', {
             );
 
             return this.repository
-                .searchIds(criteria, Shopware.Context.api)
+                .searchIds(criteria)
                 .then((response) => {
                     return response.data;
                 });

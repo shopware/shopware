@@ -86,7 +86,7 @@ Component.register('sw-order-address-modal', {
         getCustomerInfo() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.customerCriteria, Shopware.Context.api).then((customer) => {
+            this.customerRepository.search(this.customerCriteria).then((customer) => {
                 this.availableAddresses = customer[0].addresses;
 
                 return Shopware.State.dispatch('error/resetApiErrors');

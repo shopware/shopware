@@ -69,10 +69,7 @@ Component.register('sw-settings-snippet-set-list', {
             this.isLoading = true;
 
             return this.loadBaseFiles().then(() => {
-                return this.snippetSetRepository.search(
-                    this.snippetSetCriteria,
-                    Shopware.Context.api
-                ).then((response) => {
+                return this.snippetSetRepository.search(this.snippetSetCriteria).then((response) => {
                     this.total = response.total;
                     this.snippetSets = response;
                     this.isLoading = false;
@@ -87,7 +84,7 @@ Component.register('sw-settings-snippet-set-list', {
         },
 
         onAddSnippetSet() {
-            const newSnippetSet = this.snippetSetRepository.create(Shopware.Context.api);
+            const newSnippetSet = this.snippetSetRepository.create();
             newSnippetSet.baseFile = Object.values(this.baseFiles)[0].name;
 
             const result = this.snippetSets.splice(0, 0, newSnippetSet);
@@ -121,7 +118,7 @@ Component.register('sw-settings-snippet-set-list', {
             if (match && match.iso !== null) {
                 item.iso = match.iso;
 
-                this.snippetSetRepository.save(item, Shopware.Context.api)
+                this.snippetSetRepository.save(item)
                     .then(() => {
                         this.createInlineSuccessNote(item.name);
                     })
@@ -170,7 +167,7 @@ Component.register('sw-settings-snippet-set-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.snippetSetRepository.delete(id, Shopware.Context.api)
+            return this.snippetSetRepository.delete(id)
                 .then(() => {
                     this.getList();
                     this.createDeleteSuccessNote();
@@ -193,7 +190,7 @@ Component.register('sw-settings-snippet-set-list', {
 
             try {
                 const clone = await this.snippetSetService.clone(id);
-                const set = await this.snippetSetRepository.get(clone.id, Shopware.Context.api);
+                const set = await this.snippetSetRepository.get(clone.id);
 
                 if (!set) {
                     return;
@@ -211,11 +208,11 @@ Component.register('sw-settings-snippet-set-list', {
                 }
 
                 try {
-                    await this.snippetSetRepository.save(set, Shopware.Context.api);
+                    await this.snippetSetRepository.save(set);
 
                     this.createCloneSuccessNote();
                 } catch {
-                    await this.snippetSetRepository.delete(set.id, Shopware.Context.api);
+                    await this.snippetSetRepository.delete(set.id);
 
                     this.createCloneErrorNote();
                 } finally {

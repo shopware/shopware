@@ -136,7 +136,7 @@ Component.register('sw-settings-delivery-time-detail', {
             this.loadCustomFieldSets();
 
             this.deliveryTimeRepository
-                .get(this.$route.params.id, Shopware.Context.api)
+                .get(this.$route.params.id)
                 .then((deliveryTime) => {
                     this.deliveryTime = deliveryTime;
                     this.isLoading = false;

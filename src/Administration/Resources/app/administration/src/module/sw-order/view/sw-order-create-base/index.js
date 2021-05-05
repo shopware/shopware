@@ -290,7 +290,7 @@ Component.register('sw-order-create-base', {
         },
 
         setCurrency(customer) {
-            this.currencyRepository.get(customer.salesChannel.currencyId, Shopware.Context.api).then((currency) => {
+            this.currencyRepository.get(customer.salesChannel.currencyId).then((currency) => {
                 State.commit('swOrder/setCurrency', currency);
             });
         },

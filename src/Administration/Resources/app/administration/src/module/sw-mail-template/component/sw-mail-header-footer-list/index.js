@@ -71,7 +71,7 @@ Component.register('sw-mail-header-footer-list', {
                 criteria.setTerm(this.searchTerm);
             }
 
-            this.mailHeaderFooterRepository.search(criteria, Shopware.Context.api).then((items) => {
+            this.mailHeaderFooterRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.mailHeaderFooters = items;
                 this.isLoading = false;
@@ -122,7 +122,7 @@ Component.register('sw-mail-header-footer-list', {
         },
 
         onDuplicate(id) {
-            this.mailHeaderFooterRepository.clone(id, Shopware.Context.api).then((mailHeaderFooter) => {
+            this.mailHeaderFooterRepository.clone(id).then((mailHeaderFooter) => {
                 this.$router.push(
                     {
                         name: 'sw.mail.template.detail_head_foot',
@@ -143,7 +143,7 @@ Component.register('sw-mail-header-footer-list', {
                 this.showDeleteErrorNotification(item);
             }
 
-            this.mailHeaderFooterRepository.delete(item.id, Shopware.Context.api)
+            this.mailHeaderFooterRepository.delete(item.id)
                 .then(() => {
                     this.$refs.listing.resetSelection();
                     this.$refs.listing.doSearch();
@@ -168,7 +168,7 @@ Component.register('sw-mail-header-footer-list', {
             });
 
             this.mailHeaderFooterRepository
-                .search(this.getMailHeaderFooterCriteria(selectedMailHeaderFooters), Shopware.Context.api)
+                .search(this.getMailHeaderFooterCriteria(selectedMailHeaderFooters))
                 .then(response => {
                     response.forEach((mailHeaderFooter) => {
                         if (!this.checkCanBeDeleted(mailHeaderFooter)) {

@@ -74,7 +74,7 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
                 return;
             }
 
-            const newOption = this.configuratorSettingsRepository.create(Shopware.Context.api);
+            const newOption = this.configuratorSettingsRepository.create();
             newOption.optionId = item.id;
             newOption.option = item;
 

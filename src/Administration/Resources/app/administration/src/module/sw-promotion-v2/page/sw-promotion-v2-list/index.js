@@ -62,7 +62,7 @@ Component.register('sw-promotion-v2-list', {
         getList() {
             this.isLoading = true;
 
-            return this.promotionRepository.search(this.promotionCriteria, Shopware.Context.api).then((searchResult) => {
+            return this.promotionRepository.search(this.promotionCriteria).then((searchResult) => {
                 this.isLoading = false;
                 this.total = searchResult.total;
                 this.promotions = searchResult;

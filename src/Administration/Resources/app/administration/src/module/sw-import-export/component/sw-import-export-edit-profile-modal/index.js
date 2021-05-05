@@ -143,7 +143,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('sourceEntity', this.profile.sourceEntity));
 
-            return this.profileRepository.search(criteria, Shopware.Context.api).then((results) => {
+            return this.profileRepository.search(criteria).then((results) => {
                 if (results.total > 0) {
                     return results[0];
                 }

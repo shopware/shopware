@@ -146,7 +146,7 @@ Component.register('sw-seo-url', {
             salesChannelCriteria.setIds([]);
             salesChannelCriteria.addAssociation('type');
 
-            this.salesChannelRepository.search(salesChannelCriteria, Shopware.Context.api).then((salesChannelCollection) => {
+            this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
                 Shopware.State.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
             });
         },
@@ -168,13 +168,13 @@ Component.register('sw-seo-url', {
                 this.showEmptySeoUrlError = true;
             }
 
-            const defaultSeoUrlEntity = this.seoUrlRepository.create(Shopware.Context.api);
+            const defaultSeoUrlEntity = this.seoUrlRepository.create();
             Object.assign(defaultSeoUrlEntity, defaultSeoUrlData);
             seoUrlCollection.add(defaultSeoUrlEntity);
             Shopware.State.commit('swSeoUrl/setDefaultSeoUrl', defaultSeoUrlEntity);
 
             this.urls.forEach((entityData) => {
-                const entity = this.seoUrlRepository.create(Shopware.Context.api);
+                const entity = this.seoUrlRepository.create();
                 Object.assign(entity, entityData);
 
                 seoUrlCollection.add(entity);
@@ -209,7 +209,7 @@ Component.register('sw-seo-url', {
             });
 
             if (!currentSeoUrl) {
-                const entity = this.seoUrlRepository.create(Shopware.Context.api);
+                const entity = this.seoUrlRepository.create();
                 entity.foreignKey = this.defaultSeoUrl.foreignKey;
                 entity.isCanonical = true;
                 entity.languageId = actualLanguageId;

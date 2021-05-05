@@ -134,7 +134,7 @@ Component.register('sw-settings-snippet-list', {
 
     methods: {
         createdComponent() {
-            this.snippetSetRepository.search(this.snippetSetCriteria, Shopware.Context.api)
+            this.snippetSetRepository.search(this.snippetSetCriteria)
                 .then((sets) => {
                     this.snippetSets = sets;
                 });
@@ -248,7 +248,7 @@ Component.register('sw-settings-snippet-list', {
                 }
 
                 if (snippet.origin !== snippet.value) {
-                    const snippetEntity = this.snippetRepository.create(Shopware.Context.api);
+                    const snippetEntity = this.snippetRepository.create();
 
                     if (snippet.id) {
                         snippetEntity._isNew = false;
@@ -262,11 +262,11 @@ Component.register('sw-settings-snippet-list', {
                     snippetEntity.setId = snippet.setId;
 
                     responses.push(
-                        this.snippetRepository.save(snippetEntity, Shopware.Context.api)
+                        this.snippetRepository.save(snippetEntity)
                     );
                 } else if (snippet.id !== null && !snippet.author.startsWith('user/')) {
                     responses.push(
-                        this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                        this.snippetRepository.delete(snippet.id)
                     );
                 }
             });
@@ -348,7 +348,7 @@ Component.register('sw-settings-snippet-list', {
         onReset(item) {
             this.isLoading = true;
 
-            this.snippetSetRepository.search(this.snippetSetCriteria, Shopware.Context.api)
+            this.snippetSetRepository.search(this.snippetSetCriteria)
                 .then((response) => {
                     const resetItems = [];
                     const ids = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
@@ -416,7 +416,7 @@ Component.register('sw-settings-snippet-list', {
                     this.isLoading = true;
 
                     promises.push(
-                        this.snippetRepository.delete(item.id, Shopware.Context.api).then(() => {
+                        this.snippetRepository.delete(item.id).then(() => {
                             this.createSuccessMessage(item);
                         }).catch(() => {
                             this.createResetErrorNote(item);

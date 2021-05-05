@@ -48,7 +48,7 @@ Component.register('sw-settings-tax-list', {
                 criteria.addSorting(Criteria.sort('name', 'ASC', true));
             }
 
-            this.taxRepository.search(criteria, Shopware.Context.api).then((items) => {
+            this.taxRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.tax = items;
                 this.isLoading = false;
@@ -83,7 +83,7 @@ Component.register('sw-settings-tax-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.taxRepository.delete(id, Shopware.Context.api).then(() => {
+            return this.taxRepository.delete(id).then(() => {
                 this.getList();
             });
         },

@@ -194,7 +194,7 @@ Component.register('sw-settings-currency-detail', {
 
             Shopware.State.commit('context/resetLanguageToDefault');
             this.isLoading = true;
-            this.currency = this.currencyRepository.create(Shopware.Context.api);
+            this.currency = this.currencyRepository.create();
             // defaults for rounding
             this.currency.itemRounding = {
                 decimals: 2,
@@ -213,7 +213,7 @@ Component.register('sw-settings-currency-detail', {
 
         loadEntityData() {
             this.isLoading = true;
-            return this.currencyRepository.get(this.currencyId, Shopware.Context.api)
+            return this.currencyRepository.get(this.currencyId)
                 .then((currency) => {
                     this.currency = currency;
                     return this.loadCurrencyCountryRoundings().then((currencyCountryRoundings) => {
@@ -226,10 +226,7 @@ Component.register('sw-settings-currency-detail', {
 
         loadCurrencyCountryRoundings() {
             this.currencyCountryLoading = true;
-            return this.currencyCountryRoundingRepository.search(
-                this.currencyCountryRoundingCriteria,
-                Shopware.Context.api
-            ).then(res => {
+            return this.currencyCountryRoundingRepository.search(this.currencyCountryRoundingCriteria).then(res => {
                 this.currencyCountryRoundings = res;
                 return res;
             }).finally(() => {
@@ -251,13 +248,13 @@ Component.register('sw-settings-currency-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.currencyRepository.save(this.currency, Shopware.Context.api).then(() => {
+            return this.currencyRepository.save(this.currency).then(() => {
                 this.isSaveSuccessful = true;
                 if (!this.currencyId) {
                     this.$router.push({ name: 'sw.settings.currency.detail', params: { id: this.currency.id } });
                 }
 
-                this.currencyRepository.get(this.currency.id, Shopware.Context.api).then((updatedCurrency) => {
+                this.currencyRepository.get(this.currency.id).then((updatedCurrency) => {
                     this.currency = updatedCurrency;
                     this.isLoading = false;
                 });
@@ -291,7 +288,7 @@ Component.register('sw-settings-currency-detail', {
         },
 
         onAddCountry() {
-            this.currentCurrencyCountry = this.currencyCountryRoundingRepository.create(Shopware.Context.api);
+            this.currentCurrencyCountry = this.currencyCountryRoundingRepository.create();
             this.currentCurrencyCountry.itemRounding = cloneDeep(this.currency.itemRounding);
             this.currentCurrencyCountry.totalRounding = cloneDeep(this.currency.totalRounding);
             this.currentCurrencyCountry.currencyId = this.currency.id;
@@ -307,7 +304,7 @@ Component.register('sw-settings-currency-detail', {
 
         onSaveCurrencyCountry() {
             this.currencyCountryLoading = true;
-            this.currencyCountryRoundingRepository.save(this.currentCurrencyCountry, Shopware.Context.api).then(() => {
+            this.currencyCountryRoundingRepository.save(this.currentCurrencyCountry).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-currency.detail.notificationCountrySuccessMessage')

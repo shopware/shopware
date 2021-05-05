@@ -76,7 +76,7 @@ Mixin.register('sw-settings-list', {
         getList() {
             this.isLoading = true;
 
-            this.entityRepository.search(this.listingCriteria, Shopware.Context.api)
+            this.entityRepository.search(this.listingCriteria)
                 .then((items) => {
                     this.items = items;
                     this.total = items.total;
@@ -104,7 +104,7 @@ Mixin.register('sw-settings-list', {
             this.deleteEntity = this.items.find((item) => item.id === id);
 
             this.onCloseDeleteModal();
-            return this.entityRepository.delete(id, Shopware.Context.api)
+            return this.entityRepository.delete(id)
                 .then(() => {
                     this.createNotificationSuccess({
                         title: this.titleSaveSuccess,
@@ -120,7 +120,7 @@ Mixin.register('sw-settings-list', {
         onInlineEditSave(item) {
             this.isLoading = true;
 
-            return this.entityRepository.save(item, Shopware.Context.api)
+            return this.entityRepository.save(item)
                 .finally(() => {
                     this.isLoading = false;
                 });

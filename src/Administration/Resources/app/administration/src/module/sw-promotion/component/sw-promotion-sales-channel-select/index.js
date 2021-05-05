@@ -78,7 +78,7 @@ Component.register('sw-promotion-sales-channel-select', {
 
     methods: {
         createdComponent() {
-            this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((searchresult) => {
+            this.salesChannelRepository.search(new Criteria()).then((searchresult) => {
                 this.salesChannels = searchresult;
             });
         },

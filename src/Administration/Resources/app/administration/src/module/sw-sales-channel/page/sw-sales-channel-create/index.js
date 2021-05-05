@@ -34,7 +34,7 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
                 Shopware.State.commit('context/resetLanguageToDefault');
             }
 
-            this.salesChannel = this.salesChannelRepository.create(Shopware.Context.api);
+            this.salesChannel = this.salesChannelRepository.create();
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
 

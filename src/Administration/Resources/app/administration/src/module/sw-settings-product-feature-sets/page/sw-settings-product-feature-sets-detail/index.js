@@ -97,8 +97,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
 
             if (this.productFeatureSetId) {
                 this.productFeatureSetId = this.$route.params.id;
-                this.productFeatureSetsRepository
-                    .get(this.productFeatureSetId, Shopware.Context.api)
+                this.productFeatureSetsRepository.get(this.productFeatureSetId)
                     .then((productFeatureSet) => {
                         this.productFeatureSet = productFeatureSet;
                         this.isLoading = false;
@@ -106,12 +105,12 @@ Component.register('sw-settings-product-feature-sets-detail', {
                 return;
             }
 
-            this.productFeatureSet = this.productFeatureSetsRepository.create(Shopware.Context.api);
+            this.productFeatureSet = this.productFeatureSetsRepository.create();
             this.isLoading = false;
         },
 
         loadEntityData() {
-            this.productFeatureSetsRepository.get(this.productFeatureSetId, Shopware.Context.api)
+            this.productFeatureSetsRepository.get(this.productFeatureSetId)
                 .then((productFeatureSet) => {
                     this.productFeatureSet = productFeatureSet;
                 });
@@ -125,7 +124,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.productFeatureSetsRepository.save(this.productFeatureSet, Shopware.Context.api)
+            return this.productFeatureSetsRepository.save(this.productFeatureSet)
                 .then(() => {
                     this.isSaveSuccessful = true;
                     if (!this.productFeatureSetId) {

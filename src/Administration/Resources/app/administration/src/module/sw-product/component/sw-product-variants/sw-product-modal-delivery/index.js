@@ -41,7 +41,7 @@ Component.register('sw-product-modal-delivery', {
             this.product = this.handleExpandedListing(this.product);
 
             // Save the product after generating
-            this.productRepository.save(this.product, Shopware.Context.api).then(() => {
+            this.productRepository.save(this.product).then(() => {
                 this.$emit('configuration-close');
             });
         },

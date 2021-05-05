@@ -122,7 +122,7 @@ Component.register('sw-landing-page-tree', {
 
             // reload after save
             if (oldVal && this.landingPageId !== 'create' && newVal.id === oldVal.id) {
-                this.landingPageRepository.get(newVal.id, Shopware.Context.api).then((newLandingPage) => {
+                this.landingPageRepository.get(newVal.id).then((newLandingPage) => {
                     this.$set(this.loadedLandingPages, newLandingPage.id, newLandingPage);
                 });
             }
@@ -157,7 +157,7 @@ Component.register('sw-landing-page-tree', {
         },
 
         loadLandingPages() {
-            return this.landingPageRepository.search(this.cmsLandingPageCriteria, Shopware.Context.api).then((result) => {
+            return this.landingPageRepository.search(this.cmsLandingPageCriteria).then((result) => {
                 this.addLandingPages(result);
             });
         },
@@ -168,7 +168,7 @@ Component.register('sw-landing-page-tree', {
 
         deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
-            this.landingPageRepository.syncDeleted(ids, Shopware.Context.api).then(() => {
+            this.landingPageRepository.syncDeleted(ids).then(() => {
                 ids.forEach(id => this.removeFromStore(id));
             });
         },
@@ -179,7 +179,7 @@ Component.register('sw-landing-page-tree', {
                 return Promise.resolve();
             }
 
-            return this.landingPageRepository.delete(landingPage.id, Shopware.Context.api).then(() => {
+            return this.landingPageRepository.delete(landingPage.id).then(() => {
                 this.removeFromStore(landingPage.id);
 
                 if (landingPage.id === this.landingPageId) {
@@ -211,7 +211,7 @@ Component.register('sw-landing-page-tree', {
             this.landingPageRepository.clone(contextItem.id, Shopware.Context.api, behavior).then((clone) => {
                 const criteria = new Criteria();
                 criteria.setIds([clone.id]);
-                this.landingPageRepository.search(criteria, Shopware.Context.api).then((landingPages) => {
+                this.landingPageRepository.search(criteria).then((landingPages) => {
                     landingPages.forEach(element => {
                         element.childCount = 0;
                         element.parentId = null;
@@ -233,20 +233,20 @@ Component.register('sw-landing-page-tree', {
         },
 
         syncLandingPages() {
-            return this.landingPageRepository.sync(this.landingPages, Shopware.Context.api);
+            return this.landingPageRepository.sync(this.landingPages);
         },
 
         createNewLandingPage(name) {
-            const newLandingPage = this.landingPageRepository.create(Shopware.Context.api);
+            const newLandingPage = this.landingPageRepository.create();
 
             newLandingPage.name = name;
             newLandingPage.active = false;
 
             newLandingPage.save = () => {
-                return this.landingPageRepository.save(newLandingPage, Shopware.Context.api).then(() => {
+                return this.landingPageRepository.save(newLandingPage).then(() => {
                     const criteria = new Criteria();
                     criteria.setIds([newLandingPage.id].filter((id) => id !== null));
-                    this.landingPageRepository.search(criteria, Shopware.Context.api).then((landingPages) => {
+                    this.landingPageRepository.search(criteria).then((landingPages) => {
                         this.addLandingPages(landingPages);
                     });
                 });

@@ -9,12 +9,12 @@ Component.register('sw-entity-many-to-many-select', {
     template,
     inheritAttrs: false,
 
+    inject: { repositoryFactory: 'repositoryFactory' },
+
     model: {
         prop: 'entityCollection',
         event: 'change'
     },
-
-    inject: { repositoryFactory: 'repositoryFactory' },
 
     props: {
         labelProperty: {
@@ -121,10 +121,6 @@ Component.register('sw-entity-many-to-many-select', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         entityCollection(newVal) {
             // reload data if association was reset but component was not destroyed
@@ -132,6 +128,10 @@ Component.register('sw-entity-many-to-many-select', {
                 this.initData();
             }
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

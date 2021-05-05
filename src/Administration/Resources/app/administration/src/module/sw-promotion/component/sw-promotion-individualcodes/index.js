@@ -21,9 +21,9 @@ const Criteria = Shopware.Data.Criteria;
  */
 Component.register('sw-promotion-individualcodes', {
 
-    inject: ['repositoryFactory', 'acl'],
-
     template,
+
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),

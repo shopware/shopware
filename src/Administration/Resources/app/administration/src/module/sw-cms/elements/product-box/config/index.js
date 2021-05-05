@@ -7,11 +7,11 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-cms-el-config-product-box', {
     template,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
         Mixin.getByName('cms-element')
     ],
-
-    inject: ['repositoryFactory'],
 
     computed: {
         productRepository() {

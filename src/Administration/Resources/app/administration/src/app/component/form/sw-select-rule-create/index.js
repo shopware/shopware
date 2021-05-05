@@ -22,16 +22,6 @@ Component.register('sw-select-rule-create', {
         'repositoryFactory'
     ],
 
-    data() {
-        return {
-            itemAddNewRule: {
-                index: -1,
-                id: ''
-            },
-            showRuleModal: false
-        };
-    },
-
     props: {
         ruleId: {
             type: String,
@@ -53,6 +43,16 @@ Component.register('sw-select-rule-create', {
                 return criteria;
             }
         }
+    },
+
+    data() {
+        return {
+            itemAddNewRule: {
+                index: -1,
+                id: ''
+            },
+            showRuleModal: false
+        };
     },
 
     computed: {

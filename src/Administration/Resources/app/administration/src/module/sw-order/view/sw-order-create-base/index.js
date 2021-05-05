@@ -28,50 +28,6 @@ Component.register('sw-order-create-base', {
         };
     },
 
-    watch: {
-        cart: {
-            deep: true,
-            handler: 'updatePromotionList'
-        },
-
-        promotionCodeTags: {
-            handler: 'handlePromotionCodeTags'
-        },
-
-        cartErrors: {
-            handler(newValue) {
-                if (!newValue || newValue.length === 0) {
-                    return;
-                }
-
-                Object.values(newValue).forEach((value) => {
-                    switch (value.level) {
-                        case 0: {
-                            this.createNotificationSuccess({
-                                message: value.message
-                            });
-                            break;
-                        }
-
-                        case 10: {
-                            this.createNotificationWarning({
-                                message: value.message
-                            });
-                            break;
-                        }
-
-                        default: {
-                            this.createNotificationError({
-                                message: value.message
-                            });
-                            break;
-                        }
-                    }
-                });
-            }
-        }
-    },
-
     computed: {
         ...mapGetters('swOrder', [
             'cartErrors'
@@ -236,6 +192,50 @@ Component.register('sw-order-create-base', {
             }
 
             return this.cartPrice.totalPrice;
+        }
+    },
+
+    watch: {
+        cart: {
+            deep: true,
+            handler: 'updatePromotionList'
+        },
+
+        promotionCodeTags: {
+            handler: 'handlePromotionCodeTags'
+        },
+
+        cartErrors: {
+            handler(newValue) {
+                if (!newValue || newValue.length === 0) {
+                    return;
+                }
+
+                Object.values(newValue).forEach((value) => {
+                    switch (value.level) {
+                        case 0: {
+                            this.createNotificationSuccess({
+                                message: value.message
+                            });
+                            break;
+                        }
+
+                        case 10: {
+                            this.createNotificationWarning({
+                                message: value.message
+                            });
+                            break;
+                        }
+
+                        default: {
+                            this.createNotificationError({
+                                message: value.message
+                            });
+                            break;
+                        }
+                    }
+                });
+            }
         }
     },
 

@@ -33,7 +33,11 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             get() {
                 this.ensureValueExist();
                 if (typeof this.condition.value.useTime === 'undefined') {
-                    this.condition.value = { ...this.condition.value, useTime: false };
+                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+                    this.condition.value = {
+                        ...this.condition.value,
+                        useTime: false
+                    };
                 }
 
                 return this.condition.value.useTime;

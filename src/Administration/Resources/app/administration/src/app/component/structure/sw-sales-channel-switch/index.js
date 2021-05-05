@@ -21,10 +21,14 @@ Component.register('sw-sales-channel-switch', {
             required: false,
             default: false
         },
+        // FIXME: add default value
+        // eslint-disable-next-line vue/require-default-prop
         abortChangeFunction: {
             type: Function,
             required: false
         },
+        // FIXME: add default value
+        // eslint-disable-next-line vue/require-default-prop
         saveChangesFunction: {
             type: Function,
             required: false

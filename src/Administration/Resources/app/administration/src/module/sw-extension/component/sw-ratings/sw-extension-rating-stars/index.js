@@ -37,12 +37,6 @@ Shopware.Component.register('sw-extension-rating-stars', {
         };
     },
 
-    watch: {
-        rating(value) {
-            this.ratingValue = value;
-        }
-    },
-
     computed: {
         editableClass() {
             return {
@@ -75,6 +69,12 @@ Shopware.Component.register('sw-extension-rating-stars', {
 
         scaleFactor() {
             return 0.0125 * 20 + 1;
+        }
+    },
+
+    watch: {
+        rating(value) {
+            this.ratingValue = value;
         }
     },
 

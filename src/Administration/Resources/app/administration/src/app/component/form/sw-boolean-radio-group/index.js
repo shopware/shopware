@@ -16,10 +16,6 @@ const { Component } = Shopware;
  * </sw-boolean-radio-group>
  */
 Component.register('sw-boolean-radio-group', {
-    model: {
-        prop: 'value',
-        event: 'change'
-    },
 
     template:
 `
@@ -31,6 +27,10 @@ Component.register('sw-boolean-radio-group', {
     :bordered="bordered">
 </sw-radio-field>
 `,
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
 
     props: {
         value: {

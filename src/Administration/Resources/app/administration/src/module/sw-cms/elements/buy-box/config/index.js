@@ -7,11 +7,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-el-config-buy-box', {
     template,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
         Mixin.getByName('cms-element')
     ],
-
-    inject: ['repositoryFactory'],
 
     computed: {
         productRepository() {

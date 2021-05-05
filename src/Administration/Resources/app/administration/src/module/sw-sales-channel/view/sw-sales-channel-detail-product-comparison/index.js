@@ -8,11 +8,6 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-sales-channel-detail-product-comparison', {
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
-    ],
-
     inject: [
         'salesChannelService',
         'repositoryFactory',
@@ -21,11 +16,20 @@ Component.register('sw-sales-channel-detail-product-comparison', {
         'acl'
     ],
 
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
+    ],
+
     props: {
+        // FIXME: add type for salesChannel property
+        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true
         },
 
+        // FIXME: add type for prodcutExport property
+        // eslint-disable-next-line vue/require-prop-types
         productExport: {
             required: true
         },

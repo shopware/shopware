@@ -37,7 +37,8 @@ Component.register('sw-simple-search-field', {
 
         searchTerm: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         delay: {

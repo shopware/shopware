@@ -7,14 +7,14 @@ const { Criteria } = Data;
 Component.register('sw-users-permissions-role-listing', {
     template,
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification')
-    ],
-
     inject: [
         'repositoryFactory',
         'acl'
+    ],
+
+    mixins: [
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     data() {

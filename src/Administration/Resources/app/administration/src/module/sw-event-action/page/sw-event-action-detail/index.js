@@ -32,18 +32,6 @@ Component.register('sw-event-action-detail', {
         }
     },
 
-    metaInfo() {
-        return {
-            title: this.$createTitle(this.identifier)
-        };
-    },
-
-    watch: {
-        eventActionId() {
-            this.loadData();
-        }
-    },
-
     data() {
         return {
             businessEvents: null,
@@ -52,6 +40,12 @@ Component.register('sw-event-action-detail', {
             recipients: [],
             isSaveSuccessful: false,
             customFieldSets: null
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
         };
     },
 
@@ -125,6 +119,12 @@ Component.register('sw-event-action-detail', {
 
         showCustomFields() {
             return this.eventAction && this.customFieldSets && this.customFieldSets.length > 0;
+        }
+    },
+
+    watch: {
+        eventActionId() {
+            this.loadData();
         }
     },
 

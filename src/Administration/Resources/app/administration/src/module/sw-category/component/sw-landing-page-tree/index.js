@@ -53,10 +53,6 @@ Component.register('sw-landing-page-tree', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         ...mapState('swCategoryDetail', [
             'landingPagesToDelete'
@@ -140,6 +136,11 @@ Component.register('sw-landing-page-tree', {
                 this.isLoadingInitialData = false;
             });
         }
+    },
+
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

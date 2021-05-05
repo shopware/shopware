@@ -33,15 +33,6 @@ Component.register('sw-promotion-persona-form', {
             customerModel: null
         };
     },
-    watch: {
-        promotion() {
-            if (this.promotion) {
-                // as soon as our promotion has a value
-                // we load our real data (async handling)
-                this.createdComponent();
-            }
-        }
-    },
 
     computed: {
 
@@ -100,6 +91,15 @@ Component.register('sw-promotion-persona-form', {
             }
 
             return !PromotionPermissions.isEditingAllowed(this.promotion);
+        }
+    },
+    watch: {
+        promotion() {
+            if (this.promotion) {
+                // as soon as our promotion has a value
+                // we load our real data (async handling)
+                this.createdComponent();
+            }
         }
     },
     created() {

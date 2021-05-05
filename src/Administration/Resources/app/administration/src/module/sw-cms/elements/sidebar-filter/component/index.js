@@ -8,16 +8,16 @@ Shopware.Component.register('sw-cms-el-sidebar-filter', {
         Shopware.Mixin.getByName('cms-element')
     ],
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         componentClasses() {
             return {
                 'is--disabled': this.disabled
             };
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

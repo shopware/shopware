@@ -131,14 +131,14 @@ Component.register('sw-customer-detail', {
         ...mapPageErrors(errorConfig)
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         customerId() {
             this.createdComponent();
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

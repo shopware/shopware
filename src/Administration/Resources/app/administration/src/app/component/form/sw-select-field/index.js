@@ -22,15 +22,15 @@ Component.register('sw-select-field', {
 
     inheritAttrs: false,
 
-    model: {
-        prop: 'value',
-        event: 'change'
-    },
-
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error')
     ],
+
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
 
     props: {
         value: {
@@ -47,7 +47,8 @@ Component.register('sw-select-field', {
 
         options: {
             type: Array,
-            required: false
+            required: false,
+            default: null
         },
 
         aside: {

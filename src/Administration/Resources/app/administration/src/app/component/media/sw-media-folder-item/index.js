@@ -6,9 +6,9 @@ const { Component, Application, Mixin, Context } = Shopware;
 Component.register('sw-media-folder-item', {
     template,
 
-    inject: ['repositoryFactory'],
-
     inheritAttrs: false,
+
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification')

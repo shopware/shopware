@@ -7,12 +7,12 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-settings-cache-index', {
     template,
 
-    mixins: [
-        Mixin.getByName('notification')
-    ],
-
     inject: [
         'cacheApiService'
+    ],
+
+    mixins: [
+        Mixin.getByName('notification')
     ],
 
 
@@ -37,10 +37,6 @@ Component.register('sw-settings-cache-index', {
         return {
             title: this.$createTitle()
         };
-    },
-
-    created() {
-        this.createdComponent();
     },
 
     computed: {
@@ -74,6 +70,10 @@ Component.register('sw-settings-cache-index', {
 
             return this.cacheInfo.cacheAdapter;
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

@@ -11,7 +11,8 @@ Component.register('sw-event-action-detail-recipients', {
     props: {
         configRecipients: {
             type: Object,
-            required: false
+            required: false,
+            default: null
         },
         isLoading: {
             type: Boolean,
@@ -23,6 +24,20 @@ Component.register('sw-event-action-detail-recipients', {
         return {
             recipients: []
         };
+    },
+
+    computed: {
+        recipientColumns() {
+            return [{
+                property: 'email',
+                label: 'sw-event-action.detail.columnRecipientMail',
+                inlineEdit: 'string'
+            }, {
+                property: 'name',
+                label: 'sw-event-action.detail.columnRecipientName',
+                inlineEdit: 'string'
+            }];
+        }
     },
 
     created() {
@@ -122,20 +137,6 @@ Component.register('sw-event-action-detail-recipients', {
             return new ShopwareError({
                 code: 'EVENT_ACTION_DETAIL_RECIPIENT_INVALID_NAME'
             });
-        }
-    },
-
-    computed: {
-        recipientColumns() {
-            return [{
-                property: 'email',
-                label: 'sw-event-action.detail.columnRecipientMail',
-                inlineEdit: 'string'
-            }, {
-                property: 'name',
-                label: 'sw-event-action.detail.columnRecipientName',
-                inlineEdit: 'string'
-            }];
         }
     }
 });

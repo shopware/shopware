@@ -24,15 +24,15 @@ Component.register('sw-radio-field', {
     template,
     inheritAttrs: false,
 
-    model: {
-        prop: 'value',
-        event: 'change'
-    },
-
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error')
     ],
+
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
 
     props: {
         bordered: {
@@ -60,7 +60,8 @@ Component.register('sw-radio-field', {
                 return [];
             }
         },
-
+        // FIXME: add type and default attribute to property
+        // eslint-disable-next-line vue/require-prop-types, vue/require-default-prop
         value: {
             required: false
         }

@@ -106,7 +106,8 @@ Component.register('sw-data-grid', {
 
         sortBy: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         sortDirection: {
@@ -181,17 +182,11 @@ Component.register('sw-data-grid', {
             currentInlineEditId: '',
             hasPreviewSlots: false,
             hasResizeColumns: false,
+            // eslint-disable-next-line vue/no-reserved-keys
             _hasColumnsResize: false,
+            // eslint-disable-next-line vue/no-reserved-keys
             _isResizing: false
         };
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    mounted() {
-        this.mountedComponent();
     },
 
     computed: {
@@ -289,6 +284,14 @@ Component.register('sw-data-grid', {
         selection() {
             this.$emit('selection-change', this.selection, this.selectionCount);
         }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {

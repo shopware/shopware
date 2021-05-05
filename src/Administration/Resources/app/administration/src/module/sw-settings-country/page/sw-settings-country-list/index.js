@@ -13,12 +13,6 @@ Component.register('sw-settings-country-list', {
         Mixin.getByName('listing')
     ],
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     data() {
         return {
             entityName: 'country',
@@ -28,6 +22,12 @@ Component.register('sw-settings-country-list', {
             sortDirection: 'ASC',
             naturalSorting: true,
             showDeleteModal: false
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 

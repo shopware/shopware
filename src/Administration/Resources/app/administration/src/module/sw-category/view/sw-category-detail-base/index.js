@@ -18,6 +18,13 @@ Component.register('sw-category-detail-base', {
         'placeholder'
     ],
 
+    props: {
+        isLoading: {
+            type: Boolean,
+            required: true
+        }
+    },
+
     data() {
         return {
             // @deprecated tag:v6.5.0 - can be removed completely
@@ -29,29 +36,6 @@ Component.register('sw-category-detail-base', {
             // @deprecated tag:v6.5.0 - can be removed completely
             manualAssignedProductsCount: 0
         };
-    },
-
-    props: {
-        isLoading: {
-            type: Boolean,
-            required: true
-        }
-    },
-
-    watch: {
-        // @deprecated tag:v6.5.0 - can be removed completely
-        'category.productStreamId'(id) {
-            if (!id) {
-                this.productStreamFilter = null;
-                return;
-            }
-            this.loadProductStreamPreview();
-        }
-    },
-
-    // @deprecated tag:v6.5.0 - can be removed completely
-    created() {
-        this.createdComponent();
     },
 
     computed: {
@@ -219,6 +203,22 @@ Component.register('sw-category-detail-base', {
                         ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
                     </sw-external-link>`;
         }
+    },
+
+    watch: {
+        // @deprecated tag:v6.5.0 - can be removed completely
+        'category.productStreamId'(id) {
+            if (!id) {
+                this.productStreamFilter = null;
+                return;
+            }
+            this.loadProductStreamPreview();
+        }
+    },
+
+    // @deprecated tag:v6.5.0 - can be removed completely
+    created() {
+        this.createdComponent();
     },
 
     methods: {

@@ -31,19 +31,6 @@ Component.register('sw-product-variants-configurator-prices', {
         };
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
-    watch: {
-        'activeGroup'() {
-            this.getOptionsForGroup();
-        },
-        'term'() {
-            this.getOptionsForGroup();
-        }
-    },
-
     computed: {
         currencyRepository() {
             return this.repositoryFactory.create('currency');
@@ -80,6 +67,19 @@ Component.register('sw-product-variants-configurator-prices', {
 
             return [...defaultColumns, ...currenciesColumns];
         }
+    },
+
+    watch: {
+        'activeGroup'() {
+            this.getOptionsForGroup();
+        },
+        'term'() {
+            this.getOptionsForGroup();
+        }
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {

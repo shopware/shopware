@@ -7,14 +7,14 @@ Component.register('sw-entity-multi-id-select', {
     template,
     inheritAttrs: false,
 
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
+
     model: {
         prop: 'ids',
         event: 'change'
     },
-
-    mixins: [
-        Mixin.getByName('remove-api-error')
-    ],
 
     props: {
         ids: {

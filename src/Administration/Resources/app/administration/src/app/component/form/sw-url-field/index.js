@@ -20,7 +20,8 @@ Component.extend('sw-url-field', 'sw-text-field', {
     props: {
         error: {
             type: Object,
-            required: false
+            required: false,
+            default: null
         }
     },
 

@@ -6,14 +6,14 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-snippet-set-list', {
     template,
 
-    mixins: [
-        Mixin.getByName('sw-settings-list')
-    ],
-
     inject: [
         'snippetSetService',
         'repositoryFactory',
         'acl'
+    ],
+
+    mixins: [
+        Mixin.getByName('sw-settings-list')
     ],
 
     data() {

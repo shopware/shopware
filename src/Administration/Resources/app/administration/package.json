@@ -13,6 +13,7 @@
     }
   ],
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "mode=development webpack-dev-server",
     "build": "mode=production webpack",
     "unit": "jest --config jest.config.js --ci",
@@ -109,6 +110,7 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jest": "22.14.0",
     "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-vue": "^7.9.0",
     "eventsource-polyfill": "0.9.6",
     "expose-loader": "0.7.5",
     "express": "4.17.1",
@@ -126,6 +128,7 @@
     "less": "3.9.0",
     "less-loader": "5.0.0",
     "opn": "6.0.0",
+    "patch-package": "^6.4.7",
     "prismjs": "1.23.0",
     "sass": "1.32.8",
     "sass-loader": "8.0.2",

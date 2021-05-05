@@ -53,10 +53,6 @@ Component.register('sw-category-tree', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         ...mapState('swCategoryDetail', [
             'categoriesToDelete'
@@ -156,6 +152,10 @@ Component.register('sw-category-tree', {
         currentLanguageId() {
             this.openInitialTree();
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

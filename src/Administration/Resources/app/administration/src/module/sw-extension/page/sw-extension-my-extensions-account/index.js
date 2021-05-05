@@ -10,11 +10,11 @@ const { State, Mixin } = Shopware;
 Shopware.Component.register('sw-extension-my-extensions-account', {
     template,
 
+    inject: ['systemConfigApiService', 'shopwareExtensionService'],
+
     mixins: [
         Mixin.getByName('notification')
     ],
-
-    inject: ['systemConfigApiService', 'shopwareExtensionService'],
 
     data() {
         return {

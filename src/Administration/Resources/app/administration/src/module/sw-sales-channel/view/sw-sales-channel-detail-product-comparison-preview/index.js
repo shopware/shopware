@@ -9,11 +9,13 @@ Component.register('sw-sales-channel-detail-product-comparison-preview', {
     props: {
         content: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         errors: {
             type: Array,
-            required: false
+            required: false,
+            default: () => []
         }
     },
 

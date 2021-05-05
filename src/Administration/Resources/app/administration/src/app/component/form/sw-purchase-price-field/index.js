@@ -27,11 +27,15 @@ Component.register('sw-purchase-price-field', {
             default: null
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
             default: false

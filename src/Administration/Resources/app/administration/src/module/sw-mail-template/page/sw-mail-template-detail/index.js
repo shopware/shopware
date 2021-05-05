@@ -9,12 +9,12 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-mail-template-detail', {
     template,
 
+    inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'acl', 'feature'],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification')
     ],
-
-    inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'acl', 'feature'],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -144,14 +144,14 @@ Component.register('sw-mail-template-detail', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         '$route.params.id'() {
             this.createdComponent();
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

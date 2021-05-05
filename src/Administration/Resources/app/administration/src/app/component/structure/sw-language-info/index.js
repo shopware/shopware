@@ -19,6 +19,8 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-language-info', {
     template,
 
+    inject: ['repositoryFactory'],
+
     props: {
         entityDescription: {
             type: String,
@@ -36,8 +38,6 @@ Component.register('sw-language-info', {
             default: true
         }
     },
-
-    inject: ['repositoryFactory'],
 
     data() {
         return {

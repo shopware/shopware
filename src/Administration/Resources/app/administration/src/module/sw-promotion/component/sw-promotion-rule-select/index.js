@@ -9,12 +9,12 @@ const { Component } = Shopware;
 Component.register('sw-promotion-rule-select', {
     template,
 
+    inject: ['repositoryFactory'],
+
     model: {
         prop: 'collection',
         event: 'collection-added-item'
     },
-
-    inject: ['repositoryFactory'],
 
     props: {
         collection: {

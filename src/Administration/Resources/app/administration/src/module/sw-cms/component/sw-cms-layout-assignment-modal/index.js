@@ -8,21 +8,21 @@ const { EntityCollection, Criteria } = Shopware.Data;
 Shopware.Component.register('sw-cms-layout-assignment-modal', {
     template,
 
+    inject: [
+        'systemConfigApiService',
+        'acl'
+    ],
+
+    mixins: [
+        Shopware.Mixin.getByName('notification')
+    ],
+
     props: {
         page: {
             type: Object,
             required: true
         }
     },
-
-    mixins: [
-        Shopware.Mixin.getByName('notification')
-    ],
-
-    inject: [
-        'systemConfigApiService',
-        'acl'
-    ],
 
     data() {
         return {
@@ -47,10 +47,6 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             hasLandingPagesWithAssignedLayouts: false,
             previousProducts: null
         };
-    },
-
-    created() {
-        this.createdComponent();
     },
 
     computed: {
@@ -128,6 +124,10 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
         isProductDetailPage() {
             return this.page.type === 'product_detail';
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

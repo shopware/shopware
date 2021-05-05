@@ -6,6 +6,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-custom-field-set-detail', {
     template,
 
+    inject: [
+        'repositoryFactory',
+        'acl'
+    ],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('sw-inline-snippet'),
@@ -21,11 +26,6 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
         ESCAPE: 'onCancel'
     },
-
-    inject: [
-        'repositoryFactory',
-        'acl'
-    ],
 
     data() {
         return {

@@ -35,10 +35,6 @@ Component.register('sw-newsletter-recipient-list', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         columns() {
             return this.getColumns();
@@ -51,6 +47,10 @@ Component.register('sw-newsletter-recipient-list', {
         tagRepository() {
             return this.repositoryFactory.create('tag');
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

@@ -15,12 +15,6 @@ Component.register('sw-settings-product-feature-sets-list', {
         Mixin.getByName('notification')
     ],
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     data() {
         return {
             entityName: 'product_feature_set',
@@ -31,6 +25,12 @@ Component.register('sw-settings-product-feature-sets-list', {
             naturalSorting: true,
             showDeleteModal: false,
             translationService: null
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 
@@ -49,6 +49,7 @@ Component.register('sw-settings-product-feature-sets-list', {
 
         featureGridTranslationService() {
             if (this.translationService === null) {
+                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.translationService = new FeatureGridTranslationService(
                     this,
                     this.propertyGroupRepository,

@@ -133,6 +133,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
             }
         },
         {
+            // eslint-disable-next-line max-len
             description: 'Should create a changeset when the order in arrays are chaning. In combination with object key order changes.',
             entityName: 'cms_page',
             originChanges: {

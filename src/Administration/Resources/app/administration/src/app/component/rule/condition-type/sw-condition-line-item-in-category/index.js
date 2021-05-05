@@ -10,10 +10,6 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
 
     inject: ['repositoryFactory'],
 
-    created() {
-        this.createdComponent();
-    },
-
     data() {
         return {
             categories: null
@@ -45,6 +41,10 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

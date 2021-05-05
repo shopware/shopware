@@ -156,21 +156,6 @@ Component.register('sw-datepicker', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
-    mounted() {
-        this.mountedComponent();
-    },
-
-    /**
-     * Free up memory
-     */
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     watch: {
         config: {
             deep: true,
@@ -200,6 +185,21 @@ Component.register('sw-datepicker', {
         value(newValue) {
             this.setDatepickerValue(newValue);
         }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
+    },
+
+    /**
+     * Free up memory
+     */
+    beforeDestroy() {
+        this.beforeDestroyComponent();
     },
 
     methods: {

@@ -14,12 +14,6 @@ Component.register('sw-cms-list', {
         Mixin.getByName('notification')
     ],
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     data() {
         return {
             pages: [],
@@ -36,6 +30,12 @@ Component.register('sw-cms-list', {
             defaultMediaFolderId: null,
             listMode: 'grid',
             assignablePageTypes: ['categories', 'products']
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 

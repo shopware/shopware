@@ -10,10 +10,6 @@ Component.register('sw-cms-el-vimeo-video', {
         Mixin.getByName('cms-element')
     ],
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         videoID() {
             return this.element.config.videoID.value;
@@ -94,6 +90,10 @@ Component.register('sw-cms-el-vimeo-video', {
             ${this.title}\
             ${this.portrait}`.replace(/ /g, '');
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

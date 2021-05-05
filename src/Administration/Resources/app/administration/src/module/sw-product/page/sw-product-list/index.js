@@ -21,6 +21,20 @@ Component.register('sw-product-list', {
         Mixin.getByName('placeholder')
     ],
 
+    filters: {
+        stockColorVariant(value) {
+            if (value >= 25) {
+                return 'success';
+            }
+
+            if (value < 25 && value > 0) {
+                return 'warning';
+            }
+
+            return 'error';
+        }
+    },
+
     data() {
         return {
             products: null,
@@ -71,6 +85,7 @@ Component.register('sw-product-list', {
         },
 
         currenciesColumns() {
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.currencies.sort((a, b) => {
                 return b.isSystemDefault ? 1 : -1;
             }).map(item => {
@@ -183,20 +198,6 @@ Component.register('sw-product-list', {
                 this.getList();
             },
             deep: true
-        }
-    },
-
-    filters: {
-        stockColorVariant(value) {
-            if (value >= 25) {
-                return 'success';
-            }
-
-            if (value < 25 && value > 0) {
-                return 'warning';
-            }
-
-            return 'error';
         }
     },
 

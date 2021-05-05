@@ -13,12 +13,6 @@ Component.register('sw-settings-units', {
         Mixin.getByName('notification')
     ],
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     data() {
         return {
             isLoading: true,
@@ -26,6 +20,12 @@ Component.register('sw-settings-units', {
             unitsCriteria: null,
             units: [],
             newUnit: null
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 

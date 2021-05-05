@@ -35,6 +35,70 @@ Component.register('sw-settings-shopware-updates-wizard', {
             title: this.$createTitle()
         };
     },
+    computed: {
+        updatePossible() {
+            // check if result of every requirement is true. If it's the case return true otherwise return false.
+            return this.requirements.every(requirement => requirement.result === true);
+        },
+
+        updateButtonTooltip() {
+            if (this.updatePossible) {
+                return {
+                    message: '',
+                    disabled: true
+                };
+            }
+
+            return {
+                message: this.$tc('sw-settings-shopware-updates.infos.requirementsNotMet'),
+                position: 'bottom'
+            };
+        },
+
+        changelog() {
+            if (!this.updateInfo.version) {
+                return '';
+            }
+
+            if (this.$i18n.locale.substr(0, 2) === 'de') {
+                return this.updateInfo.changelog.de.changelog;
+            }
+
+            return this.updateInfo.changelog.en.changelog;
+        },
+
+        displayIncompatiblePluginsWarning() {
+            return this.plugins.some((plugin) => {
+                return plugin.statusName !== 'compatible' && plugin.statusName !== 'notInStore';
+            });
+        },
+
+        displayUnknownPluginsWarning() {
+            return this.plugins.some((plugin) => {
+                return plugin.statusName === 'notInStore';
+            });
+        },
+
+        displayAllPluginsOkayInfo() {
+            return !(this.displayIncompatiblePluginsWarning || this.displayUnknownPluginsWarning);
+        },
+
+        optionDeactivateIncompatibleTranslation() {
+            const deactivateIncompatTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateIncompatible');
+            const isRecommended = this.displayIncompatiblePluginsWarning && !this.displayUnknownPluginsWarning ?
+                this.$tc('sw-settings-shopware-updates.plugins.actions.recommended') : '';
+
+            return `${deactivateIncompatTrans} ${isRecommended}`;
+        },
+
+        optionDeactivateAllTranslation() {
+            const deactiveAllTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateAll');
+            const isRecommended = this.displayIncompatiblePluginsWarning && this.displayUnknownPluginsWarning ?
+                this.$tc('sw-settings-shopware-updates.plugins.actions.recommended') : '';
+
+            return `${deactiveAllTrans} ${isRecommended}`;
+        }
+    },
 
     created() {
         this.createdComponent();
@@ -171,70 +235,6 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     });
                 }
             });
-        }
-    },
-    computed: {
-        updatePossible() {
-            // check if result of every requirement is true. If it's the case return true otherwise return false.
-            return this.requirements.every(requirement => requirement.result === true);
-        },
-
-        updateButtonTooltip() {
-            if (this.updatePossible) {
-                return {
-                    message: '',
-                    disabled: true
-                };
-            }
-
-            return {
-                message: this.$tc('sw-settings-shopware-updates.infos.requirementsNotMet'),
-                position: 'bottom'
-            };
-        },
-
-        changelog() {
-            if (!this.updateInfo.version) {
-                return '';
-            }
-
-            if (this.$i18n.locale.substr(0, 2) === 'de') {
-                return this.updateInfo.changelog.de.changelog;
-            }
-
-            return this.updateInfo.changelog.en.changelog;
-        },
-
-        displayIncompatiblePluginsWarning() {
-            return this.plugins.some((plugin) => {
-                return plugin.statusName !== 'compatible' && plugin.statusName !== 'notInStore';
-            });
-        },
-
-        displayUnknownPluginsWarning() {
-            return this.plugins.some((plugin) => {
-                return plugin.statusName === 'notInStore';
-            });
-        },
-
-        displayAllPluginsOkayInfo() {
-            return !(this.displayIncompatiblePluginsWarning || this.displayUnknownPluginsWarning);
-        },
-
-        optionDeactivateIncompatibleTranslation() {
-            const deactivateIncompatTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateIncompatible');
-            const isRecommended = this.displayIncompatiblePluginsWarning && !this.displayUnknownPluginsWarning ?
-                this.$tc('sw-settings-shopware-updates.plugins.actions.recommended') : '';
-
-            return `${deactivateIncompatTrans} ${isRecommended}`;
-        },
-
-        optionDeactivateAllTranslation() {
-            const deactiveAllTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateAll');
-            const isRecommended = this.displayIncompatiblePluginsWarning && this.displayUnknownPluginsWarning ?
-                this.$tc('sw-settings-shopware-updates.plugins.actions.recommended') : '';
-
-            return `${deactiveAllTrans} ${isRecommended}`;
         }
     }
 });

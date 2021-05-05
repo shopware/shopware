@@ -139,18 +139,6 @@ Component.register('sw-settings-shipping-detail', {
         }
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swShippingDetail', swShippingDetailState);
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    beforeDestroy() {
-        Shopware.State.unregisterModule('swShippingDetail');
-    },
-
     watch: {
         'shippingMethod.mediaId'() {
             if (this.shippingMethod.mediaId) {
@@ -164,6 +152,18 @@ Component.register('sw-settings-shipping-detail', {
                 this.createdComponent();
             }
         }
+    },
+
+    beforeCreate() {
+        Shopware.State.registerModule('swShippingDetail', swShippingDetailState);
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    beforeDestroy() {
+        Shopware.State.unregisterModule('swShippingDetail');
     },
 
     methods: {

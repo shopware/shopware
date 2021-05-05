@@ -17,10 +17,11 @@ Component.register('sw-promotion-v2-settings-trigger', {
         }
     },
 
-    watch: {
-        'discount.discountRules'(discountRules) {
-            this.discount.considerAdvancedRules = discountRules.length > 0;
-        }
+    data() {
+        return {
+            useTrigger: this.discount.discountRules.length > 0,
+            triggerType: 'single'
+        };
     },
 
     computed: {
@@ -30,11 +31,10 @@ Component.register('sw-promotion-v2-settings-trigger', {
         }
     },
 
-    data() {
-        return {
-            useTrigger: this.discount.discountRules.length > 0,
-            triggerType: 'single'
-        };
+    watch: {
+        'discount.discountRules'(discountRules) {
+            this.discount.considerAdvancedRules = discountRules.length > 0;
+        }
     },
 
     methods: {

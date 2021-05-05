@@ -6,6 +6,11 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-settings-listing-option-general-info', {
     template,
 
+    model: {
+        prop: 'sortingOption',
+        event: 'input'
+    },
+
     props: {
         sortingOption: {
             type: Object,
@@ -16,11 +21,6 @@ Component.register('sw-settings-listing-option-general-info', {
             type: Boolean,
             required: true
         }
-    },
-
-    model: {
-        prop: 'sortingOption',
-        event: 'input'
     },
 
     computed: {

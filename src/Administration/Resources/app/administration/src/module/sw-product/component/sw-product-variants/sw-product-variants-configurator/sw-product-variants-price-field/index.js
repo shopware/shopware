@@ -15,7 +15,8 @@ Component.register('sw-product-variants-price-field', {
 
         taxRate: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         currency: {
@@ -36,6 +37,12 @@ Component.register('sw-product-variants-price-field', {
         }
     },
 
+    computed: {
+        calculatePriceApiService() {
+            return Application.getContainer('factory').apiService.getByName('calculate-price');
+        }
+    },
+
     watch: {
         'price.linked': function priceLinkedWatcher(value) {
             if (value === true) {
@@ -47,12 +54,6 @@ Component.register('sw-product-variants-price-field', {
             if (this.price.linked === true) {
                 this.price.net = this.convertGrossToNet(this.price.gross);
             }
-        }
-    },
-
-    computed: {
-        calculatePriceApiService() {
-            return Application.getContainer('factory').apiService.getByName('calculate-price');
         }
     },
 

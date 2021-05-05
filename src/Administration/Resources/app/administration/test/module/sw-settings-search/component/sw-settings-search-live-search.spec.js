@@ -179,14 +179,16 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const searchBox = wrapper.find('.sw-simple-search-field input');
         expect(searchBox.attributes().disabled).toBeTruthy();
 
-        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        const salesChannelSwitch = wrapper
+            .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
         await wrapper.find('.sw-select-option--0').trigger('click');
         expect(searchBox.attributes().disabled).toBeFalsy();
     });
 
     it('should show no results message if search keywords is nothing', async () => {
-        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        const salesChannelSwitch = wrapper
+            .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
         await wrapper.find('.sw-select-option--0').trigger('click');
         const searchBox = wrapper.find('.sw-simple-search-field input');
@@ -204,7 +206,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
     });
 
     it('should show one result for search', async () => {
-        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        const salesChannelSwitch = wrapper
+            .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
         await wrapper.find('.sw-select-option--0').trigger('click');
         const searchBox = wrapper.find('.sw-simple-search-field input');
@@ -229,7 +232,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
     });
 
     it('should able to click on search glass to search', async () => {
-        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        const salesChannelSwitch = wrapper
+            .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
         await wrapper.find('.sw-select-option--0').trigger('click');
         const searchBox = wrapper.find('.sw-settings-search-live-search__search_box input');
@@ -249,7 +253,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
     });
 
     it('should show multiple results for search', async () => {
-        const salesChannelSwitch = wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
+        const salesChannelSwitch = wrapper
+            .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
         await wrapper.find('.sw-select-option--0').trigger('click');
         const searchBox = wrapper.find('.sw-simple-search-field input');

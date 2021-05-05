@@ -52,16 +52,22 @@ Component.register('sw-price-field', {
             }
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         validation: {
             required: false,
             default: null
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         compact: {
             required: false,
             default: false
@@ -73,6 +79,8 @@ Component.register('sw-price-field', {
             default: null
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
             default: false
@@ -124,20 +132,6 @@ Component.register('sw-price-field', {
             type: String,
             required: false,
             default: null
-        }
-    },
-
-    watch: {
-        'priceForCurrency.linked': function priceLinkedWatcher(value) {
-            if (value === true && this.priceForCurrency.gross !== null) {
-                this.convertGrossToNet(this.priceForCurrency.gross);
-            }
-        },
-
-        'taxRate.id': function taxRateWatcher() {
-            if (this.priceForCurrency.linked === true && this.priceForCurrency.gross !== null) {
-                this.convertGrossToNet(this.priceForCurrency.gross);
-            }
         }
     },
 
@@ -221,6 +215,20 @@ Component.register('sw-price-field', {
 
         netFieldName() {
             return this.name ? `${this.name}-net` : 'sw-price-field-net';
+        }
+    },
+
+    watch: {
+        'priceForCurrency.linked': function priceLinkedWatcher(value) {
+            if (value === true && this.priceForCurrency.gross !== null) {
+                this.convertGrossToNet(this.priceForCurrency.gross);
+            }
+        },
+
+        'taxRate.id': function taxRateWatcher() {
+            if (this.priceForCurrency.linked === true && this.priceForCurrency.gross !== null) {
+                this.convertGrossToNet(this.priceForCurrency.gross);
+            }
         }
     },
 

@@ -6,11 +6,11 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-cms-el-config-image', {
     template,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
         Mixin.getByName('cms-element')
     ],
-
-    inject: ['repositoryFactory'],
 
     data() {
         return {

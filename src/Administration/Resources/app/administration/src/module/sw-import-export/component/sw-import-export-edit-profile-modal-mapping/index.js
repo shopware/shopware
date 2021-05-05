@@ -20,7 +20,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
         profile: {
             type: Object,
             required: false,
-            default: false
+            default: null
         }
     },
 
@@ -32,15 +32,6 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             languages: [],
             addMappingEnabled: false
         };
-    },
-
-    watch: {
-        profile: {
-            handler(profile) {
-                this.toggleAddMappingActionState(profile.sourceEntity);
-            },
-            deep: true
-        }
     },
 
     computed: {
@@ -77,6 +68,15 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                     width: '300px'
                 }
             ];
+        }
+    },
+
+    watch: {
+        profile: {
+            handler(profile) {
+                this.toggleAddMappingActionState(profile.sourceEntity);
+            },
+            deep: true
         }
     },
 

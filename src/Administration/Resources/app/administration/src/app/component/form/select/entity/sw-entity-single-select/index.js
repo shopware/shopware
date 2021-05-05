@@ -8,18 +8,20 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-entity-single-select', {
     template,
 
-    model: {
-        prop: 'value',
-        event: 'change'
-    },
+    inject: { repositoryFactory: 'repositoryFactory', feature: 'feature' },
 
     mixins: [
         Mixin.getByName('remove-api-error')
     ],
 
-    inject: { repositoryFactory: 'repositoryFactory', feature: 'feature' },
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
 
     props: {
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true
         },

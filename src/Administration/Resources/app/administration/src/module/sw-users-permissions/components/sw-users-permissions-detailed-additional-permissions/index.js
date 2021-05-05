@@ -35,14 +35,14 @@ Component.register('sw-users-permissions-detailed-additional-permissions', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         allGeneralSelectedPrivileges() {
             return this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges);
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

@@ -14,7 +14,7 @@ Component.register('sw-customer-address-form-options', {
         address: {
             type: Object,
             required: true,
-            default: {}
+            default: () => {}
         },
 
         customFieldSets: {

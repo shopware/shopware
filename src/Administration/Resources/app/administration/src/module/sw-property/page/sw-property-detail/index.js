@@ -30,13 +30,8 @@ Component.register('sw-property-detail', {
 
     props: {
         groupId: {
-            type: String
-        }
-    },
-
-    watch: {
-        groupId() {
-            this.loadEntityData();
+            type: String,
+            default: null
         }
     },
 
@@ -109,6 +104,12 @@ Component.register('sw-property-detail', {
 
         showCustomFields() {
             return this.propertyGroup && this.customFieldSets && this.customFieldSets.length > 0;
+        }
+    },
+
+    watch: {
+        groupId() {
+            this.loadEntityData();
         }
     },
 

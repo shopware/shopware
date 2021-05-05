@@ -7,7 +7,7 @@ Shopware.Component.register('sw-settings-search-view-general', {
         productSearchConfigs: {
             type: Object,
             required: false,
-            default: {}
+            default: () => {}
         },
 
         isLoading: {

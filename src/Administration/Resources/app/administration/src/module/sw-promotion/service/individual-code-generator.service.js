@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import CodeGenerator from '../service/code-generator.service';
+import CodeGenerator from './code-generator.service';
 import Criteria from '../../../core/data/criteria.data';
 
 /**

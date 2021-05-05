@@ -34,8 +34,8 @@ import './component/sw-order-promotion-tag-field';
 import './component/sw-order-create-invalid-promotion-modal';
 import './component/sw-order-create-promotion-modal';
 
-import './../sw-customer/component/sw-customer-address-form';
-import './../sw-customer/component/sw-customer-address-form-options';
+import '../sw-customer/component/sw-customer-address-form';
+import '../sw-customer/component/sw-customer-address-form-options';
 
 const { Module } = Shopware;
 

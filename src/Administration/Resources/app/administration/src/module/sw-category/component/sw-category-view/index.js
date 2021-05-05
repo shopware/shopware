@@ -6,11 +6,11 @@ const { Component } = Shopware;
 Component.register('sw-category-view', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         'placeholder'
     ],
-
-    inject: ['acl'],
 
     props: {
         isLoading: {

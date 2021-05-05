@@ -1,6 +1,6 @@
 import ProductIndexService from '../service/productIndex.api.service';
 import LiveSearchApiService from '../service/livesearch.api.service';
-import ExcludedSearchTermService from '../../../../src/core/service/api/excludedSearchTerm.api.service';
+import ExcludedSearchTermService from '../../../core/service/api/excludedSearchTerm.api.service';
 
 Shopware.Service().register('productIndexService', () => {
     return new ProductIndexService(

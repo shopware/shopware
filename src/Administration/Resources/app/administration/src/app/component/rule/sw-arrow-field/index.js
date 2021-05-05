@@ -3,6 +3,18 @@ import './sw-arrow-field.scss';
 const { Component } = Shopware;
 
 Component.register('sw-arrow-field', {
+
+    render(h) {
+        return h('div', {
+            class: {
+                'sw-arrow-field': true,
+                'is--disabled': this.disabled
+            }
+        }, [
+            this.$slots.default,
+            this.getArrow(h)
+        ]);
+    },
     props: {
         primary: {
             type: String,
@@ -19,18 +31,6 @@ Component.register('sw-arrow-field', {
             required: false,
             default: false
         }
-    },
-
-    render(h) {
-        return h('div', {
-            class: {
-                'sw-arrow-field': true,
-                'is--disabled': this.disabled
-            }
-        }, [
-            this.$slots.default,
-            this.getArrow(h)
-        ]);
     },
 
     computed: {

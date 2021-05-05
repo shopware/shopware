@@ -1,3 +1,4 @@
+/* eslint-disable vue/require-default-prop */
 import template from './sw-file-input.html.twig';
 import './sw-file-input.scss';
 
@@ -37,14 +38,18 @@ Component.register('sw-file-input', {
 
         allowedMimeTypes: {
             type: Array,
-            required: false
+            required: false,
+            default: null
         },
 
         label: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
+        // FIXME: add property type and prop default value
+        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: false
         }

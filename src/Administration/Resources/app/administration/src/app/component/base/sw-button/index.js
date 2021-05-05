@@ -56,13 +56,16 @@ Component.register('sw-button', {
             required: false,
             default: false
         },
+        // FIXME: add required flag
+        // eslint-disable-next-line vue/require-default-prop
         routerLink: {
             type: Object,
             required: false
         },
         link: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
         isLoading: {
             type: Boolean,

@@ -5,36 +5,6 @@ const { Component } = Shopware;
 Component.extend('sw-custom-field-type-entity', 'sw-custom-field-type-select', {
     template,
 
-    methods: {
-        createdComponent() {
-            if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
-                this.currentCustomField.config.componentName = 'sw-entity-single-select';
-            }
-
-            this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-entity-multi-id-select';
-        },
-
-        onChangeEntityType(entity) {
-            const entityType = this.entityTypes.find(type => type.value === entity);
-
-            this.$delete(this.currentCustomField.config, 'labelProperty');
-
-            // pass the label property into the custom field's config to allow different / multiple labelProperties
-            if (entityType.hasOwnProperty('config') && entityType.config.hasOwnProperty('labelProperty')) {
-                this.currentCustomField.config.labelProperty = entityType.config.labelProperty;
-            }
-        },
-
-        onChangeMultiSelectSwitch(state) {
-            if (state) {
-                this.currentCustomField.config.componentName = 'sw-entity-multi-id-select';
-                return;
-            }
-
-            this.currentCustomField.config.componentName = 'sw-entity-single-select';
-        }
-    },
-
     computed: {
         entityTypes() {
             return [
@@ -85,9 +55,40 @@ Component.extend('sw-custom-field-type-entity', 'sw-custom-field-type-select', {
         },
 
         sortedEntityTypes() {
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.entityTypes.sort((a, b) => {
                 return a.label.localeCompare(b.label);
             });
+        }
+    },
+
+    methods: {
+        createdComponent() {
+            if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
+                this.currentCustomField.config.componentName = 'sw-entity-single-select';
+            }
+
+            this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-entity-multi-id-select';
+        },
+
+        onChangeEntityType(entity) {
+            const entityType = this.entityTypes.find(type => type.value === entity);
+
+            this.$delete(this.currentCustomField.config, 'labelProperty');
+
+            // pass the label property into the custom field's config to allow different / multiple labelProperties
+            if (entityType.hasOwnProperty('config') && entityType.config.hasOwnProperty('labelProperty')) {
+                this.currentCustomField.config.labelProperty = entityType.config.labelProperty;
+            }
+        },
+
+        onChangeMultiSelectSwitch(state) {
+            if (state) {
+                this.currentCustomField.config.componentName = 'sw-entity-multi-id-select';
+                return;
+            }
+
+            this.currentCustomField.config.componentName = 'sw-entity-single-select';
         }
     }
 });

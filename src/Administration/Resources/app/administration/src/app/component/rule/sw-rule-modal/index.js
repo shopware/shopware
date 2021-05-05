@@ -34,6 +34,14 @@ Component.register('sw-rule-modal', {
         }
     },
 
+    data() {
+        return {
+            rule: null,
+            initialConditions: null,
+            isLoading: false
+        };
+    },
+
     computed: {
         ruleRepository() {
             return this.repositoryFactory.create('rule');
@@ -58,14 +66,6 @@ Component.register('sw-rule-modal', {
         },
 
         ...mapPropertyErrors('rule', ['name', 'priority'])
-    },
-
-    data() {
-        return {
-            rule: null,
-            initialConditions: null,
-            isLoading: false
-        };
     },
 
     created() {

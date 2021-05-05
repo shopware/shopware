@@ -22,12 +22,12 @@ Component.register('sw-many-to-many-assignment-card', {
     template,
     inheritAttrs: false,
 
+    inject: ['repositoryFactory'],
+
     model: {
         property: 'entityCollection',
         event: 'change'
     },
-
-    inject: ['repositoryFactory'],
 
     props: {
         columns: {

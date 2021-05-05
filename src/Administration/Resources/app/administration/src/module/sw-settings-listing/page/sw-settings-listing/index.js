@@ -7,12 +7,12 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-listing', {
     template,
 
+    inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
+
     mixins: [
         'notification',
         'sw-inline-snippet'
     ],
-
-    inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
 
     data() {
         return {

@@ -32,6 +32,8 @@ Component.register('sw-list-price-field', {
             }
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true
@@ -53,6 +55,8 @@ Component.register('sw-list-price-field', {
             }
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         compact: {
             required: false,
             default: false
@@ -64,6 +68,8 @@ Component.register('sw-list-price-field', {
             default: null
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
             default: false
@@ -87,6 +93,8 @@ Component.register('sw-list-price-field', {
             default: false
         },
 
+        // FIXME: add property type
+        // eslint-disable-next-line vue/require-prop-types
         hideListPrices: {
             required: false,
             default: false

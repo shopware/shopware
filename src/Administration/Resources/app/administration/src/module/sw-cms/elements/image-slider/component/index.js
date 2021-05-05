@@ -6,11 +6,11 @@ const { Component, Mixin, Filter } = Shopware;
 Component.register('sw-cms-el-image-slider', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('cms-element')
     ],
-
-    inject: ['feature'],
 
     props: {
         activeMedia: {

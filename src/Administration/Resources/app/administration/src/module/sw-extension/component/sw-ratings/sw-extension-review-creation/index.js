@@ -10,9 +10,9 @@ const { Component } = Shopware;
 Component.register('sw-extension-review-creation', {
     template,
 
-    mixins: ['sw-extension-error'],
-
     inject: ['extensionStoreActionService'],
+
+    mixins: ['sw-extension-error'],
 
     props: {
         extension: {

@@ -6,11 +6,11 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-order-detail', {
     template,
 
+    inject: ['repositoryFactory', 'acl'],
+
     mixins: [
         Mixin.getByName('notification')
     ],
-
-    inject: ['repositoryFactory', 'acl'],
 
     props: {
         orderId: {

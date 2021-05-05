@@ -68,23 +68,6 @@ Component.register('sw-search-bar', {
         };
     },
 
-    watch: {
-        // Watch for changes in query parameters
-        '$route'(newValue) {
-            // Use type search again when route changes and the term is undefined
-            if (newValue.query.term === undefined && this.initialSearchType) {
-                this.currentSearchType = this.initialSearchType;
-            }
-
-            // Do not modify the search term when the user is currently typing
-            if (this.isActive) {
-                return;
-            }
-
-            this.searchTerm = newValue.query.term ? newValue.query.term : '';
-        }
-    },
-
     computed: {
         searchBarFieldClasses() {
             return {
@@ -104,6 +87,23 @@ Component.register('sw-search-bar', {
             }
 
             return placeholder;
+        }
+    },
+
+    watch: {
+        // Watch for changes in query parameters
+        '$route'(newValue) {
+            // Use type search again when route changes and the term is undefined
+            if (newValue.query.term === undefined && this.initialSearchType) {
+                this.currentSearchType = this.initialSearchType;
+            }
+
+            // Do not modify the search term when the user is currently typing
+            if (this.isActive) {
+                return;
+            }
+
+            this.searchTerm = newValue.query.term ? newValue.query.term : '';
         }
     },
 

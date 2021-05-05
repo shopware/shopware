@@ -16,12 +16,6 @@ Component.register('sw-event-action-list', {
         Mixin.getByName('listing')
     ],
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     data() {
         return {
             items: null,
@@ -30,6 +24,12 @@ Component.register('sw-event-action-list', {
             isLoading: false,
             mailTemplates: null,
             total: 0
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 

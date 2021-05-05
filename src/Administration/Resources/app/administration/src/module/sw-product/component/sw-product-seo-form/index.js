@@ -7,6 +7,14 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-product-seo-form', {
     template,
 
+    inject: [
+        'repositoryFactory'
+    ],
+
+    mixins: [
+        Mixin.getByName('placeholder')
+    ],
+
     props: {
         allowEdit: {
             type: Boolean,
@@ -14,14 +22,6 @@ Component.register('sw-product-seo-form', {
             default: true
         }
     },
-
-    mixins: [
-        Mixin.getByName('placeholder')
-    ],
-
-    inject: [
-        'repositoryFactory'
-    ],
 
     data() {
         return {
@@ -32,65 +32,6 @@ Component.register('sw-product-seo-form', {
             shouldKeepSelectValue: false,
             selectValue: null
         };
-    },
-
-    watch: {
-        'product.canonicalProductId': {
-            handler(value) {
-                /* Return if value is undefined or the switch state has been set the very first time.
-                 * The reason to return is that using `immediate` on this watcher the very first value is always `undefined`.
-                 * So when the product actually has a `canonicalProductId` the switch will be initially off instead off on.
-                 */
-                if (value === undefined || this.switchStateHasBeenSet) {
-                    return;
-                }
-
-                this.canonicalProductSwitchEnabled = !!value;
-                this.switchStateHasBeenSet = true;
-            },
-            immediate: true
-        },
-
-        'product.id': {
-            // eslint-disable-next-line func-names
-            handler: function (value) {
-                if (!value) {
-                    return;
-                }
-
-                this.fetchVariants();
-            },
-            immediate: true
-        },
-
-        canonicalProductSwitchEnabled(isEnabled) {
-            if (!this.shouldKeepSelectValue) {
-                this.shouldKeepSelectValue = true;
-
-                return;
-            }
-
-            /* When the switch state is false it saves the variant id internally.
-             * And when the switch is enabled and the value is not null it sets back the variant id.
-             */
-            if (isEnabled) {
-                this.product.canonicalProductId = this.selectValue;
-                this.selectValue = null;
-
-                return;
-            }
-
-            this.selectValue = this.product.canonicalProductId;
-            this.product.canonicalProductId = null;
-        },
-
-        isLoading(isLoading) {
-            if (isLoading) {
-                return;
-            }
-
-            this.selectValue = this.product.canonicalProductId;
-        }
     },
 
     computed: {
@@ -163,6 +104,66 @@ Component.register('sw-product-seo-form', {
             'metaDescription',
             'metaTitle'
         ])
+    },
+
+
+    watch: {
+        'product.canonicalProductId': {
+            handler(value) {
+                /* Return if value is undefined or the switch state has been set the very first time.
+                 * The reason to return is that using `immediate` on this watcher the very first value is always `undefined`.
+                 * So when the product actually has a `canonicalProductId` the switch will be initially off instead off on.
+                 */
+                if (value === undefined || this.switchStateHasBeenSet) {
+                    return;
+                }
+
+                this.canonicalProductSwitchEnabled = !!value;
+                this.switchStateHasBeenSet = true;
+            },
+            immediate: true
+        },
+
+        'product.id': {
+            // eslint-disable-next-line func-names
+            handler: function (value) {
+                if (!value) {
+                    return;
+                }
+
+                this.fetchVariants();
+            },
+            immediate: true
+        },
+
+        canonicalProductSwitchEnabled(isEnabled) {
+            if (!this.shouldKeepSelectValue) {
+                this.shouldKeepSelectValue = true;
+
+                return;
+            }
+
+            /* When the switch state is false it saves the variant id internally.
+             * And when the switch is enabled and the value is not null it sets back the variant id.
+             */
+            if (isEnabled) {
+                this.product.canonicalProductId = this.selectValue;
+                this.selectValue = null;
+
+                return;
+            }
+
+            this.selectValue = this.product.canonicalProductId;
+            this.product.canonicalProductId = null;
+        },
+
+        isLoading(isLoading) {
+            if (isLoading) {
+                return;
+            }
+
+            this.selectValue = this.product.canonicalProductId;
+        }
     },
 
     methods: {

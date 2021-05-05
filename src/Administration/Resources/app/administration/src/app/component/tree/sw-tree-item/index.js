@@ -53,12 +53,14 @@ Component.register('sw-tree-item', {
 
         activeParentIds: {
             type: Array,
-            required: false
+            required: false,
+            default: null
         },
 
         activeItemIds: {
             type: Array,
-            required: false
+            required: false,
+            default: null
         },
 
         sortable: {
@@ -155,34 +157,6 @@ Component.register('sw-tree-item', {
         };
     },
 
-    watch: {
-        activeElementId(newId) {
-            this.active = newId === this.item.id;
-        },
-
-        newElementId(newId) {
-            this.currentEditElement = newId;
-        },
-
-        activeParentIds: {
-            handler() {
-                if (this.activeParentIds) {
-                    this.checkedGhost = this.activeParentIds.indexOf(this.item.id) >= 0;
-                }
-            },
-            immediate: true
-        },
-
-        activeItemIds: {
-            handler() {
-                if (this.activeItemIds) {
-                    this.checked = this.activeItemIds.indexOf(this.item.id) >= 0;
-                }
-            },
-            immediate: true
-        }
-    },
-
     computed: {
         activeElementId() {
             return this.$route.params[this.item.activeElementId] || null;
@@ -192,6 +166,7 @@ Component.register('sw-tree-item', {
             if (this.item.initialOpened) {
                 this.openTreeItem(true);
                 this.getTreeItemChildren(this.item);
+                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.item.initialOpened = false;
             }
             return this.opened;
@@ -262,6 +237,34 @@ Component.register('sw-tree-item', {
 
         isHighlighted() {
             return this.getIsHighlighted(this.item);
+        }
+    },
+
+    watch: {
+        activeElementId(newId) {
+            this.active = newId === this.item.id;
+        },
+
+        newElementId(newId) {
+            this.currentEditElement = newId;
+        },
+
+        activeParentIds: {
+            handler() {
+                if (this.activeParentIds) {
+                    this.checkedGhost = this.activeParentIds.indexOf(this.item.id) >= 0;
+                }
+            },
+            immediate: true
+        },
+
+        activeItemIds: {
+            handler() {
+                if (this.activeItemIds) {
+                    this.checked = this.activeItemIds.indexOf(this.item.id) >= 0;
+                }
+            },
+            immediate: true
         }
     },
 

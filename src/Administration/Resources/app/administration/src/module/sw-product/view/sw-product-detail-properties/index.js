@@ -17,19 +17,6 @@ Component.register('sw-product-detail-properties', {
         };
     },
 
-    watch: {
-        'product.options': {
-            handler(value) {
-                if (!value) {
-                    return;
-                }
-
-                this.isInherited = this.isChild && !this.product.options.total;
-            },
-            immediate: true
-        }
-    },
-
     computed: {
         ...mapState('swProductDetail', [
             'product',
@@ -43,6 +30,19 @@ Component.register('sw-product-detail-properties', {
 
         propertyRepository() {
             return this.repositoryFactory.create('property_group_option');
+        }
+    },
+
+    watch: {
+        'product.options': {
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.isInherited = this.isChild && !this.product.options.total;
+            },
+            immediate: true
         }
     },
 

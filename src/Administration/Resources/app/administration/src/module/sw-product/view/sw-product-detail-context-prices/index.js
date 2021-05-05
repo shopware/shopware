@@ -23,19 +23,6 @@ Component.register('sw-product-detail-context-prices', {
         };
     },
 
-    watch: {
-        'product.prices': {
-            handler(value) {
-                if (!value) {
-                    return;
-                }
-
-                this.isInherited = this.isChild && !this.product.prices.total;
-            },
-            immediate: true
-        }
-    },
-
     computed: {
         ...mapState('swProductDetail', [
             'repositoryFactory',
@@ -78,6 +65,7 @@ Component.register('sw-product-detail-context-prices', {
                 return priceRuleGroups;
             }
 
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             const sortedPrices = this.product.prices.sort((a, b) => {
                 const aRule = this.findRuleById(a.ruleId);
                 const bRule = this.findRuleById(b.ruleId);
@@ -178,6 +166,20 @@ Component.register('sw-product-detail-context-prices', {
             ];
 
             return [...priceColumns, ...this.currencyColumns];
+        }
+    },
+
+
+    watch: {
+        'product.prices': {
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.isInherited = this.isChild && !this.product.prices.total;
+            },
+            immediate: true
         }
     },
 

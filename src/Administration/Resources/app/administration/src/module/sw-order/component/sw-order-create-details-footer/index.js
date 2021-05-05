@@ -7,6 +7,8 @@ Component.register('sw-order-create-details-footer', {
     template,
 
     props: {
+        // FIXME: add required attribute and or default value
+        // eslint-disable-next-line vue/require-default-prop
         customer: {
             type: Object
         },
@@ -16,6 +18,8 @@ Component.register('sw-order-create-details-footer', {
             default: false
         },
 
+        // FIXME: add required attribute and or default value
+        // eslint-disable-next-line vue/require-default-prop
         cart: {
             type: Object
         }

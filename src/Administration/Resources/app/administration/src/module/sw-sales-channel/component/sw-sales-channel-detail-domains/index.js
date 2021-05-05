@@ -13,6 +13,8 @@ Component.register('sw-sales-channel-detail-domains', {
     ],
 
     props: {
+        // FIXME: add type to salesChannel property
+        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true
         },
@@ -22,6 +24,23 @@ Component.register('sw-sales-channel-detail-domains', {
             required: false,
             default: false
         }
+    },
+
+    data() {
+        return {
+            currentDomain: null,
+            currentDomainBackup: {
+                url: null,
+                language: null,
+                languageId: null,
+                currency: null,
+                currencyId: null,
+                snippetSet: null,
+                snippetSetId: null
+            },
+            isLoadingDomains: false,
+            deleteDomain: null
+        };
     },
 
     computed: {
@@ -92,23 +111,6 @@ Component.register('sw-sales-channel-detail-domains', {
                 !this.currentDomain.languageId ||
                 this.disableEdit;
         }
-    },
-
-    data() {
-        return {
-            currentDomain: null,
-            currentDomainBackup: {
-                url: null,
-                language: null,
-                languageId: null,
-                currency: null,
-                currencyId: null,
-                snippetSet: null,
-                snippetSetId: null
-            },
-            isLoadingDomains: false,
-            deleteDomain: null
-        };
     },
 
     methods: {

@@ -9,15 +9,6 @@ Component.register('sw-order-line-items-grid', {
     template,
 
     inject: ['repositoryFactory', 'orderService', 'acl', 'feature'],
-
-    data() {
-        return {
-            isLoading: false,
-            selectedItems: {},
-            searchTerm: '',
-            nestedLineItemsModal: null
-        };
-    },
     props: {
         order: {
             type: Object,
@@ -32,6 +23,15 @@ Component.register('sw-order-line-items-grid', {
             required: false,
             default: true
         }
+    },
+
+    data() {
+        return {
+            isLoading: false,
+            selectedItems: {},
+            searchTerm: '',
+            nestedLineItemsModal: null
+        };
     },
     computed: {
         canCreateDiscounts() {

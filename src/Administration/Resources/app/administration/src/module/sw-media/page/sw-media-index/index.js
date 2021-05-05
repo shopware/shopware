@@ -39,12 +39,6 @@ Component.register('sw-media-index', {
         };
     },
 
-    watch: {
-        routeFolderId() {
-            this.updateFolder();
-        }
-    },
-
     computed: {
         mediaFolderRepository() {
             return this.repositoryFactory.create('media_folder');
@@ -57,6 +51,12 @@ Component.register('sw-media-index', {
             root.name = this.$tc('sw-media.index.rootFolderName');
             root.id = null;
             return root;
+        }
+    },
+
+    watch: {
+        routeFolderId() {
+            this.updateFolder();
         }
     },
 

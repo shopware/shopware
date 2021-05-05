@@ -29,7 +29,8 @@ Component.extend('sw-password-field', 'sw-text-field', {
 
         autocomplete: {
             type: String,
-            required: false
+            required: false,
+            default: null
         }
     },
 

@@ -8,11 +8,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-detail-addresses', {
     template,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
         Mixin.getByName('notification')
     ],
-
-    inject: ['repositoryFactory'],
 
     props: {
         customer: {
@@ -65,6 +65,7 @@ Component.register('sw-customer-detail-addresses', {
 
         sortedAddresses() {
             if (this.addressSortProperty) {
+                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 return this.activeCustomer.addresses.sort((a, b) => {
                     const aValue = a[this.addressSortProperty];
                     const bValue = b[this.addressSortProperty];

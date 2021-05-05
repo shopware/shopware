@@ -12,16 +12,8 @@ Component.register('sw-settings-shopware-updates-plugins', {
             type: Boolean
         },
         plugins: {
-            type: Array
-        }
-    },
-
-    methods: {
-        openPluginManager() {
-            this.$router.push({ name: 'sw.plugin.index' });
-        },
-        openMyExtensions() {
-            this.$router.push({ name: 'sw.extension.my-extensions.listing.app' });
+            type: Array,
+            default: () => []
         }
     },
     computed: {
@@ -46,6 +38,15 @@ Component.register('sw-settings-shopware-updates-plugins', {
             }
 
             return this.$tc('sw-settings-shopware-updates.cards.plugins');
+        }
+    },
+
+    methods: {
+        openPluginManager() {
+            this.$router.push({ name: 'sw.plugin.index' });
+        },
+        openMyExtensions() {
+            this.$router.push({ name: 'sw.extension.my-extensions.listing.app' });
         }
     }
 });

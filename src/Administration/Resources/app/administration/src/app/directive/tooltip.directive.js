@@ -109,7 +109,9 @@ class Tooltip {
             this._vue.$destroy();
             this._vue = new Vue({
                 template: this._DOMElement.outerHTML,
+                // eslint-disable-next-line vue/order-in-components
                 parent: this._vue.$parent,
+                // eslint-disable-next-line vue/order-in-components
                 el: this._DOMElement
             });
 
@@ -178,9 +180,9 @@ class Tooltip {
         element.classList.add(`sw-tooltip--${this._appearance}`);
 
         this._vue = new Vue({
-            template: element.outerHTML,
+            el: element,
             parent: node.context,
-            el: element
+            template: element.outerHTML
         });
 
         return this._vue.$el;

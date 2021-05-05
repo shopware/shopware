@@ -34,10 +34,6 @@ Component.register('sw-customer-create', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         'customer.salesChannelId'(salesChannelId) {
             this.systemConfigApiService
@@ -47,6 +43,10 @@ Component.register('sw-customer-create', {
                     }
                 });
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

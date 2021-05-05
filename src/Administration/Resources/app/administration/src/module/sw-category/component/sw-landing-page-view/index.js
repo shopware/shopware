@@ -5,11 +5,11 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-landing-page-view', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('placeholder')
     ],
-
-    inject: ['acl'],
 
     props: {
         isLoading: {

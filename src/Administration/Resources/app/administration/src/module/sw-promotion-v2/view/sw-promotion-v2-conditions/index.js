@@ -22,6 +22,12 @@ Component.register('sw-promotion-v2-conditions', {
         }
     },
 
+    data() {
+        return {
+            excludedPromotions: this.createPromotionCollection()
+        };
+    },
+
     computed: {
         exclusionCriteria() {
             const criteria = new Criteria();
@@ -76,12 +82,6 @@ Component.register('sw-promotion-v2-conditions', {
 
             return criteria;
         }
-    },
-
-    data() {
-        return {
-            excludedPromotions: this.createPromotionCollection()
-        };
     },
 
     created() {

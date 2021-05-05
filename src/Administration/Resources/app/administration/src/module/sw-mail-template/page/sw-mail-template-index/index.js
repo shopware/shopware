@@ -6,6 +6,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-mail-template-index', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('listing')
     ],
@@ -15,8 +17,6 @@ Component.register('sw-mail-template-index', {
             term: ''
         };
     },
-
-    inject: ['acl'],
 
     metaInfo() {
         return {

@@ -15,6 +15,12 @@ Component.register('sw-settings-tax-rule-type-individual-states-cell', {
         }
     },
 
+    data() {
+        return {
+            individualStates: null
+        };
+    },
+
     computed: {
         stateRepository() {
             return this.repositoryFactory.create('country_state');
@@ -25,12 +31,6 @@ Component.register('sw-settings-tax-rule-type-individual-states-cell', {
         'taxRule.data.states'() {
             this.loadStates();
         }
-    },
-
-    data() {
-        return {
-            individualStates: null
-        };
     },
 
     created() {

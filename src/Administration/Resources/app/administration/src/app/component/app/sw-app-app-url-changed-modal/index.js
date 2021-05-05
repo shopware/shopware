@@ -6,9 +6,9 @@ const { Component } = Shopware;
 Component.register('sw-app-app-url-changed-modal', {
     template,
 
-    mixins: [Shopware.Mixin.getByName('notification')],
-
     inject: ['appUrlChangeService'],
+
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {
         /**

@@ -73,6 +73,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
          * @returns {[]}
          */
         sortedProductSortingFields() {
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.productSortingEntity.fields.sort((a, b) => {
                 if (a.priority === b.priority) {
                     return 0;
@@ -83,7 +84,8 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         /**
-         * @deprecated tag:v6.5.0 - Can be removed completely. The computed prop was used to provide the options prop of an sw-single-select which has been replaced with sw-entity-single-select.
+         * @deprecated tag:v6.5.0 - Can be removed completely. The computed prop was used
+         * to provide the options prop of an sw-single-select which has been replaced with sw-entity-single-select.
          */
         unusedCustomFields() {
             return this.customFields.filter(customField => {

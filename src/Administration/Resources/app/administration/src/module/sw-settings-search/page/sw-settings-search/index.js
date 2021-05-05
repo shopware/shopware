@@ -38,10 +38,6 @@ Component.register('sw-settings-search', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         productSearchRepository() {
             return this.repositoryFactory.create('product_search_config');
@@ -85,6 +81,10 @@ Component.register('sw-settings-search', {
                 appearance: 'light'
             };
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

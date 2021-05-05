@@ -12,11 +12,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-sales-channel-detail-base', {
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
-    ],
-
     inject: [
         'salesChannelService',
         'productExportService',
@@ -25,7 +20,14 @@ Component.register('sw-sales-channel-detail-base', {
         'acl'
     ],
 
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
+    ],
+
     props: {
+        // FIXME: add type for salesChannel property
+        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true
         },
@@ -36,6 +38,8 @@ Component.register('sw-sales-channel-detail-base', {
             required: true
         },
 
+        // FIXME: add default value for this property
+        // eslint-disable-next-line vue/require-default-prop
         storefrontSalesChannelCriteria: {
             type: Criteria,
             required: false
@@ -72,12 +76,6 @@ Component.register('sw-sales-channel-detail-base', {
         }
     },
 
-    watch: {
-        'productExport.fileName'() {
-            this.onChangeFileName();
-        }
-    },
-
     data() {
         return {
             showDeleteModal: false,
@@ -91,12 +89,6 @@ Component.register('sw-sales-channel-detail-base', {
             disableGenerateByCronjob: false,
             knownIps: []
         };
-    },
-
-    created() {
-        this.knownIpsService.getKnownIps().then(ips => {
-            this.knownIps = ips;
-        });
     },
 
     computed: {
@@ -313,6 +305,18 @@ Component.register('sw-sales-channel-detail-base', {
                 'salesChannelDomainId',
                 'currencyId'
             ])
+    },
+
+    watch: {
+        'productExport.fileName'() {
+            this.onChangeFileName();
+        }
+    },
+
+    created() {
+        this.knownIpsService.getKnownIps().then(ips => {
+            this.knownIps = ips;
+        });
     },
 
     methods: {

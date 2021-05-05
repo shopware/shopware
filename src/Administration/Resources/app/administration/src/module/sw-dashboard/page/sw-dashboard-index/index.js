@@ -9,17 +9,17 @@ Component.register('sw-dashboard-index', {
 
     inject: ['repositoryFactory', 'stateStyleDataProviderService', 'acl'],
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     data() {
         return {
             historyOrderData: null,
             todayOrderData: [],
             todayOrderDataLoaded: false
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 

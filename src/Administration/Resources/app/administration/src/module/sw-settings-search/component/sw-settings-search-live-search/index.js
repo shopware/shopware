@@ -1,6 +1,6 @@
 import template from './sw-settings-search-live-search.html.twig';
 import './sw-settings-search-live-search.scss';
-import './../sw-settings-search-live-search-keyword';
+import '../sw-settings-search-live-search-keyword';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

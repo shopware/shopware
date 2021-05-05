@@ -45,6 +45,40 @@ Component.register('sw-category-tree-field', {
         };
     },
 
+    computed: {
+        globalCategoryRepository() {
+            return this.repositoryFactory.create('category');
+        },
+
+        categoryRepository() {
+            return this.repositoryFactory.create(this.categoriesCollection.entity, this.categoriesCollection.source);
+        },
+
+        visibleTags() {
+            return this.tagLimit ? this.categoriesCollection.slice(0, 5) : this.categoriesCollection;
+        },
+
+        numberOfHiddenTags() {
+            const hiddenTagsLength = this.categoriesCollection.length - this.visibleTags.length;
+
+            return hiddenTagsLength > 0 ? hiddenTagsLength : 0;
+        },
+
+        selectedCategoriesItemsIds() {
+            return this.categoriesCollection.getIds();
+        },
+
+        selectedCategoriesPathIds() {
+            return this.categoriesCollection.reduce((acc, item) => {
+                // get each parent id
+                const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
+
+                // add parent id to accumulator
+                return [...acc, ...pathIds];
+            }, []);
+        }
+    },
+
     watch: {
         categoriesCollection: {
             handler() {
@@ -108,40 +142,6 @@ Component.register('sw-category-tree-field', {
                     });
                 }, 50)();
             }
-        }
-    },
-
-    computed: {
-        globalCategoryRepository() {
-            return this.repositoryFactory.create('category');
-        },
-
-        categoryRepository() {
-            return this.repositoryFactory.create(this.categoriesCollection.entity, this.categoriesCollection.source);
-        },
-
-        visibleTags() {
-            return this.tagLimit ? this.categoriesCollection.slice(0, 5) : this.categoriesCollection;
-        },
-
-        numberOfHiddenTags() {
-            const hiddenTagsLength = this.categoriesCollection.length - this.visibleTags.length;
-
-            return hiddenTagsLength > 0 ? hiddenTagsLength : 0;
-        },
-
-        selectedCategoriesItemsIds() {
-            return this.categoriesCollection.getIds();
-        },
-
-        selectedCategoriesPathIds() {
-            return this.categoriesCollection.reduce((acc, item) => {
-                // get each parent id
-                const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
-
-                // add parent id to accumulator
-                return [...acc, ...pathIds];
-            }, []);
         }
     },
 

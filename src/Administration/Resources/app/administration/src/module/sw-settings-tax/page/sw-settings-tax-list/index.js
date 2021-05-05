@@ -23,16 +23,16 @@ Component.register('sw-settings-tax-list', {
         };
     },
 
-    computed: {
-        taxRepository() {
-            return this.repositoryFactory.create('tax');
-        }
-    },
-
     metaInfo() {
         return {
             title: this.$createTitle()
         };
+    },
+
+    computed: {
+        taxRepository() {
+            return this.repositoryFactory.create('tax');
+        }
     },
 
     methods: {

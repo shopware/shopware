@@ -27,20 +27,9 @@ Component.register('sw-sidebar', {
         return {
             items: [],
             isOpened: false,
+            // eslint-disable-next-line vue/no-reserved-keys
             _parent: this.$parent
         };
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    mounted() {
-        this.mountedComponent();
-    },
-
-    destroyed() {
-        this.destroyedComponent();
     },
 
     computed: {
@@ -61,6 +50,18 @@ Component.register('sw-sidebar', {
                 'is--opened': this.isOpened
             };
         }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
+    },
+
+    destroyed() {
+        this.destroyedComponent();
     },
 
     methods: {

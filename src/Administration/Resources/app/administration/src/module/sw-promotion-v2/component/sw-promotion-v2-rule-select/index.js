@@ -6,14 +6,14 @@ const { Component } = Shopware;
 Component.register('sw-promotion-v2-rule-select', {
     template,
 
+    inject: [
+        'repositoryFactory'
+    ],
+
     model: {
         prop: 'collection',
         event: 'change'
     },
-
-    inject: [
-        'repositoryFactory'
-    ],
 
     props: {
         collection: {

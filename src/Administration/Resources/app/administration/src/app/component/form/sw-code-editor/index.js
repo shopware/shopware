@@ -100,18 +100,6 @@ Component.register('sw-code-editor', {
         };
     },
 
-    watch: {
-        value(value) {
-            if (value !== null && value !== this.editor.getValue()) {
-                this.editor.setValue(value, 1);
-            }
-        },
-
-        softWraps() {
-            this.editor.session.setOption('wrap', this.softWraps);
-        }
-    },
-
     computed: {
         aceConfig() {
             return {
@@ -123,6 +111,18 @@ Component.register('sw-code-editor', {
                 },
                 ...this.editorConfig
             };
+        }
+    },
+
+    watch: {
+        value(value) {
+            if (value !== null && value !== this.editor.getValue()) {
+                this.editor.setValue(value, 1);
+            }
+        },
+
+        softWraps() {
+            this.editor.session.setOption('wrap', this.softWraps);
         }
     },
 

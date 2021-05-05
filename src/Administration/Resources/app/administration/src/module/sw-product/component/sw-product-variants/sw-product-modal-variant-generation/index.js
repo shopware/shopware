@@ -41,10 +41,6 @@ Component.register('sw-product-modal-variant-generation', {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
         ...mapState('swProductDetail', [
             'currencies'
@@ -70,6 +66,10 @@ Component.register('sw-product-modal-variant-generation', {
             }
             return '';
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {

@@ -10,10 +10,7 @@ Component.register('sw-order-product-select', {
     props: {
         item: {
             type: Object,
-            required: true,
-            default() {
-                return [];
-            }
+            required: true
         },
 
         salesChannelId: {

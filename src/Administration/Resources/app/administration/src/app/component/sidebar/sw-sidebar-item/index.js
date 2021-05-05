@@ -41,17 +41,11 @@ Component.register('sw-sidebar-item', {
             }
         },
 
+        // FIXME: add default value for property
+        // eslint-disable-next-line vue/require-default-prop
         badge: {
             type: Number,
             required: false
-        }
-    },
-
-    watch: {
-        disabled(newDisabledState) {
-            if (newDisabledState) {
-                this.closeContent();
-            }
         }
     },
 
@@ -75,6 +69,14 @@ Component.register('sw-sidebar-item', {
 
         showContent() {
             return this.hasDefaultSlot && this.isActive;
+        }
+    },
+
+    watch: {
+        disabled(newDisabledState) {
+            if (newDisabledState) {
+                this.closeContent();
+            }
         }
     },
 

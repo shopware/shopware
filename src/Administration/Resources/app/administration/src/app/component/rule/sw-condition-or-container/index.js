@@ -15,11 +15,11 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-condition-or-container', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('ruleContainer')
     ],
-
-    inject: ['acl'],
 
     created() {
         this.createdComponent();

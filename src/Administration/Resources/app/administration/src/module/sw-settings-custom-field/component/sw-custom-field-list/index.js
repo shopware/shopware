@@ -13,16 +13,16 @@ Component.register('sw-custom-field-list', {
         'acl'
     ],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('notification')
-    ],
-
     provide() {
         return {
             SwCustomFieldListIsCustomFieldNameUnique: this.isCustomFieldNameUnique
         };
     },
+
+    mixins: [
+        Mixin.getByName('sw-inline-snippet'),
+        Mixin.getByName('notification')
+    ],
 
     props: {
         set: {
@@ -46,12 +46,6 @@ Component.register('sw-custom-field-list', {
         };
     },
 
-    watch: {
-        term() {
-            this.loadCustomFields();
-        }
-    },
-
     computed: {
         customFieldRepository() {
             return this.repositoryFactory.create(
@@ -62,6 +56,12 @@ Component.register('sw-custom-field-list', {
 
         globalCustomFieldRepository() {
             return this.repositoryFactory.create('custom_field');
+        }
+    },
+
+    watch: {
+        term() {
+            this.loadCustomFields();
         }
     },
 

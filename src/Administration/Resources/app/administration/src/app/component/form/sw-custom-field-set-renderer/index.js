@@ -17,11 +17,6 @@ Component.register('sw-custom-field-set-renderer', {
 
     inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('placeholder')
-    ],
-
     // Grant access to some variables to the child form render components
     provide() {
         return {
@@ -31,6 +26,11 @@ Component.register('sw-custom-field-set-renderer', {
             getCustomFieldSetVariant: this.variant
         };
     },
+
+    mixins: [
+        Mixin.getByName('sw-inline-snippet'),
+        Mixin.getByName('placeholder')
+    ],
 
     props: {
         sets: {

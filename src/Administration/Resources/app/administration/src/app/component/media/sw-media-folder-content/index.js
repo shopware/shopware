@@ -15,7 +15,8 @@ Component.register('sw-media-folder-content', {
     props: {
         startFolderId: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         selectedId: {
@@ -32,16 +33,16 @@ Component.register('sw-media-folder-content', {
         };
     },
 
+    computed: {
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
+        }
+    },
+
     watch: {
         startFolderId() {
             this.getSubFolders(this.startFolderId);
             this.fetchParentFolder(this.startFolderId);
-        }
-    },
-
-    computed: {
-        mediaFolderRepository() {
-            return this.repositoryFactory.create('media_folder');
         }
     },
 

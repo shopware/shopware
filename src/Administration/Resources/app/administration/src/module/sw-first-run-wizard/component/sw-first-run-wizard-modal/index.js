@@ -8,12 +8,6 @@ Component.register('sw-first-run-wizard-modal', {
 
     inject: ['firstRunWizardService'],
 
-    metaInfo() {
-        return {
-            title: this.title
-        };
-    },
-
     data() {
         return {
             title: 'No title defined',
@@ -86,6 +80,12 @@ Component.register('sw-first-run-wizard-modal', {
                     navigationIndex: 8
                 }
             }
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.title
         };
     },
 

@@ -17,6 +17,8 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             type: Boolean,
             default: true
         },
+        // FIXME: add default value to this property
+        // eslint-disable-next-line vue/require-default-prop
         dataSource: {
             type: [Array, Object],
             required: false

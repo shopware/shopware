@@ -48,7 +48,7 @@ class CategoryListRoute extends AbstractCategoryListRoute
      *          @OA\JsonContent(
      *              type="object",
      *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/ListingResult"),
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
      *                  @OA\Property(
      *                      type="array",
      *                      property="elements",

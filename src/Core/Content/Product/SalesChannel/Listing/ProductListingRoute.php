@@ -73,14 +73,14 @@ class ProductListingRoute extends AbstractProductListingRoute
      *      tags={"Store API","Product"},
      *      @OA\Parameter(
      *          name="categoryId",
-     *          description="Category ID",
+     *          description="Identifier of the category.",
      *          @OA\Schema(type="string"),
      *          in="path",
      *          required=true
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Found products",
+     *          description="Returns a product listing containing all products and additional fields to display a listing.",
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )

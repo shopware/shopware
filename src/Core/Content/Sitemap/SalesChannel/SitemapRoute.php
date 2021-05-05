@@ -51,7 +51,7 @@ class SitemapRoute extends AbstractSitemapRoute
      *      tags={"Store API", "Sitemap & Routes"},
      *      @OA\Response(
      *          response="200",
-     *          description="",
+     *          description="Returns a list of available sitemaps.",
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Sitemap"))
      *     )
      * )

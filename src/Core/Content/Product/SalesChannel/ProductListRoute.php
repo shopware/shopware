@@ -45,7 +45,17 @@ class ProductListRoute extends AbstractProductListRoute
      *      @OA\Response(
      *          response="200",
      *          description="Entity search result containing products",
-     *          @OA\Schema(ref="#/components/schemas/EntitySearchResult")
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Property(
+     *                      type="array",
+     *                      property="elements",
+     *                      @OA\Items(ref="#/components/schemas/product_flat"),
+     *                  )
+     *              }
+     *          )
      *     )
      * )
      * @Route("/store-api/product", name="store-api.product.search", methods={"GET", "POST"})

@@ -72,7 +72,7 @@ class CategoryRoute extends AbstractCategoryRoute
      *             },
      *             @OA\Property(
      *                 property="categoryId",
-     *                 description="ID of the category to be fetched",
+     *                 description="Identifier of the category to be fetched",
      *                 @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
      *             )
      *         )

@@ -24,11 +24,12 @@ class ContextRoute extends AbstractContextRoute
      * @OA\Get(
      *      path="/context",
      *      summary="Fetch the current context",
+     *      description="Fetches the current context. This includes for example the `customerGroup`, `currency`, `taxRules` and many more.",
      *      operationId="readContext",
      *      tags={"Store API","System & Context"},
      *      @OA\Response(
      *          response="200",
-     *          description="Context",
+     *          description="Returns the current context.",
      *          @OA\JsonContent(ref="#/components/schemas/SalesChannelContext")
      *     )
      * )

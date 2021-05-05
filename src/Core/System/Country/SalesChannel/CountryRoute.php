@@ -35,19 +35,26 @@ class CountryRoute extends AbstractCountryRoute
      * @OA\Post(
      *      path="/country",
      *      summary="Fetch countries",
+     *      description="Perform a filtered search for countries",
      *      operationId="readCountry",
      *      tags={"Store API", "System & Context"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(property="onlyAvailable", description="Lists only available countries", type="integer")
-     *          )
-     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="All available countries",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/country_flat"))
+     *          description="Entity search result containing countries.",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/country_flat")
+     *                      )
+     *                  )
+     *              }
+     *          )
      *     )
      * )
      * @Entity("country")

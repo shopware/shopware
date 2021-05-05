@@ -73,14 +73,27 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
      * @Entity("currency")
      * @OA\Post(
      *      path="/currency",
-     *      summary="Loads all available currency",
+     *      summary="Fetch currencies",
+     *      description="Perform a filtered search for currencies.",
      *      operationId="readCurrency",
-     *      tags={"Store API", "Currency"},
+     *      tags={"Store API", "System & Context"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          description="All available currency",
-     *          @OA\JsonContent(ref="#/components/schemas/currency_flat")
+     *          description="Entity search result containing currencies.",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/currency_flat")
+     *                      )
+     *                  )
+     *              }
+     *          )
      *     )
      * )
      * @Route("/store-api/currency", name="store-api.currency", methods={"GET", "POST"})

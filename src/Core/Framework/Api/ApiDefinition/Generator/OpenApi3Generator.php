@@ -138,7 +138,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 [
                     'id' => [
                         'type' => 'string',
-                        'format' => 'uuid',
+                        'pattern' => '^[0-9a-f]{32}$',
                     ],
                 ],
                 $schema,

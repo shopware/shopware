@@ -16,7 +16,9 @@
         "aggregations": {
           "type": "array",
           "description": "Contains aggregated data. A simple example is the determination of the average price from a product search query.",
-          "items": {}
+          "items": {
+            "type": "object"
+          }
         },
         "page": {
           "type": "integer",

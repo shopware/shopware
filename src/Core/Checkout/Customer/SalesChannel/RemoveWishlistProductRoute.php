@@ -60,19 +60,19 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      * @Since("6.3.4.0")
      * @OA\Delete(
      *      path="/customer/wishlist/delete/{productId}",
-     *      summary="Remove a prduct from a wishlist",
+     *      summary="Remove a product from a wishlist",
      *      description="Removes a product from a customer's wishlist.
 
-     **Important constraints**
+**Important constraints**
 
-     * Anonymous (not logged-in) customers can not have wishlists.
-     * The wishlist feature has to be activated.",
+* Anonymous (not logged-in) customers can not have wishlists.
+* The wishlist feature has to be activated.",
      *      operationId="deleteProductOnWishlist",
      *      tags={"Store API", "Wishlist"},
      *      @OA\Parameter(
      *        name="productId",
      *        in="path",
-     *        description="The ID of the product to be removed from the wishlist.",
+     *        description="The identifier of the product to be removed from the wishlist.",
      *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
      *        required=true
      *      ),

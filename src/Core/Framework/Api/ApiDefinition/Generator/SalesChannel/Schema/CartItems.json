@@ -4,13 +4,15 @@
       "$ref": "#/components/schemas/ArrayStruct"
     },
     {
-    "type": "object",
-    "properties": {
+      "type": "object",
+      "properties": {
         "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/LineItem"
-            }
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/LineItem"
+          }
         }
+      }
     }
+  ]
 }

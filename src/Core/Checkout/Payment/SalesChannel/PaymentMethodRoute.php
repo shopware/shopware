@@ -41,8 +41,8 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      * @Entity("payment_method")
      * @OA\Post (
      *      path="/payment-method",
-     *      summary="Fetch payment methods by criteria",
-     *      description="Lists active payment methods which can be used in the checkout process.",
+     *      summary="Fetch payment methods",
+     *      description="Perform a filtered search for payment methods, for use in the checkout process.",
      *      operationId="readPaymentMethod",
      *      tags={"Store API", "Payment & Shipping"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
@@ -55,8 +55,19 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      *      @OA\Response(
      *          response="200",
      *          description="Entity search result containing payment methods",
-     *          @OA\Schema(ref="#/components/schemas/EntitySearchResult")
-     *       )
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *                      )
+     *                  )
+     *              }
+     *          )
      *    )
      * )
      * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"})

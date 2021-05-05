@@ -47,6 +47,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
      * @OA\Get(
      *      path="/checkout/cart",
      *      summary="Fetch or create a cart",
+     *      description="Used to fetch the current cart or for creating a new one.",
      *      operationId="readCart",
      *      tags={"Store API", "Cart"},
      *      @OA\Parameter(

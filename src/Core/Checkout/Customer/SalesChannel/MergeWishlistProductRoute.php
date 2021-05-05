@@ -83,11 +83,11 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
      *      summary="Create a wishlist for a customer",
      *      description="Create a new wishlist for a logged in customer or extend the existing wishlist given a set of products.
 
-     **Important constraints**
+**Important constraints**
 
-     * Anonymous (not logged-in) customers can not have wishlists.
-     * A customer can only have a single wishlist.
-     * The wishlist feature has to be activated.",
+* Anonymous (not logged-in) customers can not have wishlists.
+* A customer can only have a single wishlist.
+* The wishlist feature has to be activated.",
      *      operationId="mergeProductOnWishlist",
      *      tags={"Store API", "Wishlist"},
      *      @OA\RequestBody(

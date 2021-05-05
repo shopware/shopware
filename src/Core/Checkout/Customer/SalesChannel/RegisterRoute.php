@@ -220,9 +220,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
      *              @OA\Property(
      *                  property="campaignCode",
      *                  type="string",
-     *                  description="Field can be used to store a campaign tracking code"),
-     *              example="{
-}"
+     *                  description="Field can be used to store a campaign tracking code")
      *          )
      *      ),
      *      @OA\Response(

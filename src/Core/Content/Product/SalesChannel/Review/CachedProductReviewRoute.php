@@ -72,14 +72,34 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
      * @Entity("product_review")
      * @OA\Post(
      *      path="/product/{productId}/reviews",
-     *      summary="",
+     *      summary="Fetch product reviews",
+     *      description="Perform a filtered search for product reviews.",
      *      operationId="readProductReviews",
      *      tags={"Store API","Product"},
-     *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *      @OA\Parameter(
+     *          name="productId",
+     *          description="Identifier of the product.",
+     *          @OA\Schema(type="string"),
+     *          in="path",
+     *          required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Found reviews",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/product_review_flat"))
+     *          description="Entity search result containing product reviews",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/product_review_flat")
+     *                      )
+     *                  )
+     *              }
+     *          )
      *     )
      * )
      * @Route("/store-api/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"})

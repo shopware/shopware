@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
+use OpenApi\Annotations\Parameter;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
@@ -16,6 +17,7 @@ use Symfony\Component\Finder\Finder;
 
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 {
+    public const FORMAT = 'openapi-3';
     private const OPERATION_KEYS = [
         'get',
         'post',
@@ -23,8 +25,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         'patch',
         'delete',
     ];
-
-    public const FORMAT = 'openapi-3';
 
     /**
      * @var OpenApiSchemaBuilder
@@ -94,7 +94,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         }
 
         $this->addGeneralInformation($openApi);
-        $this->addContentTypeParamter($openApi);
+        $this->addContentTypeParameter($openApi);
 
         $data = json_decode($openApi->toJson(), true);
 
@@ -116,11 +116,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     public function getSchema(array $definitions): array
     {
         return $this->openApi3Generator->getSchema($definitions);
-    }
-
-    private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string
-    {
-        return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition->getEntityName());
     }
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
@@ -150,34 +145,41 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return false;
     }
 
-    private function addGeneralInformation(OpenApi $openApi)
+    private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string
+    {
+        return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition->getEntityName());
+    }
+
+    private function addGeneralInformation(OpenApi $openApi): void
     {
         $openApi->info->description = 'This endpoint reference contains an overview of all endpoints comprising the Shopware Store API';
     }
 
-    private function addContentTypeParamter(OpenApi $openApi)
+    private function addContentTypeParameter(OpenApi $openApi): void
     {
         $openApi->components->parameters = [
-            'contentType' => [
+            new Parameter([
+                'parameter' => 'contentType',
                 'name' => 'Content-Type',
                 'in' => 'header',
                 'required' => true,
                 'schema' => [
                     'type' => 'string',
-                    'default' => 'application/json'
+                    'default' => 'application/json',
                 ],
-                'description' => 'Content type of the request'
-            ],
-            'accept' => [
+                'description' => 'Content type of the request',
+            ]),
+            new Parameter([
+                'parameter' => 'accept',
                 'name' => 'Accept',
                 'in' => 'header',
                 'required' => true,
                 'schema' => [
                     'type' => 'string',
-                    'default' => 'application/json'
+                    'default' => 'application/json',
                 ],
-                'description' => 'Accepted response content types'
-            ]
+                'description' => 'Accepted response content types',
+            ]),
         ];
 
         foreach ($openApi->paths as $path) {
@@ -189,14 +191,14 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     continue;
                 }
 
-                if (!is_array($operation->parameters)) {
+                if (!\is_array($operation->parameters)) {
                     $operation->parameters = [];
-                };
+                }
 
                 array_push($operation->parameters, [
-                    '$ref' => '#/components/parameters/contentType'
+                    '$ref' => '#/components/parameters/contentType',
                 ], [
-                    '$ref' => '#/components/parameters/accept'
+                    '$ref' => '#/components/parameters/accept',
                 ]);
             }
         }

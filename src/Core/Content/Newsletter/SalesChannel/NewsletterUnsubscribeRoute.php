@@ -67,7 +67,19 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
      *      description="Removes a newsletter recipient from the mailing lists.",
      *      operationId="unsubscribeToNewsletter",
      *      tags={"Store API", "Newsletter"},
-     *      @OA\Parameter(name="email", description="Email", in="query", @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={
+     *                  "email"
+     *              },
+     *              @OA\Property(
+     *                  property="email",
+     *                  type="string",
+     *                  description="Email address that should be removed from the mailing lists."
+     *              )
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Unsubscribing was successful.",

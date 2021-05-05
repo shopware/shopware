@@ -56,11 +56,12 @@ class NavigationRoute extends AbstractNavigationRoute
      *      path="/navigation/{requestActiveId}/{requestRootId}",
      *      summary="Fetch a navigation menu",
      *      description="This endpoint returns categories that can be used as a page navigation. You can either return them as a tree or as a flat list. You can also control the depth of the tree.
-    Instead of passing uuids, you can also use one of the following aliases for the activeId and rootId parameters to get the respective navigations of your sales channel.
 
-     * main-navigation
-     * service-navigation
-     * footer-navigation",
+Instead of passing uuids, you can also use one of the following aliases for the activeId and rootId parameters to get the respective navigations of your sales channel.
+
+* main-navigation
+* service-navigation
+* footer-navigation",
      *      operationId="readNavigation",
      *      tags={"Store API", "Category"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
@@ -78,17 +79,20 @@ class NavigationRoute extends AbstractNavigationRoute
      *          in="path",
      *          required=true
      *      ),
-     *      @OA\Parameter(
-     *          name="depth",
-     *          description="Determines the depth of fetched navigation levels.",
-     *          @OA\Schema(type="integer", default="2"),
-     *          in="query"
-     *      ),
-     *      @OA\Parameter(
-     *          name="buildTree",
-     *          description="Return the categories as a tree or as a flat list.",
-     *          @OA\Schema(type="boolean", default="true"),
-     *          in="query"
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="depth",
+     *                  description="Determines the depth of fetched navigation levels.",
+     *                  @OA\Schema(type="integer", default="2")
+     *              ),
+     *              @OA\Property(
+     *                  property="buildTree",
+     *                  description="Return the categories as a tree or as a flat list.",
+     *                  @OA\Schema(type="boolean", default="true")
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

@@ -43,6 +43,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      * @OA\Post(
      *      path="/shipping-method",
      *      summary="Fetch shipping methods",
+     *      description="Perform a filtered search for shipping methods.",
      *      operationId="readShippingMethod",
      *      tags={"Store API", "Payment & Shipping"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

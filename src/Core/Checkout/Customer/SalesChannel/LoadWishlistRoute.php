@@ -78,10 +78,10 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      *      summary="Fetch a wishlist",
      *      description="Fetch a customer's wishlist. Products on the wishlist can be filtered using a criteria object.
 
-     **Important constraints**
+**Important constraints**
 
-     * Anonymous (not logged-in) customers can not have wishlists.
-     * The wishlist feature has to be activated.",
+* Anonymous (not logged-in) customers can not have wishlists.
+* The wishlist feature has to be activated.",
      *      operationId="readCustomerWishlist",
      *      tags={"Store API", "Wishlist"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

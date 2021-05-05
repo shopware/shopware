@@ -15,7 +15,9 @@
             },
             "manufacturer": {
               "type": "array",
-              "items": {}
+              "items": {
+                "type": "object"
+              }
             },
             "price": {
               "type": "object",
@@ -29,21 +31,25 @@
               }
             },
             "rating": {
-              "type": "null"
+              "type": "integer"
             },
             "shipping-free": {
               "type": "boolean"
             },
             "properties": {
               "type": "array",
-              "items": {}
+              "items": {
+                "type": "object"
+              }
             }
           }
         },
         "availableSortings": {
           "type": "array",
           "description": "Contains the available sorting. These can be used to show a sorting select-box in the product listing.",
-          "items": []
+          "items": {
+            "type": "object"
+          }
         },
         "sorting": {
           "type": "string"

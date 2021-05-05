@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
-use OpenApi\Annotations\JsonContent;
 use OpenApi\Annotations\MediaType;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\PathItem;
-use OpenApi\Annotations\Property;
 use OpenApi\Annotations\RequestBody;
 use OpenApi\Annotations\Schema;
 use OpenApi\Context;
-use OpenApi\Tests\Fixtures\ExtendedWithoutAllOf;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -53,7 +50,7 @@ class OpenApiLoader
         $openApi = scan($openApiPathsEvent->getPaths(), ['analysis' => new DeactivateValidationAnalysis()]);
 
         // @see: https://regex101.com/r/XYRxEm/1
-        $sinceRegex = '/\@Since\("(.*)"\)/m';
+        // $sinceRegex = '/\@Since\("(.*)"\)/m';
 
         $calculatedPaths = [];
         foreach ($openApi->paths as $pathItem) {
@@ -159,17 +156,19 @@ class OpenApiLoader
                         if (!isset($operation->requestBody->content['application/json'])) {
                             $operation->requestBody->content['application/json'] = new MediaType([
                                 'mediaType' => 'application/json',
-                                'schema' => new JsonContent([
-                                    'properties' => [],
-                                ]),
                             ]);
                         }
 
+                        $allOf = [
+                            ['$ref' => '#/components/schemas/Criteria'],
+                        ];
+
+                        if ($operation->requestBody->content['application/json']->schema !== UNDEFINED) {
+                            array_push($allOf, $operation->requestBody->content['application/json']->schema);
+                        }
+
                         $operation->requestBody->content['application/json']->schema = new Schema([
-                            'allOf' => [
-                                $operation->requestBody->content['application/json']->schema,
-                                ['$ref' => '#/components/schemas/Criteria']
-                            ]
+                            'allOf' => $allOf,
                         ]);
                     }
                 }

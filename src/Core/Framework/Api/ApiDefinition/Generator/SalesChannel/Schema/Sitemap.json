@@ -1,15 +1,19 @@
 {
-  "type": "object",
-  "properties": {
-    "apiAlias": {
-      "type": "string"
+  "allOf": [
+    {
+      "$ref": "#/components/schemas/ArrayStruct"
     },
-    "filename": {
-      "type": "string"
-    },
-    "created": {
-      "type": "string",
-      "format": "date-time"
+    {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     }
-  }
+  ]
 }

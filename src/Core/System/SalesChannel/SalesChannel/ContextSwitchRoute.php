@@ -70,6 +70,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      * @OA\Patch(
      *      path="/context",
      *      summary="Modify the current context",
+     *      description="Used for switching the context. A typical example would be changing the language or changing the currency.",
      *      operationId="updateContext",
      *      tags={"Store API","System & Context"},
      *      @OA\RequestBody(
@@ -87,7 +88,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Context",
+     *          description="Returns the context token. Use that as your `sw-context-token` header for subsequent requests.",
      *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )

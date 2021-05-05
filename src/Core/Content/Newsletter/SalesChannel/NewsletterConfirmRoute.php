@@ -64,11 +64,26 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
      * @OA\Post(
      *      path="/newsletter/confirm",
      *      summary="Confirm a newsletter registration",
-     *      description="The link for this route is normally send out via email, when a customer regsiters for the newsletter. The customer will not receive any newsletters until the newsletter registration is done.",
+     *      description="You have to use the hash from the link sent out via email to confirm the user registration.",
      *      operationId="confirmNewsletter",
      *      tags={"Store API", "Newsletter"},
-     *      @OA\Parameter(name="hash", description="Hash from Mail", in="query", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="em", description="Hash from Mail", in="query", @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={
+     *                  "hash",
+     *                  "em"
+     *              },
+     *              @OA\Property(
+     *                  property="hash",
+     *                  type="string",
+     *                  description="Hash parameter from link the in the confirmation mail"),
+     *              @OA\Property(
+     *                  property="em",
+     *                  type="string",
+     *                  description="Email hash parameter from the link in the confirmation mail"),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="The newsletter confirmation was successful.",

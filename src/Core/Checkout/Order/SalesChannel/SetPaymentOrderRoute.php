@@ -59,6 +59,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      * @OA\Post(
      *      path="/order/payment",
      *      summary="Update the payment method of an order",
+     *      description="Changes the payment method of a specific order. You can use the /order route to find out if the payment method of an order can be changed - take a look at the `paymentChangeable`- array in the response.",
      *      operationId="orderSetPayment",
      *      tags={"Store API", "Order"},
      *      @OA\RequestBody(
@@ -70,19 +71,19 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      *              },
      *              @OA\Property(
      *                  property="paymentMethodId",
-     *                  description="The id of the paymentMethod to be set",
+     *                  description="The identifier of the paymentMethod to be set",
      *                  type="string"
      *              ),
      *              @OA\Property(
      *                  property="orderId",
-     *                  description="The id of the order",
+     *                  description="The identifier of the order.",
      *                  type="string"
      *              )
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Successfully set a payment",
+     *          description="Successfully updated the payment method of the order.",
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )

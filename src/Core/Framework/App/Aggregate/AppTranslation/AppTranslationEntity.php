@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Aggregate\AppTranslation;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageEntity;
 
@@ -13,6 +14,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 class AppTranslationEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -28,11 +30,6 @@ class AppTranslationEntity extends Entity
      * @var string|null
      */
     protected $privacyPolicyExtensions;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var string
@@ -82,16 +79,6 @@ class AppTranslationEntity extends Entity
     public function setPrivacyPolicyExtensions(?string $privacyPolicyExtensions): void
     {
         $this->privacyPolicyExtensions = $privacyPolicyExtensions;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getAppId(): string

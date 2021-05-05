@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter;
 
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ProductStreamFilterEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -64,11 +66,6 @@ class ProductStreamFilterEntity extends Entity
      * @var array|null
      */
     protected $parameters;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getField(): ?string
     {
@@ -178,15 +175,5 @@ class ProductStreamFilterEntity extends Entity
     public function setParameters(?array $parameters): void
     {
         $this->parameters = $parameters;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

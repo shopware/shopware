@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Country\Aggregate\CountryState;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\System\Country\CountryEntity;
 class CountryStateEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -57,11 +59,6 @@ class CountryStateEntity extends Entity
      * @var OrderAddressCollection|null
      */
     protected $orderAddresses;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getCountryId(): string
     {
@@ -151,15 +148,5 @@ class CountryStateEntity extends Entity
     public function setOrderAddresses(OrderAddressCollection $orderAddresses): void
     {
         $this->orderAddresses = $orderAddresses;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

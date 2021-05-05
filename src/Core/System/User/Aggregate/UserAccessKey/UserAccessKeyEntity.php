@@ -3,12 +3,14 @@
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\User\UserEntity;
 
 class UserAccessKeyEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -39,11 +41,6 @@ class UserAccessKeyEntity extends Entity
      * @var UserEntity|null
      */
     protected $user;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getUserId(): string
     {
@@ -103,15 +100,5 @@ class UserAccessKeyEntity extends Entity
     public function setUser(UserEntity $user): void
     {
         $this->user = $user;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

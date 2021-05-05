@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class MailTemplateTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -36,11 +39,6 @@ class MailTemplateTranslationEntity extends TranslationEntity
      * @var string|null
      */
     protected $contentPlain;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var MailTemplateEntity|null
@@ -115,15 +113,5 @@ class MailTemplateTranslationEntity extends TranslationEntity
     public function setMailTemplate(MailTemplateEntity $mailTemplate): void
     {
         $this->mailTemplate = $mailTemplate;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

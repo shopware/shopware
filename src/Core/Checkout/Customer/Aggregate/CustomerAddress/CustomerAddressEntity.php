@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 class CustomerAddressEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -107,11 +109,6 @@ class CustomerAddressEntity extends Entity
      * @var CustomerEntity|null
      */
     protected $customer;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getCustomerId(): string
     {
@@ -301,15 +298,5 @@ class CustomerAddressEntity extends Entity
     public function setCustomer(CustomerEntity $customer): void
     {
         $this->customer = $customer;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

@@ -3,12 +3,14 @@
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class PaymentMethodTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -29,11 +31,6 @@ class PaymentMethodTranslationEntity extends TranslationEntity
      * @var PaymentMethodEntity|null
      */
     protected $paymentMethod;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getPaymentMethodId(): string
     {
@@ -73,15 +70,5 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     public function setPaymentMethod(PaymentMethodEntity $paymentMethod): void
     {
         $this->paymentMethod = $paymentMethod;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

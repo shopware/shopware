@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
 class UnitTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -26,11 +29,6 @@ class UnitTranslationEntity extends TranslationEntity
      * @var UnitEntity|null
      */
     protected $unit;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getUnitId(): string
     {
@@ -70,15 +68,5 @@ class UnitTranslationEntity extends TranslationEntity
     public function setUnit(UnitEntity $unit): void
     {
         $this->unit = $unit;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

@@ -5,12 +5,14 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
 class OrderCustomerEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -76,11 +78,6 @@ class OrderCustomerEntity extends Entity
      * @var OrderEntity|null
      */
     protected $order;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var string|null
@@ -195,16 +192,6 @@ class OrderCustomerEntity extends Entity
     public function setSalutation(SalutationEntity $salutation): void
     {
         $this->salutation = $salutation;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getOrderId(): string

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Rule\Rule;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Rule\Rule;
 class RuleEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -73,11 +75,6 @@ class RuleEntity extends Entity
      * @var bool
      */
     protected $invalid;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var ShippingMethodPriceCollection|null
@@ -212,16 +209,6 @@ class RuleEntity extends Entity
     public function setModuleTypes(?array $moduleTypes): void
     {
         $this->moduleTypes = $moduleTypes;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getShippingMethodPrices(): ?ShippingMethodPriceCollection

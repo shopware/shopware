@@ -5,11 +5,13 @@ namespace Shopware\Core\Content\Property;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class PropertyGroupEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -55,11 +57,6 @@ class PropertyGroupEntity extends Entity
      * @var PropertyGroupTranslationCollection|null
      */
     protected $translations;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getName(): ?string
     {
@@ -149,15 +146,5 @@ class PropertyGroupEntity extends Entity
     public function setSortingType(string $sortingType): void
     {
         $this->sortingType = $sortingType;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

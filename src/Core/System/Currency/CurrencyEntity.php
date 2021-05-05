@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class CurrencyEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -72,11 +74,6 @@ class CurrencyEntity extends Entity
      * @var SalesChannelDomainCollection|null
      */
     protected $salesChannelDomains;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var ShippingMethodPriceCollection|null
@@ -228,16 +225,6 @@ class CurrencyEntity extends Entity
     public function setSalesChannelDomains(SalesChannelDomainCollection $salesChannelDomains): void
     {
         $this->salesChannelDomains = $salesChannelDomains;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getShippingMethodPrices(): ?ShippingMethodPriceCollection

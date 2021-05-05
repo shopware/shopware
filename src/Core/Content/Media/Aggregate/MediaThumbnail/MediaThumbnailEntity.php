@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MediaThumbnailEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var int
@@ -34,11 +36,6 @@ class MediaThumbnailEntity extends Entity
      * @var MediaEntity|null
      */
     protected $media;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getWidth(): int
     {
@@ -95,15 +92,5 @@ class MediaThumbnailEntity extends Entity
         $identifier = sprintf('%dx%d', $this->getWidth(), $this->getHeight());
 
         return $identifier;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

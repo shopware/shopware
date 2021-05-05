@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Country;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 class CountryEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -105,11 +107,6 @@ class CountryEntity extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannels;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var TaxRuleCollection|null
@@ -313,16 +310,6 @@ class CountryEntity extends Entity
     public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getTaxRules(): ?TaxRuleCollection

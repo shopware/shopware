@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 class DeliveryTimeTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var DeliveryTimeEntity|null
      */
@@ -31,11 +34,6 @@ class DeliveryTimeTranslationEntity extends TranslationEntity
      * @var \DateTimeInterface|null
      */
     protected $updatedAt;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getDeliveryTime(): ?DeliveryTimeEntity
     {
@@ -65,15 +63,5 @@ class DeliveryTimeTranslationEntity extends TranslationEntity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

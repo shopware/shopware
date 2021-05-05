@@ -3,12 +3,14 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class CustomerGroupTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -24,11 +26,6 @@ class CustomerGroupTranslationEntity extends TranslationEntity
      * @var CustomerGroupEntity|null
      */
     protected $customerGroup;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var string
@@ -78,16 +75,6 @@ class CustomerGroupTranslationEntity extends TranslationEntity
     public function setCustomerGroup(CustomerGroupEntity $customerGroup): void
     {
         $this->customerGroup = $customerGroup;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getRegistrationTitle(): ?string

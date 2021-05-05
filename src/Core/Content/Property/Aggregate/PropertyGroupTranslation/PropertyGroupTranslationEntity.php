@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation;
 
 use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class PropertyGroupTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -31,11 +34,6 @@ class PropertyGroupTranslationEntity extends TranslationEntity
      * @var PropertyGroupEntity|null
      */
     protected $propertyGroup;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getPropertyGroupId(): string
     {
@@ -85,15 +83,5 @@ class PropertyGroupTranslationEntity extends TranslationEntity
     public function setPosition(?int $position): void
     {
         $this->position = $position;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

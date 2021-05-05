@@ -6,11 +6,13 @@ use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderE
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MediaFolderEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -66,11 +68,6 @@ class MediaFolderEntity extends Entity
      * @var string|null
      */
     protected $defaultFolderId;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getName(): string
     {
@@ -180,15 +177,5 @@ class MediaFolderEntity extends Entity
     public function setDefaultFolderId(?string $defaultFolderId): void
     {
         $this->defaultFolderId = $defaultFolderId;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

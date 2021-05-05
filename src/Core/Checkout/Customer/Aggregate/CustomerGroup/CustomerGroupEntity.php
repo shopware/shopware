@@ -5,12 +5,14 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CustomerGroupEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -31,11 +33,6 @@ class CustomerGroupEntity extends Entity
      * @var CustomerCollection|null
      */
     protected $customers;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var SalesChannelCollection|null
@@ -110,16 +107,6 @@ class CustomerGroupEntity extends Entity
     public function setCustomers(CustomerCollection $customers): void
     {
         $this->customers = $customers;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $attributes): void
-    {
-        $this->customFields = $attributes;
     }
 
     public function getSalesChannels(): ?SalesChannelCollection

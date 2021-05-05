@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
@@ -11,6 +12,7 @@ use Shopware\Core\System\User\UserCollection;
 class LocaleEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -41,11 +43,6 @@ class LocaleEntity extends Entity
      * @var LanguageCollection|null
      */
     protected $languages;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getCode(): string
     {
@@ -105,15 +102,5 @@ class LocaleEntity extends Entity
     public function setLanguages(LanguageCollection $languages): void
     {
         $this->languages = $languages;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

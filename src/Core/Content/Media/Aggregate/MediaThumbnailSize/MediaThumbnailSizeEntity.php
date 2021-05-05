@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MediaThumbnailSizeEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var int
@@ -24,11 +26,6 @@ class MediaThumbnailSizeEntity extends Entity
      * @var MediaFolderConfigurationCollection|null
      */
     protected $mediaFolderConfigurations;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getWidth(): int
     {
@@ -58,15 +55,5 @@ class MediaThumbnailSizeEntity extends Entity
     public function setMediaFolderConfigurations(MediaFolderConfigurationCollection $mediaFolderConfigurations): void
     {
         $this->mediaFolderConfigurations = $mediaFolderConfigurations;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

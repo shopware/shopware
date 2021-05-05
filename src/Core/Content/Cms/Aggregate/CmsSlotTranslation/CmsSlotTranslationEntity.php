@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class CmsSlotTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var array|null
      */
@@ -21,11 +24,6 @@ class CmsSlotTranslationEntity extends TranslationEntity
      * @var CmsSlotEntity|null
      */
     protected $cmsSlot;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getConfig(): ?array
     {
@@ -55,15 +53,5 @@ class CmsSlotTranslationEntity extends TranslationEntity
     public function setCmsSlot(CmsSlotEntity $cmsSlot): void
     {
         $this->cmsSlot = $cmsSlot;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

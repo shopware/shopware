@@ -6,11 +6,13 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ProductManufacturerEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -46,11 +48,6 @@ class ProductManufacturerEntity extends Entity
      * @var ProductCollection|null
      */
     protected $products;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getMediaId(): ?string
     {
@@ -120,15 +117,5 @@ class ProductManufacturerEntity extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

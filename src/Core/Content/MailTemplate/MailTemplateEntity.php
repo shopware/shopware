@@ -6,11 +6,13 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateM
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MailTemplateEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -51,11 +53,6 @@ class MailTemplateEntity extends Entity
      * @var string|null
      */
     protected $contentPlain;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var MailTemplateTranslationCollection|null
@@ -165,15 +162,5 @@ class MailTemplateEntity extends Entity
     public function setMailTemplateTypeId(?string $mailTemplateTypeId): void
     {
         $this->mailTemplateTypeId = $mailTemplateTypeId;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

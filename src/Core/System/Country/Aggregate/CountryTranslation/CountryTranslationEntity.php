@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryTranslation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Country\CountryEntity;
 
 class CountryTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -21,11 +24,6 @@ class CountryTranslationEntity extends TranslationEntity
      * @var CountryEntity|null
      */
     protected $country;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getCountryId(): string
     {
@@ -55,15 +53,5 @@ class CountryTranslationEntity extends TranslationEntity
     public function setCountry(CountryEntity $country): void
     {
         $this->country = $country;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

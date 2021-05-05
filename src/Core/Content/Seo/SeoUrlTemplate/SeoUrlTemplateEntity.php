@@ -3,12 +3,14 @@
 namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class SeoUrlTemplateEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -39,11 +41,6 @@ class SeoUrlTemplateEntity extends Entity
      * @var SalesChannelEntity|null
      */
     protected $salesChannel;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getSalesChannelId(): ?string
     {
@@ -103,15 +100,5 @@ class SeoUrlTemplateEntity extends Entity
     public function setSalesChannel(SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

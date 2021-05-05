@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Snippet\Aggregate\SnippetSet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\System\Snippet\SnippetCollection;
 class SnippetSetEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -35,11 +37,6 @@ class SnippetSetEntity extends Entity
      * @var SalesChannelDomainCollection|null
      */
     protected $salesChannelDomains;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getName(): string
     {
@@ -89,15 +86,5 @@ class SnippetSetEntity extends Entity
     public function setSalesChannelDomains(SalesChannelDomainCollection $salesChannelDomains): void
     {
         $this->salesChannelDomains = $salesChannelDomains;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

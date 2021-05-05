@@ -8,11 +8,13 @@ use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ProductStreamEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -43,11 +45,6 @@ class ProductStreamEntity extends Entity
      * @var ProductStreamTranslationCollection|null
      */
     protected $translations;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var ProductExportCollection|null
@@ -122,16 +119,6 @@ class ProductStreamEntity extends Entity
     public function setTranslations(ProductStreamTranslationCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getProductExports(): ?ProductExportCollection

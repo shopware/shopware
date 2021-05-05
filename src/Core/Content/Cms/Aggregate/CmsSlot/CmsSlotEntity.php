@@ -7,12 +7,14 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CmsSlotEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -50,11 +52,6 @@ class CmsSlotEntity extends Entity
      * @var EntityCollection|null
      */
     protected $translations;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var Struct|null
@@ -125,16 +122,6 @@ class CmsSlotEntity extends Entity
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getData(): ?Struct

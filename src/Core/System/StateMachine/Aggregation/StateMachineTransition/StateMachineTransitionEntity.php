@@ -3,12 +3,14 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
 class StateMachineTransitionEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -44,11 +46,6 @@ class StateMachineTransitionEntity extends Entity
      * @var StateMachineStateEntity|null
      */
     protected $toStateMachineState;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getStateMachineId(): string
     {
@@ -108,16 +105,6 @@ class StateMachineTransitionEntity extends Entity
     public function setToStateMachineState(StateMachineStateEntity $toStateMachineState): void
     {
         $this->toStateMachineState = $toStateMachineState;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getActionName(): string

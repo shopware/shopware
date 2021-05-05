@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class OrderDeliveryPositionEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -51,11 +53,6 @@ class OrderDeliveryPositionEntity extends Entity
      * @var OrderDeliveryEntity|null
      */
     protected $orderDelivery;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getOrderDeliveryId(): string
     {
@@ -135,15 +132,5 @@ class OrderDeliveryPositionEntity extends Entity
     public function setOrderDelivery(OrderDeliveryEntity $orderDelivery): void
     {
         $this->orderDelivery = $orderDelivery;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

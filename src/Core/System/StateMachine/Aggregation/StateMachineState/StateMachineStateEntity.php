@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\System\StateMachine\StateMachineEntity;
 class StateMachineStateEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -74,11 +76,6 @@ class StateMachineStateEntity extends Entity
      * @var StateMachineHistoryCollection|null
      */
     protected $toStateMachineHistoryEntries;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getToStateMachineHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -198,15 +195,5 @@ class StateMachineStateEntity extends Entity
     public function setOrderDeliveries(OrderDeliveryCollection $orderDeliveries): void
     {
         $this->orderDeliveries = $orderDeliveries;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

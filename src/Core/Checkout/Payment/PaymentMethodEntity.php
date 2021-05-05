@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class PaymentMethodEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string|null
@@ -101,11 +103,6 @@ class PaymentMethodEntity extends Entity
      * @var MediaEntity|null
      */
     protected $media;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var string
@@ -290,16 +287,6 @@ class PaymentMethodEntity extends Entity
     public function setMedia(?MediaEntity $media): void
     {
         $this->media = $media;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getAfterOrderEnabled(): bool

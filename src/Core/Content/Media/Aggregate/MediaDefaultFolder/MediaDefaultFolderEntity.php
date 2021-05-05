@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MediaDefaultFolderEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string[]
@@ -24,11 +26,6 @@ class MediaDefaultFolderEntity extends Entity
      * @var MediaFolderEntity|null
      */
     protected $folder;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getAssociationFields(): array
     {
@@ -58,15 +55,5 @@ class MediaDefaultFolderEntity extends Entity
     public function setFolder(?MediaFolderEntity $folder): void
     {
         $this->folder = $folder;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

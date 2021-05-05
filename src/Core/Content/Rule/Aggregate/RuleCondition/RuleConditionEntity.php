@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class RuleConditionEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -49,11 +51,6 @@ class RuleConditionEntity extends Entity
      * @var int
      */
     protected $position;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getType(): string
     {
@@ -133,15 +130,5 @@ class RuleConditionEntity extends Entity
     public function setPosition(int $position): void
     {
         $this->position = $position;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

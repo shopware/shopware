@@ -2,20 +2,18 @@
 
 namespace Shopware\Storefront\Theme\Aggregate;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Storefront\Theme\ThemeEntity;
 
 class ThemeTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string|null
      */
     protected $themeId;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var string|null
@@ -36,16 +34,6 @@ class ThemeTranslationEntity extends TranslationEntity
      * @var ThemeEntity|null
      */
     protected $theme;
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
-    }
 
     public function getDescription(): ?string
     {

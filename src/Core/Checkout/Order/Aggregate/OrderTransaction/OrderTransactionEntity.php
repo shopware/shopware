@@ -6,12 +6,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
 class OrderTransactionEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -47,11 +49,6 @@ class OrderTransactionEntity extends Entity
      * @var string
      */
     protected $stateId;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getOrderId(): string
     {
@@ -121,15 +118,5 @@ class OrderTransactionEntity extends Entity
     public function setStateId(string $stateId): void
     {
         $this->stateId = $stateId;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

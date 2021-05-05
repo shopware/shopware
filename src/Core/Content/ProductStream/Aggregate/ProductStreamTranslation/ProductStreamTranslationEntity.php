@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation;
 
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class ProductStreamTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -26,11 +29,6 @@ class ProductStreamTranslationEntity extends TranslationEntity
      * @var ProductStreamEntity|null
      */
     protected $productStream;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getProductStreamId(): string
     {
@@ -70,15 +68,5 @@ class ProductStreamTranslationEntity extends TranslationEntity
     public function setProductStream(?ProductStreamEntity $productStream): void
     {
         $this->productStream = $productStream;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

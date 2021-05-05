@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -24,6 +25,7 @@ use Shopware\Core\System\User\UserEntity;
 class OrderEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -164,11 +166,6 @@ class OrderEntity extends Entity
      * @var string
      */
     protected $stateId;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var DocumentCollection|null
@@ -463,16 +460,6 @@ class OrderEntity extends Entity
     public function setStateId(string $stateId): void
     {
         $this->stateId = $stateId;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function setAmountTotal(float $amountTotal): void

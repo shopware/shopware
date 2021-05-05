@@ -5,11 +5,13 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ProductMediaEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -35,11 +37,6 @@ class ProductMediaEntity extends Entity
      * @var ProductEntity|null
      */
     protected $product;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getProductId(): string
     {
@@ -89,15 +86,5 @@ class ProductMediaEntity extends Entity
     public function setProduct(ProductEntity $product): void
     {
         $this->product = $product;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

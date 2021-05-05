@@ -3,10 +3,13 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class ShippingMethodTranslationEntity extends TranslationEntity
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var string
      */
@@ -31,11 +34,6 @@ class ShippingMethodTranslationEntity extends TranslationEntity
      * @var ShippingMethodEntity|null
      */
     protected $shippingMethod;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     public function getShippingMethodId(): string
     {
@@ -85,15 +83,5 @@ class ShippingMethodTranslationEntity extends TranslationEntity
     public function setShippingMethod(ShippingMethodEntity $shippingMethod): void
     {
         $this->shippingMethod = $shippingMethod;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }

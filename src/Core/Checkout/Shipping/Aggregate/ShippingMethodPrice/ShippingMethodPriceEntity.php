@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 class ShippingMethodPriceEntity extends Entity
 {
     use EntityIdTrait;
+    use EntityCustomFieldsTrait;
 
     /**
      * @var string
@@ -42,11 +44,6 @@ class ShippingMethodPriceEntity extends Entity
      * @var ShippingMethodEntity|null
      */
     protected $shippingMethod;
-
-    /**
-     * @var array|null
-     */
-    protected $customFields;
 
     /**
      * @var RuleEntity|null
@@ -121,16 +118,6 @@ class ShippingMethodPriceEntity extends Entity
     public function setShippingMethod(ShippingMethodEntity $shippingMethod): void
     {
         $this->shippingMethod = $shippingMethod;
-    }
-
-    public function getCustomFields(): ?array
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields(?array $customFields): void
-    {
-        $this->customFields = $customFields;
     }
 
     public function getRuleId(): ?string

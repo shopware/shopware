@@ -7,11 +7,9 @@ use OpenApi\Annotations\MediaType;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\PathItem;
-use OpenApi\Annotations\Property;
 use OpenApi\Annotations\RequestBody;
 use OpenApi\Annotations\Schema;
 use OpenApi\Context;
-use OpenApi\Tests\Fixtures\ExtendedWithoutAllOf;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -53,7 +51,7 @@ class OpenApiLoader
         $openApi = scan($openApiPathsEvent->getPaths(), ['analysis' => new DeactivateValidationAnalysis()]);
 
         // @see: https://regex101.com/r/XYRxEm/1
-        $sinceRegex = '/\@Since\("(.*)"\)/m';
+        // $sinceRegex = '/\@Since\("(.*)"\)/m';
 
         $calculatedPaths = [];
         foreach ($openApi->paths as $pathItem) {
@@ -168,8 +166,8 @@ class OpenApiLoader
                         $operation->requestBody->content['application/json']->schema = new Schema([
                             'allOf' => [
                                 $operation->requestBody->content['application/json']->schema,
-                                ['$ref' => '#/components/schemas/Criteria']
-                            ]
+                                ['$ref' => '#/components/schemas/Criteria'],
+                            ],
                         ]);
                     }
                 }

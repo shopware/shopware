@@ -72,7 +72,6 @@
       "labelRoundForNet": "Auch für Nettokunden runden",
       "grandHeadline": "Summen",
       "grandSubline": "Rundung gilt für die Gesamtsumme des Warenkorbs",
-      "infoDescription": "Wenn Du die Rundungsintervalle unterschiedlich konfigurierst, stelle sicher, dass Deine angeschlossenen Service-Anbieter diese Konfiguration unterstützen, um Buchhaltungsprobleme zu vermeiden.",
       "headerWarning": "Unterschiedliche Rundungsintervalle - Stelle sicher, dass Deine angeschlossenen Service-Anbieter diese Konfiguration unterstützen, um Buchhaltungsprobleme zu vermeiden.",
       "headerInfo": "Die Steuerberechnung erfolgt auf Basis der ungerundeten Summen. Rundungsdifferenzen werden bei der Steuerberechnung nicht berücksichtigt.",
       "helpTextDecimals": "Nachkommastellen geben die maximale Anzahl von Ziffern nach dem Dezimaltrennzeichen an.",

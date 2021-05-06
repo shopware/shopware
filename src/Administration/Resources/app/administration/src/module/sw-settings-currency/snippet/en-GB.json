@@ -72,7 +72,6 @@
       "labelRoundForNet": "Round for net customers too",
       "grandHeadline": "Grand total",
       "grandSubline": "Rounding applies to grand totals",
-      "infoDescription": "If rounding intervals are configured differently, be sure to check back with your individual service providers to avoid accounting problems.",
       "headerWarning": "Different rounding intervals - Be sure to check back with your individual service providers to avoid accounting problems.",
       "headerInfo": "Tax calculation is based on unrounded totals. Rounding differences are not subject to tax calculation.",
       "helpTextDecimals": "Decimals indicate the maximum number of digits after the decimal separator.",

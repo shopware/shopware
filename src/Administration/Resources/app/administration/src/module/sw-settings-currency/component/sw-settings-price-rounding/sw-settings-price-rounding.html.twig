@@ -95,12 +95,8 @@
             </p>
         {% endblock %}
 
-        {# @deprecated tag:v6.5.0 - Block will be removed completely including the content, use `sw_settings_price_rounding_header_warning` instead' #}
+        {# @deprecated tag:v6.5.0 - Block will be removed completely including the content, use `sw_settings_price_rounding_header_warning` instead #}
         {% block sw_settings_price_rounding_subline_description %}
-            <sw-alert class="sw-settings-price-rounding__info-description"
-                      variant="warning">
-                {{ $tc('sw-settings-currency.price-rounding.infoDescription') }}
-            </sw-alert>
         {% endblock %}
 
         {% block sw_settings_price_rounding_container_grand %}

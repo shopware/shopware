@@ -48,7 +48,8 @@ For example:
     "url":"http:\/\/localhost:8000",
     "appVersion":"0.0.1",
     "shopId":"dgrH7nLU6tlE"
-  }
+  },
+  "timestamp": 123123123
 }
 
 ```
@@ -63,7 +64,9 @@ The next property `data` contains the name of the event so that a single endpoin
 complete entities as these might become outdated. Instead the entity in the payload is characterized by its id, stored under `primaryKey`, so that the 
 app can fetch additional data through the shops API. This also has the advantage of giving the app explicit control over the associations that
 get fetched instead of relying on the associations determined by the event. Other events in contrast contain the entity data that defines the event,
-but keep in mind that event might not contain all associations.    
+but keep in mind that event might not contain all associations.
+
+The next property `timestamp` is the time which the webhook was handled. The attacker cannot change the timestamp without validating the signature. If the timestamp is too old, the user's application can decide to reject the request.
 
 The current shopware version will be sent as a `sw-version` header.
 

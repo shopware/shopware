@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
  */
 class WebhookEventMessageHandler extends AbstractMessageHandler
 {
+    private const TIMEOUT = 20;
+    private const CONNECT_TIMEOUT = 10;
+
     private Client $client;
 
     private EntityRepositoryInterface $appRepository;
@@ -36,6 +39,8 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
         $payload = $message->getPayload();
         $url = $message->getUrl();
 
+        $payload['timestamp'] = time();
+
         $header = [
             'Content-Type' => 'application/json',
             'sw-version' => $shopwareVersion,
@@ -54,6 +59,8 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
             [
                 'headers' => $header,
                 'body' => $jsonPayload,
+                'connect_timeout' => self::CONNECT_TIMEOUT,
+                'timeout' => self::TIMEOUT,
             ]
         );
     }

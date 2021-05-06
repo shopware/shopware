@@ -14,7 +14,10 @@ Shopware.Service('privileges')
                     'delivery_time:read',
                     'media_folder:read',
                     Shopware.Service('privileges').getPrivileges('media.viewer'),
-                    'tax:read'
+                    'tax:read',
+                    'custom_field_set:read',
+                    'custom_field:read',
+                    'custom_field_set_relation:read'
                 ],
                 dependencies: []
             },

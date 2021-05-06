@@ -8,7 +8,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'tax:read',
                 'tax_rule:read',
                 'tax_rule_type:read',
-                'country:read'
+                'country:read',
+                'custom_field_set:read',
+                'custom_field:read',
+                'custom_field_set_relation:read'
             ],
             dependencies: []
         },

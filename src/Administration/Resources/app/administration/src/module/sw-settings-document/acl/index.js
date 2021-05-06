@@ -11,7 +11,10 @@ Shopware.Service('privileges')
                     'document_base_config_sales_channel:read',
                     'sales_channel:read',
                     'order:read',
-                    'currency:read'
+                    'currency:read',
+                    'custom_field_set:read',
+                    'custom_field:read',
+                    'custom_field_set_relation:read'
                 ],
                 dependencies: []
             },

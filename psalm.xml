@@ -11,10 +11,10 @@
         <ignoreFiles>
             <directory name="../vendor"/>
             <directory name="src/Recovery"/>
-            <directory name="src/*/Resources/app" />
             <file name="src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php"/>
             <file name="src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
 
+            <!-- Would otherwise inspect node_modules directories of JS applications -->
             <directory name="src/*/Resources/app" />
         </ignoreFiles>
     </projectFiles>
@@ -83,12 +83,6 @@
             </errorLevel>
         </InaccessibleMethod>
 
-        <UnusedVariable>
-            <errorLevel type="info">
-                <file name="src/Storefront/Test/Theme/ThemeTest.php"/>
-            </errorLevel>
-        </UnusedVariable>
-
         <NonInvariantDocblockPropertyType>
             <errorLevel type="info">
                 <!-- The property $object typehint in the Responses is more specific than in the parent class-->
@@ -97,6 +91,8 @@
                 <file name="src/Core/**/**/*Response.php"/>
                 <!-- The property $storageName could be null here, but is only string in the parent class -->
                 <file name="src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php"/>
+                <!-- Parent class from external library has no property type specified -->
+                <file name="src/Core/Framework/Demodata/Faker/Commerce.php"/>
             </errorLevel>
         </NonInvariantDocblockPropertyType>
 

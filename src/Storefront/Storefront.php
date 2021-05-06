@@ -23,11 +23,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 class Storefront extends Bundle implements ThemeInterface
 {
     /**
-     * @var string
-     */
-    protected $name = 'Storefront';
-
-    /**
      * {@inheritdoc}
      */
     public function build(ContainerBuilder $container): void

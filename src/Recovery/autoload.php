@@ -17,16 +17,16 @@ if (!file_exists(__DIR__ . '/Common/vendor/autoload.php')) {
 }
 date_default_timezone_set(@date_default_timezone_get());
 
-$parent = dirname(__DIR__);
+$parent = \dirname(__DIR__);
 
 // root/platform/src/Recovery or root/vendor/shopware/recovery
-$rootDir = dirname($parent, 2);
-if (basename(dirname($rootDir)) === 'vendor') {
+$rootDir = \dirname($parent, 2);
+if (basename(\dirname($rootDir)) === 'vendor') {
     // root/vendor/shopware/platform/src/Recovery
-    $rootDir = dirname($rootDir, 2);
+    $rootDir = \dirname($rootDir, 2);
 }
 
-define('SW_PATH', $rootDir);
+\define('SW_PATH', $rootDir);
 
 /** @var \Composer\Autoload\ClassLoader $autoloader */
 $autoloader = require_once __DIR__ . '/Common/vendor/autoload.php';

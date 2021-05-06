@@ -29,11 +29,11 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $body = $request->getBody()->getContents();
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
-        static::assertSame(\hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
+        static::assertSame(hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
-        $content = \json_decode($body, true);
+        $content = json_decode($body, true);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -143,7 +143,7 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $response = new SyncPayResponse();
-        $this->appendNewResponse(new Response(200, [], \json_encode($response)));
+        $this->appendNewResponse(new Response(200, [], json_encode($response)));
 
         $this->expectException(SyncPaymentProcessException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
@@ -158,7 +158,7 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $response = new SyncPayResponse();
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], \json_encode($response)));
+        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], json_encode($response)));
 
         $this->expectException(SyncPaymentProcessException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');

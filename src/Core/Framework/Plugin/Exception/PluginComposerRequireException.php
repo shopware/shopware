@@ -10,7 +10,7 @@ class PluginComposerRequireException extends ShopwareHttpException
     public function __construct(string $pluginName, string $pluginComposerName, string $output)
     {
         parent::__construct(
-            sprintf('Could not execute "composer require" for plugin "{{ pluginName }} ({{ pluginComposerName }}). Output:%s{{ output }}', PHP_EOL),
+            sprintf('Could not execute "composer require" for plugin "{{ pluginName }} ({{ pluginComposerName }}). Output:%s{{ output }}', \PHP_EOL),
             [
                 'pluginName' => $pluginName,
                 'pluginComposerName' => $pluginComposerName,

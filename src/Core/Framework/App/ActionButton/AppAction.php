@@ -125,7 +125,7 @@ class AppAction
 
     private function setTargetUrl(string $targetUrl): void
     {
-        if (!filter_var($targetUrl, FILTER_VALIDATE_URL)) {
+        if (!filter_var($targetUrl, \FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException(sprintf('%s is not a valid url', $targetUrl));
         }
         $this->targetUrl = $targetUrl;
@@ -157,7 +157,7 @@ class AppAction
 
     private function setShopUrl(string $shopUrl): void
     {
-        if (!filter_var($shopUrl, FILTER_VALIDATE_URL)) {
+        if (!filter_var($shopUrl, \FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException(sprintf('%s is not a valid url', $shopUrl));
         }
         $this->shopUrl = $shopUrl;

@@ -100,7 +100,7 @@ class TokenFilter extends AbstractTokenFilter
         }
 
         return $this->config[$languageId] = [
-            'excluded_terms' => \is_string($config['excluded_terms']) ? array_flip(\json_decode($config['excluded_terms'], true)) : [],
+            'excluded_terms' => \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true)) : [],
             'min_search_length' => (int) ($config['min_search_length'] ?? self::DEFAULT_MIN_SEARCH_TERM_LENGTH),
         ];
     }

@@ -67,7 +67,7 @@ class OpenApi3Test extends TestCase
 
         $content = json_decode((string) $response->getBody(), true);
 
-        static::assertEmpty($content, json_encode($content, JSON_PRETTY_PRINT));
+        static::assertEmpty($content, json_encode($content, \JSON_PRETTY_PRINT));
     }
 
     public function testValidateAdminApiSchema(): void
@@ -91,6 +91,6 @@ class OpenApi3Test extends TestCase
 
         $content = json_decode((string) $response->getBody(), true);
 
-        static::assertEmpty($content, json_encode($content, JSON_PRETTY_PRINT));
+        static::assertEmpty($content, json_encode($content, \JSON_PRETTY_PRINT));
     }
 }

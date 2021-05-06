@@ -36,7 +36,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
             }
 
             $id = $sorting['id'];
-            $fields = \json_decode($sorting['fields'], true);
+            $fields = json_decode($sorting['fields'], true);
             $update = false;
 
             foreach ($fields as &$field) {
@@ -57,7 +57,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
                         SET fields = :fields
                         WHERE id = :id
                     ',
-                    ['fields' => \json_encode($fields), 'id' => $id]
+                    ['fields' => json_encode($fields), 'id' => $id]
                 );
             }
         }
@@ -68,7 +68,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
         $elements = $connection->fetchAllAssociative("SELECT cms_slot_id, cms_slot_version_id, language_id, config FROM cms_slot_translation WHERE config LIKE '%listingPrices%'");
 
         foreach ($elements as $element) {
-            $config = \json_decode($element['config'], true);
+            $config = json_decode($element['config'], true);
 
             if (!isset($config['productStreamSorting'])) {
                 continue;
@@ -86,7 +86,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
             }
 
             $connection->executeStatement('UPDATE cms_slot_translation SET config = :config WHERE cms_slot_id = :id AND cms_slot_version_id = :version AND language_id = :language', [
-                'config' => \json_encode($config),
+                'config' => json_encode($config),
                 'id' => $element['cms_slot_id'],
                 'version' => $element['cms_slot_version_id'],
                 'language' => $element['language_id'],

@@ -21,11 +21,11 @@ class PasswordField extends Field implements StorageAware
      */
     private $hashOptions;
 
-    public function __construct(string $storageName, string $propertyName, ?string $algorithm = PASSWORD_DEFAULT, array $hashOptions = [])
+    public function __construct(string $storageName, string $propertyName, ?string $algorithm = \PASSWORD_DEFAULT, array $hashOptions = [])
     {
         parent::__construct($propertyName);
         $this->storageName = $storageName;
-        $this->algorithm = $algorithm ?? PASSWORD_DEFAULT;
+        $this->algorithm = $algorithm ?? \PASSWORD_DEFAULT;
         $this->hashOptions = $hashOptions;
     }
 

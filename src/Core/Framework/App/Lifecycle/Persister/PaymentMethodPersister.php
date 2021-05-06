@@ -47,7 +47,7 @@ class PaymentMethodPersister
 
         foreach ($paymentMethods as $paymentMethod) {
             $payload = $paymentMethod->toArray($defaultLocale);
-            $payload['handlerIdentifier'] = \sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+            $payload['handlerIdentifier'] = sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
 
             /** @var PaymentMethodEntity|null $existing */
             $existing = $existingPaymentMethods->filterByProperty('handlerIdentifier', $payload['handlerIdentifier'])->first();
@@ -88,7 +88,7 @@ class PaymentMethodPersister
 
     private function deactivatePaymentMethods(PaymentMethodCollection $toBeDisabled, Context $context): void
     {
-        $updates = \array_reduce($toBeDisabled->getElements(), static function (array $acc, PaymentMethodEntity $paymentMethod): array {
+        $updates = array_reduce($toBeDisabled->getElements(), static function (array $acc, PaymentMethodEntity $paymentMethod): array {
             $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
             if (!$appPaymentMethod) {
                 return $acc;
@@ -147,11 +147,11 @@ class PaymentMethodPersister
 
         $mediaFile = new MediaFile(
             $iconPath,
-            \mime_content_type($iconPath) ?: '',
-            \pathinfo($iconPath, PATHINFO_EXTENSION),
-            \filesize($iconPath) ?: 0
+            mime_content_type($iconPath) ?: '',
+            pathinfo($iconPath, \PATHINFO_EXTENSION),
+            filesize($iconPath) ?: 0
         );
-        $fileName = \sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+        $fileName = sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
 
         return $this->mediaService->saveMediaFile(
             $mediaFile,

@@ -22,13 +22,13 @@ class ClientProfiler extends Client
         $time = microtime(true);
         $response = parent::search($request);
 
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
         $this->requests[] = [
             'request' => $request,
             'response' => $response,
             'time' => microtime(true) - $time,
-            'backtrace' => \sprintf('%s:%s', $backtrace[1]['class'], $backtrace[1]['function']),
+            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'], $backtrace[1]['function']),
         ];
 
         return $response;

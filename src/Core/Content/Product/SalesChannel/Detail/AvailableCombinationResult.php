@@ -44,7 +44,7 @@ class AvailableCombinationResult extends Struct
 
     public function getHashes(): array
     {
-        return \array_keys($this->hashes);
+        return array_keys($this->hashes);
     }
 
     public function getCombinations(): array

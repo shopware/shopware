@@ -215,7 +215,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
     protected function getPaymentMethodId(string $name): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('handlerIdentifier', \sprintf('app\\testPayments_%s', $name)));
+        $criteria->addFilter(new EqualsFilter('handlerIdentifier', sprintf('app\\testPayments_%s', $name)));
         $id = $this->paymentMethodRepository->searchIds($criteria, $this->context)->firstId();
         static::assertNotNull($id);
         static::assertIsString($id);
@@ -234,11 +234,11 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
 
     protected function signResponse(array $content): ResponseInterface
     {
-        $json = \json_encode($content);
+        $json = json_encode($content);
 
         $secret = $this->app->getAppSecret();
 
-        $hmac = \hash_hmac('sha256', $json, $secret);
+        $hmac = hash_hmac('sha256', $json, $secret);
 
         $response = new Response(
             200,

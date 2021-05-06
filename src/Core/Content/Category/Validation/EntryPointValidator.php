@@ -90,11 +90,11 @@ class EntryPointValidator implements EventSubscriberInterface
         $parameters = ['{{ value }}' => $payload['type']];
 
         $violationList->add(new ConstraintViolation(
-            \str_replace(\array_keys($parameters), $parameters, $messageTemplate),
+            str_replace(array_keys($parameters), $parameters, $messageTemplate),
             $messageTemplate,
             $parameters,
             null,
-            \sprintf('%s/type', $command->getPath()),
+            sprintf('%s/type', $command->getPath()),
             $payload['type'],
             null,
             self::ERROR_CODE

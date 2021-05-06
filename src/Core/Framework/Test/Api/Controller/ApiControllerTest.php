@@ -2066,7 +2066,7 @@ EOF;
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode(), $response->getContent());
-        $jsonResponse = \json_decode($response->getContent(), true);
+        $jsonResponse = json_decode($response->getContent(), true);
         static::assertEquals('Access token is expired', $jsonResponse['errors'][0]['detail']);
     }
 

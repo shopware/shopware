@@ -55,7 +55,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             try {
                 $migration->update($connection);
             } catch (\Exception $e) {
-                static::fail($_className . PHP_EOL . $e->getMessage());
+                static::fail($_className . \PHP_EOL . $e->getMessage());
             }
 
             if ($this->isBasicDataMigration($_className)) {
@@ -80,7 +80,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             try {
                 $migration->updateDestructive($connection);
             } catch (\Exception $e) {
-                static::fail($_className . PHP_EOL . $e->getMessage());
+                static::fail($_className . \PHP_EOL . $e->getMessage());
             }
         }
 
@@ -134,7 +134,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             try {
                 $migration->update($connection);
             } catch (\Exception $e) {
-                static::fail($_className . PHP_EOL . $e->getMessage());
+                static::fail($_className . \PHP_EOL . $e->getMessage());
             }
 
             if ($this->isBasicDataMigration($_className)) {
@@ -183,7 +183,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             try {
                 $migration->updateDestructive($connection);
             } catch (\Exception $e) {
-                static::fail($_className . PHP_EOL . $e->getMessage());
+                static::fail($_className . \PHP_EOL . $e->getMessage());
             }
         }
 
@@ -228,7 +228,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             try {
                 $migration->update($connection);
             } catch (\Exception $e) {
-                static::fail($_className . PHP_EOL . $e->getMessage());
+                static::fail($_className . \PHP_EOL . $e->getMessage());
             }
 
             if ($this->isBasicDataMigration($_className)) {
@@ -271,7 +271,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             try {
                 $migration->updateDestructive($connection);
             } catch (\Exception $e) {
-                static::fail($_className . PHP_EOL . $e->getMessage());
+                static::fail($_className . \PHP_EOL . $e->getMessage());
             }
         }
 

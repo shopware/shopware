@@ -42,7 +42,7 @@ class Feature
             && !isset(self::$registeredFeatures[$feature])
             && $env !== 'prod'
         ) {
-            trigger_error('Unknown feature "' . $feature . '"', E_USER_WARNING);
+            trigger_error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
         }
 
         $featureAll = $_SERVER['FEATURE_ALL'] ?? '';

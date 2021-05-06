@@ -194,7 +194,7 @@ class StoreClient
             $this->endpoints['my_plugin_updates'],
             [
                 'query' => $query,
-                'body' => \json_encode(['plugins' => $list]),
+                'body' => json_encode(['plugins' => $list]),
                 'headers' => $this->getHeaders($token),
             ]
         );
@@ -302,7 +302,7 @@ class StoreClient
             $this->endpoints['environment_information'],
             [
                 'query' => $query,
-                'body' => \json_encode(['plugins' => $pluginData]),
+                'body' => json_encode(['plugins' => $pluginData]),
                 'headers' => $this->getHeaders($storeToken),
             ]
         );
@@ -388,7 +388,7 @@ class StoreClient
             'headers' => $this->getHeaders(),
         ]);
 
-        return \json_decode((string) $response->getBody(), true)['updateAllowed'];
+        return json_decode((string) $response->getBody(), true)['updateAllowed'];
     }
 
     public function signPayloadWithAppSecret(string $payload, string $appName): string

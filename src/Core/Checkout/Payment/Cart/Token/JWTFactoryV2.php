@@ -22,7 +22,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
     public function generateToken(TokenStruct $tokenStruct): string
     {
         $expires = (new \DateTimeImmutable('@' . time()))->modify(
-            \sprintf('+%d seconds', $tokenStruct->getExpires())
+            sprintf('+%d seconds', $tokenStruct->getExpires())
         );
 
         $jwtToken = $this->configuration->builder()

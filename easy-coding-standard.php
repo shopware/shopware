@@ -4,6 +4,7 @@ use PhpCsFixer\Fixer\Basic\NonPrintableCharacterFixer;
 use PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer;
 use PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer;
 use PhpCsFixer\Fixer\ClassNotation\SelfAccessorFixer;
+use PhpCsFixer\Fixer\ConstantNotation\NativeConstantInvocationFixer;
 use PhpCsFixer\Fixer\FunctionNotation\FopenFlagsFixer;
 use PhpCsFixer\Fixer\FunctionNotation\MethodArgumentSpaceFixer;
 use PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer;
@@ -40,6 +41,7 @@ use PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer;
+use Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer;
 use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
@@ -48,15 +50,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ModernizeTypesCastingFixer::class);
     $services->set(ClassAttributesSeparationFixer::class)
-        ->call('configure', [['elements' => ['property', 'method']]]);
+        ->call('configure', [['elements' => ['property' => 'one', 'method' => 'one']]]);
     $services->set(FopenFlagsFixer::class);
     $services->set(MethodArgumentSpaceFixer::class)
         ->call('configure', [['on_multiline' => 'ensure_fully_multiline']]);
     $services->set(NativeFunctionInvocationFixer::class)
         ->call('configure', [[
             'include' => [NativeFunctionInvocationFixer::SET_COMPILER_OPTIMIZED],
-            'scope' => 'namespaced'
+            'scope' => 'namespaced',
         ]]);
+    $services->set(NativeConstantInvocationFixer::class);
     $services->set(NullableTypeDeclarationForDefaultNullValueFixer::class);
     $services->set(VoidReturnFixer::class);
     $services->set(ConcatSpaceFixer::class)
@@ -109,11 +112,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         BlankLineAfterOpeningTagFixer::class => null,
         PhpdocSummaryFixer::class => null,
         ExplicitStringVariableFixer::class => null,
+        StandaloneLineInMultilineArrayFixer::class => null,
         // would otherwise destroy the example in the annotation
         NoUselessCommentFixer::class => ['src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php'],
         // Would otherwise fix the blocking whitespace in the currency formatter tests
         NonPrintableCharacterFixer::class => ['src/Core/System/Test/Currency/CurrencyFormatterTest.php'],
         // skip php files in node modules (stylelint ships both js and php)
-        '**/node_modules'
+        '**/node_modules',
     ]);
 };

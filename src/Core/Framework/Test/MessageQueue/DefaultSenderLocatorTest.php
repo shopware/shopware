@@ -26,7 +26,7 @@ class DefaultSenderLocatorTest extends TestCase
                 yield from [];
             });
 
-        $actual = \iterator_to_array($defaultSenderLocator->getSenders($envelope));
+        $actual = iterator_to_array($defaultSenderLocator->getSenders($envelope));
         static::assertSame(['default' => $default], $actual);
     }
 
@@ -50,7 +50,7 @@ class DefaultSenderLocatorTest extends TestCase
                 ];
             });
 
-        $actual = \iterator_to_array($defaultSenderLocator->getSenders($envelope));
+        $actual = iterator_to_array($defaultSenderLocator->getSenders($envelope));
         static::assertSame(['not default' => $otherSender], $actual);
     }
 
@@ -69,7 +69,7 @@ class DefaultSenderLocatorTest extends TestCase
                 yield from [];
             });
 
-        $actual = \iterator_to_array($defaultSenderLocator->getSenders($envelope));
+        $actual = iterator_to_array($defaultSenderLocator->getSenders($envelope));
         static::assertEmpty($actual);
     }
 }

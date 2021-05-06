@@ -81,7 +81,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
         foreach ($extensionConstraints as $extension) {
             $explode = explode(':', $extension);
             if (\count($explode) !== 2) {
-                $fails[] = \sprintf('Got invalid string: "%s"', $extension);
+                $fails[] = sprintf('Got invalid string: "%s"', $extension);
 
                 continue;
             }
@@ -95,7 +95,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
                 try {
                     $installedVersion = InstalledVersions::getPrettyVersion($name);
                 } catch (\OutOfBoundsException $e) {
-                    $fails[] = \sprintf('Requested package: %s is not available', $name);
+                    $fails[] = sprintf('Requested package: %s is not available', $name);
 
                     continue;
                 }
@@ -109,7 +109,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $fails[] = \sprintf('Version constraint for %s is failed. Installed is: %s', $name, $installedVersion);
+            $fails[] = sprintf('Version constraint for %s is failed. Installed is: %s', $name, $installedVersion);
         }
 
         return $fails;

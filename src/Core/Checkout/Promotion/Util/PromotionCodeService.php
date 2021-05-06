@@ -33,7 +33,7 @@ class PromotionCodeService
 
     public function getFixedCode(): string
     {
-        $pattern = \implode('', \array_fill(0, 4, '%s%d'));
+        $pattern = implode('', array_fill(0, 4, '%s%d'));
 
         return $this->generateIndividualCodes($pattern, 1)[0];
     }
@@ -74,11 +74,11 @@ class PromotionCodeService
             $codes[] = $this->generateCode($codePattern);
 
             if (\count($codes) >= $amount + $blacklistCount) {
-                $codes = \array_unique($codes);
+                $codes = array_unique($codes);
             }
         } while (\count($codes) < $amount + $blacklistCount);
 
-        return \array_diff($codes, $codeBlacklist);
+        return array_diff($codes, $codeBlacklist);
     }
 
     public function addIndividualCodes(string $promotionId, int $amount, Context $context): void
@@ -130,9 +130,9 @@ class PromotionCodeService
 
     public function splitPattern(string $pattern): array
     {
-        \preg_match(self::PROMOTION_PATTERN_REGEX, $pattern, $codePattern);
-        $codePattern['replacementString'] = \str_replace('%', '', $codePattern['replacement']);
-        $codePattern['replacementArray'] = \str_split($codePattern['replacementString']);
+        preg_match(self::PROMOTION_PATTERN_REGEX, $pattern, $codePattern);
+        $codePattern['replacementString'] = str_replace('%', '', $codePattern['replacement']);
+        $codePattern['replacementArray'] = str_split($codePattern['replacementString']);
 
         return $codePattern;
     }
@@ -159,15 +159,15 @@ class PromotionCodeService
     private function getRandomChar(string $type): string
     {
         if ($type === 'd') {
-            return (string) \random_int(0, 9);
+            return (string) random_int(0, 9);
         }
 
-        return \chr(\random_int(65, 90));
+        return \chr(random_int(65, 90));
     }
 
     private function prepareCodeEntities(string $promotionId, array $codes): array
     {
-        return \array_values(\array_map(static function ($code) use ($promotionId) {
+        return array_values(array_map(static function ($code) use ($promotionId) {
             return [
                 'promotionId' => $promotionId,
                 'code' => $code,
@@ -186,7 +186,7 @@ class PromotionCodeService
             'd' => 10,
             's' => 26,
         ];
-        $counts = \count_chars($pattern, 1);
+        $counts = count_chars($pattern, 1);
 
         $result = 1;
         foreach ($counts as $key => $count) {

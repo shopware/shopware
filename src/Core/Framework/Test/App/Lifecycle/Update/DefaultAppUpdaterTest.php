@@ -47,7 +47,7 @@ class DefaultAppUpdaterTest extends TestCase
         $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'not_null');
 
         $this->getRequestHandler()->append(new Response(200, [], '{}'));
-        $this->getRequestHandler()->append(new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
         $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/store_zips/swagApp2.zip')));
         $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/SwagApp';
@@ -71,7 +71,7 @@ class DefaultAppUpdaterTest extends TestCase
         $this->installApp(__DIR__ . '/../_fixtures/SwagApp');
         $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'not_null');
 
-        $this->getRequestHandler()->append(new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
         $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/store_zips/swagApp2_new_permission.zip')));
         $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/SwagApp';

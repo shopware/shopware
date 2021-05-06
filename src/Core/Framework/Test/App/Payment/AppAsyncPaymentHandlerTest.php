@@ -40,11 +40,11 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $body = $request->getBody()->getContents();
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
-        static::assertSame(\hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
+        static::assertSame(hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
-        $content = \json_decode($body, true);
+        $content = json_decode($body, true);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -152,7 +152,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncPayResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
-        $this->appendNewResponse(new Response(200, [], \json_encode($response)));
+        $this->appendNewResponse(new Response(200, [], json_encode($response)));
 
         $this->expectException(AsyncPaymentProcessException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
@@ -169,7 +169,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncPayResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], \json_encode($response)));
+        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], json_encode($response)));
 
         $this->expectException(AsyncPaymentProcessException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
@@ -209,7 +209,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], \json_encode($response)));
+        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], json_encode($response)));
 
         $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
         static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
@@ -221,7 +221,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
-        $this->appendNewResponse(new Response(200, [], \json_encode($response)));
+        $this->appendNewResponse(new Response(200, [], json_encode($response)));
 
         $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
         static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
@@ -239,9 +239,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 
     public function dataProviderFinalize(): \Generator
     {
-        foreach (\get_class_methods($this) as $functionName) {
-            if (\strpos($functionName, 'addTestFinalize') === 0) {
-                yield \str_replace('addTest', '', $functionName) => [$functionName];
+        foreach (get_class_methods($this) as $functionName) {
+            if (strpos($functionName, 'addTestFinalize') === 0) {
+                yield str_replace('addTest', '', $functionName) => [$functionName];
             }
         }
     }
@@ -260,11 +260,11 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $body = $request->getBody()->getContents();
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
-        static::assertSame(\hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
+        static::assertSame(hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
-        $content = \json_decode($body, true);
+        $content = json_decode($body, true);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -303,7 +303,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 
     private function getToken(string $returnUrl): ?string
     {
-        $query = parse_url($returnUrl, PHP_URL_QUERY);
+        $query = parse_url($returnUrl, \PHP_URL_QUERY);
         parse_str($query, $params);
 
         return $params['_sw_payment_token'] ?? null;

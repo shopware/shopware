@@ -235,7 +235,7 @@ class JsonApiEncoderTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
-        $actual = \json_decode($encodedResponse, true);
+        $actual = json_decode($encodedResponse, true);
 
         foreach ($actual['included'] as $included) {
             if ($included['type'] !== 'extension') {
@@ -284,7 +284,7 @@ class JsonApiEncoderTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
-        $actual = \json_decode($encodedResponse, true);
+        $actual = json_decode($encodedResponse, true);
 
         foreach ($actual['included'] as $included) {
             if ($included['type'] !== 'extension') {

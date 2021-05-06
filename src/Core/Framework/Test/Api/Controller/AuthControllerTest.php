@@ -200,7 +200,7 @@ class AuthControllerTest extends TestCase
             'last_name' => '',
             'email' => 'test@example.com',
             'username' => $username,
-            'password' => password_hash($password, PASSWORD_BCRYPT),
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromHexToBytes($this->getLocaleIdOfSystemLanguage()),
             'active' => 1,
             'admin' => 1,
@@ -431,7 +431,7 @@ class AuthControllerTest extends TestCase
             'id' => Uuid::randomBytes(),
             'label' => 'test integration',
             'access_key' => $accessKey,
-            'secret_access_key' => password_hash($secretKey, PASSWORD_BCRYPT),
+            'secret_access_key' => password_hash($secretKey, \PASSWORD_BCRYPT),
             'write_access' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
@@ -480,7 +480,7 @@ class AuthControllerTest extends TestCase
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
         static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
-        $token = \json_decode($browser->getResponse()->getContent(), true);
+        $token = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($accessToken = $token['access_token']);
 

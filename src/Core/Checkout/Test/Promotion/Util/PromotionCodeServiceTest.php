@@ -80,15 +80,15 @@ class PromotionCodeServiceTest extends TestCase
     public function testGenerateIndividualCodesWithValidRequirements(int $requestedAmount): void
     {
         $pattern = 'PREFIX_%s%d%s%d_SUFFIX';
-        $expectedCodeLength = \strlen(\str_replace('%', '', $pattern));
+        $expectedCodeLength = \strlen(str_replace('%', '', $pattern));
         $codeList = $this->codesService->generateIndividualCodes($pattern, $requestedAmount);
-        $codeLengthList = \array_map(static function ($code) {
+        $codeLengthList = array_map(static function ($code) {
             return \strlen($code);
         }, $codeList);
 
         static::assertCount($requestedAmount, $codeList);
-        static::assertCount($requestedAmount, \array_unique($codeList));
-        static::assertCount(1, \array_unique($codeLengthList));
+        static::assertCount($requestedAmount, array_unique($codeList));
+        static::assertCount(1, array_unique($codeLengthList));
         static::assertEquals($expectedCodeLength, $codeLengthList[0]);
     }
 

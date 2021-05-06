@@ -50,7 +50,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
             ]);
 
             $responseRaw = $response->getBody()->getContents();
-            $response = \json_decode($responseRaw, true);
+            $response = json_decode($responseRaw, true);
 
             $thresholdScore = !empty($captchaConfig['config']['thresholdScore']) ? (float) $captchaConfig['config']['thresholdScore'] : self::DEFAULT_THRESHOLD_SCORE;
 

@@ -40,7 +40,7 @@ class BundleConfigDumper implements EventSubscriberInterface
 
         file_put_contents(
             $this->projectDir . '/var/plugins.json',
-            json_encode($config, JSON_PRETTY_PRINT)
+            json_encode($config, \JSON_PRETTY_PRINT)
         );
     }
 }

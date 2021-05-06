@@ -347,6 +347,6 @@ class EntityHydrator
             }
         }
 
-        return json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
+        return json_encode($merged, \JSON_PRESERVE_ZERO_FRACTION);
     }
 }

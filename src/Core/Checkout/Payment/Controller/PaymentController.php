@@ -58,7 +58,7 @@ class PaymentController extends AbstractController
             $url = $result->getErrorUrl();
 
             if ($url !== null && $exception instanceof PaymentProcessException) {
-                $url .= (parse_url($url, PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $exception->getErrorCode();
+                $url .= (parse_url($url, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $exception->getErrorCode();
 
                 return new RedirectResponse($url);
             }

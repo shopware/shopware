@@ -33,6 +33,6 @@ class AdrTest extends TestCase
             }
         }
 
-        static::assertEmpty($notFound, 'Missing ADRs in adr/index.md.' . PHP_EOL . 'New ADRs should be added to the index.md.' . PHP_EOL . print_r($notFound, true));
+        static::assertEmpty($notFound, 'Missing ADRs in adr/index.md.' . \PHP_EOL . 'New ADRs should be added to the index.md.' . \PHP_EOL . print_r($notFound, true));
     }
 }

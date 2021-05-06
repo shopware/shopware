@@ -34,7 +34,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
                 return $app;
             }
 
-            $modules = \json_decode($app['modules'], true);
+            $modules = json_decode($app['modules'], true);
 
             if (!\is_array($modules)) {
                 return $app;
@@ -47,7 +47,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
             return [
                 'id' => $app['id'],
-                'modules' => \json_encode($modules),
+                'modules' => json_encode($modules),
             ];
         }, $apps);
     }

@@ -63,7 +63,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             return new SearchPattern(new SearchTerm($word));
         }
         $tokenKeywords = $this->fetchKeywords($context, $tokenSlops);
-        $matches = \array_fill(0, \count($tokens), []);
+        $matches = array_fill(0, \count($tokens), []);
         $matches = $this->groupTokenKeywords($matches, $tokenKeywords);
 
         $combines = $this->permute($tokens);

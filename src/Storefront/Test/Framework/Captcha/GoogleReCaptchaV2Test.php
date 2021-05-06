@@ -158,7 +158,7 @@ class GoogleReCaptchaV2Test extends TestCase
                     GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], \json_encode(['success' => false])),
+                    new Response(200, [], json_encode(['success' => false])),
                 ]),
                 self::IS_INVALID,
                 'secret123',
@@ -178,7 +178,7 @@ class GoogleReCaptchaV2Test extends TestCase
                     GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], \json_encode(['success' => true])),
+                    new Response(200, [], json_encode(['success' => true])),
                 ]),
                 self::IS_VALID,
                 'secret123',

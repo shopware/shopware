@@ -17,7 +17,7 @@ class ExtensionStructTest extends TestCase
 
         static::assertInstanceOf(PermissionCollection::class, $extension->getPermissions());
 
-        $serializedExtension = \json_decode(\json_encode($extension), true);
+        $serializedExtension = json_decode(json_encode($extension), true);
         $categorizedPermissions = $serializedExtension['permissions'];
 
         static::assertCount(3, $categorizedPermissions);
@@ -30,8 +30,8 @@ class ExtensionStructTest extends TestCase
 
     private function getDetailFixture(): array
     {
-        $content = \file_get_contents(__DIR__ . '/../_fixtures/responses/extension-detail.json');
+        $content = file_get_contents(__DIR__ . '/../_fixtures/responses/extension-detail.json');
 
-        return \json_decode($content, true);
+        return json_decode($content, true);
     }
 }

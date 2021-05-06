@@ -68,7 +68,7 @@ class ProductExportControllerTest extends TestCase
         );
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        $csvRows = explode(PHP_EOL, $client->getResponse()->getContent());
+        $csvRows = explode(\PHP_EOL, $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
         static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
@@ -100,7 +100,7 @@ class ProductExportControllerTest extends TestCase
 
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        $csvRows = explode(PHP_EOL, $client->getResponse()->getContent());
+        $csvRows = explode(\PHP_EOL, $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
         static::assertEquals(ProductExportEntity::ENCODING_ISO88591, $client->getResponse()->getCharset());

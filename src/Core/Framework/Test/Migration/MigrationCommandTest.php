@@ -91,7 +91,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getCommand();
 
         $this->expectException(\InvalidArgumentException::class);
-        $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => PHP_INT_MAX]), new BufferedOutput());
+        $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => \PHP_INT_MAX]), new BufferedOutput());
     }
 
     public function testCommandMigrateMultipleIdentifiersWithLimitOptionThrowsException(): void
@@ -110,7 +110,7 @@ class MigrationCommandTest extends TestCase
 
         $tester = new CommandTester($this->getCommand());
 
-        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER()], '--until' => PHP_INT_MAX]);
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER()], '--until' => \PHP_INT_MAX]);
 
         // assert no deprecation notice is shown
         static::assertStringNotContainsString('v6.4.0', $tester->getDisplay());
@@ -159,7 +159,7 @@ class MigrationCommandTest extends TestCase
 
         $tester = new CommandTester($this->getDestructiveCommand());
 
-        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER()], '--until' => PHP_INT_MAX]);
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER()], '--until' => \PHP_INT_MAX]);
 
         // assert no deprecation notice is shown
         static::assertStringNotContainsString('v6.4.0', $tester->getDisplay());

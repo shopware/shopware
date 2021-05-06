@@ -46,7 +46,7 @@ class QueryBuilder extends DBALQueryBuilder
         $sql = parent::getSQL();
 
         if ($this->getTitle()) {
-            $sql = '# ' . $this->title . PHP_EOL . $sql;
+            $sql = '# ' . $this->title . \PHP_EOL . $sql;
         }
 
         return $sql;

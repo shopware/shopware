@@ -15,50 +15,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CartPersister implements CartPersisterInterface
 {
-    private string $cartSql = <<<'SQL'
-        INSERT INTO `cart` (
-            `token`,
-            `name`,
-            `currency_id`,
-            `shipping_method_id`,
-            `payment_method_id`,
-            `country_id`,
-            `sales_channel_id`,
-            `customer_id`,
-            `price`,
-            `line_item_count`,
-            `cart`,
-            `created_at`
-        )
-        VALUES (
-            :token,
-            :name,
-            :currency_id,
-            :shipping_method_id,
-            :payment_method_id,
-            :country_id,
-            :sales_channel_id,
-            :customer_id,
-            :price,
-            :line_item_count,
-            :cart,
-            :now
-        )
-        ON DUPLICATE KEY UPDATE
-            `name` = :name,
-            `currency_id` = :currency_id,
-            `shipping_method_id` = :shipping_method_id,
-            `payment_method_id` = :payment_method_id,
-            `country_id` = :country_id,
-            `sales_channel_id` = :sales_channel_id,
-            `customer_id` = :customer_id,
-            `price` = :price,
-            `line_item_count` = :line_item_count,
-            `cart` = :cart,
-            `updated_at` = :now
-        ;
-SQL;
-
     /**
      * @var Connection
      */
@@ -102,6 +58,12 @@ SQL;
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
+        $sql = <<<SQL
+            INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `created_at`)
+            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :now)
+            ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :cart, `updated_at` = :now
+            ;
+        SQL;
         //prevent empty carts
         if ($cart->getLineItems()->count() <= 0) {
             $this->delete($cart->getToken(), $context);
@@ -126,7 +88,7 @@ SQL;
             'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->connection->executeUpdate($this->cartSql, $data);
+        $this->connection->executeUpdate($sql, $data);
 
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }

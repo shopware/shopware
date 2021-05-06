@@ -120,6 +120,10 @@
             <argument type="service" id="logger" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\SortedPaymentMethodRoute" decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" decoration-priority="-2000" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\SortedPaymentMethodRoute.inner"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>

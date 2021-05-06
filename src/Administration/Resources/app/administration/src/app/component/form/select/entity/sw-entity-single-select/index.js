@@ -149,7 +149,7 @@ Component.register('sw-entity-single-select', {
          * Fetches the selected entity from the server
          */
         loadSelected() {
-            if (this.value === '' || this.value === null) {
+            if (!this.value) {
                 if (this.resetOption) {
                     this.singleSelection = {
                         id: null,

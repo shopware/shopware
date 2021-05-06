@@ -41,8 +41,8 @@ CREATE TABLE `_dpkc_1n_relation1`
     `varchar`       varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
     `_dpkc_main_id` binary(16)                              NOT NULL,
     PRIMARY KEY (`id`),
-    KEY `fk._dpkc_1n_relation1._dpkc_main_id` (`_dpkc_main_id`),
-    CONSTRAINT `fk._dpkc_1n_relation1._dpkc_main_id` FOREIGN KEY (`_dpkc_main_id`) REFERENCES `_dpkc_main` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+    KEY `FK._dpkc_1n_relation1._dpkc_main_id` (`_dpkc_main_id`),
+    CONSTRAINT `FK._dpkc_1n_relation1._dpkc_main_id` FOREIGN KEY (`_dpkc_main_id`) REFERENCES `_dpkc_main` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE `_dpkc_1n_relation2`

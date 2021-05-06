@@ -89,6 +89,11 @@ shopware:
               major: false
               description: "Image assignment for variants"
               # issue: NEXT-6544
+            - name: FEATURE_NEXT_14872
+              default: false
+              major: false
+              description: "Search of FkField PrimaryKey"
+              # issue: NEXT-14872
             - name: FEATURE_NEXT_15053
               default: false
               major: false

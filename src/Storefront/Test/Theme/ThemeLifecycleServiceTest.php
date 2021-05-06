@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -229,6 +230,73 @@ class ThemeLifecycleServiceTest extends TestCase
         ], $germanTranslation->getHelpTexts());
     }
 
+    public function testItRemovesAThemeCorrectly(): void
+    {
+        $bundle = $this->getThemeConfig();
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle);
+        $themeMedia = $themeEntity->getMedia();
+        $ids = $themeMedia->getIds();
+
+        static::assertTrue($themeEntity->isActive());
+        static::assertEquals(2, $themeMedia->count());
+
+        $themeDefaultFolderId = $this->getThemeMediaDefaultFolderId();
+        foreach ($themeMedia as $media) {
+            static::assertEquals($themeDefaultFolderId, $media->getMediaFolderId());
+        }
+
+        $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
+
+        // check whether the theme is no longer in the table and the associated media have been deleted
+        static::assertNull($this->getTheme($bundle));
+        static::assertCount(0, $this->mediaRepository->searchIds(new Criteria($ids), Context::createDefaultContext())->getIds());
+    }
+
+    public function testItRemovesAChildThemeCorrectly(): void
+    {
+        $bundle = $this->getThemeConfig();
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle, true);
+        $childId = Uuid::randomHex();
+
+        // check if we have no childs
+        static::assertEquals(0, $themeEntity->getChildThemes()->count());
+
+        // clone theme and make it child
+        $this->themeRepository->clone($themeEntity->getId(), $this->context, $childId, new CloneBehavior([
+            'technicalName' => null,
+            'name' => 'Cloned theme',
+            'parentThemeId' => $themeEntity->getId(),
+        ]));
+
+        // refresh theme to get child
+        $themeEntity = $this->getTheme($bundle, true);
+
+        $themeMedia = $themeEntity->getMedia();
+        $ids = $themeMedia->getIds();
+
+        static::assertTrue($themeEntity->isActive());
+        static::assertEquals(2, $themeMedia->count());
+        static::assertEquals(1, $themeEntity->getChildThemes()->count());
+
+        $themeDefaultFolderId = $this->getThemeMediaDefaultFolderId();
+        foreach ($themeMedia as $media) {
+            static::assertEquals($themeDefaultFolderId, $media->getMediaFolderId());
+        }
+
+        $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
+
+        // check whether the theme is no longer in the table and the associated media have been deleted
+        static::assertNull($this->getTheme($bundle));
+        static::assertCount(0, $this->mediaRepository->searchIds(new Criteria($ids), Context::createDefaultContext())->getIds());
+        static::assertEquals(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context)->count());
+    }
+
     private function getThemeConfig(): StorefrontPluginConfiguration
     {
         $factory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
@@ -243,12 +311,16 @@ class ThemeLifecycleServiceTest extends TestCase
         return $factory->createFromBundle(new ThemeWithLabels());
     }
 
-    private function getTheme(StorefrontPluginConfiguration $bundle): ThemeEntity
+    private function getTheme(StorefrontPluginConfiguration $bundle, $withChild = false): ?ThemeEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $bundle->getTechnicalName()));
         $criteria->addAssociation('media');
         $criteria->addAssociation('translations.language.locale');
+
+        if ($withChild) {
+            $criteria->addAssociation('childThemes');
+        }
 
         return $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
     }

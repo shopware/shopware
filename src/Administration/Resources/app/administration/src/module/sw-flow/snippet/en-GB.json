@@ -1,0 +1,26 @@
+{
+    "sw-flow": {
+        "general": {
+            "mainMenuItemGeneral": "Flow builder",
+            "descriptionTextModule": "Flow builder"
+        },
+        "list": {
+          "textHeadline": "Flow Builder",
+          "buttonAddFlow": "Add flow"
+        },
+        "detail": {
+          "textHeadline": "New flow"
+        },
+        "page": {
+          "generalTab": "General",
+          "flowTab": "Flow"
+        }
+    },
+    "sw-privileges": {
+      "permissions": {
+        "flow": {
+          "label": "Flow Builder"
+        }
+      }
+    }
+}

@@ -1,0 +1,41 @@
+{% block sw_flow_list %}
+    {% block sw_flow_index %}
+        <sw-page class="sw-flow">
+            {% block sw_flow_list_smart_bar_header %}
+                <template #smart-bar-header>
+                    {% block sw_flow_list_smart_bar_header_title %}
+                        <h2>
+                            {% block sw_flow_list_smart_bar_header_title_text %}
+                                {{ $tc('sw-settings.index.title') }}
+                                <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                                {{ $tc('sw-flow.list.textHeadline') }}
+                            {% endblock %}
+
+                            {% block sw_flow_list_smart_bar_header_amount %}
+                                <span
+                                    v-if="!isLoading"
+                                    class="sw-page__smart-bar-amount">
+                                    ({{ total }})
+                                </span>
+                            {% endblock %}
+                        </h2>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_flow_list_smart_bar_actions %}
+                <template #smart-bar-actions>
+                    {% block sw_flow_list_smart_bar_actions_add %}
+                        <sw-button
+                            class="sw-flow-list__create"
+                            variant="primary"
+                            :routerLink="{ name: 'sw.flow.create' }"
+                            :disabled="!acl.can('flow.creator')">
+                            {{ $tc('sw-flow.list.buttonAddFlow') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        </sw-page>
+    {% endblock %}
+{% endblock %}

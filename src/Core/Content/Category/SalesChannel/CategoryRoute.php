@@ -64,18 +64,18 @@ class CategoryRoute extends AbstractCategoryRoute
      *     description="This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
      *     operationId="readCategory",
      *     tags={"Store API", "Category"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={
-     *                  "categoryId"
-     *             },
-     *             @OA\Property(
-     *                 property="categoryId",
-     *                 description="Identifier of the category to be fetched",
-     *                 @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *             )
-     *         )
+     *     @OA\Parameter(
+     *         name="categoryId",
+     *         description="Identifier of the category to be fetched",
+     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *         in="path",
+     *         required="true"
+     *     ),
+     *     @OA\Parameter(
+     *         name="slots",
+     *         description="Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character",
+     *         @OA\Schema(type="string"),
+     *         in="query",
      *     ),
      *     @OA\Parameter(name="Api-Basic-Parameters"),
      *     @OA\Response(

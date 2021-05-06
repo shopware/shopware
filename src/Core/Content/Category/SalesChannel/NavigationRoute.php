@@ -56,7 +56,8 @@ class NavigationRoute extends AbstractNavigationRoute
      *      path="/navigation/{requestActiveId}/{requestRootId}",
      *      summary="Fetch a navigation menu",
      *      description="This endpoint returns categories that can be used as a page navigation. You can either return them as a tree or as a flat list. You can also control the depth of the tree.
-    Instead of passing uuids, you can also use one of the following aliases for the activeId and rootId parameters to get the respective navigations of your sales channel.
+
+Instead of passing uuids, you can also use one of the following aliases for the activeId and rootId parameters to get the respective navigations of your sales channel.
 
      * main-navigation
      * service-navigation
@@ -64,31 +65,34 @@ class NavigationRoute extends AbstractNavigationRoute
      *      operationId="readNavigation",
      *      tags={"Store API", "Category"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          name="requestActiveId",
-     *          description="Identifier of the active category in the navigation tree (if not used, just set to the same as rootId).",
-     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Parameter(
-     *          name="requestRootId",
-     *          description="Identifier of the root category for your desired navigation tree. You can use it to fetch sub-trees of your navigation tree.",
-     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Parameter(
-     *          name="depth",
-     *          description="Determines the depth of fetched navigation levels.",
-     *          @OA\Schema(type="integer", default="2"),
-     *          in="query"
-     *      ),
-     *      @OA\Parameter(
-     *          name="buildTree",
-     *          description="Return the categories as a tree or as a flat list.",
-     *          @OA\Schema(type="boolean", default="true"),
-     *          in="query"
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={
+     *                  "requestActiveId",
+     *                  "requestRootId"
+     *              },
+     *              @OA\Property(
+     *                  property="requestActiveId",
+     *                  description="Identifier of the active category in the navigation tree (if not used, just set to the same as rootId).",
+     *                  @OA\Schema(type="string", pattern="^[0-9a-f]{32}$")
+     *              ),
+     *              @OA\Property(
+     *                  property="requestRootId",
+     *                  description="Identifier of the root category for your desired navigation tree. You can use it to fetch sub-trees of your navigation tree.",
+     *                  @OA\Schema(type="string", pattern="^[0-9a-f]{32}$")
+     *              ),
+     *              @OA\Property(
+     *                  property="depth",
+     *                  description="Determines the depth of fetched navigation levels.",
+     *                  @OA\Schema(type="integer", default="2")
+     *              ),
+     *              @OA\Property(
+     *                  property="buildTree",
+     *                  description="Return the categories as a tree or as a flat list.",
+     *                  @OA\Schema(type="boolean", default="true")
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

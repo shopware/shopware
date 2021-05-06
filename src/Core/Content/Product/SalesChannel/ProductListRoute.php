@@ -37,7 +37,7 @@ class ProductListRoute extends AbstractProductListRoute
      * @Entity("product")
      * @OA\Post(
      *      path="/product",
-     *      summary="Fetch a list of products by criteria",
+     *      summary="Fetch a list of products",
      *      description="List products that match the given criteria. For performance ressons a limit should always be set.",
      *      operationId="readProduct",
      *      tags={"Store API", "Product"},

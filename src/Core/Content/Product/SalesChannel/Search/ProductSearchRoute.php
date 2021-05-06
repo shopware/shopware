@@ -55,11 +55,18 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      *      description="Performs a search for products which can be used to display a product listing.",
      *      operationId="searchPage",
      *      tags={"Store API","Product"},
-     *      @OA\Parameter(
-     *          name="search",
-     *          description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
-     *          in="query",
-     *          @OA\Schema(type="string")
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={
+     *                  "search"
+     *              },
+     *              @OA\Property(
+     *                  property="search",
+     *                  type="string",
+     *                  description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag."
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

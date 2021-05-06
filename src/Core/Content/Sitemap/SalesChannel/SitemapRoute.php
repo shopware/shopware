@@ -47,6 +47,7 @@ class SitemapRoute extends AbstractSitemapRoute
      * @OA\Get(
      *      path="/sitemap",
      *      summary="Fetch sitemaps",
+     *      description="Fetches a list of compressed sitemap files, which are often used by search engines.",
      *      operationId="readSitemap",
      *      tags={"Store API", "Sitemap & Routes"},
      *      @OA\Response(

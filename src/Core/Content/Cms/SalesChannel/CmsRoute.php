@@ -37,8 +37,12 @@ class CmsRoute extends AbstractCmsRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/cms/{id}",
-     *      summary="Fetch and resolve a CMS page by criteria.",
-     *      description="Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.",
+     *      summary="Fetch and resolve a CMS page",
+     *      description="Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.
+
+     **Important notice**
+
+The criteria passed with this route also affects the listing, if there is one within the cms page.",
      *      operationId="readCms",
      *      tags={"Store API", "Content"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
@@ -49,11 +53,14 @@ class CmsRoute extends AbstractCmsRoute
      *          in="path",
      *          required=true
      *      ),
-     *      @OA\Parameter(
-     *          name="slots",
-     *          description="Resolves only the given slot ids. The ids have to be seperated by a '|' character",
-     *          @OA\Schema(type="string"),
-     *          in="query",
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="slots",
+     *                  description="Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character.",
+     *                  type="string"
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

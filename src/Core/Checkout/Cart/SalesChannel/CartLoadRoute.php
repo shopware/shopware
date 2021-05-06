@@ -47,13 +47,17 @@ class CartLoadRoute extends AbstractCartLoadRoute
      * @OA\Get(
      *      path="/checkout/cart",
      *      summary="Fetch or create a cart",
+     *      description="Used to fetch the current cart or for creating a new one.",
      *      operationId="readCart",
      *      tags={"Store API", "Cart"},
-     *      @OA\Parameter(
-     *          name="name",
-     *          description="The name of the new cart. This parameter will only be used when creating a new cart.",
-     *          @OA\Schema(type="string"),
-     *          in="query",
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="name",
+     *                  type="string",
+     *                  description="The name of the new cart. This parameter will only be used when creating a new cart."
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

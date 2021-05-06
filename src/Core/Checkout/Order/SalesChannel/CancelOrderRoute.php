@@ -37,6 +37,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
      * @OA\Post(
      *      path="/order/state/cancel",
      *      summary="Cancel an order",
+     *      description="The order state will be set to cancelled.",
      *      operationId="cancelOrder",
      *      tags={"Store API", "Order"},
      *      @OA\RequestBody(
@@ -44,7 +45,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
      *          @OA\JsonContent(
      *              @OA\Property(
      *                  property="orderId",
-     *                  description="The id of the order to be canceled",
+     *                  description="The identifier of the order to be canceled.",
      *                  type="string"
      *              )
      *          )

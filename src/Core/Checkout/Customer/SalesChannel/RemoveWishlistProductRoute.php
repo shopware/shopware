@@ -60,7 +60,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      * @Since("6.3.4.0")
      * @OA\Delete(
      *      path="/customer/wishlist/delete/{productId}",
-     *      summary="Remove a prduct from a wishlist",
+     *      summary="Remove a product from a wishlist",
      *      description="Removes a product from a customer's wishlist.
 
      **Important constraints**
@@ -72,7 +72,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      *      @OA\Parameter(
      *        name="productId",
      *        in="path",
-     *        description="The ID of the product to be removed from the wishlist.",
+     *        description="The identifier of the product to be removed from the wishlist.",
      *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
      *        required=true
      *      ),

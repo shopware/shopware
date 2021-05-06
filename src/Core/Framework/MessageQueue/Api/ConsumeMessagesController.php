@@ -58,6 +58,8 @@ class ConsumeMessagesController extends AbstractController
      */
     private $earlyReturnListener;
 
+    private string $defaultTransportName;
+
     public function __construct(
         ServiceLocator $receiverLocator,
         MessageBusInterface $bus,
@@ -65,7 +67,8 @@ class ConsumeMessagesController extends AbstractController
         StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener,
         StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener,
         DispatchPcntlSignalListener $dispatchPcntlSignalListener,
-        EarlyReturnMessagesListener $earlyReturnListener
+        EarlyReturnMessagesListener $earlyReturnListener,
+        string $defaultTransportName
     ) {
         $this->receiverLocator = $receiverLocator;
         $this->bus = $bus;
@@ -74,6 +77,7 @@ class ConsumeMessagesController extends AbstractController
         $this->stopWorkerOnSigtermSignalListener = $stopWorkerOnSigtermSignalListener;
         $this->dispatchPcntlSignalListener = $dispatchPcntlSignalListener;
         $this->earlyReturnListener = $earlyReturnListener;
+        $this->defaultTransportName = $defaultTransportName;
     }
 
     /**
@@ -98,7 +102,7 @@ class ConsumeMessagesController extends AbstractController
         $workerDispatcher->addSubscriber($this->dispatchPcntlSignalListener);
         $workerDispatcher->addSubscriber($this->earlyReturnListener);
 
-        $worker = new Worker([$receiver], $this->bus, $workerDispatcher);
+        $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 
         $worker->run(['sleep' => 50]);
 

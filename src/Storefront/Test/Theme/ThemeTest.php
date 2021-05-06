@@ -273,18 +273,18 @@ class ThemeTest extends TestCase
             'technicalName' => null,
         ]], $this->context);
 
-        $expectedColor = '';
-        $expectedTheme = '';
+        $_expectedColor = '';
+        $_expectedTheme = '';
         $themeCompilerMock = $this->createMock(ThemeCompiler::class);
         $themeCompilerMock->expects(static::exactly(2))
             ->method('compileTheme')
             ->with(
                 new IsEqual(Defaults::SALES_CHANNEL),
-                new Callback(static function (string $value) use (&$expectedTheme): bool {
-                    return $value === $expectedTheme;
+                new Callback(static function (string $value) use (&$_expectedTheme): bool {
+                    return $value === $_expectedTheme;
                 }),
-                new Callback(static function (StorefrontPluginConfiguration $value) use (&$expectedColor): bool {
-                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $expectedColor;
+                new Callback(static function (StorefrontPluginConfiguration $value) use (&$_expectedColor): bool {
+                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor;
                 })
             );
 
@@ -424,11 +424,11 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $expectedColor = '#b1900f';
-        $expectedTheme = $childTheme->getId();
+        $_expectedColor = '#b1900f';
+        $_expectedTheme = $childTheme->getId();
         $themeService->compileTheme(Defaults::SALES_CHANNEL, $childTheme->getId(), $this->context);
-        $expectedColor = '#008490';
-        $expectedTheme = $baseTheme->getId();
+        $_expectedColor = '#008490';
+        $_expectedTheme = $baseTheme->getId();
         $themeService->compileTheme(Defaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
     }
 

@@ -10,11 +10,6 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 class DevOps extends Bundle
 {
     /**
-     * @var string
-     */
-    protected $name = 'DevOps';
-
-    /**
      * {@inheritdoc}
      */
     public function build(ContainerBuilder $container): void

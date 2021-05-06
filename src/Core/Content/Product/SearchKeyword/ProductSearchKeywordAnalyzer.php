@@ -82,17 +82,17 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                     }
                     $value = $values;
                 } else {
-                    $value = $value->get($part);
+                    if ($value->get($part) === null) {
+                        // if we are at the destination entity and it does not have a value for the field
+                        // on it's on, then try to get the translation fallback
+                        $value = $value->getTranslation($part);
+                    } else {
+                        $value = $value->get($part);
+                    }
                 }
 
                 if (\is_array($value)) {
                     return $value;
-                }
-
-                // if we are at the destination entity and it does not have a value for the field
-                // on it's on, then try to get the translation fallback
-                if ($value === null) {
-                    $value = $entity->getTranslation($part);
                 }
             } catch (\InvalidArgumentException $ex) {
                 if (!$smartDetect) {

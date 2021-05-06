@@ -5,15 +5,21 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
+use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductSearchRouteTest extends TestCase
 {
@@ -316,6 +322,235 @@ class ProductSearchRouteTest extends TestCase
         // Limited to max 10 entries
         static::assertCount(1, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    /**
+     * @dataProvider searchTestCases
+     */
+    public function testProductSearch(array $productData, string $productNumber, array $searchTerms, IdsCollection $ids, ?string $languageId = null): void
+    {
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository->create([$productData], $ids->getContext());
+
+        $searchRoute = $this->getContainer()->get(ProductSearchRoute::class);
+
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            'token',
+            Defaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::LANGUAGE_ID => $languageId ?? Defaults::LANGUAGE_SYSTEM,
+            ]
+        );
+
+        foreach ($searchTerms as $searchTerm => $shouldBeFound) {
+            $result = $searchRoute->load(
+                new Request(['search' => $searchTerm]),
+                $salesChannelContext,
+                new Criteria()
+            );
+
+            static::assertEquals(
+                $shouldBeFound,
+                $result->getListingResult()->has($ids->get($productNumber)),
+                sprintf(
+                    'Product was%s found, but should%s be found for term "%s".',
+                    $result->getListingResult()->has($ids->get($productNumber)) ? '' : ' not',
+                    $shouldBeFound ? '' : ' not',
+                    $searchTerm
+                )
+            );
+        }
+    }
+
+    public function searchTestCases(): array
+    {
+        $idsCollection = new IdsCollection();
+
+        return [
+            'test it finds product' => [
+                (new ProductBuilder($idsCollection, '1000'))
+                    ->price(10)
+                    ->name('Lorem ipsum')
+                    ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
+                    ->visibility()
+                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                    ->build(),
+                '1000',
+                [
+                    '1000' => true, // productNumber
+                    'Lorem' => true, // part of name
+                    'ipsum' => true, // part of name
+                    'Lorem ipsum' => true, // full name
+                    'manufacturer' => true, // manufacturer
+                    'dolor sit amet' => false, // full name but different language
+                    'Hersteller' => false, // manufacturer but different language
+                ],
+                $idsCollection,
+            ],
+            'test it finds product by translation' => [
+                (new ProductBuilder($idsCollection, '1000'))
+                    ->price(10)
+                    ->name('Lorem ipsum')
+                    ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
+                    ->visibility()
+                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                    ->build(),
+                '1000',
+                [
+                    '1000' => true, // productNumber
+                    'dolor' => true, // part of name
+                    'sit' => true, // part of name
+                    'amet' => true, // part of name
+                    'dolor sit amet' => true, // full name
+                    'Hersteller' => true, // manufacturer
+                    'Lorem ipsum' => false, // full name but different language
+                    'manufacturer' => false, // manufacturer but different language
+                ],
+                $idsCollection,
+                $this->getDeDeLanguageId(),
+            ],
+            'test it finds product by fallback translations' => [
+                (new ProductBuilder($idsCollection, '1000'))
+                    ->price(10)
+                    ->name('Lorem ipsum')
+                    ->visibility()
+                    ->manufacturer('manufacturer')
+                    ->build(),
+                '1000',
+                [
+                    '1000' => true, // productNumber
+                    'Lorem' => true, // part of name
+                    'ipsum' => true, // part of name
+                    'Lorem ipsum' => true, // full name
+                    'manufacturer' => true, // manufacturer
+                ],
+                $idsCollection,
+                $this->getDeDeLanguageId(),
+            ],
+            'test it finds variant product' => [
+                (new ProductBuilder($idsCollection, '1001'))
+                    ->name('consectetur adipiscing')
+                    ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
+                    ->price(5)
+                    ->visibility()
+                    ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
+                    ->variant(
+                        (new ProductBuilder($idsCollection, '1000'))
+                            ->price(10)
+                            ->name('Lorem ipsum')
+                            ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
+                            ->visibility()
+                            ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                            ->build()
+                    )
+                    ->build(),
+                '1000',
+                [
+                    '1000' => true, // productNumber
+                    'Lorem' => true, // part of name
+                    'ipsum' => true, // part of name
+                    'Lorem ipsum' => true, // full name
+                    'manufacturer' => true, // manufacturer
+                    'dolor sit amet' => false, // full name but different language
+                    'Hersteller' => false, // manufacturer but different language
+                    'consectetur adipiscing' => false, // full name but of parent language
+                    'Suspendisse in' => false, // full name but of parent & different language
+                    'varius' => false, // manufacturer but of parent
+                    'Vestibulum' => false, // manufacturer but of parent & different language
+                ],
+                $idsCollection,
+            ],
+            'test it finds variant product by translation' => [
+                (new ProductBuilder($idsCollection, '1001'))
+                    ->name('consectetur adipiscing')
+                    ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
+                    ->price(5)
+                    ->visibility()
+                    ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
+                    ->variant(
+                        (new ProductBuilder($idsCollection, '1000'))
+                            ->price(10)
+                            ->name('Lorem ipsum')
+                            ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
+                            ->visibility()
+                            ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                            ->build()
+                    )
+                    ->build(),
+                '1000',
+                [
+                    '1000' => true, // productNumber
+                    'dolor' => true, // part of name
+                    'sit' => true, // part of name
+                    'amet' => true, // part of name
+                    'dolor sit amet' => true, // full name
+                    'Hersteller' => true, // manufacturer
+                    'Lorem ipsum' => false, // full name but different language
+                    'manufacturer' => false, // manufacturer but different language
+                    'consectetur adipiscing' => false, // full name but of parent language
+                    'Suspendisse in' => false, // full name but of parent & different language
+                    'varius' => false, // manufacturer but of parent
+                    'Vestibulum' => false, // manufacturer but of parent & different language
+                ],
+                $idsCollection,
+                $this->getDeDeLanguageId(),
+            ],
+            'test it finds variant product by parent translation' => [
+                (new ProductBuilder($idsCollection, '1001'))
+                    ->name('consectetur adipiscing')
+                    ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
+                    ->price(5)
+                    ->visibility()
+                    ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
+                    ->variant(
+                        (new ProductBuilder($idsCollection, '1000'))
+                            ->price(10)
+                            ->name('Lorem ipsum')
+                            ->visibility()
+                            ->manufacturer('manufacturer')
+                            ->build()
+                    )
+                    ->build(),
+                '1000',
+                [
+                    '1000' => true, // productNumber
+                    'Suspendisse' => true, // part of parent name
+                    'Suspendisse in' => true, // full parent name
+                    'manufacturer' => true, // manufacturer
+                    'Lorem ipsum' => false, // full name but different language
+                    'consectetur adipiscing' => false, // full name but of parent language
+                    'varius' => false, // manufacturer but of parent & different language
+                    'Vestibulum' => false, // manufacturer but of parent
+                ],
+                $idsCollection,
+                $this->getDeDeLanguageId(),
+            ],
+            'test it finds variant product with inherited data' => [
+                (new ProductBuilder($idsCollection, '1001'))
+                    ->name('consectetur adipiscing')
+                    ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
+                    ->price(5)
+                    ->visibility()
+                    ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
+                    ->variant(
+                        (new ProductBuilder($idsCollection, '1000'))
+                            ->name(null)
+                            ->build()
+                    )
+                    ->build(),
+                '1000',
+                [
+                    '1000' => true, // productNumber
+                    'consectetur' => true, // part of parent name
+                    'adipiscing' => true, // part of parent name
+                    'consectetur adipiscing' => true, // full parent name
+                    'varius' => true, // parent manufacturer
+                    'Suspendisse in' => false, // full name but different language
+                    'Vestibulum' => false, // manufacturer but different language
+                ],
+                $idsCollection,
+            ],
+        ];
     }
 
     public function searchAndCases(): array

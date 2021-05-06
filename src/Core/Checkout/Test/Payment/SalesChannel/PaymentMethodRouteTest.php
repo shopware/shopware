@@ -3,12 +3,18 @@
 namespace Shopware\Core\Checkout\Test\Payment\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class PaymentMethodRouteTest extends TestCase
 {
@@ -25,6 +31,11 @@ class PaymentMethodRouteTest extends TestCase
      */
     private $ids;
 
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
+
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
@@ -39,6 +50,10 @@ class PaymentMethodRouteTest extends TestCase
                 ['id' => $this->ids->get('payment2')],
             ],
         ]);
+
+        $this->salesChannelContext = $this->getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
     public function testLoading(): void
@@ -58,6 +73,21 @@ class PaymentMethodRouteTest extends TestCase
         static::assertSame(2, $response['total']);
         static::assertContains($this->ids->get('payment'), $ids);
         static::assertContains($this->ids->get('payment2'), $ids);
+    }
+
+    public function testSorting(): void
+    {
+        $paymentMethodRoute = $this->getContainer()->get(PaymentMethodRoute::class);
+
+        $request = new Request();
+
+        $unselectedPaymentResult = $paymentMethodRoute->load($request, $this->salesChannelContext, new Criteria());
+        $lastPaymentMethodId = $unselectedPaymentResult->getPaymentMethods()->last()->getId();
+
+        $this->salesChannelContext->getPaymentMethod()->setId($lastPaymentMethodId);
+        $selectedPaymentMethodResult = $paymentMethodRoute->load($request, $this->salesChannelContext, new Criteria());
+
+        static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getPaymentMethods()->first()->getId());
     }
 
     public function testIncludes(): void

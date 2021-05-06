@@ -3,15 +3,10 @@
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,21 +14,18 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class PaymentMethodRoute extends AbstractPaymentMethodRoute
+class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $paymentMethodsRepository;
+    private AbstractPaymentMethodRoute $decorated;
 
-    public function __construct(SalesChannelRepositoryInterface $paymentMethodsRepository)
+    public function __construct(AbstractPaymentMethodRoute $decorated)
     {
-        $this->paymentMethodsRepository = $paymentMethodsRepository;
+        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractPaymentMethodRoute
     {
-        throw new DecorationPatternException(self::class);
+        return $this->decorated;
     }
 
     /**
@@ -77,22 +69,10 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
-        $criteria
-            ->addFilter(new EqualsFilter('active', true))
-            ->addSorting(new FieldSorting('position'))
-            ->addAssociation('media');
+        $response = $this->getDecorated()->load($request, $context, $criteria);
 
-        $result = $this->paymentMethodsRepository->search($criteria, $context);
+        $response->getPaymentMethods()->sortPaymentMethodsByPreference($context);
 
-        /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $result->getEntities();
-
-        if ($request->query->getBoolean('onlyAvailable', false)) {
-            $paymentMethods = $paymentMethods->filterByActiveRules($context);
-        }
-
-        $result->assign(['entities' => $paymentMethods]);
-
-        return new PaymentMethodRouteResponse($result);
+        return $response;
     }
 }

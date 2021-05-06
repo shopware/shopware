@@ -644,6 +644,34 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($product, $actualProduct);
     }
 
+    public function testProcessCartWithNulledFreeShipping(): void
+    {
+        $this->createProduct([
+            'shippingFree' => null,
+        ]);
+        $token = $this->ids->create('token');
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [
+                ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => false,
+                ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
+            ],
+        ];
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, Defaults::SALES_CHANNEL, $options);
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($this->ids->get('product'));
+        $product->setLabel('My test product');
+
+        $cart = $this->cartService->getCart($token, $context);
+        $this->cartService->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+
+        static::assertFalse($actualProduct->getDeliveryInformation()->getFreeDelivery());
+    }
+
     private function getProductCart(): Cart
     {
         $product = $this->getContainer()->get(ProductLineItemFactory::class)

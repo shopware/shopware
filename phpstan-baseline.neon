@@ -1316,11 +1316,6 @@ parameters:
 			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
 
 		-
-			message: "#^Parameter \\#3 \\$freeDelivery of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryInformation constructor expects bool, bool\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
-
-		-
 			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
 			count: 2
 			path: src/Core/Content/Product/Cart/ProductCartProcessor.php

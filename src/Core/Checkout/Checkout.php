@@ -10,11 +10,6 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 class Checkout extends Bundle
 {
     /**
-     * @var string
-     */
-    protected $name = 'Checkout';
-
-    /**
      * {@inheritdoc}
      */
     public function build(ContainerBuilder $container): void

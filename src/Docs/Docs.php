@@ -9,11 +9,6 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class Docs extends Bundle
 {
-    /**
-     * @var string
-     */
-    protected $name = 'Docs';
-
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);

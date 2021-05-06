@@ -115,7 +115,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         $data = new DataBag();
 
         $recipients = $mailEvent->getMailStruct()->getRecipients();
-        if (empty($recipients) && isset($config['recipients'])) {
+        if (isset($config['recipients']) && !empty($config['recipients'])) {
             $recipients = $config['recipients'];
         }
 

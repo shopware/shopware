@@ -250,6 +250,12 @@
                         </template>
                     {% endblock %}
 
+                    {% block sw_order_line_items_grid_grid_actions_modals %}
+                        <template #action-modals="{ item }">
+                            {% block sw_order_line_items_grid_grid_actions_modals_items %}{% endblock %}
+                        </template>
+                    {% endblock %}
+
                     {% block sw_order_line_items_grid_bulk_actions %}
                         <template #bulk>
 

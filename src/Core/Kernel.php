@@ -20,6 +20,13 @@ class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
 
+    /**
+     * @internal
+     *
+     * @deprecated tag:v6.5.0 The connection requirements should be fixed
+     */
+    public const PLACEHOLDER_DATABASE_URL = 'mysql://_placeholder.test';
+
     public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
@@ -113,7 +120,21 @@ class Kernel extends HttpKernel
     public function getProjectDir()
     {
         if ($this->projectDir === null) {
-            $this->projectDir = parent::getProjectDir();
+            $r = new \ReflectionObject($this);
+
+            $dir = (string) $r->getFileName();
+            if (!file_exists($dir)) {
+                throw new \LogicException(sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
+            }
+
+            $dir = $rootDir = \dirname($dir);
+            while (!file_exists($dir . '/vendor')) {
+                if ($dir === \dirname($dir)) {
+                    return $this->projectDir = $rootDir;
+                }
+                $dir = \dirname($dir);
+            }
+            $this->projectDir = $dir;
         }
 
         return $this->projectDir;
@@ -304,6 +325,7 @@ class Kernel extends HttpKernel
             $this->cacheId,
             mb_substr((string) $this->shopwareVersionRevision, 0, 8),
             mb_substr($pluginHash, 0, 8),
+            $_SERVER['DATABASE_URL'] ?? '',
         ]));
     }
 
@@ -311,35 +333,38 @@ class Kernel extends HttpKernel
     {
         $connection = self::getConnection();
 
-        $nonDestructiveMigrations = $connection->executeQuery('
+        try {
+            $nonDestructiveMigrations = $connection->executeQuery('
             SELECT `creation_timestamp`
             FROM `migration`
             WHERE `update` IS NOT NULL AND `update_destructive` IS NULL
         ')->fetchAll(FetchMode::COLUMN);
 
-        $activeMigrations = $this->container->getParameter('migration.active');
+            $activeMigrations = $this->container->getParameter('migration.active');
 
-        $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
+            $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
 
-        $setSessionVariables = $_SERVER['SQL_SET_DEFAULT_SESSION_VARIABLES'] ?? true;
-        $connectionVariables = [];
+            $setSessionVariables = $_SERVER['SQL_SET_DEFAULT_SESSION_VARIABLES'] ?? true;
+            $connectionVariables = [];
 
-        if ($setSessionVariables) {
-            $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';
-            $connectionVariables[] = "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))";
+            if ($setSessionVariables) {
+                $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';
+                $connectionVariables[] = "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))";
+            }
+
+            foreach ($activeNonDestructiveMigrations as $migration) {
+                $connectionVariables[] = sprintf(
+                    'SET %s = TRUE',
+                    sprintf(MigrationStep::MIGRATION_VARIABLE_FORMAT, $migration)
+                );
+            }
+
+            if (empty($connectionVariables)) {
+                return;
+            }
+            $connection->executeQuery(implode(';', $connectionVariables));
+        } catch (\Throwable $_) {
         }
-
-        foreach ($activeNonDestructiveMigrations as $migration) {
-            $connectionVariables[] = sprintf(
-                'SET %s = TRUE',
-                sprintf(MigrationStep::MIGRATION_VARIABLE_FORMAT, $migration)
-            );
-        }
-
-        if (empty($connectionVariables)) {
-            return;
-        }
-        $connection->executeQuery(implode(';', $connectionVariables));
     }
 
     private function addApiRoutes(RoutingConfigurator $routes): void

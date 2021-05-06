@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class MediaFolderRepositoryDecoratorTest extends TestCase
 {

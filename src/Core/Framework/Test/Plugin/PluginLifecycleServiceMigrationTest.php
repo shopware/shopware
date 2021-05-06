@@ -28,6 +28,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class PluginLifecycleServiceMigrationTest extends TestCase
 {

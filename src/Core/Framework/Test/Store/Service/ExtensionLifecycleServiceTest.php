@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group skip-paratest
+ */
 class ExtensionLifecycleServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -23,9 +23,4 @@ class TestKernel extends Kernel
 
         yield new TestBundle();
     }
-
-    public function getProjectDir()
-    {
-        return __DIR__ . '/../../../../../';
-    }
 }

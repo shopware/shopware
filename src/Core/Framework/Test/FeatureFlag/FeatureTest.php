@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
+/**
+ * @group skip-paratest
+ */
 class FeatureTest extends TestCase
 {
     use KernelTestBehaviour;

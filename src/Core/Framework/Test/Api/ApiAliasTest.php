@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @group skip-paratest
+ */
 class ApiAliasTest extends TestCase
 {
     use KernelTestBehaviour;

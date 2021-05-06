@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  app:
+    image: shopware/development:7.4-composer-2
+    depends_on: [database]
+    tmpfs:
+      - /tmp:mode=1777
+    volumes:
+      - .:/app
+    ports: [8000]
+
+  database:
+    image: mariadb:10.4
+    ports: [3306]
+    tmpfs:
+      - /var/lib/mysql:uid=999,gid=999
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+
+  adminer:
+      image: adminer:latest
+      depends_on: [database]
+      environment:
+          ADMINER_DEFAULT_SERVER: database
+      ports: [ 8080 ]
+
+  mailer:
+    image: mailhog/mailhog
+    ports: [8025]
+
+  elasticsearch:
+    image: elasticsearch:7.3.0
+    ports: [9200]
+    environment:
+        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        - discovery.type=single-node
+        - http.cors.allow-origin=http://localhost:8003
+        - http.cors.enabled=true
+

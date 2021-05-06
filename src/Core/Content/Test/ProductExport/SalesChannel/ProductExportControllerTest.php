@@ -45,9 +45,27 @@ class ProductExportControllerTest extends TestCase
 
     public function testUtf8CsvExport(): void
     {
-        $productExport = $this->createCsvExport(ProductExportEntity::ENCODING_UTF8);
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelDomainId = Uuid::randomHex();
 
-        $client = $this->createSalesChannelBrowser(null, true);
+        $client = $this->createSalesChannelBrowser(null, false, [
+            'id' => $salesChannelId,
+            'domains' => [
+                [
+                    'id' => $salesChannelDomainId,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://example.com',
+                ],
+            ],
+        ]);
+
+        $productExport = $this->createCsvExport(
+            ProductExportEntity::ENCODING_UTF8,
+            $salesChannelId,
+            $salesChannelDomainId
+        );
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(PHP_EOL, $client->getResponse()->getContent());
@@ -58,9 +76,28 @@ class ProductExportControllerTest extends TestCase
 
     public function testIsoCsvExport(): void
     {
-        $productExport = $this->createCsvExport(ProductExportEntity::ENCODING_ISO88591);
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelDomainId = Uuid::randomHex();
 
-        $client = $this->createSalesChannelBrowser(null, true);
+        $client = $this->createSalesChannelBrowser(null, false, [
+            'id' => $salesChannelId,
+            'domains' => [
+                [
+                    'id' => $salesChannelDomainId,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://example.com',
+                ],
+            ],
+        ]);
+
+        $productExport = $this->createCsvExport(
+            ProductExportEntity::ENCODING_ISO88591,
+            $salesChannelId,
+            $salesChannelDomainId
+        );
+
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(PHP_EOL, $client->getResponse()->getContent());
@@ -71,9 +108,27 @@ class ProductExportControllerTest extends TestCase
 
     public function testUtf8XmlExport(): void
     {
-        $productExport = $this->createXmlExport(ProductExportEntity::ENCODING_UTF8);
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelDomainId = Uuid::randomHex();
 
-        $client = $this->createSalesChannelBrowser(null, true);
+        $client = $this->createSalesChannelBrowser(null, false, [
+            'id' => $salesChannelId,
+            'domains' => [
+                [
+                    'id' => $salesChannelDomainId,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://example.com',
+                ],
+            ],
+        ]);
+        $productExport = $this->createXmlExport(
+            ProductExportEntity::ENCODING_UTF8,
+            $salesChannelId,
+            $salesChannelDomainId
+        );
+
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         static::assertEquals(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
@@ -87,14 +142,35 @@ class ProductExportControllerTest extends TestCase
 
     public function testIsoXmlExport(): void
     {
-        $productExport = $this->createXmlExport(ProductExportEntity::ENCODING_ISO88591);
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelDomainId = Uuid::randomHex();
 
-        $client = $this->createSalesChannelBrowser(null, true);
-        $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client = $this->createSalesChannelBrowser(null, false, [
+            'id' => $salesChannelId,
+            'domains' => [
+                [
+                    'id' => $salesChannelDomainId,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://example.com',
+                ],
+            ],
+        ]);
+        $productExport = $this->createXmlExport(
+            ProductExportEntity::ENCODING_ISO88591,
+            $salesChannelId,
+            $salesChannelDomainId
+        );
 
-        $xml = simplexml_load_string($client->getResponse()->getContent());
+        $client->request('GET', sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        static::assertEquals(ProductExportEntity::ENCODING_ISO88591, $client->getResponse()->getCharset());
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $xml = simplexml_load_string($response->getContent());
+
+        static::assertEquals(ProductExportEntity::ENCODING_ISO88591, $response->getCharset());
         static::assertInstanceOf(\SimpleXMLElement::class, $xml);
         static::assertCount(2, $xml);
     }
@@ -107,9 +183,9 @@ class ProductExportControllerTest extends TestCase
         return $repository->search(new Criteria(), $this->context)->first();
     }
 
-    private function createCsvExport(string $encoding): ProductExportEntity
+    private function createCsvExport(string $encoding, string $salesChannelId, string $salesChannelDomainId): ProductExportEntity
     {
-        $this->createProductStream();
+        $this->createProductStream($salesChannelId);
 
         $productExportId = Uuid::randomHex();
 
@@ -124,9 +200,9 @@ class ProductExportControllerTest extends TestCase
                 'headerTemplate' => 'name,url',
                 'bodyTemplate' => "{{ product.name }},{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+                'storefrontSalesChannelId' => $salesChannelId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-                'salesChannelDomainId' => $this->getSalesChannelDomain()->getId(),
+                'salesChannelDomainId' => $salesChannelDomainId,
                 'generateByCronjob' => false,
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -135,9 +211,9 @@ class ProductExportControllerTest extends TestCase
         return $this->repository->search(new Criteria([$productExportId]), $this->context)->get($productExportId);
     }
 
-    private function createXmlExport(string $encoding): ProductExportEntity
+    private function createXmlExport(string $encoding, string $salesChannelId, string $salesChannelDomainId): ProductExportEntity
     {
-        $this->createProductStream();
+        $this->createProductStream($salesChannelId);
 
         $productExportId = Uuid::randomHex();
 
@@ -153,9 +229,9 @@ class ProductExportControllerTest extends TestCase
                 'bodyTemplate' => "<product><name>{{ product.name }}</name><url>{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}</url></product>",
                 'footerTemplate' => '</root>',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+                'storefrontSalesChannelId' => $salesChannelId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-                'salesChannelDomainId' => $this->getSalesChannelDomain()->getId(),
+                'salesChannelDomainId' => $salesChannelDomainId,
                 'generateByCronjob' => false,
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -164,20 +240,20 @@ class ProductExportControllerTest extends TestCase
         return $this->repository->search(new Criteria([$productExportId]), $this->context)->get($productExportId);
     }
 
-    private function createProductStream(): void
+    private function createProductStream(string $salesChannelId): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
+        $randomProductIds = implode('|', \array_slice(array_column($this->createProducts($salesChannelId), 'id'), 0, 2));
 
         $connection->exec("
-            INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
+            REPLACE INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[{\"type\": \"multi\", \"queries\": [{\"type\": \"multi\", \"queries\": [{\"type\": \"equalsAny\", \"field\": \"product.id\", \"value\": \"{$randomProductIds}\"}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"gte\": 221, \"lte\": 932}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"lte\": 245}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"equals\", \"field\": \"product.manufacturer.id\", \"value\": \"02f6b9aa385d4f40aaf573661b2cf919\"}, {\"type\": \"range\", \"field\": \"product.height\", \"parameters\": {\"gte\": 182}}], \"operator\": \"AND\"}], \"operator\": \"OR\"}]', 0, '2019-08-16 08:43:57.488', NULL);
         ");
 
         $connection->exec("
-            INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
+            REPLACE INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX('137B079935714281BA80B40F83F8D7EB'), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
                 (UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), 'multi', NULL, 'AND', NULL, NULL, 1, NULL, '2019-08-16 08:43:57.478', NULL),
@@ -191,12 +267,11 @@ class ProductExportControllerTest extends TestCase
         ");
     }
 
-    private function createProducts(): array
+    private function createProducts(string $salesChannelId): array
     {
         $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
-        $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
         $products = [];
 
         for ($i = 0; $i < 10; ++$i) {

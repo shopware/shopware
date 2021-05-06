@@ -13,14 +13,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Development\Kernel;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @group skip-paratest
+ * @group slow
+ */
 class CacheClearerTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @group slow
-     */
     public function testCleanupOldKernelDirectories(): void
     {
         $classLoader = clone KernelLifecycleManager::getClassLoader();
@@ -65,9 +66,6 @@ class CacheClearerTest extends TestCase
         }
     }
 
-    /**
-     * @group slow
-     */
     public function testClearContainerCache(): void
     {
         $kernelClass = KernelLifecycleManager::getKernelClass();

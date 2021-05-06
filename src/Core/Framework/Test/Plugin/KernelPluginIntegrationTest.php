@@ -27,6 +27,7 @@ use SwagTest\SwagTest;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class KernelPluginIntegrationTest extends TestCase
 {

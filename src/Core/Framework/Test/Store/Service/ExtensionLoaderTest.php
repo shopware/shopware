@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @group skip-paratest
+ */
 class ExtensionLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

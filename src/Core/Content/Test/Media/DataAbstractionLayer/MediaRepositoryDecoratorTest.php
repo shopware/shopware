@@ -28,6 +28,7 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class MediaRepositoryDecoratorTest extends TestCase
 {

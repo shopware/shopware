@@ -38,6 +38,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class PluginLifecycleServiceTest extends TestCase
 {

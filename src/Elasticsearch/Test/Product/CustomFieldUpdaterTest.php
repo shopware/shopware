@@ -16,6 +16,9 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @group skip-paratest
+ */
 class CustomFieldUpdaterTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;

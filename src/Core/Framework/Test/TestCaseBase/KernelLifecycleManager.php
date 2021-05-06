@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Kernel;
@@ -98,7 +99,7 @@ class KernelLifecycleManager
         return static::$kernel;
     }
 
-    public static function createKernel(?string $kernelClass = null, bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029'): KernelInterface
+    public static function createKernel(?string $kernelClass = null, bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029', ?string $projectDir = null): KernelInterface
     {
         if ($kernelClass === null) {
             if (static::$class === null) {
@@ -128,24 +129,31 @@ class KernelLifecycleManager
             throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
         }
 
-        $existingConnection = null;
-        if ($reuseConnection) {
-            $existingConnection = self::$connection;
+        try {
+            $existingConnection = null;
+            if ($reuseConnection) {
+                $existingConnection = self::$connection;
 
-            try {
-                $existingConnection->fetchAll('SELECT 1');
-            } catch (\Throwable $e) {
-                // The connection is closed
-                $existingConnection = null;
+                try {
+                    $existingConnection->fetchAll('SELECT 1');
+                } catch (\Throwable $e) {
+                    // The connection is closed
+                    $existingConnection = null;
+                }
             }
-        }
-        if ($existingConnection === null) {
-            $existingConnection = self::$connection = $kernelClass::getConnection();
+            if ($existingConnection === null) {
+                $existingConnection = self::$connection = $kernelClass::getConnection();
+            }
+
+            $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
+            // force connection to database
+            $pluginLoader->initializePlugins($projectDir);
+        } catch (\Throwable $e) {
+            // if we don't have database yet, we'll boot the kernel without plugins
+            $pluginLoader = new StaticKernelPluginLoader(self::$classLoader);
         }
 
-        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
-
-        return new $kernelClass($env, $debug, $pluginLoader, $cacheId, null, $existingConnection);
+        return new $kernelClass($env, $debug, $pluginLoader, $cacheId, null, $existingConnection, $projectDir);
     }
 
     /**

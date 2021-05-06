@@ -59,8 +59,18 @@ default:
 
 # stage: unit
 
-.phpunit_base:
+PHP Full:
+    image: $DEV_IMAGE
     stage: unit
+    services:
+        -   name: $MYSQL_IMAGE
+            alias: mysql
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+        -   name: elasticsearch:7.3.0
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+        -   name: swaggerapi/swagger-validator-v2:v2.0.5
+            alias: swagger
     variables:
         TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch docs"
     timeout: 1h 00m
@@ -85,20 +95,6 @@ default:
             - $CI_PROJECT_DIR/stdout.log
         reports:
             junit: development/build/artifacts/phpunit.junit.xml
-
-PHP Unit:
-    extends: .phpunit_base
-    image: $DEV_IMAGE
-    stage: unit
-    services:
-        -   name: $MYSQL_IMAGE
-            alias: mysql
-            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        -   name: elastic/elasticsearch:7.3.0
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-        -   name: swaggerapi/swagger-validator-v2:v2.0.5
-            alias: swagger
     rules:
       - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
         when: never
@@ -132,6 +128,47 @@ PHP Unit:
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
                 SKIP_ON_MR: 'true'
 
+# TODOS:
+# - replace with minimal image - development is 2GB big! An alpine based one should be around 100MB
+PHP Unit coverage:
+    image: $DEV_IMAGE
+    stage: unit
+    services:
+        -   name: $MYSQL_IMAGE
+            alias: database
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    variables:
+        APP_ENV: "test"
+        PARATEST_PROCESSES: 4
+    before_script: []
+    script:
+        - composer install --optimize-autoloader
+        - mkdir -p config/jwt || true
+        - bin/shopware system:generate-jwt-secret
+        - COVERAGE_OPTIONS="--coverage-text --coverage-cobertura cobertura.xml"
+        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
+        - php $PHP_OPTIONS vendor/bin/paratest
+            --passthru-php="$PHP_OPTIONS"
+            --configuration phpunit.xml.dist
+            --log-junit phpunit.junit.xml
+            --testsuite=paratest
+            --exclude-group=skip-paratest,needsWebserver
+            --processes $PARATEST_PROCESSES
+            $COVERAGE_OPTIONS
+    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+    artifacts:
+        when: always
+        paths:
+            - cobertura.xml
+        reports:
+            junit: phpunit.junit.xml
+            cobertura: cobertura.xml
+    parallel:
+        matrix:
+            -   MYSQL_IMAGE: mariadb:10.4
+                DEV_IMAGE: ["shopware/development:7.4-composer-2"]
+                FEATURE_ALL: ["major"]
+
 ESLint (Administration):
     stage: unit
     timeout: 1h 00m
@@ -157,13 +194,6 @@ ESLint (Storefront):
             junit: src/Storefront/Resources/app/storefront/eslint.junit.xml
 
 Stylelint (Administration):
-    only:
-        refs:
-            - merge_requests
-            - trunk
-            - /^6\..*$/
-            - schedules
-            - pipelines
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -209,34 +239,6 @@ PHP analysis:
     artifacts:
         reports:
             codequality: development/phpstan-report.json
-
-Check generated Docs:
-    stage: unit
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-    retry:
-        max: 2
-        when: runner_system_failure
-    timeout: 1h 00m
-    script:
-        - ./psh.phar init
-        - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
-        - cd ..
-        - cd development
-        - echo "Checking the generated doc files"
-        - bin/console docs:dump-erd
-        - bin/console docs:dump-core-characteristics
-        - cd platform
-        - >
-            if ! git diff --exit-code --ignore-submodules HEAD --; then
-                echo "Docs have changed, please run 'bin/console docs:dump-core-characteristics' and 'bin/console docs:dump-erd'";
-                git diff --exit-code;
-                exit 1;
-            else
-                echo "Everything ok"
-                exit 0;
-            fi
 
 # jest
 Jest (Administration):
@@ -409,25 +411,6 @@ Component Library:
             - build/artifacts/component-library/
 
 # Stage: Generate docs
-
-Generating docs:
-    only:
-        changes:
-            - src/Docs/**/*
-    stage: Generate docs
-    dependencies: []
-    services:
-        -   name: docker:18.09.7-dind
-            alias: docker
-    script:
-        - mkdir -p $HOME/.docker
-        - echo "$DOCKER_AUTH_CONFIG" > $HOME/.docker/config.json
-        - docker login
-        - rm $HOME/.docker/config.json
-        - docker build -t shopware-plattform-plantuml dev-ops/docs/docker/plantuml/.
-        - sh ./dev-ops/docs/scripts/render_puml.sh platform/src/Docs/Resources/current
-        - ./psh.phar init-composer
-        - php dev-ops/docs/scripts/convertMarkdownToDocs.php convert -i platform/src/Docs/Resources/current/ -o build/docs -u /shopware-platform-dev -s
 
 Symfony security check:
     stage: unit

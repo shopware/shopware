@@ -6,23 +6,63 @@
          cacheResult="false"
          executionOrder="random"
          convertDeprecationsToExceptions="false">
-    <coverage>
+    <coverage cacheDirectory="var/cache/phpunit/">
+
         <include>
-            <directory suffix=".php">src</directory>
+            <!--
+                DO NOT change this to a more generic structure.
+                The phpunit file traversal is really inefficient for our test structure. A naive definition results in
+                more that 70000 files being traversed, which has to be done for each thread/process.
+            -->
+            <directory suffix=".php">src/Core/Framework</directory>
+            <directory suffix=".php">src/Core/Content</directory>
+            <directory suffix=".php">src/Core/DevOps</directory>
+            <directory suffix=".php">src/Core/Profiling</directory>
+            <directory suffix=".php">src/Core/System</directory>
+            <directory suffix=".php">src/Elasticsearch</directory>
+            <file>src/Core/Defaults.php</file>
+            <file>src/Core/HttpKernel.php</file>
+            <file>src/Core/HttpKernelResult.php</file>
+            <file>src/Core/Kernel.php</file>
+            <file>src/Core/PlatformRequest.php</file>
+            <file>src/Core/SalesChannelRequest.php</file>
+
+            <directory suffix=".php">src/Administration/Controller</directory>
+            <directory suffix=".php">src/Administration/DependencyInjection</directory>
+            <directory suffix=".php">src/Administration/Events</directory>
+            <directory suffix=".php">src/Administration/Framework</directory>
+            <directory suffix=".php">src/Administration/Service</directory>
+            <directory suffix=".php">src/Administration/Snippet</directory>
+            <file>src/Administration/Administration.php</file>
+
+            <directory suffix=".php">src/Storefront/Controller</directory>
+            <directory suffix=".php">src/Storefront/DependencyInjection</directory>
+            <directory suffix=".php">src/Storefront/Events</directory>
+            <directory suffix=".php">src/Storefront/Exception</directory>
+            <directory suffix=".php">src/Storefront/Framework</directory>
+            <directory suffix=".php">src/Storefront/Page</directory>
+            <directory suffix=".php">src/Storefront/Pagelet</directory>
+            <directory suffix=".php">src/Storefront/Theme</directory>
+            <file>src/Storefront/Storefront.php</file>
         </include>
         <exclude>
-            <directory suffix=".php">src/**/**/vendor</directory>
-            <directory suffix=".php">src/**/vendor</directory>
-            <directory suffix=".php">src/Docs</directory>
-            <directory suffix=".php">src/**/Test</directory>
-            <directory suffix=".php">src/Core/**/Test</directory>
+            <directory suffix=".php">src/Core/Test</directory>
+            <directory suffix=".php">src/Core/Framework/Test</directory>
+            <directory suffix=".php">src/Core/Content/Test</directory>
+            <directory suffix=".php">src/Core/DevOps/Test</directory>
             <directory suffix=".php">src/Core/Migration</directory>
-            <directory suffix=".php">src/Core/Flag</directory>
+            <directory suffix=".php">src/Core/Profiling/Test</directory>
+            <directory suffix=".php">src/Core/System/Test</directory>
+
+            <directory suffix=".php">src/Elasticsearch/Test</directory>
+
+            <directory suffix=".php">src/Administration/Test</directory>
+            <directory suffix=".php">src/Storefront/Test</directory>
         </exclude>
       </coverage>
     <php>
         <ini name="error_reporting" value="-1" />
-        <server name="KERNEL_CLASS" value="Shopware\Development\Kernel"/>
+        <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
         <env name="APP_ENV" value="test" />
         <env name="APP_DEBUG" value="1" />
         <env name="APP_SECRET" value="s$cretf0rt3st" />
@@ -64,6 +104,14 @@
         </testsuite>
         <testsuite name="docs">
             <directory suffix="example.php">src/Docs/Resources/current/</directory>
+        </testsuite>
+
+        <testsuite name="paratest">
+            <directory>src/Core/*/Test</directory>
+            <directory>src/*/Test</directory>
+            <exclude>src/Recovery/Test</exclude>
+            <exclude>src/Storefront/Test/Migration</exclude>
+            <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
     </testsuites>
     <listeners>

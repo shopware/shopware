@@ -51,6 +51,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class RecalculationServiceTest extends TestCase
 {

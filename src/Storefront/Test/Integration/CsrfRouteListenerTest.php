@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * @group skip-paratest
+ */
 class CsrfRouteListenerTest extends TestCase
 {
     use SalesChannelApiTestBehaviour;

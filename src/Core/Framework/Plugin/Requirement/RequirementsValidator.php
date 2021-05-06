@@ -144,7 +144,13 @@ class RequirementsValidator
         $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
 
         // Get PHP extension "packages"
-        $packages = array_merge($packages, (new PlatformRepository())->getPackages());
+        $packages = array_merge(
+            $packages,
+            (new PlatformRepository())->getPackages(),
+        );
+
+        // add root package
+        $packages[] = $composer->getPackage();
 
         foreach ($packages as $package) {
             // Ignore Shopware plugins. They are checked separately in `validateInstalledPlugins`

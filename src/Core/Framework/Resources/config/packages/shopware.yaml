@@ -1,6 +1,7 @@
 parameters:
     default_cdn_strategy: "id"
-    APP_URL: "%env(string:default:default_whitespace:APP_URL)%"
+    env(APP_URL): ''
+    APP_URL: "%env(string:APP_URL)%"
 
 shopware:
     filesystem:

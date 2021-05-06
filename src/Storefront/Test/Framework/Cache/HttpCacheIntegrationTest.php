@@ -13,6 +13,9 @@ use Shopware\Storefront\Framework\Cache\CacheStore;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 
+/**
+ * @group skip-paratest
+ */
 class HttpCacheIntegrationTest extends TestCase
 {
     use KernelTestBehaviour;

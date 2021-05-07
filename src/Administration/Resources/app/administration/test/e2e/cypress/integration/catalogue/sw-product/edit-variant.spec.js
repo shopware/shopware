@@ -89,27 +89,37 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    // TODO: Unskip as soon as NEXT-14025 is resolved
-
-    it.skip('@catalogue: variants display corresponding name based on specific language', () => {
+    it('@base @catalogue: variants display corresponding name based on specific language', () => {
         const page = new PropertyPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/user-config`,
+            method: 'post'
+        }).as('searchUserConfig');
+
         // Add option to property group
-        cy.clickContextMenuItem(
-            '.sw-property-list__edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+        cy.wait('@searchUserConfig').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            cy.clickContextMenuItem(
+                '.sw-property-list__edit-action',
+                page.elements.contextMenuButton,
+                `${page.elements.dataGridRow}--0`
+            );
+        });
 
         cy.get(page.elements.cardTitle).contains('Basic information');
 
         // Switch language to Deutsch
+        cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
         cy.get('.smart-bar__content .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--0').contains('Deutsch');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--0').click();
+        // poor assertion to check if there is more than 1 language
+        cy.get('.sw-select-result-list__item-list .sw-select-result')
+            .should('have.length.greaterThan', 1);
+        cy.get('.sw-select-result-list__item-list .sw-select-result')
+            .contains('Deutsch').click();
 
         // Edit and update property option's name for Deutsch
         cy.get('.sw-property-option-list').scrollIntoView();
@@ -140,6 +150,7 @@ describe('Product: Test variants', () => {
             `${productPage.elements.dataGridRow}--0`
         );
         cy.get('.sw-product-detail__tab-variants').click();
+
         cy.get(productPage.elements.loader).should('not.exist');
         cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${productPage.elements.ghostButton}`)
             .should('be.visible')

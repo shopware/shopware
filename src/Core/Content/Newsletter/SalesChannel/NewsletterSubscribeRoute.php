@@ -84,7 +84,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
      *      operationId="subscribeToNewsletter",
      *      tags={"Store API", "Newsletter"},
      *      @OA\RequestBody(
-     *          required="true",
+     *          required=true,
      *          @OA\JsonContent(
      *              required={
      *                  "email",

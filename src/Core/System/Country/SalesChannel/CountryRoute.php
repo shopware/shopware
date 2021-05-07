@@ -46,10 +46,12 @@ class CountryRoute extends AbstractCountryRoute
      *              type="object",
      *              allOf={
      *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Property(
-     *                      type="array",
-     *                      property="elements",
-     *                      @OA\Items(ref="#/components/schemas/country_flat"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/country_flat")
+     *                      )
      *                  )
      *              }
      *          )

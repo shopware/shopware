@@ -59,14 +59,15 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      *              type="object",
      *              allOf={
      *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Property(
-     *                      type="array",
-     *                      property="elements",
-     *                      @OA\Items(ref="#/components/schemas/payment_method_flat"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *                      )
      *                  )
      *              }
      *          )
-     *       )
      *    )
      * )
      * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"})

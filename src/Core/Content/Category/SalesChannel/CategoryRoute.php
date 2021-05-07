@@ -69,7 +69,7 @@ class CategoryRoute extends AbstractCategoryRoute
      *         description="Identifier of the category to be fetched",
      *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
      *         in="path",
-     *         required="true"
+     *         required=true
      *     ),
      *     @OA\Parameter(
      *         name="slots",
@@ -82,11 +82,7 @@ class CategoryRoute extends AbstractCategoryRoute
      *          response="200",
      *          description="The loaded category with cms page",
      *          @OA\JsonContent(ref="#/components/schemas/category_flat")
-     *     ),
-     *     @OA\Response(
-     *          response="404",
-     *          @OA\JsonContent(ref="#/components/schemas/failure")
-     *     ),
+     *     )
      * )
      *
      * @Route("/store-api/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})

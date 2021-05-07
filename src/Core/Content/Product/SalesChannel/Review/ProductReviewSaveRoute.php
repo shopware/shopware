@@ -99,17 +99,17 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      *              @OA\Property(
      *                  property="title",
      *                  description="The title of the review.",
-     *                  @OA\Schema(type="string", required="true", minLength=5)
+     *                  @OA\Schema(type="string", required=true, minLength=5)
      *              ),
      *              @OA\Property(
      *                  property="content",
      *                  description="The content of review.",
-     *                  @OA\Schema(type="string", required="true", minLength=40)
+     *                  @OA\Schema(type="string", required=true, minLength=40)
      *              ),
      *              @OA\Property(
      *                  property="points",
      *                  description="The review rating for the product.",
-     *                  @OA\Schema(type="integer", required="true", minimum=1, maximum=5)
+     *                  @OA\Schema(type="integer", required=true, minimum=1, maximum=5)
      *              ),
      *          )
      *      ),

@@ -103,7 +103,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      *              @OA\Property(
      *                  property="company",
      *                  type="string",
-     *                  default="",
      *                  description="Company of the customer. Only required when `accountType` is `business`."),
      *              @OA\Property(
      *                  property="birthdayDay",
@@ -116,9 +115,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      *              @OA\Property(
      *                  property="birthdayYear",
      *                  type="integer",
-     *                  description="Birthday year"),
-     *              example="{
-    }"
+     *                  description="Birthday year")
      *          )
      *      ),
      *      @OA\Response(

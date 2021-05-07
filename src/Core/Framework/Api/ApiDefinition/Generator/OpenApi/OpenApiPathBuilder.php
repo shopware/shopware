@@ -347,7 +347,7 @@ class OpenApiPathBuilder
         $idParameter = new Parameter([
             'name' => 'id',
             'in' => 'path',
-            'schema' => ['type' => 'string', 'format' => 'uuid'],
+            'schema' => ['type' => 'string', 'pattern' => '^[0-9a-f]{32}$'],
             'description' => 'Identifier for the ' . $definition->getEntityName(),
             'required' => true,
         ]);

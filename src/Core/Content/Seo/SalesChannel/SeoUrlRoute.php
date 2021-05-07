@@ -50,10 +50,12 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      *              type="object",
      *              allOf={
      *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Property(
-     *                      type="array",
-     *                      property="elements",
-     *                      @OA\Items(ref="#/components/schemas/seo_url_flat"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/seo_url_flat")
+     *                      )
      *                  )
      *              }
      *          )

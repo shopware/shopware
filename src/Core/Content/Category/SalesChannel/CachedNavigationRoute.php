@@ -84,23 +84,23 @@ Instead of passing uuids, you can also use one of the following aliases for the 
      *      operationId="readNavigation",
      *      tags={"Store API", "Category"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *      @OA\Parameter(
+     *          name="requestActiveId",
+     *          description="Identifier of the active category in the navigation tree (if not used, just set to the same as rootId).",
+     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *          in="path",
+     *          required=true
+     *      ),
+     *      @OA\Parameter(
+     *          name="requestRootId",
+     *          description="Identifier of the root category for your desired navigation tree. You can use it to fetch sub-trees of your navigation tree.",
+     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *          in="path",
+     *          required=true
+     *      ),
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={
-     *                  "requestActiveId",
-     *                  "requestRootId"
-     *              },
-     *              @OA\Property(
-     *                  property="requestActiveId",
-     *                  description="Identifier of the active category in the navigation tree (if not used, just set to the same as rootId).",
-     *                  @OA\Schema(type="string", pattern="^[0-9a-f]{32}$")
-     *              ),
-     *              @OA\Property(
-     *                  property="requestRootId",
-     *                  description="Identifier of the root category for your desired navigation tree. You can use it to fetch sub-trees of your navigation tree.",
-     *                  @OA\Schema(type="string", pattern="^[0-9a-f]{32}$")
-     *              ),
      *              @OA\Property(
      *                  property="depth",
      *                  description="Determines the depth of fetched navigation levels.",

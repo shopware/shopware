@@ -81,11 +81,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
      *          response="200",
      *          description="Returns a success response.",
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     ),
-     *     @OA\Response(
-     *          response="404",
-     *          @OA\JsonContent(ref="#/components/schemas/failure")
-     *     ),
+     *     )
      * )
      * @LoginRequired()
      * @Route("/store-api/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"})

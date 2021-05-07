@@ -42,6 +42,14 @@ Component.register('sw-settings-price-rounding', {
         },
         totalIntervalDisabled() {
             return this.totalRounding.decimals > 2;
+        },
+        showHeaderInfo() {
+            return this.totalRounding.interval !== 0.01
+                || this.itemRounding.interval !== 0.01
+                || this.itemRounding.decimals !== this.totalRounding.decimals;
+        },
+        showHeaderWarning() {
+            return this.totalRounding.interval !== this.itemRounding.interval;
         }
     },
 

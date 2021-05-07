@@ -98,7 +98,7 @@ class MailSendSubscriberTest extends TestCase
             static::assertNull($mailService->data);
         } else {
             static::assertEquals(1, $mailService->calls);
-            if (empty($contactFormRecipients)) {
+            if (!empty($recipients)) {
                 static::assertEquals($mailService->data['recipients'], $recipients);
             } else {
                 static::assertEquals($mailService->data['recipients'], $contactFormRecipients);
@@ -115,7 +115,7 @@ class MailSendSubscriberTest extends TestCase
     {
         yield 'Test skip mail' => [true, null, ['test@example.com' => 'Shopware ag']];
         yield 'Test send mail' => [false, null, ['test@example.com' => 'Shopware ag']];
-        yield 'Test overwrite recipients' => [false, ['test2@example.com' => 'Overwrite'], ['test2@example.com' => 'Overwrite']];
+        yield 'Test overwrite recipients' => [false, ['test2@example.com' => 'Overwrite'], ['test@example.com' => 'Shopware ag']];
         yield 'Test extend TemplateData' => [false, null, ['test@example.com' => 'Shopware ag'], true, true];
         yield 'Test send mail without contact recipients' => [false, ['test@example.com' => 'Shopware ag']];
     }

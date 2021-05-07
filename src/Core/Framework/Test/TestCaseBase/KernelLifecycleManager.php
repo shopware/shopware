@@ -145,9 +145,10 @@ class KernelLifecycleManager
                 $existingConnection = self::$connection = $kernelClass::getConnection();
             }
 
-            $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
             // force connection to database
-            $pluginLoader->initializePlugins($projectDir);
+            $existingConnection->fetchAll('SELECT 1');
+
+            $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
         } catch (\Throwable $e) {
             // if we don't have database yet, we'll boot the kernel without plugins
             $pluginLoader = new StaticKernelPluginLoader(self::$classLoader);

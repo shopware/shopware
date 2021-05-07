@@ -9,80 +9,60 @@ use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class ClientRepository implements ClientRepositoryInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    public function __construct(Connection $connection, RequestStack $requestStack)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->requestStack = $requestStack;
     }
 
-    /**
-     * do not validate oauth client here, as this would mean two requests:
-     * 1. to validate the client
-     * 2. to actually fetch the client
-     * instead, the client_credentials grant will throw en exception if the client secret is invalid on its own
-     */
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
-        return true;
+        if (($grantType === 'password' || $grantType === 'refresh_token') && $clientIdentifier === 'administration') {
+            return true;
+        }
+
+        if ($grantType === 'client_credentials' && $clientSecret !== null) {
+            $values = $this->getByAccessKey($clientIdentifier);
+
+            return password_verify($clientSecret, $values['secret_access_key']);
+        }
+
+        // @codeCoverageIgnoreStart
+        throw OAuthServerException::unsupportedGrantType();
+        // @codeCoverageIgnoreEnd
     }
 
     public function getClientEntity($clientIdentifier): ?ClientEntityInterface
     {
-        $request = $this->requestStack->getMasterRequest();
-
-        if (!$request) {
-            return null;
-        }
-
-        $grantType = $request->request->get('grant_type');
-
-        if ($grantType === 'password' && $clientIdentifier === 'administration') {
+        if ($clientIdentifier === 'administration') {
             return new ApiClient('administration', true);
         }
 
-        if ($grantType === 'refresh_token' && $clientIdentifier === 'administration') {
-            return new ApiClient('administration', true);
-        }
+        $values = $this->getByAccessKey($clientIdentifier);
 
-        if ($grantType === 'client_credentials') {
-            $clientSecret = $request->request->get('client_secret');
-
-            return $this->getByAccessKey($clientIdentifier, $clientSecret);
-        }
-
-        return null;
+        return new ApiClient($clientIdentifier, true, $values['label'] ?? Uuid::fromBytesToHex($values['user_id']));
     }
 
-    private function getByAccessKey(string $clientIdentifier, string $clientSecret): ?ClientEntityInterface
+    private function getByAccessKey(string $clientIdentifier): array
     {
         $origin = AccessKeyHelper::getOrigin($clientIdentifier);
 
         if ($origin === 'user') {
-            return $this->getUserByAccessKey($clientIdentifier, $clientSecret);
+            return $this->getUserByAccessKey($clientIdentifier);
         }
 
         if ($origin === 'integration') {
-            return $this->getIntegrationByAccessKey($clientIdentifier, $clientSecret);
+            return $this->getIntegrationByAccessKey($clientIdentifier);
         }
 
-        return null;
+        throw OAuthServerException::invalidCredentials();
     }
 
-    private function getUserByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
+    private function getUserByAccessKey(string $clientIdentifier): array
     {
         $key = $this->connection->createQueryBuilder()
             ->select(['user_id', 'secret_access_key'])
@@ -96,14 +76,10 @@ class ClientRepository implements ClientRepositoryInterface
             throw OAuthServerException::invalidCredentials();
         }
 
-        if (!password_verify($clientSecret, $key['secret_access_key'])) {
-            throw OAuthServerException::invalidCredentials();
-        }
-
-        return new ApiClient($clientIdentifier, true, Uuid::fromBytesToHex($key['user_id']));
+        return $key;
     }
 
-    private function getIntegrationByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
+    private function getIntegrationByAccessKey(string $clientIdentifier): array
     {
         $key = $this->connection->createQueryBuilder()
             ->select(['integration.id AS id', 'label', 'secret_access_key', 'app.active as active'])
@@ -124,10 +100,6 @@ class ClientRepository implements ClientRepositoryInterface
             throw OAuthServerException::invalidCredentials();
         }
 
-        if (!password_verify($clientSecret, $key['secret_access_key'])) {
-            throw OAuthServerException::invalidCredentials();
-        }
-
-        return new ApiClient($clientIdentifier, true, $key['label']);
+        return $key;
     }
 }

@@ -12,7 +12,7 @@ class SalesChannelContextSwitcher
      */
     private $contextSwitchRoute;
 
-    public function __construct(ContextSwitchRoute $contextSwitchRoute)
+    public function __construct(AbstractContextSwitchRoute $contextSwitchRoute)
     {
         $this->contextSwitchRoute = $contextSwitchRoute;
     }

@@ -63,10 +63,10 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      *      summary="Remove a product from a wishlist",
      *      description="Removes a product from a customer's wishlist.
 
-     **Important constraints**
+**Important constraints**
 
-     * Anonymous (not logged-in) customers can not have wishlists.
-     * The wishlist feature has to be activated.",
+* Anonymous (not logged-in) customers can not have wishlists.
+* The wishlist feature has to be activated.",
      *      operationId="deleteProductOnWishlist",
      *      tags={"Store API", "Wishlist"},
      *      @OA\Parameter(

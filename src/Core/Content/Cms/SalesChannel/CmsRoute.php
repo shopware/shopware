@@ -40,7 +40,7 @@ class CmsRoute extends AbstractCmsRoute
      *      summary="Fetch and resolve a CMS page",
      *      description="Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.
 
-     **Important notice**
+**Important notice**
 
 The criteria passed with this route also affects the listing, if there is one within the cms page.",
      *      operationId="readCms",

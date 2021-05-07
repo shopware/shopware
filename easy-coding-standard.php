@@ -15,6 +15,7 @@ use PhpCsFixer\Fixer\Operator\ConcatSpaceFixer;
 use PhpCsFixer\Fixer\Operator\OperatorLinebreakFixer;
 use PhpCsFixer\Fixer\Phpdoc\GeneralPhpdocAnnotationRemoveFixer;
 use PhpCsFixer\Fixer\Phpdoc\NoSuperfluousPhpdocTagsFixer;
+use PhpCsFixer\Fixer\Phpdoc\PhpdocIndentFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocLineSpanFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocOrderFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer;
@@ -114,6 +115,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         // Would otherwise fix the blocking whitespace in the currency formatter tests
         NonPrintableCharacterFixer::class => ['src/Core/System/Test/Currency/CurrencyFormatterTest.php'],
         // skip php files in node modules (stylelint ships both js and php)
-        '**/node_modules'
+        '**/node_modules',
+        // would otherwise destroy markdown in the description of a route annotation, since markdown interpreted spaces/indents
+        PhpdocIndentFixer::class => null
     ]);
 };

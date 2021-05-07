@@ -67,11 +67,18 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      *      description="Can be used to implement search previews or suggestion listings, that don’t require any interaction.",
      *      operationId="searchSuggest",
      *      tags={"Store API","Product"},
-     *      @OA\Parameter(
-     *          name="search",
-     *          description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
-     *          in="query",
-     *          @OA\Schema(type="string")
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={
+     *                  "search"
+     *              },
+     *              @OA\Property(
+     *                  property="search",
+     *                  description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
+     *                  type="string"
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

@@ -74,12 +74,13 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      *      path="/newsletter/subscribe",
      *      summary="Create or remove a newsletter subscription",
      *      description="This route is used to create/remove/confirm a newsletter subscription.
+
 The `option` property controls what should happen:
-     * `direct`: The subscription is directly active and does not need a confirmation.
-     * `subscribe`: An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
+* `direct`: The subscription is directly active and does not need a confirmation.
+* `subscribe`: An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
 The subscription is only successful, if the /newsletter/confirm route is called with the generated hashes.
-     * `unsubscribe`: The email address will be removed from the newsletter subscriptions.
-     * `confirmSubscribe`: Confirmes the newsletter subscription for the provided email address.",
+* `unsubscribe`: The email address will be removed from the newsletter subscriptions.
+* `confirmSubscribe`: Confirmes the newsletter subscription for the provided email address.",
      *      operationId="subscribeToNewsletter",
      *      tags={"Store API", "Newsletter"},
      *      @OA\RequestBody(

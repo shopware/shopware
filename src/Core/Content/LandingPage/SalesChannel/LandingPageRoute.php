@@ -62,7 +62,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
      *      summary="Fetch a landing page with the resolved CMS page",
      *      description="Loads a landing page by its identifier and resolves the CMS page.
 
-     **Important notice**
+**Important notice**
 
 The criteria passed with this route also affects the listing, if there is one within the cms page.",
      *      operationId="readLandingPage",

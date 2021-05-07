@@ -59,9 +59,9 @@ class NavigationRoute extends AbstractNavigationRoute
 
 Instead of passing uuids, you can also use one of the following aliases for the activeId and rootId parameters to get the respective navigations of your sales channel.
 
-     * main-navigation
-     * service-navigation
-     * footer-navigation",
+* main-navigation
+* service-navigation
+* footer-navigation",
      *      operationId="readNavigation",
      *      tags={"Store API", "Category"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

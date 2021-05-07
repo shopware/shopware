@@ -364,6 +364,10 @@
         &.link-danger {
             color: $color-crimson-500;
         }
+
+        &.link-primary {
+            color: $color-shopware-brand-500;
+        }
     }
 
     .sw-media-preview-v2,

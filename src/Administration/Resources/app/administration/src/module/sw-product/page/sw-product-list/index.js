@@ -21,20 +21,6 @@ Component.register('sw-product-list', {
         Mixin.getByName('placeholder')
     ],
 
-    filters: {
-        stockColorVariant(value) {
-            if (value >= 25) {
-                return 'success';
-            }
-
-            if (value < 25 && value > 0) {
-                return 'warning';
-            }
-
-            return 'error';
-        }
-    },
-
     data() {
         return {
             products: null,
@@ -61,7 +47,8 @@ Component.register('sw-product-list', {
                 'tags-filter'
             ],
             storeKey: 'grid.filter.product',
-            activeFilterNumber: 0
+            activeFilterNumber: 0,
+            showBulkEditModal: false
         };
     },
 
@@ -188,6 +175,13 @@ Component.register('sw-product-list', {
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
                     dateType: 'datetime-local'
                 }
+            });
+        },
+
+        productBulkEditColumns() {
+            return this.productColumns.map(item => {
+                const { inlineEdit, ...restParams } = item;
+                return restParams;
             });
         }
     },
@@ -361,6 +355,10 @@ Component.register('sw-product-list', {
 
         closeVariantModal() {
             this.productEntityVariantModal = null;
+        },
+
+        onBulkEditModalOpen() {
+            this.showBulkEditModal = true;
         }
     }
 });

@@ -1,0 +1,53 @@
+{% block sw_bulk_edit_modal %}
+    <sw-modal class="sw-bulk-edit-modal"
+              :title="$tc('global.default.bulkEditModalTitle', itemCount, { count: itemCount })"
+              variant="full"
+              @modal-close="$emit('modal-close')">
+
+        {% block sw_bulk_edit_modal_grid %}
+            <sw-data-grid
+                ref="bulkEditGrid"
+                identifier="sw-bulk-edit-grid"
+                :dataSource="paginateRecords"
+                :columns="bulkGridEditColumns"
+                :showSelection="true"
+                :showActions="false"
+                :skeletonItemAmount="limit"
+                @selection-change="updateBulkEditSelection">
+
+                {% block sw_bulk_edit_modal_grid_custom_slot %}
+                    <template v-for="(_, slot) in $scopedSlots" v-slot:[slot]="props">
+                        <slot :name="slot" v-bind="props" />
+                    </template>
+                {% endblock %}
+
+                {% block sw_bulk_edit_modal_list_pagination %}
+                    <template #pagination>
+                        <sw-pagination v-bind="{ page, limit, steps }"
+                                       :total="records.length"
+                                       :autoHide="false"
+                                       :total-visible="7"
+                                       @page-change="paginate">
+                        </sw-pagination>
+                    </template>
+                {% endblock %}
+            </sw-data-grid>
+        {% endblock %}
+
+        {% block sw_bulk_edit_modal_grid_footer %}
+            <template #modal-footer>
+                <slot name="sw-bulk-edit-modal-cancel">
+                    <sw-button @click="$emit('modal-close')" size="small">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                </slot>
+
+                <slot name="sw-bulk-edit-modal-confirm">
+                    <sw-button @click="editItems" variant="primary" size="small">
+                        {{ $tc('global.default.startBulkEdit') }}
+                    </sw-button>
+                </slot>
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

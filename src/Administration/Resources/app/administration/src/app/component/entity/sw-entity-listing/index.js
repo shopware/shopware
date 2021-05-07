@@ -6,6 +6,8 @@ const { Criteria } = Shopware.Data;
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
 
+    inject: ['feature'],
+
     props: {
         detailRoute: {
             type: String,
@@ -97,6 +99,26 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        allowBulkEdit: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        showBulkEditModal: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        bulkGridEditColumns: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            }
         }
     },
 
@@ -259,6 +281,14 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
         closeModal() {
             this.deleteId = null;
+        },
+
+        onClickBulkEdit() {
+            this.$emit('bulk-edit-modal-open');
+        },
+
+        onCloseBulkEditModal() {
+            this.$emit('bulk-edit-modal-close');
         }
     }
 });

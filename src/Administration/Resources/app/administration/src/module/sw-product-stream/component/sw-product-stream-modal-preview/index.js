@@ -9,19 +9,6 @@ Component.register('sw-product-stream-modal-preview', {
 
     inject: ['repositoryFactory'],
 
-    filters: {
-        stockColorVariant(value) {
-            if (value >= 25) {
-                return 'success';
-            }
-            if (value < 25 && value > 0) {
-                return 'warning';
-            }
-
-            return 'error';
-        }
-    },
-
     props: {
         filters: {
             type: Array,

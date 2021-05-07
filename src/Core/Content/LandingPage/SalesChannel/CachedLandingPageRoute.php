@@ -72,12 +72,31 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
      * @Since("6.4.0.0")
      * @OA\Post(
      *      path="/landing-page/{landingPageId}",
-     *      summary="Loads a landing page with the resolved cms page",
+     *      summary="Fetch a landing page with the resolved CMS page",
+     *      description="Loads a landing page by its identifier and resolves the CMS page.
+
+**Important notice**
+
+The criteria passed with this route also affects the listing, if there is one within the cms page.",
      *      operationId="readLandingPage",
      *      tags={"Store API", "Content"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(name="landingPageId", description="LandingPage ID", @OA\Schema(type="string"), in="path", required=true),
-     *      @OA\Parameter(name="slots", description="Slots of the resolved cms page", @OA\Schema(type="string"), in="query", required=false),
+     *      @OA\Parameter(
+     *          name="landingPageId",
+     *          description="Identifier of the landing page.",
+     *          @OA\Schema(type="string"),
+     *          in="path",
+     *          required=true
+     *      ),
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="slots",
+     *                  description="Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character.",
+     *                  type="string"
+     *              )
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="The loaded landing page with cms page",

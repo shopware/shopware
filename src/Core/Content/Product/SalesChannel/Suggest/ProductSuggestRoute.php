@@ -83,7 +83,8 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      *      @OA\Response(
      *          response="200",
      *          description="Returns a product listing containing all products and additional fields.
-    Note: Aggregations, currentFilters and availableSortings are empty in this response. If you need them to display a listing, use the /search route instead.",
+
+Note: Aggregations, currentFilters and availableSortings are empty in this response. If you need them to display a listing, use the /search route instead.",
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )

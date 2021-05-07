@@ -58,6 +58,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->call('configure', [[
             'include' => [NativeFunctionInvocationFixer::SET_COMPILER_OPTIMIZED],
             'scope' => 'namespaced',
+            'strict' => false,
         ]]);
     $services->set(NativeConstantInvocationFixer::class);
     $services->set(NullableTypeDeclarationForDefaultNullValueFixer::class);

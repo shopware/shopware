@@ -295,17 +295,8 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    // TODO: Unskip as soon as NEXT-10173 is resolved
-
-    it.skip('@base @catalogue: test multidimensional variant with diversification', () => {
+    it('@base @catalogue: test multidimensional variant with diversification', () => {
         const page = new ProductPageObject();
-
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
-        }).as('saveData');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
@@ -323,17 +314,51 @@ describe('Product: Test variants', () => {
 
         // Create and verify multi-dimensional variant
         page.generateVariants('Color', [0, 1, 2], 3);
+
         cy.get('.sw-product-variants__generate-action').should('be.visible');
         cy.get('.sw-product-variants__generate-action').click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
+
         page.generateVariants('Size', [0, 1, 2], 9);
+
+        // Request we want to wait for later
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/property-group`,
+            method: 'post'
+        }).as('loadPropertyGroup');
+
+        // Reload the variant tab to avoid xhr timing issues from previous requests
+        cy.get('.sw-product-detail__tab-variants').click();
+
+        cy.get(page.elements.loader).should('not.exist');
+
+        // Wait for every needed xhr request to load the current product
+        // `@searchCall` was defined in `page.generateVariants`
+        cy.wait(['@searchCall', '@searchCall', '@searchCall', '@loadPropertyGroup'])
+            .then((xhrs) => {
+                xhrs.forEach((xhr) => {
+                    expect(xhr).to.have.property('status', 200);
+                });
+            });
+
         cy.get('.sw-product-variants-overview').should('be.visible');
 
         // Activate diversification
         cy.get('.sw-product-variants__configure-storefront-action').click();
         cy.get('.sw-modal').should('be.visible');
         cy.contains('Product listings').click();
+
         cy.get('.sw-product-variants-delivery-listing-config-options').should('be.visible');
+
+        // Verify 'Expand property values in product listings' is checked
+        cy.contains('.sw-field__radio-option > label', 'Expand property values in product listings')
+            .invoke('attr', 'for')
+            .then((id) => {
+                cy.get(`#${id}`);
+            })
+            .click()
+            .should('be.checked');
+
         cy.contains('.sw-field__label', 'Color').click();
         cy.contains('.sw-field__label', 'Size').click();
         cy.get('.sw-modal .sw-button--primary').click();

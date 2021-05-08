@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,6 +46,10 @@ class PaymentController extends AbstractController
     public function finalizeTransaction(Request $request, SalesChannelContext $salesChannelContext): Response
     {
         $paymentToken = $request->get('_sw_payment_token');
+
+        if ($paymentToken === null) {
+            throw new MissingRequestParameterException('_sw_payment_token');
+        }
 
         $result = $this->paymentService->finalizeTransaction(
             $paymentToken,

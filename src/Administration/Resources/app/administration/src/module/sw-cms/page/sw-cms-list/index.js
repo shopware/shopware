@@ -88,6 +88,25 @@ Component.register('sw-cms-list', {
             return `${this.sortBy}:${this.sortDirection}`;
         },
 
+        listCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.addAssociation('previewMedia')
+                .addAssociation('products')
+                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            if (this.term !== null) {
+                criteria.setTerm(this.term);
+            }
+
+            if (this.currentPageType !== null) {
+                criteria.addFilter(Criteria.equals('cms_page.type', this.currentPageType));
+            }
+
+            this.addLinkedLayoutsAggregation(criteria);
+
+            return criteria;
+        },
+
         /**
          * Returns a set of criteria/query objects which designate linked layouts.
          *
@@ -125,22 +144,8 @@ Component.register('sw-cms-list', {
 
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit);
-            criteria.addAssociation('previewMedia')
-                .addAssociation('products')
-                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            if (this.term !== null) {
-                criteria.setTerm(this.term);
-            }
-
-            if (this.currentPageType !== null) {
-                criteria.addFilter(Criteria.equals('cms_page.type', this.currentPageType));
-            }
-
-            this.addLinkedLayoutsAggregation(criteria);
-
-            return this.pageRepository.search(criteria).then((searchResult) => {
+            return this.pageRepository.search(this.listCriteria).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
 

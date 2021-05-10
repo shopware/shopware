@@ -60,6 +60,22 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         return $value;
     }
 
+    protected function resolveEntityValueToString(?Entity $entity, string $path, EntityResolverContext $resolverContext): string
+    {
+        $content = $this->resolveEntityValue($entity, $path);
+
+        if ($content instanceof \DateTimeInterface) {
+            $dateFormatter = new \IntlDateFormatter(
+                $resolverContext->getRequest()->getLocale(),
+                \IntlDateFormatter::MEDIUM,
+                \IntlDateFormatter::MEDIUM
+            );
+            $content = $dateFormatter->format($content);
+        }
+
+        return (string) $content;
+    }
+
     protected function resolveDefinitionField(EntityDefinition $definition, string $path): ?Field
     {
         $value = null;
@@ -129,7 +145,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             '/{{\s*(?<property>[\w.\d]+)\s*}}/',
             function ($matches) use ($resolverContext) {
                 try {
-                    return $this->resolveEntityValue($resolverContext->getEntity(), $matches['property']);
+                    return $this->resolveEntityValueToString($resolverContext->getEntity(), $matches['property'], $resolverContext);
                 } catch (\InvalidArgumentException $e) {
                     return $matches[0];
                 }

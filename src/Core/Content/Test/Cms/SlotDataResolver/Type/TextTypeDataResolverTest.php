@@ -264,4 +264,30 @@ class TextTypeDataResolverTest extends TestCase
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('', $textStruct->getContent());
     }
+
+    public function testWithStaticContentAndDateTimeValue(): void
+    {
+        $product = new ProductEntity();
+        $product->setName('TextProduct');
+        $product->setReleaseDate(new \DateTime());
+
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $result = new ElementDataCollection();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '{{ product.releaseDate }}'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('text');
+        $slot->setConfig([]);
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->textResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertNotFalse(strtotime($textStruct->getContent()));
+    }
 }

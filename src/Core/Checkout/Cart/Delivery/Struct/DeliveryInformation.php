@@ -17,7 +17,7 @@ class DeliveryInformation extends Struct
     protected $weight;
 
     /**
-     * @var bool|null
+     * @var bool
      */
     protected $freeDelivery;
 
@@ -49,7 +49,7 @@ class DeliveryInformation extends Struct
     public function __construct(
         int $stock,
         float $weight,
-        ?bool $freeDelivery = null,
+        bool $freeDelivery,
         ?int $restockTime = null,
         ?DeliveryTime $deliveryTime = null,
         ?float $height = null,
@@ -88,7 +88,7 @@ class DeliveryInformation extends Struct
 
     public function getFreeDelivery(): bool
     {
-        return $this->freeDelivery ?? false;
+        return $this->freeDelivery;
     }
 
     public function setFreeDelivery(bool $freeDelivery): void

@@ -215,7 +215,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             new DeliveryInformation(
                 (int) $product->getAvailableStock(),
                 (float) $product->getWeight(),
-                $product->getShippingFree(),
+                $product->getShippingFree() === true,
                 $product->getRestockTime(),
                 $deliveryTime,
                 $product->getHeight(),

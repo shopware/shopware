@@ -27,6 +27,7 @@
         "intraCommunity": "Intra-community delivery (EU)",
         "shippingAddress": "Shipping address",
         "phoneNumber": "Phone number: %phoneNumber%",
+        "email": "Email address: %email%",
         "ceo": "CEO",
         "lineItems": {
             "header": {

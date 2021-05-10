@@ -27,6 +27,7 @@
         "intraCommunity": "Innergemeinschaftliche Lieferung (EU)",
         "shippingAddress": "Lieferadresse",
         "phoneNumber": "Telefonnummer: %phoneNumber%",
+        "email": "E-Mail-Adresse: %email%",
         "ceo": "Geschäftsführer",
         "lineItems": {
             "header": {

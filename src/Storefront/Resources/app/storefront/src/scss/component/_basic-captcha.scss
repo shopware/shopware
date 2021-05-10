@@ -1,0 +1,37 @@
+.basic-captcha-content-image {
+    width: 85%;
+
+    img {
+        border: 1px solid $border-color;
+        border-radius: $border-radius;
+        width: 100%;
+    }
+}
+
+.basic-captcha-content-code {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.25em;
+}
+
+.basic-captcha-content-refresh-icon {
+    display: flex;
+    flex-direction: column-reverse;
+    height: 42px;
+    align-self: flex-end;
+    border-color: $border-color;
+
+    .icon {
+        margin-bottom: 10px;
+    }
+
+    &:hover {
+        cursor: pointer;
+        border-color: $primary;
+        background-color: $white;
+
+        .icon.icon-arrow-switch {
+            color: $primary;
+        }
+    }
+}

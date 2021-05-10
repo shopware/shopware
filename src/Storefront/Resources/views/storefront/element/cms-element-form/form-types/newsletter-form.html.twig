@@ -83,7 +83,13 @@
 
         {% block cms_form_newsletter_captcha %}
             {% if feature('FEATURE_NEXT_12455') %}
-                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchasV2') } %}
+                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
+                    with {
+                    'captchas': config('core.basicInformation.activeCaptchasV2'),
+                    'additionalClass' : 'col-md-4',
+                    'formId': 'newsletter-form'
+                    }
+                %}
             {% else %}
                 {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
             {% endif %}

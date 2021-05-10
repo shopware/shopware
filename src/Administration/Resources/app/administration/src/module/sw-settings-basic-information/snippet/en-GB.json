@@ -9,7 +9,8 @@
     },
     "captcha": {
       "label": {
-        "honeypot": "Honeypot Captcha",
+        "honeypot": "Honeypot CAPTCHA",
+        "basicCaptcha": "Basic Captcha",
         "googleReCaptchaV2": "Google reCAPTCHA v2",
         "googleReCaptchaV2SiteKey": "Google reCAPTCHA v2 site key",
         "googleReCaptchaV2SecretKey": "Google reCAPTCHA v2 secret key",

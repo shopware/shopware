@@ -72,7 +72,10 @@
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
     "message-403": "Your session has expired. Please return to the last page and try again.",
     "product-out-of-stock": "%name% is not available at the moment.",
-    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
+    "auto-promotion-not-found": "Promotion \"%name%\" is no longer valid!",
+    "captcha" : {
+      "basic-captcha-invalid": "The captcha is invalid. Please check your entries."
+    }
   },
   "account": {
     "externalPaymentCanceled": "We received your order, but the payment was aborted. Please change your payment method or try again",
@@ -560,7 +563,8 @@
   "captcha": {
     "googleReCaptcha": {
       "dataProtectionInformation": "This site is protected by reCAPTCHA and the Google\n<a href=\"https://policies.google.com/privacy\">Privacy Policy</a> and\n<a href=\"https://policies.google.com/terms\">Terms of Service</a> apply."
-    }
+    },
+    "basicCaptchaLabel" : "Please enter the characters shown above*"
   },
   "cookie": {
     "message": "This website uses cookies to ensure the best experience possible. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",

@@ -272,6 +272,14 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\CaptchaController" public="true">
+            <argument type="service" id="Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPageletLoader"/>
+            <argument type="service" id="session"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
+        </service>
 
         <service id="Shopware\Storefront\Controller\VerificationHashController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>

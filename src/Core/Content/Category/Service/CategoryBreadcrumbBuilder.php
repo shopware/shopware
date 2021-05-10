@@ -10,15 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class CategoryBreadcrumbBuilder
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
     public function __construct(EntityRepositoryInterface $categoryRepository)
     {
@@ -45,13 +43,11 @@ class CategoryBreadcrumbBuilder
             $entryPoints[] = $salesChannel->getFooterCategoryId();
         }
 
+        $entryPoints = array_filter($entryPoints);
+
         $keys = array_keys($categoryBreadcrumb);
 
         foreach ($entryPoints as $entryPoint) {
-            if ($entryPoint === null) {
-                continue;
-            }
-
             // Check where this category is located in relation to the navigation entry point of the sales channel
             $pos = array_search($entryPoint, $keys, true);
 
@@ -76,14 +72,16 @@ class CategoryBreadcrumbBuilder
             return $category;
         }
 
-        $criteria = new Criteria();
+        $ids = $product->getCategoryIds();
+
+        if (empty($ids)) {
+            return null;
+        }
+
+        $criteria = new Criteria($ids);
+        $criteria->setTitle('breadcrumb-builder');
         $criteria->setLimit(1);
-        $criteria->addFilter(new EqualsFilter('products.id', $product->getId()));
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getNavigationCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getServiceCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getFooterCategoryId() . '|'),
-        ]));
+        $criteria->addFilter($this->getSalesChannelFilter($context));
 
         $categories = $this->categoryRepository->search($criteria, $context->getContext());
 
@@ -94,24 +92,35 @@ class CategoryBreadcrumbBuilder
         return null;
     }
 
+    private function getSalesChannelFilter(SalesChannelContext $context): MultiFilter
+    {
+        $ids = array_filter([
+            $context->getSalesChannel()->getNavigationCategoryId(),
+            $context->getSalesChannel()->getServiceCategoryId(),
+            $context->getSalesChannel()->getFooterCategoryId(),
+        ]);
+
+        return new OrFilter(array_map(static function (string $id) {
+            return new ContainsFilter('path', '|' . $id . '|');
+        }, $ids));
+    }
+
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
         $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->setTitle('breadcrumb-builder::main-category');
         $criteria->addFilter(new EqualsFilter('mainCategories.productId', $product->getId()));
         $criteria->addFilter(new EqualsFilter('mainCategories.salesChannelId', $context->getSalesChannel()->getId()));
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getNavigationCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getServiceCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getFooterCategoryId() . '|'),
-        ]));
+        $criteria->addFilter($this->getSalesChannelFilter($context));
 
         $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
-        if ($categories->count() > 0) {
-            $firstCategory = $categories->first();
-
-            return $firstCategory instanceof MainCategoryEntity ? $firstCategory->getCategory() : $firstCategory;
+        if ($categories->count() <= 0) {
+            return null;
         }
 
-        return null;
+        $firstCategory = $categories->first();
+
+        return $firstCategory instanceof MainCategoryEntity ? $firstCategory->getCategory() : $firstCategory;
     }
 }

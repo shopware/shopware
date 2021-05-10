@@ -9,7 +9,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'sales_channel:read',
                 'customer:read',
                 'seo_url:read',
-                'sales_channel_domain:read'
+                'sales_channel_domain:read',
+                'custom_field_set:read',
+                'custom_field:read',
+                'custom_field_set_relation:read'
             ],
             dependencies: []
         },

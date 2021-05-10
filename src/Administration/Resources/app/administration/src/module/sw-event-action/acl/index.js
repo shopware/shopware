@@ -10,7 +10,10 @@ Shopware.Service('privileges')
                     'sales_channel:read',
                     'rule:read',
                     'mail_template:read',
-                    'mail_template_type:read'
+                    'mail_template_type:read',
+                    'custom_field_set:read',
+                    'custom_field:read',
+                    'custom_field_set_relation:read'
                 ],
                 dependencies: []
             },

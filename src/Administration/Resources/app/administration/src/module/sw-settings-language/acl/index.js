@@ -5,7 +5,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     roles: {
         viewer: {
             privileges: [
-                'language:read'
+                'language:read',
+                'custom_field_set:read',
+                'custom_field:read',
+                'custom_field_set_relation:read'
             ],
             dependencies: []
         },

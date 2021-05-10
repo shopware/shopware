@@ -9,7 +9,7 @@ return [
         'config/jwt/',
     ],
     'system' => [
-        ['name' => 'php', 'group' => 'core', 'required' => '7.4.0', 'error' => true],
+        ['name' => 'php', 'group' => 'core', 'required' => '7.4.3', 'error' => true],
         ['name' => 'pdo', 'group' => 'extension', 'required' => '1', 'error' => true],
         ['name' => 'pdo_mysql', 'group' => 'extension', 'required' => '1', 'error' => true],
         ['name' => 'phar', 'group' => 'extension', 'required' => '1', 'error' => true],
@@ -33,6 +33,7 @@ return [
         ['name' => 'zlib', 'group' => 'extension', 'required' => '1', 'error' => true],
         ['name' => 'ftp', 'group' => 'extension', 'required' => '1'],
         ['name' => 'intl', 'group' => 'extension', 'required' => '1', 'error' => true],
+        ['name' => 'sodium', 'group' => 'extension', 'required' => '1', 'error' => true],
         ['name' => 'ini_set', 'group' => 'config', 'required' => '1'],
         ['name' => 'include_path', 'group' => 'config', 'required' => '1'],
         ['name' => 'session.auto_start', 'group' => 'config', 'required' => '0'],

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal
  *
  * @method void                                 add(ActionButtonTranslationEntity $entity)
  * @method void                                 set(string $key, ActionButtonTranslationEntity $entity)

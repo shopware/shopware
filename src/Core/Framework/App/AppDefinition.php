@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
+use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -35,7 +36,7 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefi
 use Shopware\Core\System\Integration\IntegrationDefinition;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal
  */
 class AppDefinition extends EntityDefinition
 {
@@ -112,6 +113,12 @@ class AppDefinition extends EntityDefinition
         if (Feature::isActive('FEATURE_NEXT_14357')) {
             $fields->add(
                 (new OneToManyAssociationField('paymentMethods', AppPaymentMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),
+            );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_14408')) {
+            $fields->add(
+                (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             );
         }
 

@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -11,24 +13,15 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal
  */
 class AppLoader extends AbstractAppLoader
 {
-    /**
-     * @var string
-     */
-    private $appDir;
+    private string $appDir;
 
-    /**
-     * @var ConfigReader
-     */
-    private $configReader;
+    private ConfigReader $configReader;
 
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $projectDir;
 
     public function __construct(string $appDir, string $projectDir, ConfigReader $configReader)
     {
@@ -108,5 +101,23 @@ class AppLoader extends AbstractAppLoader
         $manifest = $apps[$technicalName];
 
         (new Filesystem())->remove($manifest->getPath());
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14408)
+     */
+    public function getCmsExtensions(AppEntity $app): ?CmsManifest
+    {
+        if (!Feature::isActive('FEATURE_NEXT_14408')) {
+            return null;
+        }
+
+        $configPath = sprintf('%s/%s/Resources/cms.xml', $this->projectDir, $app->getPath());
+
+        if (!file_exists($configPath)) {
+            return null;
+        }
+
+        return CmsManifest::createFromXmlFile($configPath);
     }
 }

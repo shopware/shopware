@@ -32,6 +32,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGr
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -347,6 +348,11 @@ class LanguageEntity extends Entity
      * @var LandingPageTranslationCollection|null
      */
     protected $landingPageTranslations;
+
+    /**
+     * @var AppCmsBlockTranslationCollection|null
+     */
+    protected $appCmsBlockTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -926,6 +932,16 @@ class LanguageEntity extends Entity
     public function setLandingPageTranslations(LandingPageTranslationCollection $landingPageTranslations): void
     {
         $this->landingPageTranslations = $landingPageTranslations;
+    }
+
+    public function getAppCmsBlockTranslations(): ?AppCmsBlockTranslationCollection
+    {
+        return $this->appCmsBlockTranslations;
+    }
+
+    public function setAppCmsBlockTranslations(AppCmsBlockTranslationCollection $appCmsBlockTranslations): void
+    {
+        $this->appCmsBlockTranslations = $appCmsBlockTranslations;
     }
 
     public function getApiAlias(): string

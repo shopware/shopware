@@ -238,4 +238,6 @@ return [
     Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition::class => 'M:N Mapping',
     'Shopware\\Core\\Content\\LandingPage' => 'Landing Pages',
     Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition::class => 'M:N Mapping',
+    Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition::class => 'App CMS Block',
+    Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationDefinition::class => 'Translations',
 ];

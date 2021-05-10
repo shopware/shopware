@@ -3,10 +3,11 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal
  */
 abstract class AbstractAppLoader
 {
@@ -22,4 +23,9 @@ abstract class AbstractAppLoader
     abstract public function getConfiguration(AppEntity $app): ?array;
 
     abstract public function deleteApp(string $technicalName): void;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14408)
+     */
+    abstract public function getCmsExtensions(AppEntity $app): ?CmsExtensions;
 }

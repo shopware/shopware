@@ -102,8 +102,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="The full data of a product",
-     *          @OA\JsonContent(ref="#/components/schemas/product_flat")
+     *          description="Product information along with variant groups and options",
+     *          @OA\JsonContent(ref="#/components/schemas/ProductDetailResponse")
      *     )
      * )
      * @Route("/store-api/product/{productId}", name="store-api.product.detail", methods={"POST"})

@@ -66,6 +66,13 @@ Instead of passing uuids, you can also use one of the following aliases for the 
      *      tags={"Store API", "Category"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Parameter(
+     *          name="sw-include-seo-urls",
+     *          description="Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+     *          @OA\Schema(type="boolean"),
+     *          in="header",
+     *          required=false
+     *      ),
+     *      @OA\Parameter(
      *          name="requestActiveId",
      *          description="Identifier of the active category in the navigation tree (if not used, just set to the same as rootId).",
      *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),

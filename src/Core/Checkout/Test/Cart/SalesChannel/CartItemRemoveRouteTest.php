@@ -13,6 +13,10 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
+/**
+ * @group store-api
+ * @group cart
+ */
 class CartItemRemoveRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

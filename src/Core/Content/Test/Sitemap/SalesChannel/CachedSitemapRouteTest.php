@@ -23,6 +23,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group cache
+ * @group store-api
+ */
 class CachedSitemapRouteTest extends TestCase
 {
     use KernelTestBehaviour;

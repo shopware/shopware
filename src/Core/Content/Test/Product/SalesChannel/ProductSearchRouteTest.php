@@ -21,6 +21,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group store-api
+ */
 class ProductSearchRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

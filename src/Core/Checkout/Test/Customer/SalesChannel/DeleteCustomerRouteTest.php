@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @group store-api
+ */
 class DeleteCustomerRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

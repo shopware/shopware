@@ -26,6 +26,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CachedCurrencyRoute extends AbstractCurrencyRoute
 {
+    public const ALL_TAG = 'currency-route';
+
     private AbstractCurrencyRoute $decorated;
 
     private TagAwareAdapterInterface $cache;
@@ -160,7 +162,7 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
     {
         $tags = array_merge(
             $this->tracer->get(self::buildName($context->getSalesChannelId())),
-            [self::buildName($context->getSalesChannelId())]
+            [self::buildName($context->getSalesChannelId()), self::ALL_TAG],
         );
 
         $event = new CurrencyRouteCacheTagsEvent($tags, $request, $response, $context, $criteria);

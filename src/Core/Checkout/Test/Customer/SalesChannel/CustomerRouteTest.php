@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @group store-api
+ */
 class CustomerRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

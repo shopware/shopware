@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser as KernelBrowserAlias;
 
+/**
+ * @group store-api
+ */
 class LandingPageRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

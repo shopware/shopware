@@ -19,6 +19,10 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
+/**
+ * @group store-api
+ * @group cart
+ */
 class CartItemAddRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

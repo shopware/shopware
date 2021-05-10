@@ -26,6 +26,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CachedLanguageRoute extends AbstractLanguageRoute
 {
+    public const ALL_TAG = 'language-route';
+
     private AbstractLanguageRoute $decorated;
 
     private TagAwareAdapterInterface $cache;
@@ -160,7 +162,7 @@ class CachedLanguageRoute extends AbstractLanguageRoute
     {
         $tags = array_merge(
             $this->tracer->get(self::buildName($context->getSalesChannelId())),
-            [self::buildName($context->getSalesChannelId())]
+            [self::buildName($context->getSalesChannelId()), self::ALL_TAG]
         );
 
         $event = new LanguageRouteCacheTagsEvent($tags, $request, $response, $context, $criteria);

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 
+/**
+ * @group store-api
+ */
 class LanguageRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

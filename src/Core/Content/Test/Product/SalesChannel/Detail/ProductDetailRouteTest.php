@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group store-api
+ */
 class ProductDetailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

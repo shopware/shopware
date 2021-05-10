@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 
 /**
  * @group skip-paratest
+ * @group cache
  */
 class HttpCacheIntegrationTest extends TestCase
 {

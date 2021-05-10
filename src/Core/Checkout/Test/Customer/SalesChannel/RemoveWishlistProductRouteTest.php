@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @group store-api
+ */
 class RemoveWishlistProductRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

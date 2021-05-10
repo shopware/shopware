@@ -33,7 +33,7 @@
             <argument type="service" id="sales_channel.country.repository"/>
         </service>
 
-        <service id="Shopware\Core\System\Country\SalesChannel\CachedCountryRoute" decorates="Shopware\Core\System\Country\SalesChannel\CountryRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\System\Country\SalesChannel\CachedCountryRoute" decorates="Shopware\Core\System\Country\SalesChannel\CountryRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CachedCountryRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

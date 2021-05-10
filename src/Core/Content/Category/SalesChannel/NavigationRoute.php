@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -116,19 +115,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         SalesChannelContext $context,
         Criteria $criteria
     ): NavigationRouteResponse {
-        $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
-
-        $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());
-        $rootId = $this->resolveAliasId($rootId, $context->getSalesChannel());
-
-        if ($activeId === null) {
-            throw new CategoryNotFoundException($request->get('activeId'));
-        }
-
-        if ($rootId === null) {
-            throw new CategoryNotFoundException($request->get('rootId'));
-        }
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 
@@ -157,40 +144,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         // If the active category is part of the provided root id, we have to load the children and the parents of the active id
         $categories = $this->loadChildren($activeId, $context, $rootId, $metaInfo, $categories, clone $criteria);
 
-        if ($buildTree) {
-            $categories = $this->buildTree($rootId, $categories->getElements());
-        }
-
         return new NavigationRouteResponse($categories);
-    }
-
-    private function buildTree(?string $parentId, array $categories): CategoryCollection
-    {
-        $children = new CategoryCollection();
-        foreach ($categories as $key => $category) {
-            if ($category->getParentId() !== $parentId) {
-                continue;
-            }
-
-            unset($categories[$key]);
-
-            $children->add($category);
-        }
-
-        $children->sortByPosition();
-
-        $items = new CategoryCollection();
-        foreach ($children as $child) {
-            if (!$child->getActive() || !$child->getVisible()) {
-                continue;
-            }
-
-            $child->setChildren($this->buildTree($child->getId(), $categories));
-
-            $items->add($child);
-        }
-
-        return $items;
     }
 
     private function loadCategories(array $ids, SalesChannelContext $context, Criteria $criteria): CategoryCollection
@@ -315,19 +269,5 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         }
 
         return false;
-    }
-
-    private function resolveAliasId(string $id, SalesChannelEntity $salesChannelEntity): ?string
-    {
-        switch ($id) {
-            case 'main-navigation':
-                return $salesChannelEntity->getNavigationCategoryId();
-            case 'service-navigation':
-                return $salesChannelEntity->getServiceCategoryId();
-            case 'footer-navigation':
-                return $salesChannelEntity->getFooterCategoryId();
-            default:
-                return $id;
-        }
     }
 }

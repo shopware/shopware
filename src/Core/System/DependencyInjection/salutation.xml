@@ -21,7 +21,7 @@
             <argument type="service" id="sales_channel.salutation.repository"/>
         </service>
 
-        <service id="Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute" decorates="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute" decorates="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

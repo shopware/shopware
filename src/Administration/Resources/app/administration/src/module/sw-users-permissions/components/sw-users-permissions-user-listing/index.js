@@ -76,6 +76,7 @@ Component.register('sw-users-permissions-user-listing', {
                 label: this.$tc('sw-users-permissions.users.user-grid.labelLastName')
             }, {
                 property: 'aclRoles',
+                sortable: false,
                 label: this.$tc('sw-users-permissions.users.user-grid.labelRoles')
             }, {
                 property: 'email',

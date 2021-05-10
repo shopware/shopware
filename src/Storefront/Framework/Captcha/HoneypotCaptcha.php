@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
@@ -18,12 +16,9 @@ class HoneypotCaptcha extends AbstractCaptcha
 
     private ValidatorInterface $validator;
 
-    private SystemConfigService $systemConfigService;
-
-    public function __construct(ValidatorInterface $validator, SystemConfigService $systemConfigService)
+    public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;
-        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -32,25 +27,6 @@ class HoneypotCaptcha extends AbstractCaptcha
     public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
         $metadata->addPropertyConstraint('honeypotValue', new Blank());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supports(Request $request /* , array $activeCaptcha = [] */): bool
-    {
-        if (!Feature::isActive('FEATURE_NEXT_12455')) {
-            $activeCaptchas = $this->systemConfigService->get('core.basicInformation.activeCaptchas');
-
-            if (empty($activeCaptchas) || !\is_array($activeCaptchas)) {
-                return false;
-            }
-
-            return $request->isMethod(Request::METHOD_POST)
-                && \in_array(self::CAPTCHA_NAME, $activeCaptchas, true);
-        }
-
-        return parent::supports($request, \func_get_args()[1] ?? []);
     }
 
     /**

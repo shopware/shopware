@@ -10,9 +10,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @internal (flag:FEATURE_NEXT_12455)
- */
 class BasicCaptcha extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'basicCaptcha';

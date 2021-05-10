@@ -16,8 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @RouteScope(scopes={"storefront"})
- *
- * @internal (flag:FEATURE_NEXT_12455)
  */
 class CaptchaController extends StorefrontController
 {
@@ -34,7 +32,7 @@ class CaptchaController extends StorefrontController
     }
 
     /**
-     * @Since("6.4.0.0")
+     * @Since("6.4.2.0")
      * @Route("/basic-captcha", name="frontend.captcha.basic-captcha.load", methods={"GET"}, defaults={"auth_required"=false}, defaults={"XmlHttpRequest"=true})
      */
     public function loadBasicCaptcha(Request $request, SalesChannelContext $context): Response

@@ -1,7 +1,6 @@
 ---
 title: Implement show google key inputs in admin setting basic information
 issue: NEXT-14136
-flag: FEATURE_NEXT_12455
 ---
 # Core
 * Deprecated `sw-settings-captcha-select` component in `src/Core/System/Resources/config/basicInformation.xml`.

@@ -126,10 +126,8 @@
             {% sw_include "@Storefront/storefront/component/analytics.html.twig" %}
         {% endblock %}
 
-        {% if feature('FEATURE_NEXT_12455') %}
-            {% block layout_head_javascript_recaptcha %}
-                {% sw_include "@Storefront/storefront/component/recaptcha.html.twig" %}
-            {% endblock %}
-        {% endif %}
+        {% block layout_head_javascript_recaptcha %}
+            {% sw_include "@Storefront/storefront/component/recaptcha.html.twig" %}
+        {% endblock %}
     </head>
 {% endblock %}

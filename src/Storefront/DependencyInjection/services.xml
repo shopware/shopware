@@ -209,7 +209,6 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Suggest\SuggestPageLoader">
@@ -523,7 +522,6 @@
 
         <service id="Shopware\Storefront\Framework\Captcha\HoneypotCaptcha">
             <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="shopware.storefront.captcha"/>
         </service>
@@ -533,29 +531,22 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="shopware.storefront.captcha"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator">
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
-        </service>
+        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator"/>
 
-        <service id="shopware.captcha.client" class="GuzzleHttp\Client">
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
-        </service>
+        <service id="shopware.captcha.client" class="GuzzleHttp\Client"/>
 
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2">
             <argument type="service" id="shopware.captcha.client"/>
 
             <tag name="shopware.storefront.captcha"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
             <argument type="service" id="shopware.captcha.client"/>
 
             <tag name="shopware.storefront.captcha"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>

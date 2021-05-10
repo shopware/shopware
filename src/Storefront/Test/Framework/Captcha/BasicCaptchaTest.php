@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Framework\Captcha;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
@@ -24,7 +23,6 @@ class BasicCaptchaTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12455', $this);
         $this->captcha = $this->getContainer()->get(BasicCaptcha::class);
         $this->getContainer()->get('session')->set('basic_captcha_session', self::BASIC_CAPTCHA_SESSION);
     }

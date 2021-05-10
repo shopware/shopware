@@ -1,7 +1,6 @@
 ---
 title: Implement basic captcha
 issue: NEXT-14111
-flag: FEATURE_NEXT_12455
 ---
 # Storefront
 * Added `Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPagelet`

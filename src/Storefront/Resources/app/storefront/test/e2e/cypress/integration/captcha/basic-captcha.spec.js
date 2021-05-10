@@ -12,7 +12,7 @@ const selector = {
     formContactButtonSubmit: 'button[type="submit"]',
     modalButtonDismiss: 'button[data-dismiss="modal"]',
     basicCaptcha: '.basic-captcha',
-    basicCaptchaImage: '.basic-captcha-content--image',
+    basicCaptchaImage: '.basic-captcha-content-image',
     basicCaptchaRefreshIcon: '.basic-captcha-content-refresh-icon',
     formBasicCaptcha: '.basic-captcha input[name="shopware_basic_captcha_confirm"]',
     alertErrors: '.alert.alert-danger.alert-has-icon'
@@ -90,10 +90,6 @@ describe('Basic captcha', () => {
 
         cy.wait('@contactFormPostRequest').then(callback);
     }
-
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_12455');
-    });
 
     beforeEach(() => {
         mockConfig().then(() => openContactForm());

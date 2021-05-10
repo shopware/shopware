@@ -1,7 +1,6 @@
 ---
 title: Igmplement a new cookie entry for Google reCAPTACHAv3 in Cookie Manager
 issue: NEXT-14137
-flag: FEATURE_NEXT_12455
 ---
 # Storefront
 * Added a cookie entry for technical required cookie group named `groupRequiredGoogleReCaptcha` in `\Shopware\Storefront\Framework\Cookie\CookieProvider` when `core.basicInformation.activeCaptchas` setting includes `google-re-captcha-v3`; 

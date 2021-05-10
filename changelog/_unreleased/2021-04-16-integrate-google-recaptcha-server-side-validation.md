@@ -1,7 +1,6 @@
 ---
 title: Integrate Google ReCaptcha Server side validation
 issue: NEXT-14133
-flag: FEATURE_NEXT_12455
 ---
 # Storefront
 * Changed `\Shopware\Storefront\Framework\Captcha\AbstractCaptcha::supports` method to provide a common method for the implementation captchas

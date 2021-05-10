@@ -1,7 +1,6 @@
 import DomAccess from 'src/helper/dom-access.helper';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import Plugin from 'src/plugin-system/plugin.class';
-import Feature from 'src/helper/feature.helper';
 
 /**
  * this plugin shows a loading indicator on the
@@ -86,15 +85,10 @@ export default class FormSubmitLoaderPlugin extends Plugin {
 
         loader.create();
 
-        if (Feature.isActive('FEATURE_NEXT_12455')) {
-            this.$emitter.publish('onFormSubmit');
-        } else {
-            /**
-             * @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455) - onFormSubmit event will be removed, use beforeSubmit instead
-             */
-            this.$emitter.publish('onFormSubmit');
-            this.$emitter.publish('beforeSubmit');
-        }
-
+        /**
+         * @deprecated tag:v6.5.0 - onFormSubmit event will be removed, use beforeSubmit instead
+         */
+        this.$emitter.publish('onFormSubmit');
+        this.$emitter.publish('beforeSubmit');
     }
 }

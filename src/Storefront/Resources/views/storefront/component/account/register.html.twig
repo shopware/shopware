@@ -336,16 +336,12 @@
                     {% endblock %}
 
                     {% block component_account_register_captcha %}
-                        {% if feature('FEATURE_NEXT_12455') %}
-                            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with {
-                                'captchas': config('core.basicInformation.activeCaptchasV2'),
-                                'formId': 'register-form',
-                                'preCheck': true
-                                }
-                            %}
-                        {% else %}
-                            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
-                        {% endif %}
+                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with {
+                            'captchas': config('core.basicInformation.activeCaptchasV2'),
+                            'formId': 'register-form',
+                            'preCheck': true
+                            }
+                        %}
                     {% endblock %}
 
                     {% block component_account_register_privacy %}

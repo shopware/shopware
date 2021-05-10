@@ -8,7 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 class AuthControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+    use AppSystemTestBehaviour;
 
     public function testRequiresAuthentication(): void
     {
@@ -463,6 +469,148 @@ class AuthControllerTest extends TestCase
         static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
+    public function testIntegrationAuthInvalid(): void
+    {
+        $client = $this->getBrowser(false);
+
+        $accessKey = AccessKeyHelper::generateAccessKey('integration');
+        $secretKey = AccessKeyHelper::generateSecretAccessKey();
+
+        /**
+         * Auth the api client first
+         */
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $accessKey,
+            'client_secret' => $secretKey,
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
+    }
+
+    public function testIntegrationAuthInvalidIdentifier(): void
+    {
+        $client = $this->getBrowser(false);
+
+        $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
+        $secretKey = AccessKeyHelper::generateSecretAccessKey();
+
+        /**
+         * Auth the api client first
+         */
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $accessKey,
+            'client_secret' => $secretKey,
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
+    }
+
+    public function testUserWithInvalidIdentifier(): void
+    {
+        $client = $this->getBrowser(false);
+
+        $accessKey = AccessKeyHelper::generateAccessKey('user');
+        $secretKey = AccessKeyHelper::generateSecretAccessKey();
+
+        /**
+         * Auth the api client first
+         */
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $accessKey,
+            'client_secret' => $secretKey,
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
+    }
+
+    public function testUserWithLogin(): void
+    {
+        $client = $this->getBrowser(false);
+
+        $user = TestUser::createNewTestUser($this->getContainer()->get(Connection::class));
+
+        $accessKey = AccessKeyHelper::generateAccessKey('user');
+        $secretKey = AccessKeyHelper::generateSecretAccessKey();
+
+        $data = [
+            'userId' => $user->getUserId(),
+            'writeAccess' => true,
+            'accessKey' => $accessKey,
+            'secretAccessKey' => $secretKey,
+        ];
+
+        $this->getContainer()->get('user_access_key.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        /**
+         * Auth the api client first
+         */
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $accessKey,
+            'client_secret' => $secretKey,
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey(
+            'access_token',
+            $data,
+            'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
+        );
+    }
+
+    public function testInvalidGrant(): void
+    {
+        $client = $this->getBrowser(false);
+
+        /**
+         * Auth the api client first
+         */
+        $authPayload = [
+            'grant_type' => 'foo',
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+    }
+
+    public function testLoginFailsForInactiveApp(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/../../App/Manifest/_fixtures/test', false);
+
+        $browser = $this->createClient();
+        $app = $this->fetchApp('test');
+
+        $accessKey = AccessKeyHelper::generateAccessKey('integration');
+        $secret = AccessKeyHelper::generateSecretAccessKey();
+
+        $this->setAccessTokenForIntegration($app->getIntegrationId(), $accessKey, $secret);
+
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $accessKey,
+            'client_secret' => $secret,
+        ];
+
+        $browser->request('POST', '/api/oauth/token', $authPayload);
+        static::assertEquals(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
+    }
+
     public function testUnauthorizedWithPasswordGrantTypeWhenTokenExpired(): void
     {
         $browser = $this->getBrowser();
@@ -495,5 +643,30 @@ class AuthControllerTest extends TestCase
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
         $browser->request('GET', '/api/tax');
         static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+    }
+
+    private function fetchApp(string $appName): ?AppEntity
+    {
+        /** @var EntityRepositoryInterface $appRepository */
+        $appRepository = $this->getContainer()->get('app.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $appName));
+
+        return $appRepository->search($criteria, Context::createDefaultContext())->first();
+    }
+
+    private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
+    {
+        /** @var EntityRepositoryInterface $integrationRepository */
+        $integrationRepository = $this->getContainer()->get('integration.repository');
+
+        $integrationRepository->update([
+            [
+                'id' => $integrationId,
+                'accessKey' => $accessKey,
+                'secretAccessKey' => $secret,
+            ],
+        ], Context::createDefaultContext());
     }
 }

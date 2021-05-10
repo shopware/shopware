@@ -207,7 +207,6 @@
         <service id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
         <service id="Shopware\Core\Framework\Api\OAuth\ClientRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="request_stack"/>
         </service>
         <service id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>

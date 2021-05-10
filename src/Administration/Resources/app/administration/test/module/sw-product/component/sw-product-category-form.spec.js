@@ -2,6 +2,10 @@ import { enableAutoDestroy, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-category-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
+import 'src/app/component/form/sw-switch-field';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-field-error';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Utils } = Shopware;
@@ -9,11 +13,14 @@ const { Utils } = Shopware;
 enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-category-form', () => {
+    let defaultSalesChannelData = {};
+
     function createWrapper(productEntityOverride, parentProductOverride) {
         const productEntity =
             {
                 metaTitle: 'Product1',
                 id: 'productId1',
+                isNew: () => false,
                 ...productEntityOverride
             };
 
@@ -70,15 +77,35 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                 'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-modal': true,
                 'sw-multi-tag-select': true,
-                'sw-switch-field': true,
+                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-field-error': Shopware.Component.build('sw-field-error'),
                 'sw-category-tree-field': true,
                 'sw-entity-tag-select': true,
                 'sw-product-visibility-select': true,
-                'sw-help-text': true
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
+                'sw-icon': true
             },
             provide: {
                 repositoryFactory: {
-                    create: () => {}
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve([{
+                                id: '98432def39fc4624b33213a56b8c944d',
+                                name: 'Headless'
+                            }]),
+                            create: () => ({})
+                        };
+                    }
+                },
+                systemConfigApiService: {
+                    getConfig: () => Promise.resolve(),
+                    getValues: () => Promise.resolve(defaultSalesChannelData)
+                },
+                feature: {
+                    isActive: () => true
                 }
             }
         });
@@ -121,5 +148,25 @@ describe('module/sw-product/component/sw-product-category-form', () => {
         structureFieldsClassName.forEach(item => {
             expect(wrapper.find(item).exists()).toBe(false);
         });
+    });
+
+    it('should show correct config when there is system config data', async () => {
+        defaultSalesChannelData = {
+            'core.defaultSalesChannel.active': false,
+            'core.defaultSalesChannel.salesChannel': ['98432def39fc4624b33213a56b8c944d'],
+            'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 }
+        };
+
+        wrapper = await createWrapper({
+            active: true,
+            visibilities: [],
+            isNew: () => true
+        });
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.product.visibilities.length).toBe(1);
+        expect(wrapper.find('.sw-product-category-form .sw-field--switch input').element.checked).toBeFalsy();
+        expect(wrapper.find('.sw-product-category-form .advanced-visibility').exists()).toBeTruthy();
     });
 });

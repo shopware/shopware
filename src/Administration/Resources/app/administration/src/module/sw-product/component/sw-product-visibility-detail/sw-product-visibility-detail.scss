@@ -1,5 +1,8 @@
+@import "~scss/variables";
+
 .sw-product-category-form__visibility_modal.sw-modal .sw-modal__body {
-    padding: 0;
+    font-size: $font-size-small;
+    padding: 20px 30px;
 
     .sw-grid .sw-grid__header .sw-grid__cell-label {
         white-space: normal;
@@ -9,6 +12,7 @@
 
     .sw-grid .sw-grid__header .sw-grid-column .sw-grid__cell-content {
         padding: 0;
+        font-size: $font-size-small;
     }
 }
 

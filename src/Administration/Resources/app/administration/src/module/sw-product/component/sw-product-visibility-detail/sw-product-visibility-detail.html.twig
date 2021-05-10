@@ -3,7 +3,7 @@
         {% block sw_product_visibility_detail_columns %}
             <template slot="columns" slot-scope="{ item }">
                 {% block sw_product_visibility_detail_columns_sales_channel %}
-                    <sw-grid-column flex="minmax(100px, 2fr)">
+                    <sw-grid-column flex="minmax(100px, auto)">
                         {% block sw_product_visibility_detail_columns_sales_channel_label %}
                             <span v-if="item.salesChannelInternal" class="sw-select__selection-item">
                                 {{ item.salesChannelInternal.translated.name }}
@@ -15,9 +15,9 @@
                     </sw-grid-column>
                 {% endblock %}
 
-                {% block sw_product_visibility_detail_columns_link_only %}
-                    <sw-grid-column flex="1fr" :label="$tc('sw-product.visibility.columnLinkOnly')" align="center">
-                        <sw-field type="radio" :disabled="disabled" :value="item.visibility" @change="changeVisibilityValue($event, item)" :name="'visibility' + item.id" :options="[{ value: 10 }]"></sw-field>
+                {% block sw_product_visibility_detail_columns_all %}
+                    <sw-grid-column flex="0.5fr" :label="$tc('sw-product.visibility.columnAll')" align="center">
+                        <sw-field type="radio" :disabled="disabled" :value="item.visibility" @change="changeVisibilityValue($event, item)" :name="'visibility' + item.id" :options="[{ value: 30 }]"></sw-field>
                     </sw-grid-column>
                 {% endblock %}
 
@@ -27,9 +27,9 @@
                     </sw-grid-column>
                 {% endblock %}
 
-                {% block sw_product_visibility_detail_columns_all %}
-                    <sw-grid-column flex="1fr" :label="$tc('sw-product.visibility.columnAll')" align="center">
-                        <sw-field type="radio" :disabled="disabled" :value="item.visibility" @change="changeVisibilityValue($event, item)" :name="'visibility' + item.id" :options="[{ value: 30 }]"></sw-field>
+                {% block sw_product_visibility_detail_columns_link_only %}
+                    <sw-grid-column flex="1fr" :label="$tc('sw-product.visibility.columnLinkOnly')" align="center">
+                        <sw-field type="radio" :disabled="disabled" :value="item.visibility" @change="changeVisibilityValue($event, item)" :name="'visibility' + item.id" :options="[{ value: 10 }]"></sw-field>
                     </sw-grid-column>
                 {% endblock %}
             </template>

@@ -10,5 +10,8 @@
     "app/storefront/src/scss/overrides.scss",
     "app/storefront/src/scss/base.scss"
   ],
-  "script": []
+  "script": [],
+  "iconSets": {
+    "custom-icons": "app/storefront/src/assets/icon-pack/custom-icons"
+  }
 }

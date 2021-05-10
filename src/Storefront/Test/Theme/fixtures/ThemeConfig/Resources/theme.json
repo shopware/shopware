@@ -34,5 +34,8 @@
         "value": "app/storefront/dist/assets/test.jpg"
       }
     }
+  },
+  "iconSets": {
+    "custom-icons": "app/storefront/src/assets/icon-pack/custom-icons"
   }
 }

@@ -144,6 +144,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -589,6 +590,12 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListRoute"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\App\Template\IconTemplateLoader" decorates="Shopware\Core\Framework\App\Template\TemplateLoader">
+            <argument type="service" id="Shopware\Storefront\Framework\App\Template\IconTemplateLoader.inner"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
+            <argument>%kernel.project_dir%</argument>
         </service>
     </services>
 </container>

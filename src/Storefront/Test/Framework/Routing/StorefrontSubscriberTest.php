@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
+use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -24,6 +26,7 @@ class StorefrontSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -125,5 +128,32 @@ class StorefrontSubscriberTest extends TestCase
 
         static::assertArrayNotHasKey('swagShopId', $event->getParameters());
         static::assertArrayNotHasKey('appShopId', $event->getParameters());
+    }
+
+    public function testItDoesAddIconPackConfig(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
+
+        $request = new Request();
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'SwagTheme');
+
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $event = new StorefrontRenderEvent(
+            'testView',
+            [],
+            $request,
+            $this->salesChannelContext
+        );
+
+        $eventDispatcher->dispatch($event);
+
+        static::assertArrayHasKey('themeIconConfig', $event->getParameters());
+        static::assertEquals([
+            'custom-icons' => [
+                'path' => 'app/storefront/src/assets/icon-pack/custom-icons',
+                'namespace' => 'SwagTheme',
+            ],
+        ], $event->getParameters()['themeIconConfig']);
     }
 }

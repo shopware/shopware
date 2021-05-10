@@ -135,6 +135,10 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             if (\array_key_exists('views', $data)) {
                 $config->setViewInheritance($data['views']);
             }
+
+            if (\array_key_exists('iconSets', $data)) {
+                $config->setIconSets($data['iconSets']);
+            }
         } catch (ThemeCompileException $e) {
             throw $e;
         } catch (\Exception $e) {

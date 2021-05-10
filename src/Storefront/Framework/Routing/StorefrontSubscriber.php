@@ -24,6 +24,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
+use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -37,60 +38,29 @@ use Symfony\Component\Routing\RouterInterface;
 
 class StorefrontSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    private RouterInterface $router;
 
-    /**
-     * @var ErrorController
-     */
-    private $errorController;
+    private ErrorController $errorController;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
+    private SalesChannelContextServiceInterface $contextService;
 
-    /**
-     * @var bool
-     */
-    private $kernelDebug;
+    private bool $kernelDebug;
 
-    /**
-     * @var CsrfPlaceholderHandler
-     */
-    private $csrfPlaceholderHandler;
+    private CsrfPlaceholderHandler $csrfPlaceholderHandler;
 
-    /**
-     * @var MaintenanceModeResolver
-     */
-    private $maintenanceModeResolver;
+    private MaintenanceModeResolver $maintenanceModeResolver;
 
-    /**
-     * @var HreflangLoaderInterface
-     */
-    private $hreflangLoader;
+    private HreflangLoaderInterface $hreflangLoader;
 
-    /**
-     * @var ShopIdProvider
-     */
-    private $shopIdProvider;
+    private ShopIdProvider $shopIdProvider;
 
-    /**
-     * @var ActiveAppsLoader
-     */
-    private $activeAppsLoader;
+    private ActiveAppsLoader $activeAppsLoader;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
+
+    private StorefrontPluginRegistryInterface $themeRegistry;
 
     public function __construct(
         RequestStack $requestStack,
@@ -103,7 +73,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         MaintenanceModeResolver $maintenanceModeResolver,
         ShopIdProvider $shopIdProvider,
         ActiveAppsLoader $activeAppsLoader,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        StorefrontPluginRegistryInterface $themeRegistry
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -116,6 +87,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->shopIdProvider = $shopIdProvider;
         $this->activeAppsLoader = $activeAppsLoader;
         $this->systemConfigService = $systemConfigService;
+        $this->themeRegistry = $themeRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -146,6 +118,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             StorefrontRenderEvent::class => [
                 ['addHreflang'],
                 ['addShopIdParameter'],
+                ['addIconSetConfig'],
             ],
             SalesChannelContextResolvedEvent::class => [
                 ['replaceContextToken'],
@@ -378,6 +351,39 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $event->setParameter('appShopId', $shopId);
+    }
+
+    public function addIconSetConfig(StorefrontRenderEvent $event): void
+    {
+        $request = $event->getRequest();
+
+        // get name if theme is not inherited
+        $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
+
+        if (!$theme) {
+            // get theme name from base theme because for inherited themes the name is always null
+            $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
+        }
+
+        if (!$theme) {
+            return;
+        }
+
+        $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($theme);
+
+        if (!$themeConfig) {
+            return;
+        }
+
+        $iconConfig = [];
+        foreach ($themeConfig->getIconSets() as $pack => $path) {
+            $iconConfig[$pack] = [
+                'path' => $path,
+                'namespace' => $theme,
+            ];
+        }
+
+        $event->setParameter('themeIconConfig', $iconConfig);
     }
 
     private function setSalesChannelContext(ExceptionEvent $event): void

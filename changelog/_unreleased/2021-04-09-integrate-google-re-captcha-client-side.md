@@ -1,7 +1,6 @@
 ---
 title: Integrate google recaptcha client side
 issue: NEXT-14110
-flag: FEATURE_NEXT_12455
 ---
 # Storefront
 * Changed cookie consent's entry from `groupRequiredGoogleReCaptcha` to `groupRequiredCaptcha` in `\Shopware\Storefront\Framework\Cookie\CookieProvider` 

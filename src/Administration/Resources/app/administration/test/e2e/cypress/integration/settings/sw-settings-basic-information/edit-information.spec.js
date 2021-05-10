@@ -135,7 +135,6 @@ describe('Basic Informaion: Edit assignments', () => {
     });
 
     it('@settings: change active captcha and test input field show when google recaptcha selected', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12455');
         // Request we want to wait for later
         cy.server();
         cy.route({

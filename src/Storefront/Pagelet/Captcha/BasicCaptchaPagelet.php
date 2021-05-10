@@ -5,9 +5,6 @@ namespace Shopware\Storefront\Pagelet\Captcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaImage;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-/**
- * @internal (flag:FEATURE_NEXT_12455)
- */
 class BasicCaptchaPagelet extends Pagelet
 {
     protected BasicCaptchaImage $captcha;

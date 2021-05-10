@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -58,8 +57,6 @@ class CookieControllerTest extends TestCase
 
     public function testCookieRequiredGroupIncludeGoogleReCaptchaWhenActive(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12455', $this);
-
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [

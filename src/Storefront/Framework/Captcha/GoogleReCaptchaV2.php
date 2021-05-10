@@ -6,9 +6,6 @@ use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @internal (flag:FEATURE_NEXT_12455)
- */
 class GoogleReCaptchaV2 extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'googleReCaptchaV2';

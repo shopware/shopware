@@ -1,4 +1,6 @@
 import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import 'src/app/component/modal/sw-image-preview-modal';
+import 'src/app/component/media/sw-image-slider';
 
 const mediaItems = [
     {
@@ -98,12 +100,6 @@ function createWrapper(propsData = {}, listeners = {}) {
 enableAutoDestroy(afterEach);
 
 describe('src/app/component/modal/sw-image-preview-modal', () => {
-    beforeAll(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6544'];
-        await import('src/app/component/modal/sw-image-preview-modal');
-        await import('src/app/component/media/sw-image-slider');
-    });
-
     it('should navigate image slider correctly when clicking on thumbnail item', async () => {
         const wrapper = createWrapper();
         const thumbnailItems = wrapper.findAll('.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container');

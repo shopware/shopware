@@ -234,7 +234,7 @@ Component.register('sw-image-slider', {
             };
         },
 
-        // @internal (flag:FEATURE_NEXT_6544): Will be removed
+        /* @deprecated tag:v6.5.0 Will be removed */
         arrowStyles() {
             return {
                 height: '100%'

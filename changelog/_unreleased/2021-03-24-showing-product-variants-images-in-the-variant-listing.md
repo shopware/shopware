@@ -1,7 +1,6 @@
 ---
 title: Showing product variants images in the variant listing
 issue: NEXT-14119
-flag: FEATURE_NEXT_6544
 ---
 # Administration
 * Added new component `sw-product-variants-media-upload`

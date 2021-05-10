@@ -65,18 +65,6 @@ Component.register('sw-product-variants-overview', {
         },
 
         variantColumns() {
-            let mediaColumn = [];
-
-            if (this.feature.isActive('FEATURE_NEXT_6544')) {
-                mediaColumn = [{
-                    property: 'media',
-                    label: this.$tc('sw-product.detailBase.cardTitleMedia'),
-                    allowResize: true,
-                    inlineEdit: true,
-                    sortable: false
-                }];
-            }
-
             return [
                 {
                     property: 'name',
@@ -99,7 +87,13 @@ Component.register('sw-product-variants-overview', {
                     inlineEdit: 'string',
                     width: '150px'
                 },
-                ...mediaColumn,
+                {
+                    property: 'media',
+                    label: this.$tc('sw-product.detailBase.cardTitleMedia'),
+                    allowResize: true,
+                    inlineEdit: true,
+                    sortable: false
+                },
                 {
                     property: 'active',
                     label: this.$tc('sw-product.variations.generatedListColumnActive'),
@@ -158,9 +152,7 @@ Component.register('sw-product-variants-overview', {
                     .setLimit(this.limit)
                     .addFilter(Criteria.equals('product.parentId', this.product.id));
 
-                if (this.feature.isActive('FEATURE_NEXT_6544')) {
-                    searchCriteria.addAssociation('media');
-                }
+                searchCriteria.addAssociation('media');
 
                 searchCriteria.getAssociation('options')
                     .addSorting(Criteria.sort('groupId'))

@@ -82,11 +82,7 @@ Component.register('sw-product-variant-modal', {
             criteria.getAssociation('options')
                 .addAssociation('group');
             criteria.addAssociation('cover');
-
-            if (this.feature.isActive('FEATURE_NEXT_6544')) {
-                criteria.addAssociation('media');
-                criteria.addAssociation('cover');
-            }
+            criteria.addAssociation('media');
 
             if (this.searchTerm) {
                 // Split each word for search
@@ -108,7 +104,7 @@ Component.register('sw-product-variant-modal', {
         },
 
         gridColumns() {
-            const columns = [
+            return [
                 {
                     property: 'name',
                     dataIndex: 'name',
@@ -148,21 +144,16 @@ Component.register('sw-product-variant-modal', {
                     label: 'sw-product.list.columnProductNumber',
                     allowResize: true,
                     align: 'right'
-                }
-            ];
-
-            if (this.feature.isActive('FEATURE_NEXT_6544')) {
-                columns.push({
+                },
+                {
                     property: 'media',
                     dataIndex: 'media',
                     label: this.$tc('sw-product.list.columnMedia'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false
-                });
-            }
-
-            return columns;
+                }
+            ];
         },
 
         canBeDeletedCriteria() {

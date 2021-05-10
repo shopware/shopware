@@ -84,11 +84,6 @@ shopware:
               major: true
               description: "Deprecate old promotion module"
               # issue: NEXT-13810
-            - name: FEATURE_NEXT_6544
-              default: false
-              major: false
-              description: "Image assignment for variants"
-              # issue: NEXT-6544
             - name: FEATURE_NEXT_13250
               default: false
               major: true

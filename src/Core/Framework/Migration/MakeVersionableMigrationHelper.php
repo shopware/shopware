@@ -72,7 +72,7 @@ EOD;
 
             $playbook[] = sprintf(self::DROP_FOREIGN_KEY, $keyStructure['TABLE_NAME'], $constraintName);
 
-            if (\array_key_exists($constraintName, $indexes)) {
+            if (\array_key_exists(strtolower($constraintName), $indexes)) {
                 $playbook[] = sprintf(self::DROP_KEY, $keyStructure['TABLE_NAME'], $constraintName);
             }
         }

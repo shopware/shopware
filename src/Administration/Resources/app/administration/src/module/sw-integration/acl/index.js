@@ -13,7 +13,9 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         editor: {
             privileges: [
                 'integration:update',
-                'api_action_access-key_integration'
+                'api_action_access-key_integration',
+                'integration_role:create',
+                'integration_role:delete'
             ],
             dependencies: [
                 'integration.viewer'

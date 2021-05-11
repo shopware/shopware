@@ -42,5 +42,13 @@
             <argument>%shopware.cache.invalidation.country_route%</argument>
             <argument type="service" id="logger" />
         </service>
+
+        <service id="Shopware\Core\System\Country\CountryTaxFreeDeprecationUpdater">
+            <argument>%shopware.deployment.blue_green%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_14114"/>
+        </service>
+
     </services>
 </container>

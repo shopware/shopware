@@ -25,6 +25,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -161,7 +163,11 @@ class InvoiceServiceTest extends TestCase
         /** @var OrderEntity $order */
         $order = $this->getOrderById($orderId);
         $country = $order->getDeliveries()->getShippingAddress()->getCountries()->first();
-        $country->setCompanyTaxFree(true);
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
+        } else {
+            $country->setCompanyTaxFree(true);
+        }
         $companyPhone = '123123123';
         $vatIds = ['VAT-123123'];
         $order->getOrderCustomer()->setVatIds($vatIds);

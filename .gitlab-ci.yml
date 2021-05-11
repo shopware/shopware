@@ -59,6 +59,14 @@ default:
 
 # stage: unit
 
+Danger:
+    stage: unit
+    image: node:14
+    before_script: []
+    script:
+        - npm install danger gitlab
+        - node node_modules/.bin/danger ci --base trunk
+
 PHP Full:
     image: $DEV_IMAGE
     stage: unit

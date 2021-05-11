@@ -3,10 +3,16 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,14 +23,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CancelOrderRoute extends AbstractCancelOrderRoute
 {
-    /**
-     * @var OrderService
-     */
-    private $orderService;
+    private OrderService $orderService;
 
-    public function __construct(OrderService $orderService)
+    private EntityRepositoryInterface $orderRepository;
+
+    public function __construct(OrderService $orderService, EntityRepositoryInterface $orderRepository)
     {
         $this->orderService = $orderService;
+        $this->orderRepository = $orderRepository;
     }
 
     public function getDecorated(): AbstractCancelOrderRoute
@@ -56,13 +62,35 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
      */
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
+        $orderId = $request->get('orderId', null);
+
+        if ($orderId === null) {
+            throw new InvalidRequestParameterException('orderId');
+        }
+
+        $this->verify($orderId, $context);
+
         $newState = $this->orderService->orderStateTransition(
-            $request->get('orderId'),
+            $orderId,
             'cancel',
             new ParameterBag(),
             $context->getContext()
         );
 
         return new CancelOrderRouteResponse($newState);
+    }
+
+    private function verify(string $orderId, SalesChannelContext $context): void
+    {
+        if ($context->getCustomer() === null) {
+            throw new CustomerNotLoggedInException();
+        }
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomer()->getId()));
+
+        if ($this->orderRepository->searchIds($criteria, $context->getContext())->firstId() === null) {
+            throw new EntityNotFoundException('order', $orderId);
+        }
     }
 }

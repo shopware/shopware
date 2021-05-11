@@ -1,3 +1,6 @@
+parameters:
+    messenger.default_transport_name: 'default'
+
 framework:
     esi: true
     trusted_hosts: ~

@@ -120,7 +120,7 @@
 
                             {% block sw_profile_index_password_card_new_password_field %}
                                 <sw-password-field v-model="newPassword"
-                                                   autocomplete="off"
+                                                   autocomplete="new-password"
                                                    :label="$tc('sw-profile.index.labelNewPassword')"
                                                    :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
                                                    :disabled="!acl.can('user.update_profile')">
@@ -129,7 +129,7 @@
 
                             {% block sw_profile_index_password_card_confirm_new_password_field %}
                                 <sw-password-field v-model="newPasswordConfirm"
-                                                   autocomplete="off"
+                                                   autocomplete="new-password"
                                                    :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
                                                    :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
                                                    :validation="newPassword === newPasswordConfirm"

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
@@ -79,6 +80,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         $container->addCompilerPass(new ActionEventCompilerPass());
         $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());
+        $container->addCompilerPass(new DefaultTransportCompilerPass());
         $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
         $container->addCompilerPass(new RouteScopeCompilerPass());
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
@@ -97,17 +99,6 @@ class Framework extends Bundle
 
         $migrationSourceV5 = $container->getDefinition(MigrationSource::class . '.core.V6_5');
         $migrationSourceV5->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_5', 'Shopware\Core\Migration\V6_5']);
-
-        /* @feature-deprecated (flag: FEATURE_NEXT_12870) Remove this block */
-        if (!Feature::isActive('FEATURE_NEXT_12870')) {
-            $container->loadFromExtension('framework', [
-                'messenger' => [
-                    'routing' => [
-                        '*' => 'default',
-                    ],
-                ],
-            ]);
-        }
 
         parent::build($container);
     }

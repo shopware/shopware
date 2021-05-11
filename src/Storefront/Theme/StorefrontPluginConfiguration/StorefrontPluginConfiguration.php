@@ -8,7 +8,7 @@ class StorefrontPluginConfiguration
 
     private string $technicalName;
 
-    private string $name;
+    private ?string $name = null;
 
     private ?string $previewMedia = null;
 

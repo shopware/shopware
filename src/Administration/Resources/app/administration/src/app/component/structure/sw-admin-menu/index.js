@@ -276,8 +276,8 @@ Component.register('sw-admin-menu', {
                 );
 
                 const currentlyActiveElement = this.$el.querySelector('a.router-link-active');
-                const currentlyActiveParentElement = currentlyActiveElement.parentElement;
-                const parentIsFirstLevel = currentlyActiveParentElement.classList.contains('navigation-list-item__level-1');
+                const currentlyActiveParentElement = currentlyActiveElement?.parentElement;
+                const parentIsFirstLevel = currentlyActiveParentElement?.classList?.contains('navigation-list-item__level-1');
 
                 const ignoreElementsList = [currentlyActiveParentElement];
 

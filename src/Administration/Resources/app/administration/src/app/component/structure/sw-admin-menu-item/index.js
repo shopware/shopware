@@ -156,6 +156,10 @@ Component.register('sw-admin-menu-item', {
                 }
             }
 
+            if (!compareTo) {
+                compareTo = this.$route?.name;
+            }
+
             if (this.entry.path) {
                 return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;
             }

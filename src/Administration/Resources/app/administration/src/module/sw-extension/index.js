@@ -139,6 +139,14 @@ Shopware.Module.register('sw-extension', {
             }
         },
 
+        store: {
+            path: 'store',
+            component: 'sw-extension-store-landing-page',
+            redirect: {
+                name: 'sw.extension.store.landing-page'
+            }
+        },
+
         'store.landing-page': {
             path: 'store/landing-page',
             component: 'sw-extension-store-landing-page'
@@ -157,7 +165,7 @@ Shopware.Module.register('sw-extension', {
             id: 'sw-extension-store',
             parent: 'sw-extension',
             label: 'sw-extension.mainMenu.store',
-            path: 'sw.extension.store.landing-page',
+            path: 'sw.extension.store',
             privilege: 'system.extension_store',
             position: 10
         },

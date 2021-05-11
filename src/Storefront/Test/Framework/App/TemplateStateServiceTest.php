@@ -53,7 +53,7 @@ class TemplateStateServiceTest extends TestCase
         $this->templateStateService->activateAppTemplates($appId, Context::createDefaultContext());
 
         $activeTemplates = $this->fetchActiveTemplates($appId);
-        static::assertCount(1, $activeTemplates);
+        static::assertCount(2, $activeTemplates);
     }
 
     public function testDeactivateApp(): void

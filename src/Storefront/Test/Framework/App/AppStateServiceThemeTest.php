@@ -173,7 +173,7 @@ class AppStateServiceThemeTest extends TestCase
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        static::assertEquals(1, $this->templateRepo->search($criteria, $context)->getTotal());
+        static::assertEquals(2, $this->templateRepo->search($criteria, $context)->getTotal());
 
         $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppActivation);
     }

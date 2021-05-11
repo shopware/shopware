@@ -4,69 +4,40 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 class StorefrontPluginConfiguration
 {
-    /**
-     * @var array
-     */
-    private $themeConfig = [];
+    private ?array $themeConfig = [];
 
-    /**
-     * @var string
-     */
-    private $technicalName;
+    private string $technicalName;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var string|null
-     */
-    private $previewMedia;
+    private ?string $previewMedia = null;
 
-    /**
-     * @var string|null
-     */
-    private $author;
+    private ?string $author = null;
 
-    /**
-     * @var bool|null
-     */
-    private $isTheme;
+    private ?bool $isTheme = null;
 
-    /**
-     * @var FileCollection
-     */
-    private $styleFiles;
+    private FileCollection $styleFiles;
 
-    /**
-     * @var FileCollection
-     */
-    private $scriptFiles;
+    private FileCollection $scriptFiles;
 
-    /**
-     * @var string|null
-     */
-    private $storefrontEntryFilepath;
+    private ?string $storefrontEntryFilepath = null;
 
-    /**
-     * @var string|null
-     */
-    private $basePath;
+    private ?string $basePath = null;
 
-    /**
-     * @var array
-     */
-    private $assetPaths = [];
+    private array $assetPaths = [];
 
     /**
      * @var string[]
      */
-    private $viewInheritance = [];
+    private array $viewInheritance = [];
+
+    private array $iconSets = [];
 
     public function __construct(string $technicalName)
     {
         $this->technicalName = $technicalName;
+        $this->styleFiles = new FileCollection();
+        $this->scriptFiles = new FileCollection();
     }
 
     public function getTechnicalName(): string
@@ -188,6 +159,16 @@ class StorefrontPluginConfiguration
     public function setViewInheritance(array $viewInheritance): void
     {
         $this->viewInheritance = $viewInheritance;
+    }
+
+    public function getIconSets(): array
+    {
+        return $this->iconSets;
+    }
+
+    public function setIconSets(array $iconSets): void
+    {
+        $this->iconSets = $iconSets;
     }
 
     public function hasFilesToCompile(): bool

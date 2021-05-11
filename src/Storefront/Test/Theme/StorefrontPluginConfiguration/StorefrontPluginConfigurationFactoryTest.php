@@ -65,6 +65,9 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
                 ],
             ],
         ], $config->getThemeConfig());
+        static::assertEquals([
+            'custom-icons' => 'app/storefront/src/assets/icon-pack/custom-icons',
+        ], $config->getIconSets());
     }
 
     public function testPluginHasSingleScssEntryPoint(): void

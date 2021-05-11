@@ -39,6 +39,7 @@
         "ext-xml": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
+        "ext-sodium": "*",
         "aws/aws-sdk-php": "3.133.6",
         "cocur/slugify": "4.0.0",
         "composer-runtime-api": "^2.0",

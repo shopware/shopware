@@ -6,6 +6,8 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-order-create-details-footer', {
     template,
 
+    inject: ['feature'],
+
     props: {
         // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop

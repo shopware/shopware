@@ -7,11 +7,20 @@
         {% endblock %}
 
         {% block sw_condition_payment_method_field_payment_method_ids %}
-            <sw-entity-multi-select
+            <sw-entity-multi-select v-if="!feature.isActive('FEATURE_NEXT_15170')"
                 size="medium"
                 entity="payment_method"
                 :entityCollection="paymentMethods"
                 :disabled="disabled"
+                @change="setPaymentMethodIds">
+            </sw-entity-multi-select>
+
+            <sw-entity-multi-select v-else
+                size="medium"
+                entity="payment_method"
+                :entityCollection="paymentMethods"
+                :disabled="disabled"
+                labelProperty="distinguishableName"
                 @change="setPaymentMethodIds">
             </sw-entity-multi-select>
         {% endblock %}

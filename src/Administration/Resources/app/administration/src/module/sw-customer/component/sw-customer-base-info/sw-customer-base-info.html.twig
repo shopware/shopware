@@ -33,14 +33,18 @@
                             {% endblock %}
 
                             {% block sw_customer_base_metadata_default_payment_content %}
-                                <dd v-if="!customerEditMode" class="sw-customer-base__label-default-payment-method">
+                                <dd v-if="!customerEditMode && !feature.isActive('FEATURE_NEXT_15170')" class="sw-customer-base__label-default-payment-method">
                                    {{ customer.defaultPaymentMethod.translated.name }}
+                                </dd>
+
+                                <dd v-if="!customerEditMode && feature.isActive('FEATURE_NEXT_15170')" class="sw-customer-base__label-default-payment-method">
+                                    {{ customer.defaultPaymentMethod.translated.distinguishableName }}
                                 </dd>
                             {% endblock %}
 
                             {% block sw_customer_base_metadata_default_payment_editor %}
                                 <dd v-else>
-                                    <sw-entity-single-select entity="payment_method" v-model="customer.defaultPaymentMethodId" size="small">
+                                    <sw-entity-single-select entity="payment_method" :labelProperty="paymentMethodLabelProperty" v-model="customer.defaultPaymentMethodId" size="small">
                                     </sw-entity-single-select>
                                 </dd>
                             {% endblock %}

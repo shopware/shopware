@@ -13,7 +13,9 @@ Shopware.Service('privileges')
                     'system_config:read',
                     'custom_field_set:read',
                     'custom_field:read',
-                    'custom_field_set_relation:read'
+                    'custom_field_set_relation:read',
+                    'app:read',
+                    'app_payment_method:read'
                 ],
                 dependencies: []
             },

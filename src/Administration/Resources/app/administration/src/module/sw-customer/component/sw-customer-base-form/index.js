@@ -8,6 +8,8 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-base-form', {
     template,
 
+    inject: ['feature'],
+
     props: {
         customer: {
             type: Object,

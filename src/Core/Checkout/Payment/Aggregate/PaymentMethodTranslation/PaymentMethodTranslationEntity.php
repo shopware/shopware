@@ -23,6 +23,13 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     protected $name;
 
     /**
+     * @internal (flag:FEATURE_NEXT_15170)
+     *
+     * @var string|null
+     */
+    protected $distinguishableName;
+
+    /**
      * @var string|null
      */
     protected $description;
@@ -50,6 +57,22 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_15170)
+     */
+    public function getDistinguishableName(): ?string
+    {
+        return $this->distinguishableName;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_15170)
+     */
+    public function setDistinguishableName(?string $distinguishableName): void
+    {
+        $this->distinguishableName = $distinguishableName;
     }
 
     public function getDescription(): ?string

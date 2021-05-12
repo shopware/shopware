@@ -5,6 +5,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-sales-channel-defaults-select', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -106,6 +108,17 @@ Component.register('sw-sales-channel-defaults-select', {
 
         defaultsValueError() {
             return Shopware.State.getters['error/getApiError'](this.salesChannel, this.defaultPropertyName);
+        },
+
+        labelProperty() {
+            if (
+                this.propertyEntityName === 'payment_method' &&
+                this.feature.isActive('FEATURE_NEXT_15170')
+            ) {
+                return 'distinguishableName';
+            }
+
+            return 'name';
         }
     },
 

@@ -7,6 +7,8 @@ const types = Shopware.Utils.types;
 Component.register('sw-media-quickinfo-usage', {
     template,
 
+    inject: ['feature'],
+
     props: {
         item: {
             required: true,
@@ -214,7 +216,7 @@ Component.register('sw-media-quickinfo-usage', {
 
         getPaymentMethodUsage(paymentMethod) {
             return {
-                name: paymentMethod.translated.name,
+                name: this.feature.isActive('FEATURE_NEXT_15170') ? paymentMethod.translated.distinguishableName : paymentMethod.translated.name,
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInPayment'),
                 link: {
                     name: 'sw.settings.payment.detail',

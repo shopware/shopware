@@ -2,6 +2,7 @@
     <sw-container class="sw-sales-channel-defaults-select" gap="0px 30px" columns="1fr 200px">
         <template v-if="salesChannel">
             <sw-entity-multi-select
+                :labelProperty="labelProperty"
                 :disabled="disabled"
                 :class="multiSelectClass"
                 :label="propertyLabel"
@@ -11,6 +12,7 @@
             </sw-entity-multi-select>
 
             <sw-entity-single-select
+                :labelProperty="labelProperty"
                 :disabled="disabled"
                 :class="singleSelectClass"
                 :label="defaultPropertyLabel"

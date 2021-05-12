@@ -11,7 +11,8 @@ Component.register('sw-order-user-card', {
 
     inject: [
         'orderService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'feature'
     ],
 
     mixins: [

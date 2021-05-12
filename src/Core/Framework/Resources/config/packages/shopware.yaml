@@ -144,6 +144,11 @@ shopware:
               major: false
               description: "Improve Product UX 2.0"
               # issue: NEXT-12437
+            - name: FEATURE_NEXT_15170
+              default: false
+              major: false
+              description: "Make payment methods distinguishable"
+              # issue: NEXT-15170
 
     logger:
         file_rotation_count: 14

@@ -111,8 +111,21 @@
 
             {% block sw_customer_base_form_payment_method_field %}
                 <sw-entity-single-select
+                    v-if="!feature.isActive('FEATURE_NEXT_15170')"
                     class="sw-customer-base-form__payment-method-select"
                     entity="payment_method"
+                    required
+                    :label="$tc('sw-customer.baseForm.labelPaymentMethod')"
+                    :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"
+                    :error="customerDefaultPaymentMethodIdError"
+                    v-model="customer.defaultPaymentMethodId">
+                </sw-entity-single-select>
+
+                <sw-entity-single-select
+                    v-else
+                    class="sw-customer-base-form__payment-method-select"
+                    entity="payment_method"
+                    labelProperty="distinguishableName"
                     required
                     :label="$tc('sw-customer.baseForm.labelPaymentMethod')"
                     :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"

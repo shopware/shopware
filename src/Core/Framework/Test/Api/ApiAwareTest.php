@@ -66,6 +66,11 @@ class ApiAwareTest extends TestCase
             $expected[] = 'app_cms_block_translation.languageId';
         }
 
+        if (Feature::isActive('FEATURE_NEXT_14363')) {
+            $expected[] = 'webhook_event_log.createdAt';
+            $expected[] = 'webhook_event_log.updatedAt';
+        }
+
         $message = 'One or more fields have been changed in their visibility for the Store Api.
         This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';
 

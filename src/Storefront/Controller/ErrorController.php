@@ -43,10 +43,7 @@ class ErrorController extends StorefrontController
      */
     private $systemConfigService;
 
-    /**
-     * @var FooterPageletLoaderInterface
-     */
-    private $footerPageletLoader;
+    private FooterPageletLoaderInterface $footerPageletLoader;
 
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,

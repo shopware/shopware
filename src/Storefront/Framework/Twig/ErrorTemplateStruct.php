@@ -23,17 +23,13 @@ class ErrorTemplateStruct extends Struct
      */
     protected $header;
 
-    /**
-     * @var FooterPagelet|null
-     */
-    protected $footer;
+    protected ?FooterPagelet $footer = null;
 
     public function __construct($templateName = '', $arguments = [])
     {
         $this->templateName = $templateName;
         $this->arguments = $arguments;
         $this->header = null;
-        $this->footer = null;
     }
 
     public function getTemplateName(): string

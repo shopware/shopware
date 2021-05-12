@@ -96,6 +96,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.shippingZipCodeRule',
         scopes: ['checkout']
     });
+    ruleConditionService.addCondition('customerLoggedIn', {
+        component: 'sw-condition-customer-logged-in',
+        label: 'global.sw-condition.condition.customerLoggedInRule',
+        scopes: ['checkout']
+    });
     ruleConditionService.addCondition('cartCartAmount', {
         component: 'sw-condition-cart-amount',
         label: 'global.sw-condition.condition.cartAmountRule',

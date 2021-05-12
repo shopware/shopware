@@ -553,6 +553,7 @@
         "shippingCountryRule": "Lieferland",
         "shippingStreetRule": "Lieferstraße",
         "shippingZipCodeRule": "Lieferadresse-PLZ",
+        "customerLoggedInRule": "Angemeldeter Kunde",
         "cartAmountRule": "Warenkorbwert",
         "goodsCountRule": "Anzahl Warenkorbgüter",
         "goodsPriceRule": "Preis Warenkorbgüter",

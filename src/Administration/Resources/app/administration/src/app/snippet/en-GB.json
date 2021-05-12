@@ -553,6 +553,7 @@
         "shippingCountryRule": "Shipping country",
         "shippingStreetRule": "Shipping street",
         "shippingZipCodeRule": "Shipping postal code",
+        "customerLoggedInRule": "Customer logged in",
         "cartAmountRule": "Cart amount",
         "goodsCountRule": "Goods count",
         "goodsPriceRule": "Goods price",

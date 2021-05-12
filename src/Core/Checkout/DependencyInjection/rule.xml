@@ -104,6 +104,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerLoggedInRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemsInCartCountRule">
             <tag name="shopware.rule.definition"/>
         </service>

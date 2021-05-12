@@ -13,6 +13,7 @@ export default {
 
 /**
  * Converts a Number to a formatted currency. Especially helpful for template filters.
+ * Defaults to the currencyISOCode of the standard currency and locale of the user.
  *
  * @param {Number} val - Number which should be formatted as a currency.
  * @param {String} sign - Currency sign which should be displayed
@@ -31,15 +32,12 @@ export function currency(val, sign, decimalPlaces, additionalOptions = {}) {
 
     const opts = {
         style: 'currency',
-        currency: sign,
+        currency: sign || Shopware.Context.app.systemCurrencyISOCode,
         ...decimalOpts,
         ...additionalOptions
     };
-    let language = 'de-DE';
-    if (opts.currency === 'USD') {
-        language = 'en-US';
-    }
-    return val.toLocaleString(language, opts);
+
+    return val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
 }
 
 /**

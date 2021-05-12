@@ -143,7 +143,7 @@
                                             <div class="sw-dashboard-index__intro-stats-today-single-stat">
                                                 <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
                                                 {# price aggregations do not support currencies yet, see NEXT-5069 #}
-                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency('EUR', 0) }}</span>
+                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency }}</span>
                                             </div>
                                         {% endblock %}
                                     </div>

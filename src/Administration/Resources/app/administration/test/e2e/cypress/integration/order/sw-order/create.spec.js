@@ -60,7 +60,7 @@ describe('Order: Create order', () => {
             .should('not.be.disabled');
 
         // continue adding a valid line item
-        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group > button')
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group')
             .click();
 
         // expect a new table row visible
@@ -323,7 +323,7 @@ describe('Order: Create order', () => {
             .should('not.be.disabled');
 
         // continue adding a valid line item
-        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group > button')
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group')
             .click();
 
         // expect a new table row visible
@@ -502,7 +502,7 @@ describe('Order: Create order', () => {
             .should('have.value', 'test@example.com');
 
         // continue adding a valid line item
-        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group > button')
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group')
             .click();
 
         // double click on item name cell
@@ -600,7 +600,7 @@ describe('Order: Create order', () => {
             .should('not.be.disabled');
 
         // continue adding a valid line item
-        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group > button')
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group')
             .click();
 
         // expect a new table row visible

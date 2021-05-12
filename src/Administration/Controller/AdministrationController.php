@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,6 +54,8 @@ class AdministrationController extends AbstractController
 
     private EntityRepositoryInterface $customerRepo;
 
+    private EntityRepositoryInterface $currencyRepository;
+
     public function __construct(
         TemplateFinder $finder,
         FirstRunWizardClient $firstRunWizardClient,
@@ -62,7 +65,8 @@ class AdministrationController extends AbstractController
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         string $shopwareCoreDir,
-        EntityRepositoryInterface $customerRepo
+        EntityRepositoryInterface $customerRepo,
+        EntityRepositoryInterface $currencyRepository
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
@@ -73,6 +77,7 @@ class AdministrationController extends AbstractController
         $this->eventDispatcher = $eventDispatcher;
         $this->shopwareCoreDir = $shopwareCoreDir;
         $this->customerRepo = $customerRepo;
+        $this->currencyRepository = $currencyRepository;
     }
 
     /**
@@ -80,15 +85,19 @@ class AdministrationController extends AbstractController
      * @RouteScope(scopes={"administration"})
      * @Route("/admin", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
-    public function index(Request $request): Response
+    public function index(Request $request, Context $context): Response
     {
         $template = $this->finder->find('@Administration/administration/index.html.twig');
+
+        /** @var CurrencyEntity $defaultCurrency */
+        $defaultCurrency = $this->currencyRepository->search(new Criteria([Defaults::CURRENCY]), $context)->first();
 
         return $this->render($template, [
             'features' => Feature::getAll(),
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
             'systemCurrencyId' => Defaults::CURRENCY,
+            'systemCurrencyISOCode' => $defaultCurrency->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),

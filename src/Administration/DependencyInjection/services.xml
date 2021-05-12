@@ -15,6 +15,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument>%kernel.shopware_core_dir%</argument>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="currency.repository"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

@@ -17,6 +17,7 @@ function uploadImageUsingFileUpload(path, name) {
     const altValue = name.substr(0, name.lastIndexOf('.'));
 
     cy.get('.sw-media-preview-v2__item')
+        .should('exist')
         .should('be.visible')
         .should('have.attr', 'alt', altValue);
 }
@@ -78,7 +79,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.sw-cms-el-config-buy-box .sw-entity-single-select').type('Variant product');
         cy.get('.sw-product-variant-info__specification').contains('green').click();
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
-        cy.get('.sw-cms-el-buy-box__price').first().contains('111,00');
+        cy.get('.sw-cms-el-buy-box__price').first().contains('€111.00');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
@@ -105,7 +106,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
-        cy.get('.product-detail-price').contains('111');
+        cy.get('.product-detail-price').contains('€111');
         cy.get('.product-detail-ordernumber').contains('TEST.2');
         cy.get('.product-detail-configurator-option-label[title="red"]').click();
 
@@ -118,7 +119,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         // Off canvas
         cy.get('.btn-buy').click();
         cy.get('.offcanvas').should('be.visible');
-        cy.get('.cart-item-price').contains('111');
+        cy.get('.cart-item-price').contains('€111');
         cy.get('.cart-item-characteristics').contains('color');
         cy.get('.cart-item-characteristics-option').contains('red');
         cy.get('.cart-item-label[title="Variant product"]').should('be.visible');
@@ -175,7 +176,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.sw-cms-el-config-buy-box .sw-entity-single-select').type('Variant product');
         cy.get('.sw-product-variant-info__specification').contains('blue').click();
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
-        cy.get('.sw-cms-el-buy-box__price').first().contains('111,00');
+        cy.get('.sw-cms-el-buy-box__price').first().contains('€111.00');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
@@ -205,7 +206,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.gallery-slider-image')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
-        cy.get('.product-detail-price').contains('111');
+        cy.get('.product-detail-price').contains('€111');
         cy.get('.product-detail-ordernumber').contains('TEST.3');
     });
 });

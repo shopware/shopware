@@ -117,6 +117,12 @@ class JsonEntityEncoder
         $fields = $definition->getFields();
 
         foreach ($decoded as $key => &$value) {
+            if ($key === 'extensions') {
+                $decoded[$key] = $this->removeNotAllowedFields($value, $definition, $baseUrl);
+
+                continue;
+            }
+
             $field = $fields->get($key);
 
             if ($field === null) {
@@ -125,6 +131,7 @@ class JsonEntityEncoder
 
             /** @var ApiAware|null $flag */
             $flag = $field->getFlag(ApiAware::class);
+
             if ($flag === null || !$flag->isBaseUrlAllowed($baseUrl)) {
                 unset($decoded[$key]);
 
@@ -140,8 +147,14 @@ class JsonEntityEncoder
             }
 
             if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+                $referenceDefinition = $field->getReferenceDefinition();
+
+                if ($field instanceof ManyToManyAssociationField) {
+                    $referenceDefinition = $field->getToManyReferenceDefinition();
+                }
+
                 foreach ($value as $id => $entity) {
-                    $value[$id] = $this->removeNotAllowedFields($entity, $field->getReferenceDefinition(), $baseUrl);
+                    $value[$id] = $this->removeNotAllowedFields($entity, $referenceDefinition, $baseUrl);
                 }
             }
         }

@@ -274,6 +274,7 @@
 
                         <sw-sidebar-item icon="default-text-code"
                                          :title="$tc('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
+                                         :disabled="mailTemplate.mailTemplateTypeId === undefined || mailTemplate.mailTemplateTypeId === null"
                                          class="sw-mail-template-detail__show-available-variables"
                                          v-if="feature.isActive('FEATURE_NEXT_12654')">
                             <div class="sw-mail-template-detail__available-variables-sidebar-container">
@@ -314,6 +315,7 @@
 
                         <sw-sidebar-item icon="default-eye-open"
                                          :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
+                                         :disabled="mailTemplate.contentHtml === undefined || mailTemplate.mailTemplateTypeId === undefined"
                                          class="sw-mail-template-detail__show-preview-sidebar"
                                          @click="onClickShowPreview"
                                          v-if="feature.isActive('FEATURE_NEXT_12654')">

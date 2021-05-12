@@ -1,85 +1,82 @@
 {% block component_product_box_action_inner %}
     {% set id = product.id %}
+    <div class="product-action">
+        {% set isAvailable = not product.isCloseout or (product.availableStock >= product.minPurchase) %}
+        {% set displayFrom = product.calculatedPrices.count < 1 %}
+        {% set displayBuyButton = isAvailable and displayFrom and product.childCount <= 0 %}
 
-    {% if config('core.listing.allowBuyInListing') %}
-        <div class="product-action">
-            {% set isAvailable = not product.isCloseout or (product.availableStock >= product.minPurchase) %}
-            {% set displayFrom = product.calculatedPrices.count > 1 %}
-            {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}
+        {% if displayBuyButton and config('core.listing.allowBuyInListing') %}
+            {% block component_product_box_action_buy %}
+                {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+                <form action="{{ path('frontend.checkout.line-item.add') }}"
+                      method="post"
+                      class="buy-widget"
+                      data-add-to-cart="true">
 
-            {% if displayBuyButton %}
-                {% block component_product_box_action_buy %}
-                    {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
-                       <form action="{{ path('frontend.checkout.line-item.add') }}"
-                              method="post"
-                              class="buy-widget"
-                              data-add-to-cart="true">
+                    {% block component_product_box_action_buy_csrf %}
+                        {{ sw_csrf('frontend.checkout.line-item.add') }}
+                    {% endblock %}
 
-                            {% block component_product_box_action_buy_csrf %}
-                                {{ sw_csrf('frontend.checkout.line-item.add') }}
-                            {% endblock %}
+                    {% block component_product_box_action_form %}
 
-                            {% block component_product_box_action_form %}
+                        {% block component_product_box_action_buy_redirect_input %}
+                            {# fallback redirect back to detail page is deactivated via js #}
+                            <input type="hidden"
+                                   name="redirectTo"
+                                   value="frontend.detail.page">
 
-                                {% block component_product_box_action_buy_redirect_input %}
-                                    {# fallback redirect back to detail page is deactivated via js #}
-                                    <input type="hidden"
-                                           name="redirectTo"
-                                           value="frontend.detail.page">
+                            <input type="hidden"
+                                   name="redirectParameters"
+                                   data-redirect-parameters="true"
+                                   value='{"productId": "{{ product.id }}"}'>
+                        {% endblock %}
 
-                                    <input type="hidden"
-                                           name="redirectParameters"
-                                           data-redirect-parameters="true"
-                                           value='{"productId": "{{ product.id }}"}'>
-                                {% endblock %}
+                        {% block page_product_detail_buy_product_buy_info %}
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][id]"
+                                   value="{{ id }}">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][referencedId]"
+                                   value="{{ id }}">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][type]"
+                                   value="product">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][stackable]"
+                                   value="1">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][removable]"
+                                   value="1">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][quantity]"
+                                   value="{{ product.minPurchase }}">
+                        {% endblock %}
 
-                                {% block page_product_detail_buy_product_buy_info %}
-                                    <input type="hidden"
-                                           name="lineItems[{{ id }}][id]"
-                                           value="{{ id }}">
-                                    <input type="hidden"
-                                           name="lineItems[{{ id }}][referencedId]"
-                                           value="{{ id }}">
-                                    <input type="hidden"
-                                           name="lineItems[{{ id }}][type]"
-                                           value="product">
-                                    <input type="hidden"
-                                           name="lineItems[{{ id }}][stackable]"
-                                           value="1">
-                                    <input type="hidden"
-                                           name="lineItems[{{ id }}][removable]"
-                                           value="1">
-                                    <input type="hidden"
-                                           name="lineItems[{{ id }}][quantity]"
-                                           value="{{ product.minPurchase }}">
-                                {% endblock %}
+                        {% block page_product_detail_product_buy_meta %}
+                            <input type="hidden"
+                                   name="product-name"
+                                   value="{{ product.translated.name }}">
+                        {% endblock %}
 
-                                {% block page_product_detail_product_buy_meta %}
-                                    <input type="hidden"
-                                           name="product-name"
-                                           value="{{ product.translated.name }}">
-                                {% endblock %}
-
-                                {% block page_product_detail_product_buy_button %}
-                                    <button class="btn btn-block btn-buy"
-                                            title="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                        {{ "listing.boxAddProduct"|trans|sw_sanitize }}
-                                    </button>
-                                {% endblock %}
-                            {% endblock %}
-                        </form>
-                {% endblock %}
-            {% else %}
-                {% block component_product_box_action_detail %}
-                    <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
-                       class="btn btn-block btn-light"
-                       title="{{ "listing.boxProductDetails"|trans|striptags }}">
-                        {{ "listing.boxProductDetails"|trans|sw_sanitize }}
-                    </a>
-                {% endblock %}
-            {% endif %}
-        </div>
-    {% endif %}
+                        {% block page_product_detail_product_buy_button %}
+                            <button class="btn btn-block btn-buy"
+                                    title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                {{ "listing.boxAddProduct"|trans|sw_sanitize }}
+                            </button>
+                        {% endblock %}
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        {% else %}
+            {% block component_product_box_action_detail %}
+                <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
+                   class="btn btn-block btn-light"
+                   title="{{ "listing.boxProductDetails"|trans|striptags }}">
+                    {{ "listing.boxProductDetails"|trans|sw_sanitize }}
+                </a>
+            {% endblock %}
+        {% endif %}
+    </div>
 
     {% block component_product_box_action_meta %}
         <input type="hidden"

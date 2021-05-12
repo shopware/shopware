@@ -41,7 +41,7 @@ class IntegrationDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['admin' => true];
+        return ['admin' => false];
     }
 
     public function since(): ?string

@@ -34,10 +34,7 @@ class MailHeaderFooterApiTest extends TestCase
         $this->repository = $this->getContainer()->get('mail_header_footer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-    }
 
-    protected function tearDown(): void
-    {
         try {
             $this->connection->executeUpdate('DELETE FROM mail_header_footer');
         } catch (\Exception $e) {

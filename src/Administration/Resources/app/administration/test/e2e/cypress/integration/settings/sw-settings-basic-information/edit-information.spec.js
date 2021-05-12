@@ -24,6 +24,7 @@ describe('Basic Informaion: Edit assignments', () => {
         }).as('saveData');
 
         // Assign 404 layout to all sales channels
+        cy.get('.sw-card.sw-system-config__card--1').scrollIntoView();
         cy.get('.sw-card.sw-system-config__card--1').should('be.visible');
         cy.get('.sw-card.sw-system-config__card--1 .sw-card__title').contains('Shop pages');
         cy.get('.sw-cms-page-select[name="core.basicInformation.http404Page"]').scrollIntoView();
@@ -73,6 +74,7 @@ describe('Basic Informaion: Edit assignments', () => {
         }).as('saveSalesChannel');
 
         // Assign Maintenance layout to all sales channels
+        cy.get('.sw-card.sw-system-config__card--1').scrollIntoView();
         cy.get('.sw-card.sw-system-config__card--1').should('be.visible');
         cy.get('.sw-card.sw-system-config__card--1 .sw-card__title').contains('Shop pages');
         cy.get('.sw-cms-page-select[name="core.basicInformation.maintenancePage"]').scrollIntoView();

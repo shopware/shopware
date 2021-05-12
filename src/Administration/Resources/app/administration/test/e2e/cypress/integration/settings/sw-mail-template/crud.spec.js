@@ -9,9 +9,6 @@ describe('Mail templates: Test crud privileges', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createDefaultFixture('mail-header-footer');
-            })
-            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
     });
@@ -509,10 +506,10 @@ describe('Mail templates: Test crud privileges', () => {
         // verify fields
         // eslint-disable-next-line max-len
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Header and Footer');
+            .contains('Default email footer');
 
         // eslint-disable-next-line max-len
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--1 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Header and Footer');
+            .contains('Default email footer');
     });
 });

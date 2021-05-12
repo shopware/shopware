@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -45,17 +46,20 @@ class ConfigExtension extends AbstractExtension
 
     private function getSalesChannelId(array $context): ?string
     {
-        if (!isset($context['context'])) {
-            return null;
+        if (isset($context['context'])) {
+            $salesChannelContext = $context['context'];
+            if ($salesChannelContext instanceof SalesChannelContext) {
+                return $salesChannelContext->getSalesChannelId();
+            }
+        }
+        if (isset($context['salesChannel'])) {
+            $salesChannel = $context['salesChannel'];
+            if ($salesChannel instanceof SalesChannelEntity) {
+                return $salesChannel->getId();
+            }
         }
 
-        $context = $context['context'];
-
-        if (!$context instanceof SalesChannelContext) {
-            return null;
-        }
-
-        return $context->getSalesChannelId();
+        return null;
     }
 
     private function getThemeId(array $context): ?string

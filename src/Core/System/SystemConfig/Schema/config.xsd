@@ -47,6 +47,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="text"/>
             <xs:enumeration value="textarea"/>
+            <xs:enumeration value="text-editor"/>
             <xs:enumeration value="url"/>
             <xs:enumeration value="password"/>
             <xs:enumeration value="int"/>

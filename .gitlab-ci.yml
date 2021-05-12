@@ -477,10 +477,11 @@ sonarqube-check:
     artifacts:
         when: always
         paths:
-            - development/build/artifacts/phpunit.clover.xml
+            - cobertura.xml
             - development/build/artifacts/phpunit.junit.xml
     script:
         - sonar-scanner
     allow_failure: true
     only:
         - trunk
+        - merge_requests

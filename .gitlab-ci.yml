@@ -9,12 +9,12 @@ variables:
     MYSQL_CMD: mysqld
 
 stages:
+    - lint
     - unit
     - E2E
-    - Build
-    - Generate docs
-    - Security
-    - Deploy
+    - security
+    - build
+    - deploy
 
 include:
     -   local: .gitlab/ci/split.yml
@@ -28,6 +28,7 @@ workflow:
 
 default:
     image: shopware/development:7.4-composer-2
+    timeout: 1h 00m
     before_script:
         - apt-install jq
         - export CI_DEV_BRANCH=$(echo $CI_COMMIT_REF_NAME | cut -d'+' -f2-)
@@ -57,11 +58,108 @@ default:
         - /entrypoint supervisord > /dev/null 2>&1 &
     interruptible: true
 
+# stage: Lint
+
+ESLint (Administration):
+    stage: lint
+    image: node:alpine
+    before_script: []
+    rules:
+        - changes:
+              - 'src/Administration/Resources/app/administration/**/*'
+    script:
+        - cd src/Administration/Resources/app/administration
+        - npm clean-install
+        - npm run lint -- --format junit --output-file eslint.junit.xml
+    artifacts:
+        reports:
+            junit: src/Administration/Resources/app/administration/eslint.junit.xml
+
+ESLint (Storefront):
+    stage: lint
+    image: node:alpine
+    before_script: []
+    rules:
+        - changes:
+              - 'src/Storefront/Resources/app/storefront/**/*'
+    script:
+        - cd src/Storefront/Resources/app/storefront
+        - npm clean-install
+        - npm run lint:js -- --format junit --output-file eslint.junit.xml
+    artifacts:
+        reports:
+            junit: src/Storefront/Resources/app/storefront/eslint.junit.xml
+
+Stylelint (Administration):
+    stage: lint
+    image: node:alpine
+    before_script: []
+    rules:
+        - changes:
+              - 'src/Administration/Resources/app/administration/.stylelintrc'
+              - 'src/Administration/Resources/app/administration/**/*.scss'
+    script:
+        - cd src/Administration/Resources/app/administration
+        - npm clean-install
+        - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
+    artifacts:
+        reports:
+            junit: src/Administration/Resources/app/administration/stylelint.junit.xml
+
+Stylelint (Storefront):
+    stage: lint
+    image: node:alpine
+    before_script: []
+    rules:
+        - changes:
+              - 'src/Storefront/Resources/app/storefront/stylelint.config.js'
+              - 'src/Storefront/Resources/app/storefront/**/*.scss'
+    script:
+        - cd src/Storefront/Resources/app/storefront
+        - npm clean-install
+        - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
+    artifacts:
+        reports:
+            junit: src/Storefront/Resources/app/storefront/stylelint.junit.xml
+
+PHP analysis:
+    stage: lint
+    image: shopware/development:7.4-composer-2
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+    retry:
+        max: 2
+        when: runner_system_failure
+    rules:
+        - changes:
+            - easy-coding-standard.php
+            - phpstan.neon.dist
+            - psalm.xml
+            - 'src/**/snippet/**/*.json'
+            - '**/*.php'
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
+    script:
+        - ./psh.phar init
+        - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
+        - php dev-ops/analyze/generate-composer.php
+        - php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.php
+        - php dev-ops/analyze/phpstan-config-generator.php
+        - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
+        - php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --show-info=false
+        - php bin/console changelog:check
+        - php bin/console snippets:validate
+    artifacts:
+        reports:
+            codequality: development/phpstan-report.json
+
+
 # stage: unit
 
 PHP Full:
     image: $DEV_IMAGE
     stage: unit
+    needs: []
     services:
         -   name: $MYSQL_IMAGE
             alias: mysql
@@ -73,7 +171,6 @@ PHP Full:
             alias: swagger
     variables:
         TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch docs"
-    timeout: 1h 00m
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
@@ -82,11 +179,7 @@ PHP Full:
         - ./psh.phar cache --APP_ENV=test
         - chown -R application:application .
         - curl http://docker.vm:8000/admin
-        # the coverage generation writes too much to the disks which causes timeouts if the bandwidth is throttled
-        #- if [[ $FEATURE_ALL == 'major' && $DEV_IMAGE =~ 'shopware/development:7.4' ]]; then COVERAGE=true; else COVERAGE=""; fi
-        - echo "Coverage $COVERAGE, feature $FEATURE_ALL"
-        - ./psh.phar unit --APP_ENV=test --PHP_TEST_COVERAGE="$COVERAGE"
-    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+        - ./psh.phar unit --APP_ENV=test --PHP_TEST_COVERAGE=""
     artifacts:
         when: always
         paths:
@@ -98,6 +191,7 @@ PHP Full:
     rules:
       - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
         when: never
+      - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
       - if: '$CI_PIPELINE_SOURCE == "pipeline"'
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -106,16 +200,19 @@ PHP Full:
           - "**/Migration*.php"
           - "src/Core/Framework/Resources/config/packages/shopware.yaml"
       - if: '$SKIP_ON_MR != "true" && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/)'
-      - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
-      - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-        when: manual
-        allow_failure: true
+        changes:
+            - phpunit.xml.dist
+            - '**/*.xml'
+            - '**/*.yaml'
+            - '**/*.twig'
+            - '**/*.json'
+            - '**/*.php'
     parallel:
         matrix:
             # required until we fix NEXT-15370
             -   MYSQL_IMAGE: mariadb:10.4.18
                 DEV_IMAGE: shopware/development:8.0-composer-2
-                FEATURE_ALL: ["false", "minor", "major"]
+                FEATURE_ALL: ["false", "minor"]
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3.28
@@ -129,11 +226,11 @@ PHP Full:
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
                 SKIP_ON_MR: 'true'
 
-# TODOS:
-# - replace with minimal image - development is 2GB big! An alpine based one should be around 100MB
 PHP Unit coverage:
+    # TODOS: replace with minimal image - development is 2GB big! An alpine based one should be around 100MB
     image: $DEV_IMAGE
     stage: unit
+    needs: []
     services:
         -   name: $MYSQL_IMAGE
             alias: database
@@ -141,10 +238,23 @@ PHP Unit coverage:
     variables:
         APP_ENV: "test"
         PARATEST_PROCESSES: 4
+    rules:
+        - changes:
+            - phpunit.xml.dist
+            - '**/*.xml'
+            - '**/*.yaml'
+            - '**/*.twig'
+            - '**/*.json'
+            - '**/*.php'
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+          when: manual
+          allow_failure: true
     before_script: []
     script:
         - composer install --optimize-autoloader
         - mkdir -p config/jwt || true
+        # TODO: do this in TestBootstrap.php - should only be a temp file or env var
         - bin/shopware system:generate-jwt-secret
         - COVERAGE_OPTIONS="--coverage-text --coverage-cobertura cobertura.xml"
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
@@ -170,81 +280,9 @@ PHP Unit coverage:
                 DEV_IMAGE: ["shopware/development:7.4-composer-2"]
                 FEATURE_ALL: ["major"]
 
-ESLint (Administration):
-    stage: unit
-    timeout: 1h 00m
-    before_script: []
-    script:
-        - cd src/Administration/Resources/app/administration
-        - npm clean-install
-        - npm run lint -- --format junit --output-file eslint.junit.xml
-    artifacts:
-        reports:
-            junit: src/Administration/Resources/app/administration/eslint.junit.xml
-
-ESLint (Storefront):
-    stage: unit
-    timeout: 1h 00m
-    before_script: []
-    script:
-        - cd src/Storefront/Resources/app/storefront
-        - npm clean-install
-        - npm run lint:js -- --format junit --output-file eslint.junit.xml
-    artifacts:
-        reports:
-            junit: src/Storefront/Resources/app/storefront/eslint.junit.xml
-
-Stylelint (Administration):
-    stage: unit
-    timeout: 1h 00m
-    before_script: []
-    script:
-        - cd src/Administration/Resources/app/administration
-        - npm clean-install
-        - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
-    artifacts:
-        reports:
-            junit: src/Administration/Resources/app/administration/stylelint.junit.xml
-
-Stylelint (Storefront):
-    stage: unit
-    timeout: 1h 00m
-    before_script: []
-    script:
-        - cd src/Storefront/Resources/app/storefront
-        - npm clean-install
-        - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
-    artifacts:
-        reports:
-            junit: src/Storefront/Resources/app/storefront/stylelint.junit.xml
-
-PHP analysis:
-    image: shopware/development:7.4-composer-2
-    stage: unit
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-    retry:
-        max: 2
-        when: runner_system_failure
-    timeout: 1h 00m
-    script:
-        - ./psh.phar init
-        - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
-        - php dev-ops/analyze/generate-composer.php
-        - php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.php
-        - php dev-ops/analyze/phpstan-config-generator.php
-        - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
-        - php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --show-info=false
-        - php bin/console changelog:check
-    artifacts:
-        reports:
-            codequality: development/phpstan-report.json
-
-# jest
 Jest (Administration):
     stage: unit
-    timeout: 1h 00m
+    needs: []
     services:
         -   name: mariadb:10.3.28
             alias: mysql
@@ -263,12 +301,15 @@ Jest (Administration):
 
 Jest (Storefront):
     stage: unit
-    timeout: 1h 00m
+    needs: []
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:
         -   name: mariadb:10.3.28
             alias: mysql
+    rules:
+        - changes:
+            - 'src/Storefront/Resources/app/storefront/**/*'
     script:
         - ./psh.phar init
         - ./psh.phar storefront:install-dependencies
@@ -278,28 +319,13 @@ Jest (Storefront):
         reports:
             junit: development/build/artifacts/storefront.junit.xml
 
-# snippets
-
-Validate snippets:
-    only:
-        changes:
-            - src/**/snippet/**/*.json
-    stage: unit
-    timeout: 1h 00m
-    services:
-        -   name: mariadb:10.3.28
-            alias: mysql
-    script:
-        - ./psh.phar init
-        - php bin/console snippets:validate
-
 # Stage: E2E
 
 E2E:
-    timeout: 2h 00m
     stage: E2E
-    needs: [ESLint (Administration), ESLint (Storefront)]
+    needs: []
     dependencies: []
+    timeout: 2h 00m
     services:
         -   name: docker:18.09.7-dind
             alias: docker
@@ -344,24 +370,36 @@ E2E:
         -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
         -   if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline"'
         -   if: '$SKIP_ON_MR != "true" && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/)'
-        -   if: '$SKIP_ON_MR == "true" && $CI_PIPELINE_SOURCE == "merge_request_event"'
-            when: manual
-            allow_failure: true
     parallel:
         matrix:
-            # all test cases in chrome
+            # all test cases in chrome except major are executed on each MR
             -   SECTION: 'Storefront'
                 TEST_DIRECTORY: "cypress/integration/**/**/*"
                 BROWSER: 'chrome'
-                FEATURE_ALL: ["false", "minor", "major"]
+                FEATURE_ALL: ["false", "minor"]
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
                     - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
                     - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
                 BROWSER: 'chrome'
-                FEATURE_ALL: ["false", "minor", "major"]
+                FEATURE_ALL: ["false", "minor"]
                 cypress_usePercy: 'false'
+            # major
+            -   SECTION: 'Storefront'
+                TEST_DIRECTORY: "cypress/integration/**/**/*"
+                BROWSER: 'chrome'
+                FEATURE_ALL: "major"
+                cypress_usePercy: 'false'
+                SKIP_ON_MR: 'true'
+            -   SECTION: 'Administration'
+                TEST_DIRECTORY:
+                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
+                BROWSER: 'chrome'
+                FEATURE_ALL: "major"
+                cypress_usePercy: 'false'
+                SKIP_ON_MR: 'true'
             # firefox
             -   SECTION: 'Storefront'
                 TEST_DIRECTORY: "cypress/integration/**/**/*"
@@ -385,36 +423,9 @@ E2E:
                 cypress_usePercy: $CYPRESS_PERCY_USAGE
                 SKIP_ON_MR: 'true'
 
-# Stage: build
-
-Component Library:
-    only:
-        changes:
-            - src/Administration/**/*
-            - src/Storefront/**/*
-    stage: Build
-    image: node:10.8
-    before_script: []
-    dependencies: []
-    needs: [Jest (Administration), Jest (Storefront)]
-    variables:
-        PROJECT_ROOT: $CI_PROJECT_DIR
-    environment:
-        name: Component Library
-        url: https://component-library.shopware.com
-    script:
-        - npm install --prefix src/Administration/Resources/app/administration
-        - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
-        - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
-        - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
-    artifacts:
-        paths:
-            - build/artifacts/component-library/
-
-# Stage: Generate docs
-
 Symfony security check:
-    stage: unit
+    stage: security
+    needs: []
     image: shopware/development:7.4-composer-2
     script:
         - composer install --no-interaction --no-scripts
@@ -427,11 +438,12 @@ Symfony security check:
         - ./local-php-security-checker --path=vendor/shopware/platform/src/Recovery
 
 NPM security check:
-    stage: Security
+    stage: security
     image: shopware/development:7.4-composer-2
     before_script: []
     dependencies: []
     allow_failure: true
+    when: manual
     script:
         - cd src/Administration/Resources/app/administration
         - npm i
@@ -442,28 +454,8 @@ NPM security check:
         - npm install --save-dev audit-ci
         - node node_modules/.bin/audit-ci --moderate --allowlist dot-prop http-proxy acorn jquery elliptic
 
-# Stage: deploy
-
-Upload Component Library:
-    stage: Deploy
-    image: python:latest
-    before_script: []
-    only:
-        refs:
-            - trunk
-        variables:
-            - $CI_PIPELINE_SOURCE == "schedule"
-    dependencies:
-        - Component Library
-    script:
-        - pip install awscli
-        - cd build/artifacts/component-library
-        - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
-        - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
-    interruptible: false
-
 sonarqube-check:
-    stage: Security
+    stage: security
     image:
         name: sonarsource/sonar-scanner-cli:latest
         entrypoint: [""]
@@ -486,3 +478,48 @@ sonarqube-check:
     only:
         - trunk
         - merge_requests
+
+# Stage: build
+
+Component Library:
+    stage: build
+    only:
+        changes:
+            - src/Administration/**/*
+            - src/Storefront/**/*
+    image: node:10.8
+    before_script: []
+    dependencies: []
+    variables:
+        PROJECT_ROOT: $CI_PROJECT_DIR
+    environment:
+        name: Component Library
+        url: https://component-library.shopware.com
+    script:
+        - npm install --prefix src/Administration/Resources/app/administration
+        - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
+        - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
+        - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
+    artifacts:
+        paths:
+            - build/artifacts/component-library/
+
+# Stage: deploy
+
+Upload Component Library:
+    stage: deploy
+    image: python:latest
+    before_script: []
+    only:
+        refs:
+            - trunk
+        variables:
+            - $CI_PIPELINE_SOURCE == "schedule"
+    dependencies:
+        - Component Library
+    script:
+        - pip install awscli
+        - cd build/artifacts/component-library
+        - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
+        - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
+    interruptible: false

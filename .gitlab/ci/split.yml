@@ -1,5 +1,5 @@
 Repository Split:
-    stage: Deploy
+    stage: deploy
     image: debian:buster-slim
     before_script: []
     dependencies: []

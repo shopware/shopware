@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 /**
- * @internal (flag:FEATURE_NEXT_14357)
+ * @internal only for use by the app-system
  */
 class Payments extends XmlElement
 {

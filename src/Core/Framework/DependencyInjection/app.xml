@@ -81,7 +81,6 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
@@ -100,7 +99,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateStateService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
@@ -113,7 +112,6 @@
 
         <service id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService">
             <argument type="service" id="payment_method.repository"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Payload\PayloadService">
@@ -123,28 +121,22 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="string">%env(APP_URL)%</argument>
             <argument>%kernel.shopware_version%</argument>
-
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler" abstract="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
-
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler"
                  parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler"
                  parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
             <tag name="shopware.payment.method.async"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService">
@@ -170,7 +162,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -370,7 +362,6 @@
 
         <service id="Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14357"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition">

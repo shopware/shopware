@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 /**
- * @internal (flag:FEATURE_NEXT_14357) only for use by the app-system
+ * @internal only for use by the app-system
  */
 class AppPaymentMethodEntity extends Entity
 {

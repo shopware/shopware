@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Payment\Response;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
 /**
- * @internal (flag:FEATURE_NEXT_14357) only for use by the app-system
+ * @internal only for use by the app-system
  */
 class AsyncFinalizeResponse extends AbstractResponse
 {

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\App\Payment\Payload\PayloadService;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 /**
- * @internal (flag:FEATURE_NEXT_14357) only for use by the app-system
+ * @internal only for use by the app-system
  */
 abstract class AbstractAppPaymentHandler
 {

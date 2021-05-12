@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
- * @internal (flag:FEATURE_NEXT_14357) only for use by the app-system
+ * @internal only for use by the app-system
  */
 class PayloadService
 {

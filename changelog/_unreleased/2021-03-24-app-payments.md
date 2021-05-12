@@ -1,7 +1,6 @@
 ---
 title: Add app payments
 issue: NEXT-14357
-flag: FEATURE_NEXT_14357
 author: Max Stegmeyer
 ---
 

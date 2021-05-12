@@ -60,10 +60,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private WebhookPersister $webhookPersister;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14357) make persister not nullable on removal
-     */
-    private ?PaymentMethodPersister $paymentMethodPersister;
+    private PaymentMethodPersister $paymentMethodPersister;
 
     /**
      * @internal (flag:FEATURE_NEXT_14408) make persister not nullable on removal
@@ -87,7 +84,7 @@ class AppLifecycle extends AbstractAppLifecycle
         ActionButtonPersister $actionButtonPersister,
         TemplatePersister $templatePersister,
         WebhookPersister $webhookPersister,
-        ?PaymentMethodPersister $paymentMethodPersister,
+        PaymentMethodPersister $paymentMethodPersister,
         ?CmsBlockPersister $cmsBlockPersister,
         AbstractAppLoader $appLoader,
         EventDispatcherInterface $eventDispatcher,
@@ -212,10 +209,7 @@ class AppLifecycle extends AbstractAppLifecycle
         if ($app->getAppSecret()) {
             $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
             $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
-            if (Feature::isActive('FEATURE_NEXT_14357') && $this->paymentMethodPersister !== null) {
-                // on removal of FEATURE_NEXT_14357: Make paymentMethodPersister not nullable
-                $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
-            }
+            $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
 

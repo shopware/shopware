@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 
 class PaymentHandlerRegistryTest extends TestCase
@@ -36,7 +35,6 @@ class PaymentHandlerRegistryTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14357', $this);
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $this->paymentHandlerRegistry = $this->getContainer()->get(PaymentHandlerRegistry::class);
 

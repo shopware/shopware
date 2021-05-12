@@ -4,14 +4,11 @@ namespace Shopware\Core\Framework\Test\App\Manifest\Xml\CustomFieldTypes;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Feature;
 
 class PaymentMethodTest extends TestCase
 {
     public function testFromXml(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14357', $this);
-
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test/manifest.xml');
 
         static::assertNotNull($manifest->getPayments());

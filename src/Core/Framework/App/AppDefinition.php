@@ -108,13 +108,8 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('actionButtons', ActionButtonDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('templates', TemplateDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('webhooks', WebhookDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('paymentMethods', AppPaymentMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            $fields->add(
-                (new OneToManyAssociationField('paymentMethods', AppPaymentMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),
-            );
-        }
 
         if (Feature::isActive('FEATURE_NEXT_14408')) {
             $fields->add(

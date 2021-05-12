@@ -114,11 +114,6 @@ shopware:
               major: false
               description: "Improve nested LineItem support"
               # issue: NEXT-12635
-            - name: FEATURE_NEXT_14357
-              default: false
-              major: false
-              description: "App System 3.0 - Payments"
-              # issue: NEXT-14357
             - name: FEATURE_NEXT_14363
               default: false
               major: false

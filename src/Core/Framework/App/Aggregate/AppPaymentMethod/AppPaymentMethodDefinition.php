@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_14357) only for use by the app-system
+ * @internal only for use by the app-system
  */
 class AppPaymentMethodDefinition extends EntityDefinition
 {
@@ -39,7 +39,6 @@ class AppPaymentMethodDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        // maybe adjust on removal of FEATURE_NEXT_14357
         return '6.4.1.0';
     }
 

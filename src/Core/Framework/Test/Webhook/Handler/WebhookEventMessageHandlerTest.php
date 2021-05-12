@@ -72,11 +72,13 @@ class WebhookEventMessageHandlerTest extends TestCase
         (($this->webhookEventMessageHandler)(new WebhookEventMessage(['body' => 'payload'], $appId, $webhookId, '6.4', 'https://test.com')));
 
         $timestamp = time();
-
         $request = $this->getLastRequest();
-        static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
-        static::assertEquals($body, json_encode(['body' => 'payload', 'timestamp' => $timestamp]));
+        $body = json_decode($body);
+
+        static::assertEquals('POST', $request->getMethod());
+        static::assertEquals($body->body, 'payload');
+        static::assertGreaterThanOrEqual($body->timestamp, $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
     }

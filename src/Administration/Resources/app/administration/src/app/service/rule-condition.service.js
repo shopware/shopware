@@ -95,6 +95,14 @@ export default function createConditionService() {
         isNet: [
             operators.gross,
             operators.net
+        ],
+        zipCode: [
+            operators.isOneOf,
+            operators.greaterThan,
+            operators.greaterThanEquals,
+            operators.lowerThan,
+            operators.lowerThanEquals,
+            operators.isNoneOf
         ]
     };
 

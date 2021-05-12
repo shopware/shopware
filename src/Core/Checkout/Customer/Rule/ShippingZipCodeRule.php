@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -39,12 +40,32 @@ class ShippingZipCodeRule extends Rule
             return false;
         }
 
+        $zipCode = trim($location->getZipCode());
+
+        if (!$zipCode || !$this->zipCodes) {
+            return false;
+        }
+
+        $compareZipCode = $this->zipCodes[0];
+
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return \in_array($location->getZipcode(), $this->zipCodes, true);
+                return \in_array($zipCode, $this->zipCodes, true);
 
             case self::OPERATOR_NEQ:
-                return !\in_array($location->getZipcode(), $this->zipCodes, true);
+                return !\in_array($zipCode, $this->zipCodes, true);
+
+            case self::OPERATOR_GTE:
+                return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThanOrEquals((float) $zipCode, (float) $compareZipCode);
+
+            case self::OPERATOR_LTE:
+                return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThanOrEquals((float) $zipCode, (float) $compareZipCode);
+
+            case self::OPERATOR_GT:
+                return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThan((float) $zipCode, (float) $compareZipCode);
+
+            case self::OPERATOR_LT:
+                return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThan((float) $zipCode, (float) $compareZipCode);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
@@ -55,7 +76,10 @@ class ShippingZipCodeRule extends Rule
     {
         return [
             'zipCodes' => [new NotBlank(), new ArrayOfType('string')],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'operator' => [
+                new NotBlank(),
+                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_GT, self::OPERATOR_LT]),
+            ],
         ];
     }
 

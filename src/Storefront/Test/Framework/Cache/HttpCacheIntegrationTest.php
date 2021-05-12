@@ -63,7 +63,7 @@ class HttpCacheIntegrationTest extends TestCase
     {
         $kernel = $this->getCacheKernel();
 
-        $request = $this->createRequest();
+        $request = $this->createRequest($_SERVER['APP_URL']);
 
         $response = $kernel->handle($request);
         static::assertTrue($response->headers->has('x-symfony-cache'));
@@ -77,7 +77,7 @@ class HttpCacheIntegrationTest extends TestCase
     {
         $kernel = $this->getCacheKernel();
 
-        $request = $this->createRequest();
+        $request = $this->createRequest($_SERVER['APP_URL']);
         $request->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'a');
 
         $response = $kernel->handle($request);

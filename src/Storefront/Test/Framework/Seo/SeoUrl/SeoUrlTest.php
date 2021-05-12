@@ -517,7 +517,6 @@ class SeoUrlTest extends TestCase
             'seoUrls' => [
                 [
                     'id' => $seoUrlId,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
                     'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
                     'pathInfo' => $pathInfo,
                     'seoPathInfo' => 'awesome',

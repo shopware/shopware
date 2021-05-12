@@ -12,6 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -78,6 +79,7 @@ class ProductExportGenerateCommandTest extends TestCase
 
         static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->has($filePath));
+
         static::assertCount(4, $csvRows);
     }
 
@@ -94,7 +96,11 @@ class ProductExportGenerateCommandTest extends TestCase
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first();
+        $criteria = new Criteria();
+        $criteria->addAssociation('salesChannel');
+        $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+
+        return $repository->search($criteria, $this->context)->first();
     }
 
     private function getSalesChannelDomainId(): string

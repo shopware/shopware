@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Seo;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,12 +40,15 @@ class HreflangResolverTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->cleanDefaultSalesChannelDomain();
+
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create('', Defaults::SALES_CHANNEL);
 
         $this->hreflangResolver = $this->getContainer()->get(HreflangLoaderInterface::class);
+
         $this->createProducts();
     }
 
@@ -322,6 +327,15 @@ class HreflangResolverTest extends TestCase
         return new HreflangLoaderParameter('frontend.detail.page', [
             'productId' => $productId,
         ], $this->salesChannelContext);
+    }
+
+    private function cleanDefaultSalesChannelDomain(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->delete(SalesChannelDomainDefinition::ENTITY_NAME, [
+            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+        ]);
     }
 
     private function createProducts(): void

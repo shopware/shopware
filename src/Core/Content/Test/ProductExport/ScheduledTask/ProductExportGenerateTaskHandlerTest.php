@@ -12,6 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -184,10 +185,13 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first();
+        $criteria = new Criteria();
+        $criteria->addAssociation('salesChannel');
+        $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+
+        return $repository->search($criteria, $this->context)->first();
     }
 
     private function getSalesChannelDomainId(): string

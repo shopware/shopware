@@ -42,6 +42,11 @@ class MaintenanceModeResolver
                 || $this->isClientAllowed($request));
     }
 
+    public function isMaintenanceRequest(Request $request): bool
+    {
+        return $this->isMaintenanceModeActive($request) && $this->isClientAllowed($request);
+    }
+
     private function isSalesChannelRequest(?Request $master): bool
     {
         if (!$master) {

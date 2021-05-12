@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 
 /**
- * @internal (flag:FEATURE_NEXT_14357) only for use by the app-system
+ * @internal only for use by the app-system
  */
 interface PaymentPayloadInterface extends \JsonSerializable
 {

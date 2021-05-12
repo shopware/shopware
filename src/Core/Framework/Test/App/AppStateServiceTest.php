@@ -13,7 +13,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\ThemeService;
@@ -127,9 +126,7 @@ class AppStateServiceTest extends TestCase
     {
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('templates');
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            $criteria->addAssociation('paymentMethods.paymentMethod');
-        }
+        $criteria->addAssociation('paymentMethods.paymentMethod');
 
         /** @var AppEntity|null $app */
         $app = $this->appRepository->search($criteria, $this->context)->first();
@@ -148,10 +145,6 @@ class AppStateServiceTest extends TestCase
 
     private function assertDefaultPaymentMethods(AppEntity $app): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_14357')) {
-            return;
-        }
-
         static::assertCount(2, $app->getPaymentMethods());
         foreach ($app->getPaymentMethods() as $appPaymentMethod) {
             $paymentMethod = $appPaymentMethod->getPaymentMethod();

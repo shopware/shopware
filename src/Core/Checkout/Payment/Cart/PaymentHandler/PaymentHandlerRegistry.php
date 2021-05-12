@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
-use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
 class PaymentHandlerRegistry
@@ -29,7 +28,7 @@ class PaymentHandlerRegistry
     }
 
     /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_14357) Will be removed. Use getHandlerForPaymentMethod instead.
+     * @deprecated tag:v6.5.0 Will be removed. Use getHandlerForPaymentMethod instead.
      *
      * @return AsynchronousPaymentHandlerInterface|SynchronousPaymentHandlerInterface|null
      */
@@ -47,7 +46,7 @@ class PaymentHandlerRegistry
      */
     public function getHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod)
     {
-        if ($paymentMethod->getAppPaymentMethod() !== null && Feature::isActive('FEATURE_NEXT_14357')) {
+        if ($paymentMethod->getAppPaymentMethod() !== null) {
             return $this->resolveAppHandler($paymentMethod);
         }
 
@@ -61,7 +60,7 @@ class PaymentHandlerRegistry
     }
 
     /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_14357) Will be removed. Use getSyncHandlerForPaymentMethod instead.
+     * @deprecated tag:v6.5.0 Will be removed. Use getSyncHandlerForPaymentMethod instead.
      */
     public function getSyncHandler(string $handlerId): ?SynchronousPaymentHandlerInterface
     {
@@ -84,7 +83,7 @@ class PaymentHandlerRegistry
     }
 
     /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_14357) Will be removed. Use getAsyncHandlerForPaymentMethod instead.
+     * @deprecated tag:v6.5.0 Will be removed. Use getAsyncHandlerForPaymentMethod instead.
      */
     public function getAsyncHandler(string $handlerId): ?AsynchronousPaymentHandlerInterface
     {

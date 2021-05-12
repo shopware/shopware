@@ -10,7 +10,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\Payments;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -62,8 +61,6 @@ class Manifest
     private $cookies;
 
     /**
-     * @internal (flag:FEATURE_NEXT_14357)
-     *
      * @var Payments|null
      */
     private $payments;
@@ -110,12 +107,8 @@ class Manifest
             $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
             $cookies = $doc->getElementsByTagName('cookies')->item(0);
             $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
-            if (Feature::isActive('FEATURE_NEXT_14357')) {
-                $payments = $doc->getElementsByTagName('payments')->item(0);
-                $payments = $payments === null ? null : Payments::fromXml($payments);
-            } else {
-                $payments = null;
-            }
+            $payments = $doc->getElementsByTagName('payments')->item(0);
+            $payments = $payments === null ? null : Payments::fromXml($payments);
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
@@ -168,9 +161,6 @@ class Manifest
         return $this->cookies;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14357)
-     */
     public function getPayments(): ?Payments
     {
         return $this->payments;

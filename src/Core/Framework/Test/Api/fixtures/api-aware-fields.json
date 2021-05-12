@@ -17,6 +17,8 @@
     "app_action_button_translation.updatedAt",
     "app_action_button_translation.appActionButtonId",
     "app_action_button_translation.languageId",
+    "app_payment_method.createdAt",
+    "app_payment_method.updatedAt",
     "app_template.createdAt",
     "app_template.updatedAt",
     "custom_field.createdAt",

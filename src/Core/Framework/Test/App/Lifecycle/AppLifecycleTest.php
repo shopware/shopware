@@ -327,36 +327,30 @@ class AppLifecycleTest extends TestCase
                     'active' => false,
                 ],
             ],
-        ]], Context::createDefaultContext());
-
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            $this->appRepository->update([[
-                'id' => $id,
-                'paymentMethods' => [
-                    [
-                        'paymentMethod' => [
-                            'handlerIdentifier' => 'app\\test\\myMethod',
-                            'name' => 'My method',
-                            'active' => false,
-                            'media' => [
-                                'private' => true,
-                            ],
+            'paymentMethods' => [
+                [
+                    'paymentMethod' => [
+                        'handlerIdentifier' => 'app\\test\\myMethod',
+                        'name' => 'My method',
+                        'active' => false,
+                        'media' => [
+                            'private' => true,
                         ],
-                        'appName' => 'test',
-                        'identifier' => 'myMethod',
                     ],
-                    [
-                        'paymentMethod' => [
-                            'handlerIdentifier' => 'app\\test\\toBeRemoved',
-                            'name' => 'This method shall be removed',
-                            'active' => false,
-                        ],
-                        'appName' => 'test',
-                        'identifier' => 'toBeRemoved',
-                    ],
+                    'appName' => 'test',
+                    'identifier' => 'myMethod',
                 ],
-            ]], Context::createDefaultContext());
-        }
+                [
+                    'paymentMethod' => [
+                        'handlerIdentifier' => 'app\\test\\toBeRemoved',
+                        'name' => 'This method shall be removed',
+                        'active' => false,
+                    ],
+                    'appName' => 'test',
+                    'identifier' => 'toBeRemoved',
+                ],
+            ],
+        ]], Context::createDefaultContext());
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
@@ -482,36 +476,30 @@ class AppLifecycleTest extends TestCase
                     'active' => true,
                 ],
             ],
-        ]], Context::createDefaultContext());
-
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            $this->appRepository->update([[
-                'id' => $id,
-                'paymentMethods' => [
-                    [
-                        'paymentMethod' => [
-                            'handlerIdentifier' => 'app\\test\\myMethod',
-                            'name' => 'My method',
-                            'active' => true,
-                            'media' => [
-                                'private' => false,
-                            ],
+            'paymentMethods' => [
+                [
+                    'paymentMethod' => [
+                        'handlerIdentifier' => 'app\\test\\myMethod',
+                        'name' => 'My method',
+                        'active' => true,
+                        'media' => [
+                            'private' => false,
                         ],
-                        'appName' => 'test',
-                        'identifier' => 'myMethod',
                     ],
-                    [
-                        'paymentMethod' => [
-                            'handlerIdentifier' => 'app\\test\\toBeRemoved',
-                            'name' => 'This method shall be removed',
-                            'active' => true,
-                        ],
-                        'appName' => 'test',
-                        'identifier' => 'toBeRemoved',
-                    ],
+                    'appName' => 'test',
+                    'identifier' => 'myMethod',
                 ],
-            ]], Context::createDefaultContext());
-        }
+                [
+                    'paymentMethod' => [
+                        'handlerIdentifier' => 'app\\test\\toBeRemoved',
+                        'name' => 'This method shall be removed',
+                        'active' => true,
+                    ],
+                    'appName' => 'test',
+                    'identifier' => 'toBeRemoved',
+                ],
+            ],
+        ]], Context::createDefaultContext());
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
@@ -623,9 +611,7 @@ class AppLifecycleTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('actionButtons');
         $criteria->addAssociation('webhooks');
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            $criteria->addAssociation('paymentMethods');
-        }
+        $criteria->addAssociation('paymentMethods');
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
@@ -1082,10 +1068,6 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultPaymentMethods(string $appId): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_14357')) {
-            return;
-        }
-
         /** @var EntityRepositoryInterface $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
 

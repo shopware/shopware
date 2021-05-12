@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Aggregate\AppPaymentMethod;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_14357) only for use by the app-system
+ * @internal only for use by the app-system
  *
  * @method void                               add(AppPaymentMethodEntity $entity)
  * @method void                               set(string $key, AppPaymentMethodEntity $entity)

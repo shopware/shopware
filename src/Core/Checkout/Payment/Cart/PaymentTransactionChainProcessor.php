@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -74,13 +73,11 @@ class PaymentTransactionChainProcessor
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('orderCustomer.customer');
         $criteria->addAssociation('orderCustomer.salutation');
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            $criteria->addAssociation('transactions.paymentMethod.appPaymentMethod.app');
-            $criteria->addAssociation('language');
-            $criteria->addAssociation('currency');
-            $criteria->addAssociation('deliveries.shippingOrderAddress.country');
-            $criteria->addAssociation('billingAddress.country');
-        }
+        $criteria->addAssociation('transactions.paymentMethod.appPaymentMethod.app');
+        $criteria->addAssociation('language');
+        $criteria->addAssociation('currency');
+        $criteria->addAssociation('deliveries.shippingOrderAddress.country');
+        $criteria->addAssociation('billingAddress.country');
         $criteria->addAssociation('lineItems');
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 

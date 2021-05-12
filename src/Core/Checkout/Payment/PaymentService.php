@@ -23,7 +23,6 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -219,9 +218,7 @@ class PaymentService
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): ?AsynchronousPaymentHandlerInterface
     {
         $criteria = new Criteria([$paymentMethodId]);
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            $criteria->addAssociation('appPaymentMethod.app');
-        }
+        $criteria->addAssociation('appPaymentMethod.app');
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $context);
 
         /** @var PaymentMethodEntity|null $paymentMethod */
@@ -240,9 +237,7 @@ class PaymentService
     {
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->addAssociation('order');
-        if (Feature::isActive('FEATURE_NEXT_14357')) {
-            $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
-        }
+        $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
         /** @var OrderTransactionEntity|null $orderTransaction */
         $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 

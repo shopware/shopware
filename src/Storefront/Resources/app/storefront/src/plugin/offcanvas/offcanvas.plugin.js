@@ -153,7 +153,7 @@ class OffCanvasSingleton {
 
         window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.goBackInHistory.bind(this)));
+        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
     }
 
     /**

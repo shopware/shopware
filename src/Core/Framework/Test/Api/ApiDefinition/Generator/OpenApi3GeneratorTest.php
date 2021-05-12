@@ -120,8 +120,8 @@ class OpenApi3GeneratorTest extends TestCase
         static::assertArrayHasKey('id', $properties);
         static::assertArrayHasKey('type', $properties['id']);
         static::assertEquals('string', $properties['id']['type']);
-        static::assertArrayHasKey('format', $properties['id']);
-        static::assertEquals('uuid', $properties['id']['format']);
+        static::assertArrayHasKey('pattern', $properties['id']);
+        static::assertEquals('^[0-9a-f]{32}$', $properties['id']['pattern']);
         static::assertArrayHasKey('stringField', $properties);
         static::assertArrayHasKey('type', $properties['stringField']);
         static::assertEquals('string', $properties['stringField']['type']);

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -49,6 +50,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
+     * @Entity("product")
      * @OA\Post(
      *      path="/search",
      *      summary="Search for products",

@@ -193,6 +193,9 @@ class OpenApiSchemaBuilder
                             new Schema([
                                 'description' => 'A `self` member, whose value is a URL for the relationship itself (a "relationship URL"). This URL allows the client to directly manipulate the relationship. For example, it would allow a client to remove an `author` from an `article` without deleting the people resource itself.',
                                 'type' => 'array',
+                                'items' => [
+                                    'type' => 'object',
+                                ],
                             ]),
                             new Schema([
                                 'ref' => '#/components/schemas/link',

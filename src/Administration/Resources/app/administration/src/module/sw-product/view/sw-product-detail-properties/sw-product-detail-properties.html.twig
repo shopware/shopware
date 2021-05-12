@@ -35,48 +35,48 @@
         v-else
         class="sw-product-detail-properties__empty-state-card"
         :title="$tc('sw-product.properties.cardTitleProperties')"
-    >
-        {% block sw_product_detail_properties_empty_state %}
+    >        {% block sw_product_detail_properties_empty_state %}
         <div class="sw-product-detail-properties__empty-state">
+            <template v-if="propertiesAvailable">
+                {% block sw_product_detail_properties_empty_state_image %}
+                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                {% endblock %}
 
-            {% block sw_product_detail_properties_empty_state_image %}
-            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
-            {% endblock %}
+                {% block sw_product_detail_properties_empty_state_text %}
+                <template v-if="isChild">
+                    {% block sw_product_detail_properties_empty_state_text_child %}
+                    <template v-if="isInherited">
+                        {% block sw_product_detail_properties_empty_state_text_inherited %}
+                        <p>{{ $tc('sw-product.properties.propertiesInherited') }}</p>
 
-            {% block sw_product_detail_properties_empty_state_text %}
-            <template v-if="isChild">
-                {% block sw_product_detail_properties_empty_state_text_child %}
-                <template v-if="isInherited">
-                    {% block sw_product_detail_properties_empty_state_text_inherited %}
-                    <p>{{ $tc('sw-product.properties.propertiesInherited') }}</p>
-                    {% block sw_product_detail_properties_empty_state_text_link %}
-                    <router-link
-                        v-if="isInherited"
-                        :to="{ name: 'sw.product.detail.specifications', params: { id: product.parentId } }"
-                        class="sw-product-detail-properties__parent-properties-link"
-                    >
-                        {{ $tc('sw-product.properties.linkPropertiesOfParent') }}
-                        <sw-icon
-                            name="default-arrow-simple-right"
-                            small
-                        />
-                    </router-link>
-                    {% endblock %}
+                        {% block sw_product_detail_properties_empty_state_text_link %}
+                        <router-link
+                            v-if="isInherited"
+                            :to="{ name: 'sw.product.detail.specifications', params: { id: product.parentId } }"
+                            class="sw-product-detail-properties__parent-properties-link"
+                        >                        {{ $tc('sw-product.properties.linkPropertiesOfParent') }}
+                            <sw-icon
+                                name="default-arrow-simple-right"
+                                small
+                            />
+                        </router-link>
+                        {% endblock %}
+                        {% endblock %}
+                    </template>
+                    <template v-else>
+                        {% block sw_product_detail_properties_empty_state_text_not_inherited %}
+                        <p>{{ $tc('sw-product.properties.propertiesNotInherited') }}</p>
+                        {% endblock %}
+                    </template>
                     {% endblock %}
                 </template>
-                <template v-else>
-                    {% block sw_product_detail_properties_empty_state_text_not_inherited %}
-                    <p>{{ $tc('sw-product.properties.propertiesNotInherited') }}</p>
+                <div v-else>
+                    {% block sw_product_detail_properties_empty_state_text_empty %}
+                    <p>{{ $tc('sw-product.properties.propertiesNotExisting') }}</p>
                     {% endblock %}
-                </template>
+                </div>
                 {% endblock %}
             </template>
-            <template v-else>
-                {% block sw_product_detail_properties_empty_state_text_empty %}
-                <p>{{ $tc('sw-product.properties.propertiesNotExisting') }}</p>
-                {% endblock %}
-            </template>
-            {% endblock %}
 
             {% block sw_product_detail_properties_empty_state__inherit_switch %}
             <template v-if="isChild">
@@ -112,6 +112,7 @@
             {% block sw_product_detail_properties_empty %}
             <sw-empty-state
                 v-else
+                :absolute="false"
                 :title="$tc('sw-product.properties.emptyStateNoOptionsTitle')"
                 :subline="$tc('sw-product.properties.emptyStateNoOptionsDescription')"
             />

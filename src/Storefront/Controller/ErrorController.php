@@ -7,6 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoaderInterface;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,18 +43,22 @@ class ErrorController extends StorefrontController
      */
     private $systemConfigService;
 
+    private FooterPageletLoaderInterface $footerPageletLoader;
+
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
         Session $session,
         HeaderPageletLoaderInterface $headerPageletLoader,
         SystemConfigService $systemConfigService,
-        ErrorPageLoaderInterface $errorPageLoader
+        ErrorPageLoaderInterface $errorPageLoader,
+        FooterPageletLoaderInterface $footerPageletLoader
     ) {
         $this->errorTemplateResolver = $errorTemplateResolver;
         $this->session = $session;
         $this->headerPageletLoader = $headerPageletLoader;
         $this->errorPageLoader = $errorPageLoader;
         $this->systemConfigService = $systemConfigService;
+        $this->footerPageletLoader = $footerPageletLoader;
     }
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
@@ -82,7 +87,9 @@ class ErrorController extends StorefrontController
 
                 if (!$request->isXmlHttpRequest()) {
                     $header = $this->headerPageletLoader->load($request, $context);
+                    $footer = $this->footerPageletLoader->load($request, $context);
                     $errorTemplate->setHeader($header);
+                    $errorTemplate->setFooter($footer);
                 }
 
                 $response = $this->renderStorefront($errorTemplate->getTemplateName(), ['page' => $errorTemplate]);

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -14,7 +15,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent
+class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware
 {
     public const EVENT_NAME = 'checkout.customer.login';
 
@@ -75,5 +76,13 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesC
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class))
             ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING));
+    }
+
+    /**
+     * @internal (FEATURE_NEXT_8225)
+     */
+    public function getCustomerId(): string
+    {
+        return $this->getCustomer()->getId();
     }
 }

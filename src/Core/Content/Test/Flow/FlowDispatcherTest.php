@@ -95,7 +95,7 @@ class FlowDispatcherTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => FlowAction::ADD_TAG,
                     'config' => [
                         'tagId' => $this->ids->get('tag_id'),
                     ],
@@ -106,7 +106,7 @@ class FlowDispatcherTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => FlowAction::ADD_TAG,
                     'config' => [
                         'tagId' => $this->ids->get('tag_id2'),
                     ],

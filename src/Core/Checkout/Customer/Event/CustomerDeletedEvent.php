@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerDeletedEvent extends Event implements MailActionInterface, ShopwareSalesChannelEvent
+class CustomerDeletedEvent extends Event implements MailActionInterface, ShopwareSalesChannelEvent, CustomerAware
 {
     public const EVENT_NAME = 'checkout.customer.deleted';
 
@@ -78,5 +79,13 @@ class CustomerDeletedEvent extends Event implements MailActionInterface, Shopwar
     {
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class));
+    }
+
+    /**
+     * @internal (FEATURE_NEXT_8225)
+     */
+    public function getCustomerId(): string
+    {
+        return $this->getCustomer()->getId();
     }
 }

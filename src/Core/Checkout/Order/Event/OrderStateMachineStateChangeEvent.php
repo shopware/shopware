@@ -10,10 +10,11 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class OrderStateMachineStateChangeEvent extends Event implements MailActionInterface, SalesChannelAware
+class OrderStateMachineStateChangeEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware
 {
     /**
      * @var OrderEntity
@@ -81,5 +82,13 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @internal (FEATURE_NEXT_8225)
+     */
+    public function getOrderId(): string
+    {
+        return $this->getOrder()->getId();
     }
 }

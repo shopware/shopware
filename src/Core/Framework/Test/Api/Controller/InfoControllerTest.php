@@ -6,9 +6,11 @@ use Enqueue\Container\Container;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Flow\Action\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Kernel;
@@ -140,6 +142,24 @@ class InfoControllerTest extends TestCase
             ],
         ];
 
+        if (Feature::isActive('FEATURE_NEXT_8225')) {
+            $expected[0]['orderAware'] = false;
+            $expected[0]['customerAware'] = true;
+            $expected[0]['webhookAware'] = true;
+            $expected[0]['userAware'] = false;
+            $expected[0]['salesChannelAware'] = true;
+            $expected[1]['orderAware'] = true;
+            $expected[1]['customerAware'] = false;
+            $expected[1]['webhookAware'] = true;
+            $expected[1]['userAware'] = false;
+            $expected[1]['salesChannelAware'] = true;
+            $expected[2]['orderAware'] = true;
+            $expected[2]['customerAware'] = false;
+            $expected[2]['webhookAware'] = true;
+            $expected[2]['userAware'] = false;
+            $expected[2]['salesChannelAware'] = true;
+        }
+
         foreach ($expected as $event) {
             $actualEvents = array_values(array_filter($response, function ($x) use ($event) {
                 return $x['name'] === $event['name'];
@@ -154,6 +174,10 @@ class InfoControllerTest extends TestCase
     {
         $kernelMock = $this->createMock(Kernel::class);
         $packagesMock = $this->createMock(Packages::class);
+        $eventCollector = null;
+        if (Feature::isActive('FEATURE_NEXT_8225')) {
+            $eventCollector = $this->createMock(FlowActionCollector::class);
+        }
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             new ParameterBag([
@@ -165,6 +189,7 @@ class InfoControllerTest extends TestCase
             $kernelMock,
             $packagesMock,
             $this->createMock(BusinessEventCollector::class),
+            $eventCollector,
             true,
             []
         );
@@ -194,5 +219,41 @@ class InfoControllerTest extends TestCase
             'bundles/somefunctionality/administration/js/some-functionality-bundle.js',
             $jsFilePath
         );
+    }
+
+    public function testFlowActionsRoute(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        $url = '/api/_info/actions.json';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        static::assertJson($client->getResponse()->getContent());
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $expected = [
+            [
+                'name' => 'action.add.tag',
+                'requirements' => [
+                    'orderAware' => "Shopware\Core\Framework\Event\OrderAware",
+                    'customerAware' => "Shopware\Core\Framework\Event\CustomerAware",
+                    'webhookAware' => "Shopware\Core\Framework\Event\WebhookAware",
+                    'salesChannelAware' => "Shopware\Core\Framework\Event\SalesChannelAware",
+                ],
+                'extensions' => [],
+            ],
+        ];
+
+        foreach ($expected as $action) {
+            $actualActions = array_values(array_filter($response, function ($x) use ($action) {
+                return $x['name'] === $action['name'];
+            }));
+            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertCount(1, $actualActions);
+            static::assertEquals($action, $actualActions[0]);
+        }
     }
 }

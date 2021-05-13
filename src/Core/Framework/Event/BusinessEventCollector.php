@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -72,6 +73,21 @@ class BusinessEventCollector
         $name = $name ?? $instance->getName();
         if (!$name) {
             return null;
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_8225')) {
+            return new BusinessEventDefinition(
+                $name,
+                $class,
+                $instance instanceof MailActionInterface,
+                $instance instanceof LogAwareBusinessEventInterface,
+                $instance instanceof SalesChannelAware,
+                $instance::getAvailableData()->toArray(),
+                $instance instanceof OrderAware,
+                $instance instanceof CustomerAware,
+                $instance instanceof WebhookAware,
+                $instance instanceof UserAware,
+            );
         }
 
         return new BusinessEventDefinition(

@@ -30,15 +30,27 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\AddOrderTagAction">
-            <argument type="service" id="order_tag.repository" />
-            <tag name="kernel.event_subscriber" />
-            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
-        </service>
-
         <service id="Shopware\Core\Content\Flow\FlowCacheClearer">
             <argument type="service" id="Shopware\Core\Content\Flow\FlowDispatcher"/>
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Action\AddTagAction">
+            <tag name="kernel.event_subscriber" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+            <tag name="flow.action" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Action\SetOrderStateAction">
+            <tag name="kernel.event_subscriber" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+            <tag name="flow.action" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Action\FlowActionCollector">
+            <argument type="tagged" tag="flow.action" />
+            <argument type="service" id="event_dispatcher"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 

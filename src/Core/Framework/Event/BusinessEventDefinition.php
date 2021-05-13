@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 class BusinessEventDefinition extends Struct
@@ -36,13 +37,37 @@ class BusinessEventDefinition extends Struct
      */
     protected $salesChannelAware;
 
+    /**
+     * @internal (FEATURE_NEXT_8225)
+     */
+    protected ?bool $orderAware;
+
+    /**
+     * @internal (FEATURE_NEXT_8225)
+     */
+    protected ?bool $customerAware;
+
+    /**
+     * @internal (FEATURE_NEXT_8225)
+     */
+    protected ?bool $webhookAware;
+
+    /**
+     * @internal (FEATURE_NEXT_8225)
+     */
+    protected ?bool $userAware;
+
     public function __construct(
         string $name,
         string $class,
         bool $mailAware,
         bool $logAware,
         bool $salesChannelAware,
-        array $data
+        array $data,
+        ?bool $orderAware = null,
+        ?bool $customerAware = null,
+        ?bool $webhookAware = null,
+        ?bool $userAware = null
     ) {
         $this->name = $name;
         $this->class = $class;
@@ -50,6 +75,10 @@ class BusinessEventDefinition extends Struct
         $this->logAware = $logAware;
         $this->data = $data;
         $this->salesChannelAware = $salesChannelAware;
+        $this->orderAware = $orderAware;
+        $this->customerAware = $customerAware;
+        $this->webhookAware = $webhookAware;
+        $this->userAware = $userAware;
     }
 
     public function getName(): string
@@ -115,5 +144,49 @@ class BusinessEventDefinition extends Struct
     public function setSalesChannelAware(bool $salesChannelAware): void
     {
         $this->salesChannelAware = $salesChannelAware;
+    }
+
+    public function getOrderAware(): ?bool
+    {
+        return $this->orderAware;
+    }
+
+    public function setOrderAware(?bool $orderAware): void
+    {
+        $this->orderAware = $orderAware;
+    }
+
+    public function getCustomerAware(): ?bool
+    {
+        return $this->customerAware;
+    }
+
+    public function setCustomerAware(?bool $customerAware): void
+    {
+        $this->customerAware = $customerAware;
+    }
+
+    public function getWebhookAware(): ?bool
+    {
+        return $this->webhookAware;
+    }
+
+    public function setWebhookAware(?bool $webhookAware): void
+    {
+        $this->webhookAware = $webhookAware;
+    }
+
+    /**
+     * @feature-deprecated (FEATURE_NEXT_8225)
+     */
+    public function jsonSerialize(): array
+    {
+        $vars = parent::jsonSerialize();
+
+        if (!Feature::isActive('FEATURE_NEXT_8225')) {
+            unset($vars['orderAware'], $vars['customerAware'], $vars['userAware'], $vars['webhookAware']);
+        }
+
+        return $vars;
     }
 }

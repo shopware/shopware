@@ -2,7 +2,7 @@ import template from './sw-sales-channel-detail-products.html.twig';
 import './sw-sales-channel-detail-products.scss';
 
 const { Component, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail-products', {
     template,
@@ -30,7 +30,8 @@ Component.register('sw-sales-channel-detail-products', {
             skeletonItemAmount: 25,
             page: 1,
             limit: 25,
-            total: 0
+            total: 0,
+            showProductsModal: false
         };
     },
 
@@ -206,8 +207,46 @@ Component.register('sw-sales-channel-detail-products', {
             this.getProducts();
         },
 
-        onAddProducts() {
-            // TODO - Handle in NEXT-14827
+        openAddProductsModal() {
+            this.showProductsModal = true;
+        },
+
+        onAddProducts(products) {
+            this.showProductsModal = false;
+
+            const visibilities = new EntityCollection(
+                this.productVisibilityRepository.route,
+                this.productVisibilityRepository.entityName,
+                Context.api
+            );
+
+            Object.values(products).forEach(el => {
+                const visibility = this.productVisibilityRepository.create(Context.api);
+                Object.assign(visibility, {
+                    visibility: 30,
+                    productId: el.id,
+                    salesChannelId: this.salesChannel.id,
+                    salesChannel: this.salesChannel
+                });
+
+                visibilities.add(visibility);
+            });
+
+            return this.saveProductVisibilities(visibilities)
+                .then(() => this.getProducts())
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        saveProductVisibilities(data) {
+            if (data.length <= 0) {
+                return Promise.resolve();
+            }
+
+            this.isLoading = true;
+
+            return this.productVisibilityRepository.saveAll(data, Context.api);
         }
     }
 });

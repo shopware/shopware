@@ -239,6 +239,12 @@
         "verticalDescription": "VAT is calculated from the order total. No individual VAT values are displayed during checkout.",
         "horizontalName": "Line by line (horizontal) calculation",
         "horizontalDescription": "VAT is calculated for each shopping cart position. During checkout each position's individual VAT is displayed. The total VAT amount is calculated by adding up all individual VAT values."
+      },
+      "productAssigmentModal": {
+        "title": "Add products",
+        "singleProducts": "Individual products",
+        "categories": "Filter by categories",
+        "dynamicProductGroups": "Filter by dynamic product groups"
       }
     },
      "sw-sales-channel-defaults-select": {

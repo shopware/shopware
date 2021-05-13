@@ -32,6 +32,7 @@ class Content extends Bundle
         $loader->load('contact_form.xml');
         $loader->load('sitemap.xml');
         $loader->load('landing_page.xml');
+        $loader->load('flow.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');

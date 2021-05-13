@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Event\EventAction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0
+ *
  * @method void                   add(EventActionEntity $entity)
  * @method void                   set(string $key, EventActionEntity $entity)
  * @method EventActionEntity[]    getIterator()

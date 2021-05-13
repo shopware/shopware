@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 
+/**
+ * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+ */
 class EventActionRuleDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'event_action_rule';

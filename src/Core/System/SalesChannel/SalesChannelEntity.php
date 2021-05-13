@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -378,6 +379,8 @@ class SalesChannelEntity extends Entity
     protected $customerGroupsRegistrations;
 
     /**
+     * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     *
      * @var EventActionCollection|null
      */
     protected $eventActions;
@@ -1063,13 +1066,23 @@ class SalesChannelEntity extends Entity
         $this->customerGroupsRegistrations = $customerGroupsRegistrations;
     }
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     */
     public function getEventActions(): ?EventActionCollection
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_8225', '6.4.0', '6.5.0', 'Will be removed in version 6.5.0.');
+
         return $this->eventActions;
     }
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     */
     public function setEventActions(EventActionCollection $eventActions): void
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_8225', '6.4.0', '6.5.0', 'Will be removed in version 6.5.0.');
+
         $this->eventActions = $eventActions;
     }
 

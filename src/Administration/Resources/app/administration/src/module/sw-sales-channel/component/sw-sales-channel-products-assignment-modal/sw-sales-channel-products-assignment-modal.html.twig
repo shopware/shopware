@@ -1,5 +1,6 @@
 {% block sw_sales_channel_products_assignment_modal %}
 <sw-modal
+    class="sw-sales-channel-products-assignment-modal"
     :title="$tc('sw-sales-channel.detail.productAssigmentModal.title')"
     @modal-close="onCloseModal"
 >
@@ -23,10 +24,10 @@
                     {% block sw_sales_channel_products_assignment_modal_tabs_categories %}
                     <sw-tabs-item
                         name="categories"
-                        :title="$tc('sw-sales-channel.detail.productAssigmentModal.categories')"
+                        :title="$tc('sw-sales-channel.detail.productAssigmentModal.categories.title')"
                         :active-tab="active"
                     >
-                        {{ $tc('sw-sales-channel.detail.productAssigmentModal.categories') }}
+                        {{ $tc('sw-sales-channel.detail.productAssigmentModal.categories.title') }}
                     </sw-tabs-item>
                     {% endblock %}
 
@@ -51,8 +52,11 @@
                     {% endblock %}
 
                     {% block sw_sales_channel_products_assignment_modal_tab_content_categories %}
-                    {# TODO: NEXT-14828 - Assign products to the sales channel by categories #}
-                    <sw-container v-show="active === 'categories'" />
+                    <sw-sales-channel-product-assignment-categories
+                        v-show="active === 'categories'"
+                        :sales-channel="salesChannel"
+                        @selection-change="onChangeSelection"
+                    />
                     {% endblock %}
 
                     {% block sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups %}
@@ -79,6 +83,7 @@
         <sw-button
             size="small"
             variant="primary"
+            :is-loading="isAssignProductLoading"
             @click="onAddProducts"
         >
             {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}

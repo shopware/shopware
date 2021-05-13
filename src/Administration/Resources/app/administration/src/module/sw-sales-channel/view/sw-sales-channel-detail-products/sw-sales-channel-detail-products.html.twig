@@ -171,6 +171,7 @@
     <sw-sales-channel-products-assignment-modal
         v-if="showProductsModal"
         :sales-channel="salesChannel"
+        :is-assign-product-loading="isAssignProductLoading"
         @modal-close="showProductsModal = false"
         @products-add="onAddProducts"
     />

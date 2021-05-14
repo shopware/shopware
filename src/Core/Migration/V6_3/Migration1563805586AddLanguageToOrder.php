@@ -17,13 +17,13 @@ class Migration1563805586AddLanguageToOrder extends MigrationStep
         $connection->executeUpdate('ALTER TABLE `order` ADD `language_id` BINARY(16) AFTER `currency_id`');
 
         $connection->executeUpdate(
-            'UPDATE `order` AS `o` SET `o`.`language_id` = COALESCE((
-                SELECT `language_id` FROM `customer` AS `c`
-                    LEFT JOIN `order_customer` AS `oc`
-                        ON `c`.`id` = `oc`.`customer_id` WHERE `oc`.`order_id` = `o`.`id`  LIMIT 1
-            ), (SELECT `id` FROM `language` AS `l`
-                    LEFT JOIN `sales_channel_language` AS `scl`
-                        ON `l`.`id` = `scl`.`language_id` WHERE `scl`.`sales_channel_id` = `o`.`sales_channel_id` LIMIT 1
+            'UPDATE `order` SET `order`.`language_id` = COALESCE((
+                SELECT `language_id` FROM `customer`
+                    LEFT JOIN `order_customer`
+                        ON `customer`.`id` = `order_customer`.`customer_id` WHERE `order_customer`.`order_id` = `order`.`id`  LIMIT 1
+            ), (SELECT `id` FROM `language`
+                    LEFT JOIN `sales_channel_language`
+                        ON `language`.`id` = `sales_channel_language`.`language_id` WHERE `sales_channel_language`.`sales_channel_id` = `order`.`sales_channel_id` LIMIT 1
             ))'
         );
 

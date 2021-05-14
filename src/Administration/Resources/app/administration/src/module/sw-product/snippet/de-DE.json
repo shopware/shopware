@@ -3,10 +3,11 @@
     "visibility": {
       "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
       "placeholderVisibility": "Weise Verkaufskanäle zu ...",
-      "columnAll": "Überall",
-      "columnSearchOnly": "Nur in der Suche sichtbar",
-      "columnLinkOnly": "Versteckt",
-      "linkAdvancedVisibility": "Erweitere Sichtbarkeit konfigurieren",
+      "columnAll": "Sichtbar",
+      "columnSearchOnly": "In Produktlisten ausblenden",
+      "columnLinkOnly": "In Produktlisten und der Suche ausblenden",
+      "visibilityModalDescription": "Mit der Option “In Produktlisten ausblenden” wird das Produkt von Übersichtslisten, sowie Produkt-Slidern und Cross Sellings ausgeblendet. Mit der Option “In Produktlisten und der Suche ausblenden” wird das Produkt auch über die Suche nicht mehr angezeigt. Augeblendete Produkte können immer noch über die URL erreicht werden.",
+      "linkAdvancedVisibility": "Sichtbarkeit für ausgewählte Verkaufskanäle einstellen",
       "labelVisibility": "Sichtbarkeit",
       "closeModal": "Übernehmen",
       "bodyVisibility": "Füge Verkaufskanäle hinzu, die dieses Produkt anzeigen. Über den unten stehenden Link kannst Du die Sichtbarkeit des Produktes in Deinen Storefront-Verkausfkanälen weiter beeinflussen."

@@ -3,13 +3,14 @@
     "visibility": {
       "textHeadline": "Product display modes per Sales Channel",
       "placeholderVisibility": "Select Sales Channel...",
-      "columnAll": "Universal",
-      "columnSearchOnly": "Search results only",
-      "columnLinkOnly": "Hidden",
-      "linkAdvancedVisibility": "Advanced assignment options",
+      "columnAll": "Visible",
+      "columnSearchOnly": "Hide in Listings",
+      "columnLinkOnly": "Hide in Listings and search",
+      "visibilityModalDescription": "“Hide in listing” will exclude the product from product overview listings but also from product sliders and cross selling lists. Selecting the option “Hide in listing and search” will also exclude the product from search actions. Products can still be reached via URL.",
+      "linkAdvancedVisibility": "Set visibility for selected Sales Channels",
       "labelVisibility": "Sales Channels",
       "closeModal": "Apply",
-      "bodyVisibility": "Add Sales channels where is product should be displayed. You're also able to further define the visibility of the product for each Storefront Sales Channel via de link below."
+      "bodyVisibility": "Add Sales Channels in which this product should be displayed. You may further define the product visibility for each Storefront Sales Channel via the link below."
     },
     "general": {
       "mainMenuItemGeneral": "Products",

@@ -3,6 +3,7 @@ import './page/sw-settings-listing-option-create';
 import './component/sw-settings-listing-delete-modal';
 import './component/sw-settings-listing-option-general-info';
 import './component/sw-settings-listing-option-criteria-grid';
+import './component/sw-settings-listing-visibility-detail';
 
 const { Module } = Shopware;
 

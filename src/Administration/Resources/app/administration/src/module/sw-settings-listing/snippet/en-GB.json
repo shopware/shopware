@@ -37,6 +37,11 @@
       }
     },
     "index": {
+      "defaultSalesChannel": {
+        "title": "Default Sales Channel",
+        "description": "Select default Sales Channels that are automatically assigned to newly created products.",
+        "linkAdvancedVisibility": "Set visibility for selected Sales Channels"
+      },
       "productSorting": {
         "title": "Sorting options",
         "addButton": "Add option",

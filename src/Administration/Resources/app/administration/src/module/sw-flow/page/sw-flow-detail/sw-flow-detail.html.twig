@@ -1,0 +1,53 @@
+{% block sw_flow_detail %}
+    <sw-page class="sw-flow-detail">
+        {% block sw_flow_detail_header %}
+            <template #smart-bar-header>
+                <h2>{{ placeholder(flow, 'name', $tc('sw-flow.detail.textHeadline')) }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_flow_detail_smart_bar_actions %}
+            <template #smart-bar-actions>
+                {% block sw_flow_detail_smart_bar_actions_save %}
+                    <sw-button
+                        class="sw-flow-detail__save"
+                        variant="primary"
+                        :disabled="!acl.can('flow.creator')">
+                        {{ $tc('global.default.save') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_flow_content %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_flow_tabs_headers %}
+                        <sw-tabs>
+                            {% block sw_flow_tabs_general_header %}
+                                <sw-tabs-item
+                                    v-bind="$props"
+                                    :route="{ name: 'sw.flow.create.general' }">
+                                    {{ $tc('sw-flow.page.generalTab') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+
+                            {% block sw_flow_tabs_builder_header %}
+                                <sw-tabs-item
+                                    v-bind="$props"
+                                    :route="{ name: 'sw.flow.create.flow' }">
+                                    {{ $tc('sw-flow.page.flowTab') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+                        </sw-tabs>
+                    {% endblock %}
+
+                    {% block sw_flow_tabs_content %}
+                        <router-view>
+                        </router-view>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

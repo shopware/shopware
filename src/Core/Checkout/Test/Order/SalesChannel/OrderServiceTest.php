@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Order\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -66,6 +68,7 @@ class OrderServiceTest extends TestCase
 
         $this->orderRepository = $this->getContainer()->get('order.repository');
 
+        $this->cleanDefaultSalesChannelDomain();
         $this->addCountriesToSalesChannel();
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
@@ -684,5 +687,14 @@ class OrderServiceTest extends TestCase
         ];
 
         $salesChannelRepository->update([$data], $this->salesChannelContext->getContext());
+    }
+
+    private function cleanDefaultSalesChannelDomain(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->delete(SalesChannelDomainDefinition::ENTITY_NAME, [
+            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+        ]);
     }
 }

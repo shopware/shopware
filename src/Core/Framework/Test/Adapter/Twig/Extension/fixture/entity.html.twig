@@ -1,0 +1,2 @@
+{% set manufacturers = entities(entity, ids, association) %}
+{% for item in manufacturers %}{{ item.translated.name }}/{% if(item.media.fileName) %}{{ item.media.fileName }}/{% endif %}{% endfor %}

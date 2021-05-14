@@ -73,6 +73,10 @@
             <tag name="shopware.entity.definition" entity="_test_lock_translation" />
         </service>
 
+        <service id="Shopware\Core\Framework\Test\Adapter\Twig\Extension\TestDefinition\TestReadProtectedDefinition">
+            <tag name="shopware.entity.definition" entity="_test_read_protected" />
+        </service>
+
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition">
             <tag name="shopware.entity.definition" entity="attribute_test" />
         </service>

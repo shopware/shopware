@@ -21,7 +21,6 @@
       "messageServerError": "Ein allgemeiner Fehler beim Authentifizierungsserver ist aufgetreten.",
       "messageInvalidRefreshToken": "Der angegebene Refresh-Token ist ungültig.",
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
-      "messageInvalidGrant": "Der Grant-Type oder der Refresh-Token ist ungültig.",
       "messageGeneralRequestError": "Die Anfrage an \"{url}\" ist fehlgeschlagen.",
       "forgottenPasswordLink": "Hast Du Dein Passwort vergessen?"
     },

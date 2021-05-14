@@ -122,8 +122,9 @@ class ProductFeatureBuilder
             return;
         }
 
-        $criteria = (new Criteria([Defaults::LANGUAGE_SYSTEM]))
-            ->addAssociation('locale');
+        $criteria = new Criteria([Defaults::LANGUAGE_SYSTEM]);
+        $criteria->setTitle('cart::products::feature-builder');
+        $criteria->addAssociation('locale');
 
         $systemLanguage = $this
             ->languageRepository->search($criteria, $context)

@@ -84,6 +84,8 @@ class CartRuleLoader
 
         $iteration = 1;
 
+        $original = clone $cart;
+
         // start first cart calculation to have all objects enriched
         $cart = $this->processor->process($cart, $context, $behaviorContext);
 
@@ -141,7 +143,7 @@ class CartRuleLoader
         $context->setRuleIds($rules->getIds());
 
         // save the cart if errors exist, so the errors get persisted
-        if ($cart->getErrors()->count() > 0) {
+        if ($cart->getErrors()->count() > 0 || $this->updated($cart, $original)) {
             $this->cartPersister->save($cart, $context);
         }
 
@@ -200,5 +202,22 @@ class CartRuleLoader
         }
 
         return CartPrice::TAX_STATE_NET;
+    }
+
+    private function updated(Cart $cart, Cart $compare): bool
+    {
+        foreach ($cart->getLineItems() as $lineItem) {
+            $original = $compare->getLineItems()->get($lineItem->getId());
+
+            if (!$original) {
+                return true;
+            }
+
+            if ($original->getDataTimestamp() !== $lineItem->getDataTimestamp()) {
+                return true;
+            }
+        }
+
+        return $compare->getLineItems()->count() !== $cart->getLineItems()->count();
     }
 }

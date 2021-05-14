@@ -28,6 +28,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessorTest extends TestCase
 {
@@ -77,6 +78,25 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals(101, $info->getHeight());
         static::assertEquals(102, $info->getWidth());
         static::assertEquals(103, $info->getLength());
+    }
+
+    public function testNotCompletedLogic(): void
+    {
+        $context = $this->getContext();
+
+        $this->createProduct();
+        $cart = $this->getProductCart();
+
+        $lineItem = $cart->get($this->ids->get('product'));
+        static::assertSame('test', $lineItem->getLabel());
+
+        $update = ['id' => $this->ids->get('product'), 'name' => 'update'];
+        $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
+
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
+
+        $lineItem = $cart->get($this->ids->get('product'));
+        static::assertSame('update', $lineItem->getLabel());
     }
 
     public function testReferencePriceWithZeroPurchaseUnit(): void
@@ -677,14 +697,21 @@ class ProductCartProcessorTest extends TestCase
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
 
-        $token = $this->ids->create('token');
-        $context = $this->getContainer()->get(SalesChannelContextService::class)
-            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token));
+        $context = $this->getContext();
 
-        $cart = $this->cartService->getCart($token, $context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
         $this->cartService->add($cart, $product, $context);
 
         return $cart;
+    }
+
+    private function getContext(): SalesChannelContext
+    {
+        $token = $this->ids->create('token');
+
+        return $this->getContainer()->get(SalesChannelContextService::class)
+            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token));
     }
 
     private function createProduct(?array $additionalData = []): void

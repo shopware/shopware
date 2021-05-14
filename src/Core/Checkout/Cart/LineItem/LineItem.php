@@ -114,6 +114,12 @@ class LineItem extends Struct
     protected $modified = false;
 
     /**
+     * The data timestamp can be used to record when the line item was last updated with data from the database.
+     * Updating the data timestamp must be done by the corresponding cart data collector.
+     */
+    protected ?\DateTime $dataTimestamp = null;
+
+    /**
      * @throws InvalidQuantityException
      */
     public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
@@ -467,6 +473,22 @@ class LineItem extends Struct
     public function getApiAlias(): string
     {
         return 'cart_line_item';
+    }
+
+    /**
+     * @see LineItem::$dataTimestamp
+     */
+    public function getDataTimestamp(): ?\DateTime
+    {
+        return $this->dataTimestamp;
+    }
+
+    /**
+     * @see LineItem::$dataTimestamp
+     */
+    public function setDataTimestamp(?\DateTime $dataTimestamp): void
+    {
+        $this->dataTimestamp = $dataTimestamp;
     }
 
     /**

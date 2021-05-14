@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -18,70 +19,31 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductIndexer extends EntityIndexer
 {
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var VariantListingUpdater
-     */
-    private $variantListingUpdater;
+    private VariantListingUpdater $variantListingUpdater;
 
-    /**
-     * @var ProductCategoryDenormalizer
-     */
-    private $categoryDenormalizer;
+    private ProductCategoryDenormalizer $categoryDenormalizer;
 
-    /**
-     * @var CheapestPriceUpdater
-     */
-    private $cheapestPriceUpdater;
+    private CheapestPriceUpdater $cheapestPriceUpdater;
 
-    /**
-     * @var SearchKeywordUpdater
-     */
-    private $searchKeywordUpdater;
+    private SearchKeywordUpdater $searchKeywordUpdater;
 
-    /**
-     * @var InheritanceUpdater
-     */
-    private $inheritanceUpdater;
+    private InheritanceUpdater $inheritanceUpdater;
 
-    /**
-     * @var RatingAverageUpdater
-     */
-    private $ratingAverageUpdater;
+    private RatingAverageUpdater $ratingAverageUpdater;
 
-    /**
-     * @var ChildCountUpdater
-     */
-    private $childCountUpdater;
+    private ChildCountUpdater $childCountUpdater;
 
-    /**
-     * @var ManyToManyIdFieldUpdater
-     */
-    private $manyToManyIdFieldUpdater;
+    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
 
-    /**
-     * @var StockUpdater
-     */
-    private $stockUpdater;
+    private StockUpdater $stockUpdater;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     private ProductStreamUpdater $streamUpdater;
 
@@ -167,7 +129,9 @@ class ProductIndexer extends EntityIndexer
 
         $this->connection->beginTransaction();
 
-        $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, array_merge($ids, $parentIds, $childrenIds), $context);
+        $all = array_filter(array_unique(array_merge($ids, $parentIds, $childrenIds)));
+
+        $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
 
         $this->stockUpdater->update($ids, $context);
 
@@ -183,9 +147,15 @@ class ProductIndexer extends EntityIndexer
 
         $this->ratingAverageUpdater->update($parentIds, $context);
 
-        $this->streamUpdater->updateProducts(array_merge($ids, $parentIds, $childrenIds), $context);
+        $this->streamUpdater->updateProducts($all, $context);
 
         $this->searchKeywordUpdater->update(array_merge($ids, $childrenIds), $context);
+
+        $this->connection->executeStatement(
+            'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($all), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
 
         $this->connection->commit();
 

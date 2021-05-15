@@ -7,5 +7,5 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 
 interface ThemeCompilerInterface
 {
-    public function compileTheme(string $salesChannelId, string $themeId, StorefrontPluginConfiguration $themeConfig, StorefrontPluginConfigurationCollection $configurationCollection, bool $withAssets = true): void;
+    public function compileTheme(string $salesChannelId, string $themeId, StorefrontPluginConfiguration $themeConfig, StorefrontPluginConfigurationCollection $configurationCollection, bool $withAssets = true, bool $skipCss = false): void;
 }

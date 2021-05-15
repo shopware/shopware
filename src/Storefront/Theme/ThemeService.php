@@ -60,7 +60,8 @@ class ThemeService
         string $themeId,
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
-        bool $withAssets = true
+        bool $withAssets = true,
+        bool $skipCss = false
     ): void {
         $themePluginConfiguration = $this->getPluginConfiguration($themeId, $context);
 
@@ -69,7 +70,8 @@ class ThemeService
             $themeId,
             $themePluginConfiguration,
             $configurationCollection ?? $this->pluginRegistry->getConfigurations(),
-            $withAssets
+            $withAssets,
+            $skipCss
         );
     }
 

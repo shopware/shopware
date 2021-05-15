@@ -100,7 +100,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
-        bool $withAssets = true
+        bool $withAssets = true,
+        bool $skipCss = false
     ): void {
         $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
         $outputPath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
@@ -110,18 +111,21 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
-        /** @var FileCollection $styleFiles */
-        $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
 
-        $concatenatedStyles = '';
-        foreach ($styleFiles as $file) {
-            $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
+        if (!$skipCss) {
+            /** @var FileCollection $styleFiles */
+            $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
+            $concatenatedStyles = '';
+            foreach ($styleFiles as $file) {
+                $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
+            }
+            $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
+            $this->eventDispatcher->dispatch($concatenatedStylesEvent);
+            $compiled = $this->compileStyles($concatenatedStylesEvent->getConcatenatedStyles(), $themeConfig,
+                $styleFiles->getResolveMappings(), $salesChannelId);
+            $cssFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
+            $this->filesystem->put($cssFilepath, $compiled);
         }
-        $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
-        $this->eventDispatcher->dispatch($concatenatedStylesEvent);
-        $compiled = $this->compileStyles($concatenatedStylesEvent->getConcatenatedStyles(), $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
-        $cssFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
-        $this->filesystem->put($cssFilepath, $compiled);
 
         /** @var FileCollection $scriptFiles */
         $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
@@ -190,7 +194,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 if (mb_strpos($originalPath, $resolve) === 0) {
                     $dirname = $resolvePath . \dirname(mb_substr($originalPath, mb_strlen($resolve)));
                     $filename = basename($originalPath);
-                    $extension = pathinfo($filename, \PATHINFO_EXTENSION) === '' ? '.scss' : '';
+                    $extension = pathinfo($filename, PATHINFO_EXTENSION) === '' ? '.scss' : '';
                     $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
                     if (file_exists($path)) {
                         return $path;
@@ -274,7 +278,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
-                $variables[$key] = (int) ($data['value']);
+                $variables[$key] = (int)($data['value']);
             } else {
                 $variables[$key] = $data['value'];
             }
@@ -311,7 +315,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $dump = str_replace(
             ['#class#', '#variables#'],
-            [self::class, implode(\PHP_EOL, $this->formatVariables($themeVariablesEvent->getVariables()))],
+            [self::class, implode(PHP_EOL, $this->formatVariables($themeVariablesEvent->getVariables()))],
             $this->getVariableDumpTemplate()
         );
 

@@ -278,7 +278,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
-                $variables[$key] = (int)($data['value']);
+                $variables[$key] = (int) ($data['value']);
             } else {
                 $variables[$key] = $data['value'];
             }
@@ -315,7 +315,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $dump = str_replace(
             ['#class#', '#variables#'],
-            [self::class, implode(PHP_EOL, $this->formatVariables($themeVariablesEvent->getVariables()))],
+            [self::class, implode(\PHP_EOL, $this->formatVariables($themeVariablesEvent->getVariables()))],
             $this->getVariableDumpTemplate()
         );
 

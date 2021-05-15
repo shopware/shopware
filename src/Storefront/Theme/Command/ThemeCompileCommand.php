@@ -43,7 +43,8 @@ class ThemeCompileCommand extends Command
     public function configure(): void
     {
         $this
-            ->addOption('keep-assets', 'k', InputOption::VALUE_NONE, 'Keep current assets, do not delete them');
+            ->addOption('keep-assets', 'k', InputOption::VALUE_NONE, 'Keep current assets, do not delete them')
+            ->addOption('skip-css', null, InputOption::VALUE_NONE, 'Skip CSS compilation');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -60,7 +61,8 @@ class ThemeCompileCommand extends Command
             if (!$themes || !$theme = $themes->first()) {
                 continue;
             }
-            $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $context, null, !$input->getOption('keep-assets'));
+
+            $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $context, null, !$input->getOption('keep-assets'), (bool)$input->getOption('skip-css'));
         }
 
         $this->io->note(sprintf('Took %f seconds', microtime(true) - $start));

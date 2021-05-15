@@ -194,7 +194,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 if (mb_strpos($originalPath, $resolve) === 0) {
                     $dirname = $resolvePath . \dirname(mb_substr($originalPath, mb_strlen($resolve)));
                     $filename = basename($originalPath);
-                    $extension = pathinfo($filename, PATHINFO_EXTENSION) === '' ? '.scss' : '';
+                    $extension = pathinfo($filename, \PATHINFO_EXTENSION) === '' ? '.scss' : '';
                     $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
                     if (file_exists($path)) {
                         return $path;

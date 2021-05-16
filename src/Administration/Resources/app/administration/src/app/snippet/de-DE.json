@@ -108,7 +108,7 @@
       },
       "shopware-updates-listener": {
         "updatesAvailableTitle": "Eine neue Shopware Version {version} ist verfügbar",
-        "updatesAvailableMessage": "Starte den Auto-Updater um die Installation zu starten",
+        "updatesAvailableMessage": "Starte den Auto-Updater, um die Installation zu starten.",
         "updateNow": "Update öffnen"
       }
     },
@@ -308,7 +308,7 @@
       "titleModal": "Datei existiert bereits",
       "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
       "buttonReplace": "Datei ersetzen",
-      "buttonRename": "Datei umbennen",
+      "buttonRename": "Datei umbenennen",
       "buttonSkip": "Datei überspringen",
       "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden.",
       "labelOptionReplace": "Hochladen und ersetzen",
@@ -321,7 +321,7 @@
       "titleModal": "Datei existiert bereits",
       "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
       "buttonReplace": "Datei ersetzen",
-      "buttonRename": "Datei umbennen",
+      "buttonRename": "Datei umbenennen",
       "buttonSkip": "Datei überspringen",
       "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden",
       "labelOptionReplace": "Hochladen und ersetzen",
@@ -355,13 +355,13 @@
       "warningFileExtension": "Die neue Datei hat eine andere Dateiendung ({extension}). Die Datei muss bei Suchmaschinen ggf. neu indexiert werden."
     },
     "sw-media-preview": {
-      "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
-      "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht",
+      "fallbackVideoTagSupport": "Dein Browser unterstützt diesen Video-Tag nicht",
+      "fallbackAudioTagSupport": "Dein Browser unterstützt diesen Audio-Tag nicht",
       "textNoMedia": "Kein Medium verfügbar"
     },
     "sw-media-preview-v2": {
-      "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
-      "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht",
+      "fallbackVideoTagSupport": "Dein Browser unterstützt diesen Video-Tag nicht",
+      "fallbackAudioTagSupport": "Dein Browser unterstützt diesen Audio-Tag nicht",
       "textNoMedia": "Kein Medium verfügbar"
     },
     "sw-media-upload": {
@@ -476,14 +476,10 @@
     },
     "sw-multi-tag-ip-select": {
       "enterValidIp": "Bitte gib eine gültige IPv4- oder IPv6-Adresse ein",
-      "addIpAdress": "IP-Adresse hinzufügen",
+      "addIpAddress": "IP-Adresse hinzufügen",
       "knownIps": {
         "you": "Du"
       }
-    },
-    "sw-multi-ip-select": {
-      "enterValidIp": "Bitte gib eine gültige IPv4- oder IPv6-Adresse ein",
-      "addIpAdress": "IP-Adresse hinzufügen"
     },
     "sw-entity-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
@@ -658,7 +654,7 @@
       "media_folder": "Ordner",
       "media_thumbnail": "Thumbnail | Thumbnails",
       "media_thumbnail_size": "Thumbnailgröße | Thumbnailgrößen",
-      "newsletter_recipient": "Newsletter Empfänger",
+      "newsletter_recipient": "Newsletter-Empfänger",
       "number_range": "Nummernkreis | Nummernkreise",
       "order": "Bestellung | Bestellungen",
       "order_address": "Adresse | Adressen",
@@ -842,7 +838,7 @@
       "treeHeadline": "Baumstruktur",
       "buttonCreate": "Element erstellen",
       "actions": {
-        "createSub": "Neues Unterlement",
+        "createSub": "Neues Unterelement",
         "createBefore": "Neues Element davor",
         "createAfter": "Neues Element danach",
         "actionsDisabledInLanguage": "Elemente können nur in der System-Standardsprache erstellt werden."
@@ -1044,7 +1040,7 @@
   },
   "sw-custom-field-set-renderer": {
     "labelCustomFieldSetSelectSwitch": "Zusatzfeld-Sets auswählen",
-    "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus...",
+    "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus ...",
     "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
     "messagePluginSets": "Plugin-Zusatzfeld-Sets (Können nicht entfernt werden)"
   },

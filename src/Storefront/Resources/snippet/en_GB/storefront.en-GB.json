@@ -507,7 +507,7 @@
     "reviewFormContentLabel": "Your review",
     "reviewFormSubmitText": "Submit",
     "reviewFormCancelText": "Cancel",
-    "reviewFormErrorAlert": "An error occured. Please make sure you filled in all fields correctly.",
+    "reviewFormErrorAlert": "An error occurred. Please make sure you filled in all fields correctly.",
     "reviewFormSuccessAlert": "Thank you for submitting your review. We will examine the review and eventually unlock it, please be patient.",
     "reviewFormSuccessUpdateAlert": "Thank you for editing your review. Changes will be visible as soon as we have unlocked them.",
     "reviewTeaserTitle": "Leave a review!",

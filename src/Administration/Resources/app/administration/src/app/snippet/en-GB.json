@@ -476,14 +476,10 @@
     },
     "sw-multi-tag-ip-select": {
       "enterValidIp": "Please enter a valid IPv4 or IPv6 address",
-      "addIpAdress": "Add IP address",
+      "addIpAddress": "Add IP address",
       "knownIps": {
         "you": "You"
       }
-    },
-    "sw-multi-ip-select": {
-      "enterValidIp": "Please enter a valid IPv4 or IPv6 address",
-      "addIpAdress": "Add IP address"
     },
     "sw-entity-multi-select": {
       "messageNoResults": "No results found for \"{term}\"."
@@ -1063,7 +1059,7 @@
         },
         "reinstall-apps": {
           "name": "Copy apps to current domain",
-          "description": "If you want to keep your apps working on both domains, this reinstalls all apps on your new domain. Note: App data on your old domain will still be available, non-free apps may require additional charges for each domain."
+          "description": "If you want to keep your apps working on both domains, this re-installs all apps on your new domain. Note: App data on your old domain will still be available, non-free apps may require additional charges for each domain."
         },
         "uninstall-apps": {
           "name": "Uninstall apps",

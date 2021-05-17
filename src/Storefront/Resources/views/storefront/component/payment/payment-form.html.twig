@@ -1,24 +1,32 @@
 {% block page_checkout_change_payment_form %}
-    <form id="changePaymentForm"
-          name="changePaymentForm"
-          action="{{ actionPath }}"
-          data-form-csrf-handler="true"
-          data-form-auto-submit="true"
-          method="post">
 
-        {% block page_checkout_change_payment_form_csrf %}
-            {{ sw_csrf(action) }}
-        {% endblock %}
+    {% set formAjaxSubmitOptions = {
+        changeTriggerSelectors: ['.payment-method-input']
+    } %}
 
-        {% block page_checkout_change_payment_form_redirect %}
-            <input type="hidden" name="redirectTo" value="{{ redirect }}">
-        {% endblock %}
+    {% block page_checkout_change_payment_form_element %}
+        <form id="changePaymentForm"
+              name="changePaymentForm"
+              action="{{ actionPath }}"
+              data-form-csrf-handler="true"
+              data-form-auto-submit="true"
+              data-form-auto-submit-options='{{ formAjaxSubmitOptions|json_encode }}'
+              method="post">
 
-        {% block page_checkout_change_payment_form_fields %}
-            {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
-                'visiblePaymentMethodsLimit': 5,
-                'selectedPaymentMethodId': context.paymentMethod.id
-            } %}
-        {% endblock %}
-    </form>
+            {% block page_checkout_change_payment_form_csrf %}
+                {{ sw_csrf(action) }}
+            {% endblock %}
+
+            {% block page_checkout_change_payment_form_redirect %}
+                <input type="hidden" name="redirectTo" value="{{ redirect }}">
+            {% endblock %}
+
+            {% block page_checkout_change_payment_form_fields %}
+                {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
+                    'visiblePaymentMethodsLimit': 5,
+                    'selectedPaymentMethodId': context.paymentMethod.id
+                } %}
+            {% endblock %}
+        </form>
+    {% endblock %}
 {% endblock %}

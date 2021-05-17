@@ -1,6 +1,4 @@
 import VueApexCharts from 'vue-apexcharts';
-import en from 'apexcharts/dist/locales/en.json';
-import de from 'apexcharts/dist/locales/de.json';
 import template from './sw-chart.html.twig';
 import './sw-chart.scss';
 
@@ -138,7 +136,8 @@ Component.register('sw-chart', {
 
     data() {
         return {
-            generatedLabels: []
+            localeConfig: null,
+            isLoading: true
         };
     },
 
@@ -176,14 +175,8 @@ Component.register('sw-chart', {
         },
 
         convertedSeriesStructure() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            this.generatedLabels = [];
-
             return this.series.map((serie) => {
-                const convertedData = serie.data.map((data) => {
-                    this.generatedLabels.push(data.x);
-                    return data.y;
-                });
+                const convertedData = serie.data.map((data) => data.y);
 
                 return {
                     name: serie.name,
@@ -192,8 +185,54 @@ Component.register('sw-chart', {
             });
         },
 
+        generatedLabels() {
+            /**
+             * It gets from each serie data all x values.
+             *
+             * Example: convert from
+             * [
+             *  {
+             *      data: [
+             *          {
+             *              x: 84561,
+             *              y: 9651
+             *          },
+             *          ...
+             *      ],
+             *      name: "Total"
+             *  }
+             *  ...
+             * ]
+             *
+             * to
+             *
+             * [84561, ...]
+             */
+            return this.series
+                .map(serie => serie.data.map(data => data.x))
+                .flat();
+        },
+
         needOneDimensionalArray() {
             return ['pie', 'donut'].indexOf(this.type) >= 0;
+        },
+
+        defaultLocale() {
+            const adminLocaleLanguage = Shopware.State.getters.adminLocaleLanguage;
+
+            // get all available languages in "apexcharts/dist/locales/**.json"
+            const languageFiles = require.context('../../../../../node_modules/apexcharts/dist/locales', false, /.json/);
+
+            // change string from "./en.json" to "en"
+            const allowedLocales = languageFiles.keys()
+                .map(filePath => filePath.replace('./', ''))
+                .map(filePath => filePath.replace('.json', ''));
+
+            if (allowedLocales.includes(adminLocaleLanguage)) {
+                return adminLocaleLanguage;
+            }
+
+            return 'en';
         },
 
         defaultOptions() {
@@ -204,8 +243,8 @@ Component.register('sw-chart', {
                         show: false
                     },
 
-                    defaultLocale: Shopware.State.getters.adminLocaleLanguage || 'en',
-                    locales: [en, de],
+                    defaultLocale: this.defaultLocale,
+                    locales: [...(this.localeConfig ? [this.localeConfig] : [])],
                     zoom: false
                 },
 
@@ -265,7 +304,17 @@ Component.register('sw-chart', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            return this.loadLocaleConfig().finally(() => {
+                this.isLoading = false;
+            });
+        },
+
         sortSeries(series) {
             const newSeries = object.deepCopyObject(series);
 
@@ -345,6 +394,16 @@ Component.register('sw-chart', {
             }
 
             return zeroTimestamps;
+        },
+
+        async loadLocaleConfig() {
+            const defaultLocale = this.defaultLocale;
+
+            // ESLint can´t understand template strings in this import context
+            /* eslint-disable-next-line prefer-template */
+            const localeConfigModule = await import('apexcharts/dist/locales/' + defaultLocale + '.json');
+
+            this.localeConfig = localeConfigModule?.default;
         }
     }
 });

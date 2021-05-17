@@ -37,6 +37,10 @@
                                                              name="default-basic-x-line"
                                                              v-tooltip="$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')">
                                                     </sw-icon>
+                                                    <sw-icon v-else-if="noEntityError.includes(seoUrlTemplate.id)"
+                                                             name="default-badge-warning"
+                                                             v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview',0,{entity:seoUrlTemplate.entityName})">
+                                                    </sw-icon>
                                                     <sw-icon v-else-if="!seoUrlTemplate.template"
                                                              name="default-badge-warning"
                                                              v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate',1,{entity:seoUrlTemplate.entityName})">

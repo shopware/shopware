@@ -41,6 +41,11 @@ class UserAccessKeyDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getDefaults(): array
+    {
+        return ['writeAccess' => false];
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return UserDefinition::class;
@@ -48,22 +53,15 @@ class UserAccessKeyDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
-            new BoolField('write_access', 'writeAccess'),
+            (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v6.4.0', 'v6.5.0')),
             new DateTimeField('last_usage_at', 'lastUsageAt'),
             new CustomFields(),
-
             (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false)),
         ]);
-
-        $fields->add(
-            (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
-        );
-
-        return $fields;
     }
 }

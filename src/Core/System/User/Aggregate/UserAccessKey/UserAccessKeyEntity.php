@@ -28,6 +28,8 @@ class UserAccessKeyEntity extends Entity
     protected $secretAccessKey;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
+     *
      * @var bool
      */
     protected $writeAccess;
@@ -72,11 +74,17 @@ class UserAccessKeyEntity extends Entity
         $this->secretAccessKey = $secretAccessKey;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
+     */
     public function getWriteAccess(): bool
     {
         return $this->writeAccess;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
+     */
     public function setWriteAccess(bool $writeAccess): void
     {
         $this->writeAccess = $writeAccess;

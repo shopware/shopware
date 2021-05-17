@@ -82,6 +82,36 @@ class CartItemAddRouteTest extends TestCase
         static::assertSame('Test', $response['lineItems'][0]['label']);
     }
 
+    public function testFillCartOutOfStock(): void
+    {
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p3'),
+                            'label' => 'foo',
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p3'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('cart', $response['apiAlias']);
+        static::assertSame(0, $response['price']['totalPrice']);
+        static::assertCount(0, $response['lineItems']);
+        static::assertCount(1, $response['errors']);
+        static::assertSame('The product Test is no longer available', array_column($response['errors'], 'message')[0]);
+    }
+
     public function testFillCartMultipleProducts(): void
     {
         $this->browser
@@ -334,6 +364,23 @@ class CartItemAddRouteTest extends TestCase
                 'manufacturer' => ['id' => $this->ids->get('manufacturerId'), 'name' => 'test'],
                 'tax' => ['id' => $this->ids->get('tax'), 'taxRate' => 17, 'name' => 'with id'],
                 'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], $this->ids->context);
+
+        $this->productRepository->create([
+            [
+                'id' => $this->ids->create('p3'),
+                'productNumber' => $this->ids->get('p3'),
+                'stock' => 0,
+                'name' => 'Test',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $this->ids->get('manufacturerId'), 'name' => 'test'],
+                'tax' => ['id' => $this->ids->get('tax'), 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'isCloseout' => true,
                 'visibilities' => [
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],

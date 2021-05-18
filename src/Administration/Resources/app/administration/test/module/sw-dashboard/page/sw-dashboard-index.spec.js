@@ -112,8 +112,8 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         expect(statisticsSum.exists()).toBeTruthy();
     });
 
-    it('should display headline for unknown user', async () => {
-        expect(wrapper.text()).toContain('sw-dashboard.introduction.headlineUnkownUser');
+    it('should return `null` as greetingName', async () => {
+        expect(wrapper.text()).toContain('{"greetingName":null}');
     });
 
     it('should display users firstName', async () => {
@@ -125,13 +125,13 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         expect(wrapper.text()).toContain('{"greetingName":"userFirstName"}');
     });
 
-    it('should display users "username"', async () => {
+    it('should display `null` as greetingName, we only greet by firstName', async () => {
         Shopware.State.commit('setCurrentUser', {
             username: 'username'
         });
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.text()).toContain('{"greetingName":"username"}');
+        expect(wrapper.text()).toContain('{"greetingName":null}');
     });
 
     [

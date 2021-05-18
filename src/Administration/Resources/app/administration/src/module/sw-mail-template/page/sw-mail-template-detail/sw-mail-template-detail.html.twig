@@ -275,8 +275,7 @@
                         <sw-sidebar-item icon="default-text-code"
                                          :title="$tc('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
                                          :disabled="mailTemplate.mailTemplateTypeId === undefined || mailTemplate.mailTemplateTypeId === null"
-                                         class="sw-mail-template-detail__show-available-variables"
-                                         v-if="feature.isActive('FEATURE_NEXT_12654')">
+                                         class="sw-mail-template-detail__show-available-variables">
                             <div class="sw-mail-template-detail__available-variables-sidebar-container">
                                 {% block sw_mail_template_available_variables_tree %}
                                     <sw-tree
@@ -317,8 +316,7 @@
                                          :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
                                          :disabled="mailTemplate.contentHtml === undefined || mailTemplate.mailTemplateTypeId === undefined"
                                          class="sw-mail-template-detail__show-preview-sidebar"
-                                         @click="onClickShowPreview"
-                                         v-if="feature.isActive('FEATURE_NEXT_12654')">
+                                         @click="onClickShowPreview">
                         </sw-sidebar-item>
 
                         <sw-sidebar-media-item ref="mediaSidebarItem">

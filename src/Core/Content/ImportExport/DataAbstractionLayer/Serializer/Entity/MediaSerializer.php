@@ -47,6 +47,8 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
     /**
      * @param array|Struct|null $entity
+     *
+     * @return \Generator
      */
     public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
     {

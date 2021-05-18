@@ -22,35 +22,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductStreamIndexer extends EntityIndexer
 {
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var Serializer
-     */
-    private $serializer;
+    private Serializer $serializer;
 
-    /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
+    private ProductDefinition $productDefinition;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Connection $connection,
@@ -126,11 +108,12 @@ class ProductStreamIndexer extends EntityIndexer
         foreach ($filters as $id => $filter) {
             $invalid = false;
 
+            $serialized = null;
+
             try {
                 $serialized = $this->buildPayload($filter);
             } catch (InvalidFilterQueryException | SearchRequestException $exception) {
                 $invalid = true;
-                $serialized = null;
             } finally {
                 $update->execute([
                     'serialized' => $serialized,

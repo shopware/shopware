@@ -216,9 +216,9 @@ class ThumbnailService
     private function createThumbnailsForSizes(
         MediaEntity $media,
         MediaFolderConfigurationEntity $config,
-        MediaThumbnailSizeCollection $thumbnailSizes
+        ?MediaThumbnailSizeCollection $thumbnailSizes
     ): array {
-        if ($thumbnailSizes->count() === 0) {
+        if ($thumbnailSizes === null || $thumbnailSizes->count() === 0) {
             return [];
         }
 
@@ -319,15 +319,15 @@ class ThumbnailService
                         $image = imagerotate($image, -90, 0);
                     }
                 }
-
-                if ($image === false) {
-                    throw new FileTypeNotSupportedException($media->getId());
-                }
             } catch (\Exception $e) {
                 // Ignore.
             } finally {
                 fclose($stream);
             }
+        }
+
+        if ($image === false) {
+            throw new FileTypeNotSupportedException($media->getId());
         }
 
         return $image;

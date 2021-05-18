@@ -18,15 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 
 class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $innerRepo;
+    private EntityRepositoryInterface $innerRepo;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepositoryInterface $mediaRepository;
 
     public function __construct(
         EntityRepositoryInterface $innerRepo,
@@ -40,10 +34,8 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
     {
         $criteria = new Criteria($this->getRawIds($ids));
         $criteria->addAssociation('children');
-        $affectedFolders = $this->search($criteria, $context);
-
         /** @var MediaFolderCollection $folders */
-        $folders = $affectedFolders->getEntities();
+        $folders = $this->search($criteria, $context)->getEntities();
         $this->deleteMediaAndSubfolders($folders, $context);
 
         return $this->innerRepo->delete($ids, $context);
@@ -133,7 +125,7 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
             $mediaResult = $this->mediaRepository->searchIds($criteria, $context);
 
             if ($mediaResult->getTotal() > 0) {
-                $affectedMediaIds = array_map(function (string $id) {
+                $affectedMediaIds = array_map(static function (string $id) {
                     return ['id' => $id];
                 }, $mediaResult->getIds());
 
@@ -144,6 +136,7 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
                 $this->loadChildFolders($folder, $context);
             }
 
+            \assert($folder->getChildren() !== null);
             $this->deleteMediaAndSubfolders($folder->getChildren(), $context);
         }
     }

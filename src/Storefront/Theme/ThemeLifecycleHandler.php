@@ -14,30 +14,15 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 
 class ThemeLifecycleHandler
 {
-    /**
-     * @var ThemeLifecycleService
-     */
-    private $themeLifecycleService;
+    private ThemeLifecycleService $themeLifecycleService;
 
-    /**
-     * @var ThemeService
-     */
-    private $themeService;
+    private ThemeService $themeService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
+    private EntityRepositoryInterface $themeRepository;
 
-    /**
-     * @var StorefrontPluginRegistryInterface
-     */
-    private $storefrontPluginRegistry;
+    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
 
     public function __construct(
         ThemeLifecycleService $themeLifecycleService,
@@ -109,18 +94,18 @@ class ThemeLifecycleHandler
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('parentThemeId', $theme->getId()));
         $criteria->addAssociation('salesChannels');
-        /** @var ThemeCollection|null $childThemes */
-        $childThemes = $this->themeRepository->search($criteria, $context);
+        /** @var ThemeCollection $childThemes */
+        $childThemes = $this->themeRepository->search($criteria, $context)->getEntities();
 
         $childThemeSalesChannel = [];
-        if ($childThemes && $childThemes->count() > 0) {
+        if ($childThemes->count() > 0) {
             foreach ($childThemes as $childTheme) {
                 $childThemeSalesChannels = $childTheme->getSalesChannels();
-                if (!$childThemeSalesChannels || $childThemeSalesChannels->count() === 0) {
+                if ($childThemeSalesChannels === null || $childThemeSalesChannels->count() === 0) {
                     continue;
                 }
                 $salesChannels->merge($childThemeSalesChannels);
-                $childThemeSalesChannel[$childTheme->getName()] = array_values($childTheme->getSalesChannels()->getIds());
+                $childThemeSalesChannel[$childTheme->getName()] = array_values($childThemeSalesChannels->getIds());
             }
         }
 

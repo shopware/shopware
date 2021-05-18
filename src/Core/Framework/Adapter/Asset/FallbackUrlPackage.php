@@ -11,10 +11,10 @@ class FallbackUrlPackage extends UrlPackage
     public function __construct($baseUrls, VersionStrategyInterface $versionStrategy)
     {
         $baseUrls = iterator_to_array($this->applyFallback($baseUrls), false);
-        parent::__construct($baseUrls, $versionStrategy, null);
+        parent::__construct($baseUrls, $versionStrategy);
     }
 
-    private function applyFallback(array $baseUrls): iterable
+    private function applyFallback(array $baseUrls): \Generator
     {
         $request = Request::createFromGlobals();
         $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();

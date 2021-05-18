@@ -83,12 +83,12 @@ class CmsPageEntity extends Entity
      */
     protected $homeSalesChannels;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -223,12 +223,12 @@ class CmsPageEntity extends Entity
     public function getElementsOfType(string $type): array
     {
         $elements = [];
-        if (!$this->getSections()) {
+        if ($this->getSections() === null) {
             return $elements;
         }
 
         foreach ($this->getSections()->getBlocks() as $block) {
-            if (!$block->getSlots()) {
+            if ($block->getSlots() === null) {
                 continue;
             }
 

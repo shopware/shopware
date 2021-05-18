@@ -11,6 +11,8 @@ class EntitySerializer extends AbstractEntitySerializer
 {
     /**
      * @param array|Struct|null $entity
+     *
+     * @return \Generator
      */
     public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
     {

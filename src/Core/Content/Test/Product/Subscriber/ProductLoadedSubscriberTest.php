@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -34,7 +35,7 @@ class ProductLoadedSubscriberTest extends TestCase
     /**
      * @dataProvider propertyCases
      */
-    public function testSortProperties(array $product, array $expected, array $unexpected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
+    public function testSortProperties(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
@@ -45,6 +46,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $criteria->setIds([$product['id']])
             ->addAssociation('properties.group');
 
+        /** @var SalesChannelProductEntity $productEntity */
         $productEntity = $this->getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
@@ -97,13 +99,6 @@ class ProductLoadedSubscriberTest extends TestCase
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
-        ];
-
-        $language = [
-            'id' => $ids->create('language'),
-            'name' => 'sub_en',
-            'parentId' => Defaults::LANGUAGE_SYSTEM,
-            'localeId' => $this->getLocaleIdOfSystemLanguage(),
         ];
 
         return [
@@ -159,10 +154,7 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ],
-                [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria()),
-                false,
-                $language,
             ],
             [
                 array_merge($defaults, [
@@ -230,10 +222,7 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ],
                 [],
-                [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria()),
-                false,
-                $language,
             ],
         ];
     }

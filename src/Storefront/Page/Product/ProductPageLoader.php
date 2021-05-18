@@ -136,8 +136,9 @@ class ProductPageLoader
                 continue;
             }
             foreach ($optionIds as $optionId) {
-                if ($groupOptions->has($optionId)) {
-                    $options->add($groupOptions->get($optionId));
+                $groupOption = $groupOptions->get($optionId);
+                if ($groupOption !== null) {
+                    $options->add($groupOption);
                 }
             }
         }
@@ -178,10 +179,6 @@ class ProductPageLoader
         SalesChannelProductEntity $product,
         Request $request
     ): void {
-        if (!$page->getSections()) {
-            return;
-        }
-
         $resolverContext = new EntityResolverContext($salesChannelContext, $request, $this->productDefinition, $product);
 
         foreach ($page->getSections() as $section) {

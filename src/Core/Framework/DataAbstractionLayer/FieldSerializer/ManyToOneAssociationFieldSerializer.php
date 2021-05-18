@@ -16,14 +16,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 {
-    /**
-     * @var WriteCommandExtractor
-     */
-    protected $writeExtractor;
+    protected WriteCommandExtractor $writeExtractor;
 
-    public function __construct(
-        WriteCommandExtractor $writeExtractor
-    ) {
+    public function __construct(WriteCommandExtractor $writeExtractor)
+    {
         $this->writeExtractor = $writeExtractor;
     }
 
@@ -34,6 +30,15 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         $referenceField = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
+        if ($referenceField === null) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Could not find reference field "%s" from definition "%s"',
+                    $field->getReferenceField(),
+                    \get_class($field->getReferenceDefinition())
+                )
+            );
+        }
         $key = $field->getPropertyName();
         $value = $data[$key] ?? null;
         if ($value === null) {
@@ -45,8 +50,17 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         $fkField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
+        if ($fkField === null) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Could not find FK field "%s" from field "%s"',
+                    $field->getStorageName(),
+                    \get_class($parameters->getDefinition())
+                )
+            );
+        }
 
-        $isPrimary = $fkField && $fkField->is(PrimaryKey::class);
+        $isPrimary = $fkField->is(PrimaryKey::class);
 
         if (isset($value[$referenceField->getPropertyName()])) {
             $id = $value[$referenceField->getPropertyName()];
@@ -70,8 +84,6 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         // in case of a reversed many to one configuration we have to return nothing, otherwise the primary key would be overwritten
         if (!$isPrimary) {
             $data[$fkField->getPropertyName()] = $id;
-        }
-        if ($fkField) {
         }
 
         $data[$key] = $value;

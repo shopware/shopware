@@ -38,8 +38,12 @@ class OpenApiDefinitionSchemaBuilder
     /**
      * @return Schema[]
      */
-    public function getSchemaByDefinition(EntityDefinition $definition, string $path, bool $forSalesChannel, bool $onlyFlat = false): array
-    {
+    public function getSchemaByDefinition(
+        EntityDefinition $definition,
+        string $path,
+        bool $forSalesChannel,
+        bool $onlyFlat = false
+    ): array {
         $attributes = [];
         $requiredAttributes = [];
         $relationships = [];
@@ -80,6 +84,10 @@ class OpenApiDefinitionSchemaBuilder
 
             if ($field instanceof TranslatedField && $definition->getTranslationDefinition()) {
                 $field = $definition->getTranslationDefinition()->getFields()->get($field->getPropertyName());
+            }
+
+            if ($field === null) {
+                continue;
             }
 
             if ($field instanceof JsonField) {

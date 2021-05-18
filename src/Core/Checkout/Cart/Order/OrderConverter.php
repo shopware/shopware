@@ -82,25 +82,13 @@ class OrderConverter
      */
     protected $eventDispatcher;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private StateMachineRegistry $stateMachineRegistry;
 
-    /**
-     * @var NumberRangeValueGeneratorInterface
-     */
-    private $numberRangeValueGenerator;
+    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
-    /**
-     * @var OrderDefinition
-     */
-    private $orderDefinition;
+    private OrderDefinition $orderDefinition;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderAddressRepository;
+    private EntityRepositoryInterface $orderAddressRepository;
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
@@ -351,11 +339,23 @@ class OrderConverter
 
             $deliveryPositions = new DeliveryPositionCollection();
 
+            if ($orderDelivery->getPositions() === null) {
+                continue;
+            }
+
             foreach ($orderDelivery->getPositions() as $position) {
+                if ($position->getOrderLineItem() === null) {
+                    continue;
+                }
+
                 $identifier = $position->getOrderLineItem()->getIdentifier();
 
                 // line item has been removed and will not be added to delivery
                 if ($lineItems->get($identifier) === null) {
+                    continue;
+                }
+
+                if ($position->getPrice() === null) {
                     continue;
                 }
 
@@ -369,6 +369,13 @@ class OrderConverter
                 $deliveryPosition->addExtension(self::ORIGINAL_ID, new IdStruct($position->getId()));
 
                 $deliveryPositions->add($deliveryPosition);
+            }
+
+            if ($orderDelivery->getShippingMethod() === null
+                || $orderDelivery->getShippingOrderAddress() === null
+                || $orderDelivery->getShippingOrderAddress()->getCountry() === null
+            ) {
+                continue;
             }
 
             $cartDelivery = new Delivery(

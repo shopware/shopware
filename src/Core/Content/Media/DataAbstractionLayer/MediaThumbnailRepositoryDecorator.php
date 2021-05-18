@@ -21,25 +21,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 {
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $innerRepo;
+    private EntityRepositoryInterface $innerRepo;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
     public function __construct(
         EntityRepositoryInterface $innerRepo,
@@ -144,10 +132,9 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
                 'mediaId' => $thumbnail->getMediaId(),
             ];
 
-            $thumbnailPaths[] = $this->urlGenerator->getRelativeThumbnailUrl(
-                $thumbnail->getMedia(),
-                $thumbnail
-            );
+            if ($thumbnail->getMedia() !== null) {
+                $thumbnailPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($thumbnail->getMedia(), $thumbnail);
+            }
         }
 
         $deleteMsg = new DeleteFileMessage();

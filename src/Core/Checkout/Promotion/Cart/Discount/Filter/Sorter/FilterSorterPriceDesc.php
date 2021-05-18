@@ -23,10 +23,18 @@ class FilterSorterPriceDesc implements FilterSorterInterface
             usort($metaItems, static function (LineItemQuantity $a, LineItemQuantity $b) use ($package) {
                 // we only have meta data here
                 // so lets get the prices
-                $priceA = $package->getCartItem($a->getLineItemId())->getPrice()->getUnitPrice();
-                $priceB = $package->getCartItem($b->getLineItemId())->getPrice()->getUnitPrice();
+                $priceA = $package->getCartItem($a->getLineItemId())->getPrice();
+                $priceB = $package->getCartItem($b->getLineItemId())->getPrice();
 
-                return $priceB <=> $priceA;
+                if ($priceA === null) {
+                    return 1;
+                }
+
+                if ($priceB === null) {
+                    return 0;
+                }
+
+                return $priceB->getUnitPrice() <=> $priceA->getUnitPrice();
             });
 
             $package->setMetaItems(new LineItemQuantityCollection($metaItems));

@@ -118,7 +118,9 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                 $isSamePaymentMethod = false;
                 if ($order->getTransactions() !== null && $order->getTransactions()->count() >= 1) {
                     foreach ($order->getTransactions() as $transaction) {
-                        if ($transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED) {
+                        if ($transaction->getStateMachineState() !== null
+                            && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
+                        ) {
                             if ($transaction->getPaymentMethodId() === $paymentMethodId) {
                                 $isSamePaymentMethod = true;
 

@@ -3,7 +3,6 @@
 namespace Shopware\Elasticsearch\DependencyInjection;
 
 use Monolog\Logger;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -15,7 +14,6 @@ class Configuration implements ConfigurationInterface
 
         $debug = ($_SERVER['APP_ENV'] ?? 'prod') !== 'prod';
 
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()

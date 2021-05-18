@@ -14,10 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 {
-    /**
-     * @var AbsolutePriceCalculator
-     */
-    private $priceCalculator;
+    private AbsolutePriceCalculator $priceCalculator;
 
     public function __construct(AbsolutePriceCalculator $priceCalculator)
     {
@@ -60,6 +57,10 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 
         foreach ($packages as $package) {
             foreach ($package->getCartItems() as $lineItem) {
+                if ($lineItem->getPrice() === null) {
+                    continue;
+                }
+
                 $itemTotal = $lineItem->getPrice()->getTotalPrice();
 
                 $factor = $itemTotal / $totalOriginalSum;

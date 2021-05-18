@@ -35,6 +35,10 @@ const mailTemplateMediaMock = {
     fileSize: 792866
 };
 
+const mailTemplateTypeMock = {
+    contentHtml: ''
+};
+
 const repositoryMockFactory = () => {
     return {
         search: () => Promise.resolve({}),
@@ -290,5 +294,15 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             message: 'CTRL + S',
             appearance: 'light'
         });
+    });
+
+    it('should not be able to show preview if html content is empty', async () => {
+        wrapper = createWrapper();
+
+        wrapper.setData({ mailTemplate: mailTemplateTypeMock });
+
+        const sidebarItem = wrapper.find('[icon=default-eye-open]');
+
+        expect(sidebarItem.attributes().disabled).toBeTruthy();
     });
 });

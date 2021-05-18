@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -191,8 +190,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->container->get(SystemConfigService::class),
-            $this->container->get(ThemeLifecycleService::class)
+            $this->container->get(SystemConfigService::class)
         );
     }
 

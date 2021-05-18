@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -53,13 +54,16 @@ class UninstallAppCommand extends Command
             return 1;
         }
 
+        $keepUserData = $input->getOption('keep-user-data');
+
         $this->appLifecycle->delete(
             $app->getName(),
             [
                 'id' => $app->getId(),
                 'roleId' => $app->getAclRoleId(),
             ],
-            $context
+            $context,
+            $keepUserData
         );
 
         $io->success('App uninstalled successfully.');
@@ -71,6 +75,7 @@ class UninstallAppCommand extends Command
     {
         $this->setDescription('Uninstalls the app')
             ->addArgument('name', InputArgument::REQUIRED, 'The name of the app');
+        $this->addOption('keep-user-data', null, InputOption::VALUE_NONE, 'Keep user data of the app');
     }
 
     private function getAppByName(string $name, Context $context): ?AppEntity

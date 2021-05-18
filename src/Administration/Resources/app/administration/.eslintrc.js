@@ -90,6 +90,25 @@ module.exports = {
                     ]
                 }]
             }
+        }, {
+            extends: [
+                'plugin:vue/essential',
+                'plugin:vue/recommended',
+                'eslint:recommended'
+            ],
+            parser: 'vue-eslint-parser',
+            files: ['**/*.html.twig'],
+            rules: {
+                'vue/component-name-in-template-casing': ['error', 'kebab-case', {
+                    registeredComponentsOnly: true,
+                    ignores: []
+                }],
+                'vue/comment-directive': 'off',
+                'vue/no-multiple-template-root': 'off',
+                'eol-last': 'off', // no newline required at the end of file
+                'max-len': 'off',
+                'vue/multiline-html-element-content-newline': 'off' // allow more spacy templates
+            }
         }
     ]
 };

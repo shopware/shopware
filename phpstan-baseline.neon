@@ -1766,21 +1766,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/NamespaceHierarchyBuilder.php
 
 		-
-			message: "#^Binary operation \"\\+\" between int\\|string\\|false and 1 results in an error\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/TemplateFinder.php
-
-		-
-			message: "#^Parameter \\#1 \\$name of method Twig\\\\Loader\\\\LoaderInterface\\:\\:exists\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/TemplateFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TemplateFinder\\:\\:find\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/TemplateFinder.php
-
-		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TemplateIterator implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/TemplateIterator.php

@@ -45,7 +45,6 @@ Component.register('sw-settings-price-rounding', {
         },
         showHeaderInfo() {
             return this.totalRounding.interval !== 0.01
-                || this.itemRounding.interval !== 0.01
                 || this.itemRounding.decimals !== this.totalRounding.decimals;
         },
         showHeaderWarning() {

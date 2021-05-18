@@ -25,6 +25,13 @@
     </plugins>
 
     <issueHandlers>
+        <!-- Optional dependencies -->
+        <UndefinedDocblockClass>
+            <errorLevel type="info">
+                <referencedClass name="Redis"/>
+            </errorLevel>
+        </UndefinedDocblockClass>
+
         <!-- Shopware related issues which are ignored -->
         <UnusedMethodCall>
             <errorLevel type="info">

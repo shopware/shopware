@@ -174,11 +174,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
         $variantId = $this->productRepository->searchIds($criteria, $context);
 
-        if (\count($variantId->getIds()) > 0) {
-            return $variantId->getIds()[0];
-        }
-
-        return $productId;
+        return $variantId->firstId() ?? $productId;
     }
 
     private function createCriteria(string $pageId, Request $request): Criteria

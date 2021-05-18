@@ -1426,11 +1426,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Detail/ProductConfiguratorLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\ProductDetailRoute\\:\\:findBestVariant\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php
-
-		-
 			message: "#^Possibly invalid array key type array\\|string\\.$#"
 			count: 3
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingLoader.php

@@ -108,7 +108,14 @@ class Feature
      */
     public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
     {
-        trigger_deprecation('shopware/core', $sinceVersion, 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message, $args);
+        if (self::isActive($flag) || !self::has($flag)) {
+            trigger_deprecation('shopware/core', $sinceVersion, 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message, $args);
+        }
+    }
+
+    public static function has(string $flag): bool
+    {
+        return isset(self::$registeredFeatures[$flag]);
     }
 
     public static function getAll(): array

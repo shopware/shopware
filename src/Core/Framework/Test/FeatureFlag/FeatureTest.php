@@ -75,6 +75,14 @@ class FeatureTest extends TestCase
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
+    public function testHasFunction(): void
+    {
+        $this->setUpFixtures();
+
+        static::assertFalse(Feature::has('not-existing'));
+        static::assertTrue(Feature::has('FEATURE_NEXT_102'));
+    }
+
     public function testTheCallableGetsExecutes(): void
     {
         $this->setUpFixtures();

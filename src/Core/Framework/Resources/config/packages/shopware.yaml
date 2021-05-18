@@ -119,11 +119,6 @@ shopware:
               major: false
               description: "App System 3.0 - Dispatch webhook overqueue"
               # issue: NEXT-14363
-            - name: FEATURE_NEXT_12654
-              default: false
-              major: false
-              description: "Preview available variables of email templates in the administration"
-              # issue: NEXT-12654
             - name: FEATURE_NEXT_8225
               default: false
               major: false

@@ -530,6 +530,7 @@
     "media_tag.media",
     "media_tag.tag",
     "product.id",
+    "product.categoryIds",
     "product.versionId",
     "product.parentId",
     "product.parentVersionId",

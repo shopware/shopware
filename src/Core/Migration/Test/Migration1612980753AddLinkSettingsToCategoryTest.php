@@ -76,6 +76,8 @@ class Migration1612980753AddLinkSettingsToCategoryTest extends TestCase
     private function rollback(): void
     {
         $this->connection->executeStatement('
+            # workaround for mariadb bug
+            FLUSH TABLES;
             ALTER TABLE `category_translation`
             DROP COLUMN link_type,
             DROP COLUMN link_new_tab,

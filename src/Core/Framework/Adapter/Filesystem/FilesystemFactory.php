@@ -41,6 +41,10 @@ class FilesystemFactory
         $config = $this->resolveFilesystemConfig($config);
         $factory = $this->findAdapterFactory($config['type']);
 
+        if (isset($config['config']['options']['visibility'])) {
+            $config['visibility'] = $config['config']['options']['visibility'];
+        }
+
         $filesystem = new LeagueFilesystem(
             $factory->create($config['config']),
             ['visibility' => $config['visibility']]

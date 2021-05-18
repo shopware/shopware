@@ -60,7 +60,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     it('product: should return all missing required fields', async () => {
         const invalidFields = importExportProfileMappingService.validate('product', []);
 
-        expect(invalidFields.missingRequiredFields).toEqual([
+        expect(invalidFields.missingRequiredFields.sort()).toEqual([
             'id',
             'versionId',
             'parentVersionId',
@@ -71,7 +71,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'name',
             'cmsPageVersionId',
             'createdAt'
-        ]);
+        ].sort());
     });
 
     it('product: should find missing required when parentProduct is existing', async () => {

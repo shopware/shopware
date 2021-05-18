@@ -36,8 +36,12 @@ class EntityHydrator
      */
     private $instances = [];
 
+    private array $objects = [];
+
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
     {
+        $this->objects = [];
+
         foreach ($rows as $row) {
             $collection->add($this->hydrateEntity($this->createClass($entityClass), $definition, $row, $root, $context));
         }
@@ -109,6 +113,12 @@ class EntityHydrator
 
         $entity->setUniqueIdentifier($identifier);
         $entity->internalSetEntityName($definition->getEntityName());
+
+        $cacheKey = $root . $definition->getEntityName() . '::' . $identifier;
+
+        if (isset($this->objects[$cacheKey])) {
+            return $this->objects[$cacheKey];
+        }
 
         /** @var ArrayStruct $mappingStorage */
         $mappingStorage = $this->createClass(ArrayStruct::class);
@@ -203,6 +213,9 @@ class EntityHydrator
                 $entity->assign([$propertyName => $decoded]);
             }
         }
+
+        //write object cache key to prevent multiple hydration for the same entity
+        $this->objects[$cacheKey] = $entity;
 
         return $entity;
     }

@@ -410,6 +410,11 @@ class ProductEntity extends Entity
     protected $tagIds;
 
     /**
+     * @var array|null
+     */
+    protected $categoryIds;
+
+    /**
      * @var ProductReviewCollection|null
      */
     protected $productReviews;
@@ -1426,5 +1431,15 @@ class ProductEntity extends Entity
     public function setStreams(ProductStreamCollection $streams): void
     {
         $this->streams = $streams;
+    }
+
+    public function getCategoryIds(): ?array
+    {
+        return $this->categoryIds;
+    }
+
+    public function setCategoryIds(?array $categoryIds): void
+    {
+        $this->categoryIds = $categoryIds;
     }
 }

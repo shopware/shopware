@@ -21,7 +21,6 @@
       "messageServerError": "The authorization server encountered an unexpected condition.",
       "messageInvalidRefreshToken": "Invalid refresh token.",
       "messageAccessDenied": "Request denied by authorization server.",
-      "messageInvalidGrant": "Invalid authorization grant or refresh token.",
       "messageGeneralRequestError": "Something went wrong requesting \"{url}\".",
       "forgottenPasswordLink": "Did you forget your password?"
     },

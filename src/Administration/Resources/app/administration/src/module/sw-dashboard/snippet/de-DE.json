@@ -9,50 +9,50 @@
       "daytimeHeadline": {
         "5h": [
           "Guten Morgen, {greetingName}.",
-          "Hab einen schönen Tag, {greetingName}."
+          "Moin, {greetingName}!"
         ],
         "11h": [
           "Hallo, {greetingName}.",
           "Guten Tag, {greetingName}.",
-          "Howdy, {greetingName}."
+          "Hey, {greetingName}!"
         ],
         "18h": [
-          "Guten Tag, {greetingName}.",
-          "Schönen Nachmittag, {greetingName}."
+          "Hi, {greetingName}!",
+          "Guten Abend, {greetingName}."
         ],
         "23h": [
-          "Guten Abend, {greetingName}.",
-          "Noch wach, {greetingName}"
+          "Schön dich zu sehen, {greetingName}!",
+          "Noch wach, {greetingName}?"
         ]
       },
       "daytimeWelcomeText": {
         "5h": [
-          "Ein guter Zeitpunkt für eine Tasse Kaffee oder Tee. Oder nicht?",
-          "Du hast einen tollen Start hingelegt.",
-          "Heute zu viel auf Deiner To-do-Liste? Konzentriere Dich auf die 20 % der To-dos, die 80 % der Wirkung ausmachen.",
-          "Du siehst heute großartig aus."
+          "Erstmal eine Tasse Kaffee. Oder trinkst Du lieber Tee?",
+          "Wir hoffen, Du hast einen tollen Start in den Tag!",
+          "Heute viel zu tun? Konzentriere Dich auf die 20% der Aufgaben, die 80% der Wirkung ausmachen!",
+          "Du siehst heute einfach großartig aus!"
         ],
         "11h": [
-          "Ein neuer Tag, eine neue Chance, Dein Geschäft zu erweitern.",
-          "Du kannst heute das Leben von jemandem beeinflussen.",
-          "Du siehst heute toll aus.",
-          "Du hast heute die Chance, das Morgen zu bauen, wie Du es Dir wünscht."
+          "Ein neuer Tag, eine neue Chance Dein Geschäft auszubauen.",
+          "Du hast heute die Chance, jemandes Leben zu verändern.",
+          "Du siehst heute echt toll aus!",
+          "Du hast heute die Chance, das Morgen zu gestalten, so wie Du es Dir wünschst."
         ],
         "18h": [
-          "Hier sind einige Einblicke in Deine letzten Shop-Aktivitäten.",
-          "Hier siehst Du, was heute in Deinem Shop passiert ist.",
-          "Du kannst heute das morgen gestalten."
+          "Der Tag ist fast um, Zeit die neuesten Aktivitäten in Deinem Shop anzuschauen.",
+          "Zeit zurückzublicken - Schau Dir an, was heute in Deinem Shop passiert ist.",
+          "Mit dem was Du heute tust, gestaltest Du das Morgen."
         ],
         "23h": [
-          "Finde die Schönheit in allem um Dich zu inspirieren.",
-          "Ein guter Zeitpunkt für eine Tasse Kaffee oder Tee. Oder nicht?",
-          "Fast alles funktioniert wieder, wenn Du den Stecker ein paar Minuten aus der Steckdose ziehst, auch Du. Mach eine Pause."
+          "Finde die Schönheit in allem und lass Dich davon inspirieren.",
+          "Schau, draußen hat jemand den Darkmode angemacht.",
+          "Viele Dinge lassen sich reparieren, indem man den Stecker für ein paar Minuten aus der Steckdose zieht. Das gilt auch für Dich. Mach mal Pause!"
         ]
       }
     },
     "helpcard": {
-      "headline": "Mach dich bereit, deine Produkte zu verkaufen.",
-      "helpcenter": "Shopware Hilfe Center",
+      "headline": "Mach Dich bereit, Deine Produkte zu verkaufen.",
+      "helpcenter": "Shopware-Hilfe-Zentrum",
       "helpcenterLink": "https://docs.shopware.com/de/shopware-6-de",
       "takeOffTip": "Tipps für Deinen ersten Verkauf",
       "takeOffTipLink": "https://www.shopware.com/de/news/durchstarten-im-e-commerce-10-tipps-fuer-deine-ersten-verkaeufe/",
@@ -61,7 +61,7 @@
     },
     "feedbackCard": {
       "headline": "Der erste Eindruck zählt.",
-      "text": "Erzähle uns von Deinem ersten Eindruck und hilf uns die Erfahrung mit Shopware besser zu machen.",
+      "text": "Berichte uns von Deinen ersten Erfahrungen und hilf uns, Shopware besser zu machen.",
       "feedback": "Feedback geben",
       "feedbackLink": "https://issues.shopware.com"
     },

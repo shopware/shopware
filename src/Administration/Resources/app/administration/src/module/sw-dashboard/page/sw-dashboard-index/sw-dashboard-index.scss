@@ -10,7 +10,8 @@ $content-max-width: 960px;
 
     &__welcome-title {
         width: 100%;
-        margin-bottom: 6px;
+        margin-top: 40px;
+        margin-bottom: 2px;
 
         @media (min-width: 1024px) {
             width: 70%;

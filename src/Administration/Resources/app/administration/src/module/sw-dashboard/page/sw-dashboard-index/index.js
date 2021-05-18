@@ -13,7 +13,8 @@ Component.register('sw-dashboard-index', {
         return {
             historyOrderData: null,
             todayOrderData: [],
-            todayOrderDataLoaded: false
+            todayOrderDataLoaded: false,
+            cachedHeadlineGreetingKey: null
         };
     },
 
@@ -25,17 +26,22 @@ Component.register('sw-dashboard-index', {
 
     computed: {
         welcomeMessage() {
-            if (this.greetingName === '') {
-                return this.$tc(
-                    'sw-dashboard.introduction.headlineUnkownUser'
-                );
+            const greetingName = this.greetingName;
+            const welcomeMessage = this.$tc(
+                this.cachedHeadlineGreetingKey,
+                1,
+                { greetingName }
+            );
+
+            // in the headline we want to greet the user by his firstname
+            // if his first name is not available, we remove the personalized greeting part
+            // but we want to make sure the punctuation like `.`, `!` or `?` is kept
+            // for example "Still awake, ?" -> "Still awake?"…
+            if (!greetingName) {
+                return welcomeMessage.replace(/\,\s*/, '');
             }
 
-            return this.$tc(
-                this.getGreetingTimeKey('daytimeHeadline'),
-                1,
-                { greetingName: this.greetingName }
-            );
+            return welcomeMessage;
         },
 
         welcomeSubline() {
@@ -45,15 +51,12 @@ Component.register('sw-dashboard-index', {
         greetingName() {
             const { currentUser } = Shopware.State.get('session');
 
-            if (!currentUser) {
-                return '';
-            }
-
-            if (currentUser.firstName) {
-                return currentUser.firstName;
-            }
-
-            return currentUser.username;
+            // if currentUser?.firstName returns a loose falsy value
+            // like `""`, `0`, `false`, `null`, `undefined`
+            // we want to use `null` in the ongoing process chain,
+            // otherwise we would need to take care of `""` and `null`
+            // or `undefined` in tests and other places
+            return currentUser?.firstName || null;
         },
 
         chartOptionsOrderCount() {
@@ -185,6 +188,9 @@ Component.register('sw-dashboard-index', {
 
     methods: {
         createdComponent() {
+            // cache personalized greeting key to avoid headline swap
+            this.cachedHeadlineGreetingKey = this.cachedHeadlineGreetingKey ?? this.getGreetingTimeKey('daytimeHeadline');
+
             if (!this.acl.can('order.viewer')) {
                 return;
             }

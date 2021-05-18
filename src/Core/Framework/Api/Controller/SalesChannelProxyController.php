@@ -180,7 +180,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $this->fetchSalesChannel($salesChannelId, $context);
 
-        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
@@ -224,7 +224,7 @@ class SalesChannelProxyController extends AbstractController
 
         $this->persistPermissions($request);
 
-        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
         $this->updateCustomerToContext($request->get(self::CUSTOMER_ID), $salesChannelContext);
 
@@ -255,7 +255,7 @@ class SalesChannelProxyController extends AbstractController
 
         $this->fetchSalesChannel($salesChannelId, $context);
 
-        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
         $calculatedPrice = $this->parseCalculatedPriceByRequest($request);
 
@@ -384,7 +384,7 @@ class SalesChannelProxyController extends AbstractController
         }
     }
 
-    private function fetchSalesChannelContext(string $salesChannelId, Request $request): SalesChannelContext
+    private function fetchSalesChannelContext(string $salesChannelId, Request $request, Context $originalContext): SalesChannelContext
     {
         $contextToken = $this->getContextToken($request);
 
@@ -393,7 +393,9 @@ class SalesChannelProxyController extends AbstractController
                 $salesChannelId,
                 $contextToken,
                 $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-                $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
+                $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
+                null,
+                $originalContext
             )
         );
 

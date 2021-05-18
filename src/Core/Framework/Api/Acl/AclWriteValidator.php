@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Acl;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
@@ -21,16 +22,18 @@ class AclWriteValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        if ($event->getContext()->getScope() === Context::SYSTEM_SCOPE) {
+        $context = $event->getContext();
+        $source = $event->getContext()->getSource();
+        if ($source instanceof AdminSalesChannelApiSource) {
+            $context = $source->getOriginalContext();
+            $source = $context->getSource();
+        }
+
+        if ($context->getScope() === Context::SYSTEM_SCOPE || !$source instanceof AdminApiSource || $source->isAdmin()) {
             return;
         }
 
         $commands = $event->getCommands();
-        $source = $event->getContext()->getSource();
-        if (!$source instanceof AdminApiSource || $source->isAdmin()) {
-            return;
-        }
-
         $missingPrivileges = [];
 
         foreach ($commands as $command) {

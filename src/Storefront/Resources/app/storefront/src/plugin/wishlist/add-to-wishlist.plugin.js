@@ -17,7 +17,7 @@ export default class AddToWishlistPlugin extends Plugin {
         }
 
         this._registerEvents();
-        this.el.classList.remove(this.classList.isLoading);
+        this.initStateClasses();
     }
 
     /**

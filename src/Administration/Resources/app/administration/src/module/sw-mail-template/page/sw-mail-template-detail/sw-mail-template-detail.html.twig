@@ -316,7 +316,7 @@
 
                         <sw-sidebar-item icon="default-eye-open"
                                          :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
-                                         :disabled="mailTemplate.contentHtml === undefined || mailTemplate.mailTemplateTypeId === undefined"
+                                         :disabled="showPreview"
                                          class="sw-mail-template-detail__show-preview-sidebar"
                                          @click="onClickShowPreview"
                                          v-if="feature.isActive('FEATURE_NEXT_12654')">

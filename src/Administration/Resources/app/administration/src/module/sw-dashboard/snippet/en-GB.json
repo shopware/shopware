@@ -9,44 +9,44 @@
       "daytimeHeadline": {
         "5h": [
           "Good morning, {greetingName}.",
-          "Have a nice day, {greetingName}"
+          "Hi, {greetingName}!"
         ],
         "11h": [
           "Hello, {greetingName}.",
-          "Hello there, {greetingName}.",
-          "Howdy, {greetingName}"
+          "Good day, {greetingName}.",
+          "Howdy, {greetingName}!"
         ],
         "18h": [
-          "Good afternoon, {greetingName}",
-          "Good afternoon, {greetingName}"
+          "Good evening, {greetingName}.",
+          "Hi, {greetingName}!"
         ],
         "23h": [
-          "Good evening, {greetingName}",
-          "Still up, {greetingName}"
+          "Good to see you, {greetingName}.",
+          "Still up, {greetingName}?"
         ]
       },
       "daytimeWelcomeText": {
         "5h": [
-          "A great time for tea or coffee, right?",
-          "You’re off to a great start.",
-          "Too much on your to-do list today? Focus on the 20% of to-dos that makes 80% of the impact.",
-          "You look great today."
+          "Time for coffee, right?",
+          "You’re off to a great start!",
+          "Too much to do today? Focus on those tasks that will have most of the impact.",
+          "You look stunning today!"
         ],
         "11h": [
           "Another day, another chance to grow your business.",
           "You can impact someone's life today.",
-          "You look great today.",
-          "Today is the opportunity to build the tomorrow you want."
+          "You look fabulous today!",
+          "Today you've got the chance to shape the tomorrow you want."
         ],
         "18h": [
-          "Here are some insights on your latest shop activities.",
-          "Here’s how your shop is doing today.",
-          "Today is the opportunity to build the tomorrow you want"
+          "The day is almost done, time to check your shop's latest activities.",
+          "Time to evaluate - Have a look at how your shop has been doing today.",
+          "Today's actions are tomorrow's result."
         ],
         "23h": [
           "Find beauty in everything to inspire yourself.",
-          "A great time for tea or coffee, right?",
-          "Almost everything will work again if you unplug it for a few minutes, including you. Take a short break."
+          "Look, outside someone has toggled the dark mode.",
+          "Almost everything will work again, if you unplug it for a few minutes - that includes you. Take a break."
         ]
       }
     },
@@ -61,7 +61,7 @@
     },
     "feedbackCard": {
       "headline": "First impressions count.",
-      "text": "We’d love to hear your first impressions to help us improve your experience with Shopware.",
+      "text": "Share your first impressions and help us improve the overall Shopware experience.",
       "feedback": "Give feedback",
       "feedbackLink": "https://issues.shopware.com"
     },

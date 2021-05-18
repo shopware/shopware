@@ -6,14 +6,12 @@ use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -73,17 +71,13 @@ class MailActionController extends AbstractController
      */
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
-        if (Feature::isActive('FEATURE_NEXT_12654')) {
-            $data = $post->all();
-            $templateData = $data['mailTemplateType']['templateData'];
+        $data = $post->all();
+        $templateData = $data['mailTemplateType']['templateData'];
 
-            $this->templateRenderer->enableTestMode();
-            $contents['text/html'] = $this->templateRenderer->render($data['mailTemplate']['contentHtml'], $templateData, $context);
-            $this->templateRenderer->disableTestMode();
+        $this->templateRenderer->enableTestMode();
+        $contents['text/html'] = $this->templateRenderer->render($data['mailTemplate']['contentHtml'], $templateData, $context);
+        $this->templateRenderer->disableTestMode();
 
-            return new JsonResponse($contents['text/html']);
-        }
-
-        throw new NotFoundHttpException();
+        return new JsonResponse($contents['text/html']);
     }
 }

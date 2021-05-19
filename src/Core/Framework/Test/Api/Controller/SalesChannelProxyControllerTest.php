@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Acl\AclOrderCreateDiscountValidator;
+use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -966,11 +966,12 @@ class SalesChannelProxyControllerTest extends TestCase
                 'order_transaction:create',
                 'order_delivery_position:create',
                 'mail_template_type:update',
+                'customer:update',
             ];
-            foreach ([true, false] as $orderCreate) {
+            foreach ([true, false] as $testOrderOnly) {
                 TestUser::createNewTestUser(
                     $browser->getContainer()->get(Connection::class),
-                    $orderCreate ? $orderPrivileges : [AclOrderCreateDiscountValidator::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE],
+                    $testOrderOnly ? $orderPrivileges : [CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE],
                 )->authorizeBrowser($browser);
                 $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannel()->getId()));
 
@@ -981,13 +982,13 @@ class SalesChannelProxyControllerTest extends TestCase
                 static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
                 static::assertTrue(str_contains(
                     $response['errors'][0]['detail'] ?? '',
-                    $orderCreate ? AclOrderCreateDiscountValidator::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE : 'order_line_item:create'
+                    $testOrderOnly ? CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE : 'order_line_item:create'
                 ));
             }
 
             TestUser::createNewTestUser(
                 $browser->getContainer()->get(Connection::class),
-                array_merge($orderPrivileges, [AclOrderCreateDiscountValidator::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE, 'customer:update'])
+                array_merge($orderPrivileges, [CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE])
             )->authorizeBrowser($browser);
             $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannel()->getId()));
 

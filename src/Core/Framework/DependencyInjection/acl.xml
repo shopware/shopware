@@ -15,6 +15,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Acl\AclWriteValidator">
+            <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -26,7 +27,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Acl\AclOrderCreateDiscountValidator">
+        <service id="Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener">
             <tag name="kernel.event_subscriber"/>
         </service>
 

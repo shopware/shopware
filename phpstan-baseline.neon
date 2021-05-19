@@ -16,11 +16,6 @@ parameters:
 			path: src/Core/Checkout/Cart/CartPersister.php
 
 		-
-			message: "#^Parameter \\#1 \\$entity of static method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryTime\\:\\:createFromEntity\\(\\) expects Shopware\\\\Core\\\\System\\\\DeliveryTime\\\\DeliveryTimeEntity, Shopware\\\\Core\\\\System\\\\DeliveryTime\\\\DeliveryTimeEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
-
-		-
 			message: "#^Cannot call method getDeliveryDate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
@@ -591,16 +586,6 @@ parameters:
 			path: src/Core/Content/Cms/Aggregate/CmsSection/CmsSectionCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\:\\:getName\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/CmsPageEntity.php
-
-		-
-			message: "#^Cannot call method getBlocks\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/CmsPageEntity.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\Command\\\\CreatePageCommand\\:\\:\\$products \\(array\\<string\\>\\) does not accept array\\<array\\|string\\>\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/Command/CreatePageCommand.php
@@ -726,11 +711,6 @@ parameters:
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
 
 		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\ToOneSerializer\\:\\:deserialize\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
@@ -742,11 +722,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\TranslationsSerializer\\:\\:serialize\\(\\) has parameter \\$translations with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
-
-		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
 
@@ -1186,11 +1161,6 @@ parameters:
 			path: src/Core/Content/Media/Subscriber/MediaLoadedSubscriber.php
 
 		-
-			message: "#^Parameter \\#3 \\$thumbnailSizes of method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:createThumbnailsForSizes\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeCollection, Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
 			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
@@ -1521,16 +1491,6 @@ parameters:
 			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
 
 		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Content/Property/PropertyGroupCollection.php
-
-		-
-			message: "#^Cannot call method sort\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Property/PropertyGroupCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\DataAbstractionLayer\\\\RuleIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/DataAbstractionLayer/RuleIndexer.php
@@ -1557,11 +1517,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getConfig\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/Api/SeoActionController.php
-
-		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/Api/SeoActionController.php
 
@@ -1672,11 +1627,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$baseUrls of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Asset\\\\FallbackUrlPackage\\:\\:applyFallback\\(\\) expects array, array\\<string\\>\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php
-
-		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php
 
@@ -2559,11 +2509,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToManyAssociationFieldSerializer\\:\\:map\\(\\) has parameter \\$data with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToManyAssociationFieldSerializer.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 5
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToOneAssociationFieldSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToOneAssociationFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
@@ -3642,11 +3587,6 @@ parameters:
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:\\$classes with generic class ReflectionClass does not specify its types\\: T$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of method Symfony\\\\Component\\\\Serializer\\\\Encoder\\\\JsonDecode\\:\\:decode\\(\\) expects string, bool\\|float\\|int\\|string given\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
 

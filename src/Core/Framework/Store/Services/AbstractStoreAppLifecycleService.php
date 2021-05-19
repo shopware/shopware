@@ -11,7 +11,7 @@ abstract class AbstractStoreAppLifecycleService
 {
     abstract public function installExtension(string $technicalName, Context $context): void;
 
-    abstract public function uninstallExtension(string $technicalName, Context $context): void;
+    abstract public function uninstallExtension(string $technicalName, Context $context, bool $keepUserData = false): void;
 
     abstract public function removeExtensionAndCancelSubscription(int $licenseId, string $technicalName, string $id, Context $context): void;
 

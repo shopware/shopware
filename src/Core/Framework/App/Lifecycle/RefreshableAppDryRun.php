@@ -41,7 +41,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
         $this->toBeUpdated[] = $manifest;
     }
 
-    public function delete(string $appName, array $app, Context $context): void
+    public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
     {
         $this->toBeDeleted[] = $appName;
     }

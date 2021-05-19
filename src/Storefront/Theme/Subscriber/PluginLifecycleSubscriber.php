@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
@@ -13,6 +14,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPl
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
+use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PluginLifecycleSubscriber implements EventSubscriberInterface
@@ -37,16 +39,23 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
      */
     private $themeLifecycleHandler;
 
+    /**
+     * @var ThemeLifecycleService
+     */
+    private $themeLifecycleService;
+
     public function __construct(
         StorefrontPluginRegistryInterface $storefrontPluginRegistry,
         string $projectDirectory,
         AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
-        ThemeLifecycleHandler $themeLifecycleHandler
+        ThemeLifecycleHandler $themeLifecycleHandler,
+        ThemeLifecycleService $themeLifecycleService
     ) {
         $this->storefrontPluginRegistry = $storefrontPluginRegistry;
         $this->projectDirectory = $projectDirectory;
         $this->pluginConfigurationFactory = $pluginConfigurationFactory;
         $this->themeLifecycleHandler = $themeLifecycleHandler;
+        $this->themeLifecycleService = $themeLifecycleService;
     }
 
     public static function getSubscribedEvents()
@@ -56,6 +65,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             PluginPreUpdateEvent::class => 'pluginUpdate',
             PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
             PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
+            PluginPostUninstallEvent::class => 'pluginPostUninstall',
         ];
     }
 
@@ -108,6 +118,15 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         }
 
         $this->themeLifecycleHandler->handleThemeUninstall($config, $event->getContext()->getContext());
+    }
+
+    public function pluginPostUninstall(PluginPostUninstallEvent $event): void
+    {
+        if ($event->getContext()->keepUserData()) {
+            return;
+        }
+
+        $this->themeLifecycleService->removeTheme($event->getPlugin()->getName(), $event->getContext()->getContext());
     }
 
     /**

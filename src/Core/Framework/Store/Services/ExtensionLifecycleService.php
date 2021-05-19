@@ -78,7 +78,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->uninstallExtension($technicalName, $context);
+        $this->storeAppLifecycleService->uninstallExtension($technicalName, $context, $keepUserData);
     }
 
     public function activate(string $type, string $technicalName, Context $context): void

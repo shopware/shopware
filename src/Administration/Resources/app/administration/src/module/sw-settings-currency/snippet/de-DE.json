@@ -73,7 +73,7 @@
       "grandHeadline": "Summen",
       "grandSubline": "Rundung gilt für die Gesamtsumme des Warenkorbs",
       "headerWarning": "Unterschiedliche Rundungsintervalle - Stelle sicher, dass Deine angeschlossenen Service-Anbieter diese Konfiguration unterstützen, um Buchhaltungsprobleme zu vermeiden.",
-      "headerInfo": "Die Steuerberechnung erfolgt auf Basis der ungerundeten Summen. Rundungsdifferenzen werden bei der Steuerberechnung nicht berücksichtigt.",
+      "headerInfo": "Die Steuerberechnung für Gesamtsummen erfolgt auf Basis der ungerundeten Summen. Auftretende Rundungsdifferenzen werden bei der Steuerberechnung nicht berücksichtigt.",
       "helpTextDecimals": "Nachkommastellen geben die maximale Anzahl von Ziffern nach dem Dezimaltrennzeichen an.",
       "helpTextInterval": "Verwende Rundungsintervalle, um Märkte zu berücksichtigen, bei denen die niedrigsten physischen Stückelungen der Währung abgeschafft wurden und Bargeld-Rundung vorhanden ist. <br><br> Tipp: Wähle \"Keine\", wenn Du keine Preisrundung anwenden möchtest. Z.B. bei Verwendung von mehr als zwei Nachkommastellen.",
       "helpTextRoundForNet": "Aktiviere zusätzlich die Rundung für Netto-Kundengruppen.",

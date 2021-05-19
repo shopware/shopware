@@ -1,13 +1,5 @@
 {% block sw_settings_price_rounding %}
     <div class="sw-settings-price-rounding">
-        {% block sw_settings_price_rounding_header_info %}
-            <sw-alert v-if="showHeaderInfo"
-                      class="sw-settings-price-rounding__header-info"
-                      variant="info">
-                {{ $tc('sw-settings-currency.price-rounding.headerInfo') }}
-            </sw-alert>
-        {% endblock %}
-
         {% block sw_settings_price_rounding_header_warning %}
             <sw-alert v-if="showHeaderWarning"
                       class="sw-settings-price-rounding__header-warning"
@@ -97,6 +89,14 @@
 
         {# @deprecated tag:v6.5.0 - Block will be removed completely including the content, use `sw_settings_price_rounding_header_warning` instead #}
         {% block sw_settings_price_rounding_subline_description %}
+        {% endblock %}
+
+        {% block sw_settings_price_rounding_header_info %}
+            <sw-alert v-if="showHeaderInfo"
+                      class="sw-settings-price-rounding__header-info"
+                      variant="info">
+                {{ $tc('sw-settings-currency.price-rounding.headerInfo') }}
+            </sw-alert>
         {% endblock %}
 
         {% block sw_settings_price_rounding_container_grand %}

@@ -12,9 +12,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -23,8 +22,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 class AccountOrderControllerTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
-    use KernelTestBehaviour;
+    use IntegrationTestBehaviour;
     use OrderFixture;
     use StorefrontControllerTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;

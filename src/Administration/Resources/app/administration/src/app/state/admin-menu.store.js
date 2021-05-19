@@ -38,7 +38,7 @@ export default {
         appModuleNavigation(state, getters, rootState) {
             const menuService = Shopware.Service('menuService');
 
-            return menuService.getNavigationFromApps(rootState.shopwareApps.apps);
+            return menuService?.getNavigationFromApps(rootState.shopwareApps.apps);
         }
     }
 };

@@ -1,5 +1,5 @@
 {% block sw_line_chart %}
-    <div class="sw-chart">
+    <div class="sw-chart" v-if="!isLoading">
         {% block sw_line_chart_multiple %}
             <template v-if="needOneDimensionalArray">
                 {% block sw_line_chart_multiple_chart %}

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-chart';
+import en from 'apexcharts/dist/locales/en.json';
+import nl from 'apexcharts/dist/locales/nl.json';
 
 // mock data
 const chartOptions = {
@@ -67,6 +69,13 @@ const setup = ({ type, series, options, fillEmptyDates, sort } = {}) => {
 };
 
 describe('components/base/sw-chart', () => {
+    beforeEach(() => {
+        Shopware.State.commit('setAdminLocale', {
+            locale: 'en-GB',
+            locales: ['en-GB', 'nl-NL']
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = setup();
         expect(wrapper.vm).toBeTruthy();
@@ -228,7 +237,7 @@ describe('components/base/sw-chart', () => {
             }
         ];
 
-        const wrapper = setup({
+        const wrapper = await setup({
             series: seriesToConvert,
             type: 'pie'
         });
@@ -250,5 +259,31 @@ describe('components/base/sw-chart', () => {
         });
 
         expect(wrapper.vm.optimizedSeries).toEqual(convertedSeriesStructure);
+    });
+
+    it('should load the correct default locale', async () => {
+        Shopware.State.commit('setAdminLocale', {
+            locale: 'nl-NL',
+            locales: ['en-GB', 'nl-NL']
+        });
+
+        const wrapper = await setup();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.defaultLocale).toEqual('nl');
+        expect(wrapper.vm.localeConfig).toEqual(nl);
+    });
+
+    it('should load the fallback locale when default locale does not exists', async () => {
+        Shopware.State.commit('setAdminLocale', {
+            locale: 'foo-BAR',
+            locales: ['en-GB', 'nl-NL', 'foo-BAR']
+        });
+
+        const wrapper = await setup();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.defaultLocale).toEqual('en');
+        expect(wrapper.vm.localeConfig).toEqual(en);
     });
 });

@@ -290,9 +290,12 @@ Component.register('sw-dashboard-index', {
          */
         getGreetingTimeKey(type = 'daytimeHeadline') {
             const translateKey = `sw-dashboard.introduction.${type}`;
-            const localeRepository = this.$i18n.messages[this.$i18n.locale];
-            const greetings = localeRepository['sw-dashboard'].introduction[type];
+            const greetings = this.getGreetings(type);
             const hourNow = new Date().getHours();
+
+            if (greetings === undefined) {
+                return '';
+            }
 
             // to find the right timeslot, we user array.find() which will stop after first match
             // for that reason the greetingTimes must be ordered from latest to earliest hour
@@ -306,6 +309,15 @@ Component.register('sw-dashboard-index', {
             const greetingIndex = Math.floor(Math.random() * greetings[`${greetingTime}h`].length);
 
             return `${translateKey}.${greetingTime}h[${greetingIndex}]`;
+        },
+
+        getGreetings(type = 'daytimeHeadline') {
+            const i18nMessages = this.$i18n.messages;
+
+            const localeGreetings = i18nMessages?.[this.$i18n.locale]?.['sw-dashboard']?.introduction?.[type];
+            const fallbackGreetings = i18nMessages?.[this.$i18n.fallbackLocale]?.['sw-dashboard']?.introduction?.[type];
+
+            return localeGreetings ?? fallbackGreetings;
         }
     }
 });

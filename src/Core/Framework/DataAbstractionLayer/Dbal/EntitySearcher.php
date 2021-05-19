@@ -91,7 +91,7 @@ class EntitySearcher implements EntitySearcherInterface
         //execute and fetch ids
         $rows = $query->execute()->fetchAll();
 
-        $total = $this->getTotalCount($criteria, $rows);
+        $total = $this->getTotalCount($criteria, $query, $rows);
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             $rows = \array_slice($rows, 0, $criteria->getLimit());
@@ -137,28 +137,31 @@ class EntitySearcher implements EntitySearcherInterface
 
     private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void
     {
-        //requires total count for query? add save SQL_CALC_FOUND_ROWS
-        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NONE) {
-            return;
-        }
-        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
-            $query->setMaxResults($criteria->getLimit() * 6 + 1);
-
+        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             return;
         }
 
-        $selects = $query->getQueryPart('select');
-        $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
-        $query->select($selects);
+        $query->setMaxResults($criteria->getLimit() * 6 + 1);
+        return;
     }
 
-    private function getTotalCount(Criteria $criteria, array $data): int
+    private function getTotalCount(Criteria $criteria, QueryBuilder $query, array $data): int
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
             return \count($data);
         }
 
-        return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
+        $previousLimit = $query->getMaxResults();
+        $query->setMaxResults(null);
+
+        $totalQuery = new QueryBuilder($query->getConnection());
+        $totalQuery->select(['COUNT(*)'])
+            ->from(sprintf('(%s) total', $query->getSQL()))
+            ->setParameters($query->getParameters(), $query->getParameterTypes());
+
+        $query->setMaxResults($previousLimit);
+
+        return (int) $totalQuery->execute()->fetchNumeric()[0];
     }
 
     private function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void

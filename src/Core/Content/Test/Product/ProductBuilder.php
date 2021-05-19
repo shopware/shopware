@@ -110,11 +110,12 @@ class ProductBuilder
         return $this;
     }
 
-    public function manufacturer(string $key): self
+    public function manufacturer(string $key, array $translations = []): self
     {
         $this->manufacturer = [
             'id' => $this->ids->create($key),
             'name' => $key,
+            'translations' => $translations,
         ];
 
         return $this;

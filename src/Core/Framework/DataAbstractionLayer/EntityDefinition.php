@@ -234,6 +234,14 @@ abstract class EntityDefinition
         return $this->translationField->getReferenceDefinition();
     }
 
+    final public function getTranslationField(): ?TranslationsAssociationField
+    {
+        // value is initialized from this method
+        $this->getFields();
+
+        return $this->translationField;
+    }
+
     final public function getPrimaryKeys(): CompiledFieldCollection
     {
         if ($this->primaryKeys !== null) {

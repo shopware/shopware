@@ -77,6 +77,10 @@ Component.register('sw-customer-create', {
         validateEmail() {
             const { id, email, boundSalesChannelId } = this.customer;
 
+            if (!email) {
+                return Promise.resolve({ isValid: true });
+            }
+
             return this.customerValidationService.checkCustomerEmail({
                 id,
                 email,
@@ -102,34 +106,37 @@ Component.register('sw-customer-create', {
 
         onSave() {
             this.isLoading = true;
-            if (this.customer.email) {
-                this.validateEmail().then((response) => {
-                    if (!response || !response.isValid) {
-                        this.isLoading = false;
-                    }
-                });
-            }
 
-            this.isSaveSuccessful = false;
-
-            let numberRangePromise = Promise.resolve();
-            if (this.customerNumberPreview === this.customer.customerNumber) {
-                numberRangePromise = this.numberRangeService
-                    .reserve('customer', this.customer.salesChannelId).then((response) => {
-                        this.customerNumberPreview = 'reserved';
-                        this.customer.customerNumber = response.number;
-                    });
-            }
-
-            numberRangePromise.then(() => {
-                this.customerRepository.save(this.customer).then(() => {
-                    this.isLoading = false;
-                    this.isSaveSuccessful = true;
-                }).catch(() => {
+            return this.validateEmail().then((res) => {
+                if (!res || !res.isValid) {
                     this.createNotificationError({
                         message: this.$tc('sw-customer.detail.messageSaveError')
                     });
                     this.isLoading = false;
+
+                    return Promise.reject(new Error('The given email already exists.'));
+                }
+
+                this.isSaveSuccessful = false;
+                let numberRangePromise = Promise.resolve();
+                if (this.customerNumberPreview === this.customer.customerNumber) {
+                    numberRangePromise = this.numberRangeService
+                        .reserve('customer', this.customer.salesChannelId).then((response) => {
+                            this.customerNumberPreview = 'reserved';
+                            this.customer.customerNumber = response.number;
+                        });
+                }
+
+                return numberRangePromise.then(() => {
+                    this.customerRepository.save(this.customer).then(() => {
+                        this.isLoading = false;
+                        this.isSaveSuccessful = true;
+                    }).catch(() => {
+                        this.createNotificationError({
+                            message: this.$tc('sw-customer.detail.messageSaveError')
+                        });
+                        this.isLoading = false;
+                    });
                 });
             });
         },

@@ -238,6 +238,7 @@ PHP Unit coverage:
     variables:
         APP_ENV: "test"
         PARATEST_PROCESSES: 4
+        MAILER_URL: "null://localhost"
     rules:
         - changes:
             - phpunit.xml.dist

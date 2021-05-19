@@ -10,8 +10,8 @@ class MailTransportFailedException extends ShopwareHttpException
     public function __construct(array $failedRecipients, ?\Throwable $e = null)
     {
         parent::__construct(
-            'Failed sending mail to following recipients: {{ recipients }}',
-            ['recipients' => $failedRecipients, 'recipientsString' => implode(', ', $failedRecipients)],
+            'Failed sending mail to following recipients: {{ recipients }} with Error: {{ errorMessage }}',
+            ['recipients' => $failedRecipients, 'recipientsString' => implode(', ', $failedRecipients), 'errorMessage' => $e ? $e->getMessage() : 'Unknown error'],
             $e
         );
     }

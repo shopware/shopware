@@ -23,8 +23,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\GreaterThanEqualFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -96,10 +96,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 }
             }
 
+            $hash = $this->generator->getSalesChannelContextHash($context);
+
             // refresh data timestamp to prevent unnecessary gateway calls
             foreach ($lineItems as $lineItem) {
                 if (\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
-                    $lineItem->setDataTimestamp(new \DateTime());
+                    $lineItem->setDataTimestamp(new \DateTimeImmutable());
+                    $lineItem->setDataContextHash($hash);
                 }
             }
         }
@@ -143,20 +146,26 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
-            $minPurchase = $lineItem->getQuantityInformation()->getMinPurchase() ?? 1;
+            $minPurchase = 1;
+            $steps = 1;
+            $available = $lineItem->getQuantity();
+
+            if ($lineItem->getQuantityInformation() !== null) {
+                $minPurchase = $lineItem->getQuantityInformation()->getMinPurchase();
+                $available = $lineItem->getQuantityInformation()->getMaxPurchase();
+                $steps = $lineItem->getQuantityInformation()->getPurchaseSteps() ?? 1;
+            }
 
             if ($lineItem->getQuantity() < $minPurchase) {
                 $lineItem->setQuantity($minPurchase);
                 $definition->setQuantity($minPurchase);
             }
 
-            $available = $lineItem->getQuantityInformation()->getMaxPurchase();
-
             if ($available <= 0 || $available < $minPurchase) {
                 $original->remove($lineItem->getId());
 
                 $toCalculate->addErrors(
-                    new ProductOutOfStockError($lineItem->getReferencedId(), $lineItem->getLabel())
+                    new ProductOutOfStockError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel())
                 );
 
                 continue;
@@ -168,11 +177,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($available);
 
                 $toCalculate->addErrors(
-                    new ProductStockReachedError($lineItem->getReferencedId(), $lineItem->getLabel(), $available)
+                    new ProductStockReachedError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel(), $available)
                 );
             }
-
-            $steps = $lineItem->getQuantityInformation()->getPurchaseSteps() ?? 1;
 
             $fixedQuantity = $this->fixQuantity($minPurchase, $lineItem->getQuantity(), $steps);
             if ($lineItem->getQuantity() !== $fixedQuantity) {
@@ -180,7 +187,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($fixedQuantity);
 
                 $toCalculate->addErrors(
-                    new PurchaseStepsError($lineItem->getReferencedId(), $lineItem->getLabel(), $fixedQuantity)
+                    new PurchaseStepsError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel(), $fixedQuantity)
                 );
             }
 
@@ -202,11 +209,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $id = $lineItem->getReferencedId();
 
         $product = $data->get(
-            $this->getDataKey($id, $context)
+            $this->getDataKey((string) $id, $context)
         );
 
         // product data was never detected and the product is not inside the data collection
-        if (!$product && $lineItem->getDataTimestamp() === null) {
+        if ($product === null && $lineItem->getDataTimestamp() === null) {
             $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
             $cart->getLineItems()->remove($lineItem->getId());
 
@@ -351,11 +358,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $changes = [];
 
+        $hash = $this->generator->getSalesChannelContextHash($context);
+
         /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();
 
-            $key = $this->getDataKey($id, $context);
+            $key = $this->getDataKey((string) $id, $context);
 
             // data already fetched?
             if ($data->has($key)) {
@@ -370,6 +379,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             if ($lineItem->getDataTimestamp() === null) {
+                $ids[] = $id;
+
+                continue;
+            }
+
+            if ($lineItem->getDataContextHash() !== $hash) {
                 $ids[] = $id;
 
                 continue;
@@ -405,7 +420,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         foreach ($changes as $id => $timestamp) {
             $filter->addQuery(new AndFilter([
                 new EqualsFilter('product.id', $id),
-                new GreaterThanEqualFilter('updatedAt', $timestamp),
+                new RangeFilter('updatedAt', [
+                    RangeFilter::GTE => $timestamp,
+                ]),
             ]));
         }
 

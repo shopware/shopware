@@ -141,7 +141,7 @@ class ProductCartProcessorTest extends TestCase
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         $result = $this->getContainer()->get(CartRuleLoader::class)
-            ->loadByToken($context, 'test');
+            ->loadByToken($context, Uuid::randomHex());
 
         $cart = $result->getCart();
 

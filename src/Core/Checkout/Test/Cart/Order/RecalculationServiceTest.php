@@ -205,6 +205,11 @@ class RecalculationServiceTest extends TestCase
             $lineItem->setQuantityInformation(null);
         }
 
+        $this->resetDataTimestamps($cart->getLineItems());
+        foreach ($cart->getDeliveries() as $delivery) {
+            $this->resetDataTimestamps($delivery->getPositions()->getLineItems());
+        }
+
         static::assertEquals($cart, $convertedCart);
     }
 
@@ -884,6 +889,15 @@ class RecalculationServiceTest extends TestCase
         );
 
         return $countryId;
+    }
+
+    private function resetDataTimestamps(LineItemCollection $items): void
+    {
+        foreach ($items as $item) {
+            $item->setDataTimestamp(null);
+            $item->setDataContextHash(null);
+            $this->resetDataTimestamps($item->getChildren());
+        }
     }
 
     private function removeExtensions(Cart $cart): void

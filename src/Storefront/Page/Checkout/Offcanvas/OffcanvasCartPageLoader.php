@@ -74,13 +74,20 @@ class OffcanvasCartPageLoader
         return $page;
     }
 
-    private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
+    private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
     {
         $request = new Request();
         $request->query->set('onlyAvailable', '1');
 
-        return $this->shippingMethodRoute
-            ->load($request, $salesChannelContext, new Criteria())
+        /* @var ShippingMethodCollection $shippingMethods */
+        $shippingMethods = $this->shippingMethodRoute
+            ->load($request, $context, new Criteria())
             ->getShippingMethods();
+
+        if (!$shippingMethods->has($context->getShippingMethod()->getId())) {
+            $shippingMethods->add($context->getShippingMethod());
+        }
+
+        return $shippingMethods;
     }
 }

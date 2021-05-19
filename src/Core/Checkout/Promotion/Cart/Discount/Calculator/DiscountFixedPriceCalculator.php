@@ -69,6 +69,10 @@ class DiscountFixedPriceCalculator
 
         foreach ($packages as $package) {
             foreach ($package->getCartItems() as $lineItem) {
+                if ($lineItem->getPrice() === null) {
+                    continue;
+                }
+
                 $itemTotal = $lineItem->getPrice()->getTotalPrice();
 
                 $factor = $itemTotal / $totalOriginalSum;

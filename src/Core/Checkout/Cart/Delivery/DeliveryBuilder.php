@@ -41,21 +41,30 @@ class DeliveryBuilder
         return new DeliveryCollection([$delivery]);
     }
 
-    private function buildSingleDelivery(ShippingMethodEntity $shippingMethod, LineItemCollection $collection, SalesChannelContext $context): ?Delivery
-    {
+    private function buildSingleDelivery(
+        ShippingMethodEntity $shippingMethod,
+        LineItemCollection $collection,
+        SalesChannelContext $context
+    ): ?Delivery {
         $positions = new DeliveryPositionCollection();
+        $deliveryTime = null;
+        // use shipping method delivery time as default
+        if ($shippingMethod->getDeliveryTime() !== null) {
+            $deliveryTime = DeliveryTime::createFromEntity($shippingMethod->getDeliveryTime());
+        }
 
         foreach ($collection as $item) {
-            if (!$item->getDeliveryInformation()) {
+            if ($item->getDeliveryInformation() === null) {
                 continue;
             }
-
-            // use shipping method delivery time as default
-            $deliveryTime = DeliveryTime::createFromEntity($shippingMethod->getDeliveryTime());
 
             // each line item can override the delivery time
             if ($item->getDeliveryInformation()->getDeliveryTime()) {
                 $deliveryTime = $item->getDeliveryInformation()->getDeliveryTime();
+            }
+
+            if ($deliveryTime === null) {
+                continue;
             }
 
             // create the estimated delivery date by detected delivery time
@@ -69,6 +78,10 @@ class DeliveryBuilder
             // if the line item has a restock time, add this days to the restock date
             if ($restockTime) {
                 $restockDate = $restockDate->add(new \DateInterval('P' . $restockTime . 'D'));
+            }
+
+            if ($item->getPrice() === null) {
+                continue;
             }
 
             // if the item is completely instock, use the delivery date

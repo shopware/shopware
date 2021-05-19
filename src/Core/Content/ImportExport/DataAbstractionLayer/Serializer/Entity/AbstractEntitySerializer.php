@@ -13,6 +13,8 @@ abstract class AbstractEntitySerializer
 
     /**
      * @param array|Struct|null $entity
+     *
+     * @return \Generator
      */
     abstract public function serialize(Config $config, EntityDefinition $definition, $entity): iterable;
 

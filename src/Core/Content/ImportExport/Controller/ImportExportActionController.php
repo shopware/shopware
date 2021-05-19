@@ -32,45 +32,21 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class ImportExportActionController extends AbstractController
 {
-    /**
-     * @var SupportedFeaturesService
-     */
-    private $supportedFeaturesService;
+    private SupportedFeaturesService $supportedFeaturesService;
 
-    /**
-     * @var ImportExportService
-     */
-    private $importExportService;
+    private ImportExportService $importExportService;
 
-    /**
-     * @var DownloadService
-     */
-    private $downloadService;
+    private DownloadService $downloadService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $profileRepository;
+    private EntityRepositoryInterface $profileRepository;
 
-    /**
-     * @var DataValidator
-     */
-    private $dataValidator;
+    private DataValidator $dataValidator;
 
-    /**
-     * @var ImportExportLogDefinition
-     */
-    private $logDefinition;
+    private ImportExportLogDefinition $logDefinition;
 
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
+    private ApiVersionConverter $apiVersionConverter;
 
-    /**
-     * @var ImportExportFactory
-     */
-    private $importExportFactory;
+    private ImportExportFactory $importExportFactory;
 
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
@@ -180,15 +156,14 @@ class ImportExportActionController extends AbstractController
      */
     public function download(Request $request, Context $context): Response
     {
+        /** @var string[] $params */
         $params = $request->query->all();
         $definition = new DataValidationDefinition();
         $definition->add('fileId', new NotBlank(), new Type('string'));
         $definition->add('accessToken', new NotBlank(), new Type('string'));
         $this->dataValidator->validate($params, $definition);
 
-        $response = $this->downloadService->createFileResponse($context, $params['fileId'], $params['accessToken']);
-
-        return $response;
+        return $this->downloadService->createFileResponse($context, $params['fileId'], $params['accessToken']);
     }
 
     /**

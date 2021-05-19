@@ -36,50 +36,23 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SeoActionController extends AbstractController
 {
-    /**
-     * @var SeoUrlGenerator
-     */
-    private $seoUrlGenerator;
+    private SeoUrlGenerator $seoUrlGenerator;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
-    /**
-     * @var SeoUrlRouteRegistry
-     */
-    private $seoUrlRouteRegistry;
+    private SeoUrlRouteRegistry $seoUrlRouteRegistry;
 
-    /**
-     * @var SeoUrlPersister
-     */
-    private $seoUrlPersister;
+    private SeoUrlPersister $seoUrlPersister;
 
-    /**
-     * @var SeoUrlDataValidationFactoryInterface
-     */
-    private $seoUrlValidator;
+    private SeoUrlDataValidationFactoryInterface $seoUrlValidator;
 
-    /**
-     * @var DataValidator
-     */
-    private $validator;
+    private DataValidator $validator;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
+    private RequestCriteriaBuilder $requestCriteriaBuilder;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionInstanceRegistry;
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
     public function __construct(
         SeoUrlGenerator $seoUrlGenerator,
@@ -287,6 +260,9 @@ class SeoActionController extends AbstractController
         }
 
         $result = $this->seoUrlGenerator->generate($ids, $template, $seoUrlRoute, $context, $salesChannel);
+        if (\is_array($result)) {
+            return $result;
+        }
 
         return iterator_to_array($result);
     }

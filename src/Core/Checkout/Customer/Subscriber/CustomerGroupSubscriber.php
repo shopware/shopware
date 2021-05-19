@@ -21,30 +21,15 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerGroupRepository;
+    private EntityRepositoryInterface $customerGroupRepository;
 
-    /**
-     * @var SeoUrlPersister
-     */
-    private $persister;
+    private SeoUrlPersister $persister;
 
-    /**
-     * @var SlugifyInterface
-     */
-    private $slugify;
+    private SlugifyInterface $slugify;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $seoUrlRepository;
+    private EntityRepositoryInterface $seoUrlRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     public function __construct(
         EntityRepositoryInterface $customerGroupRepository,
@@ -140,7 +125,15 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $buildUrls = [];
 
         foreach ($groups as $group) {
+            if ($group->getRegistrationSalesChannels() === null) {
+                continue;
+            }
+
             foreach ($group->getRegistrationSalesChannels() as $registrationSalesChannel) {
+                if ($registrationSalesChannel->getLanguages() === null) {
+                    continue;
+                }
+
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
                 $criteria = new Criteria($languageIds);
                 $languageCollection = $this->languageRepository->search($criteria, $context)->getEntities();
@@ -172,25 +165,29 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function getTranslatedTitle(CustomerGroupTranslationCollection $translations, LanguageEntity $language): string
+    private function getTranslatedTitle(?CustomerGroupTranslationCollection $translations, LanguageEntity $language): string
     {
+        if ($translations === null) {
+            return '';
+        }
+
         // Requested translation
         foreach ($translations as $translation) {
-            if ($translation->getLanguageId() === $language->getId() && $translation->getRegistrationTitle()) {
+            if ($translation->getLanguageId() === $language->getId() && $translation->getRegistrationTitle() !== null) {
                 return $translation->getRegistrationTitle();
             }
         }
 
         // Inherited translation
         foreach ($translations as $translation) {
-            if ($translation->getLanguageId() === $language->getParentId() && $translation->getRegistrationTitle()) {
+            if ($translation->getLanguageId() === $language->getParentId() && $translation->getRegistrationTitle() !== null) {
                 return $translation->getRegistrationTitle();
             }
         }
 
         // System Language
         foreach ($translations as $translation) {
-            if ($translation->getLanguageId() === Defaults::LANGUAGE_SYSTEM) {
+            if ($translation->getLanguageId() === Defaults::LANGUAGE_SYSTEM && $translation->getRegistrationTitle() !== null) {
                 return $translation->getRegistrationTitle();
             }
         }

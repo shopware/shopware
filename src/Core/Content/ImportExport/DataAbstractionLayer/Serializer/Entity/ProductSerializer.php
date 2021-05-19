@@ -30,6 +30,8 @@ class ProductSerializer extends EntitySerializer
 
     /**
      * @param array|Struct|null $entity
+     *
+     * @return \Generator
      */
     public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
     {

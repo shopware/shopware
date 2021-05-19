@@ -220,13 +220,8 @@ class LineItemCollection extends Collection
         $flat = [];
         foreach ($lineItems as $lineItem) {
             $flat[] = $lineItem;
-            if (!$lineItem->getChildren()) {
-                continue;
-            }
 
-            $nested = $this->buildFlat($lineItem->getChildren());
-
-            foreach ($nested as $nest) {
+            foreach ($this->buildFlat($lineItem->getChildren()) as $nest) {
                 $flat[] = $nest;
             }
         }

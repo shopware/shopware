@@ -167,17 +167,15 @@ class WebhookDispatcher implements EventDispatcherInterface
         $requests = [];
 
         foreach ($webhooksForEvent as $webhook) {
-            if ($webhook->getApp()) {
-                if (!$this->isEventDispatchingAllowed($webhook->getApp(), $event, $affectedRoleIds)) {
-                    continue;
-                }
+            if ($webhook->getApp() !== null && !$this->isEventDispatchingAllowed($webhook->getApp(), $event, $affectedRoleIds)) {
+                continue;
             }
 
             $payload = ['data' => ['payload' => $payload]];
             $payload['source']['url'] = $this->shopUrl;
             $payload['data']['event'] = $eventName;
 
-            if ($webhook->getApp()) {
+            if ($webhook->getApp() !== null) {
                 $payload['source']['appVersion'] = $webhook->getApp()->getVersion();
                 $shopIdProvider = $this->getShopIdProvider();
 
@@ -190,8 +188,10 @@ class WebhookDispatcher implements EventDispatcherInterface
             }
 
             if (Feature::isActive('FEATURE_NEXT_14363')) {
-                $webhookEventMessage = new WebhookEventMessage($payload, $webhook->getApp()->getId(), $webhook->getId(), $this->shopwareVersion, $webhook->getUrl());
-                $this->bus->dispatch($webhookEventMessage);
+                if ($webhook->getApp() !== null) {
+                    $webhookEventMessage = new WebhookEventMessage($payload, $webhook->getApp()->getId(), $webhook->getId(), $this->shopwareVersion, $webhook->getUrl());
+                    $this->bus->dispatch($webhookEventMessage);
+                }
             } else {
                 /** @var string $jsonPayload */
                 $jsonPayload = json_encode($payload);
@@ -206,7 +206,7 @@ class WebhookDispatcher implements EventDispatcherInterface
                     $jsonPayload
                 );
 
-                if ($webhook->getApp() && $webhook->getApp()->getAppSecret()) {
+                if ($webhook->getApp() !== null && $webhook->getApp()->getAppSecret() !== null) {
                     $request = $request->withHeader(
                         'shopware-shop-signature',
                         hash_hmac('sha256', $jsonPayload, $webhook->getApp()->getAppSecret())

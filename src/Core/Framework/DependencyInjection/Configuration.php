@@ -12,7 +12,6 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('shopware');
 
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
@@ -37,7 +36,6 @@ class Configuration implements ConfigurationInterface
 
     private function createFilesystemSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('filesystem'))->getRootNode();
         $rootNode
             ->children()
@@ -98,7 +96,6 @@ class Configuration implements ConfigurationInterface
 
     private function createCdnSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('cdn'))->getRootNode();
         $rootNode
             ->children()
@@ -111,7 +108,6 @@ class Configuration implements ConfigurationInterface
 
     private function createApiSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('api'))->getRootNode();
         $rootNode
             ->children()
@@ -133,7 +129,6 @@ class Configuration implements ConfigurationInterface
 
     private function createStoreSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('store'))->getRootNode();
         $rootNode
             ->children()
@@ -145,7 +140,6 @@ class Configuration implements ConfigurationInterface
 
     private function createAdminWorkerSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('admin_worker'))->getRootNode();
         $rootNode
             ->children()
@@ -165,7 +159,6 @@ class Configuration implements ConfigurationInterface
 
     private function createAutoUpdateSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('auto_update'))->getRootNode();
         $rootNode
             ->children()
@@ -179,7 +172,6 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('sitemap');
 
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
@@ -223,7 +215,6 @@ class Configuration implements ConfigurationInterface
 
     private function createDeploymentSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('deployment'))->getRootNode();
         $rootNode
             ->children()
@@ -235,7 +226,6 @@ class Configuration implements ConfigurationInterface
 
     private function createMediaSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('media'))->getRootNode();
         $rootNode
             ->children()
@@ -248,7 +238,6 @@ class Configuration implements ConfigurationInterface
 
     private function createFeatureSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('feature'))->getRootNode();
         $rootNode
             ->children()
@@ -285,7 +274,6 @@ class Configuration implements ConfigurationInterface
 
     private function createLoggerSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('logger'))->getRootNode();
         $rootNode
             ->children()
@@ -299,7 +287,6 @@ class Configuration implements ConfigurationInterface
 
     private function createCacheSection(): ArrayNodeDefinition
     {
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = (new TreeBuilder('cache'))->getRootNode();
         $rootNode
             ->children()
@@ -373,7 +360,6 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('dal');
 
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
@@ -397,7 +383,6 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('cart');
 
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()

@@ -15,15 +15,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DiscountPercentageCalculator
 {
-    /**
-     * @var AbsolutePriceCalculator
-     */
-    private $absolutePriceCalculator;
+    private AbsolutePriceCalculator $absolutePriceCalculator;
 
-    /**
-     * @var PercentagePriceCalculator
-     */
-    private $percentagePriceCalculator;
+    private PercentagePriceCalculator $percentagePriceCalculator;
 
     public function __construct(AbsolutePriceCalculator $absolutePriceCalculator, PercentagePriceCalculator $percentagePriceCalculator)
     {
@@ -97,6 +91,10 @@ class DiscountPercentageCalculator
 
         foreach ($packages as $package) {
             foreach ($package->getCartItems() as $lineItem) {
+                if ($lineItem->getPrice() === null) {
+                    continue;
+                }
+
                 $itemTotal = $lineItem->getQuantity() * $lineItem->getPrice()->getUnitPrice();
                 $percentageFactor = abs($percentage) / 100.0;
 

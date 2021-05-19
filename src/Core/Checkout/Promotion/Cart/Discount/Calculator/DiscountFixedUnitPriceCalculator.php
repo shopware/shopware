@@ -43,8 +43,11 @@ class DiscountFixedUnitPriceCalculator
 
         foreach ($packages as $package) {
             foreach ($package->getCartItems() as $lineItem) {
-                $quantity = $lineItem->getQuantity();
+                if ($lineItem->getPrice() === null) {
+                    continue;
+                }
 
+                $quantity = $lineItem->getQuantity();
                 $itemUnitPrice = $lineItem->getPrice()->getUnitPrice();
 
                 if ($itemUnitPrice > $fixedUnitPrice) {

@@ -9,9 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 
 /**
- * @method void       set(string $key, Field $entity)
- * @method Field|null first()
- * @method Field|null last()
+ * @method void          set(string $key, Field $entity)
+ * @method array<string, Field> getIterator()
+ * @method Field|null    first()
+ * @method Field|null    last()
  */
 class CompiledFieldCollection extends FieldCollection
 {

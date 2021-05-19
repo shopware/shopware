@@ -35,30 +35,18 @@ class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
+    private EntityRepositoryInterface $themeRepository;
 
     /**
      * @var array<string>|null
      */
-    private $installedThemeNames = null;
+    private ?array $installedThemeNames = null;
 
-    /**
-     * @var AbstractAppLoader
-     */
-    private $appLoader;
+    private AbstractAppLoader $appLoader;
 
-    /**
-     * @var ConfigurationService
-     */
-    private $configurationService;
+    private ConfigurationService $configurationService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     public function __construct(
         EntityRepositoryInterface $languageRepository,
@@ -297,9 +285,9 @@ class ExtensionLoader
     }
 
     /**
-     * @param array<string, string|\DateTimeInterface|array<string>|null> $data
+     * @param array<string, array<string>|null> $data
      *
-     * @return array<string, string|\DateTimeInterface|StoreCollection|array<string>|null>
+     * @return array<string, StoreCollection|array<string>|null>
      */
     private function replaceCollections(array $data): array
     {

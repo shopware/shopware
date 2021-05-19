@@ -21,7 +21,7 @@ class PropertyGroupCollection extends EntityCollection
         $map = [];
         /** @var PropertyGroupEntity $group */
         foreach ($this->elements as $group) {
-            if (!$group->getOptions()) {
+            if ($group->getOptions() === null) {
                 continue;
             }
 
@@ -50,7 +50,7 @@ class PropertyGroupCollection extends EntityCollection
     {
         /** @var PropertyGroupEntity $group */
         foreach ($this->elements as $group) {
-            if (!$group->getOptions()) {
+            if ($group->getOptions() === null) {
                 continue;
             }
 

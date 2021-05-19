@@ -12,10 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelCmsPageRepository
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $cmsPageRepository;
+    private EntityRepositoryInterface $cmsPageRepository;
 
     public function __construct(EntityRepositoryInterface $repository)
     {
@@ -26,26 +23,7 @@ class SalesChannelCmsPageRepository
     {
         $criteria = new Criteria($ids);
 
-        $criteria->addAssociation('sections.backgroundMedia')
-            ->addAssociation('sections.blocks.backgroundMedia')
-            ->addAssociation('sections.blocks.slots');
-
-        /** @var CmsPageCollection $pages */
-        $pages = $this->cmsPageRepository->search($criteria, $context->getContext())->getEntities();
-
-        foreach ($pages as $page) {
-            $page->getSections()->sort(function (CmsSectionEntity $a, CmsSectionEntity $b) {
-                return $a->getPosition() <=> $b->getPosition();
-            });
-
-            foreach ($page->getSections() as $section) {
-                $section->getBlocks()->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
-                    return $a->getPosition() <=> $b->getPosition();
-                });
-            }
-        }
-
-        return $pages;
+        return $this->readCmsPages($criteria, $context);
     }
 
     public function getPagesByType(string $type, SalesChannelContext $context): CmsPageCollection
@@ -53,6 +31,11 @@ class SalesChannelCmsPageRepository
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('cms_page.type', $type));
 
+        return $this->readCmsPages($criteria, $context);
+    }
+
+    private function readCmsPages(Criteria $criteria, SalesChannelContext $context): CmsPageCollection
+    {
         $criteria->addAssociation('sections.backgroundMedia')
             ->addAssociation('sections.blocks.backgroundMedia')
             ->addAssociation('sections.blocks.slots');
@@ -61,11 +44,19 @@ class SalesChannelCmsPageRepository
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext())->getEntities();
 
         foreach ($pages as $page) {
+            if ($page->getSections() === null) {
+                continue;
+            }
+
             $page->getSections()->sort(function (CmsSectionEntity $a, CmsSectionEntity $b) {
                 return $a->getPosition() <=> $b->getPosition();
             });
 
             foreach ($page->getSections() as $section) {
+                if ($section->getBlocks() === null) {
+                    continue;
+                }
+
                 $section->getBlocks()->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
                     return $a->getPosition() <=> $b->getPosition();
                 });

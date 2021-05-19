@@ -53,65 +53,29 @@ class PromotionCalculator
 {
     use PromotionCartInformationTrait;
 
-    /**
-     * @var AmountCalculator
-     */
-    private $amountCalculator;
+    private AmountCalculator $amountCalculator;
 
-    /**
-     * @var AbsolutePriceCalculator
-     */
-    private $absolutePriceCalculator;
+    private AbsolutePriceCalculator $absolutePriceCalculator;
 
-    /**
-     * @var LineItemGroupBuilder
-     */
-    private $groupBuilder;
+    private LineItemGroupBuilder $groupBuilder;
 
-    /**
-     * @var PackageFilter
-     */
-    private $advancedFilter;
+    private PackageFilter $advancedFilter;
 
-    /**
-     * @var AdvancedPackagePicker
-     */
-    private $advancedPicker;
+    private AdvancedPackagePicker $advancedPicker;
 
-    /**
-     * @var SetGroupScopeFilter
-     */
-    private $advancedRules;
+    private SetGroupScopeFilter $advancedRules;
 
-    /**
-     * @var LineItemQuantitySplitter
-     */
-    private $lineItemQuantitySplitter;
+    private LineItemQuantitySplitter $lineItemQuantitySplitter;
 
-    /**
-     * @var DiscountCompositionBuilder
-     */
-    private $discountCompositionBuilder;
+    private DiscountCompositionBuilder $discountCompositionBuilder;
 
-    /**
-     * @var PercentagePriceCalculator
-     */
-    private $percentagePriceCalculator;
+    private PercentagePriceCalculator $percentagePriceCalculator;
 
-    /**
-     * @var DiscountPackager
-     */
-    private $cartScopeDiscountPackager;
+    private DiscountPackager $cartScopeDiscountPackager;
 
-    /**
-     * @var DiscountPackager
-     */
-    private $setGroupScopeDiscountPackager;
+    private DiscountPackager $setGroupScopeDiscountPackager;
 
-    /**
-     * @var DiscountPackager
-     */
-    private $setScopeDiscountPackager;
+    private DiscountPackager $setScopeDiscountPackager;
 
     public function __construct(
         AmountCalculator $amountCalculator,
@@ -180,7 +144,7 @@ class PromotionCalculator
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$this->isAutomaticDisount($discountItem)) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel(), $calculated);
+                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $calculated);
                 }
 
                 continue;
@@ -194,7 +158,7 @@ class PromotionCalculator
             $promotionId = $discountItem->getPayloadValue('promotionId');
 
             if (\array_key_exists($promotionId, $exclusions)) {
-                $calculated->addErrors(new PromotionNotEligibleError($discountItem->getDescription()));
+                $calculated->addErrors(new PromotionNotEligibleError($discountItem->getDescription() ?? $discountItem->getId()));
 
                 continue;
             }

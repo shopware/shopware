@@ -66,15 +66,17 @@ class ProductSubscriber implements EventSubscriberInterface
 
             $groupId = $group->getId();
             if (\array_key_exists($groupId, $sorted)) {
+                \assert($sorted[$groupId]->getOptions() !== null);
                 $sorted[$groupId]->getOptions()->add($option);
 
                 continue;
             }
 
-            if (!$group->getOptions()) {
+            if ($group->getOptions() === null) {
                 $group->setOptions(new PropertyGroupOptionCollection());
             }
 
+            \assert($group->getOptions() !== null);
             $group->getOptions()->add($option);
 
             $sorted[$groupId] = $group;

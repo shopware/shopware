@@ -20,12 +20,12 @@ class JsonApiEncoder
     /**
      * @var string[]
      */
-    private $caseCache = [];
+    private array $caseCache = [];
 
     /**
-     * @var array[string]Record
+     * @var Record[]
      */
-    private $serializeCache = [];
+    private array $serializeCache = [];
 
     /**
      * @param EntityCollection|Entity|null $data

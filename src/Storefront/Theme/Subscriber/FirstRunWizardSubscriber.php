@@ -14,30 +14,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FirstRunWizardSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var ThemeService
-     */
-    private $themeService;
+    private ThemeService $themeService;
 
-    /**
-     * @var ThemeLifecycleService
-     */
-    private $themeLifecycleService;
+    private ThemeLifecycleService $themeLifecycleService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
+    private EntityRepositoryInterface $themeRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeSalesChannelRepository;
+    private EntityRepositoryInterface $themeSalesChannelRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
     public function __construct(
         ThemeService $themeService,
@@ -81,7 +66,6 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
         }
 
         $themeSalesChannels = $theme->getSalesChannels();
-
         // only run if the themes are not already initialised
         if ($themeSalesChannels && $themeSalesChannels->count() > 0) {
             return;

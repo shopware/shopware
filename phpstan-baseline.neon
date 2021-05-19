@@ -3796,6 +3796,31 @@ parameters:
 			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
 
 		-
+			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity\\|null\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Command/SalesChannelListCommand.php
+
+		-
+			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Command/SalesChannelListCommand.php
+
+		-
+			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyCollection\\|null\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Command/SalesChannelListCommand.php
+
+		-
+			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageCollection\\|null\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Command/SalesChannelListCommand.php
+
+		-
+			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Command/SalesChannelListCommand.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\BusinessEventEncoder\\:\\:encodeProperty\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Webhook/BusinessEventEncoder.php

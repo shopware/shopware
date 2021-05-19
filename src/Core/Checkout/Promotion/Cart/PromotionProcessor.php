@@ -23,15 +23,9 @@ class PromotionProcessor implements CartProcessorInterface
 
     public const SKIP_PROMOTION = 'skipPromotion';
 
-    /**
-     * @var PromotionCalculator
-     */
-    private $promotionCalculator;
+    private PromotionCalculator $promotionCalculator;
 
-    /**
-     * @var LineItemGroupBuilder
-     */
-    private $groupBuilder;
+    private LineItemGroupBuilder $groupBuilder;
 
     public function __construct(PromotionCalculator $promotionCalculator, LineItemGroupBuilder $groupBuilder)
     {
@@ -70,7 +64,7 @@ class PromotionProcessor implements CartProcessorInterface
             foreach ($lineItemPromotions as $lineItemPromotion) {
                 if (empty($lineItemPromotion->getReferencedId())) {
                     $toCalculate->addErrors(
-                        new AutoPromotionNotFoundError($lineItemPromotion->getLabel())
+                        new AutoPromotionNotFoundError($lineItemPromotion->getLabel() ?? $lineItemPromotion->getId())
                     );
                 }
             }

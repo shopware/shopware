@@ -335,7 +335,7 @@ class DefinitionValidator
             if ($field instanceof BoolField) {
                 $getterMethods[] = 'is' . ucfirst($propertyName);
                 $getterMethods[] = 'has' . ucfirst($propertyName);
-                $getterMethods[] = 'has' . ucfirst(preg_replace('/^has/', '', $propertyName));
+                $getterMethods[] = 'has' . ucfirst((string) preg_replace('/^has/', '', $propertyName));
             }
 
             $hasGetter = false;

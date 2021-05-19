@@ -23,10 +23,18 @@ class FilterSorterPriceAsc implements FilterSorterInterface
             usort($metaItems, static function (LineItemQuantity $a, LineItemQuantity $b) use ($package) {
                 // we only have meta data here
                 // so lets get the prices
-                $priceA = $package->getCartItem($a->getLineItemId())->getPrice()->getUnitPrice();
-                $priceB = $package->getCartItem($b->getLineItemId())->getPrice()->getUnitPrice();
+                $priceA = $package->getCartItem($a->getLineItemId())->getPrice();
+                $priceB = $package->getCartItem($b->getLineItemId())->getPrice();
 
-                return $priceA <=> $priceB;
+                if ($priceA === null) {
+                    return 0;
+                }
+
+                if ($priceB === null) {
+                    return 1;
+                }
+
+                return $priceA->getUnitPrice() <=> $priceB->getUnitPrice();
             });
 
             $package->setMetaItems(new LineItemQuantityCollection($metaItems));

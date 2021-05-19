@@ -1211,11 +1211,6 @@ parameters:
 			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
 
 		-
-			message: "#^Cannot access offset 'Orientation' on array\\|false\\.$#"
-			count: 3
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
 			message: "#^Parameter \\#1 \\$im of function imagecolorallocate expects resource, resource\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php

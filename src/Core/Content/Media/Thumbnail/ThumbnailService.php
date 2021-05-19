@@ -308,14 +308,16 @@ class ThumbnailService
                 fwrite($stream, $file);
                 rewind($stream);
 
-                $exif = exif_read_data($stream);
+                $exif = @exif_read_data($stream);
 
-                if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
-                    $image = imagerotate($image, 90, 0);
-                } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 3) {
-                    $image = imagerotate($image, 180, 0);
-                } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
-                    $image = imagerotate($image, -90, 0);
+                if ($exif !== false) {
+                    if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
+                        $image = imagerotate($image, 90, 0);
+                    } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 3) {
+                        $image = imagerotate($image, 180, 0);
+                    } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
+                        $image = imagerotate($image, -90, 0);
+                    }
                 }
 
                 if ($image === false) {

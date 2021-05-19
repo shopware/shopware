@@ -45,7 +45,6 @@ class CmsRoute extends AbstractCmsRoute
 The criteria passed with this route also affects the listing, if there is one within the cms page.",
      *      operationId="readCms",
      *      tags={"Store API", "Content"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Parameter(
      *          name="id",
      *          description="Identifier of the CMS page to be resolved",
@@ -55,11 +54,20 @@ The criteria passed with this route also affects the listing, if there is one wi
      *      ),
      *      @OA\RequestBody(
      *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="slots",
-     *                  description="Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character.",
-     *                  type="string"
-     *              )
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(
+     *                      description="The product listing criteria only has an effect, if the cms page contains a product listing.",
+     *                      ref="#/components/schemas/ProductListingCriteria"
+     *                  ),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          property="slots",
+     *                          description="Resolves only the given slot identifiers. The identifiers have to be seperated by a `|` character.",
+     *                          type="string"
+     *                      )
+     *                  )
+     *              }
      *          )
      *      ),
      *      @OA\Response(

@@ -64,6 +64,12 @@ class CategoryRoute extends AbstractCategoryRoute
      *     description="This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
      *     operationId="readCategory",
      *     tags={"Store API", "Category"},
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             description="The product listing criteria only has an effect, if the category contains a product listing.",
+     *             ref="#/components/schemas/ProductListingCriteria"
+     *         )
+     *     ),
      *     @OA\Parameter(
      *         name="categoryId",
      *         description="Identifier of the category to be fetched",

@@ -99,6 +99,18 @@
                         </template>
                     {% endblock %}
 
+                    <template #pagination>
+                        {% block sw_settings_user_list_grid_pagination %}
+                            <sw-pagination
+                                :page="page"
+                                :limit="limit"
+                                :total="total"
+                                :autoHide="true"
+                                @page-change="onPageChange">
+                            </sw-pagination>
+                        {% endblock %}
+                    </template>
+
                     <template #action-modals="{ item }">
                         {% block sw_settings_user_list_delete_modal %}
                             <sw-modal

@@ -216,6 +216,7 @@
                             <sw-modal class="sw-mail-template-preview-modal"
                                       :title="$tc('sw-mail-template.detail.previewModalTitle')"
                                       v-if="mailPreview"
+                                      @modal-close="onCancelShowPreview"
                                       :isLoading="isLoading">
                                 <template v-if="!isLoading">
                                     <span v-html="mailPreview"></span>

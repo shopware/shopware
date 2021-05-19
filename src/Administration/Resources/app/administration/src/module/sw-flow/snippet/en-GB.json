@@ -1,26 +1,56 @@
 {
-    "sw-flow": {
-        "general": {
-            "mainMenuItemGeneral": "Flow builder",
-            "descriptionTextModule": "Flow builder"
-        },
-        "list": {
-          "textHeadline": "Flow Builder",
-          "buttonAddFlow": "Add flow"
-        },
-        "detail": {
-          "textHeadline": "New flow"
-        },
-        "page": {
-          "generalTab": "General",
-          "flowTab": "Flow"
-        }
+  "sw-flow": {
+    "general": {
+      "mainMenuItemGeneral": "Flow builder",
+      "descriptionTextModule": "Flow builder"
     },
-    "sw-privileges": {
-      "permissions": {
-        "flow": {
-          "label": "Flow Builder"
-        }
+    "list": {
+      "textHeadline": "Flow Builder",
+      "buttonAddFlow": "Add flow",
+      "labelColumnActive": "Active",
+      "labelColumnName": "Name",
+      "labelColumnTrigger": "Trigger",
+      "labelColumnDescription": "Description",
+      "confirmText": "Are you sure you want to delete this item?",
+      "emptyStateTitle": "No flows yet",
+      "emptyStateSubTitle": "Add flows by clicking the \"add\" button."
+    },
+    "detail": {
+      "textHeadline": "New flow",
+      "labelGeneralCard": "General information",
+      "labelLogCard": "Log",
+      "labelGeneralInformationName": "Name",
+      "placeholderGeneralInformationName": "Enter flow name...",
+      "labelGeneralInformationDescription": "Description",
+      "placeholderGeneralInformationDescription": "Enter flow description...",
+      "labelGeneralInformationPriority": "Priority",
+      "labelGeneralInformationActive": "Active",
+      "labelLogExecuted": "This flow as been executed \"{total}\" time in total.",
+      "labelLogInstruct": "Click on the log file to see more details of the flow execution actions and to replay the flow.",
+      "labelLogDateExecuted": "Date executed",
+      "labelLogTrigger": "Trigger",
+      "labelLogTriggerValue": "Trigger value",
+      "labelLogActions": "Actions",
+      "labelLogSuccess": "Success"
+    },
+    "page": {
+      "generalTab": "General",
+      "flowTab": "Flow"
+    },
+    "flowNotification": {
+      "messageDeleteSuccess": "The flow has been deleted.",
+      "messageDeleteError": "The flow could not be deleted.",
+      "messageSaveSuccess": "The flow has been saved.",
+      "messageSaveError": "The flow could not be saved.",
+      "messageError": "An error occurred.",
+      "messageRequiredEventName": "Please choose trigger event before save."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "flow": {
+        "label": "Flow Builder"
       }
     }
+  }
 }

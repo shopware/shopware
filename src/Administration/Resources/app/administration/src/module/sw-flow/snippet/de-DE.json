@@ -1,26 +1,56 @@
 {
-    "sw-flow": {
-        "general": {
-            "mainMenuItemGeneral": "Flow builder",
-            "descriptionTextModule": "Flow builder"
-        },
-        "list": {
-          "textHeadline": "Flow Builder",
-          "buttonAddFlow": "Hinzufügen flow"
-        },
-        "detail": {
-          "textHeadline": "Neue flow"
-        },
-        "page": {
-          "generalTab": "Allgemein",
-          "flowTab": "Flow"
-        }
+  "sw-flow": {
+    "general": {
+      "mainMenuItemGeneral": "Flow builder",
+      "descriptionTextModule": "Flow builder"
     },
-    "sw-privileges": {
-      "permissions": {
-        "flow": {
-          "label": "Flow Builder"
-        }
+    "list": {
+      "textHeadline": "Flow Builder",
+      "buttonAddFlow": "Hinzufügen flow",
+      "labelColumnActive": "Aktiv",
+      "labelColumnName": "Name",
+      "labelColumnTrigger": "Trigger",
+      "labelColumnDescription": "Beschreibung",
+      "confirmText": "Soll der Eintrag wirklich gelöscht werden?",
+      "emptyStateTitle": "Noch keine flows",
+      "emptyStateSubTitle": "Füge flows über den \"Hinzufügen\"-Button hinzu."
+    },
+    "detail": {
+      "textHeadline": "Neue flow",
+      "labelGeneralCard": "General information",
+      "labelLogCard": "Log",
+      "labelGeneralInformationName": "Name",
+      "placeholderGeneralInformationName": "Flow name eingeben...",
+      "labelGeneralInformationDescription": "Beschreibung",
+      "placeholderGeneralInformationDescription": "Flow beschreibung eingeben...",
+      "labelGeneralInformationPriority": "Priorität",
+      "labelGeneralInformationActive": "Aktiv",
+      "labelLogExecuted": "This flow as been executed \"{total}\" time in total.",
+      "labelLogInstruct": "Click on the log file to see more details of the flow execution actions and to replay the flow.",
+      "labelLogDateExecuted": "Date executed",
+      "labelLogTrigger": "Trigger",
+      "labelLogTriggerValue": "Trigger value",
+      "labelLogActions": "Actions",
+      "labelLogSuccess": "Success"
+    },
+    "page": {
+      "generalTab": "Allgemein",
+      "flowTab": "Flow"
+    },
+    "flowNotification": {
+      "messageDeleteSuccess": "Die flow wurde erfolgreich gelöscht.",
+      "messageDeleteError": "Die flow konnte nicht gelöscht werden.",
+      "messageSaveSuccess": "The flow wurde erfolgreich gespeichert.",
+      "messageSaveError": "The flow konnte nicht gespeichert werden.",
+      "messageError": "Ein Fehler ist aufgetreten.",
+      "messageRequiredEventName": "Please choose trigger event before save."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "flow": {
+        "label": "Flow Builder"
       }
     }
+  }
 }

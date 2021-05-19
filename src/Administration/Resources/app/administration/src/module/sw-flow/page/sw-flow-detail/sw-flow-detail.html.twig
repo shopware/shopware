@@ -9,13 +9,23 @@
     {% block sw_flow_detail_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_flow_detail_smart_bar_actions_save %}
-        <sw-button
+        <sw-button-process
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('flow.editor'),
+                position: 'bottom',
+                showOnDisabledElements: true
+            }"
             class="sw-flow-detail__save"
             variant="primary"
-            :disabled="!acl.can('flow.creator')"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="!acl.can('flow.editor')"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </sw-button-process>
         {% endblock %}
     </template>
     {% endblock %}
@@ -28,7 +38,7 @@
                 {% block sw_flow_tabs_general_header %}
                 <sw-tabs-item
                     v-bind="$props"
-                    :route="{ name: 'sw.flow.create.general' }"
+                    :route="{ name: routeDetailTab('general') }"
                 >
                     {{ $tc('sw-flow.page.generalTab') }}
                 </sw-tabs-item>
@@ -37,7 +47,7 @@
                 {% block sw_flow_tabs_builder_header %}
                 <sw-tabs-item
                     v-bind="$props"
-                    :route="{ name: 'sw.flow.create.flow' }"
+                    :route="{ name: routeDetailTab('flow') }"
                 >
                     {{ $tc('sw-flow.page.flowTab') }}
                 </sw-tabs-item>
@@ -46,7 +56,11 @@
             {% endblock %}
 
             {% block sw_flow_tabs_content %}
-            <router-view />
+            <router-view
+                :is-loading="isLoading"
+                :is-new-flow="isNewFlow"
+                :flow="flow"
+            />
             {% endblock %}
         </sw-card-view>
     </template>

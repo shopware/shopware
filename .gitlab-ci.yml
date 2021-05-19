@@ -112,12 +112,13 @@ PHP Full:
         allow_failure: true
     parallel:
         matrix:
-            -   MYSQL_IMAGE: mariadb:10.4
+            # required until we fix NEXT-15370
+            -   MYSQL_IMAGE: mariadb:10.4.18
                 DEV_IMAGE: shopware/development:8.0-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:5.7
-                    - mariadb:10.3
+                    - mariadb:10.3.28
                 DEV_IMAGE: shopware/development:8.0-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
                 SKIP_ON_MR: 'true'
@@ -165,7 +166,7 @@ PHP Unit coverage:
             cobertura: cobertura.xml
     parallel:
         matrix:
-            -   MYSQL_IMAGE: mariadb:10.4
+            -   MYSQL_IMAGE: mariadb:10.4.18
                 DEV_IMAGE: ["shopware/development:7.4-composer-2"]
                 FEATURE_ALL: ["major"]
 
@@ -245,7 +246,7 @@ Jest (Administration):
     stage: unit
     timeout: 1h 00m
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.3.28
             alias: mysql
     script:
         - ./psh.phar init
@@ -266,7 +267,7 @@ Jest (Storefront):
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.3.28
             alias: mysql
     script:
         - ./psh.phar init
@@ -286,7 +287,7 @@ Validate snippets:
     stage: unit
     timeout: 1h 00m
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.3.28
             alias: mysql
     script:
         - ./psh.phar init
@@ -302,7 +303,7 @@ E2E:
     services:
         -   name: docker:18.09.7-dind
             alias: docker
-        -   name: mariadb:10.3
+        -   name: mariadb:10.3.28
             alias: mysql
     script:
         - mkdir -p $HOME/.docker

@@ -119,7 +119,7 @@ Component.register('sw-product-variant-modal', {
                 },
                 {
                     property: 'price',
-                    dataIndex: 'price',
+                    dataIndex: `price.${this.currency?.id || ''}.net`,
                     label: 'sw-product.list.columnPrice',
                     allowResize: true,
                     width: '250px',

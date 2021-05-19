@@ -28,6 +28,8 @@ Component.register('sw-product-variants-overview', {
 
     data() {
         return {
+            sortBy: 'name',
+            sortDirection: 'DESC',
             showDeleteModal: false,
             modalLoading: false,
             priceEdit: false,
@@ -114,7 +116,7 @@ Component.register('sw-product-variants-overview', {
                 return b.isSystemDefault ? 1 : -1;
             }).map((currency) => {
                 return {
-                    property: `price-${currency.isoCode}`,
+                    property: `price.${currency.id}.net`,
                     label: currency.translated.name || currency.name,
                     visible: currency.isSystemDefault,
                     allowResize: true,
@@ -175,13 +177,12 @@ Component.register('sw-product-variants-overview', {
                 }
 
                 // check for other sort values
-                if (!this.$route.query.sortBy || this.$route.query.sortBy === 'name') {
+                if (this.sortBy === 'name') {
                     searchCriteria
                         .addSorting(Criteria.sort('product.options.groupId', this.sortDirection))
                         .addSorting(Criteria.sort('product.options.id', this.sortDirection));
                 } else {
-                    searchCriteria
-                        .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+                    searchCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }
 
                 // Start search

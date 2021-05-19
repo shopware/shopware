@@ -6,7 +6,7 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 Component.register('sw-product-detail-specifications', {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
     computed: {
         ...mapState('swProductDetail', [

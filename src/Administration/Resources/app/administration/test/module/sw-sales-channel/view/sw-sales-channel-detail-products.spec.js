@@ -215,6 +215,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.vm.onChangeSearchTerm('Awesome Product');
 
         expect(wrapper.vm.searchTerm).toBe('Awesome Product');
+        expect(wrapper.vm.productCriteria.term).toBe('Awesome Product');
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });
@@ -300,7 +301,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should be able to edit product', async () => {
         const wrapper = createWrapper([
-            'sales_channel.editor'
+            'product.editor'
         ]);
         await wrapper.vm.$nextTick();
 

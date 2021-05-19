@@ -86,7 +86,13 @@ describe('Product: Edit property assignment', () => {
             });
     });
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, use `sw-product-properties` instead
+     * @feature-deprecated (flag:FEATURE_NEXT_12437)
+     */
     it('@base @catalogue: delete property assignment', () => {
+        cy.skipOnFeature('FEATURE_NEXT_12437');
+
         const page = new ProductPageObject();
 
         cy.clickContextMenuItem(
@@ -103,6 +109,114 @@ describe('Product: Edit property assignment', () => {
         });
 
         // Verify deleted properties
+        cy.get(page.elements.productSaveAction).click();
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+    });
+
+    it('@base @catalogue: delete property values', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12437');
+
+        const page = new ProductPageObject();
+
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
+
+        cy.get('.sw-product-properties-list__column-values').each(($el) => {
+            $el.trigger('mouseenter').find('.sw-label__dismiss').trigger('click');
+        });
+
+        cy.get(page.elements.productSaveAction).click();
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+    });
+
+    it('@base @catalogue: delete property', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12437');
+
+        const page = new ProductPageObject();
+
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
+
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-delete',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-modal').should('be.visible');
+        cy.get('.sw-button--danger').click();
+
+        cy.get(page.elements.productSaveAction).click();
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+    });
+
+    it('@base @catalogue: delete properties', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12437');
+
+        const page = new ProductPageObject();
+
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
+
+        cy.get('.sw-product-properties .sw-data-grid__cell--selection input').check();
+        cy.get('.sw-product-properties .sw-data-grid__bulk-selected-count').contains(2);
+        cy.get('.sw-product-properties .sw-data-grid__bulk-selected').should('be.visible');
+        cy.get('.sw-product-properties .sw-data-grid__bulk-selected.bulk-link a').click();
+
+        cy.get('.sw-modal').should('be.visible');
+        cy.get('.sw-button--danger').click();
+
+        cy.get(page.elements.productSaveAction).click();
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.sw-product-properties .sw-empty-state').should('be.visible');
+    });
+
+    it('@base @catalogue: search properties', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12437');
+
+        const page = new ProductPageObject();
+
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
+
+        cy.get('.sw-product-properties .sw-simple-search-field input').type('Color');
+        cy.get(
+            `.sw-product-properties ${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`
+        ).should('contain.text', 'Color');
+
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-delete',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-modal').should('be.visible');
+        cy.get('.sw-button--danger').click();
+
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
     });

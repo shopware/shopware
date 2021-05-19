@@ -11,6 +11,10 @@ import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import Vuex from 'vuex';
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use `sw-product-properties` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_12437)
+ */
 describe('src/module/sw-product/view/sw-product-detail-properties', () => {
     Shopware.State.registerModule('swProductDetail', productStore);
 

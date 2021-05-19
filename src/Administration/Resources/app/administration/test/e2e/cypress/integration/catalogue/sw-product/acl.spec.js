@@ -49,8 +49,13 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-product-detail__tab-specifications')
             .scrollIntoView()
             .click();
-        cy.get('.sw-product-detail-properties__empty-state')
-            .should('be.visible');
+
+        cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
+            cy.get('.sw-product-properties').should('be.visible');
+        });
+        cy.skipOnFeature('FEATURE_NEXT_12437', () => {
+            cy.get('.sw-product-detail-properties__empty-state').should('be.visible');
+        });
 
         cy.get('.sw-product-detail__tab-variants')
             .scrollIntoView()

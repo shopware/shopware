@@ -87,7 +87,13 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('[Product] Detail, advanced prices', '.sw-product-detail-context-prices');
     });
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, use `sw-product-properties` instead
+     * @feature-deprecated (flag:FEATURE_NEXT_12437)
+     */
     it('@catalogue @percy: check product property appearance', () => {
+        cy.skipOnFeature('FEATURE_NEXT_12437');
+
         const page = new ProductPageObject();
 
         cy.get('.sw-product-list-grid').should('be.visible');
@@ -110,6 +116,24 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-grid__row--0 input').click();
 
         cy.takeSnapshot('[Product] Detail, Properties', '.sw-property-assignment__label-content');
+    });
+
+    it('@catalogue @percy: check product property appearance', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12437');
+
+        const page = new ProductPageObject();
+
+        // Edit base data of product
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-detail__tab-specifications').should('be.visible');
+        cy.get('.sw-product-detail__tab-specifications').click();
+
+        cy.get('.sw-product-properties').should('be.visible');
     });
 
     it('@visual: check appearance of product variant workflow', () => {

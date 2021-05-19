@@ -1,7 +1,6 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
-import PropertyPageObject from '../../../support/pages/module/sw-property.page-object';
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
@@ -10,43 +9,7 @@ describe('Product: Test variants', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                cy.createDefaultFixture('tax', {
-                    id: "91b5324352dc4ee58ec320df5dcf2bf4",
-                });
-            })
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [{
-                        id: '15532b3fd3ea4c1dbef6e9e9816e0715',
-                        name: 'Red'
-                    }, {
-                        id: '98432def39fc4624b33213a56b8c944d',
-                        name: 'Green'
-                    }]
-                });
-            })
-            .then(() => {
-                return cy.createPropertyFixture({
-                    name: 'Size',
-                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
-                });
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    data: {
-                        field: 'name',
-                        value: 'Storefront'
-                    },
-                    endpoint: 'sales-channel'
-                })
-            })
-            .then((saleschannel) => {
-                 cy.createDefaultFixture('product', {
-                     visibilities: [{
-                         visibility: 30,
-                         salesChannelId: saleschannel.id,
-                     }]
-                 } ,'product-variants.json');
+                cy.createProductVariantFixture();
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -204,10 +167,14 @@ describe('Product: Test variants', () => {
         cy.get('.product-variant-characteristics').contains('Color: Green | Size: L');
     });
 
-    it('@base @catalogue: test multidimensional variant with restrictions', () => {
+    it.only('@base @catalogue: test multidimensional variant with restrictions', () => {
         const page = new ProductPageObject();
-        const optionsIndicator = '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
+        const optionsIndicator = '' +
+            '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
         const optionString = 'values';
+        const multiSelect = '.sw-multi-select';
+        const restrictionSelection =
+            '.sw-product-restriction-selection:nth-of-type(2) .sw-product-restriction-selection__select-option-wrapper';
 
         const propertyName = 'Size';
         const optionPosition = [0, 1, 2];
@@ -267,7 +234,7 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-product-restriction-selection:nth-of-type(2)').should('be.visible');
         cy.get('.sw-product-restriction-selection:nth-of-type(2) #sw-field--selectedGroup').select('Color');
-        cy.get('.sw-product-restriction-selection:nth-of-type(2) .sw-product-restriction-selection__select-option-wrapper .sw-multi-select')
+        cy.get(`${restrictionSelection} ${multiSelect}`)
             .typeMultiSelectAndCheck('Red');
 
         // Save restrictions
@@ -288,10 +255,8 @@ describe('Product: Test variants', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
+        // Inspect variant generation
         cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
-        cy.get('.generate-variant-progress-bar__description').contains('0 of 2 variations deleted');
-        cy.get('.generate-variant-progress-bar__description').contains('0 of 5 variations generated');
-
         cy.wait('@searchCall').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });

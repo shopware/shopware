@@ -9,15 +9,7 @@ describe('Product: Test variants', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createDefaultFixture('unit');
+                cy.createProductVariantFixture();
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -25,118 +17,120 @@ describe('Product: Test variants', () => {
     });
 
     it('@catalogue: add variant with surcharge to product', () => {
-        cy.window().then((win) => {
-            const page = new ProductPageObject();
+        const page = new ProductPageObject();
 
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: `${Cypress.env('apiPath')}/product/*`,
-                method: 'patch'
-            }).as('saveData');
-            cy.route({
-                url: `${Cypress.env('apiPath')}/search/property-group`,
-                method: 'post'
-            }).as('searchVariantGroup');
-            cy.route({
-                url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
-                method: 'get'
-            }).as('changeVariant');
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/product/*`,
+            method: 'patch'
+        }).as('saveData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/property-group`,
+            method: 'post'
+        }).as('searchVariantGroup');
+        cy.route({
+            url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
+            method: 'get'
+        }).as('changeVariant');
 
-            // Navigate to variant generator listing and start
-            cy.clickContextMenuItem(
-                '.sw-entity-listing__context-menu-edit-action',
-                page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
-            );
+        // Navigate to variant generator listing and start
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
 
-            cy.get('.sw-product-detail__tab-variants').click();
-            cy.get(page.elements.loader).should('not.exist');
-            cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
-                .should('be.visible')
-                .click();
-            cy.get('.sw-product-modal-variant-generation').should('be.visible');
+        cy.get('.sw-product-detail__tab-variants').click();
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-product-variants-overview').should('be.visible');
 
-            // Create and verify one-dimensional variant
-            page.generateVariants('Color', [0, 1, 2], 3);
-            cy.get('.sw-product-variants-overview').should('be.visible');
+        cy.get('.sw-data-grid__body').contains('Red');
+        cy.get('.sw-data-grid__body').contains('Green');
 
-            cy.get('.sw-data-grid__body').contains('Red');
-            cy.get('.sw-data-grid__body').contains('Yellow');
-            cy.get('.sw-data-grid__body').contains('Green');
-            cy.get('.sw-data-grid__body').contains('.1');
-            cy.get('.sw-data-grid__body').contains('.2');
-            cy.get('.sw-data-grid__body').contains('.3');
+        // Get green variant
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-simple-search-field--form input').should('be.visible');
 
-            // Get green variant
-            cy.get('.sw-loader').should('not.exist');
-            cy.get('.sw-simple-search-field--form input').should('be.visible');
+        cy.wait('@searchVariantGroup').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            cy.get('.sw-simple-search-field--form input').type('Green');
+        });
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-data-grid__row--1').should('not.exist');
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');
 
-            cy.wait('@searchVariantGroup').then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-                cy.get('.sw-simple-search-field--form input').type('Green');
-            });
+        // Find variant to set surcharge on
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
+        cy.get('.sw-data-grid__row--0 .sw-price-preview').should('be.visible');
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').dblclick({ force: true });
+        cy.get('.sw-data-grid__row--0 .sw-price-preview').should('not.exist');
 
-            cy.get('.sw-data-grid-skeleton').should('not.exist');
-            cy.get('.sw-data-grid__row--1').should('not.exist');
-            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');
+        // Set surcharge
+        cy.get('.is--inline-edit .sw-inheritance-switch').should('be.visible');
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('be.visible');
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('be.enabled');
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('have.value', '64');
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().clear();
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('have.value', '');
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().clearTypeAndCheck('100');
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().type('{enter}');
 
-            // Set surcharge
-            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
-            cy.get('.sw-data-grid__row--0 .sw-price-preview').should('be.visible');
-            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').dblclick({ force: true });
-            cy.get('.sw-data-grid__row--0 .sw-price-preview').should('not.exist');
+        // Assert surcharge
+        cy.get('.sw-data-grid__row--0 #sw-price-field-net')
+            .first()
+            .invoke('val')
+            .should('eq', '50.251256281407');
+        cy.get('.icon--custom-uninherited').should('be.visible');
+        cy.get('.sw-data-grid__inline-edit-save').click();
 
-            cy.get('.is--inline-edit .sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net .sw-inheritance-switch').should('exist');
-            cy.get('.is--inline-edit .sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net .sw-inheritance-switch').should('be.visible');
-            cy.get('.is--inline-edit .sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net .sw-inheritance-switch').click();
-            cy.get('.sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net #sw-price-field-gross').should('be.visible');
-            cy.get('.sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net #sw-price-field-gross').should('be.enabled');
-            cy.get('.sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net #sw-price-field-gross').clearTypeAndCheck('100');
-            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net .icon--default-lock-open').click();
-            cy.get('.sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net #sw-price-field-net')
-                .invoke('val')
-                .should('eq', '84.033613445378');
-            cy.get('.icon--custom-uninherited').should('be.visible');
-            cy.get('.sw-data-grid__inline-edit-save').click();
+        // Validate product
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+            cy.awaitAndCheckNotification('Product "Green" has been saved.');
+        });
 
-            // Validate product
-            cy.wait('@productCall').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-                cy.awaitAndCheckNotification('Product "Green" has been saved.');
-            });
+        // Find variant in Storefront
+        cy.visit('/');
+        cy.get('input[name=search]').type('Variant product name');
+        cy.get('.search-suggest-container').should('be.visible');
+        cy.get('.search-suggest-product-name')
+            .contains('Variant product name')
+            .click();
 
-            // Validate in Storefront
-            cy.visit('/');
-            cy.get('.product-image-wrapper').click();
-            cy.get('.product-detail-buy').should('be.visible');
+        // Verify in storefront
+        cy.get('.product-detail-name').contains('Variant product name');
+        cy.get('.product-detail-configurator-option-label[title="Red"]')
+            .should('be.visible');
+        cy.get('.product-detail-configurator-option-label[title="Green"]')
+            .should('be.visible');
+        cy.get('.product-detail-buy').should('be.visible');
 
-            // Ensure that variant "Green" is checked at the moment the test runs
-            cy.get('.product-detail-configurator-option-label[title="Green"]').then(($btn) => {
-                const inputId = $btn.attr('for');
+        // Ensure that variant "Green" is checked at the moment the test runs
+        cy.get('.product-detail-configurator-option-label[title="Green"]').then(($btn) => {
+            const inputId = $btn.attr('for');
 
-                cy.get(`#${inputId}`).then(($input) => {
-                    if (!$input.attr('checked')) {
-                        cy.contains('Green').click();
+            cy.get(`#${inputId}`).then(($input) => {
+                if (!$input.attr('checked')) {
+                    cy.contains('Green').click();
 
-                        cy.wait('@changeVariant').then((xhr) => {
-                            expect(xhr).to.have.property('status', 200);
-                            cy.get('.product-detail-price').contains('100.00');
-                        });
-                    } else {
-                        cy.log('Variant "Green" is already open.');
+                    cy.wait('@changeVariant').then((xhr) => {
+                        expect(xhr).to.have.property('status', 200);
                         cy.get('.product-detail-price').contains('100.00');
-                    }
-                });
+                    });
+                } else {
+                    cy.log('Variant "Green" is already open.');
+                    cy.get('.product-detail-price').contains('100.00');
+                }
             });
+        });
 
-            cy.contains('Red').click();
+        // Check usual price in "Red"
+        cy.contains('Red').click();
+        cy.wait('@changeVariant').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
 
-            cy.wait('@changeVariant').then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-
-                cy.get('.product-detail-price').contains('64.00');
-            });
+            cy.get('.product-detail-price').contains('64.00');
         });
     });
 });

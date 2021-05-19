@@ -1,0 +1,78 @@
+{
+  "name": "Variant product name",
+  "taxId": "91b5324352dc4ee58ec320df5dcf2bf4",
+  "id": "c26e748eb7b311eb85290242ac130003",
+  "active": true,
+  "stock": 1,
+  "productNumber": "RS-333",
+  "descriptionLong": "Product description",
+  "price": [
+    {
+      "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+      "net": 42,
+      "linked": false,
+      "gross": 64
+    }
+  ],
+  "purchasePrices": [
+    {
+      "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+      "net": 42,
+      "linked": false,
+      "gross": 64
+    }
+  ],
+  "children": [
+    {
+      "parentId": "c26e748eb7b311eb85290242ac130003",
+      "price": [
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "gross": 64,
+          "net": 42,
+          "linked": true
+        }
+      ],
+      "name": "Variant product name",
+      "productNumber": "5010.17002",
+      "active": true,
+      "taxId": "91b5324352dc4ee58ec320df5dcf2bf4",
+      "stock": 1,
+      "options": [
+        {
+          "id": "15532b3fd3ea4c1dbef6e9e9816e0715"
+        }
+      ]
+    }, {
+      "parentId": "c26e748eb7b311eb85290242ac130003",
+      "price": [
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "gross": 64,
+          "net": 42,
+          "linked": true
+        }
+      ],
+      "name": "Variant product name",
+      "productNumber": "5010.17004",
+      "active": true,
+      "taxId": "91b5324352dc4ee58ec320df5dcf2bf4",
+      "stock": 1,
+      "options": [
+        {
+          "id": "98432def39fc4624b33213a56b8c944d"
+        }
+      ]
+    }
+  ],
+  "configuratorSettings": [
+    {
+      "id": "07504d920fa8409dadc52294d41ec44c",
+      "optionId": "15532b3fd3ea4c1dbef6e9e9816e0715"
+    },
+    {
+      "id": "f96475d3506f480aae89e44939d3b192",
+      "optionId": "98432def39fc4624b33213a56b8c944d"
+    }
+  ]
+}

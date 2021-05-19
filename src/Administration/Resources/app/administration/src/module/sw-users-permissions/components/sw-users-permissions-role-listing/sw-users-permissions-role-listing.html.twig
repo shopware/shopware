@@ -107,6 +107,18 @@
                         {% endblock %}
                     </template>
                 {% endblock %}
+
+                <template #pagination>
+                    {% block sw_users_permissions_role_listing_grid_pagination %}
+                        <sw-pagination
+                            :page="page"
+                            :limit="limit"
+                            :total="total"
+                            :autoHide="true"
+                            @page-change="onPageChange">
+                        </sw-pagination>
+                    {% endblock %}
+                </template>
             </sw-data-grid>
         {% endblock %}
 

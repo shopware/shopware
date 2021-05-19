@@ -9,7 +9,8 @@ Component.register('sw-sales-channel-detail', {
     inject: [
         'repositoryFactory',
         'exportTemplateService',
-        'acl'
+        'acl',
+        'feature'
     ],
 
     mixins: [
@@ -84,6 +85,14 @@ Component.register('sw-sales-channel-detail', {
             }
 
             return this.salesChannel.typeId === Defaults.productComparisonTypeId;
+        },
+
+        isHeadless() {
+            if (!this.salesChannel) {
+                return this.$route.params.typeId === Defaults.apiSalesChannelTypeId;
+            }
+
+            return this.salesChannel.typeId === Defaults.apiSalesChannelTypeId;
         },
 
         salesChannelRepository() {

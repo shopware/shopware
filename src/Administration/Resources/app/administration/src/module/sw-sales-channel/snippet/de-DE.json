@@ -110,6 +110,14 @@
       "basicinformationLink": "Standard-Wartungsseiten-Layout ändern",
       "ipAddressWhitleList": "Whitelist für IP-Adressen",
       "columnDomainCurrency": "Währung",
+      "products": {
+        "titleEmptyState": "Noch keine Produkte hinzugefügt",
+        "titleEmptyStateTable": "Keine passenden Produkte gefunden",
+        "buttonAddProducts": "Produkte hinzufügen",
+        "columnProductName": "Produktname",
+        "columnActive": "Aktiv",
+        "columnProductNumber": "Produktnummer"
+      },
       "productComparison": {
         "inputHeaderLabel": "Kopfzeile",
         "inputBodyLabel": "Produktzeile",

@@ -11,6 +11,7 @@ import './component/sw-sales-channel-detail-hreflang';
 import './page/sw-sales-channel-detail';
 import './page/sw-sales-channel-create';
 import './view/sw-sales-channel-detail-base';
+import './view/sw-sales-channel-detail-products';
 import './view/sw-sales-channel-detail-analytics';
 import './view/sw-sales-channel-create-base';
 import './view/sw-sales-channel-detail-product-comparison';
@@ -47,6 +48,13 @@ Module.register('sw-sales-channel', {
                 base: {
                     component: 'sw-sales-channel-detail-base',
                     path: 'base',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
+                },
+                products: {
+                    component: 'sw-sales-channel-detail-products',
+                    path: 'products',
                     meta: {
                         privilege: 'sales_channel.viewer'
                     }

@@ -83,11 +83,12 @@
             <argument type="service" id="cache.object"/>
         </service>
 
-        <service id="shopware.asset.theme" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+        <service id="shopware.asset.theme" class="Shopware\Core\Framework\Adapter\Asset\ThemeAssetPackage">
             <argument type="collection">
                 <argument>%shopware.filesystem.theme.url%</argument>
             </argument>
             <argument type="service" id="shopware.asset.theme.version_strategy"/>
+            <argument type="service" id="request_stack"/>
             <tag name="shopware.asset" asset="theme"/>
         </service>
 

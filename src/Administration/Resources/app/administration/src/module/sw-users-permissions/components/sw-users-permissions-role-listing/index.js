@@ -82,6 +82,7 @@ Component.register('sw-users-permissions-role-listing', {
             this.roles = [];
 
             return this.roleRepository.search(this.roleCriteria).then((roles) => {
+                this.total = roles.total;
                 this.roles = roles;
             }).finally(() => {
                 this.isLoading = false;

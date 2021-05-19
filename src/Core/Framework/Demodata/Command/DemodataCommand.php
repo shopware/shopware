@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -66,6 +67,7 @@ class DemodataCommand extends Command
         $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', '60');
         $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', '100');
         $this->addOption('properties', '', InputOption::VALUE_REQUIRED, 'Property group count (option count rand(30-300))', '10');
+        $this->addOption('users', '', InputOption::VALUE_REQUIRED, 'Users count', '0');
 
         $this->addOption('product-streams', 'ps', InputOption::VALUE_REQUIRED, 'Product streams count', '10');
 
@@ -110,6 +112,7 @@ class DemodataCommand extends Command
         $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(ProductReviewDefinition::class, (int) $input->getOption('reviews'));
+        $request->add(UserDefinition::class, (int) $input->getOption('users'));
 
         $request->add(
             CustomFieldSetDefinition::class,

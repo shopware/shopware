@@ -1,12 +1,13 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-dashboard/page/sw-dashboard-index';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
+import { currency } from 'src/core/service/utils/format.utils';
 
-function createWrapper(privileges = []) {
+function createWrapper(privileges = [], orderSumToday = null) {
     const localVue = createLocalVue();
     localVue.filter('asset', v => v);
     localVue.filter('date', v => v);
-    localVue.filter('currency', v => v);
+    localVue.filter('currency', currency);
 
     const responseMock = [{}, {}];
     responseMock.aggregations = {
@@ -15,7 +16,7 @@ function createWrapper(privileges = []) {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-dashboard-index'), {
+    const options = {
         localVue,
         stubs: {
             'sw-page': true,
@@ -52,8 +53,19 @@ function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             }
+        },
+        computed: {
+            systemCurrencyISOCode() {
+                return 'EUR';
+            }
         }
-    });
+    };
+
+    if (orderSumToday !== null) {
+        options.computed.orderSumToday = () => orderSumToday;
+    }
+
+    return shallowMount(Shopware.Component.build('sw-dashboard-index'), options);
 }
 
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
@@ -235,5 +247,14 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
                     .toContain(`sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`);
             }
         );
+    });
+
+    it('should not exceed decimal places of two', async () => {
+        wrapper = await createWrapper(['order.viewer'], 43383.13234554);
+        await wrapper.vm.$nextTick();
+
+        const todaysTotalSum =
+            wrapper.find('.sw-dashboard-index__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)').text();
+        expect(todaysTotalSum).toBe('€43,383.13');
     });
 });

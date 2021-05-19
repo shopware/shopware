@@ -43,8 +43,6 @@ use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Framework\ThemeInterface;
-use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
@@ -76,8 +74,6 @@ class PluginLifecycleService
 
     private SystemConfigService $systemConfigService;
 
-    private ?ThemeLifecycleService $themeLifecycleService;
-
     /**
      * @psalm-suppress ContainerDependency
      */
@@ -92,8 +88,7 @@ class PluginLifecycleService
         RequirementsValidator $requirementValidator,
         CacheItemPoolInterface $restartSignalCachePool,
         string $shopwareVersion,
-        SystemConfigService $systemConfigService,
-        ?ThemeLifecycleService $themeLifecycleService
+        SystemConfigService $systemConfigService
     ) {
         $this->pluginRepo = $pluginRepo;
         $this->eventDispatcher = $eventDispatcher;
@@ -106,7 +101,6 @@ class PluginLifecycleService
         $this->systemConfigService = $systemConfigService;
         $this->shopwareVersion = $shopwareVersion;
         $this->restartSignalCachePool = $restartSignalCachePool;
-        $this->themeLifecycleService = $themeLifecycleService;
     }
 
     /**
@@ -228,10 +222,6 @@ class PluginLifecycleService
         }
 
         if (!$uninstallContext->keepUserData()) {
-            if ($pluginBaseClass instanceof ThemeInterface && $this->themeLifecycleService !== null) {
-                $this->themeLifecycleService->removeTheme($pluginBaseClass->getName(), $shopwareContext);
-            }
-
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
         }
 

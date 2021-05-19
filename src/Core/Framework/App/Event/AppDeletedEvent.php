@@ -15,25 +15,27 @@ class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
 {
     public const NAME = 'app.deleted';
 
-    /**
-     * @var string
-     */
-    private $appId;
+    private string $appId;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    public function __construct(string $appId, Context $context)
+    private bool $keepUserData;
+
+    public function __construct(string $appId, Context $context, bool $keepUserData = false)
     {
         $this->appId = $appId;
         $this->context = $context;
+        $this->keepUserData = $keepUserData;
     }
 
     public function getAppId(): string
     {
         return $this->appId;
+    }
+
+    public function keepUserData(): bool
+    {
+        return $this->keepUserData;
     }
 
     public function getContext(): Context

@@ -31,7 +31,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Theme\ThemeLifecycleService;
 use SwagTest\Migration\Migration1536761533Test;
 use SwagTest\SwagTest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -429,6 +428,44 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->activatePlugin($pluginEntity, $this->context);
     }
 
+    /**
+     * @dataProvider themeProvideData
+     */
+    public function testThemeRemovalOnUninstall(bool $keepUserData): void
+    {
+        $this->addTestPluginToKernel('SwagTestTheme');
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $pluginInstalled = $this->pluginService->getPluginByName('SwagTestTheme', $this->context);
+        $this->pluginLifecycleService->installPlugin($pluginInstalled, $this->context);
+
+        $this->pluginLifecycleService->activatePlugin($pluginInstalled, $this->context);
+        static::assertTrue($pluginInstalled->getActive());
+
+        $themeRepo = $this->container->get('theme.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTestTheme'));
+
+        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getElements());
+
+        $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $this->context, $keepUserData);
+
+        $pluginUninstalled = $this->getTestPlugin($this->context);
+        static::assertNull($pluginUninstalled->getInstalledAt());
+        static::assertFalse($pluginUninstalled->getActive());
+        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
+    }
+
+    public function themeProvideData(): array
+    {
+        return [
+            'Test with keep data' => [true],
+            'Test without keep data' => [false],
+        ];
+    }
+
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
         /** @var EntityRepositoryInterface $pluginRepository */
@@ -761,8 +798,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->systemConfigService,
-            $this->container->get(ThemeLifecycleService::class)
+            $this->systemConfigService
         );
     }
 

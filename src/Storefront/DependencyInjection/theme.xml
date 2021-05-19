@@ -171,6 +171,7 @@
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -178,6 +179,13 @@
         <service id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
                  class="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Subscriber\AppLifecycleSubscriber">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
+            <argument type="service" id="app.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Twig -->

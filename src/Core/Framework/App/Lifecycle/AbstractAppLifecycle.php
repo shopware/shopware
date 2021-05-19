@@ -16,5 +16,5 @@ abstract class AbstractAppLifecycle
 
     abstract public function update(Manifest $manifest, array $app, Context $context): void;
 
-    abstract public function delete(string $appName, array $app, Context $context): void;
+    abstract public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void;
 }

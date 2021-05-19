@@ -70,14 +70,20 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={
-     *                  "search"
-     *              },
-     *              @OA\Property(
-     *                  property="search",
-     *                  description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
-     *                  type="string"
-     *              )
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/ProductListingFlags"),
+     *                  @OA\Schema(type="object",
+     *                      required={
+     *                          "search"
+     *                      },
+     *                      @OA\Property(
+     *                          property="search",
+     *                          description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
+     *                          type="string"
+     *                      )
+     *                  )
+     *              }
      *          )
      *      ),
      *      @OA\Response(

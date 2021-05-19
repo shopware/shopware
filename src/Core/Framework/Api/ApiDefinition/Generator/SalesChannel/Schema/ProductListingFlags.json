@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "description": "Additional flags for product listings",
+  "properties": {
+    "no-aggregations": {
+      "description": "Resets all aggregations in the criteria. This parameter is a flag. The value is not important.",
+      "type": "string"
+    },
+    "only-aggregations": {
+      "description": "If this flag is set, no products are fetched. Sorting and associations are also ignored.  This parameter is a flag. The value is not important.",
+      "type": "boolean"
+    }
+  }
+}

@@ -46,14 +46,28 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
      * @Since("6.2.0.0")
      * @OA\Get(
      *      path="/search",
-     *      summary="Search",
+     *      summary="Search for products",
+     *      description="Performs a search for products which can be used to display a product listing.",
      *      operationId="searchPage",
-     *      tags={"Store API", "Product"},
-     *      @OA\Parameter(
-     *          name="search",
-     *          description="Search term",
-     *          in="query",
-     *          @OA\Schema(type="string")
+     *      tags={"Store API","Product"},
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *                  type="object",
+     *                  allOf={
+     *                      @OA\Schema(ref="#/components/schemas/ProductListingCriteria"),
+     *                      @OA\Schema(ref="#/components/schemas/ProductListingFlags"),
+     *                      @OA\Schema(type="object",
+     *                          required={
+     *                              "search"
+     *                          },
+     *                          @OA\Property(
+     *                              property="search",
+     *                              description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
+     *                              type="string"
+     *                          )
+     *                      )
+     *                  }
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

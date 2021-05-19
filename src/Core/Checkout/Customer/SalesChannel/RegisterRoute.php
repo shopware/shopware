@@ -195,7 +195,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
      *              @OA\Property(
      *                  property="guest",
      *                  type="boolean",
-     *                  default="false",
+     *                  default=false,
      *                  description="If set, will create a guest customer. Guest customers can re-use an email address and don't need a password."),
      *              @OA\Property(
      *                  property="birthdayDay",

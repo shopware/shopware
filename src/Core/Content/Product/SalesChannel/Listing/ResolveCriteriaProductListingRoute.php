@@ -42,6 +42,15 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
      *      description="Fetches a product listing for a specific category. It also provides filters, sortings and property aggregations, analogous to the /search endpoint.",
      *      operationId="readProductListing",
      *      tags={"Store API","Product"},
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *                  type="object",
+     *                  allOf={
+     *                      @OA\Schema(ref="#/components/schemas/ProductListingCriteria"),
+     *                      @OA\Schema(ref="#/components/schemas/ProductListingFlags")
+     *                  }
+     *          )
+     *      ),
      *      @OA\Parameter(
      *          name="categoryId",
      *          description="Identifier of a category.",

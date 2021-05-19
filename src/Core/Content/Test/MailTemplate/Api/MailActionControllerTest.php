@@ -8,7 +8,6 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -134,7 +133,6 @@ class MailActionControllerTest extends TestCase
 
     public function testBuildingRenderedMailTemplate(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_12654', $this);
         $data = $this->getTestDataWithMailTemplateType();
 
         $this->getBrowser()->request('POST', '/api/_action/mail-template/build', $data);

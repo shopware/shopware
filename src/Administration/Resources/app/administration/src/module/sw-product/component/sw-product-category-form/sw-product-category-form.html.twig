@@ -68,6 +68,8 @@
             </sw-container>
 
             <sw-modal v-if="displayVisibilityDetail" @modal-close="closeAdvancedVisibility" :title="$tc('sw-product.visibility.textHeadline')" class="sw-product-category-form__visibility_modal">
+                <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
+
                 <sw-product-visibility-detail :disabled="!allowEdit"></sw-product-visibility-detail>
 
                 <template slot="modal-footer">

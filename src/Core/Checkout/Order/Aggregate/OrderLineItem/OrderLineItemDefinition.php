@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
@@ -96,7 +97,7 @@ class OrderLineItemDefinition extends EntityDefinition
 
             (new FloatField('unit_price', 'unitPrice'))->addFlags(new ApiAware(), new Computed()),
             (new FloatField('total_price', 'totalPrice'))->addFlags(new ApiAware(), new Computed()),
-            (new StringField('description', 'description'))->addFlags(new ApiAware()),
+            (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
             (new StringField('type', 'type'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),

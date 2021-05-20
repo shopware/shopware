@@ -45,7 +45,7 @@ class Kernel extends HttpKernel
     protected static $connection;
 
     /**
-     * @var KernelPluginLoader|null
+     * @var KernelPluginLoader
      */
     protected $pluginLoader;
 

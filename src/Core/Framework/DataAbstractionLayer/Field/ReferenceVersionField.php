@@ -54,6 +54,8 @@ class ReferenceVersionField extends FkField
 
     public function getStorageName(): string
     {
+        \assert($this->storageName !== null, 'storageName could not be null, because the `compile` method must be called first');
+
         return $this->storageName;
     }
 

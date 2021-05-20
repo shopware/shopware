@@ -88,10 +88,6 @@ parameters:
         -
             message: '#Strict comparison using#'
             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
-        # storageName could not be null, because the `compile` method is called first
-        -
-            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\ReferenceVersionField::getStorageName\(\) should return string but returns string\|null#'
-            path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
         # The implementations should always declare their specific return type
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\FieldSerializerInterface::decode\(\) has no return typehint specified\.#'

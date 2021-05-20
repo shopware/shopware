@@ -80,7 +80,14 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
      * @Since("6.3.4.0")
      * @OA\Post(
      *      path="/customer/wishlist/merge",
-     *      summary="Merge wishlist products from anonymous users to registered users",
+     *      summary="Create a wishlist for a customer",
+     *      description="Create a new wishlist for a logged in customer or extend the existing wishlist given a set of products.
+
+**Important constraints**
+
+* Anonymous (not logged-in) customers can not have wishlists.
+* A customer can only have a single wishlist.
+* The wishlist feature has to be activated.",
      *      operationId="mergeProductOnWishlist",
      *      tags={"Store API", "Wishlist"},
      *      @OA\RequestBody(
@@ -90,13 +97,13 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
      *                  property="productIds",
      *                  description="List product id",
      *                  type="array",
-     *                  @OA\Items(type="string", format="uuid", description="product id"),
+     *                  @OA\Items(type="string", pattern="^[0-9a-f]{32}$", description="product id")
      *              )
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Success",
+     *          description="Returns a success response.",
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )

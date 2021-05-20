@@ -37,29 +37,26 @@ class CategoryListRoute extends AbstractCategoryListRoute
      * @Entity("category")
      * @OA\Post(
      *      path="/category",
-     *      summary="This route can be used to load categories",
+     *      summary="Fetch a list of categories",
+     *      description="Perform a filtered search for categories.",
      *      operationId="readCategoryList",
      *      tags={"Store API", "Category"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/category_flat")
-     *              )
+     *          description="Entity search result containing categories.",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/category_flat")
+     *                      )
+     *                  )
+     *              }
      *          )
      *     )
      * )

@@ -1,19 +1,58 @@
 {
-    "type": "object",
-    "properties": {
-        "apiAlias": {
-            "type": "string"
+  "allOf": [
+    {
+      "$ref": "#/components/schemas/EntitySearchResult"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "currentFilters": {
+          "type": "object",
+          "description": "Contains the state of the filters. These can be used to create listing filters.",
+          "properties": {
+            "navigationId": {
+              "type": "string"
+            },
+            "manufacturer": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "price": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "integer"
+                },
+                "max": {
+                  "type": "integer"
+                }
+              }
+            },
+            "rating": {
+              "type": "integer"
+            },
+            "shipping-free": {
+              "type": "boolean"
+            },
+            "properties": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "availableSortings": {
+          "type": "array",
+          "description": "Contains the available sorting. These can be used to show a sorting select-box in the product listing.",
+          "items": {
+            "type": "object"
+          }
         },
         "sorting": {
-            "type": "string"
-        },
-        "page": {
-            "type": "integer",
-            "format": "int32"
-        },
-        "limit": {
-            "type": "integer",
-            "format": "int32"
+          "type": "string"
         },
         "elements": {
           "type": "array",
@@ -21,5 +60,7 @@
             "$ref": "#/components/schemas/product_flat"
           }
         }
+      }
     }
+  ]
 }

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -62,20 +63,29 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Get(
+     * @Entity("product")
+     * @OA\Post(
      *      path="/search",
-     *      summary="Search",
+     *      summary="Search for products",
+     *      description="Performs a search for products which can be used to display a product listing.",
      *      operationId="searchPage",
-     *      tags={"Store API","Search"},
-     *      @OA\Parameter(
-     *          name="search",
-     *          description="Search term",
-     *          in="query",
-     *          @OA\Schema(type="string")
+     *      tags={"Store API","Product"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={
+     *                  "search"
+     *              },
+     *              @OA\Property(
+     *                  property="search",
+     *                  type="string",
+     *                  description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag."
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Found products",
+     *          description="Returns a product listing containing all products and additional fields to display a listing.",
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )

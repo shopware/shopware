@@ -38,31 +38,28 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      * @Entity("seo_url")
      * @OA\Post(
      *      path="/seo-url",
-     *      summary="Loads seo urls",
+     *      summary="Fetch SEO routes",
+     *      description="Perform a filtered search for seo urls.",
      *      operationId="readSeoUrl",
-     *      tags={"Store API", "Seo"},
+     *      tags={"Store API", "Sitemap & Routes"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *     @OA\Response(
+     *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/seo_url_flat")
-     *              )
+     *          description="Entity search result containing seo urls.",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/seo_url_flat")
+     *                      )
+     *                  )
+     *              }
      *          )
-     * ),
+     *     ),
      *     @OA\Response(
      *          response="404",
      *          ref="#/components/responses/404"

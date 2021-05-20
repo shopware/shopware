@@ -37,11 +37,39 @@ class CmsRoute extends AbstractCmsRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/cms/{id}",
-     *      summary="Resolves a cms page",
+     *      summary="Fetch and resolve a CMS page",
+     *      description="Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.
+
+**Important notice**
+
+The criteria passed with this route also affects the listing, if there is one within the cms page.",
      *      operationId="readCms",
      *      tags={"Store API", "Content"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(name="id", description="CMS ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Identifier of the CMS page to be resolved",
+     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *          in="path",
+     *          required=true
+     *      ),
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(
+     *                      description="The product listing criteria only has an effect, if the cms page contains a product listing.",
+     *                      ref="#/components/schemas/ProductListingCriteria"
+     *                  ),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          property="slots",
+     *                          description="Resolves only the given slot identifiers. The identifiers have to be seperated by a `|` character.",
+     *                          type="string"
+     *                      )
+     *                  )
+     *              }
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="The loaded cms page",

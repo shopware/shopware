@@ -76,9 +76,29 @@ class CartOrderRoute extends AbstractCartOrderRoute
      * @Since("6.3.0.0")
      * @OA\Post(
      *      path="/checkout/order",
-     *      summary="Create a new order from cart",
+     *      summary="Create an order from a cart",
+     *      description="Creates a new order from the current cart and deletes the cart.",
      *      operationId="createOrder",
-     *      tags={"Store API", "Cart"},
+     *      tags={"Store API", "Order"},
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="customerComment",
+     *                  description="Adds a comment from the customer to the order.",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="affiliateCode",
+     *                  description="The affiliate code can be used to track which referrer the customer came through. An example could be `Price-comparison-company-XY`.",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="campaignCode",
+     *                  description="The campaign code is used to track which action the customer came from. An example could be `Summer-Deals`",
+     *                  type="string"
+     *              ),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Order",

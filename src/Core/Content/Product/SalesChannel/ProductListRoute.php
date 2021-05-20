@@ -37,29 +37,26 @@ class ProductListRoute extends AbstractProductListRoute
      * @Entity("product")
      * @OA\Post(
      *      path="/product",
-     *      summary="This route can be used to load the products by specific filters",
+     *      summary="Fetch a list of products",
+     *      description="List products that match the given criteria. For performance ressons a limit should always be set.",
      *      operationId="readProduct",
      *      tags={"Store API", "Product"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/product_flat")
-     *              )
+     *          description="Entity search result containing products",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/product_flat")
+     *                      )
+     *                  )
+     *              }
      *          )
      *     )
      * )

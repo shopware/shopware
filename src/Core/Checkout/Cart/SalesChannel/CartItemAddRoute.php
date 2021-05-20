@@ -64,13 +64,18 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      * @Since("6.3.0.0")
      * @OA\Post(
      *      path="/checkout/cart/line-item",
-     *      summary="Add new line item entries",
+     *      summary="Add items to the cart",
+     *      description="This route adds items to the cart. An item can be a product or promotion for example. They are referenced by the `referencedId`-parameter.
+
+Example: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#adding-new-items-to-the-cart)",
      *      operationId="addLineItem",
      *      tags={"Store API", "Cart"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CartItems")),
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(ref="#/components/schemas/CartItems")
+     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Cart",
+     *          description="The updated cart.",
      *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )

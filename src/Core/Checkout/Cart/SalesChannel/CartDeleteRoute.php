@@ -43,7 +43,8 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
      * @Since("6.3.0.0")
      * @OA\Delete(
      *      path="/checkout/cart",
-     *      summary="Delete the cart",
+     *      summary="Delete a cart",
+     *      description="This route deletes the cart of the customer.",
      *      operationId="deleteCart",
      *      tags={"Store API", "Cart"},
      *      @OA\Response(

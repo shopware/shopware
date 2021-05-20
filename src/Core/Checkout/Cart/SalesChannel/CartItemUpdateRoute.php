@@ -59,13 +59,18 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
      * @Since("6.3.0.0")
      * @OA\Patch(
      *      path="/checkout/cart/line-item",
-     *      summary="Update line item entries",
+     *      summary="Update items in the cart",
+     *      description="This route updates items in the cart. A typical example is updating the quantity of an item.
+
+Example: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#updating-items-in-the-cart)",
      *      operationId="updateLineItem",
      *      tags={"Store API", "Cart"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CartItems")),
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(ref="#/components/schemas/CartItems")
+     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Cart",
+     *          description="The updated cart.",
      *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )

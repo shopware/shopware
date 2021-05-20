@@ -72,20 +72,55 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/change-profile",
-     *      summary="Change profile information",
+     *      summary="Change the customer's information",
+     *      description="Make changes to a customer's account, like changing their name, salutation or title.",
      *      operationId="changeProfile",
-     *      tags={"Store API", "Account"},
+     *      tags={"Store API", "Profile"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="salutationId", description="Salutation ID", type="string"),
-     *              @OA\Property(property="firstName", description="Firstname", type="string"),
-     *              @OA\Property(property="lastName", description="Firstname", type="string")
+     *              required={
+     *                  "salutationId",
+     *                  "firstName",
+     *                  "lastName"
+     *              },
+     *              @OA\Property(
+     *                  property="salutationId",
+     *                  type="string",
+     *                  description="Id of the salutation for the customer account. Fetch options using `salutation` endpoint."),
+     *              @OA\Property(
+     *                  property="title",
+     *                  type="string",
+     *                  description="(Academic) title of the customer"),
+     *              @OA\Property(
+     *                  property="firstName",
+     *                  type="string",
+     *                  description="Customer first name. Value will be reused for shipping and billing address if not provided explicitly."),
+     *              @OA\Property(
+     *                  property="lastName",
+     *                  type="string",
+     *                  description="Customer last name. Value will be reused for shipping and billing address if not provided explicitly."),
+     *              @OA\Property(
+     *                  property="company",
+     *                  type="string",
+     *                  description="Company of the customer. Only required when `accountType` is `business`."),
+     *              @OA\Property(
+     *                  property="birthdayDay",
+     *                  type="integer",
+     *                  description="Birthday day"),
+     *              @OA\Property(
+     *                  property="birthdayMonth",
+     *                  type="integer",
+     *                  description="Birthday month"),
+     *              @OA\Property(
+     *                  property="birthdayYear",
+     *                  type="integer",
+     *                  description="Birthday year")
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Successfully saved",
+     *          description="Returns a success response indicating a successful update",
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )

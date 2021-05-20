@@ -54,13 +54,24 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
      * @Since("6.3.0.0")
      * @OA\Delete(
      *      path="/checkout/cart/line-item",
-     *      summary="Remove line item entries",
+     *      summary="Remove items from the cart",
+     *      description="This route removes items from the cart and recalculates it.
+
+Example: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#deleting-items-in-the-cart)",
      *      operationId="removeLineItem",
      *      tags={"Store API", "Cart"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CartItemsDelete")),
+     *      @OA\Parameter(
+     *          name="ids",
+     *          description="A list of product identifiers.",
+     *          @OA\Schema(type="array",
+     *              @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *          ),
+     *          in="query",
+     *          required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Cart",
+     *          description="The updated cart.",
      *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )

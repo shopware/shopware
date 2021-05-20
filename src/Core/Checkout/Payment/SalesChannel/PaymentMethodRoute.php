@@ -41,36 +41,33 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      * @Entity("payment_method")
      * @OA\Post (
      *      path="/payment-method",
-     *      summary="Loads all available payment methods",
+     *      summary="Fetch payment methods",
+     *      description="Perform a filtered search for payment methods, for use in the checkout process.",
      *      operationId="readPaymentMethod",
-     *      tags={"Store API", "Payment Method"},
+     *      tags={"Store API", "Payment & Shipping"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(property="onlyAvailable", description="List only available", type="boolean")
-     *          )
+     *      @OA\Parameter(
+     *          name="onlyAvailable",
+     *          description="List only available payment methods. This filters payment methods which can not be used in the actual context because of their availability rule.",
+     *          @OA\Schema(type="boolean"),
+     *          in="query"
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/payment_method_flat")
-     *              )
-     *       )
+     *          description="Entity search result containing payment methods",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *                      )
+     *                  )
+     *              }
+     *          )
      *    )
      * )
      * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"})

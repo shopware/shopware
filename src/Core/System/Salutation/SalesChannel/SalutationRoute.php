@@ -39,29 +39,26 @@ class SalutationRoute extends AbstractSalutationRoute
      * @Entity("salutation")
      * @OA\Post(
      *      path="/salutation",
-     *      summary="Salutations",
+     *      summary="Fetch salutations",
+     *      description="Perform a filtered search for salutations.",
      *      operationId="readSalutation",
-     *      tags={"Store API", "Salutation"},
+     *      tags={"Store API", "System & Context"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/salutation_flat")
-     *              )
+     *          description="Entity search result containing salutations.",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
+     *                  @OA\Schema(type="object",
+     *                      @OA\Property(
+     *                          type="array",
+     *                          property="elements",
+     *                          @OA\Items(ref="#/components/schemas/salutation_flat")
+     *                      )
+     *                  )
+     *              }
      *          )
      *     )
      * )

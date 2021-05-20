@@ -61,20 +61,36 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("product")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/search-suggest",
-     *      summary="Search suggests",
+     *      summary="Search for products (suggest)",
+     *      description="Can be used to implement search previews or suggestion listings, that don’t require any interaction.",
      *      operationId="searchSuggest",
-     *      tags={"Store API","Search"},
-     *      @OA\Parameter(
-     *          name="search",
-     *          description="Search term",
-     *          in="query",
-     *          @OA\Schema(type="string")
+     *      tags={"Store API","Product"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/ProductListingFlags"),
+     *                  @OA\Schema(type="object",
+     *                      required={
+     *                          "search"
+     *                      },
+     *                      @OA\Property(
+     *                          property="search",
+     *                          description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
+     *                          type="string"
+     *                      )
+     *                  )
+     *              }
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Found products",
+     *          description="Returns a product listing containing all products and additional fields.
+
+Note: Aggregations, currentFilters and availableSortings are empty in this response. If you need them to display a listing, use the /search route instead.",
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )

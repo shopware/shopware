@@ -57,20 +57,25 @@ class OrderRoute extends AbstractOrderRoute
      * @Entity("order")
      * @OA\Post(
      *      path="/order",
-     *      summary="Listing orders",
+     *      summary="Fetch a list of orders",
+     *      description="List orders of a customer.",
      *      operationId="readOrder",
      *      tags={"Store API", "Order"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="checkPromotion", description="Wether to check the Promotions of orders", type="string"),
+     *              @OA\Property(
+     *                  property="checkPromotion",
+     *                  description="Check if the payment method of the order is still changeable.",
+     *                  type="boolean"
+     *              ),
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/order_flat"))
+     *          description="An array of orders and an indicator if the payment of the order can be changed.",
+     *          @OA\JsonContent(ref="#/components/schemas/OrderRouteResponse")
      *     )
      * )
      * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"})

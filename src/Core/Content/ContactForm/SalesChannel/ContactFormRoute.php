@@ -66,17 +66,36 @@ class ContactFormRoute extends AbstractContactFormRoute
      * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/contact-form",
-     *      summary="Send message throught contact form",
+     *      summary="Submit a contact form message",
+     *      description="Used for submitting contact forms. Be aware that there can be more required fields, depending on the system settings.",
      *      operationId="sendContactMail",
-     *      tags={"Store API", "Contact Mail"},
+     *      tags={"Store API", "Content"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="salutationId", description="Salutation ID", type="string"),
-     *              @OA\Property(property="firstName", description="Firstname", type="string"),
-     *              @OA\Property(property="lastName", description="Lastname", type="string"),
+     *              required={
+     *                  "salutationId",
+     *                  "email",
+     *                  "subject",
+     *                  "comment"
+     *              },
+     *              @OA\Property(property="salutationId", description="Identifier of the salutation.", type="string"),
+     *              @OA\Property(
+     *                  property="firstName",
+     *                  description="Firstname. This field may be required depending on the system settings.",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="lastName",
+     *                  description="Lastname. This field may be required depending on the system settings.",
+     *                  type="string"
+     *              ),
      *              @OA\Property(property="email", description="Email", type="string"),
-     *              @OA\Property(property="phone", description="Phone", type="string"),
+     *              @OA\Property(
+     *                  property="phone",
+     *                  description="Phone. This field may be required depending on the system settings.",
+     *                  type="string"
+     *              ),
      *              @OA\Property(property="subject", description="Title", type="string"),
      *              @OA\Property(property="comment", description="Message", type="string"),
      *              @OA\Property(property="navigationId", description="Navigation ID", type="string"),
@@ -84,7 +103,7 @@ class ContactFormRoute extends AbstractContactFormRoute
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Message sent"
+     *          description="Message sent successful."
      *     )
      * )
      * @Route("/store-api/contact-form", name="store-api.contact.form", methods={"POST"})

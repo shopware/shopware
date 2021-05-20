@@ -48,9 +48,10 @@ class ListAddressRoute extends AbstractListAddressRoute
      * @Entity("customer_address")
      * @OA\Post(
      *      path="/account/list-address",
-     *      summary="List address",
+     *      summary="Fetch addresses of a customer",
+     *      description="Lists all addresses of the current customer and allows filtering them based on a criteria.",
      *      operationId="listAddress",
-     *      tags={"Store API", "Account", "Address"},
+     *      tags={"Store API", "Address"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",

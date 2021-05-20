@@ -69,25 +69,26 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      * @Since("6.2.0.0")
      * @OA\Patch(
      *      path="/context",
-     *      summary="Update the context",
+     *      summary="Modify the current context",
+     *      description="Used for switching the context. A typical example would be changing the language or changing the currency.",
      *      operationId="updateContext",
-     *      tags={"Store API","Context"},
+     *      tags={"Store API","System & Context"},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              @OA\Property(property="currencyId", description="Currency", type="string", format="uuid"),
-     *              @OA\Property(property="languageId", description="Language", type="string", format="uuid"),
-     *              @OA\Property(property="billingAddressId", description="Billing Address", type="string", format="uuid"),
-     *              @OA\Property(property="shippingAddressId", description="Shipping Address", type="string", format="uuid"),
-     *              @OA\Property(property="paymentMethodId", description="Payment Method", type="string", format="uuid"),
-     *              @OA\Property(property="shippingMethodId", description="Shipping Method", type="string", format="uuid"),
-     *              @OA\Property(property="countryId", description="Country", type="string", format="uuid"),
-     *              @OA\Property(property="countryStateId", description="Country State", type="string", format="uuid")
+     *              @OA\Property(property="currencyId", description="Currency", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="languageId", description="Language", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="billingAddressId", description="Billing Address", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="shippingAddressId", description="Shipping Address", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="paymentMethodId", description="Payment Method", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="shippingMethodId", description="Shipping Method", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="countryId", description="Country", type="string", pattern="^[0-9a-f]{32}$"),
+     *              @OA\Property(property="countryStateId", description="Country State", type="string", pattern="^[0-9a-f]{32}$")
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Context",
+     *          description="Returns the context token. Use that as your `sw-context-token` header for subsequent requests.",
      *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )

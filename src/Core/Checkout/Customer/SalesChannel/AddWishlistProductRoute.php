@@ -61,19 +61,25 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
      * @Since("6.3.4.0")
      * @OA\Post(
      *      path="/customer/wishlist/add/{productId}",
-     *      summary="Add a product into customer wishlist",
+     *      summary="Add a product to a wishlist",
+     *      description="Adds a product to a customers wishlist.
+
+**Important constraints**
+
+* Anonymous (not logged-in) customers can not have wishlists.
+* The wishlist feature has to be activated.",
      *      operationId="addProductOnWishlist",
      *      tags={"Store API", "Wishlist"},
      *      @OA\Parameter(
      *        name="productId",
      *        in="path",
-     *        description="Product Id",
-     *        @OA\Schema(type="string"),
+     *        description="Identifier of the product to be added.",
+     *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
      *        required=true
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Success",
+     *          description="Returns a success response.",
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )

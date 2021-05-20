@@ -68,13 +68,20 @@ class ProductListingRoute extends AbstractProductListingRoute
      * @Entity("product")
      * @OA\Post(
      *      path="/product-listing/{categoryId}",
-     *      summary="Loads products from listing",
+     *      summary="Fetch a product listing by category",
+     *      description="Fetches a product listing for a specific category. It also provides filters, sortings and property aggregations, analogous to the /search endpoint.",
      *      operationId="readProductListing",
      *      tags={"Store API","Product"},
-     *      @OA\Parameter(name="categoryId", description="Category ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(
+     *          name="categoryId",
+     *          description="Identifier of a category.",
+     *          @OA\Schema(type="string"),
+     *          in="path",
+     *          required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Found products",
+     *          description="Returns a product listing containing all products and additional fields to display a listing.",
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )

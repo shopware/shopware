@@ -31,6 +31,9 @@ class CachedProductListingRoute extends AbstractProductListingRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<ProductListingRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -39,6 +42,9 @@ class CachedProductListingRoute extends AbstractProductListingRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<ProductListingRouteResponse> $tracer
+     */
     public function __construct(
         AbstractProductListingRoute $decorated,
         TagAwareAdapterInterface $cache,

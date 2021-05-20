@@ -24,6 +24,9 @@ class ThemeConfigValueAccessor
         return 'theme.' . $key;
     }
 
+    /**
+     * @return string|bool|array|float|int|null
+     */
     public function get(string $key, SalesChannelContext $context, ?string $themeId)
     {
         foreach (array_keys($this->keys) as $trace) {
@@ -39,6 +42,9 @@ class ThemeConfigValueAccessor
         return null;
     }
 
+    /**
+     * @return mixed|null All kind of data could be cached
+     */
     public function trace(string $key, \Closure $param)
     {
         $this->traces[$key] = [];

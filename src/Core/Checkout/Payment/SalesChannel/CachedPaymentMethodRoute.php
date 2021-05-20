@@ -32,6 +32,9 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<PaymentMethodRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -40,6 +43,9 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<PaymentMethodRouteResponse> $tracer
+     */
     public function __construct(
         AbstractPaymentMethodRoute $decorated,
         TagAwareAdapterInterface $cache,

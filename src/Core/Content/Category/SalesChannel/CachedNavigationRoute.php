@@ -37,6 +37,9 @@ class CachedNavigationRoute extends AbstractNavigationRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<NavigationRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -45,6 +48,9 @@ class CachedNavigationRoute extends AbstractNavigationRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<NavigationRouteResponse> $tracer
+     */
     public function __construct(
         AbstractNavigationRoute $decorated,
         TagAwareAdapterInterface $cache,

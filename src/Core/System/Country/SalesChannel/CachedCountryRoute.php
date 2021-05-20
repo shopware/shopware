@@ -34,6 +34,9 @@ class CachedCountryRoute extends AbstractCountryRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<CountryRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -42,6 +45,9 @@ class CachedCountryRoute extends AbstractCountryRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<CountryRouteResponse> $tracer
+     */
     public function __construct(
         AbstractCountryRoute $decorated,
         TagAwareAdapterInterface $cache,

@@ -5,12 +5,21 @@ namespace Shopware\Storefront\Framework\Cache;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 
+/**
+ * @extends AbstractCacheTracer<mixed|null>
+ */
 class CacheTracer extends AbstractCacheTracer
 {
+    /**
+     * @var AbstractCacheTracer<mixed|null>
+     */
     private AbstractCacheTracer $decorated;
 
     private ThemeConfigValueAccessor $themeConfigAccessor;
 
+    /**
+     * @param AbstractCacheTracer<mixed|null> $decorated
+     */
     public function __construct(AbstractCacheTracer $decorated, ThemeConfigValueAccessor $themeConfigAccessor)
     {
         $this->decorated = $decorated;

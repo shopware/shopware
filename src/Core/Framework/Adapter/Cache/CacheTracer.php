@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @extends AbstractCacheTracer<mixed|null>
+ */
 class CacheTracer extends AbstractCacheTracer
 {
     private SystemConfigService $config;
@@ -26,6 +29,9 @@ class CacheTracer extends AbstractCacheTracer
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @return mixed|null All kind of data could be cached
+     */
     public function trace(string $key, \Closure $param)
     {
         return $this->collection->trace($key, function () use ($key, $param) {

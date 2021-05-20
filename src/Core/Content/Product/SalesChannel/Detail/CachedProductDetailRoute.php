@@ -31,6 +31,9 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<ProductDetailRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -39,6 +42,9 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<ProductDetailRouteResponse> $tracer
+     */
     public function __construct(
         AbstractProductDetailRoute $decorated,
         TagAwareAdapterInterface $cache,
@@ -111,7 +117,6 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
         $this->logger->info('cache-miss: ' . self::buildName($productId));
 
         $name = self::buildName($productId);
-        /** @var ProductDetailRouteResponse $response */
         $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
             return $this->getDecorated()->load($productId, $request, $context, $criteria);
         });

@@ -16,10 +16,16 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
     private TagAwareAdapterInterface $cache;
 
+    /**
+     * @var AbstractCacheTracer<SalesChannelContext>
+     */
     private AbstractCacheTracer $tracer;
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<SalesChannelContext> $tracer
+     */
     public function __construct(
         AbstractSalesChannelContextFactory $decorated,
         TagAwareAdapterInterface $cache,

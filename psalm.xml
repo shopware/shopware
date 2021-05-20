@@ -30,7 +30,7 @@
                 <!-- Optional dependencies -->
                 <referencedClass name="Redis"/>
                 <!-- Psalm issue with templates in static methods -->
-                <referencedClass name="Shopware\Core\Framework\Adapter\Cache\TContent"/>
+                <referencedClass name="Shopware\Core\Framework\Adapter\Cache\TCachedContent"/>
             </errorLevel>
         </UndefinedDocblockClass>
 

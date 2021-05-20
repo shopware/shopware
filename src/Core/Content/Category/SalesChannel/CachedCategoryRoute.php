@@ -32,6 +32,9 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<CategoryRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -40,6 +43,9 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<CategoryRouteResponse> $tracer
+     */
     public function __construct(
         AbstractCategoryRoute $decorated,
         TagAwareAdapterInterface $cache,

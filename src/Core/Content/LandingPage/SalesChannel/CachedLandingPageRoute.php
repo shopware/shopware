@@ -32,6 +32,9 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<LandingPageRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -40,6 +43,9 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<LandingPageRouteResponse> $tracer
+     */
     public function __construct(
         AbstractLandingPageRoute $decorated,
         TagAwareAdapterInterface $cache,

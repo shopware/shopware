@@ -32,6 +32,9 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<CurrencyRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -40,6 +43,9 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<CurrencyRouteResponse> $tracer
+     */
     public function __construct(
         AbstractCurrencyRoute $decorated,
         TagAwareAdapterInterface $cache,

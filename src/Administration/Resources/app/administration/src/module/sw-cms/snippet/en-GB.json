@@ -129,8 +129,8 @@
         "messageMissingFields": "Configuration required. Please fill in all required fields.",
         "messageMissingBlockFields": "Configuration required. Please fill in data in all elements.",
         "messageMissingProductListing": "Unable to save. Please add at least one product listing block or change this layout's type.",
-        "messageMissingSections": "You can not save an empty page. Please add a section first.",
-        "messageMissingBlocks": "You can not save an empty page. Please add some blocks first.",
+        "messageMissingSections": "You cannot save an empty page. Please add a section first.",
+        "messageMissingBlocks": "You cannot save an empty page. Please add at least one block first.",
         "messageMissingElements": "Configuration required. Please configure all elements of your layout.",
         "messageRedundantElements": "Layouts must not contain more than one {name} element."
       },
@@ -146,7 +146,7 @@
         "titleNavigator": "Navigator",
         "titleSectionSettings": "Section settings",
         "titleLayoutAssignment": "Layout assignment",
-        "mobile": "Mobile sidebar behavior",
+        "mobile": "Mobile sidebar behaviour",
         "mobileOptionHidden": "Hidden",
         "mobileOptionWrap": "Wrap"
       },
@@ -157,7 +157,7 @@
       "tooltip": {
         "blockNameField": "Name each block individually to keep track of your work.",
         "sectionNameField": "Name each section individually to keep track of your work.",
-        "cannotSelectProductPageLayout": "You cannot change a layout of type product page to another layout type."
+        "cannotSelectProductPageLayout": "You cannot change a product page's layout type."
       }
     },
     "elements": {

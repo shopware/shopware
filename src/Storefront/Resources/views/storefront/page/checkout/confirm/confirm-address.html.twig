@@ -1,6 +1,18 @@
 {% block page_checkout_confirm_address_inner %}
-    {% set billingAddress = context.customer.activeBillingAddress %}
-    {% set shippingAddress = context.customer.activeShippingAddress %}
+    {% if page.order %}
+        {% set order = page.order %}
+        {% set deliveries = order.deliveries.elements %}
+        {% set billingAddress = order.billingAddress %}
+
+        {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
+            {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+        {% else %}
+            {% set shippingAddress = billingAddress %}
+        {% endif %}
+    {% else %}
+        {% set billingAddress = context.customer.activeBillingAddress %}
+        {% set shippingAddress = context.customer.activeShippingAddress %}
+    {% endif %}
 
     {% block page_checkout_confirm_address %}
         <div class="row js-confirm-overview-addresses">

@@ -28,7 +28,7 @@ class SystemGenerateJwtSecretCommand extends Command
         if (!\extension_loaded('openssl')) {
             $io->error('extension openssl is required');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $passphrase = $input->getOption('jwt-passphrase');
@@ -47,31 +47,31 @@ class SystemGenerateJwtSecretCommand extends Command
         if (!\is_string($privateKeyPath)) {
             $io->error('Private key path is invalid');
 
-            return 1;
+            return self::FAILURE;
         }
 
         if (file_exists($privateKeyPath) && !$force) {
             $io->error(sprintf('Cannot create private key %s, it already exists.', $privateKeyPath));
 
-            return 1;
+            return self::FAILURE;
         }
 
         if (!\is_string($publicKeyPath)) {
             $io->error('Public key path is invalid');
 
-            return 1;
+            return self::FAILURE;
         }
 
         if (file_exists($publicKeyPath) && !$force) {
             $io->error(sprintf('Cannot create public key %s, it already exists.', $publicKeyPath));
 
-            return 1;
+            return self::FAILURE;
         }
 
         if (!\is_string($passphrase)) {
             $io->error('Passphrase is invalid');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $key = openssl_pkey_new([
@@ -84,7 +84,7 @@ class SystemGenerateJwtSecretCommand extends Command
         if ($key === false) {
             $io->error('Failed to generate key');
 
-            return 1;
+            return self::FAILURE;
         }
 
         // export private key
@@ -92,7 +92,7 @@ class SystemGenerateJwtSecretCommand extends Command
         if ($result === false) {
             $io->error('Could not export private key to file');
 
-            return 1;
+            return self::FAILURE;
         }
 
         chmod($privateKeyPath, 0660);
@@ -103,7 +103,7 @@ class SystemGenerateJwtSecretCommand extends Command
             if ($keyData === false) {
                 $io->error('Failed to export public key');
 
-                return 1;
+                return self::FAILURE;
             }
 
             file_put_contents($publicKeyPath, $keyData['key']);

@@ -75,7 +75,7 @@ class RefreshAppCommand extends Command
         if ($refreshableApps->isEmpty()) {
             $io->note('Nothing to install, update or delete.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         if (!$input->getOption('force')) {
@@ -84,7 +84,7 @@ class RefreshAppCommand extends Command
             } catch (UserAbortedCommandException $e) {
                 $io->error('Aborting due to user input.');
 
-                return 1;
+                return self::FAILURE;
             }
         }
 
@@ -92,7 +92,7 @@ class RefreshAppCommand extends Command
             $hasViolations = $this->validateRefreshableApps($refreshableApps, $io);
 
             if ($hasViolations === 1) {
-                return 1;
+                return self::FAILURE;
             }
         }
 
@@ -101,7 +101,7 @@ class RefreshAppCommand extends Command
         $this->appPrinter->printInstalledApps($io, $context);
         $this->appPrinter->printIncompleteInstallations($io, $fails);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function validateRefreshableApps(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): int
@@ -128,12 +128,12 @@ class RefreshAppCommand extends Command
                 $io->error($invalid);
             }
 
-            return 1;
+            return self::FAILURE;
         }
 
         $io->success('all refreshable apps are valid');
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function grantPermissions(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): void

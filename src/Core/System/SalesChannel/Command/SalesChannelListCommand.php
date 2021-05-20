@@ -101,12 +101,12 @@ class SalesChannelListCommand extends Command
 
         $encoded = json_encode($json);
         if ($encoded === false) {
-            return 1;
+            return self::FAILURE;
         }
 
         $output->write($encoded);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function renderTable(OutputInterface $output, array $headers, array $data): int
@@ -127,6 +127,6 @@ class SalesChannelListCommand extends Command
 
         $table->render();
 
-        return 0;
+        return self::SUCCESS;
     }
 }

@@ -62,7 +62,7 @@ class SystemSetupCommand extends Command
         if (!$input->getOption('force') && file_exists($this->projectDir . '/.env')) {
             $io->comment('Instance has already been set-up. To start over, please delete your .env file.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $io->section('Application information');
@@ -108,7 +108,7 @@ class SystemSetupCommand extends Command
 
         $this->createEnvFile($input, $io, $env);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getDsn(InputInterface $input, SymfonyStyle $io): string
@@ -200,11 +200,11 @@ class SystemSetupCommand extends Command
         if (file_exists($jwtDir . '/private.pem') && !$input->getOption('force')) {
             $io->note('Private/Public key already exists. Skipping');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         if (!$input->getOption('generate-jwt-keys') && !$input->hasOption('jwt-passphrase')) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $application = $this->getApplication();

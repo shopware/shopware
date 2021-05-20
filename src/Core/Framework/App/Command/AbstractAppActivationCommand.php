@@ -52,14 +52,14 @@ abstract class AbstractAppActivationCommand extends Command
         if (!$id) {
             $io->error("No app found for \"${appName}\".");
 
-            return 1;
+            return self::FAILURE;
         }
 
         $this->runAction($id, $context);
 
         $io->success(sprintf('App %sd successfully.', $this->action));
 
-        return 0;
+        return self::SUCCESS;
     }
 
     protected function configure(): void

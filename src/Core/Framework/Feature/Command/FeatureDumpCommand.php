@@ -44,6 +44,6 @@ class FeatureDumpCommand extends Command
         $style = new ShopwareStyle($input, $output);
         $style->success('Successfully dumped js feature configuration');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

@@ -75,7 +75,7 @@ class GenerateMediaTypesCommand extends Command
 
         $this->io->progressFinish();
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function validateBatchSize(InputInterface $input): int

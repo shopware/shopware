@@ -63,6 +63,6 @@ class CreateSchemaCommand extends Command
             file_put_contents($this->dir . '/' . $domain . '.sql', implode("\n\n", $sql));
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 }

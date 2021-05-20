@@ -157,7 +157,7 @@ class SalesChannelCreateCommand extends Command
 
             $io->listing($messages);
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $io->text('Access tokens:');
@@ -171,7 +171,7 @@ class SalesChannelCreateCommand extends Command
 
         $table->render();
 
-        return 0;
+        return self::SUCCESS;
     }
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array

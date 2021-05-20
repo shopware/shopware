@@ -41,6 +41,6 @@ class BundleDumpCommand extends Command
         $style = new ShopwareStyle($input, $output);
         $style->success('Dumped plugin configuration.');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

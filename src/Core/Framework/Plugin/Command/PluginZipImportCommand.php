@@ -61,7 +61,7 @@ class PluginZipImportCommand extends Command
         } catch (NoPluginFoundInZipException $e) {
             $io->error($e->getMessage());
 
-            return 1;
+            return self::FAILURE;
         }
 
         $io->success('Successfully import zip file ' . basename($zipFile));
@@ -74,6 +74,6 @@ class PluginZipImportCommand extends Command
             $io->success('Plugin list refreshed');
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 }

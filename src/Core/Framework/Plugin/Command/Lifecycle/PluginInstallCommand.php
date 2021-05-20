@@ -34,7 +34,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $activatePlugins = $input->getOption('activate');
@@ -84,6 +84,6 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
             $this->handleClearCacheOption($input, $io, 'activating');
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 }

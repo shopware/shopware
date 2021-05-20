@@ -110,6 +110,6 @@ class PluginListCommand extends Command
             )
         );
 
-        return 0;
+        return self::SUCCESS;
     }
 }

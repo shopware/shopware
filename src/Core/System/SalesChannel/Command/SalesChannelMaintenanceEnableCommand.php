@@ -58,7 +58,7 @@ class SalesChannelMaintenanceEnableCommand extends Command
             if ($ids === []) {
                 $output->write('No sales channels were updated. Provide id(s) or run with --all option.');
 
-                return 0;
+                return self::SUCCESS;
             }
 
             $criteria->setIds($ids);
@@ -68,7 +68,7 @@ class SalesChannelMaintenanceEnableCommand extends Command
         if (empty($salesChannelIds)) {
             $output->write(sprintf('No sales channels were updated'));
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $update = array_map(function (string $id) {
@@ -82,6 +82,6 @@ class SalesChannelMaintenanceEnableCommand extends Command
 
         $output->write(sprintf('Updated maintenance mode for %s sales channel(s)', \count($salesChannelIds)));
 
-        return 0;
+        return self::SUCCESS;
     }
 }

@@ -113,6 +113,6 @@ class CleanPersonalDataCommand extends Command
 
         $output->writeln('Personal data for ' . ($all ? implode(' and ', self::VALID_TYPES) : $type) . ' successfully cleaned!');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

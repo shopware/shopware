@@ -45,7 +45,7 @@ class ElasticsearchCleanIndicesCommand extends Command
         if (empty($indices)) {
             $io->writeln('No indices to be deleted.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $io->table(['Indices to be deleted:'], array_map(static fn (string $name) => [$name], $indices));
@@ -54,7 +54,7 @@ class ElasticsearchCleanIndicesCommand extends Command
             if (!$io->confirm(sprintf('Delete these %d indices?', \count($indices)), false)) {
                 $io->writeln('Deletion aborted.');
 
-                return 1;
+                return self::FAILURE;
             }
         }
 
@@ -64,6 +64,6 @@ class ElasticsearchCleanIndicesCommand extends Command
 
         $io->writeln('Indices deleted.');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

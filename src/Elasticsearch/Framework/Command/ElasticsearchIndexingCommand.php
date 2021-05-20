@@ -46,6 +46,6 @@ class ElasticsearchIndexingCommand extends Command
             $offset = $message->getOffset();
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 }

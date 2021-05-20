@@ -112,7 +112,7 @@ class StoreDownloadCommand extends Command
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getUserStoreToken(Context $context, string $user): string

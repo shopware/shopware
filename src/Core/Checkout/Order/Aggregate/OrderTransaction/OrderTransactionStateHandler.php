@@ -203,4 +203,44 @@ class OrderTransactionStateHandler
             $context
         );
     }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
+     */
+    public function authorize(string $transactionId, Context $context): void
+    {
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_AUTHORIZE,
+                'stateId'
+            ),
+            $context
+        );
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
+     */
+    public function chargeback(string $transactionId, Context $context): void
+    {
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_CHARGEBACK,
+                'stateId'
+            ),
+            $context
+        );
+    }
 }

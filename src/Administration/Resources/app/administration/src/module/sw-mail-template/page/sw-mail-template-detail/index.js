@@ -110,10 +110,10 @@ Component.register('sw-mail-template-detail', {
 
         testMailRequirementsMet() {
             return this.testerMail &&
-                this.mailTemplate.subject &&
-                this.mailTemplate.contentPlain &&
-                this.mailTemplate.contentHtml &&
-                this.mailTemplate.senderName;
+                (this.mailTemplate.subject || this.mailTemplate.translated?.subject) &&
+                (this.mailTemplate.contentPlain || this.mailTemplate.translated?.contentPlain) &&
+                (this.mailTemplate.contentHtml || this.mailTemplate.translated?.contentHtml) &&
+                (this.mailTemplate.senderName || this.mailTemplate.translated?.senderName);
         },
 
         mediaColumns() {

@@ -266,6 +266,7 @@
 
                                 {% block sw_mail_template_mail_text_form_test_mail_button %}
                                     <sw-button :disabled="isLoading || !testMailRequirementsMet"
+                                               class="sw-mail-template-detail__send-test-mail"
                                                @click="onClickTestMailTemplate">
                                         {{ $tc('sw-mail-template.detail.sidebar.buttonTestMail') }}
                                     </sw-button>

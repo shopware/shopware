@@ -111,9 +111,6 @@ class MailSendSubscriber implements EventSubscriberInterface
         $data = new DataBag();
 
         $recipients = $mailEvent->getMailStruct()->getRecipients();
-        if (isset($config['recipients']) && !empty($config['recipients'])) {
-            $recipients = $config['recipients'];
-        }
 
         $data->set('recipients', $recipients);
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
@@ -147,6 +144,15 @@ class MailSendSubscriber implements EventSubscriberInterface
                 $event->getContext(),
                 $this->getTemplateData($mailEvent)
             );
+
+            if (isset($config['recipients']) && !empty($config['recipients'])) {
+                $data->set('recipients', $config['recipients']);
+                $this->emailService->send(
+                    $data->all(),
+                    $event->getContext(),
+                    $this->getTemplateData($mailEvent)
+                );
+            }
 
             $writes = array_map(static function ($id) {
                 return ['id' => $id, 'sent' => true];

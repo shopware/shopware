@@ -22,7 +22,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
 
         unset($value['extensions']);
         if (isset($value['listPrice'])) {
@@ -34,12 +34,21 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, $value)
+    /**
+     * @return CalculatedPrice|null
+     *
+     * @deprecated tag:v6.5.0 The parameter $value and the return type will be native typed
+     */
+    public function decode(Field $field, /*?string */$value)/*: ?CalculatedPrice*/
     {
         if ($value === null) {
             return null;
         }
-        $value = parent::decode($field, $value);
+
+        $decoded = parent::decode($field, $value);
+        if ($decoded === null) {
+            return null;
+        }
 
         $taxRules = array_map(
             function (array $tax) {
@@ -48,7 +57,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
                     (float) $tax['percentage']
                 );
             },
-            $value['taxRules']
+            $decoded['taxRules']
         );
 
         $calculatedTaxes = array_map(
@@ -59,12 +68,12 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
                     (float) $tax['price']
                 );
             },
-            $value['calculatedTaxes']
+            $decoded['calculatedTaxes']
         );
 
         $referencePriceDefinition = null;
-        if (isset($value['referencePrice'])) {
-            $refPrice = $value['referencePrice'];
+        if (isset($decoded['referencePrice'])) {
+            $refPrice = $decoded['referencePrice'];
 
             $referencePriceDefinition = new ReferencePrice(
                 $refPrice['price'],
@@ -75,19 +84,19 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $listPrice = null;
-        if (isset($value['listPrice'])) {
+        if (isset($decoded['listPrice'])) {
             $listPrice = ListPrice::createFromUnitPrice(
-                (float) $value['unitPrice'],
-                (float) $value['listPrice']['price']
+                (float) $decoded['unitPrice'],
+                (float) $decoded['listPrice']['price']
             );
         }
 
         return new CalculatedPrice(
-            (float) $value['unitPrice'],
-            (float) $value['totalPrice'],
+            (float) $decoded['unitPrice'],
+            (float) $decoded['totalPrice'],
             new CalculatedTaxCollection($calculatedTaxes),
             new TaxRuleCollection($taxRules),
-            (int) $value['quantity'],
+            (int) $decoded['quantity'],
             $referencePriceDefinition,
             $listPrice
         );

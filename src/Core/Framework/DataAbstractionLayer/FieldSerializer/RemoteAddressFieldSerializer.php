@@ -54,8 +54,11 @@ class RemoteAddressFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => IPUtils::anonymize($data->getValue());
     }
 
-    public function decode(Field $field, $value): ?string
+    /**
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function decode(Field $field, /*?string */$value): ?string
     {
-        return $value ?? null;
+        return $value;
     }
 }

@@ -20,7 +20,7 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
 
         unset($value['extensions']);
 
@@ -29,13 +29,21 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, $value)
+    /**
+     * @return CartPrice|null
+     *
+     * @deprecated tag:v6.5.0 The parameter $value and return type will be native typed
+     */
+    public function decode(Field $field, /*?string */$value)/*: ?CartPrice*/
     {
         if ($value === null) {
             return null;
         }
 
-        $value = parent::decode($field, $value);
+        $decoded = parent::decode($field, $value);
+        if ($decoded === null) {
+            return null;
+        }
 
         $taxRules = array_map(
             function (array $tax) {
@@ -44,7 +52,7 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
                     (float) $tax['percentage']
                 );
             },
-            $value['taxRules']
+            $decoded['taxRules']
         );
 
         $calculatedTaxes = array_map(
@@ -55,17 +63,17 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
                     (float) $tax['price']
                 );
             },
-            $value['calculatedTaxes']
+            $decoded['calculatedTaxes']
         );
 
         return new CartPrice(
-            (float) $value['netPrice'],
-            (float) $value['totalPrice'],
-            (float) $value['positionPrice'],
+            (float) $decoded['netPrice'],
+            (float) $decoded['totalPrice'],
+            (float) $decoded['positionPrice'],
             new CalculatedTaxCollection($calculatedTaxes),
             new TaxRuleCollection($taxRules),
-            (string) $value['taxStatus'],
-            isset($value['rawTotal']) ? (float) $value['rawTotal'] : (float) $value['totalPrice']
+            (string) $decoded['taxStatus'],
+            isset($decoded['rawTotal']) ? (float) $decoded['rawTotal'] : (float) $decoded['totalPrice']
         );
     }
 }

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -137,13 +136,18 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    public function decode(Field $field, $value): void
+    /**
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function decode(Field $field, /*?string */$value): void
     {
         throw new DecodeByHydratorException($field);
     }
 
-    protected function getMappingAssociation(EntityDefinition $referencedDefinition, ManyToManyAssociationField $field): ?ManyToOneAssociationField
-    {
+    protected function getMappingAssociation(
+        EntityDefinition $referencedDefinition,
+        ManyToManyAssociationField $field
+    ): ?ManyToOneAssociationField {
         $associations = $referencedDefinition->getFields()->filterInstance(ManyToOneAssociationField::class);
 
         /** @var ManyToOneAssociationField $association */
@@ -156,7 +160,13 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         return null;
     }
 
-    protected function map(EntityDefinition $referencedDefinition, ManyToManyAssociationField $field, ManyToOneAssociationField $association, $data): array
+    /**
+     * @param array $data
+     *
+     * @deprecated tag:v6.5.0 The parameter $data will be native typed
+     * @deprecated tag:v6.5.0 The unused parameter $field will be removed
+     */
+    protected function map(EntityDefinition $referencedDefinition, ManyToManyAssociationField $field, ManyToOneAssociationField $association, /*array */$data): array
     {
         // not only foreign key provided? data is provided as insert or update command
         if (\count($data) > 1) {
@@ -195,7 +205,6 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             return [$association->getPropertyName() => $data];
         }
 
-        /* @var FkField $fk */
         return [
             $fk->getPropertyName() => $data[$association->getReferenceField()],
 

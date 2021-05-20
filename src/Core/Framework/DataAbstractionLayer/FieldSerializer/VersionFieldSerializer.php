@@ -46,7 +46,12 @@ class VersionFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => Uuid::fromHexToBytes($data->getValue());
     }
 
-    public function decode(Field $field, $value): string
+    /**
+     * @param string $value
+     *
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function decode(Field $field, /*string */$value): string
     {
         return Uuid::fromBytesToHex($value);
     }

@@ -25,7 +25,12 @@ class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $data->getValue();
     }
 
-    public function decode(Field $field, $value)
+    /**
+     * @return mixed|null
+     *
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function decode(Field $field, /*?string */$value)
     {
         if ($value === null) {
             return null;

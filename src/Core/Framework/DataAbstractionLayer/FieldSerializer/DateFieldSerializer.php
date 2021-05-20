@@ -48,7 +48,10 @@ class DateFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value->format(Defaults::STORAGE_DATE_FORMAT);
     }
 
-    public function decode(Field $field, $value): ?\DateTimeInterface
+    /**
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function decode(Field $field, /*?string */$value): ?\DateTimeInterface
     {
         return $value === null ? null : new \DateTimeImmutable($value);
     }

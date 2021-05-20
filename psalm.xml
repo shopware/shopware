@@ -25,10 +25,12 @@
     </plugins>
 
     <issueHandlers>
-        <!-- Optional dependencies -->
         <UndefinedDocblockClass>
             <errorLevel type="info">
+                <!-- Optional dependencies -->
                 <referencedClass name="Redis"/>
+                <!-- Psalm issue with templates in static methods -->
+                <referencedClass name="Shopware\Core\Framework\Adapter\Cache\TContent"/>
             </errorLevel>
         </UndefinedDocblockClass>
 
@@ -67,6 +69,12 @@
                 <file name="src/Core/Framework/Test/TestCaseBase/AdminApiTestBehaviour.php"/>
             </errorLevel>
         </InvalidCast>
+
+        <InvalidParamDefault>
+            <errorLevel type="info">
+                <file name="src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php"/>
+            </errorLevel>
+        </InvalidParamDefault>
 
         <UndefinedConstant>
             <errorLevel type="info">

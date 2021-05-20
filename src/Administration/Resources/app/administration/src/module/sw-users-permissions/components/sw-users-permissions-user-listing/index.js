@@ -105,6 +105,7 @@ Component.register('sw-users-permissions-user-listing', {
             this.$emit('get-list');
 
             return this.userRepository.search(this.userCriteria).then((users) => {
+                this.total = users.total;
                 this.user = users;
             }).finally(() => {
                 this.isLoading = false;

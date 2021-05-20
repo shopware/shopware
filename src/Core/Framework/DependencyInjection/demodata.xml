@@ -129,5 +129,13 @@
 
             <tag name="shopware.demodata_generator"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\UserGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\System\User\UserDefinition" />
+            <argument type="service" id="language.repository" />
+
+            <tag name="shopware.demodata_generator"/>
+        </service>
     </services>
 </container>

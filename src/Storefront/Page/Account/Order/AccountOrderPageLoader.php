@@ -114,9 +114,9 @@ class AccountOrderPageLoader
 
     private function createCriteria(Request $request): Criteria
     {
-        $limit = $request->query->get('limit');
+        $limit = $request->get('limit');
         $limit = $limit ? (int) $limit : 10;
-        $page = $request->query->get('p');
+        $page = $request->get('p');
         $page = $page ? (int) $page : 1;
 
         $criteria = (new Criteria())
@@ -131,7 +131,7 @@ class AccountOrderPageLoader
             ->addAssociation('documents.documentType')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
-            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $criteria
             ->getAssociation('transactions')

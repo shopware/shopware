@@ -36,6 +36,38 @@
                                 {% endblock %}
                             </div>
                         {% endblock %}
+                        {% block page_account_orders_paging %}
+                            {% set criteria = page.orders.criteria %}
+
+                            {% set totalPages = (page.orders.total/criteria.limit)|round(0,'ceil') %}
+
+                            {% if totalPages > 1 %}
+                                {% set formAjaxSubmitOptions = {
+                                    replaceSelectors: ".account-orders-main",
+                                    submitOnChange: true
+                                } %}
+
+                                {% block page_account_orders_paging_form %}
+                                    <div class="account-orders-pagination">
+                                        <form class="account-orders-pagination-form"
+                                              action="{{ path('frontend.account.order.page') }}"
+                                              method="post"
+                                              data-form-ajax-submit="true"
+                                              data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+
+                                            {% block page_account_orders_paging_csrf %}
+                                                {{ sw_csrf('frontend.account.order.page') }}
+                                            {% endblock %}
+
+                                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                                entities: page.orders,
+                                                criteria: criteria
+                                            }  %}
+                                        </form>
+                                    </div>
+                                {% endblock %}
+                            {% endif %}
+                        {% endblock %}
                     {% endif %}
                 </div>
             {% endblock %}

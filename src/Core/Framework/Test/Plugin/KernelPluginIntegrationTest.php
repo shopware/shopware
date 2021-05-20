@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Theme\ThemeLifecycleService;
 use SwagTest\SwagTest;
 
 /**
@@ -342,8 +341,7 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(RequirementsValidator::class),
             new MemoryCacheItemPool(),
             $container->getParameter('kernel.shopware_version'),
-            $container->get(SystemConfigService::class),
-            $this->createMock(ThemeLifecycleService::class)
+            $container->get(SystemConfigService::class)
         );
     }
 

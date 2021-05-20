@@ -155,7 +155,7 @@ class AppLifecycle extends AbstractAppLifecycle
         );
     }
 
-    public function delete(string $appName, array $app, Context $context): void
+    public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
     {
         $appEntity = $this->loadApp($app['id'], $context);
 
@@ -163,7 +163,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->appStateService->deactivateApp($appEntity->getId(), $context);
         }
 
-        $this->removeAppAndRole($appEntity, $context);
+        $this->removeAppAndRole($appEntity, $context, $keepUserData);
     }
 
     private function updateApp(
@@ -249,11 +249,11 @@ class AppLifecycle extends AbstractAppLifecycle
         return $app;
     }
 
-    private function removeAppAndRole(AppEntity $app, Context $context): void
+    private function removeAppAndRole(AppEntity $app, Context $context, bool $keepUserData = false): void
     {
         // throw event before deleting app from db as it may be delivered via webhook to the deleted app
         $this->eventDispatcher->dispatch(
-            new AppDeletedEvent($app->getId(), $context)
+            new AppDeletedEvent($app->getId(), $context, $keepUserData)
         );
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app): void {

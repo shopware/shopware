@@ -271,12 +271,6 @@ Component.register('sw-seo-url-template-card', {
                 this.$set(this.previews, entity.id, response);
                 if (response === null) {
                     this.noEntityError.push(entity.id);
-
-                    this.$set(
-                        this.errorMessages,
-                        entity.id,
-                        this.$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview')
-                    );
                 } else {
                     this.$set(this.errorMessages, entity.id, null);
                 }

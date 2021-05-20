@@ -51,7 +51,7 @@ class UninstallAppCommand extends Command
         if (!$app) {
             $io->error(sprintf('No app with name "%s" installed.', $name));
 
-            return 1;
+            return self::FAILURE;
         }
 
         $keepUserData = $input->getOption('keep-user-data');
@@ -68,7 +68,7 @@ class UninstallAppCommand extends Command
 
         $io->success('App uninstalled successfully.');
 
-        return 0;
+        return self::SUCCESS;
     }
 
     protected function configure(): void

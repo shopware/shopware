@@ -40,7 +40,7 @@ class ChangelogCheckCommand extends Command
         if (\is_string($path) && $path !== '' && !file_exists($path)) {
             $IOHelper->error('The given file NOT found');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $outputArray = $this->validator->check($path);
@@ -54,11 +54,11 @@ class ChangelogCheckCommand extends Command
             }
             $IOHelper->error('You have some syntax errors in changelog files.');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $IOHelper->success('Done');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

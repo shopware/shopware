@@ -33,7 +33,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $keepUserData = $input->getOption('keep-user-data');
@@ -58,6 +58,6 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
 
         $this->handleClearCacheOption($input, $io, 'uninstalling');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

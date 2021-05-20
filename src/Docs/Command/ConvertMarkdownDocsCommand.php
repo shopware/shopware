@@ -85,13 +85,13 @@ class ConvertMarkdownDocsCommand extends Command
         $credentialsService = new CredentialsService();
 
         if (!$isSync || !$credentialsService->credentialsFileExists()) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $syncService = new WikiApiService($credentialsService->getCredentials(), $this->environment);
         $syncService->syncFilesWithServer($tree);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**

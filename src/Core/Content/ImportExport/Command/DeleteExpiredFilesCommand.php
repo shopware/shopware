@@ -41,7 +41,7 @@ class DeleteExpiredFilesCommand extends Command
         if ($count === 0) {
             $io->comment('No expired files found.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $confirm = $io->confirm(sprintf('Are you sure that you want to delete %d expired files?', $count), false);
@@ -49,12 +49,12 @@ class DeleteExpiredFilesCommand extends Command
         if (!$confirm) {
             $io->caution('Aborting due to user input.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->deleteExpiredFilesService->deleteFiles($context);
         $io->success(sprintf('Successfully deleted %d expired files.', $count));
 
-        return 0;
+        return self::SUCCESS;
     }
 }

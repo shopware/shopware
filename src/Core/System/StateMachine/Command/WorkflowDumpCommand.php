@@ -66,6 +66,6 @@ EOF
         ];
         $output->writeln($dumper->dump($stateMachine, $options));
 
-        return 0;
+        return self::SUCCESS;
     }
 }

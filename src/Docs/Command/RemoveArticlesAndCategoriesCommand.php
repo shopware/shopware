@@ -33,12 +33,12 @@ class RemoveArticlesAndCategoriesCommand extends Command
     {
         $credentialsService = new CredentialsService();
         if (!$credentialsService->credentialsFileExists()) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $syncService = new WikiApiService($credentialsService->getCredentials(), $this->environment);
         $syncService->removeAllFromServer();
 
-        return 0;
+        return self::SUCCESS;
     }
 }

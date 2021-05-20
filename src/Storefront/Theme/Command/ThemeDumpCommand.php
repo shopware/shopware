@@ -87,7 +87,7 @@ class ThemeDumpCommand extends Command
         if ($themes->count() === 0) {
             $this->io->error('No theme found which is connected to a storefront sales channel');
 
-            return 1;
+            return self::FAILURE;
         }
 
         /** @var ThemeEntity $themeEntity */
@@ -96,14 +96,14 @@ class ThemeDumpCommand extends Command
         if ($technicalName === null) {
             $this->io->error('No theme found');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($technicalName);
         if ($themeConfig === null) {
             $this->io->error(sprintf('No theme config found for theme "%s"', $themeEntity->getName()));
 
-            return 1;
+            return self::FAILURE;
         }
 
         $dump = $this->themeFileResolver->resolveFiles(
@@ -119,7 +119,7 @@ class ThemeDumpCommand extends Command
             json_encode($dump, \JSON_PRETTY_PRINT)
         );
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getTechnicalName(string $themeId): ?string

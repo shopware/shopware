@@ -51,7 +51,7 @@ class ValidateSnippetsCommand extends Command
         if ($missingSnippetsCollection->count() === 0) {
             $io->success('Snippets are valid!');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         if (!$input->getOption('fix')) {
@@ -89,7 +89,7 @@ class ValidateSnippetsCommand extends Command
 
         $this->snippetFixer->fix($missingSnippetsCollection);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection

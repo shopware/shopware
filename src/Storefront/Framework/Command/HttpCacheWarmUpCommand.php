@@ -39,6 +39,6 @@ class HttpCacheWarmUpCommand extends Command
 
         $this->warmer->warmUp($cacheId);
 
-        return 0;
+        return self::SUCCESS;
     }
 }

@@ -152,6 +152,6 @@ EOL;
             file_put_contents($configXmlFile, $configXml);
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 }

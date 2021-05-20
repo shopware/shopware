@@ -35,6 +35,6 @@ class RegisterScheduledTasksCommand extends Command
         $this->taskRegistry->registerTasks();
         $output->writeln('Done!');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

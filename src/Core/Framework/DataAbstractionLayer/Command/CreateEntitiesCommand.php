@@ -75,6 +75,6 @@ class CreateEntitiesCommand extends Command
             }
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 }

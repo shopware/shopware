@@ -92,7 +92,7 @@ class DemodataCommand extends Command
         if ($this->kernelEnv !== 'prod') {
             $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $io = new ShopwareStyle($input, $output);
@@ -132,7 +132,7 @@ class DemodataCommand extends Command
             $demoContext->getTimings()
         );
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getCustomFieldOptions(InputInterface $input): array

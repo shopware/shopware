@@ -57,6 +57,6 @@ class ResolveAppUrlChangeCommand extends Command
 
         $io->success('Strategy "' . $strategy . '" was applied successfully');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

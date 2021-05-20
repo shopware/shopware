@@ -41,6 +41,6 @@ class AssetInstallCommand extends Command
 
         $io->success('Successfully copied all bundle files');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

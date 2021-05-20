@@ -28,7 +28,7 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $updatedPluginCount = 0;
@@ -50,6 +50,6 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 
         $this->handleClearCacheOption($input, $io, 'updating');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

@@ -114,7 +114,7 @@ class ImportEntityCommand extends Command
         $io->newLine(2);
         $io->success(sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function chooseProfile(Context $context, SymfonyStyle $io): ImportExportProfileEntity

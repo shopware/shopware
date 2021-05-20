@@ -119,7 +119,7 @@ class InstallCommand extends Command
         if ($this->IOHelper->isInteractive() && !$this->webserverCheck($container, $shop)) {
             $this->IOHelper->writeln('Could not verify');
             if (!$this->IOHelper->askConfirmation('Continue?')) {
-                return 1;
+                return self::FAILURE;
             }
         }
 
@@ -152,7 +152,7 @@ class InstallCommand extends Command
             $this->IOHelper->writeln('<info>Shop successfully installed.</info>');
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     protected function checkRequirements(Container $container): void

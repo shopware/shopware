@@ -116,7 +116,7 @@ class CreatePageCommand extends Command
 
         $output->writeln('ID: ' . $page['id']);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function resetPages(): void

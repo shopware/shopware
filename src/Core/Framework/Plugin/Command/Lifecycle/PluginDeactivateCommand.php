@@ -33,7 +33,7 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $deactivatedPluginCount = 0;
@@ -62,6 +62,6 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
 
         $this->handleClearCacheOption($input, $io, 'deactivating');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

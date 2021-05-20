@@ -66,7 +66,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
 
         $this->io->table(['Analyzer', 'Tokens'], $rows);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     protected function getAnalyzers(): array

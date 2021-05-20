@@ -64,7 +64,7 @@ class PluginRefreshCommand extends Command
 
         $skipPluginList = $input->getOption('skipPluginList');
         if ($skipPluginList) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $listInput = new StringInput('plugin:list');
@@ -73,6 +73,6 @@ class PluginRefreshCommand extends Command
         $application = $this->getApplication();
         $application->doRun($listInput, $output);
 
-        return 0;
+        return self::SUCCESS;
     }
 }

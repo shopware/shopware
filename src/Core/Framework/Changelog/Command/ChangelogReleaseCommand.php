@@ -54,7 +54,7 @@ class ChangelogReleaseCommand extends Command
 
         if ($force = $input->getOption('force')) {
             if (!$IOHelper->confirm('You are using "-f" argument. It could override an existing release before. Are you sure?', false)) {
-                return 1;
+                return self::FAILURE;
             }
         }
 
@@ -63,6 +63,6 @@ class ChangelogReleaseCommand extends Command
 
         $IOHelper->success('Released the given version successfully');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

@@ -34,6 +34,6 @@ class ThemeRefreshCommand extends Command
     {
         $this->themeLifecycleService->refreshThemes($this->context);
 
-        return 0;
+        return self::SUCCESS;
     }
 }

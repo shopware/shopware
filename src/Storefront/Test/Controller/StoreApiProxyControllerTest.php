@@ -110,6 +110,13 @@ class StoreApiProxyControllerTest extends TestCase
         static::assertSame(500, $response->getStatusCode());
     }
 
+    public function testStorefrontUrl(): void
+    {
+        static::expectException(InvalidRequestParameterException::class);
+        $response = $this->request('GET', '/');
+        static::assertSame(500, $response->getStatusCode());
+    }
+
     public function testMissingUrl(): void
     {
         static::expectException(MissingRequestParameterException::class);

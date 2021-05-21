@@ -33,6 +33,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: development/platform
+        fetch-depth: '0'
 
     - name: Fix platform for composer
       run: |

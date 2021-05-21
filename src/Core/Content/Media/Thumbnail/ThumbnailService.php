@@ -175,11 +175,13 @@ class ThumbnailService
 
         $tobBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
         $toBeDeletedThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
+        $fileSystem = $this->getFileSystem($media);
 
         foreach ($tobBeCreatedSizes as $thumbnailSize) {
             foreach ($toBeDeletedThumbnails as $thumbnail) {
                 if ($thumbnail->getWidth() === $thumbnailSize->getWidth()
                     && $thumbnail->getHeight() === $thumbnailSize->getHeight()
+                    && $fileSystem->has($this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail))
                 ) {
                     $toBeDeletedThumbnails->remove($thumbnail->getId());
                     $tobBeCreatedSizes->remove($thumbnailSize->getId());

@@ -229,6 +229,22 @@ class Translator extends AbstractTranslator
         $this->snippetSetId = null;
     }
 
+    public function getSnippetSetId(): ?string
+    {
+        if ($this->snippetSetId !== null) {
+            return $this->snippetSetId;
+        }
+
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return null;
+        }
+
+        $this->snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+
+        return $this->snippetSetId;
+    }
+
     private function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
     {
         return mb_strpos($catalog->getLocale(), $fallbackLocale) === 0;
@@ -289,22 +305,6 @@ class Translator extends AbstractTranslator
         $this->cache->save($cacheItem);
 
         return $snippets;
-    }
-
-    private function getSnippetSetId(): ?string
-    {
-        if ($this->snippetSetId !== null) {
-            return $this->snippetSetId;
-        }
-
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return null;
-        }
-
-        $this->snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
-
-        return $this->snippetSetId;
     }
 
     private function getFallbackLocale(): string

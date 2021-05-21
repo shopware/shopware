@@ -38,7 +38,6 @@ use PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessParenthesisFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessStrlenFixer;
-use PhpCsFixerCustomFixers\Fixer\PhpdocNoIncorrectVarAnnotationFixer;
 use PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer;
@@ -48,6 +47,13 @@ use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    $containerConfigurator->import(SetList::SYMFONY);
+    $containerConfigurator->import(SetList::SYMFONY_RISKY);
+    $containerConfigurator->import(SetList::ARRAY);
+    $containerConfigurator->import(SetList::CONTROL_STRUCTURES);
+    $containerConfigurator->import(SetList::STRICT);
+    $containerConfigurator->import(SetList::PSR_12);
+
     $services = $containerConfigurator->services();
 
     $services->set(ModernizeTypesCastingFixer::class);
@@ -88,21 +94,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(NoImportFromGlobalNamespaceFixer::class);
     $services->set(NoSuperfluousConcatenationFixer::class);
     $services->set(NoUselessCommentFixer::class);
-    $services->set(PhpdocNoIncorrectVarAnnotationFixer::class);
     $services->set(SingleSpaceAfterStatementFixer::class);
     $services->set(NoUselessParenthesisFixer::class);
     $services->set(NoUselessStrlenFixer::class);
 
     $parameters = $containerConfigurator->parameters();
 
-    $parameters->set(Option::SETS, [
-        SetList::SYMFONY,
-        SetList::SYMFONY_RISKY,
-        SetList::ARRAY,
-        SetList::CONTROL_STRUCTURES,
-        SetList::STRICT,
-        SetList::PSR_12,
-    ]);
     $parameters->set(Option::CACHE_DIRECTORY, 'var/cache/cs_fixer');
     $parameters->set(Option::CACHE_NAMESPACE, 'platform');
 

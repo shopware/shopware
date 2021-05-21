@@ -130,7 +130,7 @@ To use file upload via url, the content type has to be `application/json` and th
             $uploadedFile = $this->mediaService->fetchFile($request, $tempFile);
             $this->fileSaver->persistFileToMedia(
                 $uploadedFile,
-                $destination,
+                (string) $destination,
                 $mediaId,
                 $context
             );

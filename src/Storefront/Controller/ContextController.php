@@ -109,7 +109,7 @@ class ContextController extends StorefrontController
             ], $context->getContext());
         }
 
-        $route = $request->request->get('redirectTo', 'frontend.home.page');
+        $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
 
         $params = $request->request->get('redirectParameters', json_encode([]));
 

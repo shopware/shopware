@@ -1,6 +1,6 @@
 includes:
     - phpstan-baseline.neon
-    - ../dev-ops/analyze/vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
     level: 8
@@ -8,14 +8,16 @@ parameters:
     checkMissingIterableValueType: false
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
-    tmpDir: ../var/cache/phpstan
+    tmpDir: var/cache/phpstan
     paths:
         - src
+    bootstrapFiles:
+        - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+    # run `php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php` to create the container
     symfony:
         constant_hassers: false
-        # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
-        container_xml_path: '..%ShopwareHashedCacheDir%/Shopware_Development_KernelDevDebugContainer.xml'
-        console_application_loader: ../dev-ops/analyze/console-application.php
+        container_xml_path: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
+        console_application_loader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
     excludes_analyse:
         - src/Recovery/*
@@ -23,6 +25,7 @@ parameters:
         - src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
 
         # Tests
+        - src/Core/DevOps/Test/StaticAnalyze/PHPStan/Rules/Decoratable/_fixtures/*
         - src/Core/Checkout/Test/Cart/CalculatorTest.php
         - src/Core/Checkout/Test/Cart/CartPersisterTest.php
         - src/Core/Checkout/Test/Cart/CartServiceTest.php
@@ -111,22 +114,22 @@ parameters:
             path: src/Core/Framework/DataAbstractionLayer/Entity.php
 services:
     -
-        class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule
         tags:
             - phpstan.rules.rule
     -
-        class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableDoesNotAddPublicMethodRule
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableDoesNotAddPublicMethodRule
         tags:
             - phpstan.rules.rule
     -
-        class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableDoesNotCallOwnPublicMethodRule
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableDoesNotCallOwnPublicMethodRule
         tags:
             - phpstan.rules.rule
     -
-        class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableNotDirectlyDependetRule
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableNotDirectlyDependetRule
         tags:
             - phpstan.rules.rule
     -
-        class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableNotInstantiatedRule
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableNotInstantiatedRule
         tags:
             - phpstan.rules.rule

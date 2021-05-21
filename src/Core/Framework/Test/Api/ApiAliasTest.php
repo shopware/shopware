@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Kernel;
 
 /**
  * @group skip-paratest
@@ -20,6 +21,11 @@ class ApiAliasTest extends TestCase
     public function testUniqueAliases(): void
     {
         $classLoader = KernelLifecycleManager::getClassLoader();
+        $classes = array_keys($classLoader->getClassMap());
+
+        if (!isset($classes[Kernel::class])) {
+            static::markTestSkipped('This test does not work if the root package is shopware/platform');
+        }
 
         $entities = $this->getContainer()->get(DefinitionInstanceRegistry::class)
             ->getDefinitions();
@@ -28,8 +34,6 @@ class ApiAliasTest extends TestCase
         $aliases = array_flip($aliases);
 
         $count = \count($aliases);
-
-        $classes = array_keys($classLoader->getClassMap());
 
         foreach ($classes as $class) {
             $parts = explode('\\', $class);

@@ -166,7 +166,13 @@ class Kernel extends HttpKernel
             $_SERVER['SHELL_VERBOSITY'] = 3;
         }
 
-        $this->pluginLoader->initializePlugins($this->getProjectDir());
+        try {
+            $this->pluginLoader->initializePlugins($this->getProjectDir());
+        } catch (\Throwable $e) {
+            if (\defined('\STDERR')) {
+                fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
+            }
+        }
 
         // init bundles
         $this->initializeBundles();

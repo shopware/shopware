@@ -159,6 +159,9 @@ class Framework extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
+        if ($environment === 'e2e') {
+            $configLoader->load($confDir . '/{packages}/prod/*' . Kernel::CONFIG_EXTS, 'glob');
+        }
         $shopwareFeaturesPath = $cacheDir . '/shopware_features.php';
         if (is_readable($shopwareFeaturesPath)) {
             $configLoader->load($shopwareFeaturesPath, 'php');

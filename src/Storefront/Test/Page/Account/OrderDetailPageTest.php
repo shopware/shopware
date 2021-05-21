@@ -20,11 +20,6 @@ class OrderDetailPageTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    public function testLoginRequirement(): void
-    {
-        $this->assertLoginRequirement();
-    }
-
     public function testItLoadsOrders(): void
     {
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();

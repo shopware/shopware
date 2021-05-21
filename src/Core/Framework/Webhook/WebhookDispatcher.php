@@ -77,7 +77,11 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param object $event
+     * @template TEvent of object
+     *
+     * @param TEvent $event
+     *
+     * @return TEvent
      */
     public function dispatch($event, ?string $eventName = null): object
     {

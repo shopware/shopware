@@ -24,11 +24,6 @@ class DocumentPageTest extends TestCase
         parent::setUp();
     }
 
-    public function testLoginRequirement(): void
-    {
-        $this->assertLoginRequirement();
-    }
-
     public function testPageLoadsFailWithoutValidDeepLinkCode(): void
     {
         static::expectException(InvalidDocumentException::class);

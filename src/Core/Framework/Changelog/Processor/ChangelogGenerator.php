@@ -22,7 +22,7 @@ class ChangelogGenerator extends ChangelogProcessor
     {
         return sprintf(
             '%s/%s-%s.md',
-            $this->unreleasedDir,
+            $this->getUnreleasedDir(),
             $date,
             str_replace(' ', '-', strtolower($template->getTitle()))
         );

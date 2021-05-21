@@ -30,6 +30,8 @@ class ExtensionDownloaderTest extends TestCase
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         parent::setUp();
         $this->extensionDownloader = $this->getContainer()->get(ExtensionDownloader::class);
+
+        @mkdir($this->getContainer()->getParameter('kernel.app_dir'), 0777, true);
     }
 
     public function testDownloadExtension(): void

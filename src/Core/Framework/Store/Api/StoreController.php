@@ -185,7 +185,7 @@ class StoreController extends AbstractController
      */
     public function downloadPlugin(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
-        $pluginName = $queryDataBag->get('pluginName');
+        $pluginName = (string) $queryDataBag->get('pluginName');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));

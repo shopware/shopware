@@ -506,7 +506,14 @@ Cypress.Commands.add(
                     cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible')
                         .then($el => Cypress.dom.isAttached($el));
                     cy.log(`Element ${subMenuId} is now attached to the DOM.`);
-                    cy.getAttached(`.sw-admin-menu__navigation-list-item .${subMenuId}`).click();
+
+                    // the admin menu sometimes replaces the dom element. So we wait for some time
+                    cy.wait(500);
+                    cy.get(`.sw-admin-menu__item--${mainMenuId} .sw-admin-menu__navigation-list-item.${subMenuId}`)
+                        .should('be.visible');
+
+                    cy.get(`.sw-admin-menu__item--${mainMenuId} .sw-admin-menu__navigation-list-item.${subMenuId}`)
+                        .click();
                 } else {
                     cy.get(finalMenuItem).should('be.visible').click();
                 }
@@ -525,29 +532,6 @@ Cypress.Commands.add('getAttached', selector => {
         // eslint-disable-next-line no-unused-expressions
         expect(Cypress.dom.isDetached($el)).to.be.false;
     }).then(() => cy.wrap($el));
-});
-
-/**
- * Sets Shopware back to its initial state
- * @memberOf Cypress.Chainable#
- * @name setToInitialStateVisual
- * @function
- */
-Cypress.Commands.add('setToInitialState', () => {
-    // TODO: Move into setToInitialState command in e2e-testsuite-platform
-
-    return cy.log('Cleaning, please wait a little bit.').then(() => {
-        if (Cypress.env('percyUsage')) {
-            cy.exec(`cd ${Cypress.env('projectRoot')} && ./psh.phar e2e:restore-db && cd ${Cypress.env('projectPath')}`)
-                .its('stdout').should('contain', 'All commands successfully executed!');
-        } else {
-            cy.cleanUpPreviousState();
-        }
-    }).then(() => {
-        return cy.clearCacheAdminApi('DELETE', 'api/_action/cache');
-    }).then(() => {
-        return cy.setLocaleToEnGb();
-    });
 });
 
 /**
@@ -615,4 +599,19 @@ Cypress.Commands.add('handleModalSnapshot', (title) => {
             cy.get('.sw-modal')
                 .should('have.css', 'opacity', '1');
         });
+});
+
+/**
+ * Cleans up any previous state by restoring database and clearing caches
+ * @memberOf Cypress.Chainable#
+ * @name cleanUpPreviousState
+ * @function
+ */
+Cypress.Commands.overwrite('cleanUpPreviousState', (orig) => {
+    if (Cypress.env('localUsage')) {
+        return cy.exec(`${Cypress.env('shopwareRoot')}/bin/console e2e:restore-db`)
+            .its('code').should('eq', 0);
+    }
+
+    return orig;
 });

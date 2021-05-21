@@ -60,6 +60,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('a[href="#/sw/product/create"]').click();
 
         cy.get('input[name=sw-field--product-name]').typeAndCheck('First Product');
+
         cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
         cy.get('.sw-list-price-field .sw-price-field__gross input').eq(0).type('10').type('{enter}');
         cy.wait('@calculatePrice').then(() => {
@@ -71,7 +72,10 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('.sw-product-detail__select-visibility').scrollIntoView();
 
         // Assign root category in tree field
-        cy.get('.sw-category-tree__input-field').focus().type('Home').type('{enter}');
+        cy.get('.sw-category-tree__input-field').focus().type('Home');
+        // wait for the result list to update
+        cy.get('.sw-category-tree-field__results').contains('Home');
+        cy.get('.sw-category-tree__input-field').focus().type('{enter}');
 
         cy.get(productPage.elements.productSaveAction).click();
         cy.wait('@saveProduct').then((xhr) => {

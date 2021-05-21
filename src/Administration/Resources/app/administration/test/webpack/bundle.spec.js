@@ -1,3 +1,6 @@
+/* global adminPath */
+/* global projectRoot */
+
 // eslint-disable-next-line
 const util = require('util');
 const fs = require('fs');
@@ -8,7 +11,6 @@ const { sep } = require('path');
 const dircompare = require('dir-compare');
 const exec = util.promisify(require('child_process').exec);
 
-const rootPath = `${path.resolve(__dirname, '../../../../../../../..')}${sep}`;
 const readdir = util.promisify(fs.readdir);
 
 jest.spyOn(global.console, 'info').mockImplementation(() => jest.fn());
@@ -21,55 +23,57 @@ runBundleTests('webpack/bundle', () => {
         jest.setTimeout(5 * 60 * 1000);
 
         // if plugin folder exists
-        if (fs.existsSync(path.resolve(rootPath, 'custom/plugins'))) {
+        if (fs.existsSync(path.resolve(projectRoot, 'custom/plugins'))) {
             // delete Backup Plugin Folder
-            await exec(`rm -rf ${path.resolve(rootPath, 'custom/plugins-backup')}`);
+            await exec(`rm -rf ${path.resolve(projectRoot, 'custom/plugins-backup')}`);
             // backup Plugin Folder
             // eslint-disable-next-line max-len
-            await exec(`mv ${path.resolve(rootPath, 'custom/plugins')} ${path.resolve(rootPath, 'custom/plugins-backup')}`);
+            await exec(`mv ${path.resolve(projectRoot, 'custom/plugins')} ${path.resolve(projectRoot, 'custom/plugins-backup')}`);
         }
 
         // if bundles folder exists
-        if (fs.existsSync(path.resolve(rootPath, 'public/bundles'))) {
+        if (fs.existsSync(path.resolve(projectRoot, 'public/bundles'))) {
             // delete Backup Bundle Folder
-            await exec(`rm -rf ${path.resolve(rootPath, 'public/bundles-backup')}`);
+            await exec(`rm -rf ${path.resolve(projectRoot, 'public/bundles-backup')}`);
             // backup Bundle Folder
             // eslint-disable-next-line max-len
-            await exec(`mv ${path.resolve(rootPath, 'public/bundles')} ${path.resolve(rootPath, 'public/bundles-backup')}`);
+            await exec(`mv ${path.resolve(projectRoot, 'public/bundles')} ${path.resolve(projectRoot, 'public/bundles-backup')}`);
         }
     });
 
     afterEach(async () => {
-        // delete Plugin Folder
-        await exec(`rm -rf ${path.resolve(rootPath, 'custom/plugins')}`);
+        // // delete Plugin Folder
+        await exec(`rm -rf ${path.resolve(projectRoot, 'custom/plugins')}`);
 
         // delete Bundle Folder
-        await exec(`rm -rf ${path.resolve(rootPath, 'public/bundles')}`);
+        await exec(`rm -rf ${path.resolve(projectRoot, 'public/bundles')}`);
 
         // if plugins-backup folder exists
-        if (fs.existsSync(`${path.resolve(rootPath, 'custom/plugins-backup')}`)) {
+        if (fs.existsSync(`${path.resolve(projectRoot, 'custom/plugins-backup')}`)) {
             // restore Plugin Folder
             // eslint-disable-next-line max-len
-            await exec(`mv ${path.resolve(rootPath, 'custom/plugins-backup')} ${path.resolve(rootPath, 'custom/plugins')}`);
+            await exec(`mv ${path.resolve(projectRoot, 'custom/plugins-backup')} ${path.resolve(projectRoot, 'custom/plugins')}`);
         }
 
         // if bundles-backup folder exists
-        if (fs.existsSync(`${path.resolve(rootPath, 'public/bundles-backup')}`)) {
+        if (fs.existsSync(`${path.resolve(projectRoot, 'public/bundles-backup')}`)) {
             // restore Bundle Folder
             // eslint-disable-next-line max-len
-            await exec(`mv ${path.resolve(rootPath, 'public/bundles-backup')} ${path.resolve(rootPath, 'public/bundles')}`);
+            await exec(`mv ${path.resolve(projectRoot, 'public/bundles-backup')} ${path.resolve(projectRoot, 'public/bundles')}`);
         }
     });
 
     it('should build the bundles with the administration folder', async (done) => {
         // build administration
-        await exec(`cd ${rootPath} && php psh.phar administration:build`);
+        await exec(`cd ${projectRoot} && bin/console bundle:dump`);
+        await exec(`cd ${adminPath} && npm run build`);
+        await exec(`cd ${projectRoot} && bin/console assets:install`);
 
         // get subfolders of bundles directory
-        const directoryInfo = await readdir(`${path.resolve(rootPath, 'public/bundles')}${sep}`);
+        const directoryInfo = await readdir(`${path.resolve(projectRoot, 'public/bundles')}${sep}`);
 
         // delete bundles folder
-        await exec(`rm -rf ${path.resolve(rootPath, 'public/bundles')}`);
+        await exec(`rm -rf ${path.resolve(projectRoot, 'public/bundles')}`);
 
         // check if the administration folder exists
         if (directoryInfo.indexOf('administration') >= 0) {
@@ -83,54 +87,58 @@ runBundleTests('webpack/bundle', () => {
 
     it('the administration bundle should be the same independently of plugins', async (done) => {
         // create empty plugins folder
-        await exec(`cd ${path.resolve(rootPath, 'custom')} && mkdir plugins`);
+        await exec(`cd ${projectRoot} && mkdir -p custom/plugins`);
 
         // refresh plugins
-        await exec(`cd ${rootPath} && php bin${sep}console plugin:refresh`);
+        await exec(`cd ${projectRoot} && php bin${sep}console plugin:refresh`);
 
         // create clean bundle without plugin
-        await exec(`cd ${rootPath} && php psh.phar administration:build`);
+        await exec(`cd ${projectRoot} && bin/console bundle:dump`);
+        await exec(`cd ${adminPath} && npm run build`);
+        await exec(`cd ${projectRoot} && bin/console assets:install`);
 
         // rename bundle to "bundles_without_plugin"
         // eslint-disable-next-line max-len
-        await exec(`cd ${rootPath} && mv ${path.resolve(rootPath, 'public/bundles')} ${path.resolve(rootPath, 'public/bundles_without_plugin')}`);
+        await exec(`cd ${projectRoot} && mv ${path.resolve(projectRoot, 'public/bundles')} ${path.resolve(projectRoot, 'public/bundles_without_plugin')}`);
 
         // copy plugin to plugin folder
         // eslint-disable-next-line max-len
-        await exec(`cp -R ${path.resolve(__dirname, 'assets/ExamplePluginForTesting')} ${path.resolve(rootPath, 'custom/plugins')}${sep}`);
+        await exec(`cp -R ${path.resolve(__dirname, 'assets/ExamplePluginForTesting')} ${path.resolve(projectRoot, 'custom/plugins')}${sep}`);
 
         // remove temp extension from plugin php file
         // eslint-disable-next-line max-len
-        await exec(`cd ${rootPath} && mv ${path.resolve(rootPath, 'custom/plugins/ExamplePluginForTesting/src/ExamplePluginForTesting.php.temp')} ${path.resolve(rootPath, 'custom/plugins/ExamplePluginForTesting/src/ExamplePluginForTesting.php')}`);
+        await exec(`cd ${projectRoot} && mv ${path.resolve(projectRoot, 'custom/plugins/ExamplePluginForTesting/src/ExamplePluginForTesting.php.temp')} ${path.resolve(projectRoot, 'custom/plugins/ExamplePluginForTesting/src/ExamplePluginForTesting.php')}`);
 
         // refresh plugins
-        await exec(`cd ${rootPath} && php bin${sep}console plugin:refresh`);
+        await exec(`cd ${projectRoot} && php bin${sep}console plugin:refresh`);
 
         // install and activate plugin
-        await exec(`cd ${rootPath} && php bin${sep}console plugin:install --activate ExamplePluginForTesting`);
+        await exec(`cd ${projectRoot} && php bin${sep}console plugin:install --activate ExamplePluginForTesting`);
 
         // create bundle with plugin
-        await exec(`cd ${rootPath} && php psh.phar administration:build`);
+        await exec(`cd ${projectRoot} && bin/console bundle:dump`);
+        await exec(`cd ${adminPath} && npm run build`);
+        await exec(`cd ${projectRoot} && bin/console assets:install`);
 
         // eslint-disable-next-line max-len
-        const folderComparison = await dircompare.compare(`${path.resolve(rootPath, 'public/bundles/administration')}`, `${path.resolve(rootPath, 'public/bundles_without_plugin/administration')}`);
+        const folderComparison = await dircompare.compare(`${path.resolve(projectRoot, 'public/bundles/administration')}`, `${path.resolve(projectRoot, 'public/bundles_without_plugin/administration')}`);
 
         // uninstall and deactivate plugin
-        await exec(`cd ${rootPath} && php bin${sep}console plugin:deactivate ExamplePluginForTesting`);
-        await exec(`cd ${rootPath} && php bin${sep}console plugin:uninstall ExamplePluginForTesting`);
+        await exec(`cd ${projectRoot} && php bin${sep}console plugin:deactivate ExamplePluginForTesting`);
+        await exec(`cd ${projectRoot} && php bin${sep}console plugin:uninstall ExamplePluginForTesting`);
 
         // delete both bundles
-        await exec(`rm -rf ${path.resolve(rootPath, 'public/bundles')}`);
-        await exec(`rm -rf ${path.resolve(rootPath, 'public/bundles_without_plugin')}`);
+        await exec(`rm -rf ${path.resolve(projectRoot, 'public/bundles')}`);
+        await exec(`rm -rf ${path.resolve(projectRoot, 'public/bundles_without_plugin')}`);
 
         // delete plugins folder
-        await exec(`cd ${rootPath} && rm -rf ${path.resolve(rootPath, 'custom/plugins')}`);
+        await exec(`cd ${projectRoot} && rm -rf ${path.resolve(projectRoot, 'custom/plugins')}`);
 
         // create empty plugin folder
-        await exec(`cd ${rootPath} && mkdir ${path.resolve(rootPath, 'custom/plugins')}`);
+        await exec(`cd ${projectRoot} && mkdir ${path.resolve(projectRoot, 'custom/plugins')}`);
 
         // refresh plugin list
-        await exec(`cd ${rootPath} && php bin${sep}console plugin:refresh`);
+        await exec(`cd ${projectRoot} && php bin${sep}console plugin:refresh`);
 
         // expect no difference in diff
         if (folderComparison && folderComparison.same) {

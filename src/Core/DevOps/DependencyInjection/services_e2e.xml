@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <defaults autowire="true"/>
+
+        <service id="Shopware\Core\DevOps\System\Command\SystemDumpDatabaseCommand">
+            <argument>%kernel.project_dir%/var/dumps</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="console.command" command="e2e:dump-db"/>
+        </service>
+
+        <service id="Shopware\Core\DevOps\System\Command\SystemRestoreDatabaseCommand">
+            <argument>%kernel.project_dir%/var/dumps</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="console.command" command="e2e:restore-db" />
+            <tag name="console.command" command="e2e:cleanup" />
+        </service>
+    </services>
+</container>

@@ -1,0 +1,13 @@
+{
+  "require-dev": {
+    "psalm/plugin-phpunit": "0.15.2",
+    "psalm/plugin-symfony": "2.3.1",
+    "vimeo/psalm": "4.8.1"
+  },
+  "config": {
+    "platform": {
+      "php": "7.4.0"
+    }
+  },
+  "sort-packages": true
+}

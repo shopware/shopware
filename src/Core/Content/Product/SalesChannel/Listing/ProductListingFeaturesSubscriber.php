@@ -400,7 +400,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = explode('|', $ids);
         }
 
-        return array_filter($ids);
+        return array_filter((array) $ids);
     }
 
     private function getPropertyIds(Request $request): array
@@ -414,7 +414,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = explode('|', $ids);
         }
 
-        return array_filter($ids);
+        return array_filter((array) $ids);
     }
 
     private function getLimit(Request $request, SalesChannelContext $context): int

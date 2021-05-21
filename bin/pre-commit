@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+function onExit {
+    if [[ $? != 0 ]]
+    then
+        echo "Fix the error before commit."
+    fi
+}
+trap onExit EXIT
+
+changed_files() {
+    local pattern="$1"
+
+    git diff --cached --name-only --diff-filter=ACMR HEAD \
+        | grep -E "$pattern" \
+        | xargs -n1 --no-run-if-empty realpath
+}
+
+PHP_FILES="$(changed_files '^src/.*\.(php)$')"
+SCSS_FILES="$(changed_files '\.(scss)$')"
+SCSS_ADMIN_FILES="$(changed_files '^src/Administration/Resources/app/administration/.*\.(scss)$')"
+SCSS_STOREFRONT_FILES="$(changed_files '^src/Storefront/Resources/app/storefront/.*\.(scss)$')"
+JS_ADMIN_FILES="$(changed_files '^src/Administration/Resources/app/administration/.*\.(js)$')"
+JS_E2E_FILES="$(changed_files '^src/Administration/Resources/app/administration/test/e2e/.*\.(js)$')"
+JS_STOREFRONT_FILES="$(changed_files '^src/Storefront/Resources/app/storefront/src/.*\.(js)$')"
+JS_FILES="$(changed_files '\.(js)$')"
+
+# exit on non-zero return code
+set -e
+
+if [[ -z "$PHP_FILES" && -z "$JS_FILES" && -z "$SCSS_FILES" ]]
+then
+    exit 0
+fi
+
+UNSTAGED_FILES="$(git diff --name-only -- ${PHP_FILES} ${JS_FILES} ${SCSS_FILES})"
+
+if [[ -n "$UNSTAGED_FILES" ]]
+then
+    echo "Error: There are staged files with unstaged changes. We cannot automatically fix and add those.
+
+Please add or revert the following files:
+
+$UNSTAGED_FILES
+"
+    exit 1
+fi
+
+if [[ -n "$PHP_FILES" ]]
+then
+    cd "${PROJECT_ROOT}"
+
+    echo "Linting"
+    PHP_FILES_ARRAY=(${PHP_FILES});
+    for i in "${!PHP_FILES_ARRAY[@]}"; do
+        php -l -d display_errors=0 ${PHP_FILES_ARRAY[$i]} 1> /dev/null
+    done
+
+    PHP_FILES_FOR_CHECKS=$(printf '%s ' "${PHP_FILES_ARRAY[@]}")
+
+    echo "Fix code style"
+
+    composer run ecs-fix -- --no-progress-bar --no-error-table ${PHP_FILES_FOR_CHECKS}
+
+    composer run static-analyze -- --no-progress
+fi
+
+if [[ -n "$SCSS_ADMIN_FILES" ]]
+then
+    if [[ -x src/Administration/Resources/app/administration/node_modules/.bin/stylelint ]]
+    then
+        composer run stylelint:admin -- --fix ${SCSS_ADMIN_FILES}
+    else
+        echo "Skipped Stylelint checks on administration, because it's not installed."
+    fi
+fi
+
+if [[ -n "$SCSS_STOREFRONT_FILES" ]]
+then
+    if [[ -x src/Storefront/Resources/app/storefront/node_modules/.bin/stylelint ]]
+    then
+        composer run stylelint:admin -- --fix ${SCSS_STOREFRONT_FILES}
+    else
+        echo "Skipped Stylelint checks on administration, because it's not installed."
+    fi
+fi
+
+if [[ -n "$JS_ADMIN_FILES" ]]
+then
+    if [[ -x src/Administration/Resources/app/administration/node_modules/.bin/eslint ]]
+    then
+        composer run eslint:admin -- --fix ${JS_ADMIN_FILES}
+    else
+        echo "Skipped ESLint checks on administration, because it's not installed."
+    fi
+fi
+
+if [[ -n "$JS_STOREFRONT_FILES" ]]
+then
+    if [[ -x src/Storefront/Resources/app/storefront/node_modules/.bin/eslint ]]
+    then
+        echo composer run eslint:storefront -- --fix ${JS_STOREFRONT_FILES}
+    else
+        echo "Skipped ESLint checks on Storefront, because it's not installed."
+    fi
+fi
+
+git add ${SCSS_ADMIN_FILES} ${SCSS_STOREFRONT_FILES} ${JS_ADMIN_FILES} ${JS_E2E_FILES} ${JS_STOREFRONT_FILES} ${PHP_FILES}

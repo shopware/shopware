@@ -192,7 +192,7 @@ By default, all migrations are executed.",
         }
 
         $mode = $request->request->get('mode', MigrationCollectionLoader::VERSION_SELECTION_SAFE);
-        $collection = $this->getCollection($request, $mode);
+        $collection = $this->getCollection($request, (string) $mode);
 
         try {
             $collection->migrateDestructiveInPlace($until, $limit);
@@ -205,7 +205,7 @@ By default, all migrations are executed.",
 
     private function getCollection(Request $request, string $mode): MigrationCollection
     {
-        $identifier = $request->request->get('identifier', 'core');
+        $identifier = (string) $request->request->get('identifier', 'core');
 
         if ($identifier === 'core') {
             return $this->loader->collectAllForVersion($this->shopwareVersion, $mode);

@@ -110,7 +110,10 @@ describe('Product: Test variants visibilities', () => {
                 .should('contain', 'Headless');
         });
 
-        cy.get('.sw-card__back-link').click();
+        cy.get('.sw-card__back-link').scrollIntoView();
+        cy.get('.sw-card__back-link').should('be.visible');
+        // cy.wait(1);
+        cy.get('.sw-card__back-link').click({ waitForAnimations: false });
 
         cy.get('.sw-product-detail__tab-general').click();
         cy.get(page.elements.loader).should('not.exist');

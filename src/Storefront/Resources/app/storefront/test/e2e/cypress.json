@@ -24,7 +24,7 @@
     "apiPath": "/api",
     "locale": "en-GB",
     "checkoutAllowed": false,
-    "projectRoot": "/app",
+    "shopwareRoot": "/app",
     "localUsage": false
   },
   "firefoxGcInterval": {

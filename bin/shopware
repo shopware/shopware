@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php declare(strict_types=1);
 
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\HttpKernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -41,7 +43,6 @@ if ($_SERVER['APP_DEBUG']) {
 }
 
 $kernel = new HttpKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG'], $classLoader);
-$kernel->setPluginLoader(new StaticKernelPluginLoader($classLoader));
 
 $application = new Application($kernel->getKernel());
 $application->run($input);

@@ -17,7 +17,10 @@ module.exports = {
         autoStub: true
     },
 
-    plugins: ['jest'],
+    plugins: [
+        'jest',
+        'twig-vue'
+    ],
 
     settings: {
         'import/resolver': {
@@ -96,18 +99,26 @@ module.exports = {
                 'plugin:vue/recommended',
                 'eslint:recommended'
             ],
-            parser: 'vue-eslint-parser',
+            processor: 'twig-vue/twig-vue',
             files: ['**/*.html.twig'],
             rules: {
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,
                     ignores: []
                 }],
-                'vue/comment-directive': 'off',
-                'vue/no-multiple-template-root': 'off',
+                'vue/html-indent': ['error', 4, {
+                    baseIndent: 0
+                }],
+                'no-multiple-empty-lines': ['error', { max: 1 }],
                 'eol-last': 'off', // no newline required at the end of file
                 'max-len': 'off',
-                'vue/multiline-html-element-content-newline': 'off' // allow more spacy templates
+                'vue/multiline-html-element-content-newline': 'off', // allow more spacy templates
+                'vue/html-self-closing': 'warn',
+                'vue/no-multiple-template-root': 'warn',
+                'vue/no-unused-vars': 'warn',
+                'vue/no-parsing-error': ['error', {
+                    'nested-comment': false
+                }]
             }
         }
     ]

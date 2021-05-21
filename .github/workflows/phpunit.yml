@@ -38,7 +38,6 @@ jobs:
     - name: Fix platform for composer
       run: |
         cd development/platform
-        git fetch --prune --unshallow
         git checkout trunk
         git checkout -
         cd ..

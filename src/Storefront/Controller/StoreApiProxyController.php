@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
@@ -33,15 +34,9 @@ class StoreApiProxyController
         PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
     ];
 
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private KernelInterface $kernel;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
     public function __construct(KernelInterface $kernel, RequestStack $requestStack)
     {
@@ -80,7 +75,13 @@ class StoreApiProxyController
             parse_str($url['query'], $query);
         }
 
-        $server = array_merge($request->server->all(), ['REQUEST_URI' => $url['path'] ?? '']);
+        $requestPath = $url['path'] ?? '';
+
+        if (!\in_array(DefinitionService::STORE_API, explode('/', $requestPath), true)) {
+            throw new InvalidRequestParameterException('The proxy controller can only be used for store-api routes');
+        }
+
+        $server = array_merge($request->server->all(), ['REQUEST_URI' => $requestPath]);
         $subRequest = $request->duplicate($query, null, [], null, null, $server);
 
         $subRequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $context->getSalesChannel()->getAccessKey());

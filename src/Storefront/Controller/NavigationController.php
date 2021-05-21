@@ -17,15 +17,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class NavigationController extends StorefrontController
 {
-    /**
-     * @var NavigationPageLoaderInterface
-     */
-    private $navigationPageLoader;
+    private NavigationPageLoaderInterface $navigationPageLoader;
 
-    /**
-     * @var MenuOffcanvasPageletLoaderInterface
-     */
-    private $offcanvasLoader;
+    private MenuOffcanvasPageletLoaderInterface $offcanvasLoader;
 
     public function __construct(
         NavigationPageLoaderInterface $navigationPageLoader,

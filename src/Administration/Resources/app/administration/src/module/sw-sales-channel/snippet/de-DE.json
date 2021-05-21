@@ -244,7 +244,10 @@
         "title": "Produkte hinzufügen",
         "singleProducts": "Einzelne Produkte",
         "categories": "Nach Kategorien filtern",
-        "dynamicProductGroups": "Nach Dynamischen Produktgruppen filtern"
+        "dynamicProductGroups": {
+          "title": "Nach Dynamischen Produktgruppen filtern",
+          "infoText": "Die hier gemachten Zuweisungen sind statisch und werden durch nachfolgende Änderungen der Dynamischen Produktgruppen nicht beeinflusst."
+        }
       }
     },
     "sw-sales-channel-defaults-select": {

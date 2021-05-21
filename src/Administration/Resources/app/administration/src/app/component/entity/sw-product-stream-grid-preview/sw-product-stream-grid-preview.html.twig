@@ -21,11 +21,12 @@
         class="sw-product-stream-grid-preview__grid"
         :data-source="products"
         :columns="productColumns"
-        :show-selection="false"
+        :show-selection="showSelection"
         :show-actions="false"
         :show-previews="true"
         :plain-appearance="true"
         :is-loading="isLoading"
+        @selection-change="onSelectionChange"
     >
 
         {% block sw_product_stream_grid_preview_grid_columns %}

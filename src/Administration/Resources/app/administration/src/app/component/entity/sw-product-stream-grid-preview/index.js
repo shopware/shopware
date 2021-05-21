@@ -31,6 +31,11 @@ Component.register('sw-product-stream-grid-preview', {
             default() {
                 return new Criteria(1, 10);
             }
+        },
+        showSelection: {
+            required: false,
+            type: Boolean,
+            default: false
         }
     },
 
@@ -184,6 +189,10 @@ Component.register('sw-product-stream-grid-preview', {
             });
 
             return price ? price.gross : '-';
+        },
+
+        onSelectionChange(products) {
+            this.$emit('selection-change', products);
         }
     }
 });

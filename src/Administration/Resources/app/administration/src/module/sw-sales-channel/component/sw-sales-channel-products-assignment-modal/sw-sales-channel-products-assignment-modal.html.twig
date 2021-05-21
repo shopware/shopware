@@ -33,10 +33,10 @@
                     {% block sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups %}
                     <sw-tabs-item
                         name="dynamicProductGroups"
-                        :title="$tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups')"
+                        :title="$tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.title')"
                         :active-tab="active"
                     >
-                        {{ $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups') }}
+                        {{ $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.title') }}
                     </sw-tabs-item>
                     {% endblock %}
                 </template>
@@ -44,7 +44,7 @@
                 <template #content="{ active }">
                     {% block sw_sales_channel_products_assignment_modal_tab_content_single_products %}
                     <sw-sales-channel-products-assignment-single-products
-                        v-if="active === 'singleProducts'"
+                        v-show="active === 'singleProducts'"
                         :sales-channel="salesChannel"
                         @selection-change="onChangeSelection"
                     />
@@ -52,12 +52,15 @@
 
                     {% block sw_sales_channel_products_assignment_modal_tab_content_categories %}
                     {# TODO: NEXT-14828 - Assign products to the sales channel by categories #}
-                    <sw-container v-if="active === 'categories'" />
+                    <sw-container v-show="active === 'categories'" />
                     {% endblock %}
 
                     {% block sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups %}
-                    {# TODO: NEXT-14829 - Assign products to the sales channel by dynamic product groups #}
-                    <sw-container v-if="active === 'dynamicProductGroups'" />
+                    <sw-sales-channel-products-assignment-dynamic-product-groups
+                        v-show="active === 'dynamicProductGroups'"
+                        :sales-channel="salesChannel"
+                        @selection-change="onChangeSelection"
+                    />
                     {% endblock %}
                 </template>
             </sw-tabs>

@@ -108,7 +108,9 @@ function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
         const responseBody = responseData
             .replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`)
             // Replace Symfony Profiler URL to relative url @see: https://regex101.com/r/HMQd2n/2
-            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`);
+            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`)
+            // Replace json_encoded urls in data attributes ie `dataurl`, `filterUrl` @see https://regex101.com/r/4DZTJP/1/
+            .replace(/http[s]?\:(\\\\\/|\\\/)*[\w\.]*(\:\d*)?(\\\\\/|\\\/)widgets/gm,'/widgets');
 
         // end the client response with sufficient headers
         clientResponse.writeHead(response.statusCode, response.headers);

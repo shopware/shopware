@@ -6,7 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +29,20 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->searchKeywordRepository = $this->getContainer()->get('product_search_keyword.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->getContainer()->get('language.repository')->upsert([
+            [
+                'id' => $this->getDeDeLanguageId(),
+                'salesChannelDomains' => [
+                    [
+                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'currencyId' => Defaults::CURRENCY,
+                        'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
+                        'url' => $_SERVER['APP_URL'] . '/de',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
     }
 
     /**
@@ -44,6 +61,44 @@ class SearchKeywordUpdaterTest extends TestCase
         $expectedDictionary = array_merge($germanKeywords, $additionalDictionaries);
         sort($expectedDictionary);
         $this->assertDictionary($this->getDeDeLanguageId(), $expectedDictionary);
+    }
+
+    public function testItSkipsKeywordGenerationForNotUsedLanguages(): void
+    {
+        $ids = new IdsCollection();
+        $esLocale = $this->getLocaleIdByIsoCode('es-ES');
+
+        $languageRepo = $this->getContainer()->get('language.repository');
+        $languageRepo->create([
+            [
+                'id' => $ids->get('language'),
+                'name' => 'Español',
+                'localeId' => $esLocale,
+                'translationCodeId' => $esLocale,
+            ],
+        ], $ids->getContext());
+
+        $this->productRepository->create(
+            [
+                (new ProductBuilder($ids, '1000'))
+                    ->price(10)
+                    ->name('Test product')
+                    ->translation($ids->get('language'), 'name', 'Test produkt')
+                    ->build(),
+            ],
+            $ids->getContext()
+        );
+
+        $this->assertKeywords(
+            $ids->get('1000'),
+            Defaults::LANGUAGE_SYSTEM,
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+            ]
+        );
+        $this->assertKeywords($ids->get('1000'), $ids->get('language'), []);
     }
 
     public function productKeywordProvider(): array
@@ -190,5 +245,15 @@ class SearchKeywordUpdaterTest extends TestCase
         );
 
         static::assertEquals($expectedKeywords, $dictionary);
+    }
+
+    private function getLocaleIdByIsoCode(string $iso): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('code', $iso));
+
+        return $this->getContainer()->get('locale.repository')
+            ->searchIds($criteria, Context::createDefaultContext())
+            ->firstId();
     }
 }

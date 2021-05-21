@@ -63,7 +63,7 @@ class SearchKeywordUpdater
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannelDomains.salesChannelId', null)]));
+        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannelDomains.id', null)]));
         /** @var LanguageCollection $languages */
         $languages = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
@@ -322,12 +322,12 @@ class SearchKeywordUpdater
         $defaultLanguage = $languages->get(Defaults::LANGUAGE_SYSTEM);
         $languages->remove(Defaults::LANGUAGE_SYSTEM);
 
-        return array_merge(
+        return array_filter(array_merge(
             [$defaultLanguage],
             $languages->filterByProperty('parentId', null)->getElements(),
             $languages->filter(function (LanguageEntity $language) {
                 return $language->getParentId() !== null;
             })->getElements()
-        );
+        ));
     }
 }

@@ -329,6 +329,8 @@ class ProductSearchRouteTest extends TestCase
      */
     public function testProductSearch(array $productData, string $productNumber, array $searchTerms, IdsCollection $ids, ?string $languageId = null): void
     {
+        $this->createGermanSalesChannelDomain();
+
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create([$productData], $ids->getContext());
 
@@ -880,5 +882,22 @@ class ProductSearchRouteTest extends TestCase
                 ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
+    }
+
+    private function createGermanSalesChannelDomain(): void
+    {
+        $this->getContainer()->get('language.repository')->upsert([
+            [
+                'id' => $this->getDeDeLanguageId(),
+                'salesChannelDomains' => [
+                    [
+                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'currencyId' => Defaults::CURRENCY,
+                        'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
+                        'url' => $_SERVER['APP_URL'] . '/de',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
     }
 }

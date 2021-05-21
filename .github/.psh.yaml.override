@@ -4,3 +4,4 @@ const:
     DB_USER: "root"
     DB_PASSWORD: "shopware"
     SHOPWARE_ES_HOSTS: "elasticsearch:9200"
+    APP_MAILER_URL: "null://localhost"

@@ -116,7 +116,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof ParentFkField:
             case $field instanceof FkField:
             case $field instanceof IdField:
-                return ['type' => 'string', 'pattern' => '^[0-9a-f]{32}$', 'flags' => $flags];
+                return ['type' => 'uuid', 'flags' => $flags];
 
             // json fields
             case $field instanceof CustomFields:

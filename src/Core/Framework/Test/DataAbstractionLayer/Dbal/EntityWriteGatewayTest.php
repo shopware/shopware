@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
@@ -202,6 +203,47 @@ class EntityWriteGatewayTest extends TestCase
         static::assertEquals($newId, Uuid::fromBytesToHex($changeSet->getAfter('product_manufacturer_id')));
     }
 
+    public function testChangeSetWithMultipleCommandsForSameEntityType(): void
+    {
+        $productId1 = $this->createProduct();
+        $productId2 = $this->createProduct();
+
+        $updates = [
+            ['id' => $productId1, 'stock' => 100],
+            ['id' => $productId2, 'stock' => 50],
+        ];
+
+        $this->getContainer()->get('event_dispatcher')
+            ->addListener(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+                foreach ($event->getCommands() as $command) {
+                    if (!$command instanceof ChangeSetAware) {
+                        continue;
+                    }
+                    $command->requestChangeSet();
+                }
+            });
+
+        $result = $this->productRepository->update($updates, Context::createDefaultContext());
+
+        $changeSets = $this->getChangeSets(ProductDefinition::ENTITY_NAME, $result, 2);
+        $changeSetForProduct1 = array_values(array_filter($changeSets, function (ChangeSet $changeSet) use (&$productId1) {
+            return $changeSet->getBefore('id') === hex2bin($productId1);
+        }))[0];
+        $changeSetForProduct2 = array_values(array_filter($changeSets, function (ChangeSet $changeSet) use (&$productId2) {
+            return $changeSet->getBefore('id') === hex2bin($productId2);
+        }))[0];
+
+        static::assertNotNull($changeSetForProduct1);
+        static::assertTrue($changeSetForProduct1->hasChanged('stock'));
+        static::assertEquals(1, $changeSetForProduct1->getBefore('stock'));
+        static::assertEquals(100, $changeSetForProduct1->getAfter('stock'));
+
+        static::assertNotNull($changeSetForProduct2);
+        static::assertTrue($changeSetForProduct2->hasChanged('stock'));
+        static::assertEquals(1, $changeSetForProduct2->getBefore('stock'));
+        static::assertEquals(50, $changeSetForProduct2->getAfter('stock'));
+    }
+
     private function createProduct(): string
     {
         $id = Uuid::randomHex();
@@ -239,5 +281,19 @@ class EntityWriteGatewayTest extends TestCase
         static::assertInstanceOf(ChangeSet::class, $changeSet);
 
         return $changeSet;
+    }
+
+    private function getChangeSets(string $entity, EntityWrittenContainerEvent $result, int $expectedSize): array
+    {
+        $event = $result->getEventByEntityName($entity);
+        static::assertInstanceOf(EntityWrittenEvent::class, $event);
+        static::assertCount($expectedSize, $event->getWriteResults());
+
+        return array_map(function (EntityWriteResult $writeResult) {
+            $changeSet = $writeResult->getChangeSet();
+            static::assertInstanceOf(ChangeSet::class, $changeSet);
+
+            return $changeSet;
+        }, $event->getWriteResults());
     }
 }

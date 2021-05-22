@@ -25,15 +25,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FirstRunWizardController extends AbstractStoreController
 {
-    /**
-     * @var FirstRunWizardClient
-     */
-    private $frwClient;
+    private FirstRunWizardClient $frwClient;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
+    private EntityRepositoryInterface $pluginRepo;
 
     public function __construct(
         FirstRunWizardClient $frwClient,

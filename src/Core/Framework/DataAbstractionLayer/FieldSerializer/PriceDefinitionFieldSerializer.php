@@ -24,10 +24,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 {
-    /**
-     * @var RuleConditionRegistry
-     */
-    private $ruleConditionRegistry;
+    private RuleConditionRegistry $ruleConditionRegistry;
 
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
@@ -162,7 +159,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             $violationList->add(
                 $this->buildViolation(
                     'This "_name" value (%value%) is invalid.',
-                    ['%value%' => $type ?? 'NULL'],
+                    ['%value%' => 'NULL'],
                     $basePath . '/_name'
                 )
             );
@@ -198,7 +195,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 $object->addRule($this->decodeRule($item));
             }
         } else {
-            /* @var Rule $object */
             $object->assign($rule);
         }
 

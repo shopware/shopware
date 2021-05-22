@@ -31,6 +31,9 @@ class StorefrontPluginConfiguration
      */
     private array $viewInheritance = [];
 
+    /**
+     * @var array<string, string>
+     */
     private array $iconSets = [];
 
     public function __construct(string $technicalName)
@@ -161,11 +164,17 @@ class StorefrontPluginConfiguration
         $this->viewInheritance = $viewInheritance;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getIconSets(): array
     {
         return $this->iconSets;
     }
 
+    /**
+     * @param array<string, string> $iconSets
+     */
     public function setIconSets(array $iconSets): void
     {
         $this->iconSets = $iconSets;

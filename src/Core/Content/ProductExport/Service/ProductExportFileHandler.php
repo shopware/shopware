@@ -8,15 +8,9 @@ use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $fileSystem;
+    private FilesystemInterface $fileSystem;
 
-    /**
-     * @var string
-     */
-    private $exportDirectory;
+    private string $exportDirectory;
 
     public function __construct(
         FilesystemInterface $fileSystem,
@@ -66,8 +60,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
             return false;
         }
 
-        return $productExport->isGenerateByCronjob()
-            || (!$productExport->isGenerateByCronjob() && !$this->isCacheExpired($behavior, $productExport));
+        return $productExport->isGenerateByCronjob() || !$this->isCacheExpired($behavior, $productExport);
     }
 
     public function finalizePartialProductExport(string $partialFilePath, string $finalFilePath, string $headerContent, string $footerContent): bool

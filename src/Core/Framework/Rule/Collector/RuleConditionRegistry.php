@@ -8,10 +8,13 @@ use Shopware\Core\Framework\Rule\Rule;
 class RuleConditionRegistry
 {
     /**
-     * @var Rule[]
+     * @var array<string, Rule>
      */
-    private $rules;
+    private array $rules;
 
+    /**
+     * @param iterable<Rule> $taggedRules
+     */
     public function __construct(iterable $taggedRules)
     {
         $this->mapRules($taggedRules);
@@ -45,16 +48,21 @@ class RuleConditionRegistry
         return $this->rules[$name];
     }
 
+    /**
+     * @return class-string<Rule>
+     */
     public function getRuleClass(string $name): string
     {
         return \get_class($this->getRuleInstance($name));
     }
 
+    /**
+     * @param iterable<Rule> $taggedRules
+     */
     private function mapRules(iterable $taggedRules): void
     {
         $this->rules = [];
 
-        /** @var Rule $rule */
         foreach ($taggedRules as $rule) {
             $this->rules[$rule->getName()] = $rule;
         }

@@ -32,12 +32,15 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 class EntityHydrator
 {
     /**
-     * @var Entity[] internal constructor cache
+     * @var array<class-string<Entity|ArrayStruct>, Entity|ArrayStruct> internal constructor cache
      */
-    private $instances = [];
+    private array $instances = [];
 
     private array $objects = [];
 
+    /**
+     * @param class-string<Entity> $entityClass
+     */
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
     {
         $this->objects = [];
@@ -95,6 +98,9 @@ class EntityHydrator
         return $mapped;
     }
 
+    /**
+     * @param class-string<Entity|ArrayStruct> $class
+     */
     private function createClass(string $class)
     {
         if (!isset($this->instances[$class])) {

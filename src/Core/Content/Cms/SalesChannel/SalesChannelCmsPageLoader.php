@@ -18,20 +18,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $cmsPageRepository;
+    private EntityRepositoryInterface $cmsPageRepository;
 
-    /**
-     * @var CmsSlotsDataResolver
-     */
-    private $slotDataResolver;
+    private CmsSlotsDataResolver $slotDataResolver;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         EntityRepositoryInterface $cmsPageRepository,
@@ -66,9 +57,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         // step 1, load cms pages with blocks and slots
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext());
 
-        /** @var CmsPageEntity $page */
         foreach ($pages as $page) {
-            if (!$page->getSections()) {
+            if ($page->getSections() === null) {
                 continue;
             }
 

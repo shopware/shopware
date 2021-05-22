@@ -54,3 +54,6 @@ issue: NEXT-14973
   * Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAssociationFieldSerializer::decode
   * Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionDataPayloadFieldSerializer::decode
   * Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionFieldSerializer::decode
+
+  * Shopware\Core\Kernel::registerBundles
+  * Shopware\Core\Kernel::getProjectDir

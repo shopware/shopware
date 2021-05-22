@@ -17,9 +17,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**
-     * @var iterable|AbstractCaptcha[]
+     * @var iterable<AbstractCaptcha>
      */
-    private $captchas;
+    private iterable $captchas;
 
     private ?ErrorController $errorController;
 
@@ -38,7 +38,7 @@ class CaptchaRouteListener implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::CONTROLLER => [
@@ -68,7 +68,7 @@ class CaptchaRouteListener implements EventSubscriberInterface
 
             $salesChannelId = $context ? $context->getSalesChannelId() : null;
 
-            $activeCaptchas = (array) $this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId) ?? [];
+            $activeCaptchas = (array) ($this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId) ?? []);
         }
 
         foreach ($this->captchas as $captcha) {

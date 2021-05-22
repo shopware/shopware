@@ -33,7 +33,7 @@ class HttpKernel
     protected static $connection;
 
     /**
-     * @var string
+     * @var class-string<Kernel>
      */
     protected static $kernelClass = Kernel::class;
 

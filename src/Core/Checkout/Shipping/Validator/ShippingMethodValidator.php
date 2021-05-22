@@ -20,10 +20,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
 
     public const VIOLATION_TAX_ID_REQUIRED = 'c1051bb4-d103-4f74-8988-acbcafc7fdc3';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -105,7 +102,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
             ['id' => $shippingMethodId]
         );
 
-        return $shippingMethod->fetchAll() ?? [];
+        return $shippingMethod->fetchAll();
     }
 
     private function buildViolation(

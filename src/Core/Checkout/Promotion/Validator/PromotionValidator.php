@@ -31,20 +31,11 @@ class PromotionValidator implements EventSubscriberInterface
      */
     private const DISCOUNT_PERCENTAGE_MAX_VALUE = 100.0;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var array
-     */
-    private $databasePromotions;
+    private array $databasePromotions;
 
-    /**
-     * @var array
-     */
-    private $databaseDiscounts;
+    private array $databaseDiscounts;
 
     public function __construct(Connection $connection)
     {
@@ -169,7 +160,7 @@ class PromotionValidator implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->databasePromotions = $promotionQuery->fetchAll() ?? [];
+        $this->databasePromotions = $promotionQuery->fetchAll();
 
         $discountQuery = $this->connection->executeQuery(
             'SELECT * FROM `promotion_discount` WHERE `id` IN (:ids)',
@@ -177,7 +168,7 @@ class PromotionValidator implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->databaseDiscounts = $discountQuery->fetchAll() ?? [];
+        $this->databaseDiscounts = $discountQuery->fetchAll();
     }
 
     /**

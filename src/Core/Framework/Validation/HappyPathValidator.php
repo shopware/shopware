@@ -40,7 +40,6 @@ class HappyPathValidator implements ValidatorInterface
         }
 
         $constraints = \is_array($constraints) ? $constraints : [$constraints];
-        $constraints = $constraints ?? [];
 
         foreach ($constraints as $constraint) {
             // if one of our checks fails, we call the real validator

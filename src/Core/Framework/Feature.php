@@ -11,7 +11,7 @@ class Feature
     /**
      * @var array[]
      */
-    private static $registeredFeatures = [];
+    private static array $registeredFeatures = [];
 
     public static function normalizeName(string $name): string
     {
@@ -46,7 +46,7 @@ class Feature
         }
 
         $featureAll = $_SERVER['FEATURE_ALL'] ?? '';
-        if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures ?? []))) {
+        if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
             if ($featureAll === Feature::ALL_MAJOR) {
                 return true;
             }

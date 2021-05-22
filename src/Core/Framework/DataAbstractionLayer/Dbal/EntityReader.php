@@ -100,6 +100,9 @@ class EntityReader implements EntityReaderInterface
         return $this->parser;
     }
 
+    /**
+     * @param class-string<Entity> $entity
+     */
     private function _read(
         Criteria $criteria,
         EntityDefinition $definition,
@@ -987,7 +990,6 @@ class EntityReader implements EntityReaderInterface
         $fields = $referenceDefinition->getFields()->getBasicFields();
         $fields = $this->addAssociationFieldsToCriteria($associationCriteria, $referenceDefinition, $fields);
 
-        /** @var EntityCollection $related */
         // This line removes duplicate entries, so after fetchAssociations the association must be reassigned
         $related = new $collectionClass($related);
 

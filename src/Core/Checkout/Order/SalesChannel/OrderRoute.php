@@ -29,15 +29,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class OrderRoute extends AbstractOrderRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $promotionRepository;
+    private EntityRepositoryInterface $promotionRepository;
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
@@ -79,6 +73,10 @@ class OrderRoute extends AbstractOrderRoute
      *     )
      * )
      * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws GuestNotAuthenticatedException
+     * @throws WrongGuestCredentialsException
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {
@@ -198,6 +196,11 @@ class OrderRoute extends AbstractOrderRoute
         return $orders;
     }
 
+    /**
+     * @throws CustomerNotLoggedInException
+     * @throws WrongGuestCredentialsException
+     * @throws GuestNotAuthenticatedException
+     */
     private function checkGuestAuth(OrderEntity $order, Request $request): void
     {
         $orderCustomer = $order->getOrderCustomer();

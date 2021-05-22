@@ -13,11 +13,9 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 class TestKernel extends Kernel
 {
     /**
-     * Returns an array of bundles to register.
-     *
-     * @return iterable|BundleInterface[] An iterable of bundle instances
+     * @return \Generator<BundleInterface>
      */
-    public function registerBundles()
+    public function registerBundles(): \Generator
     {
         yield from parent::registerBundles();
 

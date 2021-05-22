@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,5 +17,10 @@ abstract class AbstractOrderRoute
 {
     abstract public function getDecorated(): AbstractOrderRoute;
 
+    /**
+     * @throws CustomerNotLoggedInException
+     * @throws GuestNotAuthenticatedException
+     * @throws WrongGuestCredentialsException
+     */
     abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse;
 }

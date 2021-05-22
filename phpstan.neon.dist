@@ -1,5 +1,6 @@
 includes:
     - phpstan-baseline.neon
+    - ../dev-ops/analyze/vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
     level: 8
@@ -15,9 +16,6 @@ parameters:
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
         container_xml_path: '..%ShopwareHashedCacheDir%/Shopware_Development_KernelDevDebugContainer.xml'
         console_application_loader: ../dev-ops/analyze/console-application.php
-
-    featureToggles:
-        unusedClassElements: true
 
     excludes_analyse:
         - src/Recovery/*
@@ -92,6 +90,10 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\FieldSerializerInterface::decode\(\) has no return typehint specified\.#'
             path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FieldSerializerInterface.php
+        # For handling type errors
+        -
+            message: '#Dead catch - Error\|Exception is never thrown in the try block\.#'
+            path: src/Core/Framework/Struct/AssignArrayTrait.php
 
 services:
     -

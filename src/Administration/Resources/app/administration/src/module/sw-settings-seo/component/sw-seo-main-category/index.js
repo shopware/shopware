@@ -30,6 +30,11 @@ Component.register('sw-seo-main-category', {
             type: Boolean,
             required: false,
             default: true
+        },
+        overwriteLabel: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

@@ -21,19 +21,34 @@
         :has-default-template="false"
         :disabled="!acl.can('product.editor')"
         :urls="product.seoUrls"
+        @on-change-sales-channel="onChangeSalesChannel"
     >
         {% block sw_product_detail_seo_urls_content %}
         <template #seo-additional="props">
             {% block sw_product_detail_seo_urls_content_seo_additional %}
-            <sw-seo-main-category
+            <sw-inherit-wrapper
                 v-if="product.mainCategories"
-                :current-sales-channel-id="props.currentSalesChannelId"
-                :categories="product.categories"
-                :main-categories="product.mainCategories"
-                :is-loading="isLoading"
-                :allow-edit="acl.can('product.editor')"
-                @main-category-add="onAddMainCategory"
-            />
+                v-model="productMainCategory"
+                :has-parent="!!parentProduct.id && !!props.currentSalesChannelId && product.categories.length === 0"
+                :label="$tc('sw-seo-url.labelMainCategory')"
+                :inherited-value="parentMainCategory"
+            >
+
+                <template #content="{ currentValue, isInherited }">
+                    {% block sw_product_detail_seo_urls_content_seo_additional_edit %}
+                    <sw-seo-main-category
+                        :current-sales-channel-id="props.currentSalesChannelId"
+                        :categories="categories"
+                        :main-categories="isInherited ? parentProduct.mainCategories : product.mainCategories"
+                        :is-loading="isLoading"
+                        :overwrite-label="true"
+                        :allow-edit="acl.can('product.editor') && !isInherited"
+                        @main-category-add="onAddMainCategory"
+                    />
+                    {% endblock %}
+                </template>
+
+            </sw-inherit-wrapper>
             {% endblock %}
         </template>
         {% endblock %}

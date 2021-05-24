@@ -147,6 +147,10 @@ class MailSendSubscriberTest extends TestCase
         $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
         $translator = $this->getContainer()->get(Translator::class);
 
+        if ($translator->getSnippetSetId()) {
+            $translator->resetInjection();
+        }
+
         $mailService = new TestEmailService();
         $subscriber = new MailSendSubscriber(
             $mailService,
@@ -163,9 +167,10 @@ class MailSendSubscriberTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        $function = static function ($event) use (&$mailFilterEvent, $translator): void {
+        $snippetSetId = null;
+        $function = static function ($event) use (&$mailFilterEvent, $translator, &$snippetSetId): void {
             $mailFilterEvent = $event;
-            static::assertNotEmpty($translator->getSnippetSetId());
+            $snippetSetId = $translator->getSnippetSetId();
         };
 
         $this->getContainer()->get('event_dispatcher')->addListener(MailSendSubscriberBridgeEvent::class, $function);
@@ -174,8 +179,7 @@ class MailSendSubscriberTest extends TestCase
 
         static::assertIsObject($mailFilterEvent);
         static::assertEmpty($translator->getSnippetSetId());
-
-        $this->getContainer()->get('event_dispatcher')->removeListener(MailSendSubscriberBridgeEvent::class, $function);
+        static::assertNotNull($snippetSetId);
     }
 
     private function createCustomer(Context $context): string

@@ -7,10 +7,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -18,9 +16,7 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 class AccountProfileControllerTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
-    use KernelTestBehaviour;
-    use BasicTestDataBehaviour;
+    use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     /**

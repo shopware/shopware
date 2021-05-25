@@ -29,6 +29,10 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     return [];
                 }
 
+                if (this.isCustomField(this.actualCondition.field)) {
+                    return [this.actualCondition.field];
+                }
+
                 return this.actualCondition.field.split('.');
             },
             set(fields) {
@@ -166,6 +170,12 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 showOnDisabledElements,
                 disabled: this.acl.can(role)
             };
+        },
+
+        isCustomField(fieldName) {
+            const strippedFieldName = fieldName.replace(/customFields\./, '');
+
+            return Object.keys(this.productCustomFields).includes(strippedFieldName);
         }
     }
 });

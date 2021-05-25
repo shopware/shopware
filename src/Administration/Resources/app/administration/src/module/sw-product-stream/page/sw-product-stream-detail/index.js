@@ -29,7 +29,8 @@ Component.register('sw-product-stream-detail', {
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('productStream')
+        Mixin.getByName('discard-detail-page-changes')('productStream'),
+        Mixin.getByName('sw-inline-snippet')
     ],
 
     shortcuts: {
@@ -164,9 +165,11 @@ Component.register('sw-product-stream-detail', {
         },
 
         createProductStream() {
-            Context.api.languageId = Context.api.systemLanguageId;
-            this.productStream = this.productStreamRepository.create(Context.api);
-            this.productStreamFilters = this.productStream.filters;
+            this.getProductCustomFields().then(() => {
+                Context.api.languageId = Context.api.systemLanguageId;
+                this.productStream = this.productStreamRepository.create(Context.api);
+                this.productStreamFilters = this.productStream.filters;
+            });
         },
 
         loadEntityData(productStreamId) {
@@ -298,20 +301,24 @@ Component.register('sw-product-stream-detail', {
                 .addAssociation('customFields')
                 .addAssociation('relations');
 
-            this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
+            return this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
                 customFieldSets.forEach((customFieldSet) => {
                     const customFields = customFieldSet.customFields
                         .reduce((acc, customField) => {
                             acc[customField.name] = this.mapCustomFieldType({
                                 type: customField.type,
-                                value: customField.name,
-                                label: customField.name
+                                value: `customFields.${customField.name}`,
+                                label: this.getCustomFieldLabel(customField)
                             });
                             return acc;
                         }, {});
                     Object.assign(this.productCustomFields, customFields);
                 });
             });
+        },
+
+        getCustomFieldLabel(customField) {
+            return this.getInlineSnippet(customField.config.label) || customField.name;
         },
 
         mapCustomFieldType(customField) {

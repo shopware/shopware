@@ -20,8 +20,9 @@ function createWrapper(privileges = [], fieldType = null, conditionType = '', en
                     return privileges.includes(identifier);
                 }
             },
-            productCustomFields: []
-
+            productCustomFields: {
+                test: 'customFields.test'
+            }
         },
         propsData: {
             definition: {
@@ -74,6 +75,22 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         const targetElement = wrapper.find(element);
 
         expect(targetElement.attributes('disabled')).toBe('true');
+    });
+
+    it('should return correct fieldDefinition', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'customFields.test',
+            definition: {
+                entity: 'product',
+                getField: () => undefined,
+                isJsonField: () => false
+            }
+        });
+        wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.fieldDefinition).toEqual('customFields.test');
     });
 });
 

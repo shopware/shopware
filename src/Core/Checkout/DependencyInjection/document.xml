@@ -68,7 +68,7 @@
         <service id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <argument type="service" id="twig"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="translator"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

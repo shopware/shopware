@@ -89,6 +89,11 @@ shopware:
               major: false
               description: "Image assignment for variants"
               # issue: NEXT-6544
+            - name: FEATURE_NEXT_13250
+              default: false
+              major: true
+              description: "Reduce database queries if all required data for the line items is already assign"
+              # issue: NEXT-13250
             - name: FEATURE_NEXT_14872
               default: false
               major: false

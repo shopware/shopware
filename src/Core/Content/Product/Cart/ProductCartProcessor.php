@@ -19,6 +19,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -41,16 +49,24 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private ProductPriceCalculator $priceCalculator;
 
+    private EntityCacheKeyGenerator $generator;
+
+    private SalesChannelRepositoryInterface $repository;
+
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
         ProductFeatureBuilder $featureBuilder,
-        ProductPriceCalculator $priceCalculator
+        ProductPriceCalculator $priceCalculator,
+        EntityCacheKeyGenerator $generator,
+        SalesChannelRepositoryInterface $repository
     ) {
         $this->productGateway = $productGateway;
         $this->calculator = $calculator;
         $this->featureBuilder = $featureBuilder;
         $this->priceCalculator = $priceCalculator;
+        $this->generator = $generator;
+        $this->repository = $repository;
     }
 
     public function collect(
@@ -64,7 +80,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             ->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
 
         // find products in original cart which requires data from gateway
-        $ids = $this->getNotCompleted($data, $lineItems);
+        $ids = $this->getNotCompleted($data, $lineItems, $context);
 
         if (!empty($ids)) {
             // fetch missing data over gateway
@@ -72,7 +88,22 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             // add products to data collection
             foreach ($products as $product) {
-                $data->set('product-' . $product->getId(), $product);
+                $data->set($this->getDataKey($product->getId(), $context), $product);
+
+                if (!Feature::isActive('FEATURE_NEXT_13250')) {
+                    //@major-deprecated tag:v6.5.0 - use self::getDataKey instead to access product data
+                    $data->set('product-' . $product->getId(), $product);
+                }
+            }
+
+            $hash = $this->generator->getSalesChannelContextHash($context);
+
+            // refresh data timestamp to prevent unnecessary gateway calls
+            foreach ($lineItems as $lineItem) {
+                if (\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
+                    $lineItem->setDataTimestamp(new \DateTimeImmutable());
+                    $lineItem->setDataContextHash($hash);
+                }
             }
         }
 
@@ -115,29 +146,26 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
-            /** @var SalesChannelProductEntity $product */
-            $product = $data->get('product-' . $lineItem->getReferencedId());
+            $minPurchase = 1;
+            $steps = 1;
+            $available = $lineItem->getQuantity();
 
-            // container products can not be bought
-            if ($product->getChildCount() > 0) {
-                $original->remove($lineItem->getId());
-
-                continue;
+            if ($lineItem->getQuantityInformation() !== null) {
+                $minPurchase = $lineItem->getQuantityInformation()->getMinPurchase();
+                $available = $lineItem->getQuantityInformation()->getMaxPurchase();
+                $steps = $lineItem->getQuantityInformation()->getPurchaseSteps() ?? 1;
             }
 
-            $minPurchase = $product->getMinPurchase() ?? 1;
             if ($lineItem->getQuantity() < $minPurchase) {
                 $lineItem->setQuantity($minPurchase);
                 $definition->setQuantity($minPurchase);
             }
 
-            $available = $product->getCalculatedMaxPurchase();
-
             if ($available <= 0 || $available < $minPurchase) {
                 $original->remove($lineItem->getId());
 
                 $toCalculate->addErrors(
-                    new ProductOutOfStockError($product->getId(), (string) $product->getTranslation('name'))
+                    new ProductOutOfStockError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel())
                 );
 
                 continue;
@@ -149,17 +177,17 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($available);
 
                 $toCalculate->addErrors(
-                    new ProductStockReachedError($product->getId(), (string) $product->getTranslation('name'), $available)
+                    new ProductStockReachedError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel(), $available)
                 );
             }
 
-            $fixedQuantity = $this->fixQuantity($minPurchase, $lineItem->getQuantity(), $product->getPurchaseSteps() ?? 1);
+            $fixedQuantity = $this->fixQuantity($minPurchase, $lineItem->getQuantity(), $steps);
             if ($lineItem->getQuantity() !== $fixedQuantity) {
                 $lineItem->setQuantity($fixedQuantity);
                 $definition->setQuantity($fixedQuantity);
 
                 $toCalculate->addErrors(
-                    new PurchaseStepsError($product->getId(), (string) $product->getTranslation('name'), $fixedQuantity)
+                    new PurchaseStepsError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel(), $fixedQuantity)
                 );
             }
 
@@ -180,25 +208,36 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     ): void {
         $id = $lineItem->getReferencedId();
 
-        $key = 'product-' . $id;
+        $product = $data->get(
+            $this->getDataKey((string) $id, $context)
+        );
 
-        $product = $data->get($key);
-
-        if (!$product instanceof SalesChannelProductEntity) {
+        // product data was never detected and the product is not inside the data collection
+        if ($product === null && $lineItem->getDataTimestamp() === null) {
             $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
             $cart->getLineItems()->remove($lineItem->getId());
 
             return;
         }
 
-        // already enriched and not modified? Skip
-        if ($this->isComplete($lineItem) && !$lineItem->isModified()) {
+        // no data for enrich exists
+        if (!$product instanceof SalesChannelProductEntity) {
+            return;
+        }
+
+        // container products can not be bought
+        if ($product->getChildCount() > 0) {
+            $cart->remove($lineItem->getId());
+
             return;
         }
 
         $label = trim($lineItem->getLabel() ?? '');
+
+        $name = $product->getTranslation('name');
+
         // set the label if its empty or the context does not have the permission to overwrite it
-        if ($label === '' || !$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
+        if ($label !== $name || !$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
             $lineItem->setLabel($product->getTranslation('name'));
         }
 
@@ -268,10 +307,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'categoryIds' => $product->getCategoryTree(),
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
-            'options' => $this->getOptions($product),
+            'options' => $product->getVariation(),
         ];
-
-        $payload['options'] = $product->getVariation();
 
         $lineItem->replacePayload($payload);
     }
@@ -315,15 +352,19 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         return $definition;
     }
 
-    private function getNotCompleted(CartDataCollection $data, array $lineItems): array
+    private function getNotCompleted(CartDataCollection $data, array $lineItems, SalesChannelContext $context): array
     {
         $ids = [];
+
+        $changes = [];
+
+        $hash = $this->generator->getSalesChannelContextHash($context);
 
         /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();
 
-            $key = 'product-' . $id;
+            $key = $this->getDataKey((string) $id, $context);
 
             // data already fetched?
             if ($data->has($key)) {
@@ -337,23 +378,67 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
-            // already enriched?
-            if ($this->isComplete($lineItem)) {
+            if ($lineItem->getDataTimestamp() === null) {
+                $ids[] = $id;
+
                 continue;
             }
 
-            $ids[] = $id;
+            if ($lineItem->getDataContextHash() !== $hash) {
+                $ids[] = $id;
+
+                continue;
+            }
+
+            // check if some data is missing (label, price, cover)
+            if (!$this->isComplete($lineItem)) {
+                $ids[] = $id;
+
+                continue;
+            }
+
+            // @internal (flag:FEATURE_NEXT_13250) - The IF must be removed so that $changes is filled
+            if (!Feature::isActive('FEATURE_NEXT_13250')) {
+                $ids[] = $id;
+
+                continue;
+            }
+
+            $changes[$id] = $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         }
 
-        return $ids;
+        // @internal (flag:FEATURE_NEXT_13250) - The IF can be removed completely so that $changes is taken into account.
+        if (!Feature::isActive('FEATURE_NEXT_13250')) {
+            return $ids;
+        }
+
+        if (empty($changes)) {
+            return $ids;
+        }
+
+        $filter = new OrFilter();
+        foreach ($changes as $id => $timestamp) {
+            $filter->addQuery(new AndFilter([
+                new EqualsFilter('product.id', $id),
+                new RangeFilter('updatedAt', [
+                    RangeFilter::GTE => $timestamp,
+                ]),
+            ]));
+        }
+
+        $criteria = new Criteria();
+        $criteria->setTitle('cart::products::not-completed');
+        $criteria->addFilter($filter);
+
+        $changed = $this->repository->searchIds($criteria, $context)->getIds();
+
+        return array_filter(array_unique(array_merge($ids, $changed)));
     }
 
     private function isComplete(LineItem $lineItem): bool
     {
         return $lineItem->getPriceDefinition() !== null
             && $lineItem->getLabel() !== null
-            && $lineItem->getCover() !== null
-            && $lineItem->getDescription() !== null
             && $lineItem->getDeliveryInformation() !== null
             && $lineItem->getQuantityInformation() !== null;
     }
@@ -374,30 +459,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         return true;
     }
 
-    private function getOptions(SalesChannelProductEntity $product): array
-    {
-        $options = [];
-
-        if (!$product->getOptions()) {
-            return $options;
-        }
-
-        foreach ($product->getOptions() as $option) {
-            if (!$option->getGroup()) {
-                continue;
-            }
-
-            $options[] = [
-                'group' => $option->getGroup()->getTranslation('name'),
-                'option' => $option->getTranslation('name'),
-            ];
-        }
-
-        return $options;
-    }
-
     private function fixQuantity(int $min, int $current, int $steps): int
     {
         return (int) (floor(($current - $min) / $steps) * $steps + $min);
+    }
+
+    private function getDataKey(string $id, SalesChannelContext $context): string
+    {
+        return 'product-' . $id . '-' . $this->generator->getSalesChannelContextHash($context);
     }
 }

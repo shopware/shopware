@@ -262,7 +262,7 @@ GROUP BY product_id;
         $fallback = array_diff($ids, $fallback);
 
         $update = new RetryableQuery(
-            $this->connection->prepare('UPDATE product SET available_stock = stock - :open_quantity, sales = :sales_quantity WHERE id = :id')
+            $this->connection->prepare('UPDATE product SET available_stock = stock - :open_quantity, sales = :sales_quantity, updated_at = :now WHERE id = :id')
         );
 
         foreach ($fallback as $id) {
@@ -270,6 +270,7 @@ GROUP BY product_id;
                 'id' => Uuid::fromHexToBytes((string) $id),
                 'open_quantity' => 0,
                 'sales_quantity' => 0,
+                'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
 
@@ -278,6 +279,7 @@ GROUP BY product_id;
                 'id' => Uuid::fromHexToBytes($row['product_id']),
                 'open_quantity' => $row['open_quantity'],
                 'sales_quantity' => $row['sales_quantity'],
+                'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
     }

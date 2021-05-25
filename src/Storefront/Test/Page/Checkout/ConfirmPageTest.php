@@ -74,7 +74,7 @@ class ConfirmPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
-        static::assertSame(0, $page->getShippingMethods()->count());
+        static::assertSame(1, $page->getShippingMethods()->count());
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

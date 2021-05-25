@@ -114,6 +114,18 @@ class LineItem extends Struct
     protected $modified = false;
 
     /**
+     * The data timestamp can be used to record when the line item was last updated with data from the database.
+     * Updating the data timestamp must be done by the corresponding cart data collector.
+     */
+    protected ?\DateTimeInterface $dataTimestamp = null;
+
+    /**
+     * Data data context hash can be used, like the data timestamp, to check if the line item was calculated with the same
+     * context hash or not
+     */
+    protected ?string $dataContextHash = null;
+
+    /**
      * @throws InvalidQuantityException
      */
     public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
@@ -467,6 +479,38 @@ class LineItem extends Struct
     public function getApiAlias(): string
     {
         return 'cart_line_item';
+    }
+
+    /**
+     * @see LineItem::$dataTimestamp
+     */
+    public function getDataTimestamp(): ?\DateTimeInterface
+    {
+        return $this->dataTimestamp;
+    }
+
+    /**
+     * @see LineItem::$dataTimestamp
+     */
+    public function setDataTimestamp(?\DateTimeInterface $dataTimestamp): void
+    {
+        $this->dataTimestamp = $dataTimestamp;
+    }
+
+    /**
+     * @see LineItem::$dataContextHash
+     */
+    public function getDataContextHash(): ?string
+    {
+        return $this->dataContextHash;
+    }
+
+    /**
+     * @see LineItem::$dataContextHash
+     */
+    public function setDataContextHash(?string $dataContextHash): void
+    {
+        $this->dataContextHash = $dataContextHash;
     }
 
     /**

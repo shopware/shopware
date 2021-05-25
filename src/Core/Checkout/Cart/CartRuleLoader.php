@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -84,6 +85,14 @@ class CartRuleLoader
 
         $iteration = 1;
 
+        $timestamps = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
+            if ($lineItem->getDataTimestamp() === null) {
+                return null;
+            }
+
+            return $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        });
+
         // start first cart calculation to have all objects enriched
         $cart = $this->processor->process($cart, $context, $behaviorContext);
 
@@ -141,7 +150,7 @@ class CartRuleLoader
         $context->setRuleIds($rules->getIds());
 
         // save the cart if errors exist, so the errors get persisted
-        if ($cart->getErrors()->count() > 0) {
+        if ($cart->getErrors()->count() > 0 || $this->updated($cart, $timestamps)) {
             $this->cartPersister->save($cart, $context);
         }
 
@@ -200,5 +209,27 @@ class CartRuleLoader
         }
 
         return CartPrice::TAX_STATE_NET;
+    }
+
+    /**
+     * @param array<string, string> $timestamps
+     */
+    private function updated(Cart $cart, array $timestamps): bool
+    {
+        foreach ($cart->getLineItems() as $lineItem) {
+            if (!isset($timestamps[$lineItem->getId()])) {
+                return true;
+            }
+
+            $original = $timestamps[$lineItem->getId()];
+
+            $timestamp = $lineItem->getDataTimestamp() !== null ? $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null;
+
+            if ($original !== $timestamp) {
+                return true;
+            }
+        }
+
+        return \count($timestamps) !== $cart->getLineItems()->count();
     }
 }

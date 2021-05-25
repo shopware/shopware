@@ -66,6 +66,9 @@ Danger:
         name: ghcr.io/shyim/danger-php:latest
         entrypoint: ["/bin/sh", "-c"]
     rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/'
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     before_script: []
     script:
@@ -76,6 +79,9 @@ ESLint (Administration):
     image: node:alpine
     before_script: []
     rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/'
         - changes:
               - 'src/Administration/Resources/app/administration/**/*'
     script:
@@ -91,6 +97,9 @@ ESLint (Storefront):
     image: node:alpine
     before_script: []
     rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/'
         - changes:
               - 'src/Storefront/Resources/app/storefront/**/*'
     script:
@@ -106,6 +115,9 @@ Stylelint (Administration):
     image: node:alpine
     before_script: []
     rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/'
         - changes:
               - 'src/Administration/Resources/app/administration/.stylelintrc'
               - 'src/Administration/Resources/app/administration/**/*.scss'
@@ -122,6 +134,9 @@ Stylelint (Storefront):
     image: node:alpine
     before_script: []
     rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/'
         - changes:
               - 'src/Storefront/Resources/app/storefront/stylelint.config.js'
               - 'src/Storefront/Resources/app/storefront/**/*.scss'
@@ -143,13 +158,15 @@ PHP analysis:
         max: 2
         when: runner_system_failure
     rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/'
         - changes:
             - easy-coding-standard.php
             - phpstan.neon.dist
             - psalm.xml
             - 'src/**/snippet/**/*.json'
             - '**/*.php'
-        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
@@ -163,7 +180,6 @@ PHP analysis:
     artifacts:
         reports:
             codequality: development/phpstan-report.json
-
 
 # stage: unit
 
@@ -251,6 +267,9 @@ PHP Unit coverage:
         PARATEST_PROCESSES: 4
         MAILER_URL: "null://localhost"
     rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
         - changes:
             - phpunit.xml.dist
             - '**/*.xml'
@@ -258,7 +277,6 @@ PHP Unit coverage:
             - '**/*.twig'
             - '**/*.json'
             - '**/*.php'
-        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
           when: manual
           allow_failure: true
@@ -298,6 +316,11 @@ Jest (Administration):
     services:
         -   name: mariadb:10.3.28
             alias: mysql
+    rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
+        - when: always
     script:
         - ./psh.phar init
         - ./psh.phar administration:install-dependencies
@@ -320,6 +343,9 @@ Jest (Storefront):
         -   name: mariadb:10.3.28
             alias: mysql
     rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
         - changes:
             - 'src/Storefront/Resources/app/storefront/**/*'
     script:
@@ -377,11 +403,11 @@ E2E:
         reports:
             junit: development/build/artifacts/e2e/*.xml
     rules:
-        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/'
-            when: never
-        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
-        -   if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline"'
-        -   if: '$SKIP_ON_MR != "true" && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/)'
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+        - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline"'
+        - if: '$SKIP_ON_MR != "true" && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/)'
     parallel:
         matrix:
             # all test cases in chrome except major are executed on each MR
@@ -439,6 +465,11 @@ Symfony security check:
     stage: security
     needs: []
     image: shopware/development:7.4-composer-2
+    rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*security::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*security::all.*/'
+        - when: always
     script:
         - composer install --no-interaction --no-scripts
         - curl --location --output local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64
@@ -455,7 +486,11 @@ NPM security check:
     before_script: []
     dependencies: []
     allow_failure: true
-    when: manual
+    rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*security::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*security::all.*/'
+        - when: manual
     script:
         - cd src/Administration/Resources/app/administration
         - npm i
@@ -472,6 +507,7 @@ sonarqube-check:
         name: sonarsource/sonar-scanner-cli:latest
         entrypoint: [""]
     before_script: []
+    dependencies: []
     variables:
         SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
         GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -479,26 +515,26 @@ sonarqube-check:
         key: "${CI_JOB_NAME}"
         paths:
             - .sonar/cache
+    rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*security::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*security::all.*/'
+        - when: manual
+        - if: '$CI_COMMIT_BRANCH == "trunk"'
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    allow_failure: true
+    script:
+        - sonar-scanner
     artifacts:
         when: always
         paths:
             - cobertura.xml
             - development/build/artifacts/phpunit.junit.xml
-    script:
-        - sonar-scanner
-    allow_failure: true
-    only:
-        - trunk
-        - merge_requests
 
 # Stage: build
 
 Component Library:
     stage: build
-    only:
-        changes:
-            - src/Administration/**/*
-            - src/Storefront/**/*
     image: node:10.8
     before_script: []
     dependencies: []
@@ -507,6 +543,14 @@ Component Library:
     environment:
         name: Component Library
         url: https://component-library.shopware.com
+    rules:
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*build::skip.*/'
+          when: never
+        - if: '$CI_MERGE_REQUEST_LABELS =~ /.*build::all.*/'
+        - when: manual
+        - changes:
+            - src/Administration/**/*
+            - src/Storefront/**/*
     script:
         - npm install --prefix src/Administration/Resources/app/administration
         - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
@@ -522,11 +566,8 @@ Upload Component Library:
     stage: deploy
     image: python:latest
     before_script: []
-    only:
-        refs:
-            - trunk
-        variables:
-            - $CI_PIPELINE_SOURCE == "schedule"
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "trunk" && $CI_PIPELINE_SOURCE == "schedule"'
     dependencies:
         - Component Library
     script:

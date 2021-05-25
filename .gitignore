@@ -72,6 +72,7 @@ src/Docs/Command/wiki.secret
 /.psh.yml.override
 /.env
 .env.local
+.env.test
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 /src/Docs/**/dist

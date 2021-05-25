@@ -9,6 +9,8 @@ import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/utils/sw-popover';
+import Entity from 'src/core/data/entity.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const stubs = {
     'sw-switch-field': Shopware.Component.build('sw-switch-field'),
@@ -180,5 +182,74 @@ describe('components/data-grid/sw-data-grid', () => {
         await name.setChecked(valueChecked);
 
         expect(wrapper.vm.currentColumns[0].visible).toBe(valueChecked);
+    });
+
+    it('should render different columns dynamically', async () => {
+        const grid = wrapper.vm;
+
+        const data = {
+            name: 'original',
+            translated: {
+                name: 'translated'
+            },
+            manufacturer: new Entity('test', 'product_manufacturer', {
+                description: 'manufacturer-description',
+                name: 'manufacturer',
+                translated: { name: 'manufacturer-translated' }
+            }),
+            plainObject: {
+                name: 'object'
+            },
+            transactions: new EntityCollection('', 'order_transaction', { }, { }, [
+                { name: 'first' },
+                { name: 'second' },
+                { name: 'last' }
+            ], 1, null),
+            arrayField: [1, 2, 3],
+            payload: null,
+            customer: { type: null }
+        };
+
+        const entity = new Entity('123', 'test', data);
+
+        const cases = {
+            'simple field': { accessor: 'id', expected: '123' },
+            'translated field': { accessor: 'name', expected: 'translated' },
+            'translated field with accessor': { accessor: 'translated.name', expected: 'translated' },
+            'nested object with simple field': {
+                accessor: 'manufacturer.description',
+                expected: 'manufacturer-description'
+            },
+            'nested object with translated field': {
+                accessor: 'manufacturer.name',
+                expected: 'manufacturer-translated'
+            },
+            'nested object with translated field with accessor': {
+                accessor: 'manufacturer.translated.name',
+                expected: 'manufacturer-translated'
+            },
+            'unknown field': { accessor: 'unknown', expected: undefined },
+            'nested unknown field': { accessor: 'manufacturer.unknown', expected: undefined },
+            'unknown nested object': { accessor: 'unknown.unknown', expected: undefined },
+
+            'test last function': { accessor: 'transactions.last().name', expected: 'last' },
+            'test first function': { accessor: 'transactions.first.name', expected: 'first' },
+            'test array access on collection': { accessor: 'transactions[1].name', expected: 'second' },
+
+            'test array element 1': { accessor: 'arrayField[0]', expected: 1 },
+            'test array element 2': { accessor: 'arrayField[1]', expected: 2 },
+            'test array element 3': { accessor: 'arrayField[2]', expected: 3 },
+
+            'test null object': { accessor: 'payload.customerId', expected: null },
+            'test nested null object': { accessor: 'customer.type.name', expected: null }
+        };
+
+        Object.values(cases).forEach((testCase) => {
+            const column = { property: testCase.accessor };
+
+            const result = grid.renderColumn(entity, column);
+
+            expect(result).toBe(testCase.expected);
+        });
     });
 });

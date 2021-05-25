@@ -60,6 +60,17 @@ default:
 
 # stage: Lint
 
+Danger:
+    stage: lint
+    image:
+        name: ghcr.io/shyim/danger-php:latest
+        entrypoint: ["/bin/sh", "-c"]
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    before_script: []
+    script:
+        - danger ci
+
 ESLint (Administration):
     stage: lint
     image: node:alpine

@@ -29,6 +29,12 @@ class BundleConfigGeneratorTest extends TestCase
     {
         $appPath = __DIR__ . '/_fixture/apps/theme/';
         $this->loadAppsFromDir($appPath);
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+
+        if (mb_strpos($appPath, $projectDir) === 0) {
+            // make relative
+            $appPath = ltrim(mb_substr($appPath, mb_strlen($projectDir)), '/');
+        }
 
         $configs = $this->configGenerator->getConfig();
 
@@ -37,7 +43,7 @@ class BundleConfigGeneratorTest extends TestCase
         $appConfig = $configs['SwagApp'];
         static::assertEquals(
             $appPath,
-            $this->getContainer()->getParameter('kernel.project_dir') . '/' . $appConfig['basePath']
+            $appConfig['basePath']
         );
         static::assertEquals(['Resources/views'], $appConfig['views']);
         static::assertEquals('swag-app', $appConfig['technicalName']);
@@ -64,13 +70,14 @@ class BundleConfigGeneratorTest extends TestCase
         $this->loadAppsFromDir($appPath);
 
         $configs = $this->configGenerator->getConfig();
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
         static::assertArrayHasKey('SwagApp', $configs);
 
         $appConfig = $configs['SwagApp'];
         static::assertEquals(
             $appPath,
-            $this->getContainer()->getParameter('kernel.project_dir') . '/' . $appConfig['basePath']
+            $projectDir . '/' . $appConfig['basePath']
         );
         static::assertEquals(['Resources/views'], $appConfig['views']);
         static::assertEquals('swag-app', $appConfig['technicalName']);
@@ -82,6 +89,11 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertEquals('Resources/app/storefront/src', $storefrontConfig['path']);
         static::assertEquals('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
         static::assertNull($storefrontConfig['webpack']);
+
+        if (mb_strpos($appPath, $projectDir) === 0) {
+            // make relative
+            $appPath = ltrim(mb_substr($appPath, mb_strlen($projectDir)), '/');
+        }
 
         // Only base.scss from /_fixture/apps/plugin/ should be included
         $expectedStyles = [

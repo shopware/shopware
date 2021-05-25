@@ -152,6 +152,11 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             return null;
         }
 
+        if (mb_strpos($path, $this->projectDir) === 0) {
+            // make relative
+            $path = ltrim(mb_substr($path, mb_strlen($this->projectDir)), '/');
+        }
+
         return $path . '/build/webpack.config.js';
     }
 
@@ -168,7 +173,14 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             return [];
         }
 
-        return $config->getStyleFiles()->getFilepaths();
+        return array_map(function (string $path) {
+            if (mb_strpos($path, $this->projectDir) === 0) {
+                // make relative
+                $path = ltrim(mb_substr($path, mb_strlen($this->projectDir)), '/');
+            }
+
+            return $path;
+        }, $config->getStyleFiles()->getFilepaths());
     }
 
     private function asSnakeCase(string $string): string

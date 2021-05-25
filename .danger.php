@@ -27,8 +27,8 @@ return (new Config())
             return;
         }
 
-        if (!preg_match('/(?m)^NEXT-\d*\s-\s[A-Z]/m', $context->platform->pullRequest->title)) {
-            $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-12345 - My Title', $context->platform->pullRequest->title));
+        if (!preg_match('/(?m)^(WIP:\s)?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
+            $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
         }
     })
     ->useRule(new ConditionRule(
@@ -76,7 +76,7 @@ return (new Config())
         [
             new CommitRegexRule(
                 '/(?m)(?mi)^NEXT-\d*\s-\s[A-Z].*,\s*fixes\s*shopwareBoostday\/platform#\d*$/m',
-                "The commit title `###MESSAGE###` does not match our requirements. Example: \"NEXT-12345 - My Title, fixes shopwareBoostday/platform#1234\""
+                "The commit title `###MESSAGE###` does not match our requirements. Example: \"NEXT-00000 - My Title, fixes shopwareBoostday/platform#1234\""
             )
         ]
     ))

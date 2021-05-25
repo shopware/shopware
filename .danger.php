@@ -12,7 +12,6 @@ use Danger\Rule\MaxCommitRule;
 
 return (new Config())
     ->useThreadOnFails()
-    ->useGithubCommentProxy('https://clknq19sx1.execute-api.eu-central-1.amazonaws.com')
     ->useRule(new DisallowRepeatedCommitsRule)
     ->useRule(function (Context $context) {
         $files = $context->platform->pullRequest->getFiles();

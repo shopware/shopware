@@ -34,7 +34,9 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
     data() {
         return {
             showMediaModal: false,
-            mediaDefaultFolderId: null
+            mediaDefaultFolderId: null,
+            showPreviewModal: false,
+            activeItemId: null
         };
     },
 
@@ -192,6 +194,16 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
             }
 
             this.source.isLoading = false;
+        },
+
+        previewMedia(item) {
+            this.activeItemId = item.id;
+            this.showPreviewModal = true;
+        },
+
+        onClosePreviewModal() {
+            this.activeItemId = null;
+            this.showPreviewModal = false;
         }
     }
 });

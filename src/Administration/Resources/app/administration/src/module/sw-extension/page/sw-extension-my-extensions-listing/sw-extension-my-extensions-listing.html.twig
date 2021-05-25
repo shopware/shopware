@@ -1,32 +1,57 @@
 <div class="sw-extension-my-extensions-listing">
-    <sw-loader v-if="isLoading"></sw-loader>
+    <sw-loader v-if="isLoading" />
 
-    <div v-if="!isLoading" class="sw-extension-my-extensions-listing__listing-grid">
-        <sw-meteor-card v-if="!extensionListPaginated.length && !filterByActiveState" class="sw-extension-my-extensions-listing__empty-state">
-            <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset" />
+    <div
+        v-if="!isLoading"
+        class="sw-extension-my-extensions-listing__listing-grid"
+    >
+        <sw-meteor-card
+            v-if="!extensionListPaginated.length && !filterByActiveState"
+            class="sw-extension-my-extensions-listing__empty-state"
+        >
+            <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset">
 
-            <h3 v-if="isThemeRoute">{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState') }}</h3>
-            <h3 v-else>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState') }}</h3>
+            <h3 v-if="isThemeRoute">
+                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState') }}
+            </h3>
+            <h3 v-else>
+                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState') }}
+            </h3>
 
-            <p v-if="isThemeRoute">{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState') }}</p>
-            <p v-else>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}</p>
+            <p v-if="isThemeRoute">
+                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState') }}
+            </p>
+            <p v-else>
+                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}
+            </p>
 
-            <sw-button @click="openStore" variant="ghost">
+            <sw-button
+                variant="ghost"
+                @click="openStore"
+            >
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
             </sw-button>
         </sw-meteor-card>
 
         <template v-else>
             <div class="sw-extension-my-extensions-listing__container">
-                <sw-extension-my-extensions-listing-controls @update:active-state="changeActiveState"
-                    @update:sorting-option="changeSortingOption">
-                </sw-extension-my-extensions-listing-controls>
+                <sw-extension-my-extensions-listing-controls
+                    @update:active-state="changeActiveState"
+                    @update:sorting-option="changeSortingOption"
+                />
 
-                <sw-meteor-card v-if="!extensionListPaginated.length && filterByActiveState" class="sw-extension-my-extensions-listing__empty-state">
-                    <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset" />
+                <sw-meteor-card
+                    v-if="!extensionListPaginated.length && filterByActiveState"
+                    class="sw-extension-my-extensions-listing__empty-state"
+                >
+                    <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset">
 
-                    <h3 v-if="isThemeRoute">{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins') }}</h3>
-                    <h3 v-else>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins') }}</h3>
+                    <h3 v-if="isThemeRoute">
+                        {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins') }}
+                    </h3>
+                    <h3 v-else>
+                        {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins') }}
+                    </h3>
                 </sw-meteor-card>
 
                 <template v-else>
@@ -35,8 +60,8 @@
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
                             :key="entry.name"
                             :extension="entry"
-                            @updateList="updateList">
-                        </component>
+                            @updateList="updateList"
+                        />
                     </template>
 
                     <sw-pagination
@@ -44,7 +69,7 @@
                         :limit="limit"
                         :page="page"
                         @page-change="changePage"
-                    ></sw-pagination>
+                    />
                 </template>
             </div>
         </template>

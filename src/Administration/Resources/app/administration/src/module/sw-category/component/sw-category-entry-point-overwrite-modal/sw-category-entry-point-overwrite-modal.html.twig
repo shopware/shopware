@@ -1,22 +1,26 @@
 {% block sw_category_entry_point_overwrite_modal %}
-    <sw-confirm-modal
-        class="sw-category-entry-point-overwrite-modal"
-        @cancel="onCancel"
-        @close="onCancel"
-        @confirm="onConfirm">
+<sw-confirm-modal
+    class="sw-category-entry-point-overwrite-modal"
+    @cancel="onCancel"
+    @close="onCancel"
+    @confirm="onConfirm"
+>
 
-        <p class="sw-confirm-modal__text">
-            {{ $tc('sw-category.entry-point-overwrite-modal.textBefore', salesChannels.length) }}
-        </p>
+    <p class="sw-confirm-modal__text">
+        {{ $tc('sw-category.entry-point-overwrite-modal.textBefore', salesChannels.length) }}
+    </p>
 
-        <ul>
-            <li v-for="salesChannel in salesChannels">
-                {{ salesChannel.translated.name }}
-            </li>
-        </ul>
+    <ul>
+        <li
+            v-for="salesChannel in salesChannels"
+            :key="salesChannel.translated.name"
+        >
+            {{ salesChannel.translated.name }}
+        </li>
+    </ul>
 
-        <p class="sw-confirm-modal__text">
-            {{ $tc('sw-category.entry-point-overwrite-modal.textAfter', salesChannels.length) }}
-        </p>
-    </sw-confirm-modal>
+    <p class="sw-confirm-modal__text">
+        {{ $tc('sw-category.entry-point-overwrite-modal.textAfter', salesChannels.length) }}
+    </p>
+</sw-confirm-modal>
 {% endblock %}

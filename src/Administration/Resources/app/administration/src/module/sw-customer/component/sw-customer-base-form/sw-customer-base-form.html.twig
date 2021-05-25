@@ -1,156 +1,164 @@
 {% block sw_customer_base_form %}
-    <div class="sw-customer-base-form">
-        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))"
-                      gap="0px 32px">
-            <sw-container columns="1fr 1fr" class="sw-customer-base-form__first-item sw-customer-base-form__first-item--full">
-                {% block sw_customer_base_form_first_salutation_field %}
-                    <sw-entity-single-select
-                        class="sw-customer-base-form__salutation-select"
-                        entity="salutation"
-                        :label="$tc('sw-customer.baseForm.labelSalutation')"
-                        :placeholder="$tc('sw-customer.baseForm.placeholderSalutation')"
-                        :error="customerSalutationIdError"
-                        labelProperty="displayName"
-                        required
-                        v-model="customer.salutationId">
-                    </sw-entity-single-select>
-                {% endblock %}
-
-                {% block sw_customer_base_form_title_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.baseForm.labelTitle')"
-                        :placeholder="$tc('sw-customer.baseForm.placeholderTitle')"
-                        v-model="customer.title">
-                    </sw-text-field>
-                {% endblock %}
-            </sw-container>
-
-            {% block sw_customer_base_form_first_name_field %}
-                <sw-text-field
-                    required
-                    :label="$tc('sw-customer.baseForm.labelFirstName')"
-                    :placeholder="$tc('sw-customer.baseForm.placeholderFirstName')"
-                    :error="customerFirstNameError"
-                    v-model="customer.firstName">
-                </sw-text-field>
+<div class="sw-customer-base-form">
+    <sw-container
+        columns="repeat(auto-fit, minmax(250px, 1fr))"
+        gap="0px 32px"
+    >
+        <sw-container
+            columns="1fr 1fr"
+            class="sw-customer-base-form__first-item sw-customer-base-form__first-item--full"
+        >
+            {% block sw_customer_base_form_first_salutation_field %}
+            <sw-entity-single-select
+                v-model="customer.salutationId"
+                class="sw-customer-base-form__salutation-select"
+                entity="salutation"
+                :label="$tc('sw-customer.baseForm.labelSalutation')"
+                :placeholder="$tc('sw-customer.baseForm.placeholderSalutation')"
+                :error="customerSalutationIdError"
+                label-property="displayName"
+                required
+            />
             {% endblock %}
 
-            {% block sw_customer_base_form_last_name_field %}
-                <sw-text-field
-                    required
-                    :label="$tc('sw-customer.baseForm.labelLastName')"
-                    :placeholder="$tc('sw-customer.baseForm.placeholderLastName')"
-                    :error="customerLastNameError"
-                    v-model="customer.lastName">
-                </sw-text-field>
-            {% endblock %}
-
-            {% block sw_customer_base_form_email_field %}
-                <sw-email-field
-                    required
-                    :label="$tc('sw-customer.baseForm.labelEmail')"
-                    :placeholder="$tc('sw-customer.baseForm.placeholderEmail')"
-                    :error="customerEmailError"
-                    v-model="customer.email">
-                </sw-email-field>
-            {% endblock %}
-
-            {% block sw_customer_base_form_password_field %}
-                <sw-password-field v-model="customer.password"
-                                   autocomplete="new-password"
-                                   :required="!customer.guest"
-                                   :disabled="customer.guest"
-                                   :label="$tc('sw-customer.baseForm.labelPassword')"
-                                   :placeholder="$tc('sw-customer.baseForm.placeholderPassword')"
-                                   :error="customerPasswordError">
-                </sw-password-field>
-            {% endblock %}
-
-            {% block sw_customer_base_form_vat_id_field %}
-                <sw-text-field v-model="customer.vatIds[0]"
-                               id="vatId"
-                               name="vatId"
-                               :error="customerVatIdsError"
-                               :label="$tc('sw-customer.addressForm.labelVatId')"
-                               :placeholder="$tc('sw-customer.addressForm.placeholderVatId')">
-                </sw-text-field>
-            {% endblock %}
-
-            {% block sw_customer_base_form_birthday_field %}
-                <sw-datepicker v-model="customer.birthday"
-                               type="date"
-                               name="birthday"
-                               :label="$tc('sw-customer.baseForm.labelBirthday')">
-                </sw-datepicker>
-            {% endblock %}
-
-            {% block sw_customer_base_form_customer_group_field %}
-                <sw-entity-single-select
-                    class="sw-customer-base-form__customer-group-select"
-                    required
-                    entity="customer_group"
-                    :label="$tc('sw-customer.baseForm.labelCustomerGroup')"
-                    :placeholder="$tc('sw-customer.baseForm.placeholderCustomerGroup')"
-                    :error="customerGroupIdError"
-                    v-model="customer.groupId">
-                </sw-entity-single-select>
-            {% endblock %}
-
-            {% block sw_customer_base_form_sales_channel_field %}
-                <sw-entity-single-select
-                    class="sw-customer-base-form__sales-channel-select"
-                    entity="sales_channel"
-                    :label="$tc('sw-customer.baseForm.labelSalesChannel')"
-                    :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
-                    :value="customer.salesChannelId"
-                    @change="onSalesChannelChange"
-                    :error="customerSalesChannelIdError"
-                    required>
-                </sw-entity-single-select>
-            {% endblock %}
-
-            {% block sw_customer_base_form_payment_method_field %}
-                <sw-entity-single-select
-                    v-if="!feature.isActive('FEATURE_NEXT_15170')"
-                    class="sw-customer-base-form__payment-method-select"
-                    entity="payment_method"
-                    required
-                    :label="$tc('sw-customer.baseForm.labelPaymentMethod')"
-                    :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"
-                    :error="customerDefaultPaymentMethodIdError"
-                    v-model="customer.defaultPaymentMethodId">
-                </sw-entity-single-select>
-
-                <sw-entity-single-select
-                    v-else
-                    class="sw-customer-base-form__payment-method-select"
-                    entity="payment_method"
-                    labelProperty="distinguishableName"
-                    required
-                    :label="$tc('sw-customer.baseForm.labelPaymentMethod')"
-                    :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"
-                    :error="customerDefaultPaymentMethodIdError"
-                    v-model="customer.defaultPaymentMethodId">
-                </sw-entity-single-select>
-            {% endblock %}
-
-            {% block sw_customer_base_form_customer_number_field %}
-                <sw-text-field
-                    :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
-                    :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
-                    :error="customerCustomerNumberError"
-                    v-model="customer.customerNumber"
-                    required>
-                </sw-text-field>
+            {% block sw_customer_base_form_title_field %}
+            <sw-text-field
+                v-model="customer.title"
+                :label="$tc('sw-customer.baseForm.labelTitle')"
+                :placeholder="$tc('sw-customer.baseForm.placeholderTitle')"
+            />
             {% endblock %}
         </sw-container>
 
-        {% block sw_customer_base_form_tag_field %}
-            <sw-entity-tag-select
-                :label="$tc('sw-customer.baseForm.labelTags')"
-                :placeholder="$tc('sw-customer.baseForm.placeholderTags')"
-                v-model="customer.tags">
-            </sw-entity-tag-select>
+        {% block sw_customer_base_form_first_name_field %}
+        <sw-text-field
+            v-model="customer.firstName"
+            required
+            :label="$tc('sw-customer.baseForm.labelFirstName')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderFirstName')"
+            :error="customerFirstNameError"
+        />
         {% endblock %}
-    </div>
+
+        {% block sw_customer_base_form_last_name_field %}
+        <sw-text-field
+            v-model="customer.lastName"
+            required
+            :label="$tc('sw-customer.baseForm.labelLastName')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderLastName')"
+            :error="customerLastNameError"
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_email_field %}
+        <sw-email-field
+            v-model="customer.email"
+            required
+            :label="$tc('sw-customer.baseForm.labelEmail')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderEmail')"
+            :error="customerEmailError"
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_password_field %}
+        <sw-password-field
+            v-model="customer.password"
+            autocomplete="new-password"
+            :required="!customer.guest"
+            :disabled="customer.guest"
+            :label="$tc('sw-customer.baseForm.labelPassword')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderPassword')"
+            :error="customerPasswordError"
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_vat_id_field %}
+        <sw-text-field
+            id="vatId"
+            v-model="customer.vatIds[0]"
+            name="vatId"
+            :error="customerVatIdsError"
+            :label="$tc('sw-customer.addressForm.labelVatId')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderVatId')"
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_birthday_field %}
+        <sw-datepicker
+            v-model="customer.birthday"
+            type="date"
+            name="birthday"
+            :label="$tc('sw-customer.baseForm.labelBirthday')"
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_customer_group_field %}
+        <sw-entity-single-select
+            v-model="customer.groupId"
+            class="sw-customer-base-form__customer-group-select"
+            required
+            entity="customer_group"
+            :label="$tc('sw-customer.baseForm.labelCustomerGroup')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderCustomerGroup')"
+            :error="customerGroupIdError"
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_sales_channel_field %}
+        <sw-entity-single-select
+            class="sw-customer-base-form__sales-channel-select"
+            entity="sales_channel"
+            :label="$tc('sw-customer.baseForm.labelSalesChannel')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
+            :value="customer.salesChannelId"
+            :error="customerSalesChannelIdError"
+            required
+            @change="onSalesChannelChange"
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_payment_method_field %}
+        <sw-entity-single-select
+            v-if="!feature.isActive('FEATURE_NEXT_15170')"
+            v-model="customer.defaultPaymentMethodId"
+            class="sw-customer-base-form__payment-method-select"
+            entity="payment_method"
+            required
+            :label="$tc('sw-customer.baseForm.labelPaymentMethod')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"
+            :error="customerDefaultPaymentMethodIdError"
+        />
+
+        <sw-entity-single-select
+            v-else
+            v-model="customer.defaultPaymentMethodId"
+            class="sw-customer-base-form__payment-method-select"
+            entity="payment_method"
+            label-property="distinguishableName"
+            required
+            :label="$tc('sw-customer.baseForm.labelPaymentMethod')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"
+            :error="customerDefaultPaymentMethodIdError"
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_customer_number_field %}
+        <sw-text-field
+            v-model="customer.customerNumber"
+            :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
+            :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
+            :error="customerCustomerNumberError"
+            required
+        />
+        {% endblock %}
+    </sw-container>
+
+    {% block sw_customer_base_form_tag_field %}
+    <sw-entity-tag-select
+        v-model="customer.tags"
+        :label="$tc('sw-customer.baseForm.labelTags')"
+        :placeholder="$tc('sw-customer.baseForm.placeholderTags')"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

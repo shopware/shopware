@@ -1,64 +1,75 @@
 {% block sw_product_detail_base_feature_set_form %}
-    <div class="sw-product-feature-set-form__container">
-        {% block sw_product_feature_set_form_container %}
+<div class="sw-product-feature-set-form__container">
+    {% block sw_product_feature_set_form_container %}
 
-            {% block sw_product_feature_set_form_description %}
-                <sw-container rows="2em 4em 4em" class="sw-product-feature-set-form__description">
+    {% block sw_product_feature_set_form_description %}
+    <sw-container
+        rows="2em 4em 4em"
+        class="sw-product-feature-set-form__description"
+    >
 
-                    {% block sw_product_feature_set_form_description_title %}
-                        <span class="sw-product-feature-set-form__description-title">
-                            {{ $tc('sw-product.featureSets.descriptionTitle') }}
-                        </span>
-                    {% endblock %}
-
-                    {% block sw_product_feature_set_form_description_body %}
-                        <p class="sw-product-feature-set-form__description-body">
-                            {{ $tc('sw-product.featureSets.descriptionBody') }}
-                        </p>
-                    {% endblock %}
-
-                    {% block sw_product_feature_set_form_config_information %}
-                        <i18n tag="p" path="sw-product.featureSets.configInformation" class="sw-product-feature-set-form__description-config-info">
-                            <span class="sw-product-feature-set-form__description-link">
-                                <router-link :to="{ name: 'sw.settings.product.feature.sets.index' }" class="sw-card__quick-link">
-                                    {{ $tc('sw-product.featureSets.linkFeatureSetsConfig') }}
-                                </router-link>
-                            </span>
-                        </i18n>
-                    {% endblock %}
-
-                </sw-container>
-            {% endblock %}
-
-            {% block sw_product_feature_set_form_form %}
-                <sw-container class="sw-product-feature-set-form__form">
-
-                    {% block sw_product_feature_set_form_wrapper_input %}
-                        <sw-inherit-wrapper
-                            v-model="product.featureSetId"
-                            :hasParent="!!parentProduct.id"
-                            :inheritedValue="parentProduct.featureSetId"
-                            :label="$tc('sw-product.featureSets.templateSelectFieldLabel')">
-                                <template #content="{ currentValue, isInherited, updateCurrentValue }">
-
-                                    {% block sw_product_feature_set_form_input %}
-                                        <sw-entity-single-select
-                                            entity="product_feature_set"
-                                            :value="currentValue"
-                                            @change="updateCurrentValue"
-                                            :placeholder="$tc('sw-product.featureSets.templateSelectFieldPlaceholder')"
-                                            :disabled="isInherited || !allowEdit"
-                                            :key="isInherited">
-                                        </sw-entity-single-select>
-                                    {% endblock %}
-
-                                </template>
-                        </sw-inherit-wrapper>
-                    {% endblock %}
-
-                </sw-container>
-            {% endblock %}
-
+        {% block sw_product_feature_set_form_description_title %}
+        <span class="sw-product-feature-set-form__description-title">
+            {{ $tc('sw-product.featureSets.descriptionTitle') }}
+        </span>
         {% endblock %}
-    </div>
+
+        {% block sw_product_feature_set_form_description_body %}
+        <p class="sw-product-feature-set-form__description-body">
+            {{ $tc('sw-product.featureSets.descriptionBody') }}
+        </p>
+        {% endblock %}
+
+        {% block sw_product_feature_set_form_config_information %}
+        <i18n
+            tag="p"
+            path="sw-product.featureSets.configInformation"
+            class="sw-product-feature-set-form__description-config-info"
+        >
+            <span class="sw-product-feature-set-form__description-link">
+                <router-link
+                    :to="{ name: 'sw.settings.product.feature.sets.index' }"
+                    class="sw-card__quick-link"
+                >
+                    {{ $tc('sw-product.featureSets.linkFeatureSetsConfig') }}
+                </router-link>
+            </span>
+        </i18n>
+        {% endblock %}
+
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_product_feature_set_form_form %}
+    <sw-container class="sw-product-feature-set-form__form">
+
+        {% block sw_product_feature_set_form_wrapper_input %}
+        <sw-inherit-wrapper
+            v-model="product.featureSetId"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.featureSetId"
+            :label="$tc('sw-product.featureSets.templateSelectFieldLabel')"
+        >
+            <template #content="{ currentValue, isInherited, updateCurrentValue }">
+
+                {% block sw_product_feature_set_form_input %}
+                <sw-entity-single-select
+                    :key="isInherited"
+                    entity="product_feature_set"
+                    :value="currentValue"
+                    :placeholder="$tc('sw-product.featureSets.templateSelectFieldPlaceholder')"
+                    :disabled="isInherited || !allowEdit"
+                    @change="updateCurrentValue"
+                />
+                {% endblock %}
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+    </sw-container>
+    {% endblock %}
+
+    {% endblock %}
+</div>
 {% endblock %}

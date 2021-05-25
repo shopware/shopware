@@ -1,264 +1,298 @@
 {% block sw_order_list %}
-    <sw-page class="sw-order-list">
-        {% block sw_order_list_search_bar %}
-            <template #search-bar>
-                <sw-search-bar initialSearchType="order"
-                               :initialSearch="term"
-                               @search="onSearch">
-                </sw-search-bar>
-            </template>
+<sw-page class="sw-order-list">
+    {% block sw_order_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="order"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_order_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_order_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_order_list_smart_bar_header_title_text %}
+            {{ $tc('sw-order.list.textOrders') }}
+            {% endblock %}
+
+            {% block sw_order_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_order_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_order_list_smart_bar_actions_slot %}
+
+        {% block sw_order_list_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('order.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-order-list__add-order"
+            :disabled="!acl.can('order.creator')"
+            variant="primary"
+            :router-link="{ name: 'sw.order.create' }"
+        >
+            {{ $tc('sw-order.list.buttonAddOrder') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_order_list_smart_bar_header %}
-            <template #smart-bar-header>
-                {% block sw_order_list_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_order_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-order.list.textOrders') }}
-                        {% endblock %}
-
-                        {% block sw_order_list_smart_bar_header_amount %}
-                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                                ({{ total }})
-                            </span>
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_order_list_smart_bar_actions %}
-            <template #smart-bar-actions>
-                {% block sw_order_list_smart_bar_actions_slot %}
+    {% block sw_order_list_language_switch %}
+    <sw-language-switch
+        slot="language-switch"
+        @on-change="onChangeLanguage"
+    />
+    {% endblock %}
 
-                    {% block sw_order_list_smart_bar_actions_add %}
-                        <sw-button
-                            class="sw-order-list__add-order"
-                            :disabled="!acl.can('order.creator')"
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('order.creator'),
-                                showOnDisabledElements: true
-                            }"
-                            variant="primary"
-                            :routerLink="{ name: 'sw.order.create' }">
-                            {{ $tc('sw-order.list.buttonAddOrder') }}
-                        </sw-button>
+    {% block sw_order_list_content %}
+    <template #content>
+
+        {% block sw_order_list_content_slot %}
+        <div class="sw-order-list__content">
+
+            {% block sw_order_list_grid %}
+            <sw-data-grid
+                :data-source="orders"
+                :columns="orderColumns"
+                :full-page="true"
+                :show-settings="true"
+                :show-selection="true"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :is-loading="isLoading"
+                :allow-column-edit="true"
+                identifier="sw-order-list"
+                :disable-data-fetching="true"
+                @column-sort="onSortColumn"
+                @page-change="onPageChange"
+                @selection-change="updateSelection"
+            >
+
+                {% block sw_order_list_grid_columns %}
+                {% block sw_order_list_grid_columns_order_number %}
+                <template #column-orderNumber="{ item }">
+                    {% block sw_order_list_grid_order_number_link %}
+                    <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                        {{ item.orderNumber }}
+                    </router-link>
                     {% endblock %}
 
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-        {% block sw_order_list_language_switch %}
-            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
-        {% endblock %}
-
-        {% block sw_order_list_content %}
-            <template #content>
-
-                {% block sw_order_list_content_slot %}
-                    <div class="sw-order-list__content">
-
-                        {% block sw_order_list_grid %}
-                            <sw-data-grid :dataSource="orders"
-                                          :columns="orderColumns"
-                                          :fullPage="true"
-                                          :showSettings="true"
-                                          :showSelection="true"
-                                          :sortBy="sortBy"
-                                          :sortDirection="sortDirection"
-                                          :isLoading="isLoading"
-                                          :allowColumnEdit="true"
-                                          identifier="sw-order-list"
-                                          @column-sort="onSortColumn"
-                                          @page-change="onPageChange"
-                                          @selection-change="updateSelection"
-                                          :disableDataFetching="true">
-
-                                {% block sw_order_list_grid_columns %}
-                                    {% block sw_order_list_grid_columns_order_number %}
-                                        <template #column-orderNumber="{ item }">
-                                            {% block sw_order_list_grid_order_number_link %}
-                                                <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
-                                                    {{ item.orderNumber }}
-                                                </router-link>
-                                            {% endblock %}
-
-                                            {% block sw_order_list_grid_label_manual_order %}
-                                                <sw-label v-if="item.createdById"
-                                                          appearance="pill"
-                                                          size="small"
-                                                          class="sw-order-list__manual-order-label">
-                                                    {{ $tc('sw-order.list.labelManualOrder') }}
-                                                </sw-label>
-                                            {% endblock %}
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_order_list_grid_columns_customer_name %}
-                                        <template #column-orderCustomer.firstName="{ item }">
-                                            <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
-                                                {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
-                                            </router-link>
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_order_list_grid_columns_billing_address %}
-                                        <template #column-billingAddressId="{ item }">
-                                            {{ item.billingAddress.street }},
-                                            {{ item.billingAddress.zipcode }}
-                                            {{ item.billingAddress.city }}
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_order_list_grid_columns_amount %}
-                                        <template #column-amountTotal="{ item }">
-                                            {{ item.amountTotal | currency(item.currency.translated.shortName) }}
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_order_list_grid_columns_state %}
-                                        <template #column-stateMachineState.name="{ item }">
-                                            <sw-label :variant="getVariantFromOrderState(item)" appearance="pill">
-                                                {{ item.stateMachineState.translated.name }}
-                                            </sw-label>
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_order_list_grid_columns_transaction_state %}
-                                        <template #column-transactions.last().stateMachineState.name="{ item }">
-                                            <sw-label v-if="item.transactions && item.transactions[0]"
-                                                      :variant="getVariantFromPaymentState(item)"
-                                                      appearance="pill">
-                                                {{ item.transactions.last().stateMachineState.translated.name }}
-                                            </sw-label>
-                                        </template>
-                                    {% endblock %}
-
-                                {% block sw_order_list_grid_columns_delivery_state %}
-                                    <template #column-deliveries[0].stateMachineState.name="{ item }">
-                                        <sw-label v-if="item.deliveries && item.deliveries[0]"
-                                                  :variant="getVariantFromDeliveryState(item)"
-                                                  appearance="pill">
-                                            {{ item.deliveries[0].stateMachineState.translated.name }}
-                                        </sw-label>
-                                    </template>
-                                {% endblock %}
-
-                                    {% block sw_order_list_grid_columns_order_date %}
-                                        <template #column-orderDateTime="{ item }">
-                                            {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
-                                        </template>
-                                    {% endblock %}
-                                {% endblock %}
-
-                                {% block sw_order_list_grid_columns_actions %}
-                                    <template #actions="{ item }">
-                                        {% block sw_order_list_grid_columns_actions_view %}
-                                            <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
-                                                {{ $tc('sw-order.list.contextMenuView') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-
-                                        {% block sw_order_list_grid_columns_actions_delete %}
-                                            <sw-context-menu-item
-                                                variant="danger"
-                                                :disabled="disableDeletion(item)"
-                                                @click="onDelete(item.id)">
-                                                {{ $tc('sw-order.list.contextMenuDelete') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_order_list_grid_action_modals %}
-                                <template #action-modals="{ item }">
-                                    {% block sw_order_list_delete_modal %}
-                                    <sw-modal v-if="showDeleteModal === item.id"
-                                              @modal-close="onCloseDeleteModal"
-                                              :title="$tc('global.default.warning')"
-                                              variant="small">
-                                        {% block sw_order_list_delete_modal_confirm_delete_text %}
-                                        <p class="sw-order-list__confirm-delete-text">
-                                            {{ $tc('sw-order.list.textDeleteConfirm', 0, { orderNumber: `${item.orderNumber}` }) }}
-                                        </p>
-                                        {% endblock %}
-
-                                        {% block sw_order_list_delete_modal_footer %}
-                                        <template #modal-footer>
-                                            {% block sw_order_list_delete_modal_cancel %}
-                                            <sw-button @click="onCloseDeleteModal" size="small">
-                                                {{ $tc('sw-order.list.buttonCancel') }}
-                                            </sw-button>
-                                            {% endblock %}
-
-                                            {% block sw_order_list_delete_modal_confirm %}
-                                            <sw-button @click="onConfirmDelete(item.id)" variant="danger" size="small">
-                                                {{ $tc('sw-order.list.buttonDelete') }}
-                                            </sw-button>
-                                            {% endblock %}
-                                        </template>
-                                        {% endblock %}
-                                    </sw-modal>
-                                    {% endblock %}
-                                </template>
-                                {% endblock %}
-
-                                <template #pagination>
-                                    {% block sw_order_list_grid_pagination %}
-                                        <sw-pagination :page="page"
-                                                       :limit="limit"
-                                                       :total="total"
-                                                       :total-visible="7"
-                                                       @page-change="onPageChange">
-                                        </sw-pagination>
-                                    {% endblock %}
-                                </template>
-                            </sw-data-grid>
-                        {% endblock %}
-
-                        {% block sw_order_list_empty_state %}
-                            <template v-if="!isLoading && !total">
-                                <sw-empty-state
-                                    v-if="filterCriteria.length"
-                                    :title="$tc('sw-order.filters.messageEmptyTitle')"
-                                    :subline="$tc('sw-order.filters.messageEmptySubline')">
-                                </sw-empty-state>
-                                <sw-empty-state
-                                    v-else
-                                    :title="$tc('sw-order.list.messageEmpty')">
-                                </sw-empty-state>
-                            </template>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </template>
-
-            {% block sw_order_list_sidebar %}
-                <template #sidebar>
-                    <sw-sidebar class="sw-order-list__sidebar">
-                        {% block sw_order_list_sidebar_refresh %}
-                            <sw-sidebar-item
-                                icon="default-arrow-360-left"
-                                :title="$tc('sw-order.list.titleSidebarItemRefresh')"
-                                @click="onRefresh">
-                            </sw-sidebar-item>
-                        {% endblock %}
-
-                        {% block sw_order_list_sidebar_filter %}
-                            <sw-sidebar-filter-panel
-                                entity="customer"
-                                :storeKey="storeKey"
-                                :filters="listFilters"
-                                :defaults="defaultFilters"
-                                :activeFilterNumber="activeFilterNumber"
-                                @criteria-changed="updateCriteria">
-                            </sw-sidebar-filter-panel>
-                        {% endblock %}
-                    </sw-sidebar>
+                    {% block sw_order_list_grid_label_manual_order %}
+                    <sw-label
+                        v-if="item.createdById"
+                        appearance="pill"
+                        size="small"
+                        class="sw-order-list__manual-order-label"
+                    >
+                        {{ $tc('sw-order.list.labelManualOrder') }}
+                    </sw-label>
+                    {% endblock %}
                 </template>
+                {% endblock %}
+
+                {% block sw_order_list_grid_columns_customer_name %}
+                <!-- eslint-disable vue/valid-v-slot -->
+                <template #column-orderCustomer.firstName="{ item }">
+                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
+                        {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
+                    </router-link>
+                </template>
+                {% endblock %}
+
+                {% block sw_order_list_grid_columns_billing_address %}
+                <template #column-billingAddressId="{ item }">
+                    {{ item.billingAddress.street }},
+                    {{ item.billingAddress.zipcode }}
+                    {{ item.billingAddress.city }}
+                </template>
+                {% endblock %}
+
+                {% block sw_order_list_grid_columns_amount %}
+                <template #column-amountTotal="{ item }">
+                    {{ item.amountTotal | currency(item.currency.translated.shortName) }}
+                </template>
+                {% endblock %}
+
+                {% block sw_order_list_grid_columns_state %}
+                <template #column-stateMachineState.name="{ item }">
+                    <sw-label
+                        :variant="getVariantFromOrderState(item)"
+                        appearance="pill"
+                    >
+                        {{ item.stateMachineState.translated.name }}
+                    </sw-label>
+                </template>
+                {% endblock %}
+
+                {% block sw_order_list_grid_columns_transaction_state %}
+                <template #column-transactions.last().stateMachineState.name="{ item }">
+                    <sw-label
+                        v-if="item.transactions && item.transactions[0]"
+                        :variant="getVariantFromPaymentState(item)"
+                        appearance="pill"
+                    >
+                        {{ item.transactions.last().stateMachineState.translated.name }}
+                    </sw-label>
+                </template>
+                {% endblock %}
+
+                {% block sw_order_list_grid_columns_delivery_state %}
+                <template #column-deliveries[0].stateMachineState.name="{ item }">
+                    <sw-label
+                        v-if="item.deliveries && item.deliveries[0]"
+                        :variant="getVariantFromDeliveryState(item)"
+                        appearance="pill"
+                    >
+                        {{ item.deliveries[0].stateMachineState.translated.name }}
+                    </sw-label>
+                </template>
+                {% endblock %}
+
+                {% block sw_order_list_grid_columns_order_date %}
+                <template #column-orderDateTime="{ item }">
+                    {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
+                </template>
+                {% endblock %}
+                {% endblock %}
+
+                {% block sw_order_list_grid_columns_actions %}
+                <template #actions="{ item }">
+                    {% block sw_order_list_grid_columns_actions_view %}
+                    <sw-context-menu-item
+                        class="sw-order-list__order-view-action"
+                        :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
+                    >
+                        {{ $tc('sw-order.list.contextMenuView') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_order_list_grid_columns_actions_delete %}
+                    <sw-context-menu-item
+                        variant="danger"
+                        :disabled="disableDeletion(item)"
+                        @click="onDelete(item.id)"
+                    >
+                        {{ $tc('sw-order.list.contextMenuDelete') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_order_list_grid_action_modals %}
+                <template #action-modals="{ item }">
+                    {% block sw_order_list_delete_modal %}
+                    <sw-modal
+                        v-if="showDeleteModal === item.id"
+                        :title="$tc('global.default.warning')"
+                        variant="small"
+                        @modal-close="onCloseDeleteModal"
+                    >
+                        {% block sw_order_list_delete_modal_confirm_delete_text %}
+                        <p class="sw-order-list__confirm-delete-text">
+                            {{ $tc('sw-order.list.textDeleteConfirm', 0, { orderNumber: `${item.orderNumber}` }) }}
+                        </p>
+                        {% endblock %}
+
+                        {% block sw_order_list_delete_modal_footer %}
+                        <template #modal-footer>
+                            {% block sw_order_list_delete_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('sw-order.list.buttonCancel') }}
+                            </sw-button>
+                            {% endblock %}
+
+                            {% block sw_order_list_delete_modal_confirm %}
+                            <sw-button
+                                variant="danger"
+                                size="small"
+                                @click="onConfirmDelete(item.id)"
+                            >
+                                {{ $tc('sw-order.list.buttonDelete') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-modal>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                <template #pagination>
+                    {% block sw_order_list_grid_pagination %}
+                    <sw-pagination
+                        :page="page"
+                        :limit="limit"
+                        :total="total"
+                        :total-visible="7"
+                        @page-change="onPageChange"
+                    />
+                    {% endblock %}
+                </template>
+            </sw-data-grid>
             {% endblock %}
+
+            {% block sw_order_list_empty_state %}
+            <template v-if="!isLoading && !total">
+                <sw-empty-state
+                    v-if="filterCriteria.length"
+                    :title="$tc('sw-order.filters.messageEmptyTitle')"
+                    :subline="$tc('sw-order.filters.messageEmptySubline')"
+                />
+                <sw-empty-state
+                    v-else
+                    :title="$tc('sw-order.list.messageEmpty')"
+                />
+            </template>
+            {% endblock %}
+        </div>
         {% endblock %}
-    </sw-page>
+    </template>
+
+    {% block sw_order_list_sidebar %}
+    <template #sidebar>
+        <sw-sidebar class="sw-order-list__sidebar">
+            {% block sw_order_list_sidebar_refresh %}
+            <sw-sidebar-item
+                icon="default-arrow-360-left"
+                :title="$tc('sw-order.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+
+            {% block sw_order_list_sidebar_filter %}
+            <sw-sidebar-filter-panel
+                entity="customer"
+                :store-key="storeKey"
+                :filters="listFilters"
+                :defaults="defaultFilters"
+                :active-filter-number="activeFilterNumber"
+                @criteria-changed="updateCriteria"
+            />
+            {% endblock %}
+        </sw-sidebar>
+    </template>
+    {% endblock %}
+    {% endblock %}
+</sw-page>
 {% endblock %}

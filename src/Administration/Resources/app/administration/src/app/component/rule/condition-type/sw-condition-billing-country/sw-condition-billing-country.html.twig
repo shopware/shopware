@@ -1,19 +1,20 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-billing-country sw-condition__condition-value">
-        {% block sw_condition_billing_country_field_operator %}
-            <sw-condition-operator-select v-bind="{ condition, operators }"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-billing-country sw-condition__condition-value">
+    {% block sw_condition_billing_country_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ condition, operators }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_billing_country_field_country_ids %}
-            <sw-entity-multi-select
-                size="medium"
-                entity="country"
-                :entityCollection="billingCountries"
-                :disabled="disabled"
-                @change="setCountryIds">
-            </sw-entity-multi-select>
-        {% endblock %}
-    </div>
+    {% block sw_condition_billing_country_field_country_ids %}
+    <sw-entity-multi-select
+        size="medium"
+        entity="country"
+        :entity-collection="billingCountries"
+        :disabled="disabled"
+        @change="setCountryIds"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

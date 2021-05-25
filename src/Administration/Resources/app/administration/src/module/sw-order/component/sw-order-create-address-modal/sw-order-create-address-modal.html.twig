@@ -1,115 +1,148 @@
 {% block sw_order_create_address_modal %}
-    <sw-modal
-        :title="editAddressModalTitle"
-        @modal-close="onCancel"
-        class="sw-order-create-address-modal">
-        {% block sw_order_create_address_modal_content %}
-            <template @new-item-active="onNewActiveItem">
-                {% block sw_order_create_address_form_modal %}
-                    <sw-modal
-                        :title="getAddressFormModalTitle()"
-                        v-if="showAddressFormModal"
-                        @modal-close="onCloseAddressModal">
-                        {% block sw_order_create_address_form_modal_content %}
-                            <sw-customer-address-form
-                                :address="currentAddress"
-                                :customer="activeCustomer"
-                                :disabled="isLoading">
-                                <sw-customer-address-form-options
-                                    :address="currentAddress"
-                                    :customer="activeCustomer"
-                                    :customFieldSets="[]"
-                                    @default-address-change="onChangeDefaultAddress">
-                                </sw-customer-address-form-options>
-                            </sw-customer-address-form>
-                        {% endblock %}
+<sw-modal
+    :title="editAddressModalTitle"
+    class="sw-order-create-address-modal"
+    @modal-close="onCancel"
+>
+    {% block sw_order_create_address_modal_content %}
+    <template @new-item-active="onNewActiveItem">
+        {% block sw_order_create_address_form_modal %}
+        <sw-modal
+            v-if="showAddressFormModal"
+            :title="getAddressFormModalTitle()"
+            @modal-close="onCloseAddressModal"
+        >
+            {% block sw_order_create_address_form_modal_content %}
+            <sw-customer-address-form
+                :address="currentAddress"
+                :customer="activeCustomer"
+                :disabled="isLoading"
+            >
+                <sw-customer-address-form-options
+                    :address="currentAddress"
+                    :customer="activeCustomer"
+                    :custom-field-sets="[]"
+                    @default-address-change="onChangeDefaultAddress"
+                />
+            </sw-customer-address-form>
+            {% endblock %}
 
-                        {% block sw_order_create_address_form_modal_footer %}
-                            <template #modal-footer>
-                                {% block sw_order_create_address_form_modal_cancel_button %}
-                                    <sw-button size="small" @click="onCloseAddressModal">
-                                        {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
-                                    </sw-button>
-                                {% endblock %}
-
-                                {% block sw_order_create_address_form_modal_apply_button %}
-                                    <sw-button
-                                        :isLoading="isLoading"
-                                        @click="onSubmitAddressForm"
-                                        variant="primary"
-                                        size="small">
-                                        {{ $tc('sw-customer.detailAddresses.buttonSaveAndSelect') }}
-                                    </sw-button>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-                    </sw-modal>
-                {% endblock %}
-                <sw-card :isLoading="isLoading" :large="true" class="sw-order-create-address-modal__card-filter">
-                    {% block sw_order_create_address_modal_toolbar %}
-                        <template #toolbar>
-                            <sw-card-filter
-                                :placeholder="$tc('sw-order.addressSelection.searchAddressToolbarPlaceholder')"
-                                @sw-card-filter-term-change="onSearchAddress">
-                                {% block sw_order_create_address_modal_add_button %}
-                                    <template #filter>
-                                        <sw-button
-                                            @click="onAddNewAddress"
-                                            class="sw-order-create-address-modal__add-btn"
-                                            size="small">
-                                            <sw-icon name="small-default-plus-circle" small></sw-icon>
-                                            {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
-                                        </sw-button>
-                                    </template>
-                                {% endblock %}
-                            </sw-card-filter>
-                        </template>
-                    {% endblock %}
-                    {% block sw_order_create_address_modal_empty_state %}
-                        <template #grid>
-                            <div class="sw-order-create-address-modal__card is--empty" v-if="!isLoading && !addresses.length">
-                                <sw-empty-state
-                                    :title="$tc('sw-order.addressSelection.emptySearchResults')"
-                                    :icon="'default-object-address'">
-                                    {% block sw_order_create_address_modal_empty_state_content %}
-                                        <span></span>
-                                    {% endblock %}
-                                </sw-empty-state>
-                            </div>
-                            <div
-                                v-for="(address, index) in addresses"
-                                :key="address.id"
-                                :class="{ 'is--selected': isCurrentSelected(address.id)}"
-                                class="sw-order-create-address-modal__card">
-                                <div class="sw-order-create-address-modal__card-body">
-                                    <span v-if="isCurrentSelected(address.id)" class="sw-order-create-address-modal__card-label">
-                                        {{ $tc('sw-order.addressSelection.currentlySelected') }}<br><br>
-                                    </span>
-                                    <sw-address :address="address"></sw-address>
-                                    <a @click="onEditAddress(address)" class="sw-order-create-address-modal__edit-btn">
-                                        {{ $tc('sw-customer.detailBase.buttonTitleEditAddress') }}
-                                    </a>
-                                </div>
-                                <div class="sw-order-create-address-modal__select-btn">
-                                    <sw-button v-if="!isCurrentSelected(address.id)" @click="onSelectExistingAddress(address)">
-                                        {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
-                                    </sw-button>
-                                </div>
-                            </div>
-                        </template>
-                    {% endblock %}
-                </sw-card>
-            </template>
-        {% endblock %}
-
-        {% block sw_order_create_address_modal_actions %}
+            {% block sw_order_create_address_form_modal_footer %}
             <template #modal-footer>
-                {% block sw_order_create_address_modal_cancel_button %}
-                    <sw-button @click="onCancel" size="small">
-                        {{ $tc('sw-customer.detailAddresses.buttonClose') }}
-                    </sw-button>
+                {% block sw_order_create_address_form_modal_cancel_button %}
+                <sw-button
+                    size="small"
+                    @click="onCloseAddressModal"
+                >
+                    {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_order_create_address_form_modal_apply_button %}
+                <sw-button
+                    :is-loading="isLoading"
+                    variant="primary"
+                    size="small"
+                    @click="onSubmitAddressForm"
+                >
+                    {{ $tc('sw-customer.detailAddresses.buttonSaveAndSelect') }}
+                </sw-button>
                 {% endblock %}
             </template>
+            {% endblock %}
+        </sw-modal>
         {% endblock %}
-    </sw-modal>
+        <sw-card
+            :is-loading="isLoading"
+            :large="true"
+            class="sw-order-create-address-modal__card-filter"
+        >
+            {% block sw_order_create_address_modal_toolbar %}
+            <template #toolbar>
+                <sw-card-filter
+                    :placeholder="$tc('sw-order.addressSelection.searchAddressToolbarPlaceholder')"
+                    @sw-card-filter-term-change="onSearchAddress"
+                >
+                    {% block sw_order_create_address_modal_add_button %}
+                    <template #filter>
+                        <sw-button
+                            class="sw-order-create-address-modal__add-btn"
+                            size="small"
+                            @click="onAddNewAddress"
+                        >
+                            <sw-icon
+                                name="small-default-plus-circle"
+                                small
+                            />
+                            {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
+                        </sw-button>
+                    </template>
+                    {% endblock %}
+                </sw-card-filter>
+            </template>
+            {% endblock %}
+            {% block sw_order_create_address_modal_empty_state %}
+            <template #grid>
+                <div
+                    v-if="!isLoading && !addresses.length"
+                    class="sw-order-create-address-modal__card is--empty"
+                >
+                    <sw-empty-state
+                        :title="$tc('sw-order.addressSelection.emptySearchResults')"
+                        :icon="'default-object-address'"
+                    >
+                        {% block sw_order_create_address_modal_empty_state_content %}
+                        <span />
+                        {% endblock %}
+                    </sw-empty-state>
+                </div>
+                <div
+                    v-for="(address, index) in addresses"
+                    :key="address.id"
+                    :class="{ 'is--selected': isCurrentSelected(address.id)}"
+                    class="sw-order-create-address-modal__card"
+                >
+                    <div class="sw-order-create-address-modal__card-body">
+                        <span
+                            v-if="isCurrentSelected(address.id)"
+                            class="sw-order-create-address-modal__card-label"
+                        >
+                            {{ $tc('sw-order.addressSelection.currentlySelected') }}<br><br>
+                        </span>
+                        <sw-address :address="address" />
+                        <a
+                            class="sw-order-create-address-modal__edit-btn"
+                            @click="onEditAddress(address)"
+                        >
+                            {{ $tc('sw-customer.detailBase.buttonTitleEditAddress') }}
+                        </a>
+                    </div>
+                    <div class="sw-order-create-address-modal__select-btn">
+                        <sw-button
+                            v-if="!isCurrentSelected(address.id)"
+                            @click="onSelectExistingAddress(address)"
+                        >
+                            {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
+                        </sw-button>
+                    </div>
+                </div>
+            </template>
+            {% endblock %}
+        </sw-card>
+    </template>
+    {% endblock %}
+
+    {% block sw_order_create_address_modal_actions %}
+    <template #modal-footer>
+        {% block sw_order_create_address_modal_cancel_button %}
+        <sw-button
+            size="small"
+            @click="onCancel"
+        >
+            {{ $tc('sw-customer.detailAddresses.buttonClose') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

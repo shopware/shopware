@@ -1,54 +1,72 @@
 {% block sw_sales_channel_menu %}
-    <div class="sw-sales-channel-menu">
-        {% block sw_sales_channel_menu_modal %}
-            <sw-sales-channel-modal v-if="showModal" @modal-close="showModal=false"></sw-sales-channel-modal>
+<div class="sw-sales-channel-menu">
+    {% block sw_sales_channel_menu_modal %}
+    <sw-sales-channel-modal
+        v-if="showModal"
+        @modal-close="showModal=false"
+    />
+    {% endblock %}
+
+    {% block sw_sales_channel_menu_headline %}
+    <div class="sw-admin-menu__headline">
+        {% block sw_sales_channel_menu_headline_text %}
+        <div class="collapsible-text">
+            {{ $tc('sw-sales-channel.general.titleMenuItems') }}
+        </div>
         {% endblock %}
 
-        {% block sw_sales_channel_menu_headline %}
-            <div class="sw-admin-menu__headline">
-                {% block sw_sales_channel_menu_headline_text %}
-                    <div class="collapsible-text">{{ $tc('sw-sales-channel.general.titleMenuItems') }}</div>
-                {% endblock %}
-
-                {% block sw_sales_channel_menu_headline_action %}
-                    <button class="sw-admin-menu__headline-action" @click="showModal=true" v-if="canCreateSalesChannels">
-                        <sw-icon class="sw-admin-menu__headline-icon"
-                                 name="small-default-plus-circle"
-                                 small>
-                        </sw-icon>
-                    </button>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_sales_channel_menu_navigation %}
-            <nav class="sw-admin-menu__navigation">
-
-                {% block sw_sales_channel_menu_navigation_main_list %}
-                    <ul class="sw-admin-menu__navigation-list">
-
-                        {% block sw_sales_channel_menu_navigation_main_items %}
-                            <sw-admin-menu-item v-for="(entry, index) in buildMenuTree"
-                                                class="sw-admin-menu__sales-channel-item"
-                                                :entry="entry"
-                                                :key="entry.id || index"
-                                                iconSize="16px"
-                                                :class="['sw-admin-menu__sales-channel-item--' + index]">
-                                <template #additional-text>
-                                    {% block sw_sales_channel_menu_navigation_item_additional_text %}
-                                        <button v-if="entry.domainLink && entry.active"
-                                           class="sw-sales-channel-menu-domain-link"
-                                           @click.prevent="openStorefrontLink(entry.domainLink)"
-                                           :title="$tc('sw-sales-channel.general.tooltipOpenStorefront')">
-                                            <sw-icon class="sw-sales-channel-menu-domain-link__icon" name="small-eye" size="16px"></sw-icon>
-                                        </button>
-                                    {% endblock %}
-                                </template>
-                            </sw-admin-menu-item>
-                        {% endblock %}
-                    </ul>
-                {% endblock %}
-            </nav>
+        {% block sw_sales_channel_menu_headline_action %}
+        <button
+            v-if="canCreateSalesChannels"
+            class="sw-admin-menu__headline-action"
+            @click="showModal=true"
+        >
+            <sw-icon
+                class="sw-admin-menu__headline-icon"
+                name="small-default-plus-circle"
+                small
+            />
+        </button>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_sales_channel_menu_navigation %}
+    <nav class="sw-admin-menu__navigation">
+
+        {% block sw_sales_channel_menu_navigation_main_list %}
+        <ul class="sw-admin-menu__navigation-list">
+
+            {% block sw_sales_channel_menu_navigation_main_items %}
+            <sw-admin-menu-item
+                v-for="(entry, index) in buildMenuTree"
+                :key="entry.id || index"
+                class="sw-admin-menu__sales-channel-item"
+                :entry="entry"
+                icon-size="16px"
+                :class="['sw-admin-menu__sales-channel-item--' + index]"
+            >
+                <template #additional-text>
+                    {% block sw_sales_channel_menu_navigation_item_additional_text %}
+                    <button
+                        v-if="entry.domainLink && entry.active"
+                        class="sw-sales-channel-menu-domain-link"
+                        :title="$tc('sw-sales-channel.general.tooltipOpenStorefront')"
+                        @click.prevent="openStorefrontLink(entry.domainLink)"
+                    >
+                        <sw-icon
+                            class="sw-sales-channel-menu-domain-link__icon"
+                            name="small-eye"
+                            size="16px"
+                        />
+                    </button>
+                    {% endblock %}
+                </template>
+            </sw-admin-menu-item>
+            {% endblock %}
+        </ul>
+        {% endblock %}
+    </nav>
+    {% endblock %}
+</div>
 {% endblock %}

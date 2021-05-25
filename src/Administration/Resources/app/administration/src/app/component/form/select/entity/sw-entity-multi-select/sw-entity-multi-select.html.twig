@@ -1,105 +1,127 @@
 {% block sw_entity_multi_select %}
-    <sw-select-base class="sw-entity-multi-select"
-                    ref="selectBase"
-                    :isLoading="isLoading"
-                    @select-expanded="onSelectExpanded"
-                    @select-collapsed="onSelectCollapsed"
-                    v-bind="$attrs"
-                    v-on="$listeners">
-        {% block sw_entity_multi_select_base %}
-            {% block sw_entity_multi_select_base_selection %}
-                <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse}">
-                    {% block sw_entity_multi_select_base_selection_slot %}
-                        <sw-select-selection-list :selections="visibleValues"
-                                                  ref="selectionList"
-                                                  :invisibleCount="invisibleValueCount"
-                                                  valueProperty="id"
-                                                  @total-count-click="expandValueLimit"
-                                                  @item-remove="remove"
-                                                  @last-item-delete="removeLastItem"
-                                                  @search-term-change="onSearchTermChange"
-                                                  v-bind="{ size, labelProperty, placeholder, searchTerm, disabled }"
-                                                  :hideLabels="hideLabels">
-                            {% block sw_entity_multi_select_base_selection_list %}
-                                {% block sw_entity_multi_select_base_selection_list_label %}
-                                    <template #label-property="{ item, index, labelProperty, valueProperty, getKey }">
-                                        {% block sw_entity_multi_select_base_selection_list_label_inner %}
-                                            <slot name="selection-label-property" v-bind="{ item, index, labelProperty, valueProperty, getKey }">
-                                                <sw-product-variant-info v-if="$attrs.displayVariants" :variations="item.variation">
-                                                    {{ displayLabelProperty(item) }}
-                                                </sw-product-variant-info>
-                                                <template v-else>
-                                                    {{ displayLabelProperty(item) }}
-                                                </template>
-                                            </slot>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                            {% endblock %}
-                        </sw-select-selection-list>
-                    {% endblock %}
-                </template>
+<sw-select-base
+    ref="selectBase"
+    class="sw-entity-multi-select"
+    :is-loading="isLoading"
+    v-bind="$attrs"
+    @select-expanded="onSelectExpanded"
+    @select-collapsed="onSelectCollapsed"
+    v-on="$listeners"
+>
+    {% block sw_entity_multi_select_base %}
+    {% block sw_entity_multi_select_base_selection %}
+    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse}">
+        {% block sw_entity_multi_select_base_selection_slot %}
+        <sw-select-selection-list
+            ref="selectionList"
+            :selections="visibleValues"
+            :invisible-count="invisibleValueCount"
+            value-property="id"
+            v-bind="{ size, labelProperty, placeholder, searchTerm, disabled }"
+            :hide-labels="hideLabels"
+            @total-count-click="expandValueLimit"
+            @item-remove="remove"
+            @last-item-delete="removeLastItem"
+            @search-term-change="onSearchTermChange"
+        >
+            {% block sw_entity_multi_select_base_selection_list %}
+            {% block sw_entity_multi_select_base_selection_list_label %}
+            <template #label-property="{ item, index, labelProperty, valueProperty, getKey }">
+                {% block sw_entity_multi_select_base_selection_list_label_inner %}
+                <slot
+                    name="selection-label-property"
+                    v-bind="{ item, index, labelProperty, valueProperty, getKey }"
+                >
+                    <sw-product-variant-info
+                        v-if="$attrs.displayVariants"
+                        :variations="item.variation"
+                    >
+                        {{ displayLabelProperty(item) }}
+                    </sw-product-variant-info>
+                    <template v-else>
+                        {{ displayLabelProperty(item) }}
+                    </template>
+                </slot>
+                {% endblock %}
+            </template>
             {% endblock %}
-
-            {% block sw_entity_multi_select_base_results %}
-                <template #results-list>
-                    {% block sw_entity_multi_select_base_results_slot %}
-                        <sw-select-result-list :options="resultCollection"
-                                                ref="swSelectResultList"
-                                                :isLoading="isLoading"
-                                                :emptyMessage="$tc('global.sw-entity-multi-select.messageNoResults', 0, { term: searchTerm })"
-                                                :focusEl="$refs.selectionList.getFocusEl()"
-                                                @paginate="paginate"
-                                                @item-select="addItem">
-                            {% block sw_entity_multi_select_base_results_list %}
-                                {% block sw_entity_multi_select_base_results_list_before %}
-                                    <template #before-item-list>
-                                        <slot name="before-item-list"></slot>
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_entity_multi_select_base_results_list_result %}
-                                    <template #result-item="{ item, index }">
-                                        <slot name="result-item" v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
-                                            <li is="sw-select-result"
-                                                :selected="isSelected(item)"
-                                                @item-select="addItem"
-                                                v-bind="{ item, index }">
-                                                {% block sw_entity_multi_select_base_results_list_result_label %}
-                                                    <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }">
-                                                        <sw-product-variant-info
-                                                            v-if="$attrs.displayVariants"
-                                                            :variations="item.variation"
-                                                            :highlighted="true"
-                                                            :searchTerm="searchTerm">
-                                                            {{ displayLabelProperty(item) }}
-                                                        </sw-product-variant-info>
-                                                        <template v-else>
-                                                            <sw-highlight-text v-if="highlightSearchTerm"
-                                                                               :text="displayLabelProperty(item)"
-                                                                               :searchTerm="searchTerm">
-                                                            </sw-highlight-text>
-                                                            <template v-else>
-                                                                {{ displayLabelProperty(item) }}
-                                                            </template>
-                                                        </template>
-                                                    </slot>
-                                                {% endblock %}
-                                            </li>
-                                        </slot>
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_entity_multi_select_base_results_list_after %}
-                                    <template #after-item-list>
-                                        <slot name="after-item-list"></slot>
-                                    </template>
-                                {% endblock %}
-                            {% endblock %}
-                        </sw-select-result-list>
-                    {% endblock %}
-                </template>
             {% endblock %}
+        </sw-select-selection-list>
         {% endblock %}
-    </sw-select-base>
+    </template>
+    {% endblock %}
+
+    {% block sw_entity_multi_select_base_results %}
+    <template #results-list>
+        {% block sw_entity_multi_select_base_results_slot %}
+        <sw-select-result-list
+            ref="swSelectResultList"
+            :options="resultCollection"
+            :is-loading="isLoading"
+            :empty-message="$tc('global.sw-entity-multi-select.messageNoResults', 0, { term: searchTerm })"
+            :focus-el="$refs.selectionList.getFocusEl()"
+            @paginate="paginate"
+            @item-select="addItem"
+        >
+            {% block sw_entity_multi_select_base_results_list %}
+            {% block sw_entity_multi_select_base_results_list_before %}
+            <template #before-item-list>
+                <slot name="before-item-list" />
+            </template>
+            {% endblock %}
+
+            {% block sw_entity_multi_select_base_results_list_result %}
+            <template #result-item="{ item, index }">
+                <slot
+                    name="result-item"
+                    v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
+                >
+                    <li
+                        is="sw-select-result"
+                        :selected="isSelected(item)"
+                        v-bind="{ item, index }"
+                        @item-select="addItem"
+                    >
+                        {% block sw_entity_multi_select_base_results_list_result_label %}
+                        <slot
+                            name="result-label-property"
+                            v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
+                        >
+                            <sw-product-variant-info
+                                v-if="$attrs.displayVariants"
+                                :variations="item.variation"
+                                :highlighted="true"
+                                :search-term="searchTerm"
+                            >
+                                {{ displayLabelProperty(item) }}
+                            </sw-product-variant-info>
+                            <template v-else>
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="displayLabelProperty(item)"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ displayLabelProperty(item) }}
+                                </template>
+                            </template>
+                        </slot>
+                        {% endblock %}
+                    </li>
+                </slot>
+            </template>
+            {% endblock %}
+
+            {% block sw_entity_multi_select_base_results_list_after %}
+            <template #after-item-list>
+                <slot name="after-item-list" />
+            </template>
+            {% endblock %}
+            {% endblock %}
+        </sw-select-result-list>
+        {% endblock %}
+    </template>
+    {% endblock %}
+    {% endblock %}
+</sw-select-base>
 {% endblock %}

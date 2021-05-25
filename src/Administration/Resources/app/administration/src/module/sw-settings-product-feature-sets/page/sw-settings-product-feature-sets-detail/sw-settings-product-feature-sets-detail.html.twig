@@ -1,89 +1,94 @@
 {% block sw_settings_product_feature_set_detail %}
-    <sw-page class="sw-settings-product-feature-sets-detail">
+<sw-page class="sw-settings-product-feature-sets-detail">
 
-        {% block sw_settings_product_feature_set_detail_header %}
-            <template slot="smart-bar-header">
-                <h2>{{ placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline')) }}</h2>
-            </template>
+    {% block sw_settings_product_feature_set_detail_header %}
+    <template slot="smart-bar-header">
+        <h2>{{ placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline')) }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_product_feature_set_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_product_feature_set_detail_actions %}
+    <template slot="smart-bar-actions">
+
+        {% block sw_settings_product_feature_set_detail_actions_save %}
+        <sw-button-process
+            v-model="isSaveSuccessful"
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-currency-detail__save-action"
+            :is-loading="isLoading"
+            :disabled="isLoading || !acl.can('product_feature_sets.editor')"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-settings-product-feature-sets.detail.buttonSave') }}
+        </sw-button-process>
         {% endblock %}
 
-        {% block sw_settings_product_feature_set_detail_language_switch %}
-            <template #language-switch>
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-            </template>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_product_feature_set_detail_content %}
+    <sw-card-view slot="content">
+
+        {% block sw_settings_product_feature_set_detail_content_language_info %}
+        <sw-language-info
+            :entity-description="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline'))"
+        />
         {% endblock %}
 
-        {% block sw_settings_product_feature_set_detail_actions %}
-            <template slot="smart-bar-actions">
+        {% block sw_settings_product_feature_set_detail_content_card %}
+        <sw-card :title="$tc('sw-settings-product-feature-sets.detail.titleCard')">
 
-                {% block sw_settings_product_feature_set_detail_actions_save %}
-                    <sw-button-process class="sw-settings-currency-detail__save-action"
-                                       :isLoading="isLoading"
-                                       :disabled="isLoading || !acl.can('product_feature_sets.editor')"
-                                       v-model="isSaveSuccessful"
-                                       variant="primary"
-                                       @process-finish="saveFinish"
-                                       @click.prevent="onSave"
-                                       v-tooltip.bottom="tooltipSave">
-                        {{ $tc('sw-settings-product-feature-sets.detail.buttonSave') }}
-                    </sw-button-process>
-                {% endblock %}
+            {% block sw_settings_product_feature_set_detail_content_field_name %}
+            <sw-field
+                v-model="productFeatureSet.name"
+                type="text"
+                class="sw-settings-product-feature-sets-detail__name"
+                validation="required"
+                required
+                :error="productFeatureSetNameError"
+                :disabled="!acl.can('product_feature_sets.editor')"
+                :label="$tc('sw-settings-product-feature-sets.detail.labelName')"
+                :placeholder="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.placeholderName'))"
+            />
+            {% endblock %}
 
-            </template>
+            {% block sw_settings_product_feature_set_detail_content_field_description %}
+            <sw-field
+                v-model="productFeatureSet.description"
+                type="textarea"
+                :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
+                class="sw-settings-product-feature-sets-detail__description"
+                :error="productFeatureSetDescriptionError"
+                :disabled="!acl.can('product_feature_sets.editor')"
+                :placeholder="placeholder(productFeatureSet, 'description', $tc('sw-settings-product-feature-sets.detail.placeholderDescription'))"
+            />
+            {% endblock %}
+
+        </sw-card>
         {% endblock %}
 
-        {% block sw_settings_product_feature_set_detail_content %}
-            <sw-card-view slot="content">
-
-                {% block sw_settings_product_feature_set_detail_content_language_info %}
-                    <sw-language-info
-                            :entityDescription="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline'))">
-                    </sw-language-info>
-                {% endblock %}
-
-                {% block sw_settings_product_feature_set_detail_content_card %}
-                    <sw-card :title="$tc('sw-settings-product-feature-sets.detail.titleCard')">
-
-                        {% block sw_settings_product_feature_set_detail_content_field_name %}
-                            <sw-field type="text"
-                                      class="sw-settings-product-feature-sets-detail__name"
-                                      validation="required"
-                                      required
-                                      :error="productFeatureSetNameError"
-                                      :disabled="!acl.can('product_feature_sets.editor')"
-                                      :label="$tc('sw-settings-product-feature-sets.detail.labelName')"
-                                      :placeholder="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.placeholderName'))"
-                                      v-model="productFeatureSet.name">
-                            </sw-field>
-                        {% endblock %}
-
-                        {% block sw_settings_product_feature_set_detail_content_field_description %}
-                            <sw-field type="textarea"
-                                      :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
-                                      class="sw-settings-product-feature-sets-detail__description"
-                                      :error="productFeatureSetDescriptionError"
-                                      :disabled="!acl.can('product_feature_sets.editor')"
-                                      :placeholder="placeholder(productFeatureSet, 'description', $tc('sw-settings-product-feature-sets.detail.placeholderDescription'))"
-                                      v-model="productFeatureSet.description">
-                            </sw-field>
-                        {% endblock %}
-
-                    </sw-card>
-                {% endblock %}
-
-                {% block sw_settings_product_feature_set_detail_content_values_card %}
-                    <sw-settings-product-feature-sets-values-card v-if="productFeatureSet.id"
-                                                                  :disabled="!productFeatureSetId"
-                                                                  :allowEdit="acl.can('product_feature_sets.editor')"
-                                                                  class="sw-settings-product-feature-sets-detail__tax-rule-grid"
-                                                                  :productFeatureSet="productFeatureSet"
-                                                                  @product-feature-set-rule-save="onSave"
-                                                                  :isLoading="isLoading">
-                    </sw-settings-product-feature-sets-values-card>
-                {% endblock %}
-
-            </sw-card-view>
+        {% block sw_settings_product_feature_set_detail_content_values_card %}
+        <sw-settings-product-feature-sets-values-card
+            v-if="productFeatureSet.id"
+            :disabled="!productFeatureSetId"
+            :allow-edit="acl.can('product_feature_sets.editor')"
+            class="sw-settings-product-feature-sets-detail__tax-rule-grid"
+            :product-feature-set="productFeatureSet"
+            :is-loading="isLoading"
+            @product-feature-set-rule-save="onSave"
+        />
         {% endblock %}
 
-    </sw-page>
+    </sw-card-view>
+    {% endblock %}
+
+</sw-page>
 {% endblock %}

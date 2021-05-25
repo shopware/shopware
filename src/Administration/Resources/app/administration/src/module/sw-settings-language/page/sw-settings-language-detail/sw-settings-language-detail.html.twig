@@ -1,189 +1,223 @@
 {% block sw_settings_language_detail %}
-    <sw-page class="sw-settings-language-detail">
+<sw-page class="sw-settings-language-detail">
 
-        {% block sw_settings_language_detail_header %}
-            <template #smart-bar-header>
-                <h2 v-if="languageHasName" key="sw-setting-language-header">{{ language.name }}</h2>
-                <h2 v-else key="sw-setting-language-header">{{ $tc('sw-settings-language.detail.textHeadline') }}</h2>
-            </template>
+    {% block sw_settings_language_detail_header %}
+    <template #smart-bar-header>
+        <h2
+            v-if="languageHasName"
+            key="sw-setting-language-header"
+        >
+            {{ language.name }}
+        </h2>
+        <h2
+            v-else
+            key="sw-setting-language-header"
+        >
+            {{ $tc('sw-settings-language.detail.textHeadline') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_language_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_language_detail_actions_abort %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            @click="onCancel"
+        >
+            {{ $tc('sw-settings-language.detail.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_settings_language_detail_actions %}
-            <template #smart-bar-actions>
-                {% block sw_settings_language_detail_actions_abort %}
-                    <sw-button v-tooltip.bottom="tooltipCancel" @click="onCancel">
-                        {{ $tc('sw-settings-language.detail.buttonCancel') }}
-                    </sw-button>
+        {% block sw_settings_language_detail_actions_save %}
+        <sw-button-process
+            v-model="isSaveSuccessful"
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-language-detail__save-action"
+            :is-loading="isLoading"
+            :disabled="isLoading || !allowSave"
+            variant="primary"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-settings-language.detail.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_language_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="!languageId"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_language_detail_content %}
+    <template #content>
+        <sw-card-view v-if="language !== null">
+
+            {% block sw_settings_language_detail_content_language_info %}
+            <sw-language-info
+                :entity-description="language.name"
+                :is-new-entity="isNewLanguage"
+            />
+            {% endblock %}
+
+            {% block sw_settings_language_detail_content_card %}
+            <sw-card :title="$tc('sw-settings-language.detail.titleCard')">
+                <sw-container
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="0px 30px"
+                >
+
+                    {% block sw_settings_language_detail_content_field_name %}
+                    <sw-field
+                        v-model="language.name"
+                        type="text"
+                        :disabled="!acl.can('language.editor')"
+                        :label="$tc('sw-settings-language.detail.labelName')"
+                        :placeholder="$tc('sw-settings-language.detail.placeholderName')"
+                        validation="required"
+                        required
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_language_detail_content_field_parentId %}
+                    <sw-entity-single-select
+                        id="inherit"
+                        v-model="language.parentId"
+                        class="sw-settings-language-detail__select-parent"
+                        :criteria="parentLanguageCriteria"
+                        :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"
+                        :label="$tc('sw-settings-language.detail.labelParent')"
+                        :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                        :help-text="inheritanceTooltipText"
+                        entity="language"
+                        @change="onInputLanguage"
+                    >
+                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                            <li
+                                is="sw-select-result"
+                                v-tooltip="{
+                                    showDelay: 300,
+                                    message: $tc('sw-settings-language.detail.textLanguageHasParent'),
+                                    disabled: !item.parentId
+                                }"
+                                :disabled="!!item.parentId"
+                                :selected="isSelected(item)"
+                                v-bind="{ item, index }"
+                                @item-select="setValue"
+                            >
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                </template>
+                            </li>
+                        </template>
+                    </sw-entity-single-select>
+                    {% endblock %}
+
+                    {% block sw_settings_language_detail_content_field_iso_code %}
+                    <sw-entity-single-select
+                        id="iso-codes"
+                        v-model="language.translationCodeId"
+                        class="sw-settings-language-detail__select-iso-code"
+                        :disabled="!acl.can('language.editor')"
+                        :label="$tc('sw-settings-language.detail.labelIsoCode')"
+                        :required="isIsoCodeRequired"
+                        label-property="code"
+                        :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                        :help-text="$tc('sw-settings-language.detail.tooltipIsoCodeNotChoosable')"
+                        entity="locale"
+                    >
+                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                            <li
+                                is="sw-select-result"
+                                v-tooltip="{
+                                    showDelay: 300,
+                                    message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
+                                    disabled: !isLocaleAlreadyUsed(item)
+                                }"
+                                :disabled="isLocaleAlreadyUsed(item)"
+                                :selected="isSelected(item)"
+                                v-bind="{ item, index }"
+                                @item-select="setValue"
+                            >
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                </template>
+                            </li>
+                        </template>
+                    </sw-entity-single-select>
+                    {% endblock %}
+
+                    {% block sw_settings_language_detail_content_field_localeId %}
+                    <sw-entity-single-select
+                        id="locales"
+                        v-model="language.localeId"
+                        required
+                        class="sw-settings-language-detail__select-locale"
+                        :disabled="!acl.can('language.editor')"
+                        :label="$tc('sw-settings-language.detail.labelLocale')"
+                        entity="locale"
+                        :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                    >
+                        <template #selection-label-property="{ item, getKey }">
+                            {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
+                        </template>
+
+                        <template #result-label-property="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                            <sw-highlight-text
+                                v-if="highlightSearchTerm"
+                                :text="`${getKey(item, 'translated.name')}, ${getKey(item, 'translated.territory')}`"
+                                :search-term="searchTerm"
+                            />
+                            <template v-else>
+                                {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
+                            </template>
+                        </template>
+                    </sw-entity-single-select>
+                    {% endblock %}
+                </sw-container>
+                {% block sw_settings_language_detail_content_alert_change_parent %}
+                <sw-alert
+                    v-if="showAlertForChangeParentLanguage"
+                    class="sw-settings-language--alert-change-parent"
+                    :title="$tc('global.default.warning')"
+                    variant="warning"
+                >
+                    {{ $tc('sw-settings-language.detail.textAlertChangeParent') }}
+                </sw-alert>
                 {% endblock %}
+            </sw-card>
+            {% endblock %}
 
-                {% block sw_settings_language_detail_actions_save %}
-                    <sw-button-process
-                            class="sw-settings-language-detail__save-action"
-                            :isLoading="isLoading"
-                            v-model="isSaveSuccessful"
-                            :disabled="isLoading || !allowSave"
-                            variant="primary"
-                            v-tooltip.bottom="tooltipSave"
-                            @click.prevent="onSave">
-                        {{ $tc('sw-settings-language.detail.buttonSave') }}
-                    </sw-button-process>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-        {% block sw_settings_language_detail_language_switch %}
-            <template #language-switch>
-                <sw-language-switch :disabled="!languageId"
-                                    @on-change="onChangeLanguage">
-                </sw-language-switch>
-            </template>
-        {% endblock %}
-
-        {% block sw_settings_language_detail_content %}
-            <template #content>
-                <sw-card-view v-if="language !== null">
-
-                    {% block sw_settings_language_detail_content_language_info %}
-                        <sw-language-info
-                                :entityDescription="language.name" :isNewEntity="isNewLanguage">
-                        </sw-language-info>
-                    {% endblock %}
-
-                    {% block sw_settings_language_detail_content_card %}
-                        <sw-card :title="$tc('sw-settings-language.detail.titleCard')">
-                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
-
-                                {% block sw_settings_language_detail_content_field_name %}
-                                    <sw-field type="text"
-                                              :disabled="!acl.can('language.editor')"
-                                              :label="$tc('sw-settings-language.detail.labelName')"
-                                              :placeholder="$tc('sw-settings-language.detail.placeholderName')"
-                                              validation="required"
-                                              required
-                                              v-model="language.name">
-                                    </sw-field>
-                                {% endblock %}
-
-                                {% block sw_settings_language_detail_content_field_parentId %}
-                                    <sw-entity-single-select
-                                            id="inherit"
-                                            class="sw-settings-language-detail__select-parent"
-                                            :criteria="parentLanguageCriteria"
-                                            :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"
-                                            :label="$tc('sw-settings-language.detail.labelParent')"
-                                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                            :helpText="inheritanceTooltipText"
-                                            @change="onInputLanguage"
-                                            v-model="language.parentId"
-                                            entity="language">
-                                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                                <li is="sw-select-result"
-                                                    :disabled="!!item.parentId"
-                                                    v-tooltip="{
-                                                        showDelay: 300,
-                                                        message: $tc('sw-settings-language.detail.textLanguageHasParent'),
-                                                        disabled: !item.parentId
-                                                    }"
-                                                    :selected="isSelected(item)"
-                                                    @item-select="setValue"
-                                                    v-bind="{ item, index }">
-                                                    <sw-highlight-text v-if="highlightSearchTerm"
-                                                                       :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                                       :searchTerm="searchTerm">
-                                                    </sw-highlight-text>
-                                                    <template v-else>
-                                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                                    </template>
-                                                </li>
-                                        </template>
-                                    </sw-entity-single-select>
-                                {% endblock %}
-
-                                {% block sw_settings_language_detail_content_field_iso_code %}
-                                    <sw-entity-single-select
-                                            id="iso-codes"
-                                            class="sw-settings-language-detail__select-iso-code"
-                                            :disabled="!acl.can('language.editor')"
-                                            :label="$tc('sw-settings-language.detail.labelIsoCode')"
-                                            :required="isIsoCodeRequired"
-                                            labelProperty="code"
-                                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                            :helpText="$tc('sw-settings-language.detail.tooltipIsoCodeNotChoosable')"
-                                            entity="locale"
-                                            v-model="language.translationCodeId">
-                                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                            <li is="sw-select-result"
-                                                :disabled="isLocaleAlreadyUsed(item)"
-                                                v-tooltip="{
-                                                    showDelay: 300,
-                                                    message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
-                                                    disabled: !isLocaleAlreadyUsed(item)
-                                                }"
-                                                :selected="isSelected(item)"
-                                                @item-select="setValue"
-                                                v-bind="{ item, index }">
-                                                <sw-highlight-text v-if="highlightSearchTerm"
-                                                                   :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                                   :searchTerm="searchTerm">
-                                                </sw-highlight-text>
-                                                <template v-else>
-                                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                                </template>
-                                            </li>
-                                        </template>
-                                    </sw-entity-single-select>
-                                {% endblock %}
-
-                                {% block sw_settings_language_detail_content_field_localeId %}
-                                    <sw-entity-single-select
-                                            id="locales"
-                                            required
-                                            class="sw-settings-language-detail__select-locale"
-                                            :disabled="!acl.can('language.editor')"
-                                            :label="$tc('sw-settings-language.detail.labelLocale')"
-                                            entity="locale"
-                                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                            v-model="language.localeId">
-                                        <template #selection-label-property="{ item, getKey }">
-                                            {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
-                                        </template>
-
-                                        <template #result-label-property="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                            <sw-highlight-text v-if="highlightSearchTerm"
-                                                               :text="`${getKey(item, 'translated.name')}, ${getKey(item, 'translated.territory')}`"
-                                                               :searchTerm="searchTerm">
-                                            </sw-highlight-text>
-                                            <template v-else>
-                                                {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
-                                            </template>
-                                        </template>
-                                    </sw-entity-single-select>
-                                {% endblock %}
-                            </sw-container>
-                            {% block sw_settings_language_detail_content_alert_change_parent %}
-                                <sw-alert v-if="showAlertForChangeParentLanguage"
-                                          class="sw-settings-language--alert-change-parent"
-                                          :title="$tc('global.default.warning')"
-                                          variant="warning">
-                                    {{ $tc('sw-settings-language.detail.textAlertChangeParent') }}
-                                </sw-alert>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-
-                    {% block sw_settings_language_detail_custom_field_sets %}
-                        <sw-card v-if="showCustomFields"
-                                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                                 :isLoading="isLoading">
-                            <sw-custom-field-set-renderer
-                                :entity="language"
-                                :disabled="!acl.can('language.editor')"
-                                :sets="customFieldSets">
-                            </sw-custom-field-set-renderer>
-                        </sw-card>
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+            {% block sw_settings_language_detail_custom_field_sets %}
+            <sw-card
+                v-if="showCustomFields"
+                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                :is-loading="isLoading"
+            >
+                <sw-custom-field-set-renderer
+                    :entity="language"
+                    :disabled="!acl.can('language.editor')"
+                    :sets="customFieldSets"
+                />
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

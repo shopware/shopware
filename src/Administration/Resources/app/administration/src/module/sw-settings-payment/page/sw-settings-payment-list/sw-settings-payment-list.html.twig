@@ -1,184 +1,218 @@
 {% block sw_settings_list %}
-    {% block sw_settings_payment_index %}
-        <sw-page class="sw-settings-payment-list">
+{% block sw_settings_payment_index %}
+<sw-page class="sw-settings-payment-list">
 
-            {% block sw_settings_payment_list_search_bar %}
-                <template #search-bar>
-                    <sw-search-bar initialSearchType="payment_method"
-                                   :placeholder="$tc('sw-settings-payment.general.placeholderSearchBar')"
-                                   :initialSearch="term"
-                                   @search="onSearch">
-                    </sw-search-bar>
-                </template>
-            {% endblock %}
-
-            {% block sw_settings_payment_list_smart_bar_header %}
-                <template #smart-bar-header>
-                    {% block sw_settings_payment_list_smart_bar_header_title %}
-                        <h2>
-                            {% block sw_settings_payment_list_smart_bar_header_title_text %}
-                                {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-payment.list.textHeadline') }}
-                            {% endblock %}
-
-                            {% block sw_settings_payment_list_smart_bar_header_amount %}
-                                <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                                    ({{ total }})
-                                </span>
-                            {% endblock %}
-                        </h2>
-                    {% endblock %}
-                </template>
-            {% endblock %}
-
-            {% block sw_settings_payment_list_smart_bar_actions %}
-                <template #smart-bar-actions>
-                    {% block sw_settings_payment_list_smart_bar_actions_add %}
-                        <sw-button
-                            class="sw-settings-payment-list__button-create"
-                            :disabled="!acl.can('payment.creator')"
-                            :routerLink="{ name: 'sw.settings.payment.create' }"
-                            variant="primary"
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('payment.creator'),
-                                showOnDisabledElements: true
-                            }">
-                            {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
-                        </sw-button>
-                    {% endblock %}
-                </template>
-            {% endblock %}
-
-            {% block sw_settings_payment_list_language_switch %}
-                <template #language-switch>
-                    <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-                </template>
-            {% endblock %}
-
-            {% block sw_settings_payment_list_content %}
-                <template #content>
-                    {% block sw_settings_payment_list_content %}
-                        <div class="sw-settings-payment-list__content">
-                            {% block sw_settings_payment_list_grid %}
-                                <sw-entity-listing
-                                    v-if="payment"
-                                    ref="swSettingsPaymentGrid"
-                                    class="sw-settings-payment-list-grid"
-                                    :items="payment"
-                                    :columns="getPaymentColumns()"
-                                    :repository="paymentRepository"
-                                    detailRoute="sw.settings.payment.detail"
-                                    :showSelection="false"
-                                    :allowInlineEdit="acl.can('payment.editor')"
-                                    :isLoading="isLoading"
-                                    @column-sort="onSortColumn"
-                                    @page-change="onPageChange"
-                                    :disableDataFetching="true"
-                                    :sortBy="sortBy"
-                                    :sortDirection="sortDirection"
-                                    @inline-edit-save="onInlineEditSave">
-
-                                    {% block sw_settings_payment_list_column_extension %}
-                                        <template #column-extension="{ item }" v-if="feature.isActive('FEATURE_NEXT_15170')">
-                                            {% block sw_settings_payment_list_column_extension_label %}
-                                                <span class="sw-data-grid__cell-value">
-                                                    {{ getExtensionName(item) }}
-                                               </span>
-                                            {% endblock %}
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_settings_payment_list_column_active %}
-                                        <template #column-active="{ item, isInlineEdit }">
-                                            <template v-if="isInlineEdit">
-                                                {% block sw_settings_payment_list_column_active_editor %}
-                                                    <sw-field type="checkbox"
-                                                              v-model="item.active">
-                                                    </sw-field>
-                                                {% endblock %}
-                                            </template>
-                                            <template v-else>
-                                                {% block sw_settings_payment_list_column_active_label %}
-                                                    <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
-                                                    <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
-                                                {% endblock %}
-                                            </template>
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_settings_payment_list_column_position %}
-                                        <template #column-position="{ item }">
-                                            <sw-data-grid-column-position
-                                                v-model="payment"
-                                                :item="item"
-                                                :disabled="disablePositioning || !acl.can('payment.editor')"
-                                                :showValue="true"
-                                                @position-changed="onPositionChanged">
-                                            </sw-data-grid-column-position>
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_settings_payment_list_grid_columns_actions %}
-                                        <template #actions="{ item }">
-                                            {% block sw_settings_payment_list_grid_columns_actions_edit %}
-                                                <sw-context-menu-item
-                                                    class="sw-settings-payment-list__edit-action"
-                                                    :disabled="!acl.can('payment.editor')"
-                                                    :routerLink="{ name: 'sw.settings.payment.detail', params: { id: item.id, edit: 'edit' }}">
-                                                    {{ $tc('sw-settings-payment.list.contextMenuEdit') }}
-                                                </sw-context-menu-item>
-                                            {% endblock %}
-
-                                            {% block sw_settings_payment_list_grid_columns_actions_delete %}
-                                                <sw-context-menu-item
-                                                    class="sw-settings-payment-list__delete-action"
-                                                    :disabled="!acl.can('payment.deleter')"
-                                                    variant="danger"
-                                                    @click="onDelete(item.id)">
-                                                    {{ $tc('sw-settings-payment.list.contextMenuDelete') }}
-                                                </sw-context-menu-item>
-                                            {% endblock %}
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_settings_payment_list_grid_action_modals %}
-                                        <template #action-modals="{ item }">
-                                            {% block sw_settings_payment_list_delete_modal %}
-                                                <sw-modal v-if="showDeleteModal === item.id"
-                                                          @modal-close="onCloseDeleteModal"
-                                                          :title="$tc('global.default.warning')"
-                                                          variant="small">
-                                                    {% block sw_settings_payment_list_delete_modal_confirm_delete_text %}
-                                                        <p class="sw-settings-payment-list__confirm-delete-text">
-                                                            {{ $tc('sw-settings-payment.list.textDeleteConfirm', 0, { name: item.name }) }}
-                                                        </p>
-                                                    {% endblock %}
-
-                                                    {% block sw_settings_payment_list_delete_modal_footer %}
-                                                        <template #modal-footer>
-                                                            {% block sw_settings_payment_list_delete_modal_cancel %}
-                                                                <sw-button @click="onCloseDeleteModal" size="small">
-                                                                    {{ $tc('sw-settings-payment.list.buttonCancel') }}
-                                                                </sw-button>
-                                                            {% endblock %}
-
-                                                            {% block sw_settings_payment_list_delete_modal_confirm %}
-                                                                <sw-button @click="onConfirmDelete(item.id)" variant="danger" size="small">
-                                                                    {{ $tc('sw-settings-payment.list.buttonDelete') }}
-                                                                </sw-button>
-                                                            {% endblock %}
-                                                        </template>
-                                                        {% endblock %}
-                                                </sw-modal>
-                                            {% endblock %}
-                                        </template>
-                                    {% endblock %}
-                                </sw-entity-listing>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </template>
-            {% endblock %}
-        </sw-page>
+    {% block sw_settings_payment_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="payment_method"
+            :placeholder="$tc('sw-settings-payment.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
     {% endblock %}
+
+    {% block sw_settings_payment_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_payment_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_payment_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }} <sw-icon
+                name="small-arrow-medium-right"
+                small
+            /> {{ $tc('sw-settings-payment.list.textHeadline') }}
+            {% endblock %}
+
+            {% block sw_settings_payment_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_payment_list_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('payment.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-payment-list__button-create"
+            :disabled="!acl.can('payment.creator')"
+            :router-link="{ name: 'sw.settings.payment.create' }"
+            variant="primary"
+        >
+            {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_list_content %}
+    <template #content>
+        {% block sw_settings_payment_list_content %}
+        <div class="sw-settings-payment-list__content">
+            {% block sw_settings_payment_list_grid %}
+            <sw-entity-listing
+                v-if="payment"
+                ref="swSettingsPaymentGrid"
+                class="sw-settings-payment-list-grid"
+                :items="payment"
+                :columns="getPaymentColumns()"
+                :repository="paymentRepository"
+                detail-route="sw.settings.payment.detail"
+                :show-selection="false"
+                :allow-inline-edit="acl.can('payment.editor')"
+                :is-loading="isLoading"
+                :disable-data-fetching="true"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                @column-sort="onSortColumn"
+                @page-change="onPageChange"
+                @inline-edit-save="onInlineEditSave"
+            >
+
+                {% block sw_settings_payment_list_column_extension %}
+                <template
+                    v-if="feature.isActive('FEATURE_NEXT_15170')"
+                    #column-extension="{ item }"
+                >
+                    {% block sw_settings_payment_list_column_extension_label %}
+                    <span class="sw-data-grid__cell-value">
+                        {{ getExtensionName(item) }}
+                    </span>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_payment_list_column_active %}
+                <template #column-active="{ item, isInlineEdit }">
+                    <template v-if="isInlineEdit">
+                        {% block sw_settings_payment_list_column_active_editor %}
+                        <sw-field
+                            v-model="item.active"
+                            type="checkbox"
+                        />
+                        {% endblock %}
+                    </template>
+                    <template v-else>
+                        {% block sw_settings_payment_list_column_active_label %}
+                        <sw-icon
+                            v-if="item.active"
+                            name="small-default-checkmark-line-medium"
+                            small
+                            class="is--active"
+                        />
+                        <sw-icon
+                            v-else
+                            name="small-default-x-line-medium"
+                            small
+                            class="is--inactive"
+                        />
+                        {% endblock %}
+                    </template>
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_payment_list_column_position %}
+                <template #column-position="{ item }">
+                    <sw-data-grid-column-position
+                        v-model="payment"
+                        :item="item"
+                        :disabled="disablePositioning || !acl.can('payment.editor')"
+                        :show-value="true"
+                        @position-changed="onPositionChanged"
+                    />
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_payment_list_grid_columns_actions %}
+                <template #actions="{ item }">
+                    {% block sw_settings_payment_list_grid_columns_actions_edit %}
+                    <sw-context-menu-item
+                        class="sw-settings-payment-list__edit-action"
+                        :disabled="!acl.can('payment.editor')"
+                        :router-link="{ name: 'sw.settings.payment.detail', params: { id: item.id, edit: 'edit' }}"
+                    >
+                        {{ $tc('sw-settings-payment.list.contextMenuEdit') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_settings_payment_list_grid_columns_actions_delete %}
+                    <sw-context-menu-item
+                        class="sw-settings-payment-list__delete-action"
+                        :disabled="!acl.can('payment.deleter')"
+                        variant="danger"
+                        @click="onDelete(item.id)"
+                    >
+                        {{ $tc('sw-settings-payment.list.contextMenuDelete') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_payment_list_grid_action_modals %}
+                <template #action-modals="{ item }">
+                    {% block sw_settings_payment_list_delete_modal %}
+                    <sw-modal
+                        v-if="showDeleteModal === item.id"
+                        :title="$tc('global.default.warning')"
+                        variant="small"
+                        @modal-close="onCloseDeleteModal"
+                    >
+                        {% block sw_settings_payment_list_delete_modal_confirm_delete_text %}
+                        <p class="sw-settings-payment-list__confirm-delete-text">
+                            {{ $tc('sw-settings-payment.list.textDeleteConfirm', 0, { name: item.name }) }}
+                        </p>
+                        {% endblock %}
+
+                        {% block sw_settings_payment_list_delete_modal_footer %}
+                        <template #modal-footer>
+                            {% block sw_settings_payment_list_delete_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('sw-settings-payment.list.buttonCancel') }}
+                            </sw-button>
+                            {% endblock %}
+
+                            {% block sw_settings_payment_list_delete_modal_confirm %}
+                            <sw-button
+                                variant="danger"
+                                size="small"
+                                @click="onConfirmDelete(item.id)"
+                            >
+                                {{ $tc('sw-settings-payment.list.buttonDelete') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-modal>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-entity-listing>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}
 {% endblock %}

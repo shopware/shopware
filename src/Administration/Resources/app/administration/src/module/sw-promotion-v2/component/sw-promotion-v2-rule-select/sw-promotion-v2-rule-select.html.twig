@@ -1,38 +1,41 @@
 {% block sw_promotion_rule_select_v2 %}
-    <div class="sw-promotion-v2-rule-select">
+<div class="sw-promotion-v2-rule-select">
 
-        {% block sw_promotion_rule_select_v2_selection %}
-            <sw-entity-many-to-many-select
-                v-bind="$attrs"
-                v-on="$listeners"
-                class="sw-promotion-v2-rule-select"
-                ref="ruleSelect"
-                :entityCollection="collection"
-                :localMode="localMode"
-                @change="onChange">
+    {% block sw_promotion_rule_select_v2_selection %}
+    <sw-entity-many-to-many-select
+        v-bind="$attrs"
+        ref="ruleSelect"
+        class="sw-promotion-v2-rule-select"
+        :entity-collection="collection"
+        :local-mode="localMode"
+        v-on="$listeners"
+        @change="onChange"
+    >
 
-                <template #before-item-list>
+        <template #before-item-list>
 
-                    {% block sw_promotion_rule_select_v2_selection_before_list %}
-                        <li class="sw-select-result sw-promotion-v2-rule-select__add-new-rule"
-                            @click="showRuleModal = true">
-                            {{ $tc('sw-promotion-v2.ruleSelect.labelAddNewRule') }}
-                        </li>
-                    {% endblock %}
+            {% block sw_promotion_rule_select_v2_selection_before_list %}
+            <li
+                class="sw-select-result sw-promotion-v2-rule-select__add-new-rule"
+                @click="showRuleModal = true"
+            >
+                {{ $tc('sw-promotion-v2.ruleSelect.labelAddNewRule') }}
+            </li>
+            {% endblock %}
 
-                </template>
-            </sw-entity-many-to-many-select>
-        {% endblock %}
+        </template>
+    </sw-entity-many-to-many-select>
+    {% endblock %}
 
-        {% block sw_promotion_rule_select_v2_create_modal %}
-            <sw-rule-modal
-                v-if="showRuleModal"
-                class="sw-promotion-v2-rule-select__create-modal"
-                :allowedRuleScopes="ruleScope"
-                @save="onSaveRule"
-                @modal-close="showRuleModal = false">
-            </sw-rule-modal>
-        {% endblock %}
+    {% block sw_promotion_rule_select_v2_create_modal %}
+    <sw-rule-modal
+        v-if="showRuleModal"
+        class="sw-promotion-v2-rule-select__create-modal"
+        :allowed-rule-scopes="ruleScope"
+        @save="onSaveRule"
+        @modal-close="showRuleModal = false"
+    />
+    {% endblock %}
 
-    </div>
+</div>
 {% endblock %}

@@ -1,52 +1,60 @@
 {% block sw_login_recovery_recovery %}
-    <div class="sw-login-recovery-recovery">
-        {% block sw_login_recovery_recovery_headline %}
-            <h2 class="sw-login__form-headline">
-                <router-link class="sw-login__back" :to="{ name: 'sw.login.index.login' }">
-                    <sw-icon class="sw-login__back-arrow"
-                             name="default-arrow-simple-left"
-                             small>
-                    </sw-icon>
-                </router-link>
-                {{ $tc('sw-login.recovery.recovery.headline') }}
-            </h2>
-        {% endblock %}
-        <template v-if="hashValid === true">
-            {% block sw_login_recovery_recovery_form %}
-                <form @submit.prevent="updatePassword">
-                    {% block sw_login_recovery_recovery_form_new_password_field %}
-                        <sw-password-field :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
-                                           v-model="newPassword"
-                                           ref="swLoginRecoveryRecoveryNewPasswordField">
-                        </sw-password-field>
-                    {% endblock %}
-
-                    {% block sw_login_recovery_recovery_form_password_confirm_field %}
-                    <sw-password-field :label="$tc('sw-login.recovery.recovery.passwordConfirmField.label')"
-                                       v-model="newPasswordConfirm">
-                    </sw-password-field>
-                    {% endblock %}
-
-                    {% block sw_login_recovery_recovery_form_submit %}
-                    <div class="sw-login__submit">
-                        <sw-button variant="primary"
-                                   :disabled="!validatePasswords()">
-                            {{ $tc('sw-login.recovery.recovery.submit.label') }}
-                        </sw-button>
-                    </div>
-                    {% endblock %}
-                </form>
+<div class="sw-login-recovery-recovery">
+    {% block sw_login_recovery_recovery_headline %}
+    <h2 class="sw-login__form-headline">
+        <router-link
+            class="sw-login__back"
+            :to="{ name: 'sw.login.index.login' }"
+        >
+            <sw-icon
+                class="sw-login__back-arrow"
+                name="default-arrow-simple-left"
+                small
+            />
+        </router-link>
+        {{ $tc('sw-login.recovery.recovery.headline') }}
+    </h2>
+    {% endblock %}
+    <template v-if="hashValid === true">
+        {% block sw_login_recovery_recovery_form %}
+        <form @submit.prevent="updatePassword">
+            {% block sw_login_recovery_recovery_form_new_password_field %}
+            <sw-password-field
+                ref="swLoginRecoveryRecoveryNewPasswordField"
+                v-model="newPassword"
+                :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
+            />
             {% endblock %}
-        </template>
 
-        <template v-else-if="hashValid === false">
-            <sw-alert variant="error">
-                {{ $tc('sw-login.recovery.recovery.errorMessage') }}
-            </sw-alert>
-        </template>
+            {% block sw_login_recovery_recovery_form_password_confirm_field %}
+            <sw-password-field
+                v-model="newPasswordConfirm"
+                :label="$tc('sw-login.recovery.recovery.passwordConfirmField.label')"
+            />
+            {% endblock %}
 
-        <template v-else>
-            <sw-loader></sw-loader>
-        </template>
-    </div>
+            {% block sw_login_recovery_recovery_form_submit %}
+            <div class="sw-login__submit">
+                <sw-button
+                    variant="primary"
+                    :disabled="!validatePasswords()"
+                >
+                    {{ $tc('sw-login.recovery.recovery.submit.label') }}
+                </sw-button>
+            </div>
+            {% endblock %}
+        </form>
+        {% endblock %}
+    </template>
+
+    <template v-else-if="hashValid === false">
+        <sw-alert variant="error">
+            {{ $tc('sw-login.recovery.recovery.errorMessage') }}
+        </sw-alert>
+    </template>
+
+    <template v-else>
+        <sw-loader />
+    </template>
+</div>
 {% endblock %}

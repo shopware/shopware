@@ -1,46 +1,58 @@
 {% block sw_notifications %}
-    <transition name="sw-notifications-slide-fade">
+<transition name="sw-notifications-slide-fade">
 
-        {% block sw_notifications_element %}
-            <div v-if="notifications.length" class="sw-notifications" :style="notificationsStyle">
+    {% block sw_notifications_element %}
+    <div
+        v-if="notifications.length"
+        class="sw-notifications"
+        :style="notificationsStyle"
+    >
 
-                {% block sw_notifications_transition_group %}
-                    <transition-group name="sw-notifications-slide-fade">
+        {% block sw_notifications_transition_group %}
+        <transition-group name="sw-notifications-slide-fade">
 
-                        {% block sw_notifications_item %}
-                            <sw-alert
-                                v-for="(notification, index) in notifications"
-                                :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
-                                :key="notification.uuid"
-                                :title="notification.title"
-                                :variant="notification.variant"
-                                :appearance="notification.system ? 'system' : 'notification'"
-                                :notificationIndex="notification.uuid"
-                                :closable="true"
-                                @close="onClose(notification)">
+            {% block sw_notifications_item %}
+            <sw-alert
+                v-for="(notification, index) in notifications"
+                :key="notification.uuid"
+                :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
+                :title="notification.title"
+                :variant="notification.variant"
+                :appearance="notification.system ? 'system' : 'notification'"
+                :notification-index="notification.uuid"
+                :closable="true"
+                @close="onClose(notification)"
+            >
 
-                                {% block sw_notifications_item_content %}
-                                    <div slot="default" v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"></div>
-                                {% endblock %}
-
-                                {% block sw_notifications_item_actions_slot %}
-                                    <template #actions>
-                                        {% block sw_notifications_item_actions %}
-                                            <template v-for="action in notification.actions">
-                                                {% block sw_notifications_item_action_item %}
-                                                    <sw-button @click="handleAction(action, notification)" :disabled="action.disabled">
-                                                        {{ action.label }}
-                                                    </sw-button>
-                                                {% endblock %}
-                                            </template>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                            </sw-alert>
-                        {% endblock %}
-                    </transition-group>
+                {% block sw_notifications_item_content %}
+                <div
+                    slot="default"
+                    v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+                />
                 {% endblock %}
-            </div>
+
+                {% block sw_notifications_item_actions_slot %}
+                <template #actions>
+                    {% block sw_notifications_item_actions %}
+                    <template v-for="action in notification.actions">
+                        {% block sw_notifications_item_action_item %}
+                        <sw-button
+                            :key="action.label"
+                            :disabled="action.disabled"
+                            @click="handleAction(action, notification)"
+                        >
+                            {{ action.label }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-alert>
+            {% endblock %}
+        </transition-group>
         {% endblock %}
-    </transition>
+    </div>
+    {% endblock %}
+</transition>
 {% endblock %}

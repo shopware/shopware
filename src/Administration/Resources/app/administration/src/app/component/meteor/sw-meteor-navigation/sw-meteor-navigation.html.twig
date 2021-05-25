@@ -1,15 +1,25 @@
 {% block sw_meteor_navigation %}
-    <div v-if="hasParentRoute" class="sw-meteor-navigation">
-        {% block sw_meteor_navigation_link %}
-            <router-link :to="{ name: parentRoute.name }" class="sw-meteor-navigation__link">
-                {% block sw_meteor_navigation_link_icon %}
-                    <sw-icon class="sw-meteor-navigation__back-arrow" name="default-arrow-simple-left" size="14px"></sw-icon>
-                {% endblock %}
-
-                {% block sw_meteor_navigation_link_label %}
-                    {{ parentRoute.label }}
-                {% endblock %}
-            </router-link>
+<div
+    v-if="hasParentRoute"
+    class="sw-meteor-navigation"
+>
+    {% block sw_meteor_navigation_link %}
+    <router-link
+        :to="{ name: parentRoute.name }"
+        class="sw-meteor-navigation__link"
+    >
+        {% block sw_meteor_navigation_link_icon %}
+        <sw-icon
+            class="sw-meteor-navigation__back-arrow"
+            name="default-arrow-simple-left"
+            size="14px"
+        />
         {% endblock %}
-    </div>
+
+        {% block sw_meteor_navigation_link_label %}
+        {{ parentRoute.label }}
+        {% endblock %}
+    </router-link>
+    {% endblock %}
+</div>
 {% endblock %}

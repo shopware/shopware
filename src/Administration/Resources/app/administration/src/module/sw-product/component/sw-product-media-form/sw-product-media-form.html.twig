@@ -1,64 +1,75 @@
 {% block sw_product_media_form %}
-    <div class="sw-product-media-form" :class="{ 'is--disabled': disabled }">
-        {% block sw_product_media_form_upload %}
-            <sw-upload-listener
-                v-if="!isLoading"
-                :uploadTag="product.id"
-                autoUpload
-                @media-upload-finish="successfulUpload"
-                @media-upload-fail="onUploadFailed">
-            </sw-upload-listener>
+<div
+    class="sw-product-media-form"
+    :class="{ 'is--disabled': disabled }"
+>
+    {% block sw_product_media_form_upload %}
+    <sw-upload-listener
+        v-if="!isLoading"
+        :upload-tag="product.id"
+        auto-upload
+        @media-upload-finish="successfulUpload"
+        @media-upload-fail="onUploadFailed"
+    />
 
-            <sw-media-upload-v2
-                v-if="!isLoading && acl.can('product.editor')"
-                variant="regular"
-                :uploadTag="product.id"
-                :scrollTarget="$parent.$el"
-                :defaultFolder="product.getEntityName()"
-                @media-upload-sidebar-open="onOpenMedia">
-            </sw-media-upload-v2>
-        {% endblock %}
+    <sw-media-upload-v2
+        v-if="!isLoading && acl.can('product.editor')"
+        variant="regular"
+        :upload-tag="product.id"
+        :scroll-target="$parent.$el"
+        :default-folder="product.getEntityName()"
+        @media-upload-sidebar-open="onOpenMedia"
+    />
+    {% endblock %}
 
-        {% block sw_product_media_form_grid %}
-            <div class="sw-product-media-form__previews">
-                <div class="sw-product-media-form__cover-container sw-product-media-form__column">
-                    {% block sw_product_media_form_cover_preview %}
-                        <div v-if="product.cover || cover" class="sw-product-media-form__preview-cover">
-                                <div class="preview-cover">
-                                    {% block sw_product_media_form_cover_image %}
-                                        <sw-media-preview-v2
-                                            class="sw-product-media-form__cover-image"
-                                            :source="cover ? cover.mediaId : product.cover.mediaId">
-                                        </sw-media-preview-v2>
-                                    {% endblock %}
-                                    <span>{{ $tc('sw-product.mediaForm.coverSubline') }}</span>
-                                </div>
-                        </div>
-                        <div v-else class="sw-product-media-form__cover-image is--placeholder">
-                            {{ $tc('sw-product.mediaForm.coverSubline') }}
-                        </div>
+    {% block sw_product_media_form_grid %}
+    <div class="sw-product-media-form__previews">
+        <div class="sw-product-media-form__cover-container sw-product-media-form__column">
+            {% block sw_product_media_form_cover_preview %}
+            <div
+                v-if="product.cover || cover"
+                class="sw-product-media-form__preview-cover"
+            >
+                <div class="preview-cover">
+                    {% block sw_product_media_form_cover_image %}
+                    <sw-media-preview-v2
+                        class="sw-product-media-form__cover-image"
+                        :source="cover ? cover.mediaId : product.cover.mediaId"
+                    />
                     {% endblock %}
+                    <span>{{ $tc('sw-product.mediaForm.coverSubline') }}</span>
                 </div>
-
-                <div v-if="!isLoading"
-                     class="sw-product-media-form__grid sw-product-media-form__column"
-                     :style="gridAutoRows">
-                    {%  block sw_product_media_form_grid_items %}
-                        <sw-product-image
-                            v-for="mediaItem in mediaItems"
-                            :key="mediaItem.id"
-                            :isCover="isCover(mediaItem)"
-                            :isPlaceholder="mediaItem.isPlaceholder"
-                            :mediaId="mediaItem.mediaId"
-                            v-draggable="{ dragGroup: 'product-media', data: mediaItem, onDragEnter: onMediaItemDragSort }"
-                            v-droppable="{ dragGroup: 'product-media', data: mediaItem }"
-                            @sw-product-image-delete="removeFile(mediaItem)"
-                            @sw-product-image-cover="markMediaAsCover(mediaItem)">
-                        </sw-product-image>
-                    {% endblock %}
-                </div>
-                <sw-loader v-else></sw-loader>
             </div>
-        {% endblock %}
+            <div
+                v-else
+                class="sw-product-media-form__cover-image is--placeholder"
+            >
+                {{ $tc('sw-product.mediaForm.coverSubline') }}
+            </div>
+            {% endblock %}
+        </div>
+
+        <div
+            v-if="!isLoading"
+            class="sw-product-media-form__grid sw-product-media-form__column"
+            :style="gridAutoRows"
+        >
+            {%  block sw_product_media_form_grid_items %}
+            <sw-product-image
+                v-for="mediaItem in mediaItems"
+                :key="mediaItem.id"
+                v-draggable="{ dragGroup: 'product-media', data: mediaItem, onDragEnter: onMediaItemDragSort }"
+                v-droppable="{ dragGroup: 'product-media', data: mediaItem }"
+                :is-cover="isCover(mediaItem)"
+                :is-placeholder="mediaItem.isPlaceholder"
+                :media-id="mediaItem.mediaId"
+                @sw-product-image-delete="removeFile(mediaItem)"
+                @sw-product-image-cover="markMediaAsCover(mediaItem)"
+            />
+            {% endblock %}
+        </div>
+        <sw-loader v-else />
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

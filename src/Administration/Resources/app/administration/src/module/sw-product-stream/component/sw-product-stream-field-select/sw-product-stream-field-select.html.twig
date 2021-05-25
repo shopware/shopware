@@ -1,14 +1,16 @@
 {% block sw_condition_base_field_condition %}
-    <sw-arrow-field class="sw-product-stream-field-select"
-                    primary="#758ca3"
-                    secondary="#ffffff">
-        <sw-single-select
-            size="medium"
-            :options="options"
-            :value="field"
-            :placeholder="$tc('sw-product-stream.filter.placeholderFieldSelect')"
-            @change="changeField"
-            :disabled="disabled">
-        </sw-single-select>
-    </sw-arrow-field>
+<sw-arrow-field
+    class="sw-product-stream-field-select"
+    primary="#758ca3"
+    secondary="#ffffff"
+>
+    <sw-single-select
+        size="medium"
+        :options="options"
+        :value="field"
+        :placeholder="$tc('sw-product-stream.filter.placeholderFieldSelect')"
+        :disabled="disabled"
+        @change="changeField"
+    />
+</sw-arrow-field>
 {% endblock %}

@@ -1,52 +1,56 @@
 {% block sw_mail_template_list_grid %}
-    <sw-card :title="$tc('sw-mail-template.list.titleMailTemplateList')">
+<sw-card :title="$tc('sw-mail-template.list.titleMailTemplateList')">
 
-        <template>
-            {% block sw_mail_template_list_grid_empty_state %}
-                <sw-empty-state v-if="!showListing"
-                    :title="$tc('sw-mail-template.list.emptyStateTitle')"
-                    :subline="$tc('sw-mail-template.list.emptyStateSubTitle')"
-                    :absolute="false">
+    <template>
+        {% block sw_mail_template_list_grid_empty_state %}
+        <sw-empty-state
+            v-if="!showListing"
+            :title="$tc('sw-mail-template.list.emptyStateTitle')"
+            :subline="$tc('sw-mail-template.list.emptyStateSubTitle')"
+            :absolute="false"
+        >
 
-                    {% block sw_mail_template_list_grid_empty_state_icon %}
-                        <template #icon>
-                            <img :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset">
-                        </template>
-                    {% endblock %}
-
-                </sw-empty-state>
+            {% block sw_mail_template_list_grid_empty_state_icon %}
+            <template #icon>
+                <img :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset">
+            </template>
             {% endblock %}
-        </template>
 
-        <template #grid>
-            <sw-entity-listing
-                v-if="showListing"
-                class="sw-mail-templates-list-grid"
-                id="mailTemplateGrid"
-                detailRoute="sw.mail.template.detail"
-                :items="mailTemplates"
-                :columns="getListColumns()"
-                :repository="mailTemplateRepository"
-                :fullPage="false"
-                :isLoading="isLoading"
-                :allowView="acl.can('mail_templates.viewer')"
-                :allowEdit="acl.can('mail_templates.editor')"
-                :allowDelete="acl.can('mail_templates.deleter')"
-                :showSelection="acl.can('mail_templates.deleter')"
-                :skeletonItemAmount="skeletonItemAmount"
-                @update-records="updateRecords">
+        </sw-empty-state>
+        {% endblock %}
+    </template>
 
-                <template #more-actions="{ item }">
-                    {% block sw_mail_template_list_grid_columns_actions_duplicate %}
-                        <sw-context-menu-item
-                            class="sw-mail-template-list-grid__duplicate-action"
-                            :disabled="!acl.can('mail_templates.creator')"
-                            @click="onDuplicate(item.id)">
-                            {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
-                </template>
-            </sw-entity-listing>
-        </template>
-    </sw-card>
+    <template #grid>
+        <sw-entity-listing
+            v-if="showListing"
+            id="mailTemplateGrid"
+            class="sw-mail-templates-list-grid"
+            detail-route="sw.mail.template.detail"
+            :items="mailTemplates"
+            :columns="getListColumns()"
+            :repository="mailTemplateRepository"
+            :full-page="false"
+            :is-loading="isLoading"
+            :allow-view="acl.can('mail_templates.viewer')"
+            :allow-edit="acl.can('mail_templates.editor')"
+            :allow-delete="acl.can('mail_templates.deleter')"
+            :show-selection="acl.can('mail_templates.deleter')"
+            :skeleton-item-amount="skeletonItemAmount"
+            @update-records="updateRecords"
+        >
+
+            <template #more-actions="{ item }">
+                {% block sw_mail_template_list_grid_columns_actions_duplicate %}
+                <sw-context-menu-item
+                    class="sw-mail-template-list-grid__duplicate-action"
+                    :disabled="!acl.can('mail_templates.creator')"
+                    @click="onDuplicate(item.id)"
+                >
+                    {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+        </sw-entity-listing>
+    </template>
+</sw-card>
 {% endblock %}

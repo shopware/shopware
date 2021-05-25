@@ -1,90 +1,105 @@
 {% block sw_settings_units %}
-    <sw-page class="sw-settings-units">
+<sw-page class="sw-settings-units">
 
-        {% block sw_settings_units_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar></sw-search-bar>
-            </template>
+    {% block sw_settings_units_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_units_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_units_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_units_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-units.general.mainMenuItemGeneral') }}
+            {% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_units_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_settings_units_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_units_smart_bar_header_title_text %}
-                            {{ $tc('sw-settings.index.title') }}
-                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                            {{ $tc('sw-settings-units.general.mainMenuItemGeneral') }}
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
+    {% block sw_settings_units_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_units_actions_save %}
+        <sw-button
+            v-tooltip="tooltipCreate"
+            class="sw-settings-units__create-action"
+            variant="primary"
+            :disabled="isAddingUnitsDisabled || !acl.can('scale_unit.creator')"
+            @click="createNewUnit"
+        >
+            {{ $tc('sw-settings-units.general.createNewUnit') }}
+        </sw-button>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_units_smart_bar_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_units_actions_save %}
-                    <sw-button
-                        class="sw-settings-units__create-action"
-                        variant="primary"
-                        :disabled="isAddingUnitsDisabled || !acl.can('scale_unit.creator')"
-                        v-tooltip="tooltipCreate"
-                        @click="createNewUnit">
-                        {{ $tc('sw-settings-units.general.createNewUnit') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        {% endblock %}
+    {% block sw_settings_units_language_switch %}
+    <sw-language-switch
+        slot="language-switch"
+        :disabled="!!newUnit"
+        @on-change="onChangeLanguage"
+    />
+    {% endblock %}
 
-        {% block sw_settings_units_language_switch %}
-            <sw-language-switch
-                slot="language-switch"
-                :disabled="!!newUnit"
-                @on-change="onChangeLanguage"></sw-language-switch>
-        {% endblock %}
+    {% block sw_settings_units_content %}
+    <sw-card-view slot="content">
+        <sw-card
+            :is-loading="isLoading"
+            :class="{ 'sw-settings-units-card-empty': isEmpty }"
+        >
+            {% block sw_settings_units_content_empty_state %}
+            <sw-empty-state
+                v-if="isEmpty"
+                :title="$tc('sw-settings-units.empty-state.title')"
+                :subline="$tc('sw-settings-units.empty-state.subline')"
+                icon="default-object-scale"
+            />
+            {% endblock %}
 
-        {% block sw_settings_units_content %}
-            <sw-card-view slot="content">
-                <sw-card :isLoading="isLoading" :class="{ 'sw-settings-units-card-empty': isEmpty }">
-                    {% block sw_settings_units_content_empty_state %}
-                        <sw-empty-state v-if="isEmpty"
-                                        :title="$tc('sw-settings-units.empty-state.title')"
-                                        :subline="$tc('sw-settings-units.empty-state.subline')"
-                                        icon="default-object-scale">
-                        </sw-empty-state>
-                    {% endblock %}
+            <template #grid>
+                {% block sw_settings_units_content_grid %}
+                <sw-data-grid
+                    v-show="!isEmpty"
+                    ref="swDataGrid"
+                    class="sw-settings-units-grid"
+                    :is-loading="isLoading"
+                    :data-source="unitList"
+                    :columns="unitColumns()"
+                    :show-selection="false"
+                    :allow-inline-edit="acl.can('scale_unit.editor')"
+                    :skeleton-item-amount="placeholderAmount"
+                    @inline-edit-save="saveUnit"
+                    @inline-edit-cancel="cancelUnit"
+                >
 
-                    <template #grid>
-                        {% block sw_settings_units_content_grid %}
-                            <sw-data-grid v-show="!isEmpty"
-                                          class="sw-settings-units-grid"
-                                          ref="swDataGrid"
-                                          :isLoading="isLoading"
-                                          :dataSource="unitList"
-                                          :columns="unitColumns()"
-                                          :showSelection="false"
-                                          :allowInlineEdit="acl.can('scale_unit.editor')"
-                                          :skeletonItemAmount="placeholderAmount"
-                                          @inline-edit-save="saveUnit"
-                                          @inline-edit-cancel="cancelUnit">
-
-                                <template slot="actions" slot-scope="{ item }">
-                                    {% block sw_settings_units_content_grid_column_menu_delete %}
-                                        <sw-context-menu-item
-                                            class="sw-settings-units__delete-action"
-                                            @click="deleteUnit(item)"
-                                            variant="danger"
-                                            :disabled="!acl.can('scale_unit.deleter')">
-                                            {{ $tc('sw-settings-units.grid.contextMenuDelete') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-                                </template>
-
-                            </sw-data-grid>
+                    <template
+                        slot="actions"
+                        slot-scope="{ item }"
+                    >
+                        {% block sw_settings_units_content_grid_column_menu_delete %}
+                        <sw-context-menu-item
+                            class="sw-settings-units__delete-action"
+                            variant="danger"
+                            :disabled="!acl.can('scale_unit.deleter')"
+                            @click="deleteUnit(item)"
+                        >
+                            {{ $tc('sw-settings-units.grid.contextMenuDelete') }}
+                        </sw-context-menu-item>
                         {% endblock %}
                     </template>
-                </sw-card>
-            </sw-card-view>
-        {% endblock %}
-    </sw-page>
+
+                </sw-data-grid>
+                {% endblock %}
+            </template>
+        </sw-card>
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
 {% endblock %}

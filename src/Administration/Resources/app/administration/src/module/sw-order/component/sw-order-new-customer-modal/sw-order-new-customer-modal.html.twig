@@ -1,101 +1,120 @@
 {% block sw_order_new_customer_modal %}
-    <sw-modal :title="$tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer')"
-              @modal-close="onClose">
-        {% block sw_order_new_customer_modal_tabs %}
-            <sw-tabs class="sw-order-new-customer-modal" defaultItem="details">
-                <template #default="{ active }">
-                    {% block sw_order_new_customer_modal_tabs_details %}
-                        <sw-tabs-item name="details" :activeTab="active">
-                            {{ $tc('sw-order.newCustomerModal.labelDetails') }}
-                        </sw-tabs-item>
-                    {% endblock %}
+<sw-modal
+    :title="$tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer')"
+    @modal-close="onClose"
+>
+    {% block sw_order_new_customer_modal_tabs %}
+    <sw-tabs
+        class="sw-order-new-customer-modal"
+        default-item="details"
+    >
+        <template #default="{ active }">
+            {% block sw_order_new_customer_modal_tabs_details %}
+            <sw-tabs-item
+                name="details"
+                :active-tab="active"
+            >
+                {{ $tc('sw-order.newCustomerModal.labelDetails') }}
+            </sw-tabs-item>
+            {% endblock %}
 
-                    {% block sw_order_new_customer_modal_tabs_billing %}
-                        <sw-tabs-item name="billingAddress"
-                                      :activeTab="active">
-                            {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
-                        </sw-tabs-item>
-                    {% endblock %}
+            {% block sw_order_new_customer_modal_tabs_billing %}
+            <sw-tabs-item
+                name="billingAddress"
+                :active-tab="active"
+            >
+                {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
+            </sw-tabs-item>
+            {% endblock %}
 
-                    {% block sw_order_new_customer_modal_tabs_shipping %}
-                        <sw-tabs-item name="shippingAddress"
-                                      :activeTab="active">
-                            {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
-                        </sw-tabs-item>
-                    {% endblock %}
-                </template>
+            {% block sw_order_new_customer_modal_tabs_shipping %}
+            <sw-tabs-item
+                name="shippingAddress"
+                :active-tab="active"
+            >
+                {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
 
-                <template #content="{ active }">
-                    {% block sw_order_new_customer_modal_content_details %}
-                        <div v-if="active ==='details'">
-                            {% block sw_order_new_customer_modal_content_details_guest %}
-                                <sw-field noMarginTop
-                                          type="switch"
-                                          :label="$tc('sw-order.newCustomerModal.labelGuest')"
-                                          v-model="customer.guest">
-                                </sw-field>
-                            {% endblock %}
-                            {% block sw_order_new_customer_modal_content_details_form %}
-                                <sw-customer-base-form
-                                    :isLoading="isLoading"
-                                    :customer="customer"
-                                    @sales-channel-change="onChangeSalesChannel">
-                                </sw-customer-base-form>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+        <template #content="{ active }">
+            {% block sw_order_new_customer_modal_content_details %}
+            <div v-if="active ==='details'">
+                {% block sw_order_new_customer_modal_content_details_guest %}
+                <sw-field
+                    v-model="customer.guest"
+                    no-margin-top
+                    type="switch"
+                    :label="$tc('sw-order.newCustomerModal.labelGuest')"
+                />
+                {% endblock %}
+                {% block sw_order_new_customer_modal_content_details_form %}
+                <sw-customer-base-form
+                    :is-loading="isLoading"
+                    :customer="customer"
+                    @sales-channel-change="onChangeSalesChannel"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
 
-                    {% block sw_order_new_customer_modal_content_shipping %}
-                        <div v-if="active === 'shippingAddress'">
-                            {% block sw_order_new_customer_modal_content_shipping_same_billing %}
-                                <sw-field noMarginTop
-                                          type="switch"
-                                          :label="$tc('sw-customer.addressForm.labelSameBillingAddress')"
-                                          v-model="isSameBilling">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_order_new_customer_modal_content_shipping_form %}
-                                <sw-customer-address-form
-                                    :customer="customer"
-                                    :disabled="isSameBilling"
-                                    :address=shippingAddress>
-                                </sw-customer-address-form>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    {% block sw_order_new_customer_modal_content_billing %}
-                        <div v-if="active ==='billingAddress'">
-                            {% block sw_order_new_customer_modal_content_billing_form %}
-                                <sw-customer-address-form
-                                    :customer="customer"
-                                    :address="billingAddress">
-                                </sw-customer-address-form>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </template>
-            </sw-tabs>
-        {% endblock %}
-
-        {% block sw_order_new_customer_modal_actions %}
-            <template #modal-footer>
-                {% block sw_order_new_customer_modal_action_close %}
-                    <sw-button size="small" @click="onClose">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
+            {% block sw_order_new_customer_modal_content_shipping %}
+            <div v-if="active === 'shippingAddress'">
+                {% block sw_order_new_customer_modal_content_shipping_same_billing %}
+                <sw-field
+                    v-model="isSameBilling"
+                    no-margin-top
+                    type="switch"
+                    :label="$tc('sw-customer.addressForm.labelSameBillingAddress')"
+                />
                 {% endblock %}
 
-                {% block sw_order_new_customer_modal_actions_apply %}
-                    <sw-button size="small"
-                               variant="primary"
-                               :isLoading="isLoading"
-                               @click="onSave">
-                        {{ $tc('global.default.save') }}
-                    </sw-button>
+                {% block sw_order_new_customer_modal_content_shipping_form %}
+                <sw-customer-address-form
+                    :customer="customer"
+                    :disabled="isSameBilling"
+                    :address="shippingAddress"
+                />
                 {% endblock %}
-            </template>
+            </div>
+            {% endblock %}
+
+            {% block sw_order_new_customer_modal_content_billing %}
+            <div v-if="active ==='billingAddress'">
+                {% block sw_order_new_customer_modal_content_billing_form %}
+                <sw-customer-address-form
+                    :customer="customer"
+                    :address="billingAddress"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </template>
+    </sw-tabs>
+    {% endblock %}
+
+    {% block sw_order_new_customer_modal_actions %}
+    <template #modal-footer>
+        {% block sw_order_new_customer_modal_action_close %}
+        <sw-button
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+
+        {% block sw_order_new_customer_modal_actions_apply %}
+        <sw-button
+            size="small"
+            variant="primary"
+            :is-loading="isLoading"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

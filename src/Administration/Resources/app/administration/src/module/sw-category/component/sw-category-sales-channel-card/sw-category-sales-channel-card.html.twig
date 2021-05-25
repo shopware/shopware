@@ -1,79 +1,105 @@
 {# @deprecated tag:v6.5.0 - will be removed and has been replaced by sw-category-entry-modal-card #}
 {% block sw_category_sales_channel_card %}
-    <sw-card class="sw-category-sales-channel-card"
-             :title="$tc('sw-category.base.entry-point.title')"
-             :isLoading="isLoading">
+<sw-card
+    class="sw-category-sales-channel-card"
+    :title="$tc('sw-category.base.entry-point.title')"
+    :is-loading="isLoading"
+>
+
+    {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    {% block sw_category_detail_entry_point_navigation_headline %}
+    <p
+        v-if="navigationSalesChannels.length"
+        class="sw-category-sales-channel-card-desc"
+    >
+        {{ $tc('sw-category.base.entry-point.navigation.descriptionGeneral') }}
+    </p>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    {% block sw_category_detail_entry_point_navigation_list %}
+    <div
+        v-if="navigationSalesChannels.length"
+        class="sw-category-sales-channel-card__list"
+    >
 
         {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-        {% block sw_category_detail_entry_point_navigation_headline %}
-            <p class="sw-category-sales-channel-card-desc" v-if="navigationSalesChannels.length">
-                {{ $tc('sw-category.base.entry-point.navigation.descriptionGeneral') }}
-            </p>
+        {% block sw_category_detail_entry_point_navigation_list_link %}
+        <router-link
+            v-for="salesChannel in navigationSalesChannels"
+            :key="salesChannel.id"
+            :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
+            class="sw-category-sales-channel-card__entry"
+        >
+            {{ salesChannel.name }}
+        </router-link>
         {% endblock %}
+
+    </div>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    {% block sw_category_detail_entry_point_serviceSales_headline %}
+    <p
+        v-if="serviceSalesChannels.length"
+        class="sw-category-sales-channel-card-desc"
+    >
+        {{ $tc('sw-category.base.entry-point.serviceSales.descriptionGeneral') }}
+    </p>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    {% block sw_category_detail_entry_point_serviceSales_list %}
+    <div
+        v-if="serviceSalesChannels.length"
+        class="sw-category-sales-channel-card__list"
+    >
 
         {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-        {% block sw_category_detail_entry_point_navigation_list %}
-            <div class="sw-category-sales-channel-card__list" v-if="navigationSalesChannels.length">
-
-                {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-                {% block sw_category_detail_entry_point_navigation_list_link %}
-                    <router-link v-for="salesChannel in navigationSalesChannels"
-                                 :key="salesChannel.id"
-                                 :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
-                                 class="sw-category-sales-channel-card__entry">
-                        {{ salesChannel.name }}
-                    </router-link>
-                {% endblock %}
-
-            </div>
+        {% block sw_category_detail_entry_point_serviceSales_list_link %}
+        <router-link
+            v-for="salesChannel in serviceSalesChannels"
+            :key="salesChannel.id"
+            :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
+            class="sw-category-sales-channel-card__entry"
+        >
+            {{ salesChannel.name }}
+        </router-link>
         {% endblock %}
+
+    </div>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    {% block sw_category_detail_entry_point_footerSales_headline %}
+    <p
+        v-if="footerSalesChannels.length"
+        class="sw-category-sales-channel-card-desc"
+    >
+        {{ $tc('sw-category.base.entry-point.footerSales.descriptionGeneral') }}
+    </p>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    {% block sw_category_detail_entry_point_footerSales_list %}
+    <div
+        v-if="footerSalesChannels.length"
+        class="sw-category-sales-channel-card__list"
+    >
 
         {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-        {% block sw_category_detail_entry_point_serviceSales_headline %}
-            <p class="sw-category-sales-channel-card-desc" v-if="serviceSalesChannels.length">
-                {{ $tc('sw-category.base.entry-point.serviceSales.descriptionGeneral') }}
-            </p>
+        {% block sw_category_detail_entry_point_footerSales_list_link %}
+        <router-link
+            v-for="salesChannel in footerSalesChannels"
+            :key="salesChannel.id"
+            :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
+            class="sw-category-sales-channel-card__entry"
+        >
+            {{ salesChannel.name }}
+        </router-link>
         {% endblock %}
 
-        {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-        {% block sw_category_detail_entry_point_serviceSales_list %}
-            <div class="sw-category-sales-channel-card__list" v-if="serviceSalesChannels.length">
-
-                {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-                {% block sw_category_detail_entry_point_serviceSales_list_link %}
-                    <router-link v-for="salesChannel in serviceSalesChannels"
-                                 v-bind:key="salesChannel.id"
-                                 :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
-                                 class="sw-category-sales-channel-card__entry">
-                        {{ salesChannel.name }}
-                    </router-link>
-                {% endblock %}
-
-            </div>
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-        {% block sw_category_detail_entry_point_footerSales_headline %}
-            <p class="sw-category-sales-channel-card-desc" v-if="footerSalesChannels.length">
-                {{ $tc('sw-category.base.entry-point.footerSales.descriptionGeneral') }}
-            </p>
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-        {% block sw_category_detail_entry_point_footerSales_list %}
-            <div class="sw-category-sales-channel-card__list" v-if="footerSalesChannels.length">
-
-                {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-                {% block sw_category_detail_entry_point_footerSales_list_link %}
-                    <router-link v-for="salesChannel in footerSalesChannels"
-                                 v-bind:key="salesChannel.id"
-                                 :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
-                                 class="sw-category-sales-channel-card__entry">
-                        {{ salesChannel.name }}
-                    </router-link>
-                {% endblock %}
-
-            </div>
-        {% endblock %}
-    </sw-card>
+    </div>
+    {% endblock %}
+</sw-card>
 {% endblock %}

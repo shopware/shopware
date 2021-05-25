@@ -1,19 +1,23 @@
 <div class="sw-cms-el-config-product-listing-config-sorting-grid">
 
-    <sw-data-grid class="sw-cms-el-config-product-listing-config-sorting-grid__grid"
-        :dataSource="visibleProductSortings"
+    <sw-data-grid
+        class="sw-cms-el-config-product-listing-config-sorting-grid__grid"
+        :data-source="visibleProductSortings"
         :columns="gridColumns"
-        :compactMode="false"
-        :allowInlineEdit="true"
-        :showSelection="false"
-        plainAppearance>
+        :compact-mode="false"
+        :allow-inline-edit="true"
+        :show-selection="false"
+        plain-appearance
+    >
 
         <template #actions="{ item }">
-            <sw-context-menu-item v-if="!item.locked"
-                @click="onDelete(item)"
+            <sw-context-menu-item
+                v-if="!item.locked"
                 :class="'sw-cms-el-config-product-listing-config-sorting-grid__grid_item_' + item.id"
                 variant="danger"
-                :disabled="isDefaultSorting(item)">
+                :disabled="isDefaultSorting(item)"
+                @click="onDelete(item)"
+            >
                 {{ $tc('global.default.delete') }}
             </sw-context-menu-item>
         </template>
@@ -29,9 +33,9 @@
                 :limit="limit"
                 :total="total"
                 :steps="steps"
-                :autoHide="false"
-                @page-change="onPageChange">
-            </sw-pagination>
+                :auto-hide="false"
+                @page-change="onPageChange"
+            />
         </template>
     </sw-data-grid>
 </div>

@@ -1,35 +1,35 @@
 {% block sw_import_export_view_export %}
-    <div class="sw-import-export-view-export">
-        {% block sw_import_export_view_export_exporter %}
-            <sw-card :title="$tc('sw-import-export.exporter.exportLabel')">
-                <sw-import-export-exporter
-                    @export-finish="reloadContent">
-                </sw-import-export-exporter>
-            </sw-card>
+<div class="sw-import-export-view-export">
+    {% block sw_import_export_view_export_exporter %}
+    <sw-card :title="$tc('sw-import-export.exporter.exportLabel')">
+        <sw-import-export-exporter
+            @export-finish="reloadContent"
+        />
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_import_export_view_export_activity %}
+    <sw-card class="sw-import-export-view-export__activity">
+        {% block sw_import_export_view_export_activity_title %}
+        <template #title>
+            <div class="sw-card__title">
+                {{ $tc('sw-import-export.exporter.exportActivityLabel') }}
+                <p class="sw-import-export__card-subtitle">
+                    {{ $tc('sw-import-export.exporter.exportActivityDescription') }}
+                </p>
+            </div>
+        </template>
         {% endblock %}
 
-        {% block sw_import_export_view_export_activity %}
-            <sw-card class="sw-import-export-view-export__activity">
-                {% block sw_import_export_view_export_activity_title %}
-                <template #title>
-                    <div class="sw-card__title">
-                        {{ $tc('sw-import-export.exporter.exportActivityLabel') }}
-                        <p class="sw-import-export__card-subtitle">
-                            {{ $tc('sw-import-export.exporter.exportActivityDescription') }}
-                        </p>
-                    </div>
-                </template>
-                {% endblock %}
-
-                {% block sw_import_export_view_export_activity_grid %}
-                    <template #grid>
-                        <sw-import-export-activity
-                            ref="activityGrid"
-                            type="export">
-                        </sw-import-export-activity>
-                    </template>
-                {% endblock %}
-            </sw-card>
+        {% block sw_import_export_view_export_activity_grid %}
+        <template #grid>
+            <sw-import-export-activity
+                ref="activityGrid"
+                type="export"
+            />
+        </template>
         {% endblock %}
-    </div>
+    </sw-card>
+    {% endblock %}
+</div>
 {% endblock %}

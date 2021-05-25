@@ -1,64 +1,73 @@
 {% block sw_custom_field_type_base_content %}
-    {% parent() %}
+{% parent() %}
 
-    {% block sw_custom_field_type_select_multi %}
+{% block sw_custom_field_type_select_multi %}
+<sw-field
+    v-model="multiSelectSwitch"
+    type="switch"
+    class="sw-custom-field-detail__switch"
+    :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
+    @change="onChangeMultiSelectSwitch"
+/>
+{% endblock %}
+
+{% block sw_custom_field_type_select_options %}
+<div
+    v-for="(option, index) in currentCustomField.config.options"
+    :key="index"
+>
+    {% block sw_custom_field_type_select_options_label %}
+    <span>
+        {{ $tc('sw-settings-custom-field.customField.detail.labelOption', 0, { count: (index+1) }) }}
+    </span>
+    {% endblock %}
+
+    {% block sw_custom_field_type_select_options_delete %}
+    <sw-button
+        class="sw-custom-field-type-select__delete-option-button"
+        size="small"
+        @click="onDeleteOption(index)"
+    >
+        {{ $tc('sw-settings-custom-field.customField.detail.labelDeleteOption') }}
+    </sw-button>
+    {% endblock %}
+
+    {% block sw_custom_field_type_select_options_container %}
+    <sw-container
+        class="sw-custom-field-type-select__option-container"
+        columns="1fr 1fr"
+        gap="20px"
+    >
+        {% block sw_custom_field_type_select_options_container_technical_name %}
         <sw-field
-                type="switch"
-                class="sw-custom-field-detail__switch"
-                :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
-                @change="onChangeMultiSelectSwitch"
-                v-model="multiSelectSwitch">
-        </sw-field>
-    {% endblock %}
+            v-model="option.value"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
+        />
+        {% endblock %}
 
-    {% block sw_custom_field_type_select_options %}
-        <div v-for="(option, index) in currentCustomField.config.options">
-            {% block sw_custom_field_type_select_options_label %}
-                <span>
-                    {{ $tc('sw-settings-custom-field.customField.detail.labelOption', 0, { count: (index+1) }) }}
-                </span>
-            {% endblock %}
-
-            {% block sw_custom_field_type_select_options_delete %}
-                <sw-button
-                        class="sw-custom-field-type-select__delete-option-button"
-                        size="small"
-                        @click="onDeleteOption(index)">
-                    {{ $tc('sw-settings-custom-field.customField.detail.labelDeleteOption') }}
-                </sw-button>
-            {% endblock %}
-
-            {% block sw_custom_field_type_select_options_container %}
-                <sw-container
-                        class="sw-custom-field-type-select__option-container"
-                        columns="1fr 1fr"
-                        gap="20px">
-                    {% block sw_custom_field_type_select_options_container_technical_name %}
-                        <sw-field
-                                :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
-                                v-model="option.value">
-                        </sw-field>
-                    {% endblock %}
-
-                    {% block sw_custom_field_type_select_options_container_labels %}
-                        <div>
-                            <sw-field
-                                    v-for="locale in locales"
-                                    type="text"
-                                    :key="locale"
-                                    :label="getLabel(locale)"
-                                    v-model="option.label[locale]">
-                            </sw-field>
-                        </div>
-                    {% endblock %}
-                </sw-container>
-            {% endblock %}
+        {% block sw_custom_field_type_select_options_container_labels %}
+        <div>
+            <sw-field
+                v-for="locale in locales"
+                :key="locale"
+                v-model="option.label[locale]"
+                type="text"
+                :label="getLabel(locale)"
+            />
         </div>
+        {% endblock %}
+    </sw-container>
     {% endblock %}
+</div>
+{% endblock %}
 
-    {% block sw_custom_field_type_select_add_option %}
-        <sw-button @click="onClickAddOption" size="small" class="sw-custom-field-type-select__button-add">
-            {{ $tc('sw-settings-custom-field.customField.detail.buttonAddOption') }}
-        </sw-button>
+{% block sw_custom_field_type_select_add_option %}
+<sw-button
+    size="small"
+    class="sw-custom-field-type-select__button-add"
+    @click="onClickAddOption"
+>
+    {{ $tc('sw-settings-custom-field.customField.detail.buttonAddOption') }}
+</sw-button>
     {% endblock %}
 {% endblock %}

@@ -1,16 +1,19 @@
 {% block sw_condition_type_select %}
-<sw-arrow-field class="sw-condition-operator-select" :disabled="disabled">
+<sw-arrow-field
+    class="sw-condition-operator-select"
+    :disabled="disabled"
+>
     <sw-single-select
-            class="sw-condition-operator-select__select"
-            size="medium"
-            labelValue="label"
-            valueProperty="identifier"
-            :options="translatedOperators"
-            :placeholder="$tc('global.sw-condition.condition.placeholder')"
-            :value="operator"
-            @change="changeOperator"
-            :disabled="disabled"
-            required>
-    </sw-single-select>
+        class="sw-condition-operator-select__select"
+        size="medium"
+        label-value="label"
+        value-property="identifier"
+        :options="translatedOperators"
+        :placeholder="$tc('global.sw-condition.condition.placeholder')"
+        :value="operator"
+        :disabled="disabled"
+        required
+        @change="changeOperator"
+    />
 </sw-arrow-field>
 {% endblock %}

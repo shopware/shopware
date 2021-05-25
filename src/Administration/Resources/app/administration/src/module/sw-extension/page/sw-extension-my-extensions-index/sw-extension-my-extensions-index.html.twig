@@ -1,63 +1,67 @@
 {% block sw_extension_my_extensions_index %}
-    <sw-meteor-page class="sw-extension-store-purchased" hideIcon>
-        {% block sw_extension_my_extensions_index_smart_bar_header %}
-            <template #smart-bar-header>
-                {{ $tc('sw-extension.mainMenu.purchased') }}
-            </template>
+<sw-meteor-page
+    class="sw-extension-store-purchased"
+    hide-icon
+>
+    {% block sw_extension_my_extensions_index_smart_bar_header %}
+    <template #smart-bar-header>
+        {{ $tc('sw-extension.mainMenu.purchased') }}
+    </template>
+    {% endblock %}
+
+    {% block sw_extension_my_extensions_index_smart_bar_search_slot %}
+    <template #search-bar>
+        {% block sw_extension_my_extensions_index_smart_bar_search_slot_search_bar %}
+        <sw-search-bar
+            :initial-search-type="$tc('sw-extension.my-extensions.listing.initialSearchType')"
+            :placeholder="$tc('sw-extension.my-extensions.listing.placeholderSearchBar')"
+            @search="onSearch"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_extension_my_extensions_index_smart_bar_tabs %}
+    <template #page-tabs>
+        {% block sw_extension_my_extensions_index_smart_bar_tabs_app %}
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.app' }">
+            {{ $tc('sw-extension.my-extensions.tabs.app') }}
+        </sw-tabs-item>
         {% endblock %}
 
-        {% block sw_extension_my_extensions_index_smart_bar_search_slot %}
-            <template #search-bar>
-                {% block sw_extension_my_extensions_index_smart_bar_search_slot_search_bar %}
-                    <sw-search-bar @search="onSearch"
-                                   :initialSearchType="$tc('sw-extension.my-extensions.listing.initialSearchType')"
-                                   :placeholder="$tc('sw-extension.my-extensions.listing.placeholderSearchBar')">
-                    </sw-search-bar>
-                {% endblock %}
-            </template>
+        {% block sw_extension_my_extensions_index_smart_bar_tabs_theme %}
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.theme' }">
+            {{ $tc('sw-extension.my-extensions.tabs.theme') }}
+        </sw-tabs-item>
         {% endblock %}
 
-        {% block sw_extension_my_extensions_index_smart_bar_tabs %}
-            <template #page-tabs>
-                {% block sw_extension_my_extensions_index_smart_bar_tabs_app %}
-                    <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.app' }">
-                        {{ $tc('sw-extension.my-extensions.tabs.app') }}
-                    </sw-tabs-item>
-                {% endblock %}
-
-                {% block sw_extension_my_extensions_index_smart_bar_tabs_theme %}
-                    <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.theme' }">
-                        {{ $tc('sw-extension.my-extensions.tabs.theme') }}
-                    </sw-tabs-item>
-                {% endblock %}
-
-                {% block sw_extension_my_extensions_index_smart_bar_tabs_recommendation %}
-                    <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.recommendation' }">
-                        {{ $tc('sw-extension.my-extensions.tabs.recommendation') }}
-                    </sw-tabs-item>
-                {% endblock %}
-
-                {% block sw_extension_my_extensions_index_smart_bar_tabs_account %}
-                    <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.account' }">
-                        {{ $tc('sw-extension.my-extensions.tabs.shopwareAccount') }}
-                    </sw-tabs-item>
-                {% endblock %}
-            </template>
+        {% block sw_extension_my_extensions_index_smart_bar_tabs_recommendation %}
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.recommendation' }">
+            {{ $tc('sw-extension.my-extensions.tabs.recommendation') }}
+        </sw-tabs-item>
         {% endblock %}
 
-        {% block sw_extension_my_extensions_index_smart_bar_actions %}
-            <template #smart-bar-actions>
-                {% block sw_extension_my_extensions_index_smart_bar_actions_file_upload %}
-                    <sw-extension-file-upload></sw-extension-file-upload>
-                {% endblock %}
-            </template>
+        {% block sw_extension_my_extensions_index_smart_bar_tabs_account %}
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.account' }">
+            {{ $tc('sw-extension.my-extensions.tabs.shopwareAccount') }}
+        </sw-tabs-item>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_extension_my_extensions_index_body %}
-            <template #default>
-                <router-view></router-view>
-            </template>
+    {% block sw_extension_my_extensions_index_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_extension_my_extensions_index_smart_bar_actions_file_upload %}
+        <sw-extension-file-upload />
         {% endblock %}
-    </sw-meteor-page>
+    </template>
+    {% endblock %}
+
+    {% block sw_extension_my_extensions_index_body %}
+    <template #default>
+        <router-view />
+    </template>
+    {% endblock %}
+</sw-meteor-page>
 {% endblock %}
 

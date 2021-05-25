@@ -1,28 +1,29 @@
 {% block sw_customField_type_base_content %}
-    {% parent() %}
+{% parent() %}
 
-    {% block sw_custom_field_type_date_container %}
-        <sw-container
-                columns="1fr 1fr"
-                gap="20px">
-            {% block sw_custom_field_type_date_container_type %}
-                <sw-field
-                        type="select"
-                        :label="$tc('sw-settings-custom-field.customField.detail.labelDateType')"
-                        :options="types"
-                        v-model="currentCustomField.config.dateType">
-                </sw-field>
-            {% endblock %}
-
-            {% block sw_custom_field_type_date_container_time_format %}
-                <sw-field
-                        v-if="['time', 'datetime'].includes(currentCustomField.config.dateType)"
-                        type="select"
-                        :label="$tc('sw-settings-custom-field.customField.detail.labelTimeForm')"
-                        :options="timeForms"
-                        v-model="currentCustomField.config.config.time_24hr">
-                </sw-field>
-            {% endblock %}
-        </sw-container>
+{% block sw_custom_field_type_date_container %}
+<sw-container
+    columns="1fr 1fr"
+    gap="20px"
+>
+    {% block sw_custom_field_type_date_container_type %}
+    <sw-field
+        v-model="currentCustomField.config.dateType"
+        type="select"
+        :label="$tc('sw-settings-custom-field.customField.detail.labelDateType')"
+        :options="types"
+    />
     {% endblock %}
+
+    {% block sw_custom_field_type_date_container_time_format %}
+    <sw-field
+        v-if="['time', 'datetime'].includes(currentCustomField.config.dateType)"
+        v-model="currentCustomField.config.config.time_24hr"
+        type="select"
+        :label="$tc('sw-settings-custom-field.customField.detail.labelTimeForm')"
+        :options="timeForms"
+    />
+    {% endblock %}
+</sw-container>
+{% endblock %}
 {% endblock %}

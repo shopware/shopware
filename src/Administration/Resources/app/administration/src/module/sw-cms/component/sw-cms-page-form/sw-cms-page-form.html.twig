@@ -1,101 +1,124 @@
 {% block sw_cms_page_form %}
-    <div class="sw-cms-page-form"
-         v-responsive="{ 'is--compact': el => el.width <= 1620, timeout: 100 }">
+<div
+    v-responsive="{ 'is--compact': el => el.width <= 1620, timeout: 100 }"
+    class="sw-cms-page-form"
+>
 
-        {% block sw_cms_page_form_content %}
-            <template v-for="section in page.sections">
+    {% block sw_cms_page_form_content %}
+    <template v-for="section in page.sections">
 
-                {% block sw_cms_page_form_section %}
-                    <div :key="section.id"
-                         class="sw-cms-page-form__section">
-                        <div class="sw-cms-page-form__section-actions">
+        {% block sw_cms_page_form_section %}
+        <div
+            :key="section.id"
+            class="sw-cms-page-form__section"
+        >
+            <div class="sw-cms-page-form__section-actions">
 
-                            {% block sw_cms_page_form_section_name_wrapper %}
-                                <div class="sw-cms-page-form__section-action sw-cms-page-form__section-name">
+                {% block sw_cms_page_form_section_name_wrapper %}
+                <div class="sw-cms-page-form__section-action sw-cms-page-form__section-name">
 
-                                    {% block sw_cms_page_form_section_name_icon %}
-                                        <sw-icon name="default-web-layout"
-                                                 size="20"
-                                                 class="sw-cms-page-form__section-action-icon sw-cms-page-form__section-name-icon">
-                                        </sw-icon>
-                                    {% endblock %}
+                    {% block sw_cms_page_form_section_name_icon %}
+                    <sw-icon
+                        name="default-web-layout"
+                        size="20"
+                        class="sw-cms-page-form__section-action-icon sw-cms-page-form__section-name-icon"
+                    />
+                    {% endblock %}
 
-                                    {% block sw_cms_page_form__section_name %}
-                                        <span class="sw-cms-page-form__section-action-label sw-cms-page-form__section-name-label">
-                                            {{ getSectionName(section) }}
-                                        </span>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </div>
-                        
-                        {% block sw_cms_page_form_section_empty_state_block %}
-                            <sw-card v-if="section.blocks.length === 0"
-                                     class="sw-cms-page-form__block-card is--empty">
-                            
-                                {% block sw_cms_page_form_section_empty_state_block_text %}
-                                    <p class="sw-cms-page-form__empty-state-text">{{ $tc('sw-cms.section.sectionEmptyState') }}</p>
-                                {% endblock %}
-                            </sw-card>
+                    {% block sw_cms_page_form__section_name %}
+                    <span class="sw-cms-page-form__section-action-label sw-cms-page-form__section-name-label">
+                        {{ getSectionName(section) }}
+                    </span>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </div>
+
+            {% block sw_cms_page_form_section_empty_state_block %}
+            <sw-card
+                v-if="section.blocks.length === 0"
+                class="sw-cms-page-form__block-card is--empty"
+            >
+
+                {% block sw_cms_page_form_section_empty_state_block_text %}
+                <p class="sw-cms-page-form__empty-state-text">
+                    {{ $tc('sw-cms.section.sectionEmptyState') }}
+                </p>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            <template
+                v-for="(block, index) in section.blocks"
+                v-else
+            >
+
+                {% block sw_cms_page_form_section_type_label_wrapper %}
+                <div
+                    v-if="displaySectionType(block)"
+                    :key="index"
+                    class="sw-cms-page-form__section-type"
+                >
+
+                    {% block sw_cms_page_form_section_type_label %}
+                    <div class="sw-cms-page-form__section-type-label">
+
+                        {% block sw_cms_page_form_section_type_label_icon %}
+                        <sw-icon
+                            v-if="block.sectionPosition !== 'main'"
+                            size="20"
+                            name="default-sidebar-align-left"
+                            class="sw-cms-page-form__section-type-icon"
+                        />
+
+                        <sw-icon
+                            v-else
+                            size="20"
+                            name="default-sidebar-align-right"
+                            class="sw-cms-page-form__section-type-icon"
+                        />
                         {% endblock %}
 
-                        <template v-else v-for="block in section.blocks">
-
-                            {% block sw_cms_page_form_section_type_label_wrapper %}
-                                <div v-if="displaySectionType(block)"
-                                     class="sw-cms-page-form__section-type">
-
-                                    {% block sw_cms_page_form_section_type_label %}
-                                        <div class="sw-cms-page-form__section-type-label">
-
-                                            {% block sw_cms_page_form_section_type_label_icon %}
-                                                <sw-icon v-if="block.sectionPosition !== 'main'"
-                                                         size="20"
-                                                         name="default-sidebar-align-left"
-                                                         class="sw-cms-page-form__section-type-icon">
-                                                </sw-icon>
-
-                                                <sw-icon v-else
-                                                         size="20"
-                                                         name="default-sidebar-align-right"
-                                                         class="sw-cms-page-form__section-type-icon">
-                                                </sw-icon>
-                                            {% endblock %}
-                                            
-                                            {% block sw_cms_page_form_section_type %}
-                                                <span class="sw-cms-page-form__section-type-name">
-                                                    {{ getSectionPosition(block) }}
-                                                </span>
-                                            {% endblock %}
-                                        </div>
-                                    {% endblock %}
-
-                                    <hr class="sw-cms-page-form__section-divider" />
-                                </div>
-                            {% endblock %}
-                        
-                            {% block sw_cms_page_form_card %}
-                                <sw-card class="sw-cms-page-form__block-card"
-                                         :title="$tc(getBlockTitle(block))"
-                                         :key="block.id">
-
-                                    {% block sw_cms_page_form_card_content %}
-                                        <div class="sw-cms-page-form__element-config"
-                                             v-for="element in block.slots">
-
-                                            {% block sw_cms_page_form_element_config %}
-                                                <component :is="cmsElements[element.type].configComponent" 
-                                                           :element="element">
-                                                </component>
-                                            {% endblock %}
-                                        </div>
-                                    {% endblock %}
-                                </sw-card>
-                            {% endblock %}
-                        </template>
+                        {% block sw_cms_page_form_section_type %}
+                        <span class="sw-cms-page-form__section-type-name">
+                            {{ getSectionPosition(block) }}
+                        </span>
+                        {% endblock %}
                     </div>
+                    {% endblock %}
+
+                    <hr class="sw-cms-page-form__section-divider">
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_page_form_card %}
+                <sw-card
+                    :key="block.id"
+                    class="sw-cms-page-form__block-card"
+                    :title="$tc(getBlockTitle(block))"
+                >
+
+                    {% block sw_cms_page_form_card_content %}
+                    <div
+                        v-for="(element, blockIndex) in block.slots"
+                        :key="blockIndex"
+                        class="sw-cms-page-form__element-config"
+                    >
+
+                        {% block sw_cms_page_form_element_config %}
+                        <component
+                            :is="cmsElements[element.type].configComponent"
+                            :element="element"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </sw-card>
                 {% endblock %}
             </template>
+        </div>
         {% endblock %}
-    </div>
+    </template>
+    {% endblock %}
+</div>
 {% endblock %}

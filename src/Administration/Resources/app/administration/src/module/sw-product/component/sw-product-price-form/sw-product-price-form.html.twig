@@ -1,104 +1,127 @@
 {% block sw_product_price_form %}
-    <div class="sw-product-price-form">
-        {% block sw_product_price_form_fields %}
-            <sw-container columns="1fr 2fr" gap="0px 30px" class="sw-product-price-form__prices">
+<div class="sw-product-price-form">
+    {% block sw_product_price_form_fields %}
+    <sw-container
+        columns="1fr 2fr"
+        gap="0px 30px"
+        class="sw-product-price-form__prices"
+    >
 
-                {% block sw_product_price_form_tax_field %}
-                    <sw-inherit-wrapper
-                        v-model="product.taxId"
-                        :inheritedValue="parentProduct.taxId"
-                        :hasParent="!!parentProduct.taxId"
-                        :helpText="taxRateHelpText"
-                        :label="$tc('sw-product.priceForm.labelTaxRate')"
-                        class="sw-product-price-form__tax-rate"
-                        ref="taxIdInheritation"
-                        required>
-                        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+        {% block sw_product_price_form_tax_field %}
+        <sw-inherit-wrapper
+            ref="taxIdInheritation"
+            v-model="product.taxId"
+            :inherited-value="parentProduct.taxId"
+            :has-parent="!!parentProduct.taxId"
+            :help-text="taxRateHelpText"
+            :label="$tc('sw-product.priceForm.labelTaxRate')"
+            class="sw-product-price-form__tax-rate"
+            required
+        >
+            <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
-                            <sw-field
-                                type="select"
-                                name="sw-field--product-taxId"
-                                :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
-                                validation="required"
-                                :disabled="isInherited || !allowEdit"
-                                :value="currentValue"
-                                :error="productTaxIdError"
-                                @change="updateCurrentValue">
-                                <option
-                                    v-for="tax in taxes"
-                                    :key="tax.id"
-                                    :value="tax.id"
-                                    :selected="currentValue === tax.id">
-                                    {{ getTaxLabel(tax) }}
-                                </option>
-                            </sw-field>
+                <sw-field
+                    type="select"
+                    name="sw-field--product-taxId"
+                    :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
+                    validation="required"
+                    :disabled="isInherited || !allowEdit"
+                    :value="currentValue"
+                    :error="productTaxIdError"
+                    @change="updateCurrentValue"
+                >
+                    <option
+                        v-for="tax in taxes"
+                        :key="tax.id"
+                        :value="tax.id"
+                        :selected="currentValue === tax.id"
+                    >
+                        {{ getTaxLabel(tax) }}
+                    </option>
+                </sw-field>
 
-                        </template>
-                    </sw-inherit-wrapper>
-                {% endblock %}
-
-                {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-list-price-field" component #}
-                {% block sw_product_price_form_purchase_price_field %}
-                {% endblock %}
-
-                {% block sw_product_price_form_price_field %}
-                    <sw-inherit-wrapper
-                        v-if="!isLoading"
-                        v-model="prices"
-                        label=" "
-                        class="sw-product-price-form__price-list"
-                        :hasParent="!!parentProduct.id"
-                        :inheritedValue="parentPrices"
-                        :customRemoveInheritanceFunction="removePriceInheritation"
-                        :customInheritationCheckFunction="inheritationCheckFunction">
-                        <template #content="{ currentValue, isInherited }">
-                            <sw-list-price-field
-                                required
-                                vertical
-                                :price="currentValue.price"
-                                :purchasePrices="currentValue.purchasePrices"
-                                :taxRate="productTaxRate"
-                                :disabled="isInherited || !allowEdit"
-                                :error="productPriceError ? productPriceError[0] : null"
-                                :currency="defaultCurrency"
-                                :showSettingPrice="showModeSetting">
-                            </sw-list-price-field>
-                        </template>
-                    </sw-inherit-wrapper>
-                {% endblock %}
-
-            </sw-container>
+            </template>
+        </sw-inherit-wrapper>
         {% endblock %}
 
-        {% block sw_product_price_form_link %}
-            <sw-container columns="1fr" justify="end" class="sw-product-price-form__links">
-                {% block sw_product_price_form_advanced_prices_link %}
-                    <router-link  :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                                  v-if="!product._isNew"
-                                  class="sw-card__quick-link">
-                        {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                    </router-link>
-                {% endblock %}
-
-                {% block sw_product_price_form_maintain_currencies_link %}
-                    <a @click.prevent="displayMaintainCurrencies = true"
-                       v-if="product.price"
-                       class="sw-card__quick-link">
-                        {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                    </a>
-                {% endblock %}
-            </sw-container>
+        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-list-price-field" component #}
+        {% block sw_product_price_form_purchase_price_field %}
         {% endblock %}
 
-        {% block sw_product_price_form_maintain_currencies_modal %}
-            <sw-maintain-currencies-modal v-if="displayMaintainCurrencies"
-                                          :currencies="currencies"
-                                          :prices="product.price"
-                                          :defaultPrice="defaultPrice"
-                                          :taxRate="productTaxRate"
-                                          :disabled="!allowEdit"
-                                          @modal-close="onMaintainCurrenciesClose">
-            </sw-maintain-currencies-modal>
+        {% block sw_product_price_form_price_field %}
+        <sw-inherit-wrapper
+            v-if="!isLoading"
+            v-model="prices"
+            label=" "
+            class="sw-product-price-form__price-list"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentPrices"
+            :custom-remove-inheritance-function="removePriceInheritation"
+            :custom-inheritation-check-function="inheritationCheckFunction"
+        >
+            <template #content="{ currentValue, isInherited }">
+                <sw-list-price-field
+                    required
+                    vertical
+                    :price="currentValue.price"
+                    :purchase-prices="currentValue.purchasePrices"
+                    :tax-rate="productTaxRate"
+                    :disabled="isInherited || !allowEdit"
+                    :error="productPriceError ? productPriceError[0] : null"
+                    :currency="defaultCurrency"
+                    :show-setting-price="showModeSetting"
+                />
+            </template>
+        </sw-inherit-wrapper>
         {% endblock %}
-    </div>
+
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_product_price_form_link %}
+    <sw-container
+        columns="1fr"
+        justify="end"
+        class="sw-product-price-form__links"
+    >
+        {% block sw_product_price_form_advanced_prices_link %}
+        <router-link
+            v-if="!product._isNew"
+            :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+            class="sw-card__quick-link"
+        >
+            {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon
+                name="default-arrow-simple-right"
+                small
+            />
+        </router-link>
+        {% endblock %}
+
+        {% block sw_product_price_form_maintain_currencies_link %}
+        <a
+            v-if="product.price"
+            class="sw-card__quick-link"
+            @click.prevent="displayMaintainCurrencies = true"
+        >
+            {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }} <sw-icon
+                name="default-arrow-simple-right"
+                small
+            />
+        </a>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_product_price_form_maintain_currencies_modal %}
+    <sw-maintain-currencies-modal
+        v-if="displayMaintainCurrencies"
+        :currencies="currencies"
+        :prices="product.price"
+        :default-price="defaultPrice"
+        :tax-rate="productTaxRate"
+        :disabled="!allowEdit"
+        @modal-close="onMaintainCurrenciesClose"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

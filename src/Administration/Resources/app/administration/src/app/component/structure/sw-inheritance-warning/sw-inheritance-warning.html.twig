@@ -1,13 +1,17 @@
 {% block sw_inheritance_warning %}
-    <div class="sw-inheritance-warning">
-        {% block sw_inheritance_warning_icon %}
-            <sw-icon :multicolor="true" size="20" name="custom-inherited"></sw-icon>
-        {% endblock %}
+<div class="sw-inheritance-warning">
+    {% block sw_inheritance_warning_icon %}
+    <sw-icon
+        :multicolor="true"
+        size="20"
+        name="custom-inherited"
+    />
+    {% endblock %}
 
-        {% block sw_inheritance_warning_text %}
-            <p>
-                {{ $tc('sw-inheritance-warning.infoTextInheritedField', name, { moduleName: name }) }}
-            </p>
-        {% endblock %}
-    </div>
+    {% block sw_inheritance_warning_text %}
+    <p>
+        {{ $tc('sw-inheritance-warning.infoTextInheritedField', name, { moduleName: name }) }}
+    </p>
+    {% endblock %}
+</div>
 {% endblock %}

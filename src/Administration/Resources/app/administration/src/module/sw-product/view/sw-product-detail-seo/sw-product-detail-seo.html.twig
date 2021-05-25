@@ -1,39 +1,43 @@
 {% block sw_product_detail_seo %}
-    <div>
-        {% block sw_product_detail_seo_general %}
-            <sw-card :title="$tc('sw-product.seo.cardTitleSeo')" :isLoading="isLoading">
-                {% block sw_product_detail_seo_general_content %}
-                    <sw-product-seo-form
-                        ref="seoForm"
-                        :allowEdit="acl.can('product.editor')">
-                    </sw-product-seo-form>
-                {% endblock %}
-            </sw-card>
+<div>
+    {% block sw_product_detail_seo_general %}
+    <sw-card
+        :title="$tc('sw-product.seo.cardTitleSeo')"
+        :is-loading="isLoading"
+    >
+        {% block sw_product_detail_seo_general_content %}
+        <sw-product-seo-form
+            ref="seoForm"
+            :allow-edit="acl.can('product.editor')"
+        />
         {% endblock %}
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_product_detail_seo_urls %}
-            <sw-seo-url
-                v-if="product.seoUrls"
-                :isLoading="isLoading"
-                :hasDefaultTemplate="false"
-                :disabled="!acl.can('product.editor')"
-                :urls="product.seoUrls">
-                {% block sw_product_detail_seo_urls_content %}
-                    <template #seo-additional="props">
-                        {% block sw_product_detail_seo_urls_content_seo_additional %}
-                            <sw-seo-main-category
-                                v-if="product.mainCategories"
-                                :currentSalesChannelId="props.currentSalesChannelId"
-                                :categories="product.categories"
-                                :mainCategories="product.mainCategories"
-                                :isLoading="isLoading"
-                                :allowEdit="acl.can('product.editor')"
-                                @main-category-add="onAddMainCategory">
-                            </sw-seo-main-category>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-seo-url>
+    {% block sw_product_detail_seo_urls %}
+    <sw-seo-url
+        v-if="product.seoUrls"
+        :is-loading="isLoading"
+        :has-default-template="false"
+        :disabled="!acl.can('product.editor')"
+        :urls="product.seoUrls"
+    >
+        {% block sw_product_detail_seo_urls_content %}
+        <template #seo-additional="props">
+            {% block sw_product_detail_seo_urls_content_seo_additional %}
+            <sw-seo-main-category
+                v-if="product.mainCategories"
+                :current-sales-channel-id="props.currentSalesChannelId"
+                :categories="product.categories"
+                :main-categories="product.mainCategories"
+                :is-loading="isLoading"
+                :allow-edit="acl.can('product.editor')"
+                @main-category-add="onAddMainCategory"
+            />
+            {% endblock %}
+        </template>
         {% endblock %}
-    </div>
+    </sw-seo-url>
+    {% endblock %}
+</div>
 {% endblock %}

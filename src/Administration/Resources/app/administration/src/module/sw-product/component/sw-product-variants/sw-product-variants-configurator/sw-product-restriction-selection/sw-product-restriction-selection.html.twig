@@ -1,70 +1,88 @@
 {% block sw_product_restriction_selection %}
-    <div class="sw-product-restriction-selection">
-        {% block sw_product_restriction_selection_container %}
-            <sw-container columns="minmax(270px, 350px) 1fr" gap="0" class="sw-product-restriction-selection__container">
+<div class="sw-product-restriction-selection">
+    {% block sw_product_restriction_selection_container %}
+    <sw-container
+        columns="minmax(270px, 350px) 1fr"
+        gap="0"
+        class="sw-product-restriction-selection__container"
+    >
 
-                {% block sw_product_restriction_selection_select_group_wrapper %}
-                    <div class="sw-product-restriction-selection__select-group-wrapper">
-                        {% block sw_product_restriction_selection_select_group %}
-                            <sw-field v-model="selectedGroup"
-                                      type="select"
-                                      class="sw-product-restriction-selection__select-group">
-                                <option
-                                        slot="options"
-                                        v-for="item in availableGroups"
-                                        :key="item.id"
-                                        :value="item.group.id">
-                                    {{ item.group.translated.name }}
-                                </option>
-                            </sw-field>
-                        {% endblock %}
+        {% block sw_product_restriction_selection_select_group_wrapper %}
+        <div class="sw-product-restriction-selection__select-group-wrapper">
+            {% block sw_product_restriction_selection_select_group %}
+            <sw-field
+                v-model="selectedGroup"
+                type="select"
+                class="sw-product-restriction-selection__select-group"
+            >
+                <option
+                    v-for="item in availableGroups"
+                    slot="options"
+                    :key="item.id"
+                    :value="item.group.id"
+                >
+                    {{ item.group.translated.name }}
+                </option>
+            </sw-field>
+            {% endblock %}
 
-                        {% block sw_product_restriction_selection_is_from %}
-                            <div class="sw-product-restriction-selection__isFrom">
-                                <span>{{ $tc('sw-product.variations.configuratorModal.isOneFrom') }}</span>
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
-                {% block sw_product_restriction_selection_select_option_wrapper %}
-                <sw-container
-                        columns="1fr minmax(40px, 40px)"
-                        gap="0"
-                        class="sw-product-restriction-selection__select-option-wrapper">
-
-                    {% block sw_product_restriction_selection_multi_select %}
-                        <sw-multi-select
-                            v-if="!optionLoading"
-                            v-model="selectedOptions"
-                            :options="options"
-                            valueProperty="optionId">
-
-                            <template slot="selection-label-property" slot-scope="{ item }">
-                                {{ item.option.translated.name }}
-                            </template>
-                            <template slot="result-label-property" slot-scope="{ item }">
-                                {{ item.option.translated.name }}
-                            </template>
-                        </sw-multi-select>
-                    {% endblock %}
-
-                    {% block sw_product_restriction_selection_context_button %}
-                        <sw-context-button>
-                            {% block sw_product_restriction_selection_context_button_items %}
-                                <sw-context-menu-item @click="deleteRestriction" variant="danger">
-                                    {{ $tc('sw-product.variations.configuratorModal.deleteCombination') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
-                        </sw-context-button>
-                    {% endblock %}
-                </sw-container>
-                {% endblock %}
-            </sw-container>
+            {% block sw_product_restriction_selection_is_from %}
+            <div class="sw-product-restriction-selection__isFrom">
+                <span>{{ $tc('sw-product.variations.configuratorModal.isOneFrom') }}</span>
+            </div>
+            {% endblock %}
+        </div>
         {% endblock %}
 
-        {% block sw_product_restriction_selection_content_after %}
-            <slot name="contentAfter"></slot>
+        {% block sw_product_restriction_selection_select_option_wrapper %}
+        <sw-container
+            columns="1fr minmax(40px, 40px)"
+            gap="0"
+            class="sw-product-restriction-selection__select-option-wrapper"
+        >
+
+            {% block sw_product_restriction_selection_multi_select %}
+            <sw-multi-select
+                v-if="!optionLoading"
+                v-model="selectedOptions"
+                :options="options"
+                value-property="optionId"
+            >
+
+                <template
+                    slot="selection-label-property"
+                    slot-scope="{ item }"
+                >
+                    {{ item.option.translated.name }}
+                </template>
+                <template
+                    slot="result-label-property"
+                    slot-scope="{ item }"
+                >
+                    {{ item.option.translated.name }}
+                </template>
+            </sw-multi-select>
+            {% endblock %}
+
+            {% block sw_product_restriction_selection_context_button %}
+            <sw-context-button>
+                {% block sw_product_restriction_selection_context_button_items %}
+                <sw-context-menu-item
+                    variant="danger"
+                    @click="deleteRestriction"
+                >
+                    {{ $tc('sw-product.variations.configuratorModal.deleteCombination') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </sw-container>
         {% endblock %}
-    </div>
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_product_restriction_selection_content_after %}
+    <slot name="contentAfter" />
+    {% endblock %}
+</div>
 {% endblock %}

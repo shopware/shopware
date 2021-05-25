@@ -1,30 +1,36 @@
 {% block sw_checkbox_field %}
-    {% block sw_switch_field %}
-        <div class="sw-field--switch" :class="swSwitchFieldClasses">
-            <div class="sw-field--switch__content">
-                <div class="sw-field--switch__input">
-                    <input type="checkbox"
-                        :id="identification"
-                        :name="formFieldName || identification"
-                        :checked="inputState"
-                        :disabled="disabled"
-                        @change="onChange">
-                    <div class="sw-field__switch-state">
-                        <div class="sw-field__switch-state-knob"></div>
-                    </div>
-                </div>
-
-                <sw-base-field v-bind="$attrs"
-                            :disabled="disabled"
-                            :name="identification"
-                            :isInheritanceField="isInheritanceField"
-                            :isInherited="isInherited"
-                            @inheritance-restore="onInheritanceRestore($event)"
-                            @inheritance-remove="$emit('inheritance-remove', $event)">
-                </sw-base-field>
-
+{% block sw_switch_field %}
+<div
+    class="sw-field--switch"
+    :class="swSwitchFieldClasses"
+>
+    <div class="sw-field--switch__content">
+        <div class="sw-field--switch__input">
+            <input
+                :id="identification"
+                type="checkbox"
+                :name="formFieldName || identification"
+                :checked="inputState"
+                :disabled="disabled"
+                @change="onChange"
+            >
+            <div class="sw-field__switch-state">
+                <div class="sw-field__switch-state-knob" />
             </div>
-            <sw-field-error :error="error"></sw-field-error>
         </div>
+
+        <sw-base-field
+            v-bind="$attrs"
+            :disabled="disabled"
+            :name="identification"
+            :is-inheritance-field="isInheritanceField"
+            :is-inherited="isInherited"
+            @inheritance-restore="onInheritanceRestore($event)"
+            @inheritance-remove="$emit('inheritance-remove', $event)"
+        />
+
+    </div>
+    <sw-field-error :error="error" />
+</div>
     {% endblock %}
 {% endblock %}

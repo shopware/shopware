@@ -1,110 +1,116 @@
 {% block sw_event_action_detail_recipients %}
-    <sw-card
-        class="sw-event-action-detail-recipients"
-        :title="$tc('sw-event-action.detail.titleRecipientsCard')"
-        :isLoading="isLoading">
-        {% block sw_event_action_detail_recipients_toolbar %}
-            <template #toolbar>
-                {% block sw_event_action_detail_recipients_action_add %}
-                    <sw-button
-                        class="sw-event-action-detail-recipients__action-add"
-                        variant="ghost"
-                        size="small"
-                        :disabled="!acl.can('event_action.editor')"
-                        @click="addRecipient"
-                        v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('event_action.editor'),
-                            showOnDisabledElements: true
-                        }">
-                        {{ $tc('sw-event-action.detail.addRecipientButton') }}
-                    </sw-button>
+<sw-card
+    class="sw-event-action-detail-recipients"
+    :title="$tc('sw-event-action.detail.titleRecipientsCard')"
+    :is-loading="isLoading"
+>
+    {% block sw_event_action_detail_recipients_toolbar %}
+    <template #toolbar>
+        {% block sw_event_action_detail_recipients_action_add %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('event_action.editor'),
+                showOnDisabledElements: true
+            }"
+            class="sw-event-action-detail-recipients__action-add"
+            variant="ghost"
+            size="small"
+            :disabled="!acl.can('event_action.editor')"
+            @click="addRecipient"
+        >
+            {{ $tc('sw-event-action.detail.addRecipientButton') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_event_action_detail_recipients_grid_slot_content %}
+    <template #grid>
+        {% block sw_event_action_detail_recipients_empty_state %}
+        <sw-empty-state
+            v-if="!recipients.length && !isLoading"
+            :title="$tc('sw-event-action.detail.textEmptyStateRecipients')"
+            :show-description="false"
+            :absolute="false"
+        >
+            <template #icon>
+                {% block sw_event_action_detail_recipients_empty_state_image %}
+                <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
                 {% endblock %}
             </template>
+        </sw-empty-state>
         {% endblock %}
 
-        {% block sw_event_action_detail_recipients_grid_slot_content %}
-            <template #grid>
-                {% block sw_event_action_detail_recipients_empty_state %}
-                    <sw-empty-state
-                        v-if="!recipients.length && !isLoading"
-                        :title="$tc('sw-event-action.detail.textEmptyStateRecipients')"
-                        :showDescription="false"
-                        :absolute="false">
-                        <template #icon>
-                            {% block sw_event_action_detail_recipients_empty_state_image %}
-                                <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
-                            {% endblock %}
-                        </template>
-                    </sw-empty-state>
+        {% block sw_event_action_detail_recipients_grid %}
+        <sw-data-grid
+            v-if="recipients.length"
+            ref="recipientsGrid"
+            class="sw-event-action-detail-recipients__grid"
+            :data-source="recipients"
+            :columns="recipientColumns"
+            :show-selection="false"
+            :plain-appearance="true"
+            :allow-inline-edit="acl.can('event_action.editor')"
+            @inline-edit-save="saveRecipient"
+            @inline-edit-cancel="cancelSaveRecipient"
+        >
+
+            {% block sw_event_action_detail_recipients_grid_column_email %}
+            <template #column-email="{ item, column, isInlineEdit, compact }">
+                <sw-text-field
+                    v-if="isInlineEdit"
+                    v-model="item.email"
+                    :size="compact ? 'small' : 'default'"
+                    :error="recipientMailError(item.email)"
+                    :placeholder="$tc('sw-event-action.detail.placeholderRecipientEmailAddress')"
+                />
+                <template v-else>
+                    {{ item.email }}
+                </template>
+            </template>
+            {% endblock %}
+
+            {% block sw_event_action_detail_recipients_grid_column_name %}
+            <template #column-name="{ item, column, isInlineEdit, compact }">
+                <sw-text-field
+                    v-if="isInlineEdit"
+                    v-model="item.name"
+                    :size="compact ? 'small' : 'default'"
+                    :error="recipientNameError(item.name)"
+                    :placeholder="$tc('sw-event-action.detail.placeholderRecipientName')"
+                />
+                <template v-else>
+                    {{ item.name }}
+                </template>
+            </template>
+            {% endblock %}
+
+            <template #actions="{ item }">
+                {% block sw_event_action_detail_recipients_grid_action_edit %}
+                <sw-context-menu-item
+                    class="sw-event-action-detail-recipients__grid-action-edit"
+                    :disabled="!acl.can('event_action.editor')"
+                    @click="onEditRecipient(item.id)"
+                >
+                    {{ $tc('global.default.edit') }}
+                </sw-context-menu-item>
                 {% endblock %}
 
-                {% block sw_event_action_detail_recipients_grid %}
-                    <sw-data-grid
-                        v-if="recipients.length"
-                        ref="recipientsGrid"
-                        class="sw-event-action-detail-recipients__grid"
-                        :dataSource="recipients"
-                        :columns="recipientColumns"
-                        :showSelection="false"
-                        :plainAppearance="true"
-                        :allowInlineEdit="acl.can('event_action.editor')"
-                        @inline-edit-save="saveRecipient"
-                        @inline-edit-cancel="cancelSaveRecipient">
-
-                        {% block sw_event_action_detail_recipients_grid_column_email %}
-                            <template #column-email="{ item, column, isInlineEdit, compact }">
-                                <sw-text-field
-                                    v-if="isInlineEdit"
-                                    :size="compact ? 'small' : 'default'"
-                                    :error="recipientMailError(item.email)"
-                                    :placeholder="$tc('sw-event-action.detail.placeholderRecipientEmailAddress')"
-                                    v-model="item.email">
-                                </sw-text-field>
-                                <template v-else>
-                                    {{ item.email }}
-                                </template>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_event_action_detail_recipients_grid_column_name %}
-                            <template #column-name="{ item, column, isInlineEdit, compact }">
-                                <sw-text-field
-                                    v-if="isInlineEdit"
-                                    :size="compact ? 'small' : 'default'"
-                                    :error="recipientNameError(item.name)"
-                                    :placeholder="$tc('sw-event-action.detail.placeholderRecipientName')"
-                                    v-model="item.name">
-                                </sw-text-field>
-                                <template v-else>
-                                    {{ item.name }}
-                                </template>
-                            </template>
-                        {% endblock %}
-
-                        <template #actions="{ item }">
-                            {% block sw_event_action_detail_recipients_grid_action_edit %}
-                                <sw-context-menu-item
-                                    class="sw-event-action-detail-recipients__grid-action-edit"
-                                    :disabled="!acl.can('event_action.editor')"
-                                    @click="onEditRecipient(item.id)">
-                                    {{ $tc('global.default.edit') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
-
-                            {% block sw_event_action_detail_recipients_grid_action_delete %}
-                                <sw-context-menu-item
-                                    class="sw-event-action-detail-recipients__grid-action-delete"
-                                    variant="danger"
-                                    :disabled="!acl.can('event_action.editor')"
-                                    @click="onDeleteRecipient(item.id)">
-                                    {{ $tc('global.default.delete') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
-                        </template>
-                    </sw-data-grid>
+                {% block sw_event_action_detail_recipients_grid_action_delete %}
+                <sw-context-menu-item
+                    class="sw-event-action-detail-recipients__grid-action-delete"
+                    variant="danger"
+                    :disabled="!acl.can('event_action.editor')"
+                    @click="onDeleteRecipient(item.id)"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
                 {% endblock %}
             </template>
+        </sw-data-grid>
         {% endblock %}
-    </sw-card>
+    </template>
+    {% endblock %}
+</sw-card>
 {% endblock %}

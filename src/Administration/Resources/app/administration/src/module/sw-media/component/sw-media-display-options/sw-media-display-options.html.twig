@@ -1,44 +1,52 @@
 {% block sw_media_display_options %}
-    <div class="sw-media-display-options">
-        {% block sw_media_display_options_presentation %}
-            <sw-select-field
-                v-if="!hidePresentation"
-                name="presentation"
-                size="small"
-                aside
-                :label="$tc('sw-media.presentation.labelPresentation')"
-                :value="presentation"
-                @change="onPresentationChanged">
+<div class="sw-media-display-options">
+    {% block sw_media_display_options_presentation %}
+    <sw-select-field
+        v-if="!hidePresentation"
+        name="presentation"
+        size="small"
+        aside
+        :label="$tc('sw-media.presentation.labelPresentation')"
+        :value="presentation"
+        @change="onPresentationChanged"
+    >
 
-                {% block sw_media_display_options_presentations_options %}
-                    <option v-for="previewType in previewOptions"
-                            :value="previewType.value">
-                        {{ previewType.name }}
-                    </option>
+        {% block sw_media_display_options_presentations_options %}
+        <option
+            v-for="previewType in previewOptions"
+            :key="previewType.value"
+            :value="previewType.value"
+        >
+            {{ previewType.name }}
+        </option>
 
-                    <slot name="additional-preview-options"></slot>
-                {% endblock %}
-            </sw-select-field>
+        <slot name="additional-preview-options" />
         {% endblock %}
+    </sw-select-field>
+    {% endblock %}
 
-        {% block sw_media_display_options_sorting %}
-            <sw-select-field
-                name="sortType"
-                size="small"
-                aside
-                :label="$tc('sw-media.sorting.labelSort')"
-                :value="sortingConCat"
-                @change="onSortingChanged">
+    {% block sw_media_display_options_sorting %}
+    <sw-select-field
+        name="sortType"
+        size="small"
+        aside
+        :label="$tc('sw-media.sorting.labelSort')"
+        :value="sortingConCat"
+        @change="onSortingChanged"
+    >
 
-                {% block sw_media_display_options_sorting_options %}
-                    <option v-for="sortOption in sortOptions"
-                            :value="sortOption.value">
-                        {{ sortOption.name }}
-                    </option>
+        {% block sw_media_display_options_sorting_options %}
+        <option
+            v-for="sortOption in sortOptions"
+            :key="sortOption.value"
+            :value="sortOption.value"
+        >
+            {{ sortOption.name }}
+        </option>
 
-                    <slot name="additional-sorting"></slot>
-                {% endblock %}
-            </sw-select-field>
+        <slot name="additional-sorting" />
         {% endblock %}
-    </div>
+    </sw-select-field>
+    {% endblock %}
+</div>
 {% endblock %}

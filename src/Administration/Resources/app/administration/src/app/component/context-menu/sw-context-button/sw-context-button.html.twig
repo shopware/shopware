@@ -1,25 +1,40 @@
 {% block sw_context_button %}
-    <div class="sw-context-button" :class="contextClass" @click="onClickButton" ref="swContextButton">
-        {% block sw_context_button_button %}
-            <slot name="button">
-                <button class="sw-context-button__button" :class="contextButtonClass">
-                    <sw-icon :name="icon" small decorative></sw-icon>
-                </button>
-            </slot>
-        {% endblock %}
+<div
+    ref="swContextButton"
+    class="sw-context-button"
+    :class="contextClass"
+    @click="onClickButton"
+>
+    {% block sw_context_button_button %}
+    <slot name="button">
+        <button
+            class="sw-context-button__button"
+            :class="contextButtonClass"
+        >
+            <sw-icon
+                :name="icon"
+                small
+                decorative
+            />
+        </button>
+    </slot>
+    {% endblock %}
 
-        {% block sw_context_button_menu %}
-            <sw-popover class="sw-context-button__menu-position"
-                        popoverClass="sw-context-button__menu-popover"
-                        :zIndex="zIndex"
-                        v-if="showMenu">
-                <sw-context-menu
-                    :class="contextMenuClass"
-                    :style="menuStyles"
-                    ref="swContextMenu">
-                    <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
-                </sw-context-menu>
-            </sw-popover>
-        {% endblock %}
-    </div>
+    {% block sw_context_button_menu %}
+    <sw-popover
+        v-if="showMenu"
+        class="sw-context-button__menu-position"
+        popover-class="sw-context-button__menu-popover"
+        :z-index="zIndex"
+    >
+        <sw-context-menu
+            ref="swContextMenu"
+            :class="contextMenuClass"
+            :style="menuStyles"
+        >
+            <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
+        </sw-context-menu>
+    </sw-popover>
+    {% endblock %}
+</div>
 {% endblock %}

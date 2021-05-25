@@ -1,58 +1,82 @@
 {% block sw_sales_channel_modal_grid %}
-    <sw-grid class="sw-sales-channel-modal-grid"
-             :items="salesChannelTypes"
-             v-if="!isLoading"
-             :selectable="false"
-             :header="false"
-             :table="true">
-        <template slot="columns" slot-scope="{ item }">
-            {% block sw_sales_channel_grid_columns %}
-                {% block sw_sales_channel_grid_columns_icon %}
-                    <sw-grid-column flex="85px" dataIndex="icon" class="sw-sales-channel-modal-grid__icon-column">
-                        <span class="sw-sales-channel-modal-grid__icon" @click="onOpenDetail(item.id)">
-                            <sw-icon v-if="item.iconName" :name="item.iconName">
-                            </sw-icon>
-                        </span>
-                    </sw-grid-column>
-                {% endblock %}
+<sw-grid
+    v-if="!isLoading"
+    class="sw-sales-channel-modal-grid"
+    :items="salesChannelTypes"
+    :selectable="false"
+    :header="false"
+    :table="true"
+>
+    <template
+        slot="columns"
+        slot-scope="{ item }"
+    >
+        {% block sw_sales_channel_grid_columns %}
+        {% block sw_sales_channel_grid_columns_icon %}
+        <sw-grid-column
+            flex="85px"
+            data-index="icon"
+            class="sw-sales-channel-modal-grid__icon-column"
+        >
+            <span
+                class="sw-sales-channel-modal-grid__icon"
+                @click="onOpenDetail(item.id)"
+            >
+                <sw-icon
+                    v-if="item.iconName"
+                    :name="item.iconName"
+                />
+            </span>
+        </sw-grid-column>
+        {% endblock %}
 
-                {% block sw_sales_channel_grid_columns_content %}
-                    <sw-grid-column flex="minmax(150px, 1fr)" dataIndex="content">
-                        <div class="sw-sales-channel-modal-grid__item-content">
-                            <h3 class="sw-sales-channel-modal-grid__item-name"
-                                @click="onOpenDetail(item.id)">{{ item.translated.name }}</h3>
-                            <div class="sw-sales-channel-modal-grid__item-description"
-                                 @click="onOpenDetail(item.id)">{{ item.translated.description }}</div>
-                        </div>
-                    </sw-grid-column>
-                {% endblock %}
+        {% block sw_sales_channel_grid_columns_content %}
+        <sw-grid-column
+            flex="minmax(150px, 1fr)"
+            data-index="content"
+        >
+            <div class="sw-sales-channel-modal-grid__item-content">
+                <h3
+                    class="sw-sales-channel-modal-grid__item-name"
+                    @click="onOpenDetail(item.id)"
+                >{{ item.translated.name }}</h3>
+                <div
+                    class="sw-sales-channel-modal-grid__item-description"
+                    @click="onOpenDetail(item.id)"
+                >{{ item.translated.description }}</div>
+            </div>
+        </sw-grid-column>
+        {% endblock %}
 
-                {% block sw_sales_channel_grid_columns_actions %}
-                <sw-grid-column flex="auto"
-                                align="center"
-                                dataIndex="actions"
-                                class="sw-sales-channel-modal-grid__actions">
-                    <sw-button
-                        class="sw-sales-channel-modal__add-channel-action"
-                        size="small"
-                        variant="primary"
-                        @click="onAddChannel(item.id)"
-                        :isLoading="addChannelAction.loading(item.id)"
-                        :disabled="addChannelAction.disabled(item.id)"
-                        v-tooltip="{
-                            message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
-                            showOnDisabledElements: true,
-                            disabled: !addChannelAction.disabled(item.id)
-                        }">
-                        {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
-                    </sw-button>
-                </sw-grid-column>
-                {% endblock %}
-            {% endblock %}
-        </template>
-    </sw-grid>
+        {% block sw_sales_channel_grid_columns_actions %}
+        <sw-grid-column
+            flex="auto"
+            align="center"
+            data-index="actions"
+            class="sw-sales-channel-modal-grid__actions"
+        >
+            <sw-button
+                v-tooltip="{
+                    message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
+                    showOnDisabledElements: true,
+                    disabled: !addChannelAction.disabled(item.id)
+                }"
+                class="sw-sales-channel-modal__add-channel-action"
+                size="small"
+                variant="primary"
+                :is-loading="addChannelAction.loading(item.id)"
+                :disabled="addChannelAction.disabled(item.id)"
+                @click="onAddChannel(item.id)"
+            >
+                {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
+            </sw-button>
+        </sw-grid-column>
+        {% endblock %}
+        {% endblock %}
+    </template>
+</sw-grid>
 
-    {% block sw_sales_channel_modal_grid_loader %}
-        <sw-loader v-else></sw-loader>
+{% block sw_sales_channel_modal_grid_loader %}
+<sw-loader v-else />
     {% endblock %}
 {% endblock %}

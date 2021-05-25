@@ -1,42 +1,59 @@
 {% block sw_first_run_wizard_shopware_domain %}
-    <div class="sw-first-run-wizard-shopware-domain">
-        <h3 class="headline">{{ $tc('sw-first-run-wizard.shopwareDomain.headline') }}</h3>
-        <p v-html="$tc('sw-first-run-wizard.shopwareDomain.message')"
-           class="message"></p>
+<div class="sw-first-run-wizard-shopware-domain">
+    <h3 class="headline">
+        {{ $tc('sw-first-run-wizard.shopwareDomain.headline') }}
+    </h3>
+    <p
+        class="message"
+        v-html="$tc('sw-first-run-wizard.shopwareDomain.message')"
+    />
 
-        <sw-switch-field :label="$tc('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
-                         v-model="createShopDomain">
-        </sw-switch-field>
+    <sw-switch-field
+        v-model="createShopDomain"
+        :label="$tc('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
+    />
 
-        <div v-if="createShopDomain">
-            <sw-field type="text"
-                      name="newShopDomain"
-                      validation="required"
-                      :label="'Shop domain'"
-                      v-model="newShopDomain">
-            </sw-field>
-            <sw-checkbox-field :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')" v-model="testEnvironment"></sw-checkbox-field>
-        </div>
-        <div v-else-if="licenceDomains.length > 0">
-            <sw-select-field v-model="selectedShopDomain"
-                             label="Shop domain"
-                             placeholder="">
-                <option v-for="domain in licenceDomains"
-                        :key="domain.domain"
-                        :value="domain.domain">
-                {{ domain.domain }}
-                </option>
-            </sw-select-field>
-        </div>
-        <div v-if="domainError"
-             class="sw-first-run-wizard-shopware-domain__error">
-            <sw-alert :title="domainError.title"
-             variant="error"
-             appearance="notification">
-                {{ domainError.detail }}
-            </sw-alert>
-        </div>
-
-        <sw-loader v-if="isLoading"></sw-loader>
+    <div v-if="createShopDomain">
+        <sw-field
+            v-model="newShopDomain"
+            type="text"
+            name="newShopDomain"
+            validation="required"
+            :label="'Shop domain'"
+        />
+        <sw-checkbox-field
+            v-model="testEnvironment"
+            :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')"
+        />
     </div>
+    <div v-else-if="licenceDomains.length > 0">
+        <sw-select-field
+            v-model="selectedShopDomain"
+            label="Shop domain"
+            placeholder=""
+        >
+            <option
+                v-for="domain in licenceDomains"
+                :key="domain.domain"
+                :value="domain.domain"
+            >
+                {{ domain.domain }}
+            </option>
+        </sw-select-field>
+    </div>
+    <div
+        v-if="domainError"
+        class="sw-first-run-wizard-shopware-domain__error"
+    >
+        <sw-alert
+            :title="domainError.title"
+            variant="error"
+            appearance="notification"
+        >
+            {{ domainError.detail }}
+        </sw-alert>
+    </div>
+
+    <sw-loader v-if="isLoading" />
+</div>
 {% endblock %}

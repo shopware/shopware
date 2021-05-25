@@ -1,81 +1,102 @@
 {% block sw_extension_store_landing_page %}
-    <div class="sw-extension-store-landing-page">
-        <div class="sw-extension-store-landing-page__wrapper">
-            <div class="sw-extension-store-landing-page__wrapper-loading" v-if="isLoading">
-                <sw-icon class="sw-extension-store-landing-page__wrapper-loading-icon"
-                         name="default-web-loading-circle"
-                         size="48px"
-                         small>
-                </sw-icon>
+<div class="sw-extension-store-landing-page">
+    <div class="sw-extension-store-landing-page__wrapper">
+        <div
+            v-if="isLoading"
+            class="sw-extension-store-landing-page__wrapper-loading"
+        >
+            <sw-icon
+                class="sw-extension-store-landing-page__wrapper-loading-icon"
+                name="default-web-loading-circle"
+                size="48px"
+                small
+            />
 
-                <p>
-                    {{ $tc('sw-extension-store.landing-page.enablingShopwareStore') }}
-                    <br>
-                    {{ $tc('sw-extension-store.landing-page.takeMinutes') }}
-                </p>
-            </div>
+            <p>
+                {{ $tc('sw-extension-store.landing-page.enablingShopwareStore') }}
+                <br>
+                {{ $tc('sw-extension-store.landing-page.takeMinutes') }}
+            </p>
+        </div>
 
-            <div class="sw-extension-store-landing-page__wrapper-activated" v-else-if="activationStatus !== null">
-                <template v-if="activationStatus === 'error'">
-                    <sw-label appearance="pill"
-                              variant="danger">
-                        <sw-icon name="default-basic-x-circle"
-                                 size="30px"
-                        ></sw-icon>
-                    </sw-label>
-
-                    <h2>
-                        {{ error && error.title || $tc('sw-extension-store.landing-page.activationErrorTitle') }}
-                    </h2>
-                    <p>
-                        {{ error && error.detail || $tc('sw-extension-store.landing-page.activationErrorDescription') }}
-                    </p>
-
-                    <sw-button @click="activateStore" variant="primary">
-                        {{ $tc('sw-extension-store.landing-page.retryButton') }}
-                    </sw-button>
-                </template>
-
-                <template v-else-if="activationStatus === 'success'">
-                    <sw-label appearance="pill"
-                              variant="success">
-                        <sw-icon name="default-basic-checkmark-circle"
-                                 size="30px"
-                        ></sw-icon>
-                    </sw-label>
-
-                    <h2>
-                        {{ $tc('sw-extension-store.landing-page.activationSuccessTitle') }}
-                    </h2>
-                    <p>
-                        {{ $tc('sw-extension-store.landing-page.activationSuccessDescription') }}
-                    </p>
-                </template>
-            </div>
-
-            <div class="sw-extension-store-landing-page__wrapper-content" v-else>
-                <img :src="'/administration/static/img/extension-store/store_illustration.svg' | asset">
-
-                <span class="sw-extension-store-landing-page__wrapper-label">
-                    {{ $tc('sw-extension-store.landing-page.label') }}
-                </span>
+        <div
+            v-else-if="activationStatus !== null"
+            class="sw-extension-store-landing-page__wrapper-activated"
+        >
+            <template v-if="activationStatus === 'error'">
+                <sw-label
+                    appearance="pill"
+                    variant="danger"
+                >
+                    <sw-icon
+                        name="default-basic-x-circle"
+                        size="30px"
+                    />
+                </sw-label>
 
                 <h2>
-                    {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleFirst') }}
-                    <br>
-                    {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleSecond') }}
+                    {{ error && error.title || $tc('sw-extension-store.landing-page.activationErrorTitle') }}
                 </h2>
-
                 <p>
-                    {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleDescription') }}
+                    {{ error && error.detail || $tc('sw-extension-store.landing-page.activationErrorDescription') }}
                 </p>
 
-                <sw-button @click="activateStore"
-                           class="sw-extension-store-landing-page__activate_button"
-                           variant="primary">
-                    {{ $tc('sw-extension-store.landing-page.activate') }}
+                <sw-button
+                    variant="primary"
+                    @click="activateStore"
+                >
+                    {{ $tc('sw-extension-store.landing-page.retryButton') }}
                 </sw-button>
-            </div>
+            </template>
+
+            <template v-else-if="activationStatus === 'success'">
+                <sw-label
+                    appearance="pill"
+                    variant="success"
+                >
+                    <sw-icon
+                        name="default-basic-checkmark-circle"
+                        size="30px"
+                    />
+                </sw-label>
+
+                <h2>
+                    {{ $tc('sw-extension-store.landing-page.activationSuccessTitle') }}
+                </h2>
+                <p>
+                    {{ $tc('sw-extension-store.landing-page.activationSuccessDescription') }}
+                </p>
+            </template>
+        </div>
+
+        <div
+            v-else
+            class="sw-extension-store-landing-page__wrapper-content"
+        >
+            <img :src="'/administration/static/img/extension-store/store_illustration.svg' | asset">
+
+            <span class="sw-extension-store-landing-page__wrapper-label">
+                {{ $tc('sw-extension-store.landing-page.label') }}
+            </span>
+
+            <h2>
+                {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleFirst') }}
+                <br>
+                {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleSecond') }}
+            </h2>
+
+            <p>
+                {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleDescription') }}
+            </p>
+
+            <sw-button
+                class="sw-extension-store-landing-page__activate_button"
+                variant="primary"
+                @click="activateStore"
+            >
+                {{ $tc('sw-extension-store.landing-page.activate') }}
+            </sw-button>
         </div>
     </div>
+</div>
 {% endblock %}

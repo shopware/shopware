@@ -1,24 +1,28 @@
 {% block sw_login_recovery_info %}
-    <div class="sw-login-recovery-info">
-        {% block sw_login_recovery_info_headline %}
-            <h2 class="sw-login__form-headline">
-                <router-link class="sw-login__back" :to="{ name: 'sw.login.index.login' }">
-                    <sw-icon class="sw-login__back-arrow"
-                             name="default-arrow-simple-left"
-                             small>
-                    </sw-icon>
-                </router-link>
-                {{ $tc('sw-login.recovery.info.headline') }}
-            </h2>
-        {% endblock %}
+<div class="sw-login-recovery-info">
+    {% block sw_login_recovery_info_headline %}
+    <h2 class="sw-login__form-headline">
+        <router-link
+            class="sw-login__back"
+            :to="{ name: 'sw.login.index.login' }"
+        >
+            <sw-icon
+                class="sw-login__back-arrow"
+                name="default-arrow-simple-left"
+                small
+            />
+        </router-link>
+        {{ $tc('sw-login.recovery.info.headline') }}
+    </h2>
+    {% endblock %}
 
-        {% block sw_login_recovery_info_info %}
-            <sw-alert variant="info">
-                {{ $tc('sw-login.recovery.info.info') }}
-            </sw-alert>
-            <sw-alert variant="warning">
-                {{ $tc('sw-login.recovery.info.warning') }}
-            </sw-alert>
-        {% endblock %}
-    </div>
+    {% block sw_login_recovery_info_info %}
+    <sw-alert variant="info">
+        {{ $tc('sw-login.recovery.info.info') }}
+    </sw-alert>
+    <sw-alert variant="warning">
+        {{ $tc('sw-login.recovery.info.warning') }}
+    </sw-alert>
+    {% endblock %}
+</div>
 {% endblock %}

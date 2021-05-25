@@ -1,29 +1,35 @@
 {% block sw_version %}
-    <div class="sw-version">
+<div class="sw-version">
 
-        {% block sw_version_name %}
-            <div class="sw-version__title">
+    {% block sw_version_name %}
+    <div class="sw-version__title">
 
-                {% block sw_version_name_text %}
-                    {{ $tc('global.sw-admin-menu.textProjectName') }}
-                {% endblock %}
-
-                {% block sw_version_status %}
-                    <span title="Shop status: OK" class="sw-version__status">
-                        {% block sw_version_status_badge %}
-                            <sw-color-badge variant="success" :rounded="true"></sw-color-badge>
-                        {% endblock %}
-                    </span>
-                {% endblock %}
-            </div>
+        {% block sw_version_name_text %}
+        {{ $tc('global.sw-admin-menu.textProjectName') }}
         {% endblock %}
 
-        {% block sw_version_info %}
-            <div class="sw-version__info">
-                {% block sw_version_info_text %}
-                    {{ version }}
-                {% endblock %}
-            </div>
+        {% block sw_version_status %}
+        <span
+            title="Shop status: OK"
+            class="sw-version__status"
+        >
+            {% block sw_version_status_badge %}
+            <sw-color-badge
+                variant="success"
+                :rounded="true"
+            />
+            {% endblock %}
+        </span>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_version_info %}
+    <div class="sw-version__info">
+        {% block sw_version_info_text %}
+        {{ version }}
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

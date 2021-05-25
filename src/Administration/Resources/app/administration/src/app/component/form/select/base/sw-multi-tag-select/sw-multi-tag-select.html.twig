@@ -1,71 +1,90 @@
 {% block sw_multi_tag_select %}
-    <sw-select-base class="sw-multi-tag-select"
-                    :isLoading="isLoading"
-                    :error="errorObject"
-                    v-bind="$attrs"
-                    v-on="$listeners"
-                    @select-expanded="setDropDown(true)"
-                    @select-collapsed="setDropDown(false)">
-        {% block sw_multi_tag_select_base %}
-            {% block sw_multi_tag_select_base_selection %}
-                <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
-                    {% block sw_multi_tag_select_base_selection_slot %}
-                        <sw-select-selection-list :selections="objectValues"
-                                                  ref="selectionList"
-                                                  @item-remove="remove"
-                                                  @last-item-delete="removeLastItem"
-                                                  @search-term-change="onSearchTermChange"
-                                                  labelProperty="value"
-                                                  valueProperty="value"
-                                                  v-bind="{ size, placeholder, searchTerm }">
-                            {% block sw_multi_tag_select_base_selection_list %}
-                                {% block sw_multi_tag_select_base_selection_list_label %}
-                                    <template #label-property="{ item, index, labelProperty, valueProperty }">
-                                        {% block sw_multi_tag_select_base_selection_list_label_inner %}
-                                            <slot name="selection-label-property" v-bind="{ item, index, labelProperty, valueProperty}">
-                                                {{ getKey(item, labelProperty) }}
-                                            </slot>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                            {% endblock %}
-                        </sw-select-selection-list>
-                    {% endblock %}
-                </template>
-            {% endblock %}
-        {% endblock %}
-
-        {% block sw_multi_tag_select_validation %}
-            <template #results-list>
-                <div v-if="hasFocus" class="sw-multi-tag-select-validation sw-select-result-list">
-                    <sw-popover class="sw-select-result-list-popover"
-                                popoverClass="sw-multi-tag-select-validation-popover"
-                                :zIndex="1100"
-                                :resizeWidth="true">
-                        <div class="sw-select-result-list__content">
-                            {% block sw_multi_tag_select_validation_valid %}
-                                <div @click="addItem" v-if="inputIsValid" class="sw-multi-tag-select-valid">
-                                    {% block sw_multi_tag_select_validation_valid_message %}
-                                        <slot name="message-add-data">
-                                            <span>{{ $tc('global.sw-multi-tag-select.addData') }}</span>
-                                        </slot>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-
-                            {% block sw_multi_tag_select_validation_invalid %}
-                                <div v-else class="sw-multi-tag-select-invalid">
-                                    {% block sw_multi_tag_select_validation_invalid_message %}
-                                        <slot name="message-enter-valid-data">
-                                            <span>{{ $tc('global.sw-multi-tag-select.enterValidData') }}</span>
-                                        </slot>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </div>
-                    </sw-popover>
-                </div>
+<sw-select-base
+    class="sw-multi-tag-select"
+    :is-loading="isLoading"
+    :error="errorObject"
+    v-bind="$attrs"
+    v-on="$listeners"
+    @select-expanded="setDropDown(true)"
+    @select-collapsed="setDropDown(false)"
+>
+    {% block sw_multi_tag_select_base %}
+    {% block sw_multi_tag_select_base_selection %}
+    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+        {% block sw_multi_tag_select_base_selection_slot %}
+        <sw-select-selection-list
+            ref="selectionList"
+            :selections="objectValues"
+            label-property="value"
+            value-property="value"
+            v-bind="{ size, placeholder, searchTerm }"
+            @item-remove="remove"
+            @last-item-delete="removeLastItem"
+            @search-term-change="onSearchTermChange"
+        >
+            {% block sw_multi_tag_select_base_selection_list %}
+            {% block sw_multi_tag_select_base_selection_list_label %}
+            <template #label-property="{ item, index, labelProperty, valueProperty }">
+                {% block sw_multi_tag_select_base_selection_list_label_inner %}
+                <slot
+                    name="selection-label-property"
+                    v-bind="{ item, index, labelProperty, valueProperty}"
+                >
+                    {{ getKey(item, labelProperty) }}
+                </slot>
+                {% endblock %}
             </template>
+            {% endblock %}
+            {% endblock %}
+        </sw-select-selection-list>
         {% endblock %}
-    </sw-select-base>
+    </template>
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_multi_tag_select_validation %}
+    <template #results-list>
+        <div
+            v-if="hasFocus"
+            class="sw-multi-tag-select-validation sw-select-result-list"
+        >
+            <sw-popover
+                class="sw-select-result-list-popover"
+                popover-class="sw-multi-tag-select-validation-popover"
+                :z-index="1100"
+                :resize-width="true"
+            >
+                <div class="sw-select-result-list__content">
+                    {% block sw_multi_tag_select_validation_valid %}
+                    <div
+                        v-if="inputIsValid"
+                        class="sw-multi-tag-select-valid"
+                        @click="addItem"
+                    >
+                        {% block sw_multi_tag_select_validation_valid_message %}
+                        <slot name="message-add-data">
+                            <span>{{ $tc('global.sw-multi-tag-select.addData') }}</span>
+                        </slot>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_multi_tag_select_validation_invalid %}
+                    <div
+                        v-else
+                        class="sw-multi-tag-select-invalid"
+                    >
+                        {% block sw_multi_tag_select_validation_invalid_message %}
+                        <slot name="message-enter-valid-data">
+                            <span>{{ $tc('global.sw-multi-tag-select.enterValidData') }}</span>
+                        </slot>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </div>
+            </sw-popover>
+        </div>
+    </template>
+    {% endblock %}
+</sw-select-base>
 {% endblock %}

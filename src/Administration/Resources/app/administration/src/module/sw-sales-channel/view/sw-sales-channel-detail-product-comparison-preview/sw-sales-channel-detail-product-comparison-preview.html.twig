@@ -1,37 +1,49 @@
 {% block sw_sales_channel_detail_product_comparison_preview %}
-    <div class="sw-sales-channel-detail-product-comparison-preview">
+<div class="sw-sales-channel-detail-product-comparison-preview">
 
-        {% block sw_sales_channel_detail_product_comparison_preview_modal %}
-            <sw-modal v-if="content"
-                      variant="large"
-                      :title="$tc('sw-sales-channel.detail.titleProductComparisonPreview')"
-                      @modal-close="onModalClose">
+    {% block sw_sales_channel_detail_product_comparison_preview_modal %}
+    <sw-modal
+        v-if="content"
+        variant="large"
+        :title="$tc('sw-sales-channel.detail.titleProductComparisonPreview')"
+        @modal-close="onModalClose"
+    >
 
-                {% block sw_sales_channel_detail_product_comparison_preview_modal_errors %}
-                    <div v-if="displayErrors">
-                        <h3>{{ $tc('sw-sales-channel.detail.titleProductComparisonPreviewErrors') }}</h3>
-                        <div class="sw-sales-channel-detail-product-comparison-preview__scrollable-container">
-                            <p v-for="error in errors">
-                                <a href="#" @click.prevent="navigateToLine(error.line)">
-                                    <sw-icon name="default-badge-error" color="#c0392b" small></sw-icon>
-                                </a>
-                                {{ error.message }}
-                            </p>
-                        </div>
-                    </div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_product_comparison_preview_modal_content %}
-                    <sw-code-editor
-                        ref="previewEditor"
-                        mode="text"
-                        :editorConfig="editorConfig"
-                        :softWraps="true"
-                        :setFocus="false"
-                        :value="content">
-                    </sw-code-editor>
-                {% endblock %}
-            </sw-modal>
+        {% block sw_sales_channel_detail_product_comparison_preview_modal_errors %}
+        <div v-if="displayErrors">
+            <h3>{{ $tc('sw-sales-channel.detail.titleProductComparisonPreviewErrors') }}</h3>
+            <div class="sw-sales-channel-detail-product-comparison-preview__scrollable-container">
+                <p
+                    v-for="error in errors"
+                    :key="error.message"
+                >
+                    <a
+                        href="#"
+                        @click.prevent="navigateToLine(error.line)"
+                    >
+                        <sw-icon
+                            name="default-badge-error"
+                            color="#c0392b"
+                            small
+                        />
+                    </a>
+                    {{ error.message }}
+                </p>
+            </div>
+        </div>
         {% endblock %}
-    </div>
+
+        {% block sw_sales_channel_detail_product_comparison_preview_modal_content %}
+        <sw-code-editor
+            ref="previewEditor"
+            mode="text"
+            :editor-config="editorConfig"
+            :soft-wraps="true"
+            :set-focus="false"
+            :value="content"
+        />
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</div>
 {% endblock %}

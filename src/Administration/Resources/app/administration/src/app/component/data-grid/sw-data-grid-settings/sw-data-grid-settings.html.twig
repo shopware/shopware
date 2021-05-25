@@ -1,111 +1,135 @@
 {% block sw_data_grid_settings %}
-    <sw-context-button
-        :disabled="disabled"
-        v-tooltip="{ message: $tc('global.sw-data-grid.tooltipListSettings') }"
-        :menuWidth="300"
-        :autoClose="false"
-        :additionalContextMenuClasses="contextMenuClasses">
+<sw-context-button
+    v-tooltip="{ message: $tc('global.sw-data-grid.tooltipListSettings') }"
+    :disabled="disabled"
+    :menu-width="300"
+    :auto-close="false"
+    :additional-context-menu-classes="contextMenuClasses"
+>
 
-        <template slot="button">
-            {% block sw_data_grid_settings_trigger %}
+    <template slot="button">
+        {% block sw_data_grid_settings_trigger %}
+        <sw-button
+            class="sw-data-grid-settings__trigger"
+            :disabled="disabled"
+            :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
+            size="x-small"
+            square
+        >
+            {% block sw_data_grid_settings_trigger_icon %}
+            <sw-icon
+                name="small-default-stack-line"
+                size="14px"
+            />
+            {% endblock %}
+        </sw-button>
+        {% endblock %}
+    </template>
+
+    {% block sw_data_grid_settings_content %}
+    {% block sw_data_grid_settings_general %}
+    <div class="sw-data-grid__settings-container">
+
+        {% block sw_data_grid_settings_compact_switch %}
+        <sw-switch-field
+            v-model="currentCompact"
+            size="medium"
+            no-margin-top
+            :label="$tc('global.sw-data-grid.labelSettingsCompactMode')"
+            @change="onChangeCompactMode(currentCompact)"
+        />
+        {% endblock %}
+
+        {% block sw_data_grid_settings_preview_switch %}
+        <sw-switch-field
+            v-if="enablePreviews"
+            v-model="currentPreviews"
+            size="medium"
+            no-margin-top
+            :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')"
+            @change="onChangePreviews(currentPreviews)"
+        />
+        {% endblock %}
+
+        {% block sw_data_grid_settings_additional_settings %}
+        <slot name="additionalSettings">
+            {% block sw_data_grid_settings_additional_settings_slot %}{% endblock %}
+        </slot>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_data_grid_settings_devider %}
+    <sw-context-menu-divider />
+    {% endblock %}
+
+    {% block sw_data_grid_settings_columns %}
+    <transition-group
+        name="columns-list"
+        tag="div"
+        class="sw-data-grid__settings-container sw-data-grid__settings-column-list"
+    >
+
+        {% block sw_data_grid_settings_column_element %}
+        <div
+            v-for="(column, index) in currentColumns"
+            :key="column.property"
+            :class="['sw-data-grid__settings-column-item', 'sw-data-grid__settings-item--' + index]"
+        >
+
+            {% block sw_data_grid_settings_column_visibility_checkbox %}
+            <sw-checkbox-field
+                :disabled="column.primary"
+                :label="$te(column.label) ? $tc(column.label) : column.label"
+                :value="currentColumns[index].visible"
+                @change="onChangeColumnVisibility($event, index)"
+            />
+            {% endblock %}
+
+            {% block sw_data_grid_settings_column_item_conrols %}
+            <sw-button-group
+                v-if="currentColumns.length >= 2"
+                class="sw-data-grid__settings-column-item-controls"
+            >
+
+                {% block sw_data_grid_settings_column_control_up %}
                 <sw-button
-                    class="sw-data-grid-settings__trigger"
-                    :disabled="disabled"
-                    :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
                     size="x-small"
-                    square>
-                    {% block sw_data_grid_settings_trigger_icon %}
-                        <sw-icon name="small-default-stack-line" size="14px"></sw-icon>
+                    square
+                    :disabled="index === 0"
+                    @click="onClickChangeColumnOrderUp(index)"
+                >
+                    {% block sw_data_grid_settings_column_control_up_icon %}
+                    <sw-icon
+                        name="small-arrow-small-up"
+                        size="14px"
+                    />
                     {% endblock %}
                 </sw-button>
-            {% endblock %}
-        </template>
+                {% endblock %}
 
-        {% block sw_data_grid_settings_content %}
-            {% block sw_data_grid_settings_general %}
-                <div class="sw-data-grid__settings-container">
-
-                    {% block sw_data_grid_settings_compact_switch %}
-                        <sw-switch-field
-                            size="medium"
-                            v-model="currentCompact"
-                            noMarginTop
-                            @change="onChangeCompactMode(currentCompact)"
-                            :label="$tc('global.sw-data-grid.labelSettingsCompactMode')">
-                        </sw-switch-field>
+                {% block sw_data_grid_settings_column_control_down %}
+                <sw-button
+                    size="x-small"
+                    square
+                    :disabled="index === (currentColumns.length - 1)"
+                    class="down"
+                    @click="onClickChangeColumnOrderDown(index)"
+                >
+                    {% block sw_data_grid_settings_column_control_down_icon %}
+                    <sw-icon
+                        name="small-arrow-small-down"
+                        size="14px"
+                    />
                     {% endblock %}
-
-                    {% block sw_data_grid_settings_preview_switch %}
-                        <sw-switch-field
-                            v-if="enablePreviews"
-                            size="medium"
-                            v-model="currentPreviews"
-                            noMarginTop
-                            @change="onChangePreviews(currentPreviews)"
-                            :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')">
-                        </sw-switch-field>
-                    {% endblock %}
-
-                    {% block sw_data_grid_settings_additional_settings %}
-                        <slot name="additionalSettings">
-                            {% block sw_data_grid_settings_additional_settings_slot %}{% endblock %}
-                        </slot>
-                    {% endblock %}
-                </div>
+                </sw-button>
+                {% endblock %}
+            </sw-button-group>
             {% endblock %}
-
-            {% block sw_data_grid_settings_devider %}
-                <sw-context-menu-divider></sw-context-menu-divider>
-            {% endblock %}
-
-            {% block sw_data_grid_settings_columns %}
-                <transition-group name="columns-list" tag="div" class="sw-data-grid__settings-container sw-data-grid__settings-column-list">
-
-                    {% block sw_data_grid_settings_column_element %}
-                        <div v-for="(column, index) in currentColumns"
-                             :class="['sw-data-grid__settings-column-item', 'sw-data-grid__settings-item--' + index]"
-                             :key="column.property">
-
-                            {% block sw_data_grid_settings_column_visibility_checkbox %}
-                                <sw-checkbox-field
-                                    :disabled="column.primary"
-                                    @change="onChangeColumnVisibility($event, index)"
-                                    :label="$te(column.label) ? $tc(column.label) : column.label"
-                                    :value="currentColumns[index].visible">
-                                </sw-checkbox-field>
-                            {% endblock %}
-
-                            {% block sw_data_grid_settings_column_item_conrols %}
-                                <sw-button-group v-if="currentColumns.length >= 2" class="sw-data-grid__settings-column-item-controls">
-
-                                    {% block sw_data_grid_settings_column_control_up %}
-                                        <sw-button size="x-small"
-                                                   square
-                                                   :disabled="index === 0"
-                                                   @click="onClickChangeColumnOrderUp(index)">
-                                            {% block sw_data_grid_settings_column_control_up_icon %}
-                                                <sw-icon name="small-arrow-small-up" size="14px"></sw-icon>
-                                            {% endblock %}
-                                        </sw-button>
-                                    {% endblock %}
-
-                                    {% block sw_data_grid_settings_column_control_down %}
-                                        <sw-button size="x-small"
-                                                   square
-                                                   :disabled="index === (currentColumns.length - 1)"
-                                                   class="down"
-                                                   @click="onClickChangeColumnOrderDown(index)">
-                                            {% block sw_data_grid_settings_column_control_down_icon %}
-                                                <sw-icon name="small-arrow-small-down" size="14px"></sw-icon>
-                                            {% endblock %}
-                                        </sw-button>
-                                    {% endblock %}
-                                </sw-button-group>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </transition-group>
-            {% endblock %}
+        </div>
         {% endblock %}
-    </sw-context-button>
+    </transition-group>
+    {% endblock %}
+    {% endblock %}
+</sw-context-button>
 {% endblock %}

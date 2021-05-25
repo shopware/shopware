@@ -1,18 +1,20 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-weight-of-cart sw-condition__condition-value">
-        {% block sw_condition_weight_of_cart_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition}"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-weight-of-cart sw-condition__condition-value">
+    {% block sw_condition_weight_of_cart_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition}"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_weight_of_cart_field_weight %}
-            <sw-number-field size="medium"
-                             :step="0.01"
-                             :digits="3"
-                             v-model="weight"
-                             :disabled="disabled">
-            </sw-number-field>
-        {% endblock %}
-    </div>
+    {% block sw_condition_weight_of_cart_field_weight %}
+    <sw-number-field
+        v-model="weight"
+        size="medium"
+        :step="0.01"
+        :digits="3"
+        :disabled="disabled"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

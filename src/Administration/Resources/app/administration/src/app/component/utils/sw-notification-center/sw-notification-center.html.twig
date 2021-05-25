@@ -1,83 +1,100 @@
 {% block sw_notification_center %}
-    <sw-context-button class="sw-notification-center__context-button"
-                       :class="additionalContextButtonClass"
-                       :autoClose="false"
-                       :menuWidth="360"
-                       :menuOffsetTop="10"
-                       :menuOffsetLeft="24"
-                       :additionalContextMenuClasses="additionalContextMenuClasses"
-                       @context-menu-after-open="onContextMenuOpen"
-                       @context-menu-after-close="onContextMenuClose"
-                       ref="notificationCenterContextButton">
-        <template #button>
-            {% block sw_notification_center_context_button_button_slot %}
-                <sw-icon name="default-bell-bell" size="20px"></sw-icon>
+<sw-context-button
+    ref="notificationCenterContextButton"
+    class="sw-notification-center__context-button"
+    :class="additionalContextButtonClass"
+    :auto-close="false"
+    :menu-width="360"
+    :menu-offset-top="10"
+    :menu-offset-left="24"
+    :additional-context-menu-classes="additionalContextMenuClasses"
+    @context-menu-after-open="onContextMenuOpen"
+    @context-menu-after-close="onContextMenuClose"
+>
+    <template #button>
+        {% block sw_notification_center_context_button_button_slot %}
+        <sw-icon
+            name="default-bell-bell"
+            size="20px"
+        />
+        {% endblock %}
+    </template>
+
+    {% block sw_notification_center_content %}
+    <div class="sw-notification-center__content">
+        {% block sw_notification_center_content_header %}
+        <div class="sw-notification-center__header">
+            <h3 class="sw-notification-center__title">
+                {{ $tc('global.notification-center.title') }}
+            </h3>
+
+            {% block sw_notification_center_content_context_menu %}
+            <sw-context-button>
+                <sw-context-menu-item
+                    variant="danger"
+                    @click="openDeleteModal"
+                >
+                    {{ $tc('global.notification-center.deleteModal.title') }}
+                </sw-context-menu-item>
+            </sw-context-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_notification_center_content_notification_container %}
+        <div class="sw-notification-center__notification-container">
+            <sw-notification-center-item
+                v-for="notification in notifications"
+                :key="notification.uuid"
+                :notification="notification"
+                @center-close="changeVisibility(false)"
+            />
+            <div
+                v-if="notifications.length === 0"
+                class="sw-notification-center__empty-text"
+            >
+                {{ $tc('global.notification-center.emptyText') }}
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+    {% block sw_notification_center_delete_modal %}
+    <sw-modal
+        v-if="showDeleteModal"
+        :title="$tc('global.notification-center.deleteModal.title')"
+        variant="small"
+        @modal-close="onCloseDeleteModal"
+    >
+        {% block sw_notification_center_delete_modal_confirm_delete_text %}
+        <p class="sw_notification_center__confirm-delete-text">
+            {{ $tc('global.notification-center.deleteModal.textConfirm') }}
+        </p>
+        {% endblock %}
+
+        {% block sw_notification_center_delete_modal_footer %}
+        <template #modal-footer>
+            {% block sw_notification_center_delete_modal_cancel %}
+            <sw-button
+                size="small"
+                @click="onCloseDeleteModal"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_notification_center_delete_modal_confirm %}
+            <sw-button
+                variant="primary"
+                size="small"
+                @click="onConfirmDelete"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-button>
             {% endblock %}
         </template>
-
-        {% block sw_notification_center_content %}
-            <div class="sw-notification-center__content">
-                {% block sw_notification_center_content_header %}
-                    <div class="sw-notification-center__header">
-                        <h3 class="sw-notification-center__title">
-                            {{ $tc('global.notification-center.title') }}
-                        </h3>
-
-                        {% block sw_notification_center_content_context_menu %}
-                            <sw-context-button>
-                                <sw-context-menu-item variant="danger" @click="openDeleteModal">
-                                    {{ $tc('global.notification-center.deleteModal.title') }}
-                                </sw-context-menu-item>
-                            </sw-context-button>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
-                {% block sw_notification_center_content_notification_container %}
-                    <div class="sw-notification-center__notification-container">
-                        <sw-notification-center-item v-for="notification in notifications"
-                                                     :notification="notification"
-                                                     :key="notification.uuid"
-                                                     @center-close="changeVisibility(false)">
-                        </sw-notification-center-item>
-                        <div v-if="notifications.length === 0"
-                             class="sw-notification-center__empty-text">
-                            {{ $tc('global.notification-center.emptyText') }}
-                        </div>
-                    </div>
-                {% endblock %}
-            </div>
         {% endblock %}
-        {% block sw_notification_center_delete_modal %}
-            <sw-modal v-if="showDeleteModal"
-                      @modal-close="onCloseDeleteModal"
-                      :title="$tc('global.notification-center.deleteModal.title')"
-                      variant="small">
-                {% block sw_notification_center_delete_modal_confirm_delete_text %}
-                    <p class="sw_notification_center__confirm-delete-text">
-                        {{ $tc('global.notification-center.deleteModal.textConfirm') }}
-                    </p>
-                {% endblock %}
-
-                {% block sw_notification_center_delete_modal_footer %}
-                    <template #modal-footer>
-                            {% block sw_notification_center_delete_modal_cancel %}
-                            <sw-button @click="onCloseDeleteModal"
-                                       size="small">
-                                {{ $tc('global.default.cancel') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_notification_center_delete_modal_confirm %}
-                            <sw-button @click="onConfirmDelete"
-                                       variant="primary"
-                                       size="small">
-                                {{ $tc('global.default.delete') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
-        {% endblock %}
-    </sw-context-button>
+    </sw-modal>
+    {% endblock %}
+</sw-context-button>
 {% endblock %}

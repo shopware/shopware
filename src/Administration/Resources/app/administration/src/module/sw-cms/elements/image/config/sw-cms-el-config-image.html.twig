@@ -1,93 +1,128 @@
 {% block sw_cms_element_image_config %}
-    <div class="sw-cms-el-config-image">
-        {% block sw_cms_element_image_config_media_upload %}
-            <sw-cms-mapping-field :label="$tc('sw-cms.elements.image.label')" valueTypes="entity" entity="media" v-model="element.config.media">
-                <sw-media-upload-v2 variant="regular"
-                                 :uploadTag="uploadTag"
-                                 :source="previewSource"
-                                 :allowMultiSelect="false"
-                                 :defaultFolder="cmsPageState.pageEntityName"
-                                 :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
-                                 @media-upload-sidebar-open="onOpenMediaModal"
-                                 @media-upload-remove-image="onImageRemove">
-                </sw-media-upload-v2>
+<div class="sw-cms-el-config-image">
+    {% block sw_cms_element_image_config_media_upload %}
+    <sw-cms-mapping-field
+        v-model="element.config.media"
+        :label="$tc('sw-cms.elements.image.label')"
+        value-types="entity"
+        entity="media"
+    >
+        <sw-media-upload-v2
+            variant="regular"
+            :upload-tag="uploadTag"
+            :source="previewSource"
+            :allow-multi-select="false"
+            :default-folder="cmsPageState.pageEntityName"
+            :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+            @media-upload-sidebar-open="onOpenMediaModal"
+            @media-upload-remove-image="onImageRemove"
+        />
 
-                <div class="sw-cms-el-config-image__mapping-preview" slot="preview" slot-scope="{ demoValue }">
-                    <img :src="demoValue.url" v-if="demoValue.url">
-                    <sw-alert class="sw-cms-el-config-image__preview-info" variant="info" v-else>
-                        {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
-                    </sw-alert>
-                </div>
-            </sw-cms-mapping-field>
+        <div
+            slot="preview"
+            slot-scope="{ demoValue }"
+            class="sw-cms-el-config-image__mapping-preview"
+        >
+            <img
+                v-if="demoValue.url"
+                :src="demoValue.url"
+            >
+            <sw-alert
+                v-else
+                class="sw-cms-el-config-image__preview-info"
+                variant="info"
+            >
+                {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+            </sw-alert>
+        </div>
+    </sw-cms-mapping-field>
 
-            <sw-upload-listener
-                    :uploadTag="uploadTag"
-                    autoUpload
-                    @media-upload-finish="onImageUpload">
-            </sw-upload-listener>
+    <sw-upload-listener
+        :upload-tag="uploadTag"
+        auto-upload
+        @media-upload-finish="onImageUpload"
+    />
+    {% endblock %}
+
+    {% block sw_cms_element_image_config_display_mode %}
+    <sw-select-field
+        v-model="element.config.displayMode.value"
+        class="sw-cms-el-config-image__display-mode"
+        :label="$tc('sw-cms.elements.general.config.label.displayMode')"
+        @change="onChangeDisplayMode"
+    >
+        <option value="standard">
+            {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
+        </option>
+        <option value="cover">
+            {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
+        </option>
+        <option value="stretch">
+            {{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}
+        </option>
+    </sw-select-field>
+    {% endblock %}
+
+    <template v-if="element.config.displayMode.value === 'cover'">
+        {% block sw_cms_element_image_config_min_height %}
+        <sw-text-field
+            v-model="element.config.minHeight.value"
+            :label="$tc('sw-cms.elements.image.config.label.minHeight')"
+            :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
+            @input="onChangeMinHeight"
+        />
         {% endblock %}
+    </template>
 
-        {% block sw_cms_element_image_config_display_mode %}
-            <sw-select-field
-                class="sw-cms-el-config-image__display-mode"
-                :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-                v-model="element.config.displayMode.value"
-                @change="onChangeDisplayMode">
-                <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
-                <option value="cover">{{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}</option>
-                <option value="stretch">{{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}</option>
-            </sw-select-field>
-        {% endblock %}
+    {% block sw_cms_element_image_config_vertical_align %}
+    <sw-select-field
+        v-model="element.config.verticalAlign.value"
+        :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
+        :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
+        :disabled="element.config.displayMode.value === 'cover'"
+    >
+        <option value="flex-start">
+            {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
+        </option>
+        <option value="center">
+            {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
+        </option>
+        <option value="flex-end">
+            {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
+        </option>
+    </sw-select-field>
+    {% endblock %}
 
-        <template v-if="element.config.displayMode.value === 'cover'">
-            {% block sw_cms_element_image_config_min_height %}
-                <sw-text-field :label="$tc('sw-cms.elements.image.config.label.minHeight')"
-                               :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
-                               v-model="element.config.minHeight.value"
-                               @input="onChangeMinHeight">
-                </sw-text-field>
-            {% endblock %}
-        </template>
-
-        {% block sw_cms_element_image_config_vertical_align %}
-            <sw-select-field :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                             v-model="element.config.verticalAlign.value"
-                             :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                             :disabled="element.config.displayMode.value === 'cover'">
-                <option value="flex-start">{{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}</option>
-                <option value="center">{{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}</option>
-                <option value="flex-end">{{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}</option>
-            </sw-select-field>
-        {% endblock %}
-
-        {% block sw_cms_element_image_config_link %}
-            <div class="sw-cms-el-config-image__link">
-                <sw-field v-model="element.config.url.value"
-                          class="sw-cms-el-config-image__link-input"
-                          type="text"
-                          :label="$tc('sw-cms.elements.image.config.label.linkTo')"
-                          :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterUrl')">
-                </sw-field>
-                <sw-field class="sw-cms-el-config-image__link-tab"
-                          v-model="element.config.newTab.value"
-                          type="switch"
-                          :label="$tc('sw-cms.elements.image.config.label.linkNewTab')">
-                </sw-field>
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_element_image_config_media_modal %}
-            <sw-media-modal-v2
-                variant="regular"
-                v-if="mediaModalIsOpen"
-                :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
-                :entityContext="cmsPageState.entityName"
-                :allowMultiSelect="false"
-                :initialFolderId="cmsPageState.defaultMediaFolderId"
-                @media-upload-remove-image="onImageRemove"
-                @media-modal-selection-change="onSelectionChanges"
-                @modal-close="onCloseModal">
-            </sw-media-modal-v2>
-        {% endblock %}
+    {% block sw_cms_element_image_config_link %}
+    <div class="sw-cms-el-config-image__link">
+        <sw-field
+            v-model="element.config.url.value"
+            class="sw-cms-el-config-image__link-input"
+            type="text"
+            :label="$tc('sw-cms.elements.image.config.label.linkTo')"
+            :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterUrl')"
+        />
+        <sw-field
+            v-model="element.config.newTab.value"
+            class="sw-cms-el-config-image__link-tab"
+            type="switch"
+            :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"
+        />
     </div>
+    {% endblock %}
+
+    {% block sw_cms_element_image_config_media_modal %}
+    <sw-media-modal-v2
+        v-if="mediaModalIsOpen"
+        variant="regular"
+        :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+        :entity-context="cmsPageState.entityName"
+        :allow-multi-select="false"
+        :initial-folder-id="cmsPageState.defaultMediaFolderId"
+        @media-upload-remove-image="onImageRemove"
+        @media-modal-selection-change="onSelectionChanges"
+        @modal-close="onCloseModal"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

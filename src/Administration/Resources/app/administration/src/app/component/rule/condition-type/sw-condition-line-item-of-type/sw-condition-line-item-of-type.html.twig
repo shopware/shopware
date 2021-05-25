@@ -1,18 +1,19 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-line-item-of-type sw-condition__condition-value">
-        {% block sw_condition_line_item_of_type_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-line-item-of-type sw-condition__condition-value">
+    {% block sw_condition_line_item_of_type_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_line_item_of_type_field_line_item_type %}
-            <sw-single-select
-                size="medium"
-                :disabled="disabled"
-                :options="lineItemTypes"
-                v-model="lineItemType">
-            </sw-single-select>
-        {% endblock %}
-    </div>
+    {% block sw_condition_line_item_of_type_field_line_item_type %}
+    <sw-single-select
+        v-model="lineItemType"
+        size="medium"
+        :disabled="disabled"
+        :options="lineItemTypes"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

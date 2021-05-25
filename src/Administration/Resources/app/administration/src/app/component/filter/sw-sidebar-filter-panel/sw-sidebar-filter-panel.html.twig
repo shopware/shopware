@@ -1,21 +1,25 @@
 {% block sw_sidebar_filter_panel %}
-    <sw-sidebar-item
-        class="sw-sidebar-filter-panel"
-        icon="default-action-filter"
-        :badge="activeFilterNumber"
-        :title="$tc('sw-filter-panel.titleSidebarItemFilter')">
-        {% block sw_sidebar_filter_panel_headline %}
-            <template v-slot:headline-content>
-                <a v-if="activeFilterNumber" @click="resetAll">{{ $tc('sw-sidebar-filter-panel.resetButton') }}</a>
-            </template>
-        {% endblock %}
+<sw-sidebar-item
+    class="sw-sidebar-filter-panel"
+    icon="default-action-filter"
+    :badge="activeFilterNumber"
+    :title="$tc('sw-filter-panel.titleSidebarItemFilter')"
+>
+    {% block sw_sidebar_filter_panel_headline %}
+    <template #headline-content>
+        <a
+            v-if="activeFilterNumber"
+            @click="resetAll"
+        >{{ $tc('sw-sidebar-filter-panel.resetButton') }}</a>
+    </template>
+    {% endblock %}
 
-        {% block sw_sidebar_filter_panel_content %}
-            <sw-filter-panel
-                ref="filterPanel"
-                v-on="$listeners"
-                v-bind="$attrs">
-            </sw-filter-panel>
-        {% endblock %}
-    </sw-sidebar-item>
+    {% block sw_sidebar_filter_panel_content %}
+    <sw-filter-panel
+        ref="filterPanel"
+        v-bind="$attrs"
+        v-on="$listeners"
+    />
+    {% endblock %}
+</sw-sidebar-item>
 {% endblock %}

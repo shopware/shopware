@@ -1,102 +1,139 @@
 {% block sw_extension_permissions_modal %}
-    <sw-modal class="sw-extension-permissions-modal" v-on="$listeners" :title="modalTitle" variant="small">
-        {% block sw_extension_permissions_modal_content %}
-            {% block sw_extension_permissions_modal_intro %}
-                <div class="sw-extension-permissions-modal__intro">
-                    {% block sw_extension_permissions_modal_intro_image %}
-                        <img class="sw-extension-permissions-modal__image" :src="'/administration/static/img/extension-store/permissions.svg' | asset">
-                    {% endblock %}
+<sw-modal
+    class="sw-extension-permissions-modal"
+    :title="modalTitle"
+    variant="small"
+    v-on="$listeners"
+>
+    {% block sw_extension_permissions_modal_content %}
+    {% block sw_extension_permissions_modal_intro %}
+    <div class="sw-extension-permissions-modal__intro">
+        {% block sw_extension_permissions_modal_intro_image %}
+        <img
+            class="sw-extension-permissions-modal__image"
+            :src="'/administration/static/img/extension-store/permissions.svg' | asset"
+        >
+        {% endblock %}
 
-                    {% block sw_extension_permissions_modal_intro_text %}
-                        <p class="sw-extension-permissions-modal__description">
-                            {{
-                                $tc('sw-extension-store.component.sw-extension-permissions-modal.description',
-                                1,
-                                { extensionLabel: extensionLabel })
-                            }}
-                        </p>
-                        <p v-if="domainsList.length > 0"
-                            class="sw-extension-permissions-modal__domain-hint">
-                            {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domainHint') }}
-                        </p>
-                    {% endblock %}
-                </div>
+        {% block sw_extension_permissions_modal_intro_text %}
+        <p class="sw-extension-permissions-modal__description">
+            {{
+                $tc('sw-extension-store.component.sw-extension-permissions-modal.description',
+                    1,
+                    { extensionLabel: extensionLabel })
+            }}
+        </p>
+        <p
+            v-if="domainsList.length > 0"
+            class="sw-extension-permissions-modal__domain-hint"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domainHint') }}
+        </p>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_extension_permissions_modal_categories %}
+    <div class="sw-extension-permissions-modal__categories">
+        {% block sw_extension_permissions_modal_category %}
+        <div
+            v-for="(permission, key) in permissionsWithGroupedOperations"
+            :key="key"
+            class="sw-extension-permissions-modal__category"
+        >
+            {% block sw_extension_permissions_modal_category_inner %}
+            {% block sw_extension_permissions_modal_category_label %}
+            <span class="sw-extension-permissions-modal__category-label">
+                {{ categoryLabel(key) }}
+            </span>
             {% endblock %}
 
-            {% block sw_extension_permissions_modal_categories %}
-                <div class="sw-extension-permissions-modal__categories">
-                    {% block sw_extension_permissions_modal_category %}
-                        <div v-for="(permission, key) in permissionsWithGroupedOperations" class="sw-extension-permissions-modal__category">
-                            {% block sw_extension_permissions_modal_category_inner %}
-                                {% block sw_extension_permissions_modal_category_label %}
-                                    <span class="sw-extension-permissions-modal__category-label">
-                                        {{ categoryLabel(key) }}
-                                    </span>
-                                {% endblock %}
-
-                                {% block sw_extension_permissions_modal_link %}
-                                    <sw-button class="sw-extension-permissions-modal__link" @click="openDetailsModal(key)">
-                                        {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.textEntities') }}
-                                        <sw-icon name="default-arrow-simple-right" size="12"></sw-icon>
-                                    </sw-button>
-                                {% endblock %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    {% block sw_extension_permissions_modal_category_domains %}
-                        <div class="sw-extension-permissions-modal__category" v-if="domainsList.length > 0">
-                            <span class="sw-extension-permissions-modal__category-label">
-                                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domains') }}
-                            </span>
-
-                            <sw-button class="sw-extension-permissions-modal__link"
-                                       @click="toggleDomainsModal(true)">
-                                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.showDomains') }}
-
-                                <sw-icon name="default-arrow-simple-right" size="12"></sw-icon>
-                            </sw-button>
-                        </div>
-                    {% endblock %}
-                </div>
+            {% block sw_extension_permissions_modal_link %}
+            <sw-button
+                class="sw-extension-permissions-modal__link"
+                @click="openDetailsModal(key)"
+            >
+                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.textEntities') }}
+                <sw-icon
+                    name="default-arrow-simple-right"
+                    size="12"
+                />
+            </sw-button>
             {% endblock %}
+            {% endblock %}
+        </div>
         {% endblock %}
 
-        {% block sw_extension_permissions_modal_footer %}
-            <template #modal-footer>
-                {% block sw_extension_permissions_modal_footer_inner %}
-                    {% block sw_extension_permissions_modal_footer_close %}
-                        <sw-button :variant="actionLabel === null ? 'primary' : 'default'" @click="close" size="small">
-                            {{ $tc('global.sw-modal.labelClose') }}
-                        </sw-button>
-                    {% endblock %}
+        {% block sw_extension_permissions_modal_category_domains %}
+        <div
+            v-if="domainsList.length > 0"
+            class="sw-extension-permissions-modal__category"
+        >
+            <span class="sw-extension-permissions-modal__category-label">
+                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domains') }}
+            </span>
 
-                    {% block sw_extension_permissions_modal_footer_action %}
-                        <sw-button v-if="actionLabel" variant="primary" @click="closeWithAction" size="small">
-                            {{ actionLabel }}
-                        </sw-button>
-                    {% endblock %}
-                {% endblock %}
-            </template>
+            <sw-button
+                class="sw-extension-permissions-modal__link"
+                @click="toggleDomainsModal(true)"
+            >
+                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.showDomains') }}
+
+                <sw-icon
+                    name="default-arrow-simple-right"
+                    size="12"
+                />
+            </sw-button>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_extension_permissions_modal_footer %}
+    <template #modal-footer>
+        {% block sw_extension_permissions_modal_footer_inner %}
+        {% block sw_extension_permissions_modal_footer_close %}
+        <sw-button
+            :variant="actionLabel === null ? 'primary' : 'default'"
+            size="small"
+            @click="close"
+        >
+            {{ $tc('global.sw-modal.labelClose') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_extension_permissions_modal_details %}
-            <sw-extension-permissions-details-modal
-                v-if="showDetailsModal"
-                :modalTitle="modalTitle"
-                :permissions="permissionsWithGroupedOperations"
-                :selectedEntity="selectedEntity"
-                @modal-close="closeDetailsModal">
-            </sw-extension-permissions-details-modal>
+        {% block sw_extension_permissions_modal_footer_action %}
+        <sw-button
+            v-if="actionLabel"
+            variant="primary"
+            size="small"
+            @click="closeWithAction"
+        >
+            {{ actionLabel }}
+        </sw-button>
         {% endblock %}
+        {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_extension_permissions_modal_domains %}
-            <sw-extension-domains-modal
-                v-if="showDomainsModal"
-                :extensionLabel="extensionLabel"
-                :domains="domainsList"
-                @modal-close="toggleDomainsModal(false)">
-            </sw-extension-domains-modal>
-        {% endblock %}
-    </sw-modal>
+    {% block sw_extension_permissions_modal_details %}
+    <sw-extension-permissions-details-modal
+        v-if="showDetailsModal"
+        :modal-title="modalTitle"
+        :permissions="permissionsWithGroupedOperations"
+        :selected-entity="selectedEntity"
+        @modal-close="closeDetailsModal"
+    />
+    {% endblock %}
+
+    {% block sw_extension_permissions_modal_domains %}
+    <sw-extension-domains-modal
+        v-if="showDomainsModal"
+        :extension-label="extensionLabel"
+        :domains="domainsList"
+        @modal-close="toggleDomainsModal(false)"
+    />
+    {% endblock %}
+</sw-modal>
 {% endblock %}

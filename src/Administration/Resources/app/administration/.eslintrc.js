@@ -118,7 +118,8 @@ module.exports = {
                 'vue/no-unused-vars': 'warn',
                 'vue/no-parsing-error': ['error', {
                     'nested-comment': false
-                }]
+                }],
+                'vue/valid-template-root': 'warn'
             }
         }
     ]

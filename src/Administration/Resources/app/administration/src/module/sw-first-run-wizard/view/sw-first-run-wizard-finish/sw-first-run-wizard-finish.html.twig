@@ -1,44 +1,63 @@
 {% block sw_first_run_wizard_finish %}
-    <div class="sw-first-run-wizard-finish">
+<div class="sw-first-run-wizard-finish">
 
-        <span class="sw-first-run-wizard-finish__bubble">
-            <sw-icon class="sw-first-run-wizard-finish__icon"
-                     name="small-default-checkmark-line-medium"
-                     size="42px"
-                     small>
-            </sw-icon>
-        </span>
-        <h3 class="headline">{{ $tc('sw-first-run-wizard.finish.headlineAllDone') }}</h3>
-        <p class="message">{{ successMessage }}</p>
+    <span class="sw-first-run-wizard-finish__bubble">
+        <sw-icon
+            class="sw-first-run-wizard-finish__icon"
+            name="small-default-checkmark-line-medium"
+            size="42px"
+            small
+        />
+    </span>
+    <h3 class="headline">
+        {{ $tc('sw-first-run-wizard.finish.headlineAllDone') }}
+    </h3>
+    <p class="message">
+        {{ successMessage }}
+    </p>
 
-        <h3 class="headline-useful-links">{{ $tc('sw-first-run-wizard.finish.headlineUsefulLinks') }}</h3>
-        <sw-container columns="1fr 1fr 1fr"
-                      class="list-useful-links">
-            <a :href="$tc('sw-first-run-wizard.finish.documentationUrl')"
-               class="external-link"
-               target="_blank"
-               rel="noopener">
-                {{ $tc('sw-first-run-wizard.finish.documentationLabel') }}
-            </a>
-            <a :href="$tc('sw-first-run-wizard.finish.forumUrl')"
-               class="external-link"
-               target="_blank"
-               rel="noopener">
-                {{ $tc('sw-first-run-wizard.finish.forumLabel') }}
-            </a>
-            <a :href="$tc('sw-first-run-wizard.finish.roadmapUrl')"
-               class="external-link"
-               target="_blank"
-               rel="noopener">
-                {{ $tc('sw-first-run-wizard.finish.roadmapLabel') }}
-            </a>
-        </sw-container>
+    <h3 class="headline-useful-links">
+        {{ $tc('sw-first-run-wizard.finish.headlineUsefulLinks') }}
+    </h3>
+    <sw-container
+        columns="1fr 1fr 1fr"
+        class="list-useful-links"
+    >
+        <a
+            :href="$tc('sw-first-run-wizard.finish.documentationUrl')"
+            class="external-link"
+            target="_blank"
+            rel="noopener"
+        >
+            {{ $tc('sw-first-run-wizard.finish.documentationLabel') }}
+        </a>
+        <a
+            :href="$tc('sw-first-run-wizard.finish.forumUrl')"
+            class="external-link"
+            target="_blank"
+            rel="noopener"
+        >
+            {{ $tc('sw-first-run-wizard.finish.forumLabel') }}
+        </a>
+        <a
+            :href="$tc('sw-first-run-wizard.finish.roadmapUrl')"
+            class="external-link"
+            target="_blank"
+            rel="noopener"
+        >
+            {{ $tc('sw-first-run-wizard.finish.roadmapLabel') }}
+        </a>
+    </sw-container>
 
-        <div v-if="restarting"
-             class="restart-progress">
-            <sw-loader size="48"></sw-loader>
-            <p v-html="$tc('sw-first-run-wizard.finish.loadingMessage')"
-               class="sw-loader-info-text"></p>
-        </div>
+    <div
+        v-if="restarting"
+        class="restart-progress"
+    >
+        <sw-loader size="48" />
+        <p
+            class="sw-loader-info-text"
+            v-html="$tc('sw-first-run-wizard.finish.loadingMessage')"
+        />
     </div>
+</div>
 {% endblock %}

@@ -1,54 +1,62 @@
 {% block sw_seo_url %}
-    <div class="sw-seo-url">
-        <sw-card class="sw-seo-url__card"
-                 :title="$tc('sw-seo-url.titleCard')"
-                 :isLoading="isLoading">
-            {% block sw_seo_url_card %}
-                    <template v-if="showEmptySeoUrlError">
-                        {{ $tc('sw-seo-url.textEmptySeoUrls') }}
-                    </template>
+<div class="sw-seo-url">
+    <sw-card
+        class="sw-seo-url__card"
+        :title="$tc('sw-seo-url.titleCard')"
+        :is-loading="isLoading"
+    >
+        {% block sw_seo_url_card %}
+        <template v-if="showEmptySeoUrlError">
+            {{ $tc('sw-seo-url.textEmptySeoUrls') }}
+        </template>
 
-                    <template v-else>
-                        {% block sw_seo_url_card_toolbar %}
-                            <template slot="toolbar">
-                                <sw-sales-channel-switch
-                                        ref="salesChannelSwitch"
-                                        :disabled="disabled"
-                                        :label="$tc('sw-seo-url.labelSalesChannelSelect')"
-                                        @change-sales-channel-id="onSalesChannelChanged">
-                                </sw-sales-channel-switch>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_seo_url_card_seo_path %}
-                        <sw-inherit-wrapper v-model="currentSeoUrl.seoPathInfo"
-                                            :hasParent="currentSalesChannelId !== null && !isHeadlessSalesChannel && hasDefaultTemplate"
-                                            :inheritedValue="(currentSeoUrl.salesChannelId !== null && !isHeadlessSalesChannel) ? defaultSeoUrl.seoPathInfo : null">
-
-                            <template #content="props">
-                                {% block sw_seo_url_card_seo_path_edit %}
-                                    <sw-text-field :mapInheritance="props"
-                                                   :value="props.currentValue"
-                                                   @input="props.updateCurrentValue"
-                                                   :disabled="props.isInherited || isHeadlessSalesChannel || !allowInput"
-                                                   :disableInheritanceToggle="isHeadlessSalesChannel"
-                                                   :label="$tc('sw-seo-url.labelSeoPathInfo')"
-                                                   :help-text="seoUrlHelptext">
-                                    </sw-text-field>
-                                {% endblock %}
-                            </template>
-
-                        </sw-inherit-wrapper>
-                        {% endblock %}
-                    </template>
-
-                    <div v-if="hasAdditionalSeoSlot">
-                        <slot name="seo-additional" v-bind="{currentSalesChannelId}">
-                            {% block sw_seo_url_additional %}{% endblock %}
-                        </slot>
-                    </div>
-
+        <template v-else>
+            {% block sw_seo_url_card_toolbar %}
+            <template slot="toolbar">
+                <sw-sales-channel-switch
+                    ref="salesChannelSwitch"
+                    :disabled="disabled"
+                    :label="$tc('sw-seo-url.labelSalesChannelSelect')"
+                    @change-sales-channel-id="onSalesChannelChanged"
+                />
+            </template>
             {% endblock %}
-        </sw-card>
-    </div>
+
+            {% block sw_seo_url_card_seo_path %}
+            <sw-inherit-wrapper
+                v-model="currentSeoUrl.seoPathInfo"
+                :has-parent="currentSalesChannelId !== null && !isHeadlessSalesChannel && hasDefaultTemplate"
+                :inherited-value="(currentSeoUrl.salesChannelId !== null && !isHeadlessSalesChannel) ? defaultSeoUrl.seoPathInfo : null"
+            >
+
+                <template #content="props">
+                    {% block sw_seo_url_card_seo_path_edit %}
+                    <sw-text-field
+                        :map-inheritance="props"
+                        :value="props.currentValue"
+                        :disabled="props.isInherited || isHeadlessSalesChannel || !allowInput"
+                        :disable-inheritance-toggle="isHeadlessSalesChannel"
+                        :label="$tc('sw-seo-url.labelSeoPathInfo')"
+                        :help-text="seoUrlHelptext"
+                        @input="props.updateCurrentValue"
+                    />
+                    {% endblock %}
+                </template>
+
+            </sw-inherit-wrapper>
+            {% endblock %}
+        </template>
+
+        <div v-if="hasAdditionalSeoSlot">
+            <slot
+                name="seo-additional"
+                v-bind="{currentSalesChannelId}"
+            >
+                {% block sw_seo_url_additional %}{% endblock %}
+            </slot>
+        </div>
+
+        {% endblock %}
+    </sw-card>
+</div>
 {% endblock %}

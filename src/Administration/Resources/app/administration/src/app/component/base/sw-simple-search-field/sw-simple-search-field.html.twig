@@ -1,23 +1,29 @@
 {% block sw_simple_search_field %}
-    <div class="sw-simple-search-field">
-        {% block sw_simple_search_field_input %}
-            <sw-field type="text"
-                      class="sw-simple-search-field__input"
-                      :class="fieldClasses"
-                      :placeholder="placeholder"
-                      v-bind="$attrs"
-                      v-on="$listeners"
-                      :value="searchTerm"
-                      @input="onSearchTermChanged">
-            </sw-field>
-        {% endblock %}
+<div class="sw-simple-search-field">
+    {% block sw_simple_search_field_input %}
+    <sw-field
+        type="text"
+        class="sw-simple-search-field__input"
+        :class="fieldClasses"
+        :placeholder="placeholder"
+        v-bind="$attrs"
+        :value="searchTerm"
+        v-on="$listeners"
+        @input="onSearchTermChanged"
+    />
+    {% endblock %}
 
-        {% block sw_simple_search_field_search_icon %}
-            <slot name="sw-simple-search-field-icon">
-                {% block sw_simple_search_field_slot_search_icon %}
-                    <sw-icon v-if="icon" class="sw-simple-search-field__search-icon" :name="icon" small></sw-icon>
-                {% endblock %}
-            </slot>
+    {% block sw_simple_search_field_search_icon %}
+    <slot name="sw-simple-search-field-icon">
+        {% block sw_simple_search_field_slot_search_icon %}
+        <sw-icon
+            v-if="icon"
+            class="sw-simple-search-field__search-icon"
+            :name="icon"
+            small
+        />
         {% endblock %}
-    </div>
+    </slot>
+    {% endblock %}
+</div>
 {% endblock %}

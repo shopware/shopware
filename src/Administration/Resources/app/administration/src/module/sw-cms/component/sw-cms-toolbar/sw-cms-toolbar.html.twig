@@ -1,35 +1,35 @@
 {% block sw_cms_toolbar %}
-    <div class="sw-cms-toolbar">
-        {% block sw_cms_toolbar_title %}
-            <div class="sw-cms-toolbar__title">
-                <slot name="title">
-                    {% block sw_cms_toolbar_slot_title %}{% endblock %}
-                </slot>
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_toolbar_tools %}
-            <div class="sw-cms-toolbar__tools">
-                <slot name="tools">
-                    {% block sw_cms_toolbar_slot_tools %}{% endblock %}
-                </slot>
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_toolbar_language_switch %}
-            <div class="sw-cms-toolbar__language-selection">
-                <slot name="language-switch">
-                    {% block sw_cms_toolbar_slot_language_switch %}{% endblock %}
-                </slot>
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_toolbar_actions %}
-            <div class="sw-cms-toolbar__actions">
-                <slot name="actions">
-                    {% block sw_cms_toolbar_slot_actions %}{% endblock %}
-                </slot>
-            </div>
-        {% endblock %}
+<div class="sw-cms-toolbar">
+    {% block sw_cms_toolbar_title %}
+    <div class="sw-cms-toolbar__title">
+        <slot name="title">
+            {% block sw_cms_toolbar_slot_title %}{% endblock %}
+        </slot>
     </div>
+    {% endblock %}
+
+    {% block sw_cms_toolbar_tools %}
+    <div class="sw-cms-toolbar__tools">
+        <slot name="tools">
+            {% block sw_cms_toolbar_slot_tools %}{% endblock %}
+        </slot>
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_toolbar_language_switch %}
+    <div class="sw-cms-toolbar__language-selection">
+        <slot name="language-switch">
+            {% block sw_cms_toolbar_slot_language_switch %}{% endblock %}
+        </slot>
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_toolbar_actions %}
+    <div class="sw-cms-toolbar__actions">
+        <slot name="actions">
+            {% block sw_cms_toolbar_slot_actions %}{% endblock %}
+        </slot>
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

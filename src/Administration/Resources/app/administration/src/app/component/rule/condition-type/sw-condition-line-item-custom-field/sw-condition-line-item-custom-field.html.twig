@@ -1,61 +1,67 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-line-item-custom-field sw-condition__condition-value">
+<div class="sw-condition-line-item-custom-field sw-condition__condition-value">
 
-        {% block sw_condition_line_item_custom_field_fieldset %}
-            <sw-arrow-field :disabled="disabled">
-                <sw-entity-single-select
-                    ref="selectedFieldSet"
-                    entity="custom_field_set"
-                    :criteria="customFieldSetCriteria"
-                    :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.fieldSetSelect.placeholder')"
-                    @change="onFieldSetChange"
-                    v-model="selectedFieldSet"
-                    :disabled="disabled"
-                    size="medium">
-                    <template v-slot:selection-label-property="slotProps">
-                        {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
-                    </template>
-                    <template v-slot:result-label-property="slotProps">
-                        {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
-                    </template>
-                </sw-entity-single-select>
-            </sw-arrow-field>
-        {% endblock %}
-        {% block sw_condition_line_item_custom_field_field %}
-            <sw-arrow-field v-if="selectedFieldSet" :disabled="disabled">
-                <sw-entity-single-select
-                    ref="selectedField"
-                    entity="custom_field"
-                    :criteria="customFieldCriteria"
-                    :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
-                    @change="onFieldChange"
-                    :disabled="disabled"
-                    size="medium"
-                    v-model="selectedField">
-                    <template v-slot:selection-label-property="slotProps">
-                        {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
-                    </template>
-                    <template v-slot:result-label-property="slotProps">
-                        {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
-                    </template>
-                </sw-entity-single-select>
-            </sw-arrow-field>
-        {% endblock %}
-        {% block sw_condition_line_item_custom_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"
-                                          :disabled="disabled"
-                                          v-if="renderedField"
-                                          v-model="operator">
-            </sw-condition-operator-select>
-        {% endblock %}
-        {% block sw_condition_line_item_custom_field_value %}
-            <sw-form-field-renderer
-                v-if="renderedField"
-                :config="renderedField.config"
-                :disabled="disabled"
-                size="medium"
-                v-model="renderedFieldValue">
-            </sw-form-field-renderer>
-        {% endblock %}
-    </div>
+    {% block sw_condition_line_item_custom_field_fieldset %}
+    <sw-arrow-field :disabled="disabled">
+        <sw-entity-single-select
+            ref="selectedFieldSet"
+            v-model="selectedFieldSet"
+            entity="custom_field_set"
+            :criteria="customFieldSetCriteria"
+            :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.fieldSetSelect.placeholder')"
+            :disabled="disabled"
+            size="medium"
+            @change="onFieldSetChange"
+        >
+            <template #selection-label-property="slotProps">
+                {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+            <template #result-label-property="slotProps">
+                {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+        </sw-entity-single-select>
+    </sw-arrow-field>
+    {% endblock %}
+    {% block sw_condition_line_item_custom_field_field %}
+    <sw-arrow-field
+        v-if="selectedFieldSet"
+        :disabled="disabled"
+    >
+        <sw-entity-single-select
+            ref="selectedField"
+            v-model="selectedField"
+            entity="custom_field"
+            :criteria="customFieldCriteria"
+            :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
+            :disabled="disabled"
+            size="medium"
+            @change="onFieldChange"
+        >
+            <template #selection-label-property="slotProps">
+                {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+            <template #result-label-property="slotProps">
+                {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+        </sw-entity-single-select>
+    </sw-arrow-field>
+    {% endblock %}
+    {% block sw_condition_line_item_custom_field_operator %}
+    <sw-condition-operator-select
+        v-if="renderedField"
+        v-model="operator"
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
+    {% block sw_condition_line_item_custom_field_value %}
+    <sw-form-field-renderer
+        v-if="renderedField"
+        v-model="renderedFieldValue"
+        :config="renderedField.config"
+        :disabled="disabled"
+        size="medium"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

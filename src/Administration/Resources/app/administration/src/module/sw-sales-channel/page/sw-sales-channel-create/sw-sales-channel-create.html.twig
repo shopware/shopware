@@ -1,14 +1,15 @@
 {% block sw_sales_channel_detail_content_tabs %}{% endblock %}
 
 {% block sw_sales_channel_detail_language_switch %}
-    <sw-language-switch slot="language-switch"
-                        disabled>
-    </sw-language-switch>
+<sw-language-switch
+    slot="language-switch"
+    disabled
+/>
 {% endblock %}
 
 {% block sw_sales_channel_detail_content_language_info %}
-    <sw-language-info
-            :entityDescription="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline'))"
-            isNewEntity>
-    </sw-language-info>
+<sw-language-info
+    :entity-description="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline'))"
+    is-new-entity
+/>
 {% endblock %}

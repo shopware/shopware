@@ -1,61 +1,69 @@
 {% block sw_language_switch %}
-    <div class="sw-language-switch">
-        {% block sw_language_switch_modal %}
-            <sw-modal v-if="showUnsavedChangesModal"
-                      @modal-close="onCloseChangesModal"
-                      :title="$tc('sw-language-switch.titleModalUnsavedChanges')"
-                      variant="small">
-                {% block sw_language_switch_message %}
-                    <p>{{ $tc('sw-language-switch.messageModalUnsavedChanges') }}</p>
-                {% endblock %}
-                {% block sw_language_switch_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_language_switch_footer_button_close %}
-                            <sw-button @click="onCloseChangesModal"
-                                       id="sw-language-switch-close-button"
-                                       size="small">
-                                {{ $tc('global.default.cancel') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_language_switch_footer_button_revert %}
-                            <sw-button @click="onClickRevertUnsavedChanges"
-                                       id="sw-language-switch-revert-changes-button"
-                                       size="small">
-                                {{ $tc('sw-language-switch.titleModalButtonRevertUnsavedChanges') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_language_switch_footer_button_save %}
-                            <sw-button @click="onClickSaveChanges"
-                                       id="sw-language-switch-save-changes-button"
-                                       variant="primary"
-                                       :disabled="!allowEdit"
-                                       v-tooltip="{
-                                            message: $tc('sw-privileges.tooltip.warning'),
-                                            disabled: allowEdit,
-                                            showOnDisabledElements: true
-                                        }"
-                                       size="small">
-                                {{ $tc('global.default.save') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
+<div class="sw-language-switch">
+    {% block sw_language_switch_modal %}
+    <sw-modal
+        v-if="showUnsavedChangesModal"
+        :title="$tc('sw-language-switch.titleModalUnsavedChanges')"
+        variant="small"
+        @modal-close="onCloseChangesModal"
+    >
+        {% block sw_language_switch_message %}
+        <p>{{ $tc('sw-language-switch.messageModalUnsavedChanges') }}</p>
         {% endblock %}
-        {% block sw_language_switch_select %}
-            <sw-entity-single-select
-                class="sw-language-switch__select"
-                entity="language"
-                :disabled="disabled"
-                id="language"
-                :criteria="languageCriteria"
-                size="medium"
-                required
-                @change="onInput"
-                :value="languageId">
-            </sw-entity-single-select>
+        {% block sw_language_switch_footer %}
+        <template slot="modal-footer">
+            {% block sw_language_switch_footer_button_close %}
+            <sw-button
+                id="sw-language-switch-close-button"
+                size="small"
+                @click="onCloseChangesModal"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_language_switch_footer_button_revert %}
+            <sw-button
+                id="sw-language-switch-revert-changes-button"
+                size="small"
+                @click="onClickRevertUnsavedChanges"
+            >
+                {{ $tc('sw-language-switch.titleModalButtonRevertUnsavedChanges') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_language_switch_footer_button_save %}
+            <sw-button
+                id="sw-language-switch-save-changes-button"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: allowEdit,
+                    showOnDisabledElements: true
+                }"
+                variant="primary"
+                :disabled="!allowEdit"
+                size="small"
+                @click="onClickSaveChanges"
+            >
+                {{ $tc('global.default.save') }}
+            </sw-button>
+            {% endblock %}
+        </template>
         {% endblock %}
-    </div>
+    </sw-modal>
+    {% endblock %}
+    {% block sw_language_switch_select %}
+    <sw-entity-single-select
+        id="language"
+        class="sw-language-switch__select"
+        entity="language"
+        :disabled="disabled"
+        :criteria="languageCriteria"
+        size="medium"
+        required
+        :value="languageId"
+        @change="onInput"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

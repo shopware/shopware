@@ -1,37 +1,45 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-goods-count">
-        {% block sw_condition_goods_count_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-goods-count">
+    {% block sw_condition_goods_count_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_goods_count_field_count %}
-            <sw-number-field size="medium"
-                             numberType="int"
-                             :step="1"
-                             v-model="count"
-                             :disabled="disabled">
-            </sw-number-field>
-        {% endblock %}
+    {% block sw_condition_goods_count_field_count %}
+    <sw-number-field
+        v-model="count"
+        size="medium"
+        number-type="int"
+        :step="1"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-
-        {% block sw_condition_goods_count_filter_button %}
-            <div class="sw-condition-goods-count__filter">
-                <sw-button @click="showFilterModal = true"
-                           :disabled="disabled"
-                           v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }">
-                    <sw-icon name="small-default-stack-filter" small></sw-icon>
-                </sw-button>
-            </div>
-        {% endblock %}
+    {% block sw_condition_goods_count_filter_button %}
+    <div class="sw-condition-goods-count__filter">
+        <sw-button
+            v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
+            :disabled="disabled"
+            @click="showFilterModal = true"
+        >
+            <sw-icon
+                name="small-default-stack-filter"
+                small
+            />
+        </sw-button>
     </div>
+    {% endblock %}
+</div>
 
-    {% block sw_condition_goods_count_condition_modal %}
-        <sw-condition-modal v-if="showFilterModal"
-                            :disabled="disabled"
-                            @modal-close="showFilterModal = false"
-                            v-bind="{ condition, conditionDataProviderService }">>
-        </sw-condition-modal>
+{% block sw_condition_goods_count_condition_modal %}
+<sw-condition-modal
+    v-if="showFilterModal"
+    :disabled="disabled"
+    v-bind="{ condition, conditionDataProviderService }"
+    @modal-close="showFilterModal = false"
+>>
+</sw-condition-modal>
     {% endblock %}
 {% endblock %}

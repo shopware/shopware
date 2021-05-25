@@ -1,30 +1,34 @@
 {% block sw_inheritance_switch %}
-    <div class="sw-inheritance-switch"
-         :class="{
-            'sw-inheritance-switch--disabled': disabled,
-            'sw-inheritance-switch--is-inherited': isInherited,
-            'sw-inheritance-switch--is-not-inherited': !isInherited,
-        }">
-        {% block sw_inheritance_switch_inherit_icon %}
-            <sw-icon v-if="isInherited"
-                     key="inherit-icon"
-                     :multicolor="true"
-                     :name="disabled ? 'custom-inherited-disabled' : 'custom-inherited'"
-                     v-tooltip="{ message: $tc('global.sw-field.tooltipRemoveInheritance'), disabled: disabled }"
-                     @click="onClickRemoveInheritance"
-                     size="16">
-            </sw-icon>
-        {% endblock %}
-        {% block sw_inheritance_switch_uninherit_icon %}
-            <sw-icon v-else
-                     key="uninherit-icon"
-                     :class="unInheritClasses"
-                     :multicolor="true"
-                     name="custom-uninherited"
-                     v-tooltip="{ message: $tc('global.sw-field.tooltipRestoreInheritance'), disabled: disabled }"
-                     @click="onClickRestoreInheritance"
-                     size="16">
-            </sw-icon>
-        {% endblock %}
-    </div>
+<div
+    class="sw-inheritance-switch"
+    :class="{
+        'sw-inheritance-switch--disabled': disabled,
+        'sw-inheritance-switch--is-inherited': isInherited,
+        'sw-inheritance-switch--is-not-inherited': !isInherited,
+    }"
+>
+    {% block sw_inheritance_switch_inherit_icon %}
+    <sw-icon
+        v-if="isInherited"
+        key="inherit-icon"
+        v-tooltip="{ message: $tc('global.sw-field.tooltipRemoveInheritance'), disabled: disabled }"
+        :multicolor="true"
+        :name="disabled ? 'custom-inherited-disabled' : 'custom-inherited'"
+        size="16"
+        @click="onClickRemoveInheritance"
+    />
+    {% endblock %}
+    {% block sw_inheritance_switch_uninherit_icon %}
+    <sw-icon
+        v-else
+        key="uninherit-icon"
+        v-tooltip="{ message: $tc('global.sw-field.tooltipRestoreInheritance'), disabled: disabled }"
+        :class="unInheritClasses"
+        :multicolor="true"
+        name="custom-uninherited"
+        size="16"
+        @click="onClickRestoreInheritance"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

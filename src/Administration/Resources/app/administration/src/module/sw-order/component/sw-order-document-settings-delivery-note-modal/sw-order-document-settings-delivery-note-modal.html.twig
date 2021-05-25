@@ -1,25 +1,31 @@
 {% block sw_order_document_settings_modal_form_first_row %}
-    {% block sw_order_document_settings_modal_form_document_number_before %}
-        <sw-text-field :label="$tc('sw-order.documentModal.labelDeliveryNoteNumber')"
-                  v-model="documentConfig.documentNumber">
-        </sw-text-field>
+{% block sw_order_document_settings_modal_form_document_number_before %}
+<sw-text-field
+    v-model="documentConfig.documentNumber"
+    :label="$tc('sw-order.documentModal.labelDeliveryNoteNumber')"
+/>
+{% endblock %}
+<sw-container
+    columns="1fr 1fr"
+    gap="0px 10px"
+>
+    {% block sw_order_document_settings_modal_form_document_number %}{% endblock %}
+
+    {% block sw_order_document_settings_modal_form_document_date %}
+    <sw-datepicker
+        v-model="documentConfig.documentDate"
+        date-type="date"
+        :label="$tc('sw-order.documentModal.labelDocumentDate')"
+    />
     {% endblock %}
-    <sw-container columns="1fr 1fr" gap="0px 10px">
-        {% block sw_order_document_settings_modal_form_document_number %}{% endblock %}
 
-        {% block sw_order_document_settings_modal_form_document_date %}
-        <sw-datepicker dateType="date"
-                       :label="$tc('sw-order.documentModal.labelDocumentDate')"
-                       v-model="documentConfig.documentDate">
-        </sw-datepicker>
-        {% endblock %}
-
-        {% block sw_order_document_settings_modal_form_document_delivery_date %}
-            <sw-datepicker dateType="date"
-                           required
-                           :label="$tc('sw-order.documentModal.labelDeliveryDate')"
-                           v-model="documentConfig.custom.deliveryDate">
-            </sw-datepicker>
-        {% endblock %}
-    </sw-container>
+    {% block sw_order_document_settings_modal_form_document_delivery_date %}
+    <sw-datepicker
+        v-model="documentConfig.custom.deliveryDate"
+        date-type="date"
+        required
+        :label="$tc('sw-order.documentModal.labelDeliveryDate')"
+    />
+    {% endblock %}
+</sw-container>
 {% endblock %}

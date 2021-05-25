@@ -1,15 +1,15 @@
 {% block sw_promotion_detail_restrictions %}
-    <div class="sw-promotion-detail-restrictions">
-        {% block sw_promotion_detail_restrictions_persona_rule_form %}
-            <sw-promotion-persona-form v-bind="$attrs"></sw-promotion-persona-form>
-        {% endblock %}
+<div class="sw-promotion-detail-restrictions">
+    {% block sw_promotion_detail_restrictions_persona_rule_form %}
+    <sw-promotion-persona-form v-bind="$attrs" />
+    {% endblock %}
 
-        {% block sw_promotion_detail_restrictions_scope_rule_form %}
-            <sw-promotion-cart-condition-form v-bind="$attrs"></sw-promotion-cart-condition-form>
-        {% endblock %}
+    {% block sw_promotion_detail_restrictions_scope_rule_form %}
+    <sw-promotion-cart-condition-form v-bind="$attrs" />
+    {% endblock %}
 
-        {% block sw_promotion_detail_restrictions_discount_rule_form %}
-            <sw-promotion-order-condition-form v-bind="$attrs"></sw-promotion-order-condition-form>
-        {% endblock %}
-    </div>
+    {% block sw_promotion_detail_restrictions_discount_rule_form %}
+    <sw-promotion-order-condition-form v-bind="$attrs" />
+    {% endblock %}
+</div>
 {% endblock %}

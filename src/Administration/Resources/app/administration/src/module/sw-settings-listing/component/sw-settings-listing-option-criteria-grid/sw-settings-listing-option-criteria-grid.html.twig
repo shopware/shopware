@@ -1,113 +1,124 @@
 {% block sw_settings_listing_option_criteria_card %}
-    <sw-card class="sw-settings-listing-option-criteria-grid__criteria-card"
-        :title="$tc('sw-settings-listing.base.criteria.title')">
+<sw-card
+    class="sw-settings-listing-option-criteria-grid__criteria-card"
+    :title="$tc('sw-settings-listing.base.criteria.title')"
+>
 
-        {% block sw_settings_listing_option_criteria_card_toolbar %}
-            <template #toolbar>
+    {% block sw_settings_listing_option_criteria_card_toolbar %}
+    <template #toolbar>
 
-                {% block sw_settings_listing_option_criteria_card_toolbar_select %}
-                    <sw-single-select :value="selectedCriteria"
-                        @change="onAddCriteria"
-                        :options="criteriaOptions"
-                        :placeholder="$tc('sw-settings-listing.base.criteria.selectPlaceholder')"
-                        valueProperty="value"
-                        labelProperty="label">
-                    </sw-single-select>
-                {% endblock %}
-            </template>
+        {% block sw_settings_listing_option_criteria_card_toolbar_select %}
+        <sw-single-select
+            :value="selectedCriteria"
+            :options="criteriaOptions"
+            :placeholder="$tc('sw-settings-listing.base.criteria.selectPlaceholder')"
+            value-property="value"
+            label-property="label"
+            @change="onAddCriteria"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_listing_option_criteria_card_grid %}
+    <sw-data-grid
+        v-if="productSortingEntity && productSortingEntity.fields.length > 0"
+        ref="dataGrid"
+        :columns="productSortingEntityColumns"
+        :data-source="sortedProductSortingFields"
+        :show-actions="true"
+        :allow-inline-edit="true"
+        :compact-mode="false"
+        :show-selection="false"
+        plain-appearance
+        item-identifier-property="field"
+        @inline-edit-save="onSaveInlineEdit"
+        @inline-edit-cancel="onCancelInlineEdit"
+    >
+
+        {% block sw_settings_listing_option_criteria_card_grid_column_field %}
+        <template #column-field="{item, isInlineEdit}">
+
+            {% block sw_settings_listing_option_criteria_card_grid_column_field_select %}
+            <sw-entity-single-select
+                v-if="item.field === 'customField' || (isItemACustomField(item.field) && isInlineEdit)"
+                ref="customFieldSelection"
+                v-model="item.name"
+                :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
+                :criteria="customFieldCriteriaSingleSelect(item)"
+                :label-callback="getCustomFieldName"
+                entity="custom_field"
+                @change="changeCustomField"
+            />
+            {% endblock %}
+
+            {% block sw_settings_listing_option_criteria_card_grid_column_field_custom_field %}
+            <span v-else-if="isItemACustomField(item.field)">
+                {{ getCustomFieldLabelByCriteriaName(item.field) }}
+            </span>
+            {% endblock %}
+
+            {% block sw_settings_listing_option_criteria_card_grid_column_field_custom_criteria %}
+            <span v-else>
+                {{ getCriteriaSnippetByFieldName(item.field) }}
+            </span>
+            {% endblock %}
+        </template>
         {% endblock %}
 
-        {% block sw_settings_listing_option_criteria_card_grid %}
-            <sw-data-grid v-if="productSortingEntity && productSortingEntity.fields.length > 0"
-                :columns="productSortingEntityColumns"
-                :dataSource="sortedProductSortingFields"
-                :showActions="true"
-                :allowInlineEdit="true"
-                :compactMode="false"
-                :showSelection="false"
-                plainAppearance
-                @inline-edit-save="onSaveInlineEdit"
-                @inline-edit-cancel="onCancelInlineEdit"
-                ref="dataGrid"
-                itemIdentifierProperty="field">
+        {% block sw_settings_listing_option_criteria_card_grid_column_order %}
+        <template #column-order="{item, isInlineEdit}">
 
-                {% block sw_settings_listing_option_criteria_card_grid_column_field %}
-                    <template #column-field="{item, isInlineEdit}">
+            {% block sw_settings_listing_option_criteria_card_grid_column_order_text %}
+            <div v-if="!isInlineEdit">
+                {{ getOrderSnippet(item.order) }}
+            </div>
+            {% endblock %}
 
-                        {% block sw_settings_listing_option_criteria_card_grid_column_field_select %}
-                            <sw-entity-single-select
-                                v-if="item.field === 'customField' || (isItemACustomField(item.field) && isInlineEdit)"
-                                v-model="item.name"
-                                :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
-                                :criteria="customFieldCriteriaSingleSelect(item)"
-                                @change="changeCustomField"
-                                :labelCallback="getCustomFieldName"
-                                entity="custom_field"
-                                ref="customFieldSelection">
-                            </sw-entity-single-select>
-                        {% endblock %}
-
-                        {% block sw_settings_listing_option_criteria_card_grid_column_field_custom_field %}
-                            <span v-else-if="isItemACustomField(item.field)">
-                                {{ getCustomFieldLabelByCriteriaName(item.field) }}
-                            </span>
-                        {% endblock %}
-
-                        {% block sw_settings_listing_option_criteria_card_grid_column_field_custom_criteria %}
-                            <span v-else>
-                                {{ getCriteriaSnippetByFieldName(item.field) }}
-                            </span>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
-                {% block sw_settings_listing_option_criteria_card_grid_column_order %}
-                    <template #column-order="{item, isInlineEdit}">
-
-                        {% block sw_settings_listing_option_criteria_card_grid_column_order_text %}
-                            <div v-if="!isInlineEdit">
-                                {{ getOrderSnippet(item.order) }}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_settings_listing_option_criteria_card_grid_column_order_select %}
-                            <sw-single-select v-else
-                                v-model="item.order"
-                                :options="orderOptions"
-                                valueProperty="value"
-                                labelProperty="label"
-                                :placeholder="$tc('global.sw-single-select.valuePlaceholder')">
-                            </sw-single-select>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
-                {% block sw_settings_listing_option_criteria_card_grid_column_actions %}
-                    <template #actions="{item}">
-
-                        {% block sw_settings_listing_option_criteria_card_grid_column_actions_delete %}
-                            <sw-context-menu-item variant="danger" @click="onRemoveCriteria(item)">
-                                {{ $tc('global.default.delete') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-data-grid>
+            {% block sw_settings_listing_option_criteria_card_grid_column_order_select %}
+            <sw-single-select
+                v-else
+                v-model="item.order"
+                :options="orderOptions"
+                value-property="value"
+                label-property="label"
+                :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
+            />
+            {% endblock %}
+        </template>
         {% endblock %}
 
-        {% block sw_settings_listing_option_criteria_card_empty_state %}
-            <sw-empty-state v-else
-                class="sw-settings-listing-option-criteria-grid__criteria-empty-state"
-                title=""
-                :subline="$tc('sw-settings-listing.base.criteria.emptyStateSubline')">
+        {% block sw_settings_listing_option_criteria_card_grid_column_actions %}
+        <template #actions="{item}">
 
-                {% block sw_settings_listing_option_criteria_card_empty_state_icon %}
-                    <template #icon>
-                        <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset" />
-                    </template>
-                {% endblock %}
-
-            </sw-empty-state>
+            {% block sw_settings_listing_option_criteria_card_grid_column_actions_delete %}
+            <sw-context-menu-item
+                variant="danger"
+                @click="onRemoveCriteria(item)"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </template>
         {% endblock %}
-    </sw-card>
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_settings_listing_option_criteria_card_empty_state %}
+    <sw-empty-state
+        v-else
+        class="sw-settings-listing-option-criteria-grid__criteria-empty-state"
+        title=""
+        :subline="$tc('sw-settings-listing.base.criteria.emptyStateSubline')"
+    >
+
+        {% block sw_settings_listing_option_criteria_card_empty_state_icon %}
+        <template #icon>
+            <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+        </template>
+        {% endblock %}
+
+    </sw-empty-state>
+    {% endblock %}
+</sw-card>
 {% endblock %}

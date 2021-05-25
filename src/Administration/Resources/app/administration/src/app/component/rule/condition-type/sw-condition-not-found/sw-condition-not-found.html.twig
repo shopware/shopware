@@ -1,16 +1,17 @@
 {% block sw_condition_base_field_condition %}
-    <sw-condition-type-select
-            :condition="condition"
-            :disabled="disabled"
-            :availableTypes="extendedTypes">
-    </sw-condition-type-select>
+<sw-condition-type-select
+    :condition="condition"
+    :disabled="disabled"
+    :available-types="extendedTypes"
+/>
 {% endblock %}
 
 {% block sw_condition_value_content %}
-    <div class="sw-condition-not-found">
-        <sw-textarea-field size="medium"
-                           v-model="value"
-                           :disabled="true">
-        </sw-textarea-field>
-    </div>
+<div class="sw-condition-not-found">
+    <sw-textarea-field
+        v-model="value"
+        size="medium"
+        :disabled="true"
+    />
+</div>
 {% endblock %}

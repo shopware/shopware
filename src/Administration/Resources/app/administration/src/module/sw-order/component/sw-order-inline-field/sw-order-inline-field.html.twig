@@ -1,11 +1,15 @@
 {% block sw_order_document_order_inline_field %}
-    <div class = "sw-order-inline-field">
+<div class="sw-order-inline-field">
 
-        <slot v-if="editable">
-            <sw-confirm-field :value="value" :required="required" @input="onInput"></sw-confirm-field>
-        </slot>
-        <span v-else >
-            {{ displayValue }}
-        </span>
-    </div>
+    <slot v-if="editable">
+        <sw-confirm-field
+            :value="value"
+            :required="required"
+            @input="onInput"
+        />
+    </slot>
+    <span v-else>
+        {{ displayValue }}
+    </span>
+</div>
 {% endblock %}

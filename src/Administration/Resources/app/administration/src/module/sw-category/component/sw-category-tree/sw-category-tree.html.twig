@@ -1,64 +1,68 @@
 {% block sw_category_tree %}
-    <div class="sw-category-tree">
-        <sw-tree class="sw-category-tree__inner"
-            v-if="!isLoadingInitialData"
-            ref="categoryTree"
-            after-id-property="afterCategoryId"
-            :items="categories"
-            :sortable="allowEdit"
-            :searchable="false"
-            :activeTreeItemId="categoryId"
-            :translationContext="translationContext"
-            :onChangeRoute="changeCategory"
-            :disableContextMenu="disableContextMenu"
-            :allowDeleteCategories="allowDelete"
-            @batch-delete="deleteCheckedItems"
-            @delete-element="onDeleteCategory"
-            @drag-end="onUpdatePositions"
-            @get-tree-items="onGetTreeItems"
-            @editing-end="syncSiblings"
-            @checked-elements-count="checkedElementsCount">
+<div class="sw-category-tree">
+    <sw-tree
+        v-if="!isLoadingInitialData"
+        ref="categoryTree"
+        class="sw-category-tree__inner"
+        after-id-property="afterCategoryId"
+        :items="categories"
+        :sortable="allowEdit"
+        :searchable="false"
+        :active-tree-item-id="categoryId"
+        :translation-context="translationContext"
+        :on-change-route="changeCategory"
+        :disable-context-menu="disableContextMenu"
+        :allow-delete-categories="allowDelete"
+        @batch-delete="deleteCheckedItems"
+        @delete-element="onDeleteCategory"
+        @drag-end="onUpdatePositions"
+        @get-tree-items="onGetTreeItems"
+        @editing-end="syncSiblings"
+        @checked-elements-count="checkedElementsCount"
+    >
 
-            <template slot="headline"><span></span></template>
+        <template slot="headline">
+            <span /></template>
 
-            {% block sw_category_tree_items %}
-                <template
-                    #items="{
-                        treeItems,
-                        sortable,
-                        draggedItem,
-                        newElementId,
-                        checkItem,
-                        translationContext,
-                        onChangeRoute,
-                        disableContextMenu
-                    }">
-                    <sw-tree-item
-                        v-for="item in treeItems"
-                        :key="item.id"
-                        :item="item"
-                        :shouldShowActiveState="true"
-                        :allowDuplicate="false"
-                        :allowNewCategories="allowCreate"
-                        :allowDeleteCategories="allowDelete"
-                        :active="item.active"
-                        :translationContext="translationContext"
-                        :onChangeRoute="onChangeRoute"
-                        :sortable="sortable"
-                        :draggedItem="draggedItem"
-                        :disableContextMenu="disableContextMenu"
-                        :displayCheckbox="allowEdit"
-                        :contextMenuTooltipText="contextMenuTooltipText"
-                        :newElementId="newElementId"
-                        :getItemUrl="getCategoryUrl"
-                        :getIsHighlighted="isHighlighted"
-                        @check-item="checkItem">
-                    </sw-tree-item>
-                </template>
-            {% endblock %}
+        {% block sw_category_tree_items %}
+        <template
+            #items="{
+                treeItems,
+                sortable,
+                draggedItem,
+                newElementId,
+                checkItem,
+                translationContext,
+                onChangeRoute,
+                disableContextMenu
+            }"
+        >
+            <sw-tree-item
+                v-for="item in treeItems"
+                :key="item.id"
+                :item="item"
+                :should-show-active-state="true"
+                :allow-duplicate="false"
+                :allow-new-categories="allowCreate"
+                :allow-delete-categories="allowDelete"
+                :active="item.active"
+                :translation-context="translationContext"
+                :on-change-route="onChangeRoute"
+                :sortable="sortable"
+                :dragged-item="draggedItem"
+                :disable-context-menu="disableContextMenu"
+                :display-checkbox="allowEdit"
+                :context-menu-tooltip-text="contextMenuTooltipText"
+                :new-element-id="newElementId"
+                :get-item-url="getCategoryUrl"
+                :get-is-highlighted="isHighlighted"
+                @check-item="checkItem"
+            />
+        </template>
+        {% endblock %}
 
-        </sw-tree>
+    </sw-tree>
 
-        <sw-loader v-else></sw-loader>
-    </div>
+    <sw-loader v-else />
+</div>
 {% endblock %}

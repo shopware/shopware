@@ -1,105 +1,115 @@
 {% block sw_product_seo_form %}
-    <div class="sw-product-seo-form">
-        {% block sw_product_seo_form_meta_title %}
-            <sw-inherit-wrapper
-                v-model="product.metaTitle"
-                :hasParent="hasParent"
-                :label="$tc('sw-product.seoForm.labelMetaTitle')"
-                :helpText="$tc('sw-product.seoForm.helpTextMetaTitle')"
-                :inheritedValue="parentProduct.metaTitle">
-                <template #content="props">
-                    <sw-field
-                        type="text"
-                        :placeholder="$tc('sw-product.seoForm.placeholderMetaTitle')"
-                        :error="productMetaTitleError"
-                        :disabled="props.isInherited || !allowEdit"
-                        :value="props.currentValue"
-                        @change="props.updateCurrentValue">
-                    </sw-field>
-                </template>
-            </sw-inherit-wrapper>
+<div class="sw-product-seo-form">
+    {% block sw_product_seo_form_meta_title %}
+    <sw-inherit-wrapper
+        v-model="product.metaTitle"
+        :has-parent="hasParent"
+        :label="$tc('sw-product.seoForm.labelMetaTitle')"
+        :help-text="$tc('sw-product.seoForm.helpTextMetaTitle')"
+        :inherited-value="parentProduct.metaTitle"
+    >
+        <template #content="props">
+            <sw-field
+                type="text"
+                :placeholder="$tc('sw-product.seoForm.placeholderMetaTitle')"
+                :error="productMetaTitleError"
+                :disabled="props.isInherited || !allowEdit"
+                :value="props.currentValue"
+                @change="props.updateCurrentValue"
+            />
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_product_seo_form_meta_description %}
+    <sw-inherit-wrapper
+        v-model="product.metaDescription"
+        :has-parent="hasParent"
+        :label="$tc('sw-product.seoForm.labelMetaDescription')"
+        :help-text="$tc('sw-product.seoForm.helpTextMetaDescription')"
+        :inherited-value="parentProduct.metaDescription"
+    >
+        <template #content="props">
+            <sw-field
+                type="textarea"
+                :placeholder="$tc('sw-product.seoForm.placeholderMetaDescription')"
+                :error="productMetaDescriptionError"
+                :disabled="props.isInherited || !allowEdit"
+                :value="props.currentValue"
+                @change="props.updateCurrentValue"
+            />
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_product_seo_form_keywords %}
+    <sw-inherit-wrapper
+        v-model="product.keywords"
+        :has-parent="hasParent"
+        :label="$tc('sw-product.seoForm.labelKeywords')"
+        :help-text="$tc('sw-product.seoForm.helpTextKeywords')"
+        :inherited-value="parentProduct.keywords"
+    >
+        <template #content="props">
+            <sw-field
+                type="text"
+                :placeholder="$tc('sw-product.seoForm.placeholderKeywords')"
+                :error="productKeywordsError"
+                :disabled="props.isInherited || !allowEdit"
+                :value="props.currentValue"
+                @change="props.updateCurrentValue"
+            />
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_product_seo_form_canonical_url %}
+    <template v-if="!hasParent && hasVariants">
+
+        {% block sw_product_seo_form_canonical_url_switch %}
+        <sw-switch-field
+            v-model="canonicalProductSwitchEnabled"
+            :label="$tc('sw-product.seoForm.labelCanonicalUrlMode')"
+        />
         {% endblock %}
 
-        {% block sw_product_seo_form_meta_description %}
-            <sw-inherit-wrapper
-                v-model="product.metaDescription"
-                :hasParent="hasParent"
-                :label="$tc('sw-product.seoForm.labelMetaDescription')"
-                :helpText="$tc('sw-product.seoForm.helpTextMetaDescription')"
-                :inheritedValue="parentProduct.metaDescription">
-                <template #content="props">
-                    <sw-field
-                        type="textarea"
-                        :placeholder="$tc('sw-product.seoForm.placeholderMetaDescription')"
-                        :error="productMetaDescriptionError"
-                        :disabled="props.isInherited || !allowEdit"
-                        :value="props.currentValue"
-                        @change="props.updateCurrentValue">
-                    </sw-field>
-                </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
+        {% block sw_product_seo_form_canonical_url_select %}
+        <sw-single-select
+            ref="canonicalProductSelect"
+            v-model="product.canonicalProductId"
+            :options="variants"
+            :disabled="!canonicalProductSwitchEnabled"
+            value-property="id"
+            :label="$tc('sw-product.seoForm.labelCanonicalProduct')"
+            :placeholder="$tc('sw-product.seoForm.placeholderCanonicalProduct')"
+            :disable-search-function="true"
+            @search="onSearch"
+        >
 
-        {% block sw_product_seo_form_keywords %}
-            <sw-inherit-wrapper
-                v-model="product.keywords"
-                :hasParent="hasParent"
-                :label="$tc('sw-product.seoForm.labelKeywords')"
-                :helpText="$tc('sw-product.seoForm.helpTextKeywords')"
-                :inheritedValue="parentProduct.keywords">
-                <template #content="props">
-                    <sw-field
-                        type="text"
-                        :placeholder="$tc('sw-product.seoForm.placeholderKeywords')"
-                        :error="productKeywordsError"
-                        :disabled="props.isInherited || !allowEdit"
-                        :value="props.currentValue"
-                        @change="props.updateCurrentValue">
-                    </sw-field>
-                </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
-
-        {% block sw_product_seo_form_canonical_url %}
-            <template v-if="!hasParent && hasVariants">
-
-                {% block sw_product_seo_form_canonical_url_switch %}
-                    <sw-switch-field v-model="canonicalProductSwitchEnabled"
-                        :label="$tc('sw-product.seoForm.labelCanonicalUrlMode')">
-                    </sw-switch-field>
-                {% endblock %}
-
-                {% block sw_product_seo_form_canonical_url_select %}
-                    <sw-single-select v-model="product.canonicalProductId"
-                         ref="canonicalProductSelect"
-                         :options="variants"
-                         :disabled="!canonicalProductSwitchEnabled"
-                         valueProperty="id"
-                         :label="$tc('sw-product.seoForm.labelCanonicalProduct')"
-                         :placeholder="$tc('sw-product.seoForm.placeholderCanonicalProduct')"
-                         :disableSearchFunction="true"
-                         @search="onSearch">
-
-                        <template #selection-label-property="{ item }">
-                            {% block sw_product_seo_form_canonical_url_select_selection %}
-                                <sw-product-variant-info :variations="item.variation"
-                                     :showTooltip="false">
-                                    {{ getItemName(item) }}
-                                </sw-product-variant-info>
-                            {% endblock %}
-                        </template>
-
-                        <template #result-label-property="{ item }">
-                            {% block sw_product_seo_form_canonical_url_select_result %}
-                                <sw-product-variant-info :variations="item.variation"
-                                     :showTooltip="false">
-                                    {{ getItemName(item) }}
-                                </sw-product-variant-info>
-                            {% endblock %}
-                        </template>
-                    </sw-single-select>
+            <template #selection-label-property="{ item }">
+                {% block sw_product_seo_form_canonical_url_select_selection %}
+                <sw-product-variant-info
+                    :variations="item.variation"
+                    :show-tooltip="false"
+                >
+                    {{ getItemName(item) }}
+                </sw-product-variant-info>
                 {% endblock %}
             </template>
+
+            <template #result-label-property="{ item }">
+                {% block sw_product_seo_form_canonical_url_select_result %}
+                <sw-product-variant-info
+                    :variations="item.variation"
+                    :show-tooltip="false"
+                >
+                    {{ getItemName(item) }}
+                </sw-product-variant-info>
+                {% endblock %}
+            </template>
+        </sw-single-select>
         {% endblock %}
-    </div>
+    </template>
+    {% endblock %}
+</div>
 {% endblock %}

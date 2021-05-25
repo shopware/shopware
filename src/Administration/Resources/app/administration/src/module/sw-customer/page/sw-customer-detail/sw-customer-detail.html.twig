@@ -1,119 +1,144 @@
 {% block sw_customer_detail %}
-    <sw-page class="sw-customer-detail">
-        {% block sw_customer_detail_header %}
-            <template #smart-bar-header>
-                <h2 v-if="customer && customer.salutation">{{ salutation(customer) }}</h2>
-            </template>
+<sw-page class="sw-customer-detail">
+    {% block sw_customer_detail_header %}
+    <template #smart-bar-header>
+        <h2 v-if="customer && customer.salutation">
+            {{ salutation(customer) }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_customer_detail_actions_edit %}
+        <span v-if="!editMode">
+            <sw-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('customer.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-customer-detail__open-edit-mode-action"
+                variant="primary"
+                :disabled="isLoading || !acl.can('customer.editor')"
+                @click.prevent="onActivateCustomerEditMode"
+            >
+                {{ $tc('sw-customer.detail.buttonEdit') }}
+            </sw-button>
+        </span>
         {% endblock %}
 
-        {% block sw_customer_detail_actions %}
-            <template #smart-bar-actions>
-                {% block sw_customer_detail_actions_edit %}
-                    <span v-if="!editMode">
+        <span v-else>
+            {% block sw_customer_detail_actions_cancel %}
+            <sw-button
+                :disabled="isLoading"
+                @click="onAbortButtonClick"
+            >
+                {{ $tc('sw-customer.detail.buttonCancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_customer_detail_actions_save %}
+            <sw-button-process
+                class="sw-customer-detail__save-action"
+                :is-loading="isLoading"
+                :process-success="isSaveSuccessful"
+                :disabled="isLoading"
+                variant="primary"
+                @process-finish="saveFinish"
+                @click.prevent="onSave"
+            >
+                {{ $tc('sw-customer.detail.buttonSave') }}
+            </sw-button-process>
+            {% endblock %}
+        </span>
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_detail_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_customer_detail_content_customer_group_registration %}
+            <div class="sw-customer-detail__customer-registration-alert">
+                <sw-alert
+                    v-if="customer && customer.requestedGroup"
+                    variant="info"
+                >
+                    {% block sw_customer_detail_content_customer_group_registration_content %}
+                    <div class="sw-customer-detail__customer-registration-alert-text">
+                        {% block sw_customer_detail_content_customer_group_registration_message %}
+                        {{ $tc('sw-customer.customerGroupRegistration.alert', 0, { name: customer.requestedGroup.translated.name }) }}
+                        {% endblock %}
+                    </div>
+                    <div class="sw-customer-detail__customer-registration-alert-actions">
+                        {% block sw_customer_detail_content_customer_group_registration_actions %}
                         <sw-button
-                            class="sw-customer-detail__open-edit-mode-action"
-                            variant="primary"
-                            :disabled="isLoading || !acl.can('customer.editor')"
-                            @click.prevent="onActivateCustomerEditMode"
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('customer.editor'),
-                                showOnDisabledElements: true
-                            }">
-                            {{ $tc('sw-customer.detail.buttonEdit') }}
+                            variant="danger"
+                            size="small"
+                            @click="declineCustomerGroupRegistration"
+                        >
+                            {{ $tc('sw-customer.customerGroupRegistration.decline') }}
                         </sw-button>
-                    </span>
+
+                        <sw-button
+                            variant="primary"
+                            size="small"
+                            @click="acceptCustomerGroupRegistration"
+                        >
+                            {{ $tc('sw-customer.customerGroupRegistration.accept') }}
+                        </sw-button>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </sw-alert>
+            </div>
+            {% endblock %}
+
+            {% block sw_customer_detail_content_tabs %}
+            <sw-tabs class="sw-customer-detail-page__tabs">
+                {% block sw_customer_detail_content_tab_general %}
+                <sw-tabs-item
+                    class="sw-customer-detail__tab-general"
+                    :route="generalRoute"
+                    :title="$tc('sw-customer.detail.tabGeneral')"
+                    :has-error="swCustomerDetailBaseError"
+                >
+                    {{ $tc('sw-customer.detail.tabGeneral') }}
+                </sw-tabs-item>
                 {% endblock %}
 
-                <span v-else>
-                    {% block sw_customer_detail_actions_cancel %}
-                        <sw-button :disabled="isLoading" @click="onAbortButtonClick">
-                            {{ $tc('sw-customer.detail.buttonCancel') }}
-                        </sw-button>
-                    {% endblock %}
+                {% block sw_customer_detail_content_tab_addresses %}
+                <sw-tabs-item
+                    class="sw-customer-detail__tab-addresses"
+                    :route="addressesRoute"
+                    :title="$tc('sw-customer.detail.tabAddresses')"
+                >
+                    {{ $tc('sw-customer.detail.tabAddresses') }}
+                </sw-tabs-item>
+                {% endblock %}
 
-                    {% block sw_customer_detail_actions_save %}
-                        <sw-button-process
-                                class="sw-customer-detail__save-action"
-                                :isLoading="isLoading"
-                                :processSuccess="isSaveSuccessful"
-                                :disabled="isLoading"
-                                variant="primary"
-                                @process-finish="saveFinish"
-                                @click.prevent="onSave">
-                            {{ $tc('sw-customer.detail.buttonSave') }}
-                        </sw-button-process>
-                    {% endblock %}
-                </span>
-            </template>
-        {% endblock %}
+                {% block sw_customer_detail_content_tab_order %}
+                <sw-tabs-item
+                    class="sw-customer-detail__tab-order"
+                    :route="ordersRoute"
+                    :title="$tc('sw-customer.detailBase.labelOrderCard')"
+                >
+                    {{ $tc('sw-customer.detailBase.labelOrderCard') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </sw-tabs>
+            {% endblock %}
 
-        {% block sw_customer_detail_content %}
-            <template #content>
-                <sw-card-view>
-                    {% block sw_customer_detail_content_customer_group_registration %}
-                        <div class="sw-customer-detail__customer-registration-alert">
-                            <sw-alert variant="info" v-if="customer && customer.requestedGroup">
-                                {% block sw_customer_detail_content_customer_group_registration_content %}
-                                    <div class="sw-customer-detail__customer-registration-alert-text">
-                                        {% block sw_customer_detail_content_customer_group_registration_message %}
-                                            {{ $tc('sw-customer.customerGroupRegistration.alert', 0, { name: customer.requestedGroup.translated.name }) }}
-                                        {% endblock %}
-                                    </div>
-                                    <div class="sw-customer-detail__customer-registration-alert-actions">
-                                        {% block sw_customer_detail_content_customer_group_registration_actions %}
-                                            <sw-button @click="declineCustomerGroupRegistration" variant="danger" size="small">
-                                                {{ $tc('sw-customer.customerGroupRegistration.decline') }}
-                                            </sw-button>
-
-                                            <sw-button @click="acceptCustomerGroupRegistration" variant="primary" size="small">
-                                                {{ $tc('sw-customer.customerGroupRegistration.accept') }}
-                                            </sw-button>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            </sw-alert>
-                        </div>
-                    {% endblock %}
-
-                    {% block sw_customer_detail_content_tabs %}
-                        <sw-tabs class="sw-customer-detail-page__tabs">
-                            {% block sw_customer_detail_content_tab_general %}
-                                <sw-tabs-item class="sw-customer-detail__tab-general"
-                                              :route="generalRoute"
-                                              :title="$tc('sw-customer.detail.tabGeneral')"
-                                              :hasError="swCustomerDetailBaseError">
-                                    {{ $tc('sw-customer.detail.tabGeneral') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                            {% block sw_customer_detail_content_tab_addresses %}
-                                <sw-tabs-item class="sw-customer-detail__tab-addresses"
-                                              :route="addressesRoute"
-                                              :title="$tc('sw-customer.detail.tabAddresses')">
-                                    {{ $tc('sw-customer.detail.tabAddresses') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                            {% block sw_customer_detail_content_tab_order %}
-                                <sw-tabs-item class="sw-customer-detail__tab-order"
-                                              :route="ordersRoute"
-                                              :title="$tc('sw-customer.detailBase.labelOrderCard')">
-                                    {{ $tc('sw-customer.detailBase.labelOrderCard') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-                        </sw-tabs>
-                    {% endblock %}
-
-                    {% block sw_customer_detail_content_view %}
-                        <router-view v-if="customer"
-                                     :customer="customer"
-                                     :customerEditMode="editMode"
-                                     :isLoading="isLoading">
-                        </router-view>
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+            {% block sw_customer_detail_content_view %}
+            <router-view
+                v-if="customer"
+                :customer="customer"
+                :customer-edit-mode="editMode"
+                :is-loading="isLoading"
+            />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

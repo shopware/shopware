@@ -1,30 +1,34 @@
 {% block sw_event_action_list_expand_labels %}
-    <div class="sw-event-action-list-expand-labels"
-        :class="classes">
+<div
+    class="sw-event-action-list-expand-labels"
+    :class="classes"
+>
 
-        {% block sw_event_action_list_expand_labels_label %}
-            <sw-label
-                v-for="item in limitedItems"
-                :key="item.id"
-                class="sw-event-action-list-expand-labels__label"
-                size="medium">
-                <template v-if="item.translated">
-                    {{ item.translated.name }}
-                </template>
-                <template v-else>
-                    {{ item.name }}
-                </template>
-            </sw-label>
-        {% endblock %}
+    {% block sw_event_action_list_expand_labels_label %}
+    <sw-label
+        v-for="item in limitedItems"
+        :key="item.id"
+        class="sw-event-action-list-expand-labels__label"
+        size="medium"
+    >
+        <template v-if="item.translated">
+            {{ item.translated.name }}
+        </template>
+        <template v-else>
+            {{ item.name }}
+        </template>
+    </sw-label>
+    {% endblock %}
 
-        {% block sw_event_action_list_expand_labels_increase %}
-            <sw-label
-                v-if="items.length && limitedItems.length < items.length"
-                class="sw-event-action-list-expand-labels__increase"
-                size="medium"
-                @click.native="increaseLimit">
-                +{{ remainingItemsAmount }}
-            </sw-label>
-        {% endblock %}
-    </div>
+    {% block sw_event_action_list_expand_labels_increase %}
+    <sw-label
+        v-if="items.length && limitedItems.length < items.length"
+        class="sw-event-action-list-expand-labels__increase"
+        size="medium"
+        @click.native="increaseLimit"
+    >
+        +{{ remainingItemsAmount }}
+    </sw-label>
+    {% endblock %}
+</div>
 {% endblock %}

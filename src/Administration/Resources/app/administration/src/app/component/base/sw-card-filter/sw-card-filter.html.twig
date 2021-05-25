@@ -1,23 +1,23 @@
 {% block sw_card_search_bar %}
-    <div class="sw-card-filter">
-        {% block sw_card_filter_bar_container %}
-            <div :class="hasFilterClass">
-                {% block sw_card_filter_bar_container_field %}
-                    <sw-simple-search-field
-                            size="small"
-                            variant="form"
-                            v-model="term"
-                            :placeholder="placeholder"
-                            :delay="delay"
-                    ></sw-simple-search-field>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_card_filter_bar_container_field_filter %}
-            <div class="sw-card-filter-filter">
-                <slot name="filter"></slot>
-            </div>
+<div class="sw-card-filter">
+    {% block sw_card_filter_bar_container %}
+    <div :class="hasFilterClass">
+        {% block sw_card_filter_bar_container_field %}
+        <sw-simple-search-field
+            v-model="term"
+            size="small"
+            variant="form"
+            :placeholder="placeholder"
+            :delay="delay"
+        />
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_card_filter_bar_container_field_filter %}
+    <div class="sw-card-filter-filter">
+        <slot name="filter" />
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

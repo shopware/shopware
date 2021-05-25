@@ -1,175 +1,202 @@
 {% block sw_settings_list %}
-    {% block sw_settings_number_range_index %}
-        <sw-page class="sw-settings-number-range-list">
+{% block sw_settings_number_range_index %}
+<sw-page class="sw-settings-number-range-list">
 
-            {% block sw_settings_number_range_list_search_bar %}
-                <template slot="search-bar">
-                    <sw-search-bar initialSearchType="number_range"
-                                   :placeholder="$tc('sw-settings-number-range.general.placeholderSearchBar')"
-                                   :initialSearch="term"
-                                   @search="onSearch">
-                    </sw-search-bar>
-                </template>
+    {% block sw_settings_number_range_list_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar
+            initial-search-type="number_range"
+            :placeholder="$tc('sw-settings-number-range.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_number_range_list_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_number_range_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_number_range_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            /> {{ $tc('sw-settings-number-range.list.textHeadline') }}
             {% endblock %}
 
-            {% block sw_settings_number_range_list_smart_bar_header %}
-                <template slot="smart-bar-header">
-                    {% block sw_settings_number_range_list_smart_bar_header_title %}
-                        <h2>
-                            {% block sw_settings_number_range_list_smart_bar_header_title_text %}
-                                {{ $tc('sw-settings.index.title') }}
-                                <sw-icon name="small-arrow-medium-right" small>
-                                </sw-icon> {{ $tc('sw-settings-number-range.list.textHeadline') }}
+            {% block sw_settings_number_range_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_number_range_list_language_switch %}
+    <template slot="language-switch">
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_number_range_list_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_number_range_list_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('number_ranges.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-number-range-list__add-number-range"
+            variant="primary"
+            :disabled="!acl.can('number_ranges.creator')"
+            :router-link="{ name: 'sw.settings.number.range.create' }"
+        >
+            {{ $tc('sw-settings-number-range.list.buttonAddNumberRange') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_number_range_list_content %}
+    <sw-card-view slot="content">
+        {% block sw_settings_number_range_list_content_card %}
+        <sw-card
+            v-if="numberRange"
+            :is-loading="isLoading"
+        >
+            {% block sw_settings_number_range_list_grid %}
+            <template #grid>
+                {% block sw_settings_number_range_list_grid %}
+                <sw-entity-listing
+                    ref="swSettingsNumberRangeGrid"
+                    class="sw-settings-number-range-list-grid"
+                    :items="numberRange"
+                    :columns="getNumberRangeColumns()"
+                    :repository="numberRangeRepository"
+                    :disable-data-fetching="true"
+                    :sort-by="sortBy"
+                    :sort-direction="sortDirection"
+                    :full-page="false"
+                    detail-route="sw.settings.number.range.detail"
+                    :show-selection="false"
+                    :is-loading="isLoading"
+                    :allow-edit="acl.can('number_ranges.editor')"
+                    :allow-inline-edit="acl.can('number_ranges.editor')"
+                    :allow-delete="acl.can('number_ranges.deleter')"
+                    :allow-view="acl.can('number_ranges.viewer')"
+                    @page-change="onPageChange"
+                    @column-sort="onSortColumn"
+                >
+                    {% block sw_number_range_list_grid_columns_name %}
+                    <template #column-global="{ item }">
+                        <sw-label
+                            v-if="item.type.global || item.global"
+                            class="sw-settings-number-range-list__columns-assignment-tag"
+                            size="medium"
+                        >
+                            {{ $tc('sw-settings-number-range.list.global') }}
+                        </sw-label>
+
+                        <template v-if="!item.type.global && !item.global">
+                            <sw-label
+                                v-for="numberRangeSalesChannel in item.numberRangeSalesChannels"
+                                :key="numberRangeSalesChannel.id"
+                                class="sw-settings-number-range-list__columns-assignment-tag"
+                                size="medium"
+                            >
+                                {{ numberRangeSalesChannel.salesChannel.translated.name }}
+                            </sw-label>
+                        </template>
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_number_range_list_grid_columns_actions %}
+                    <template #actions="{ item }">
+                        {% block sw_settings_number_range_list_grid_columns_actions_edit %}
+                        <sw-context-menu-item
+                            class="sw-entity-listing__context-menu-edit-action"
+                            :disabled="!acl.can('number_ranges.editor')"
+                            :router-link="{ name: 'sw.settings.number.range.detail', params: { id: item.id, edit: 'edit' }}"
+                        >
+                            {{ $tc('sw-settings-number-range.list.contextMenuEdit') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_settings_number_range_list_grid_columns_actions_delete %}
+                        <sw-context-menu-item
+                            class="sw-entity-listing__context-menu-edit-delete"
+                            variant="danger"
+                            :disabled="!acl.can('number_ranges.deleter')"
+                            @click="onDelete(item.id)"
+                        >
+                            {{ $tc('sw-settings-number-range.list.contextMenuDelete') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_number_range_list_grid_action_modals %}
+                    <template #action-modals="{ item }">
+                        {% block sw_settings_number_range_list_delete_modal %}
+                        <sw-modal
+                            v-if="showDeleteModal === item.id"
+                            :title="$tc('global.default.warning')"
+                            variant="small"
+                            @modal-close="onCloseDeleteModal"
+                        >
+                            {% block sw_settings_number_range_list_delete_modal_confirm_delete_text %}
+                            <p class="sw-settings-number-range-list__confirm-delete-text">
+                                {{ $tc('sw-settings-number-range.list.textDeleteConfirm', 0, { name: item.name }) }}
+                            </p>
                             {% endblock %}
 
-                            {% block sw_settings_number_range_list_smart_bar_header_amount %}
-                                <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                                    ({{ total }})
-                                </span>
+                            {% block sw_settings_number_range_list_delete_modal_footer %}
+                            <template #modal-footer>
+                                {% block sw_settings_number_range_list_delete_modal_cancel %}
+                                <sw-button
+                                    size="small"
+                                    @click="onCloseDeleteModal"
+                                >
+                                    {{ $tc('sw-settings-number-range.list.buttonCancel') }}
+                                </sw-button>
+                                {% endblock %}
+
+                                {% block sw_settings_number_range_list_delete_modal_confirm %}
+                                <sw-button
+                                    variant="danger"
+                                    size="small"
+                                    @click="onConfirmDelete(item.id)"
+                                >
+                                    {{ $tc('sw-settings-number-range.list.buttonDelete') }}
+                                </sw-button>
+                                {% endblock %}
+                            </template>
                             {% endblock %}
-                        </h2>
+                        </sw-modal>
+                        {% endblock %}
+                    </template>
                     {% endblock %}
-                </template>
+                </sw-entity-listing>
+                {% block sw_settings_number_ranges_set_list_empty_message %}
+                <sw-empty-state
+                    v-if="!isLoading && !total"
+                    :title="$tc('sw-settings-number-range.list.messageEmpty')"
+                />
+                {% endblock %}
+                {% endblock %}
+            </template>
             {% endblock %}
-
-            {% block sw_settings_number_range_list_language_switch %}
-                <template slot="language-switch">
-                    <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-                </template>
-            {% endblock %}
-
-            {% block sw_settings_number_range_list_smart_bar_actions %}
-                <template slot="smart-bar-actions">
-                    {% block sw_settings_number_range_list_smart_bar_actions_add %}
-                        <sw-button
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('number_ranges.creator'),
-                                showOnDisabledElements: true
-                            }"
-                            class="sw-number-range-list__add-number-range"
-                            variant="primary"
-                            :disabled="!acl.can('number_ranges.creator')"
-                            :routerLink="{ name: 'sw.settings.number.range.create' }">
-                            {{ $tc('sw-settings-number-range.list.buttonAddNumberRange') }}
-                        </sw-button>
-                    {% endblock %}
-                </template>
-            {% endblock %}
-
-            {% block sw_settings_number_range_list_content %}
-                <sw-card-view slot="content">
-                    {% block sw_settings_number_range_list_content_card %}
-                        <sw-card v-if="numberRange" :isLoading="isLoading">
-                            {% block sw_settings_number_range_list_grid %}
-                                <template #grid>
-                                    {% block sw_settings_number_range_list_grid %}
-                                        <sw-entity-listing
-                                            ref="swSettingsNumberRangeGrid"
-                                            class="sw-settings-number-range-list-grid"
-                                            :items="numberRange"
-                                            :columns="getNumberRangeColumns()"
-                                            :repository="numberRangeRepository"
-                                            @page-change="onPageChange"
-                                            @column-sort="onSortColumn"
-                                            :disableDataFetching="true"
-                                            :sortBy="sortBy"
-                                            :sortDirection="sortDirection"
-                                            :fullPage="false"
-                                            detailRoute="sw.settings.number.range.detail"
-                                            :showSelection="false"
-                                            :isLoading="isLoading"
-                                            :allowEdit="acl.can('number_ranges.editor')"
-                                            :allowInlineEdit="acl.can('number_ranges.editor')"
-                                            :allowDelete="acl.can('number_ranges.deleter')"
-                                            :allowView="acl.can('number_ranges.viewer')">
-                                            {% block sw_number_range_list_grid_columns_name %}
-                                                <template #column-global="{ item }">
-                                                    <sw-label v-if="item.type.global || item.global"
-                                                              class="sw-settings-number-range-list__columns-assignment-tag"
-                                                              size="medium">
-                                                        {{ $tc('sw-settings-number-range.list.global') }}
-                                                    </sw-label>
-
-                                                    <template v-if="!item.type.global && !item.global">
-                                                        <sw-label v-for="numberRangeSalesChannel in item.numberRangeSalesChannels"
-                                                                  :key="numberRangeSalesChannel.id"
-                                                                  class="sw-settings-number-range-list__columns-assignment-tag"
-                                                                  size="medium">
-                                                            {{ numberRangeSalesChannel.salesChannel.translated.name }}
-                                                        </sw-label>
-                                                    </template>
-                                                </template>
-                                            {% endblock %}
-
-                                            {% block sw_settings_number_range_list_grid_columns_actions %}
-                                                <template #actions="{ item }">
-                                                    {% block sw_settings_number_range_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item
-                                                            class="sw-entity-listing__context-menu-edit-action"
-                                                            :disabled="!acl.can('number_ranges.editor')"
-                                                            :routerLink="{ name: 'sw.settings.number.range.detail', params: { id: item.id, edit: 'edit' }}">
-                                                            {{ $tc('sw-settings-number-range.list.contextMenuEdit') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-                                                    {% block sw_settings_number_range_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item
-                                                            class="sw-entity-listing__context-menu-edit-delete"
-                                                            variant="danger"
-                                                            :disabled="!acl.can('number_ranges.deleter')"
-                                                            @click="onDelete(item.id)">
-                                                            {{ $tc('sw-settings-number-range.list.contextMenuDelete') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-                                                </template>
-                                            {% endblock %}
-
-                                            {% block sw_settings_number_range_list_grid_action_modals %}
-                                            <template #action-modals="{ item }">
-                                                {% block sw_settings_number_range_list_delete_modal %}
-                                                <sw-modal v-if="showDeleteModal === item.id"
-                                                          @modal-close="onCloseDeleteModal"
-                                                          :title="$tc('global.default.warning')"
-                                                          variant="small">
-                                                    {% block sw_settings_number_range_list_delete_modal_confirm_delete_text %}
-                                                    <p class="sw-settings-number-range-list__confirm-delete-text">
-                                                        {{ $tc('sw-settings-number-range.list.textDeleteConfirm', 0, { name: item.name }) }}
-                                                    </p>
-                                                    {% endblock %}
-
-                                                    {% block sw_settings_number_range_list_delete_modal_footer %}
-                                                    <template #modal-footer>
-                                                        {% block sw_settings_number_range_list_delete_modal_cancel %}
-                                                            <sw-button @click="onCloseDeleteModal" size="small">
-                                                                {{ $tc('sw-settings-number-range.list.buttonCancel') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_number_range_list_delete_modal_confirm %}
-                                                            <sw-button @click="onConfirmDelete(item.id)" variant="danger" size="small">
-                                                                {{ $tc('sw-settings-number-range.list.buttonDelete') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-                                                    </template>
-                                                    {% endblock %}
-                                                </sw-modal>
-                                                {% endblock %}
-                                            </template>
-                                            {% endblock %}
-                                        </sw-entity-listing>
-                                        {% block sw_settings_number_ranges_set_list_empty_message %}
-                                            <sw-empty-state v-if="!isLoading && !total"
-                                                            :title="$tc('sw-settings-number-range.list.messageEmpty')">
-                                            </sw-empty-state>
-                                        {% endblock %}
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-                </sw-card-view>
-            {% endblock %}
-        </sw-page>
+        </sw-card>
+        {% endblock %}
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
     {% endblock %}
 {% endblock %}

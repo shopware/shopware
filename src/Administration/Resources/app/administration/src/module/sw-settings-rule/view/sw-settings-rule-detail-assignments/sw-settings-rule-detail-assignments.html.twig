@@ -1,66 +1,71 @@
 {% block sw_settings_rule_detail_assignments %}
-    <div class="sw-settings-rule-detail-assignments">
+<div class="sw-settings-rule-detail-assignments">
 
-        {% block sw_settings_rule_detail_assignments_entity_cards %}
-            <sw-card
-                v-for="entity in loadedAssociationEntities"
-                class="sw-settings-rule-detail-assignments__card"
-                :class="'sw-settings-rule-detail-assignments__card-' + entity.entityName"
-                :title="$tc('global.entities.' + entity.entityName)"
-                :key="entity.entityName">
-                <template #grid>
-                    {% block sw_settings_rule_detail_assignments_entity_listing %}
-                        <sw-entity-listing
-                            class="sw-settings-rule-detail-assignments__entity-listing"
-                            :class="'sw-settings-rule-detail-assignments__entity-listing-' + entity.entityName"
-                            :isLoading="isLoading"
-                            :detailRoute="entity.detailRoute"
-                            :items="entity.loadedData"
-                            :repository="entity.repository"
-                            :localMode="false"
-                            :criteriaLimit="5"
-                            :allowDelete="false"
-                            :allowInlineEdit="false"
-                            :showSettings="false"
-                            :showSelection="false"
-                            :allowColumnEdit="false"
-                            :steps="associationSteps"
-                            :columns="entity.gridColumns"
-                            :fullPage="false">
-                            <template #actions="{ item }">
-                                {% block sw_settings_rule_detail_assignments_entity_listing_actions %}
-                                    <sw-context-menu-item :routerLink="{ name: entity.detailRoute, params: { id: item.id } }">
-                                        {{ $tc('global.default.view') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                            </template>
-                        </sw-entity-listing>
+    {% block sw_settings_rule_detail_assignments_entity_cards %}
+    <sw-card
+        v-for="entity in loadedAssociationEntities"
+        :key="entity.entityName"
+        class="sw-settings-rule-detail-assignments__card"
+        :class="'sw-settings-rule-detail-assignments__card-' + entity.entityName"
+        :title="$tc('global.entities.' + entity.entityName)"
+    >
+        <template #grid>
+            {% block sw_settings_rule_detail_assignments_entity_listing %}
+            <sw-entity-listing
+                class="sw-settings-rule-detail-assignments__entity-listing"
+                :class="'sw-settings-rule-detail-assignments__entity-listing-' + entity.entityName"
+                :is-loading="isLoading"
+                :detail-route="entity.detailRoute"
+                :items="entity.loadedData"
+                :repository="entity.repository"
+                :local-mode="false"
+                :criteria-limit="5"
+                :allow-delete="false"
+                :allow-inline-edit="false"
+                :show-settings="false"
+                :show-selection="false"
+                :allow-column-edit="false"
+                :steps="associationSteps"
+                :columns="entity.gridColumns"
+                :full-page="false"
+            >
+                <template #actions="{ item }">
+                    {% block sw_settings_rule_detail_assignments_entity_listing_actions %}
+                    <sw-context-menu-item :router-link="{ name: entity.detailRoute, params: { id: item.id } }">
+                        {{ $tc('global.default.view') }}
+                    </sw-context-menu-item>
                     {% endblock %}
                 </template>
-            </sw-card>
-        {% endblock %}
+            </sw-entity-listing>
+            {% endblock %}
+        </template>
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_settings_rule_detail_assignments_loader %}
-            <sw-card
-                v-if="isLoading"
-                class="sw-settings-rule-detail-assignments__card-loader">
-                <sw-loader></sw-loader>
-            </sw-card>
-        {% endblock %}
+    {% block sw_settings_rule_detail_assignments_loader %}
+    <sw-card
+        v-if="isLoading"
+        class="sw-settings-rule-detail-assignments__card-loader"
+    >
+        <sw-loader />
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_settings_rule_detail_assignments_empty_state %}
-            <sw-card
-                v-if="hasNoAssociations"
-                class="sw-settings-rule-detail-assignments__empty-state">
-                <sw-empty-state
-                    :title="$tc('sw-settings-rule.detail.hasNoAssociations')"
-                    :absolute="false"
-                    :showDescription="false">
-                    <template #icon>
-                        <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
-                    </template>
-                </sw-empty-state>
-            </sw-card>
-        {% endblock %}
-    </div>
+    {% block sw_settings_rule_detail_assignments_empty_state %}
+    <sw-card
+        v-if="hasNoAssociations"
+        class="sw-settings-rule-detail-assignments__empty-state"
+    >
+        <sw-empty-state
+            :title="$tc('sw-settings-rule.detail.hasNoAssociations')"
+            :absolute="false"
+            :show-description="false"
+        >
+            <template #icon>
+                <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+            </template>
+        </sw-empty-state>
+    </sw-card>
+    {% endblock %}
+</div>
 {% endblock %}

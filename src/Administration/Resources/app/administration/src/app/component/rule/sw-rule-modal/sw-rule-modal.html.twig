@@ -1,70 +1,81 @@
 {% block sw_rule_modal %}
-    <sw-modal class="sw-rule-modal"
-              variant="full"
-              @modal-close="$emit('modal-close')"
-              :title="modalTitle">
-        {% block sw_rule_modal_basic_info %}
-            <sw-container columns="2fr 1fr" gap="0px 32px">
-                {% block sw_rule_modal_basic_info_name %}
-                    <sw-text-field
-                        :label="$tc('sw-rule-modal.labelName')"
-                        :placeholder="$tc('sw-rule-modal.placeholderName')"
-                        :error="ruleNameError"
-                        required
-                        v-model="rule.name">
-                    </sw-text-field>
-                {% endblock %}
-                {% block sw_rule_modal_basic_info_priority %}
-                    <sw-number-field
-                        :label="$tc('sw-rule-modal.labelPriority')"
-                        :placeholder="$tc('sw-rule-modal.placeholderPriority')"
-                        :error="rulePriorityError"
-                        required
-                        v-model="rule.priority">
-                    </sw-number-field>
-                {% endblock %}
-            </sw-container>
+<sw-modal
+    class="sw-rule-modal"
+    variant="full"
+    :title="modalTitle"
+    @modal-close="$emit('modal-close')"
+>
+    {% block sw_rule_modal_basic_info %}
+    <sw-container
+        columns="2fr 1fr"
+        gap="0px 32px"
+    >
+        {% block sw_rule_modal_basic_info_name %}
+        <sw-text-field
+            v-model="rule.name"
+            :label="$tc('sw-rule-modal.labelName')"
+            :placeholder="$tc('sw-rule-modal.placeholderName')"
+            :error="ruleNameError"
+            required
+        />
+        {% endblock %}
+        {% block sw_rule_modal_basic_info_priority %}
+        <sw-number-field
+            v-model="rule.priority"
+            :label="$tc('sw-rule-modal.labelPriority')"
+            :placeholder="$tc('sw-rule-modal.placeholderPriority')"
+            :error="rulePriorityError"
+            required
+        />
+        {% endblock %}
+    </sw-container>
 
-            {% block sw_rule_modal_basic_info_description %}
-                <sw-field type="textarea"
-                          :label="$tc('sw-rule-modal.labelDescription')"
-                          :placeholder="$tc('sw-rule-modal.placeholderDescription')"
-                          v-model="rule.description">
-                </sw-field>
-            {% endblock %}
+    {% block sw_rule_modal_basic_info_description %}
+    <sw-field
+        v-model="rule.description"
+        type="textarea"
+        :label="$tc('sw-rule-modal.labelDescription')"
+        :placeholder="$tc('sw-rule-modal.placeholderDescription')"
+    />
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_rule_modal_condition_tree %}
+    <sw-condition-tree
+        :condition-repository="ruleConditionRepository"
+        :condition-data-provider-service="ruleConditionDataProviderService"
+        :root-condition="null"
+        association-field="ruleId"
+        :association-value="rule.id"
+        :initial-conditions="initialConditions"
+        :scopes="allowedRuleScopes"
+        @conditions-changed="conditionsChanged"
+    />
+    {% endblock %}
+
+    <template slot="modal-footer">
+        {% block sw_rule_modal_footer %}
+        {% block sw_rule_modal_footer_button_abort %}
+        <sw-button
+            size="small"
+            @click="$emit('modal-close')"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_rule_modal_condition_tree %}
-            <sw-condition-tree
-                :conditionRepository="ruleConditionRepository"
-                :conditionDataProviderService="ruleConditionDataProviderService"
-                :rootCondition="null"
-                associationField="ruleId"
-                :associationValue="rule.id"
-                :initialConditions="initialConditions"
-                :scopes="allowedRuleScopes"
-                @conditions-changed="conditionsChanged">
-            </sw-condition-tree>
+        {% block sw_rule_modal_footer_button_save %}
+        <sw-button
+            :disabled="isLoading"
+            class="sw-rule-modal__save"
+            size="small"
+            variant="primary"
+            @click="saveAndClose"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button>
         {% endblock %}
-
-        <template slot="modal-footer">
-            {% block sw_rule_modal_footer %}
-                {% block sw_rule_modal_footer_button_abort %}
-                    <sw-button @click="$emit('modal-close')" size="small">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_rule_modal_footer_button_save %}
-                    <sw-button :disabled="isLoading"
-                               class="sw-rule-modal__save"
-                               @click="saveAndClose"
-                               size="small"
-                               variant="primary">
-                        {{ $tc('global.default.save') }}
-                    </sw-button>
-                {% endblock %}
-            {% endblock %}
-        </template>
-    </sw-modal>
+        {% endblock %}
+    </template>
+</sw-modal>
 {% endblock %}

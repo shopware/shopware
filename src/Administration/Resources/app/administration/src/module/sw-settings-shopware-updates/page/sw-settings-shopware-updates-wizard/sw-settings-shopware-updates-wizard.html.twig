@@ -1,100 +1,136 @@
 {% block sw_settings_shopware_updates_wizard %}
 <sw-page class="sw-settings-shopware-updates-wizard">
     {% block sw_settings_shopware_updates_wizard_smart_bar_header %}
-        <template slot="smart-bar-header">
-            <h2 v-if="updateInfo.version">{{ $t('sw-settings-shopware-updates.general.title', {version: updateInfo.version }) }}</h2>
-            <h2 v-if="!updateInfo.version">{{ $t('sw-settings-shopware-updates.general.emptyTitle') }}</h2>
-        </template>
+    <template slot="smart-bar-header">
+        <h2 v-if="updateInfo.version">
+            {{ $t('sw-settings-shopware-updates.general.title', {version: updateInfo.version }) }}
+        </h2>
+        <h2 v-if="!updateInfo.version">
+            {{ $t('sw-settings-shopware-updates.general.emptyTitle') }}
+        </h2>
+    </template>
     {% endblock %}
 
     {% block sw_settings_shopware_updates_wizard_smart_bar_actions %}
-        <template slot="smart-bar-actions">
-            <div v-tooltip="updateButtonTooltip" :key="updatePossible">
-                <sw-button :disabled="!updatePossible"
-                           @click="updateModalShown = true"
-                           :isLoading="updaterIsRunning"
-                           v-if="updateInfo.version"
-                           variant="primary">
-                    {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
-                </sw-button>
-            </div>
-        </template>
+    <template slot="smart-bar-actions">
+        <div
+            :key="updatePossible"
+            v-tooltip="updateButtonTooltip"
+        >
+            <sw-button
+                v-if="updateInfo.version"
+                :disabled="!updatePossible"
+                :is-loading="updaterIsRunning"
+                variant="primary"
+                @click="updateModalShown = true"
+            >
+                {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
+            </sw-button>
+        </div>
+    </template>
     {% endblock %}
 
     <template slot="content">
         {% block sw_settings_shopware_updates_wizard_content %}
-            <sw-card-view v-if="isLoading || updateInfo.version">
-                <sw-settings-shopware-updates-info :isLoading="isLoading" :changelog="changelog"/>
-                <sw-settings-shopware-updates-requirements :isLoading="isLoading" :updateInfo="updateInfo" :requirements="requirements"/>
-                <sw-settings-shopware-updates-plugins :plugins="plugins" :isLoading="isLoading"/>
-            </sw-card-view>
+        <sw-card-view v-if="isLoading || updateInfo.version">
+            <sw-settings-shopware-updates-info
+                :is-loading="isLoading"
+                :changelog="changelog"
+            />
+            <sw-settings-shopware-updates-requirements
+                :is-loading="isLoading"
+                :update-info="updateInfo"
+                :requirements="requirements"
+            />
+            <sw-settings-shopware-updates-plugins
+                :plugins="plugins"
+                :is-loading="isLoading"
+            />
+        </sw-card-view>
 
-            <sw-empty-state v-if="!isLoading && !updateInfo.version" :title="$tc('sw-settings-shopware-updates.general.emptyState')"></sw-empty-state>
+        <sw-empty-state
+            v-if="!isLoading && !updateInfo.version"
+            :title="$tc('sw-settings-shopware-updates.general.emptyState')"
+        />
 
-            <sw-modal
-                :title="$t('sw-settings-shopware-updates.cards.updating')"
-                variant="small"
-                v-if="updaterIsRunning"
-                class="sw-shopware-updates-progressbar"
+        <sw-modal
+            v-if="updaterIsRunning"
+            :title="$t('sw-settings-shopware-updates.cards.updating')"
+            variant="small"
+            class="sw-shopware-updates-progressbar"
+        >
+            <div class="progress-wrapper">
+                <sw-progress-bar
+                    :value="progressbarValue"
+                    :max-value="100"
+                />
+                <span class="progress-title">
+                    <p v-if="step === 'download'">{{ $t('sw-settings-shopware-updates.infos.progress.download') }}</p>
+                    <p v-if="step === 'unpack'">{{ $t('sw-settings-shopware-updates.infos.progress.unpack') }}</p>
+                    <p v-if="step === 'deactivate'">{{ $t('sw-settings-shopware-updates.infos.progress.deactivate') }}</p>
+                </span>
+            </div>
+        </sw-modal>
+
+        <sw-modal
+            v-if="updateModalShown"
+            class="sw-settings-shopware-updates-check__start-update"
+            :title="$t('sw-settings-shopware-updates.general.emptyTitle')"
+            variant="small"
+            @modal-close="updateModalShown = false"
+        >
+            <sw-alert
+                v-if="displayUnknownPluginsWarning"
+                variant="warning"
             >
-                <div class="progress-wrapper">
-                    <sw-progress-bar :value="progressbarValue" :maxValue="100"></sw-progress-bar>
-                    <span class="progress-title">
-                        <p v-if="step === 'download'">{{ $t('sw-settings-shopware-updates.infos.progress.download') }}</p>
-                        <p v-if="step === 'unpack'">{{ $t('sw-settings-shopware-updates.infos.progress.unpack') }}</p>
-                        <p v-if="step === 'deactivate'">{{ $t('sw-settings-shopware-updates.infos.progress.deactivate') }}</p>
-                    </span>
+                {{ $tc('sw-settings-shopware-updates.updateModal.messageNotInStore') }}
+            </sw-alert>
+
+            <sw-alert
+                v-if="displayIncompatiblePluginsWarning"
+                variant="warning"
+            >
+                {{ $tc('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
+            </sw-alert>
+
+            <sw-radio-field
+                v-if="displayIncompatiblePluginsWarning"
+                v-model="chosenPluginBehaviour"
+                :options="[
+                    {'value': 'all', 'name': optionDeactivateAllTranslation },
+                    {'value': 'notCompatible', 'name': optionDeactivateIncompatibleTranslation },
+                    {'value': '', 'name': $tc('sw-settings-shopware-updates.plugins.actions.deactivateNone')}]"
+            />
+
+            <template v-if="displayAllPluginsOkayInfo">
+                {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
+            </template>
+
+            <template slot="modal-footer">
+                <sw-checkbox-field
+                    v-model="checkedBackupCheckbox"
+                    :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
+                />
+
+                <div class="sw-settings-shopware-updates-check__start-update-actions">
+                    <sw-button
+                        size="small"
+                        @click="updateModalShown = false"
+                    >
+                        {{ $tc('sw-settings-shopware-updates.updateModal.actions.cancel') }}
+                    </sw-button>
+
+                    <sw-button
+                        :disabled="!checkedBackupCheckbox"
+                        variant="primary"
+                        size="small"
+                        @click="startUpdateProcess()"
+                    >
+                        {{ $tc('sw-settings-shopware-updates.updateModal.actions.install') }}
+                    </sw-button>
                 </div>
-            </sw-modal>
-
-            <sw-modal
-                class="sw-settings-shopware-updates-check__start-update"
-                :title="$t('sw-settings-shopware-updates.general.emptyTitle')"
-                variant="small"
-                v-if="updateModalShown"
-                @modal-close="updateModalShown = false"
-            >
-                <sw-alert v-if="displayUnknownPluginsWarning" variant="warning">
-                    {{ $tc('sw-settings-shopware-updates.updateModal.messageNotInStore') }}
-                </sw-alert>
-
-                <sw-alert v-if="displayIncompatiblePluginsWarning" variant="warning">
-                    {{ $tc('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
-                </sw-alert>
-
-                <sw-radio-field v-if="displayIncompatiblePluginsWarning"
-                                v-model="chosenPluginBehaviour"
-                                :options="[
-                                {'value': 'all', 'name': optionDeactivateAllTranslation },
-                                {'value': 'notCompatible', 'name': optionDeactivateIncompatibleTranslation },
-                                {'value': '', 'name': $tc('sw-settings-shopware-updates.plugins.actions.deactivateNone')}]">
-                </sw-radio-field>
-
-                <template v-if="displayAllPluginsOkayInfo">
-                    {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
-                </template>
-
-                <template slot="modal-footer">
-                    <sw-checkbox-field
-                        :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
-                        v-model="checkedBackupCheckbox"
-                    />
-
-                    <div class="sw-settings-shopware-updates-check__start-update-actions">
-                        <sw-button @click="updateModalShown = false"
-                                   size="small">
-                            {{ $tc('sw-settings-shopware-updates.updateModal.actions.cancel') }}
-                        </sw-button>
-
-                        <sw-button @click="startUpdateProcess()"
-                                   :disabled="!checkedBackupCheckbox"
-                                   variant="primary"
-                                   size="small">
-                            {{ $tc('sw-settings-shopware-updates.updateModal.actions.install') }}
-                        </sw-button>
-                    </div>
-                </template>
-            </sw-modal>
+            </template>
+        </sw-modal>
         {% endblock %}
     </template>
 </sw-page>

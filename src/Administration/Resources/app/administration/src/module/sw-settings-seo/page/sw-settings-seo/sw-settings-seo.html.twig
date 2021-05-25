@@ -1,46 +1,55 @@
 {% block sw_settings_seo %}
-    <sw-page class="sw-settings-seo">
+<sw-page class="sw-settings-seo">
 
-        {% block sw_settings_seo_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_settings_seo_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_seo_smart_bar_header_title_text %}
-                            {{ $tc('sw-settings.index.title') }}
-                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                            {{ $tc('sw-settings-seo.general.textHeadline') }}
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
+    {% block sw_settings_seo_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_seo_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_seo_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-seo.general.textHeadline') }}
+            {% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_seo_smart_bar_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_seo_smart_bar_actions_add %}
-                    <sw-button variant="primary" @click="onClickSave()">
-                        {{ $tc('sw-settings-seo.general.buttonSave') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+    {% block sw_settings_seo_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_seo_smart_bar_actions_add %}
+        <sw-button
+            variant="primary"
+            @click="onClickSave()"
+        >
+            {{ $tc('sw-settings-seo.general.buttonSave') }}
+        </sw-button>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_seo_content %}
-            <template slot="content">
-                <sw-card-view>
-                    {% block sw_settings_seo_content_inner %}
+    {% block sw_settings_seo_content %}
+    <template slot="content">
+        <sw-card-view>
+            {% block sw_settings_seo_content_inner %}
 
-                        {% block sw_settings_seo_content_inner_seo_url_template %}
-                            <sw-seo-url-template-card ref="seoUrlTemplateCard"></sw-seo-url-template-card>
-                        {% endblock %}
+            {% block sw_settings_seo_content_inner_seo_url_template %}
+            <sw-seo-url-template-card ref="seoUrlTemplateCard" />
+            {% endblock %}
 
-                        {% block sw_settings_seo_content_inner_redirect %}
-                            <sw-system-config ref="systemConfig" domain="core.seo"></sw-system-config>
-                        {% endblock %}
+            {% block sw_settings_seo_content_inner_redirect %}
+            <sw-system-config
+                ref="systemConfig"
+                domain="core.seo"
+            />
+            {% endblock %}
 
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

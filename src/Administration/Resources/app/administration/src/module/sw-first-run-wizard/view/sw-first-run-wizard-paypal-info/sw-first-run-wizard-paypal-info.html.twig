@@ -1,56 +1,77 @@
 {% block sw_first_run_wizard_paypal_info %}
-    <div class="sw-first-run-wizard-paypal">
-        <div v-if="!isInstallingPlugin"
-             class="sw-first-run-wizard-paypal-info">
-            <img class="sw-first-run-wizard-paypal-info__icon" :src="'/administration/static/img/paypal-official-logo.svg' | asset">
+<div class="sw-first-run-wizard-paypal">
+    <div
+        v-if="!isInstallingPlugin"
+        class="sw-first-run-wizard-paypal-info"
+    >
+        <img
+            class="sw-first-run-wizard-paypal-info__icon"
+            :src="'/administration/static/img/paypal-official-logo.svg' | asset"
+        >
 
-            <h3 class="headline">{{ $tc('sw-first-run-wizard.paypalInfo.headline') }}</h3>
+        <h3 class="headline">
+            {{ $tc('sw-first-run-wizard.paypalInfo.headline') }}
+        </h3>
 
-            <sw-container columns="1fr 1fr 1fr 1fr"
-                          class="paymethods">
-                <div class="paymethod">
-                    <sw-icon name="default-basic-checkmark-circle"
-                             size="12px">
-                    </sw-icon>
-                    <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.paypal') }}</span>
-                </div>
-                <div class="paymethod">
-                    <sw-icon name="default-basic-checkmark-circle"
-                             size="12px">
-                    </sw-icon>
-                    <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.debit') }}</span>
-                </div>
-                <div class="paymethod">
-                    <sw-icon name="default-basic-checkmark-circle"
-                             size="12px">
-                    </sw-icon>
-                    <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.creditcard') }}</span>
-                </div>
-                <div class="paymethod">
-                    <sw-icon name="default-basic-checkmark-circle"
-                             size="12px">
-                    </sw-icon>
-                    <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.invoice') }}**</span>
-                </div>
-            </sw-container>
-            <div v-if="pluginInstallationFailed"
-                 class="sw-first-run-wizard-paypal__error">
-                <sw-alert :title="pluginError.title"
-                 variant="error"
-                 appearance="notification">
-                    {{ pluginError.detail }}
-                </sw-alert>
+        <sw-container
+            columns="1fr 1fr 1fr 1fr"
+            class="paymethods"
+        >
+            <div class="paymethod">
+                <sw-icon
+                    name="default-basic-checkmark-circle"
+                    size="12px"
+                />
+                <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.paypal') }}</span>
             </div>
-            <div class="disclaimer">
-                <p>{{ $tc('sw-first-run-wizard.paypalInfo.disclaimerLineOne') }}</p>
-                <p>{{ $tc('sw-first-run-wizard.paypalInfo.disclaimerLineTwo') }}</p>
+            <div class="paymethod">
+                <sw-icon
+                    name="default-basic-checkmark-circle"
+                    size="12px"
+                />
+                <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.debit') }}</span>
             </div>
+            <div class="paymethod">
+                <sw-icon
+                    name="default-basic-checkmark-circle"
+                    size="12px"
+                />
+                <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.creditcard') }}</span>
+            </div>
+            <div class="paymethod">
+                <sw-icon
+                    name="default-basic-checkmark-circle"
+                    size="12px"
+                />
+                <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.invoice') }}**</span>
+            </div>
+        </sw-container>
+        <div
+            v-if="pluginInstallationFailed"
+            class="sw-first-run-wizard-paypal__error"
+        >
+            <sw-alert
+                :title="pluginError.title"
+                variant="error"
+                appearance="notification"
+            >
+                {{ pluginError.detail }}
+            </sw-alert>
         </div>
-        <div v-else
-             class="sw-first-run-wizard-paypal-install">
-            <sw-loader size="48"></sw-loader>
-            <p v-html="$tc('sw-first-run-wizard.paypalInstall.loadingMessage')"
-               class="sw-loader-info-text"></p>
+        <div class="disclaimer">
+            <p>{{ $tc('sw-first-run-wizard.paypalInfo.disclaimerLineOne') }}</p>
+            <p>{{ $tc('sw-first-run-wizard.paypalInfo.disclaimerLineTwo') }}</p>
         </div>
     </div>
+    <div
+        v-else
+        class="sw-first-run-wizard-paypal-install"
+    >
+        <sw-loader size="48" />
+        <p
+            class="sw-loader-info-text"
+            v-html="$tc('sw-first-run-wizard.paypalInstall.loadingMessage')"
+        />
+    </div>
+</div>
 {% endblock %}

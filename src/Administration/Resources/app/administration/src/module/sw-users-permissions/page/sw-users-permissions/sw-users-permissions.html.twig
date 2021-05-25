@@ -1,29 +1,32 @@
 {% block sw_users_permissions %}
-    <sw-page class="sw-users-permissions">
-        {% block sw_users_permissions_smart_bar_header %}
-            <template #smart-bar-header>
-                <h2>
-                    {% block sw_users_permissions_smart_bar_header_title_text %}
-                        {{ $tc('sw-settings.index.title') }}
-                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                        {{ $tc('sw-users-permissions.general.label') }}
-                    {% endblock %}
-                </h2>
-            </template>
-        {% endblock %}
+<sw-page class="sw-users-permissions">
+    {% block sw_users_permissions_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>
+            {% block sw_users_permissions_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-users-permissions.general.label') }}
+            {% endblock %}
+        </h2>
+    </template>
+    {% endblock %}
 
-        {% block sw_users_permissions_content %}
-            <template #content>
-                <sw-card-view>
-                    {% block sw_users_permissions_content_user_list %}
-                        <sw-users-permissions-user-listing ref="userListing"/>
-                        <sw-users-permissions-role-listing
-                            ref="roleListing"
-                            @get-list="reloadUserListing"
-                        />
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+    {% block sw_users_permissions_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_users_permissions_content_user_list %}
+            <sw-users-permissions-user-listing ref="userListing" />
+            <sw-users-permissions-role-listing
+                ref="roleListing"
+                @get-list="reloadUserListing"
+            />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

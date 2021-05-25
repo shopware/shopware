@@ -1,29 +1,38 @@
 {% block sw_extension_privacy_policy_extensions_modal %}
-    <sw-modal class="sw-extension-privacy-policy-extensions-modal" :title="title" @modal-close="close">
-        {% block sw_extension_privacy_policy_extensions_modal_content %}
-            {% block sw_extension_privacy_policy_extensions_modal_intro %}
-                <div class="sw-extension-privacy-policy-extensions-modal__intro">
-                    <p>{{ $tc('sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.intro') }}</p>
-                </div>
-            {% endblock %}
+<sw-modal
+    class="sw-extension-privacy-policy-extensions-modal"
+    :title="title"
+    @modal-close="close"
+>
+    {% block sw_extension_privacy_policy_extensions_modal_content %}
+    {% block sw_extension_privacy_policy_extensions_modal_intro %}
+    <div class="sw-extension-privacy-policy-extensions-modal__intro">
+        <p>{{ $tc('sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.intro') }}</p>
+    </div>
+    {% endblock %}
 
-            {% block sw_extension_privacy_policy_extensions_modal_text %}
-                <div class="sw-extension-privacy-policy-extensions-modal__text">
-                    <p>{{ privacyPolicyExtension }}</p>
-                </div>
-            {% endblock %}
-        {% endblock %}
+    {% block sw_extension_privacy_policy_extensions_modal_text %}
+    <div class="sw-extension-privacy-policy-extensions-modal__text">
+        <p>{{ privacyPolicyExtension }}</p>
+    </div>
+    {% endblock %}
+    {% endblock %}
 
-        {% block sw_extension_permissions_modal_footer %}
-            <template #modal-footer>
-                {% block sw_extension_permissions_modal_footer_inner %}
-                    {% block sw_extension_permissions_modal_footer_close %}
-                        <sw-button class="sw-extension-privacy-policy-extensions-modal__close-button" variant="primary" size="small" @click="close">
-                            {{ $tc('global.default.confirm') }}
-                        </sw-button>
-                    {% endblock %}
-                {% endblock %}
-            </template>
+    {% block sw_extension_permissions_modal_footer %}
+    <template #modal-footer>
+        {% block sw_extension_permissions_modal_footer_inner %}
+        {% block sw_extension_permissions_modal_footer_close %}
+        <sw-button
+            class="sw-extension-privacy-policy-extensions-modal__close-button"
+            variant="primary"
+            size="small"
+            @click="close"
+        >
+            {{ $tc('global.default.confirm') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

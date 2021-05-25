@@ -1,151 +1,152 @@
 {% block sw_settings_search_searchable_content_general %}
-    <div class="sw-settings-search__searchable-content-general">
-        {% block sw_settings_search_searchable_content_general_empty_state %}
-            <sw-empty-state
-                v-if="isEmpty"
-                :title="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
-                :showDescription="false"
-                :hasActionSlot="true"
-                :absolute="false">
-                <template #icon>
-                    {% block sw_settings_search_searchable_content_general_state_image %}
-                        <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
-                    {% endblock %}
-                </template>
-            </sw-empty-state>
+<div class="sw-settings-search__searchable-content-general">
+    {% block sw_settings_search_searchable_content_general_empty_state %}
+    <sw-empty-state
+        v-if="isEmpty"
+        :title="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+        :show-description="false"
+        :has-action-slot="true"
+        :absolute="false"
+    >
+        <template #icon>
+            {% block sw_settings_search_searchable_content_general_state_image %}
+            <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+            {% endblock %}
+        </template>
+    </sw-empty-state>
+    {% endblock %}
+
+    {% block sw_settings_search_searchable_content_general_grid %}
+    <sw-entity-listing
+        v-if="!isEmpty"
+        class="sw-settings-search__searchable-content-list"
+        :columns="columns"
+        :repository="repository"
+        :allow-column-edit="false"
+        :full-page="false"
+        :show-settings="false"
+        :show-selection="false"
+        :is-loading="isLoading"
+        :items="searchConfigs"
+        :skeleton-item-amount="searchConfigs && searchConfigs.length"
+        :allow-inline-edit="acl.can('product_search_config.editor')"
+        @inline-edit-save="onInlineEditSave"
+        @inline-edit-cancel="onInlineEditCancel"
+    >
+        {% block sw_settings_search_searchable_content_general_field %}
+        <template #column-field="{ item, isInlineEdit }">
+            <template v-if="item._isNew && isInlineEdit">
+                {% block sw_settings_search_searchable_content_general_field_editor %}
+                <sw-single-select
+                    v-model="item.field"
+                    class="sw-settings-search-field-select"
+                    size="small"
+                    :options="fieldConfigs"
+                    @change="onSelectField(item)"
+                />
+                {% endblock %}
+            </template>
+            <template v-else>
+                {% block sw_settings_search_searchable_content_general_field_label %}
+                {{ getMatchingFields(item.field) }}
+                {% endblock %}
+            </template>
+        </template>
         {% endblock %}
 
-        {% block sw_settings_search_searchable_content_general_grid %}
-            <sw-entity-listing
-                v-if="!isEmpty"
-                class="sw-settings-search__searchable-content-list"
-                :columns="columns"
-                :repository="repository"
-                :allowColumnEdit="false"
-                :fullPage="false"
-                :showSettings="false"
-                :showSelection="false"
-                :isLoading="isLoading"
-                :items="searchConfigs"
-                :skeletonItemAmount="searchConfigs && searchConfigs.length"
-                :allowInlineEdit="acl.can('product_search_config.editor')"
-                @inline-edit-save="onInlineEditSave"
-                @inline-edit-cancel="onInlineEditCancel">
-                {% block sw_settings_search_searchable_content_general_field %}
-                    <template #column-field="{ item, isInlineEdit }">
-                        <template v-if="item._isNew && isInlineEdit">
-                            {% block sw_settings_search_searchable_content_general_field_editor %}
-                                <sw-single-select
-                                    v-model="item.field"
-                                    class="sw-settings-search-field-select"
-                                    size="small"
-                                    :options="fieldConfigs"
-                                    @change="onSelectField(item)">
-                                </sw-single-select>
-                            {% endblock %}
-                        </template>
-                        <template v-else>
-                            {% block sw_settings_search_searchable_content_general_field_label %}
-                                {{ getMatchingFields(item.field) }}
-                            {% endblock %}
-                        </template>
-                    </template>
+        {% block sw_settings_search_searchable_content_general_ranking %}
+        <template #column-ranking="{ item, isInlineEdit }">
+            <template v-if="isInlineEdit">
+                {% block sw_settings_search_searchable_content_general_ranking_editor %}
+                <sw-number-field
+                    v-model="item.ranking"
+                    number-type="int"
+                    size="small"
+                />
                 {% endblock %}
-
-                {% block sw_settings_search_searchable_content_general_ranking %}
-                    <template #column-ranking="{ item, isInlineEdit }">
-                        <template v-if="isInlineEdit">
-                            {% block sw_settings_search_searchable_content_general_ranking_editor %}
-                                <sw-number-field
-                                    v-model="item.ranking"
-                                    numberType="int"
-                                    size="small">
-                                </sw-number-field >
-                            {% endblock %}
-                        </template>
-                    </template>
-                {% endblock %}
-
-                {% block sw_settings_search_searchable_content_general_searchable %}
-                    <template #column-searchable="{ item, isInlineEdit }">
-                        <template v-if="isInlineEdit">
-                            {% block sw_settings_search_searchable_content_general_searchable_editor %}
-                                <sw-checkbox-field v-model="item.searchable">
-                                </sw-checkbox-field>
-                            {% endblock %}
-                        </template>
-
-                        <template v-else>
-                            {% block sw_settings_search_searchable_content_general_searchable_label %}
-                                <sw-icon
-                                    v-if="item.searchable"
-                                    class="is--active"
-                                    name="small-default-checkmark-line-medium"
-                                    small>
-                                </sw-icon>
-                                <sw-icon
-                                    v-else
-                                    class="is--inactive"
-                                    name="small-default-x-line-medium"
-                                    small>
-                                </sw-icon>
-                            {% endblock %}
-                        </template>
-                    </template>
-                {% endblock %}
-
-                {% block sw_settings_search_searchable_content_general_tokenize %}
-                    <template #column-tokenize="{ item, isInlineEdit }">
-                        <template v-if="isInlineEdit">
-                            {% block sw_settings_search_searchable_content_general_tokenize_editor %}
-                                <sw-checkbox-field v-model="item.tokenize">
-                                </sw-checkbox-field>
-                            {% endblock %}
-                        </template>
-
-                        <template v-else>
-                            {% block sw_settings_search_searchable_content_general_tokenize_label %}
-                                <sw-icon
-                                    v-if="item.tokenize"
-                                    class="is--active"
-                                    name="small-default-checkmark-line-medium"
-                                    small>
-                                </sw-icon>
-                                <sw-icon
-                                    v-else
-                                    class="is--inactive"
-                                    name="small-default-x-line-medium"
-                                    small>
-                                </sw-icon>
-                            {% endblock %}
-                        </template>
-                    </template>
-                {% endblock %}
-
-                {% block sw_settings_search_searchable_content_general_columns_actions %}
-                    <template #actions="{ item }">
-                        {% block sw_settings_search_searchable_content_general_columns_actions_edit %}
-                            <sw-context-menu-item
-                                class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
-                                :disabled="!acl.can('product_search_config.editor')"
-                                @click="onResetRanking(item)">
-                                {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
-                {% block sw_settings_search_searchable_content_general_pagination %}
-                     <template #pagination>
-                         <sw-pagination
-                            :page="page"
-                            :limit="limit"
-                            :total="total"
-                            autoHide>
-                        </sw-pagination>
-                     </template>
-                {% endblock %}
-            </sw-entity-listing>
+            </template>
+        </template>
         {% endblock %}
-    </div>
+
+        {% block sw_settings_search_searchable_content_general_searchable %}
+        <template #column-searchable="{ item, isInlineEdit }">
+            <template v-if="isInlineEdit">
+                {% block sw_settings_search_searchable_content_general_searchable_editor %}
+                <sw-checkbox-field v-model="item.searchable" />
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_settings_search_searchable_content_general_searchable_label %}
+                <sw-icon
+                    v-if="item.searchable"
+                    class="is--active"
+                    name="small-default-checkmark-line-medium"
+                    small
+                />
+                <sw-icon
+                    v-else
+                    class="is--inactive"
+                    name="small-default-x-line-medium"
+                    small
+                />
+                {% endblock %}
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_general_tokenize %}
+        <template #column-tokenize="{ item, isInlineEdit }">
+            <template v-if="isInlineEdit">
+                {% block sw_settings_search_searchable_content_general_tokenize_editor %}
+                <sw-checkbox-field v-model="item.tokenize" />
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_settings_search_searchable_content_general_tokenize_label %}
+                <sw-icon
+                    v-if="item.tokenize"
+                    class="is--active"
+                    name="small-default-checkmark-line-medium"
+                    small
+                />
+                <sw-icon
+                    v-else
+                    class="is--inactive"
+                    name="small-default-x-line-medium"
+                    small
+                />
+                {% endblock %}
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_general_columns_actions %}
+        <template #actions="{ item }">
+            {% block sw_settings_search_searchable_content_general_columns_actions_edit %}
+            <sw-context-menu-item
+                class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
+                :disabled="!acl.can('product_search_config.editor')"
+                @click="onResetRanking(item)"
+            >
+                {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_general_pagination %}
+        <template #pagination>
+            <sw-pagination
+                :page="page"
+                :limit="limit"
+                :total="total"
+                auto-hide
+            />
+        </template>
+        {% endblock %}
+    </sw-entity-listing>
+    {% endblock %}
+</div>
 {% endblock %}

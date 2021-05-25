@@ -1,134 +1,146 @@
 {% block sw_settings_search_searchable_content %}
-        <sw-card
-            :title="$tc('sw-settings-search.generalTab.labelSearchableContent')">
-            {% block sw_settings_search_searchable_content_title %}
-                <label class="sw-field sw-settings-search__searchable-content-title">
-                    {{ $tc('sw-settings-search.generalTab.textDescriptionSearchableContent') }}
-                </label>
+<sw-card
+    :title="$tc('sw-settings-search.generalTab.labelSearchableContent')"
+>
+    {% block sw_settings_search_searchable_content_title %}
+    <label class="sw-field sw-settings-search__searchable-content-title">
+        {{ $tc('sw-settings-search.generalTab.textDescriptionSearchableContent') }}
+    </label>
+    {% endblock %}
+
+    {% block sw_settings_search_searchable_actions %}
+    <sw-container
+        class="sw-field"
+        columns="repeat(auto-fit, minmax(100px, 1fr))"
+        align="center"
+        gap="0px 30px"
+    >
+        <div class="sw-settings-search__searchable-content-button-group">
+            {% block sw_settings_search_searchable_add_item %}
+            <sw-button
+                v-if="defaultTab !== tabNames.generalTab"
+                class="sw-settings-search__searchable-content-add-button"
+                variant="ghost"
+                size="small"
+                :disabled="!acl.can('product_search_config.creator')"
+                @click="onAddNewConfig"
+            >
+                {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
+            </sw-button>
             {% endblock %}
 
-            {% block sw_settings_search_searchable_actions %}
-                <sw-container
-                    class="sw-field"
-                    columns="repeat(auto-fit, minmax(100px, 1fr))"
-                    align="center"
-                    gap="0px 30px">
-                    <div class="sw-settings-search__searchable-content-button-group">
-                        {% block sw_settings_search_searchable_add_item %}
-                            <sw-button
-                                v-if="defaultTab !== tabNames.generalTab"
-                                class="sw-settings-search__searchable-content-add-button"
-                                variant="ghost"
-                                size="small"
-                                :disabled="!acl.can('product_search_config.creator')"
-                                @click="onAddNewConfig">
-                                {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
-                            </sw-button>
-                        {% endblock %}
+            {% block sw_settings_search_searchable_reset_default %}
+            <sw-button
+                v-if="defaultTab !== tabNames.customTab"
+                class="sw-settings-search__searchable-content-reset-button"
+                size="small"
+                :disabled="isEnabledReset || !acl.can('product_search_config.editor')"
+                @click="onResetToDefault"
+            >
+                {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
+            </sw-button>
+            {% endblock %}
+        </div>
 
-                        {% block sw_settings_search_searchable_reset_default %}
-                            <sw-button
-                                v-if="defaultTab !== tabNames.customTab"
-                                class="sw-settings-search__searchable-content-reset-button"
-                                size="small"
-                                :disabled="isEnabledReset || !acl.can('product_search_config.editor')"
-                                @click="onResetToDefault">
-                                {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
-                            </sw-button>
-                        {% endblock %}
-                    </div>
+        {% block sw_settings_search_searchable_show_example %}
+        {% block sw_settings_search_searchable_show_example_link %}
+        <div class="sw-settings-search__searchable-content-link-text">
 
-                    {% block sw_settings_search_searchable_show_example %}
-                        {% block sw_settings_search_searchable_show_example_link %}
-                            <div class="sw-settings-search__searchable-content-link-text">
-
-                                {% block sw_settings_search_searchable_show_example_link %}
-                                    <a class="sw-settings-search__searchable-content-show-example-link"
-                                        @click="onShowExampleModal">
-                                        {{ $tc('sw-settings-search.generalTab.linkExample') }}
-                                        <sw-icon
-                                            name="default-arrow-simple-right"
-                                            small>
-                                        </sw-icon>
-                                    </a>
-                                {% endblock %}
-
-                                {% block sw_settings_search_searchable_rebuild_link %}
-                                    <router-link
-                                        class="sw-settings-search__searchable-content-rebuild-link"
-                                        :to="{ name: 'sw.settings.search.index.liveSearch' }">
-                                        {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
-                                        <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                                    </router-link>
-                                {% endblock %}
-
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_settings_search_searchable_show_example_modal %}
-                            <sw-settings-search-example-modal
-                                v-if="showExampleModal"
-                                @modal-close="onCloseExampleModal">
-                            </sw-settings-search-example-modal>
-                        {% endblock %}
-                    {% endblock %}
-                </sw-container>
+            {% block sw_settings_search_searchable_show_example_link %}
+            <a
+                class="sw-settings-search__searchable-content-show-example-link"
+                @click="onShowExampleModal"
+            >
+                {{ $tc('sw-settings-search.generalTab.linkExample') }}
+                <sw-icon
+                    name="default-arrow-simple-right"
+                    small
+                />
+            </a>
             {% endblock %}
 
-            {% block sw_settings_search_searchable_content_tabs %}
-                <sw-tabs :defaultItem="defaultTab">
-                    <template #default="{ active }">
-                        {% block sw_settings_search_searchable_content_general_tab_title %}
-                            <sw-tabs-item
-                                class="sw-settings-search__searchable-content-tab-title"
-                                name="general"
-                                :activeTab="active"
-                                @click="onChangeTab(tabNames.generalTab)">
-                                {{  $tc('sw-settings-search.generalTab.labelGeneralTab')  }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {% block sw_settings_search_searchable_content_customfields_tab_title %}
-                            <sw-tabs-item
-                                class="sw-settings-search__searchable-content-tab-title"
-                                name="customfields"
-                                @click="onChangeTab(tabNames.customTab)">
-                                {{  $tc('sw-settings-search.generalTab.labelCustomFieldsTab')  }}
-                            </sw-tabs-item>
-                        {% endblock %}
-                    </template>
-
-                    <template #content="{ active }">
-                        {% block sw_settings_search_searchable_content_general_tab_item %}
-                            <sw-settings-search-searchable-content-general
-                                v-if="active === tabNames.generalTab"
-                                :isEmpty="isListEmpty"
-                                :isLoading="isLoading"
-                                :columns="getProductSearchFieldColumns"
-                                :repository="productSearchFieldRepository"
-                                :searchConfigs="searchConfigFields"
-                                :fieldConfigs="fieldConfigs"
-                                @data-load="loadData"
-                                @config-save="saveConfig">
-                            </sw-settings-search-searchable-content-general>
-                        {% endblock %}
-
-                        {% block sw_settings_search_searchable_content_customfields_tab_item %}
-                            <sw-settings-search-searchable-content-customfields
-                                v-if="active === tabNames.customTab"
-                                :isEmpty="isListEmpty"
-                                :isLoading="isLoading"
-                                :columns="getProductSearchFieldColumns"
-                                :repository="productSearchFieldRepository"
-                                :searchConfigs="searchConfigFields"
-                                @data-load="loadData"
-                                @config-add="onAddNewConfig"
-                                @config-save="saveConfig"
-                                @config-delete="deleteConfig">
-                            </sw-settings-search-searchable-content-customfields>
-                        {% endblock %}
-                    </template>
-                </sw-tabs>
+            {% block sw_settings_search_searchable_rebuild_link %}
+            <router-link
+                class="sw-settings-search__searchable-content-rebuild-link"
+                :to="{ name: 'sw.settings.search.index.liveSearch' }"
+            >
+                {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
+                <sw-icon
+                    name="default-arrow-simple-right"
+                    small
+                />
+            </router-link>
             {% endblock %}
-        </sw-card>
+
+        </div>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_show_example_modal %}
+        <sw-settings-search-example-modal
+            v-if="showExampleModal"
+            @modal-close="onCloseExampleModal"
+        />
+        {% endblock %}
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_settings_search_searchable_content_tabs %}
+    <sw-tabs :default-item="defaultTab">
+        <template #default="{ active }">
+            {% block sw_settings_search_searchable_content_general_tab_title %}
+            <sw-tabs-item
+                class="sw-settings-search__searchable-content-tab-title"
+                name="general"
+                :active-tab="active"
+                @click="onChangeTab(tabNames.generalTab)"
+            >
+                {{ $tc('sw-settings-search.generalTab.labelGeneralTab') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_settings_search_searchable_content_customfields_tab_title %}
+            <sw-tabs-item
+                class="sw-settings-search__searchable-content-tab-title"
+                name="customfields"
+                @click="onChangeTab(tabNames.customTab)"
+            >
+                {{ $tc('sw-settings-search.generalTab.labelCustomFieldsTab') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
+
+        <template #content="{ active }">
+            {% block sw_settings_search_searchable_content_general_tab_item %}
+            <sw-settings-search-searchable-content-general
+                v-if="active === tabNames.generalTab"
+                :is-empty="isListEmpty"
+                :is-loading="isLoading"
+                :columns="getProductSearchFieldColumns"
+                :repository="productSearchFieldRepository"
+                :search-configs="searchConfigFields"
+                :field-configs="fieldConfigs"
+                @data-load="loadData"
+                @config-save="saveConfig"
+            />
+            {% endblock %}
+
+            {% block sw_settings_search_searchable_content_customfields_tab_item %}
+            <sw-settings-search-searchable-content-customfields
+                v-if="active === tabNames.customTab"
+                :is-empty="isListEmpty"
+                :is-loading="isLoading"
+                :columns="getProductSearchFieldColumns"
+                :repository="productSearchFieldRepository"
+                :search-configs="searchConfigFields"
+                @data-load="loadData"
+                @config-add="onAddNewConfig"
+                @config-save="saveConfig"
+                @config-delete="deleteConfig"
+            />
+            {% endblock %}
+        </template>
+    </sw-tabs>
+    {% endblock %}
+</sw-card>
 {% endblock %}

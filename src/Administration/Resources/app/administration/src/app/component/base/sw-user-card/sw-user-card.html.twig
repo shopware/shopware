@@ -1,90 +1,118 @@
 {% block sw_user_card %}
-    <sw-card class="sw-user-card" :title="title" :isLoading="isLoading">
+<sw-card
+    class="sw-user-card"
+    :title="title"
+    :is-loading="isLoading"
+>
 
-        {% block sw_user_card_rows %}
-            <sw-container slot="grid" rows="auto auto">
+    {% block sw_user_card_rows %}
+    <sw-container
+        slot="grid"
+        rows="auto auto"
+    >
 
-                {% block sw_user_card_row_primary %}
-                    <sw-card-section divider="bottom">
+        {% block sw_user_card_row_primary %}
+        <sw-card-section divider="bottom">
 
-                        {% block sw_user_card_metadata_container %}
-                            <sw-container columns="80px 1fr max-content"
-                                gap="0px 30px"
-                                align="center">
+            {% block sw_user_card_metadata_container %}
+            <sw-container
+                columns="80px 1fr max-content"
+                gap="0px 30px"
+                align="center"
+            >
 
-                                {% block sw_user_card_avatar %}
-                                    <sw-avatar :color="moduleColor"
-                                               size="80px"
-                                               :sourceContext="user"
-                                               :firstName="user.firstName"
-                                               :lastName="user.lastName">
-                                    </sw-avatar>
-                                {% endblock %}
-
-                                {% block sw_user_card_metadata %}
-                                    <div class="sw-user-card__metadata">
-
-                                        {% block sw_user_card_metadata_user_name %}
-                                            <div v-if="user" class="sw-user-card__metadata-user-name">
-                                                {{ user | salutation }}
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block sw_user_card_metadata_user_company %}
-                                            <div v-if="user.company" class="sw-user-card__metadata-item">
-                                                {{ user.company }}
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block sw_user_card_metadata_user_email %}
-                                            <div v-if="user.email" class="sw-user-card__metadata-item">
-                                                Email: {{ user.email }}
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block sw_user_card_metadata_additional %}
-                                            <slot name="metadata-additional">
-                                                {% block sw_user_card_slot_metadata_additional %}{% endblock %}
-                                            </slot>
-                                        {% endblock %}
-
-                                        {% block sw_user_card_actions %}
-                                            <div v-if="hasActionSlot" class="sw-user-card__actions">
-                                                <slot name="actions">
-                                                    {% block sw_user_card_slot_actions %}{% endblock %}
-                                                </slot>
-                                            </div>
-                                        {% endblock %}
-
-                                    </div>
-                                {% endblock %}
-
-                                <div v-if="hasSummarySlot" align="right">
-                                    <slot name = "summary">
-                                        {% block sw_user_card_slot_summary%}{% endblock %}
-                                    </slot>
-                                </div>
-
-                            </sw-container>
-                        {% endblock %}
-
-                        <div v-if="hasAdditionalDataSlot">
-                            <slot name="data-additional">
-                                {% block sw_user_card_slot_data_additional %}{% endblock %}
-                            </slot>
-                        </div>
-
-                    </sw-card-section>
+                {% block sw_user_card_avatar %}
+                <sw-avatar
+                    :color="moduleColor"
+                    size="80px"
+                    :source-context="user"
+                    :first-name="user.firstName"
+                    :last-name="user.lastName"
+                />
                 {% endblock %}
 
-                {% block sw_user_card_row_secondary %}
-                    <sw-card-section secondary slim>
-                        <slot>
-                            {% block sw_user_card_slot_default %}{% endblock %}
+                {% block sw_user_card_metadata %}
+                <div class="sw-user-card__metadata">
+
+                    {% block sw_user_card_metadata_user_name %}
+                    <div
+                        v-if="user"
+                        class="sw-user-card__metadata-user-name"
+                    >
+                        {{ user | salutation }}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_user_card_metadata_user_company %}
+                    <div
+                        v-if="user.company"
+                        class="sw-user-card__metadata-item"
+                    >
+                        {{ user.company }}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_user_card_metadata_user_email %}
+                    <div
+                        v-if="user.email"
+                        class="sw-user-card__metadata-item"
+                    >
+                        Email: {{ user.email }}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_user_card_metadata_additional %}
+                    <slot name="metadata-additional">
+                        {% block sw_user_card_slot_metadata_additional %}{% endblock %}
+                    </slot>
+                    {% endblock %}
+
+                    {% block sw_user_card_actions %}
+                    <div
+                        v-if="hasActionSlot"
+                        class="sw-user-card__actions"
+                    >
+                        <slot name="actions">
+                            {% block sw_user_card_slot_actions %}{% endblock %}
                         </slot>
-                    </sw-card-section>
+                    </div>
+                    {% endblock %}
+
+                </div>
                 {% endblock %}
+
+                <div
+                    v-if="hasSummarySlot"
+                    align="right"
+                >
+                    <slot name="summary">
+                        {% block sw_user_card_slot_summary%}{% endblock %}
+                    </slot>
+                </div>
+
             </sw-container>
+            {% endblock %}
+
+            <div v-if="hasAdditionalDataSlot">
+                <slot name="data-additional">
+                    {% block sw_user_card_slot_data_additional %}{% endblock %}
+                </slot>
+            </div>
+
+        </sw-card-section>
         {% endblock %}
-    </sw-card>
+
+        {% block sw_user_card_row_secondary %}
+        <sw-card-section
+            secondary
+            slim
+        >
+            <slot>
+                {% block sw_user_card_slot_default %}{% endblock %}
+            </slot>
+        </sw-card-section>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</sw-card>
 {% endblock %}

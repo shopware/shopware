@@ -1,24 +1,29 @@
 {% block sw_extension_my_extensions_listing_controls %}
-    <div class="sw-extension-my-extensions-listing-controls">
-        {% block sw_extension_my_extensions_listing_controls_active_switch %}
-            <sw-switch-field v-model="filterByActiveState"
-                 class="sw-extension-my-extensions-listing-controls__active-filter-switch"
-                 :label="$tc('sw-extension.my-extensions.listing.controls.labelActiveStateSwitch')">
-            </sw-switch-field>
-        {% endblock %}
+<div class="sw-extension-my-extensions-listing-controls">
+    {% block sw_extension_my_extensions_listing_controls_active_switch %}
+    <sw-switch-field
+        v-model="filterByActiveState"
+        class="sw-extension-my-extensions-listing-controls__active-filter-switch"
+        :label="$tc('sw-extension.my-extensions.listing.controls.labelActiveStateSwitch')"
+    />
+    {% endblock %}
 
-        {% block sw_extension_my_extensions_listing_controls_sorting_select %}
-            <sw-select-field v-model="selectedSortingOption"
-                class="sw-extension-my-extensions-listing-controls__sorting-dropdown"
-                size="small">
-                {% block sw_extension_my_extensions_listing_controls_sorting_select_option %}
-                    <option v-for="(sortingOption, index) in sortingOptions"
-                        :key="`sorting-option-${index}`"
-                        :value="sortingOption.value">
-                        {{ sortingOption.name }}
-                    </option>
-                {% endblock %}
-            </sw-select-field>
+    {% block sw_extension_my_extensions_listing_controls_sorting_select %}
+    <sw-select-field
+        v-model="selectedSortingOption"
+        class="sw-extension-my-extensions-listing-controls__sorting-dropdown"
+        size="small"
+    >
+        {% block sw_extension_my_extensions_listing_controls_sorting_select_option %}
+        <option
+            v-for="(sortingOption, index) in sortingOptions"
+            :key="`sorting-option-${index}`"
+            :value="sortingOption.value"
+        >
+            {{ sortingOption.name }}
+        </option>
         {% endblock %}
-    </div>
+    </sw-select-field>
+    {% endblock %}
+</div>
 {% endblock %}

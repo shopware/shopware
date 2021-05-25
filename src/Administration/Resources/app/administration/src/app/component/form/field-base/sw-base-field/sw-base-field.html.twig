@@ -1,22 +1,40 @@
 {% block sw_base_field %}
-    <div class="sw-field" :class="swFieldClasses">
-        <div class="sw-field__label" v-if="hasLabel">
-            <sw-inheritance-switch v-if="isInheritanceField"
-                            :disabled="disableInheritanceToggle"
-                            class="sw-field__inheritance-icon"
-                            :isInherited="isInherited"
-                            v-on="$listeners">
-            </sw-inheritance-switch>
+<div
+    class="sw-field"
+    :class="swFieldClasses"
+>
+    <div
+        v-if="hasLabel"
+        class="sw-field__label"
+    >
+        <sw-inheritance-switch
+            v-if="isInheritanceField"
+            :disabled="disableInheritanceToggle"
+            class="sw-field__inheritance-icon"
+            :is-inherited="isInherited"
+            v-on="$listeners"
+        />
 
-            <label v-if="showLabel" :for="identification" :class="swFieldLabelClasses">
-                <slot name="label">
-                    {{ label }}
-                </slot>
-            </label>
+        <label
+            v-if="showLabel"
+            :for="identification"
+            :class="swFieldLabelClasses"
+        >
+            <slot name="label">
+                {{ label }}
+            </slot>
+        </label>
 
-            <sw-help-text class="sw-field__help-text" :text="helpText" v-if="helpText"></sw-help-text>
-        </div>
-        <slot name="sw-field-input" v-bind="{identification, error, disabled}"></slot>
-        <sw-field-error :error="error"></sw-field-error>
+        <sw-help-text
+            v-if="helpText"
+            class="sw-field__help-text"
+            :text="helpText"
+        />
     </div>
+    <slot
+        name="sw-field-input"
+        v-bind="{identification, error, disabled}"
+    />
+    <sw-field-error :error="error" />
+</div>
 {% endblock %}

@@ -1,34 +1,42 @@
 {% block sw_cms_config_product_listing_delete_modal %}
-    <sw-modal>
-        <template #modal-header>
-            {% block sw_cms_config_product_listing_delete_modal_header %}
-                <h4 class="sw-modal__title">{{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.heading', { productSortingName: productSorting.label } ) }}</h4>
-            {% endblock %}
-        </template>
+<sw-modal>
+    <template #modal-header>
+        {% block sw_cms_config_product_listing_delete_modal_header %}
+        <h4 class="sw-modal__title">
+            {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.heading', { productSortingName: productSorting.label } ) }}
+        </h4>
+        {% endblock %}
+    </template>
 
-        <template>
-            {% block sw_cms_config_product_listing_delete_modal_body %}
-                <p class="sw-cms-el-config-product-listing-config-delete-modal__body">{{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.body', { productSortingName: productSorting.label } ) }}</p>
-            {% endblock %}
-        </template>
+    <template>
+        {% block sw_cms_config_product_listing_delete_modal_body %}
+        <p class="sw-cms-el-config-product-listing-config-delete-modal__body">
+            {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.body', { productSortingName: productSorting.label } ) }}
+        </p>
+        {% endblock %}
+    </template>
 
-        <template #modal-footer>
-            {% block sw_cms_config_product_listing_delete_modal_footer %}
-                {% block sw_cms_config_product_listing_delete_modal_footer_button_cancel %}
-                    <sw-button @click="onCancel"
-                       size="small">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
+    <template #modal-footer>
+        {% block sw_cms_config_product_listing_delete_modal_footer %}
+        {% block sw_cms_config_product_listing_delete_modal_footer_button_cancel %}
+        <sw-button
+            size="small"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
 
-                {% block sw_cms_config_product_listing_delete_modal_footer_button_confirm %}
-                    <sw-button @click="onConfirm"
-                        variant="danger"
-                        size="small">
-                        {{ $tc('global.default.delete') }}
-                    </sw-button>
-                {% endblock %}
-            {% endblock %}
-        </template>
-    </sw-modal>
+        {% block sw_cms_config_product_listing_delete_modal_footer_button_confirm %}
+        <sw-button
+            variant="danger"
+            size="small"
+            @click="onConfirm"
+        >
+            {{ $tc('global.default.delete') }}
+        </sw-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+</sw-modal>
 {% endblock %}

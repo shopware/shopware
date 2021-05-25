@@ -1,26 +1,38 @@
 {% block sw_cms_element_product_listing %}
-    <div class="sw-cms-el-product-listing">
+<div class="sw-cms-el-product-listing">
 
-        <div class="sw-cms-el-product-listing__content">
-            <sw-cms-el-product-box
-                :element="demoProductElement"
-                v-for="index in demoProductCount"
-                :key="index">
-            </sw-cms-el-product-box>
+    <div class="sw-cms-el-product-listing__content">
+        <sw-cms-el-product-box
+            v-for="index in demoProductCount"
+            :key="index"
+            :element="demoProductElement"
+        />
+    </div>
+
+    <div class="sw-cms-el-product-listing__pagination">
+        <div class="sw-cms-el-product-listing__pagination-entry">
+            <sw-icon
+                name="small-arrow-small-left"
+                size="20px"
+            />
         </div>
 
-        <div class="sw-cms-el-product-listing__pagination">
-            <div class="sw-cms-el-product-listing__pagination-entry">
-                <sw-icon name="small-arrow-small-left" size="20px"></sw-icon>
-            </div>
+        <div class="sw-cms-el-product-listing__pagination-entry">
+            1
+        </div>
+        <div class="sw-cms-el-product-listing__pagination-entry">
+            2
+        </div>
+        <div class="sw-cms-el-product-listing__pagination-entry">
+            3
+        </div>
 
-            <div class="sw-cms-el-product-listing__pagination-entry">1</div>
-            <div class="sw-cms-el-product-listing__pagination-entry">2</div>
-            <div class="sw-cms-el-product-listing__pagination-entry">3</div>
-
-            <div class="sw-cms-el-product-listing__pagination-entry">
-                <sw-icon name="small-arrow-small-right" size="20px"></sw-icon>
-            </div>
+        <div class="sw-cms-el-product-listing__pagination-entry">
+            <sw-icon
+                name="small-arrow-small-right"
+                size="20px"
+            />
         </div>
     </div>
+</div>
 {% endblock %}

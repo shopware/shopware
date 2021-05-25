@@ -1,239 +1,299 @@
 {% block sw_newsletter_recipient_list %}
-    <sw-page class="sw-newsletter-recipient-list">
-        {% block sw_newsletter_recipient_list_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar initialSearchType="newsletter_recipient"
-                               :placeholder="$tc('sw-newsletter-recipient.general.placeholderSearchBarSnippets')"
-                               :initialSearch="term"
-                               @search="onSearch">
-                </sw-search-bar>
-            </template>
+<sw-page class="sw-newsletter-recipient-list">
+    {% block sw_newsletter_recipient_list_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar
+            initial-search-type="newsletter_recipient"
+            :placeholder="$tc('sw-newsletter-recipient.general.placeholderSearchBarSnippets')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_newsletter_recipient_list_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_newsletter_recipient_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_newsletter_recipientlist_list_smart_bar_header_title_text %}
+            {{ $tc('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-newsletter-recipient.list.textHeadline') }}
+            {% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_newsletter_recipient_list_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_newsletter_recipient_list_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_newsletter_recipientlist_list_smart_bar_header_title_text %}
-                            {{ $tc('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}
-                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                            {{ $tc('sw-newsletter-recipient.list.textHeadline') }}
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
-        {% endblock %}
+    {% block sw_newsletter_recipientlist_list_content %}
+    <template slot="content">
+        {% block sw_newsletter_recipientlist_list_content_card %}
+        {% block sw_newsletter_recipientlist_list_grid %}
+        <sw-entity-listing
+            v-if="items"
+            slot="grid"
+            ref="swNewsletterRecipientGrid"
+            class="sw-newsletter-recipient-list__grid"
+            :is-loading="isLoading"
+            identifier="sw-newsletter-recipient"
+            :show-selection="false"
+            :items="items"
+            :columns="columns"
+            :repository="repository"
+            detail-route="sw.newsletter.recipient.detail"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            :disable-data-fetching="true"
+            :allow-view="acl.can('newsletter_recipient.viewer')"
+            :allow-edit="acl.can('newsletter_recipient.editor')"
+            :allow-inline-edit="acl.can('newsletter_recipient.editor')"
+            :allow-delete="acl.can('newsletter_recipient.deleter')"
+            @page-change="onPageChange"
+            @column-sort="onSortColumn"
+        >
 
-        {% block sw_newsletter_recipientlist_list_content %}
-            <template slot="content">
-                {% block sw_newsletter_recipientlist_list_content_card %}
-                    {% block sw_newsletter_recipientlist_list_grid %}
-                        <sw-entity-listing
-                            v-if="items"
-                            class="sw-newsletter-recipient-list__grid"
-                            slot="grid"
-                            ref="swNewsletterRecipientGrid"
-                            :isLoading="isLoading"
-                            identifier="sw-newsletter-recipient"
-                            :showSelection="false"
-                            :items="items"
-                            :columns="columns"
-                            :repository="repository"
-                            detailRoute="sw.newsletter.recipient.detail"
-                            @page-change="onPageChange"
-                            :sortBy="sortBy"
-                            :sortDirection="sortDirection"
-                            @column-sort="onSortColumn"
-                            :disableDataFetching="true"
-                            :allowView="acl.can('newsletter_recipient.viewer')"
-                            :allowEdit="acl.can('newsletter_recipient.editor')"
-                            :allowInlineEdit="acl.can('newsletter_recipient.editor')"
-                            :allowDelete="acl.can('newsletter_recipient.deleter')">
+            {% block sw_newsletter_recipientlist_list_grid_name %}
+            <template
+                slot="column-firstName"
+                slot-scope="{ item, compact, isInlineEdit }"
+            >
 
-                            {% block sw_newsletter_recipientlist_list_grid_name %}
-                                <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
-
-                                    {% block sw_newsletter_recipientlist_list_grid_inline_edit_name %}
-                                        <template v-if="isInlineEdit">
-                                            {% block sw_newsletter_recipientlist_list_grid_inline_edit_first_name %}
-                                                <sw-text-field class="sw-newsletter-recipient-list__inline-edit-first-name"
-                                                               v-model="item.firstName"
-                                                               :size="compact ? 'small' : 'default'">
-                                                </sw-text-field>
-                                            {% endblock %}
-
-                                            {% block sw_newsletter_recipientlist_list_grid_inline_edit_last_name %}
-                                                <sw-text-field class="sw-newsletter-recipient-list__inline-edit-last-name"
-                                                               v-model="item.lastName"
-                                                               :size="compact ? 'small' : 'default'">
-                                                </sw-text-field>
-                                            {% endblock %}
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_newsletter_recipientlist_list_grid_name_link %}
-                                        <template v-else>
-                                            {{ item.firstName }} {{ item.lastName }}
-                                        </template>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
-
-                            {% block sw_newsletter_recipientlist_list_grid_status %}
-                                <template slot="column-status" slot-scope="{ item, compact, isInlineEdit }">
-                                    {% block sw_newsletter_recipientlist_list_grid_status_notSet %}
-                                    <template v-if="item.status === 'notSet'">
-                                        <sw-label size="medium" appearance="pill">{{ $tc('sw-newsletter-recipient.list.notSet') }}</sw-label>
-                                    </template>
-                                {% endblock %}
-                                {% block sw_newsletter_recipientlist_list_grid_status_optIn %}
-                                    <template v-else-if="item.status === 'optIn'">
-                                        <sw-label size="medium" appearance="pill">{{ $tc('sw-newsletter-recipient.list.optIn') }}</sw-label>
-                                    </template>
-                                {% endblock %}
-                                {% block sw_newsletter_recipientlist_list_grid_status_optOut %}
-                                    <template v-else-if="item.status === 'optOut'">
-                                        <sw-label size="medium" appearance="pill">{{ $tc('sw-newsletter-recipient.list.optOut') }}</sw-label>
-                                    </template>
-                                {% endblock %}
-                                {% block sw_newsletter_recipientlist_list_grid_status_direct %}
-                                    <template v-else-if="item.status === 'direct'">
-                                        <sw-label size="medium" appearance="pill">{{ $tc('sw-newsletter-recipient.list.direct') }}</sw-label>
-                                    </template>
-                                {% endblock %}
-                                </template>
-                            {% endblock %}
-
-                             {% block sw_newsletter_recipientlist_list_grid_updated_at %}
-                                <template slot="column-updatedAt" slot-scope="{ item }">
-                                    {{ item.updatedAt | date() }}
-                                </template>
-                            {% endblock %}
-
-                            {% block sw_newsletter_recipientlist_list_grid_created_at %}
-                                <template slot="column-createdAt" slot-scope="{ item }">
-                                    {{ item.createdAt | date() }}
-                                </template>
-                            {% endblock %}
-
-                        </sw-entity-listing>
-
-                        {% block sw_newsletter_recipient_list_empty_state %}
-                            <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-newsletter-recipient.list.messageEmpty')"></sw-empty-state>
-                        {% endblock %}
+                {% block sw_newsletter_recipientlist_list_grid_inline_edit_name %}
+                <template v-if="isInlineEdit">
+                    {% block sw_newsletter_recipientlist_list_grid_inline_edit_first_name %}
+                    <sw-text-field
+                        v-model="item.firstName"
+                        class="sw-newsletter-recipient-list__inline-edit-first-name"
+                        :size="compact ? 'small' : 'default'"
+                    />
                     {% endblock %}
+
+                    {% block sw_newsletter_recipientlist_list_grid_inline_edit_last_name %}
+                    <sw-text-field
+                        v-model="item.lastName"
+                        class="sw-newsletter-recipient-list__inline-edit-last-name"
+                        :size="compact ? 'small' : 'default'"
+                    />
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_newsletter_recipientlist_list_grid_name_link %}
+                <template v-else>
+                    {{ item.firstName }} {{ item.lastName }}
+                </template>
                 {% endblock %}
             </template>
+            {% endblock %}
+
+            {% block sw_newsletter_recipientlist_list_grid_status %}
+            <template
+                slot="column-status"
+                slot-scope="{ item, compact, isInlineEdit }"
+            >
+                {% block sw_newsletter_recipientlist_list_grid_status_notSet %}
+                <template v-if="item.status === 'notSet'">
+                    <sw-label
+                        size="medium"
+                        appearance="pill"
+                    >
+                        {{ $tc('sw-newsletter-recipient.list.notSet') }}
+                    </sw-label>
+                </template>
+                {% endblock %}
+                {% block sw_newsletter_recipientlist_list_grid_status_optIn %}
+                <template v-else-if="item.status === 'optIn'">
+                    <sw-label
+                        size="medium"
+                        appearance="pill"
+                    >
+                        {{ $tc('sw-newsletter-recipient.list.optIn') }}
+                    </sw-label>
+                </template>
+                {% endblock %}
+                {% block sw_newsletter_recipientlist_list_grid_status_optOut %}
+                <template v-else-if="item.status === 'optOut'">
+                    <sw-label
+                        size="medium"
+                        appearance="pill"
+                    >
+                        {{ $tc('sw-newsletter-recipient.list.optOut') }}
+                    </sw-label>
+                </template>
+                {% endblock %}
+                {% block sw_newsletter_recipientlist_list_grid_status_direct %}
+                <template v-else-if="item.status === 'direct'">
+                    <sw-label
+                        size="medium"
+                        appearance="pill"
+                    >
+                        {{ $tc('sw-newsletter-recipient.list.direct') }}
+                    </sw-label>
+                </template>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_newsletter_recipientlist_list_grid_updated_at %}
+            <template
+                slot="column-updatedAt"
+                slot-scope="{ item }"
+            >
+                {{ item.updatedAt | date() }}
+            </template>
+            {% endblock %}
+
+            {% block sw_newsletter_recipientlist_list_grid_created_at %}
+            <template
+                slot="column-createdAt"
+                slot-scope="{ item }"
+            >
+                {{ item.createdAt | date() }}
+            </template>
+            {% endblock %}
+
+        </sw-entity-listing>
+
+        {% block sw_newsletter_recipient_list_empty_state %}
+        <sw-empty-state
+            v-if="!isLoading && !total"
+            :title="$tc('sw-newsletter-recipient.list.messageEmpty')"
+        />
+        {% endblock %}
+        {% endblock %}
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_newsletter_recipient_list_sidebar %}
+    <sw-sidebar slot="sidebar">
+        {% block sw_newsletter_recipient_list_sidebar_refresh %}
+        <sw-sidebar-item
+            icon="default-arrow-360-left"
+            :title="$tc('sw-newsletter-recipient.list.titleSidebarItemRefresh')"
+            @click="onRefresh"
+        />
         {% endblock %}
 
-        {% block sw_newsletter_recipient_list_sidebar %}
-            <sw-sidebar slot="sidebar">
-                {% block sw_newsletter_recipient_list_sidebar_refresh %}
-                    <sw-sidebar-item
-                        icon="default-arrow-360-left"
-                        :title="$tc('sw-newsletter-recipient.list.titleSidebarItemRefresh')"
-                        @click="onRefresh">
-                    </sw-sidebar-item>
-                {% endblock %}
+        {% block sw_newsletter_recipient_list_sidebar_filter %}
+        <sw-sidebar-item
+            ref="filterSideBar"
+            icon="default-action-filter"
+            :title="$tc('sw-newsletter-recipient.list.titleSidebarItemFilter')"
+            @sw-sidebar-item-close-content="closeContent"
+            @click="closeContent"
+        >
 
-                {% block sw_newsletter_recipient_list_sidebar_filter %}
-                    <sw-sidebar-item
-                        ref="filterSideBar"
-                        icon="default-action-filter"
-                        :title="$tc('sw-newsletter-recipient.list.titleSidebarItemFilter')"
-                        @sw-sidebar-item-close-content="closeContent"
-                        @click="closeContent">
+            {% block sw_newsletter_recipient_list_sidebar_filter_status %}
+            <sw-sidebar-collapse>
+                <template slot="header">
+                    {{ $tc('sw-newsletter-recipient.list.status') }}
+                </template>
+                <template slot="content">
+                    {% block sw_newsletter_recipient_list_sidebar_filter_status_not_set %}
+                    <sw-newsletter-recipient-filter-switch
+                        id="notSet"
+                        group="status"
+                        :label="$tc('sw-newsletter-recipient.list.notSet')"
+                        @change="onChange"
+                    />
+                    {% endblock %}
+                    {% block sw_newsletter_recipient_list_sidebar_filter_status_direct %}
+                    <sw-newsletter-recipient-filter-switch
+                        id="direct"
+                        group="status"
+                        :label="$tc('sw-newsletter-recipient.list.direct')"
+                        @change="onChange"
+                    />
+                    {% endblock %}
+                    {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_in %}
+                    <sw-newsletter-recipient-filter-switch
+                        id="optIn"
+                        group="status"
+                        :label="$tc('sw-newsletter-recipient.list.optIn')"
+                        @change="onChange"
+                    />
+                    {% endblock %}
+                    {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_out %}
+                    <sw-newsletter-recipient-filter-switch
+                        id="optOut"
+                        group="status"
+                        :label="$tc('sw-newsletter-recipient.list.optOut')"
+                        @change="onChange"
+                    />
+                    {% endblock %}
+                </template>
+            </sw-sidebar-collapse>
+            {% endblock %}
 
-                        {% block sw_newsletter_recipient_list_sidebar_filter_status %}
-                            <sw-sidebar-collapse>
-                                <template slot="header">{{ $tc('sw-newsletter-recipient.list.status') }}</template>
-                                <template slot="content">
-                                    {% block sw_newsletter_recipient_list_sidebar_filter_status_not_set %}
-                                        <sw-newsletter-recipient-filter-switch
-                                            id="notSet"
-                                            group="status"
-                                            :label="$tc('sw-newsletter-recipient.list.notSet')"
-                                            @change="onChange">
-                                        </sw-newsletter-recipient-filter-switch>
-                                    {% endblock %}
-                                    {% block sw_newsletter_recipient_list_sidebar_filter_status_direct %}
-                                        <sw-newsletter-recipient-filter-switch
-                                            id="direct"
-                                            group="status"
-                                            :label="$tc('sw-newsletter-recipient.list.direct')"
-                                            @change="onChange">
-                                        </sw-newsletter-recipient-filter-switch>
-                                    {% endblock %}
-                                    {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_in %}
-                                        <sw-newsletter-recipient-filter-switch
-                                            id="optIn"
-                                            group="status"
-                                            :label="$tc('sw-newsletter-recipient.list.optIn')"
-                                            @change="onChange">
-                                        </sw-newsletter-recipient-filter-switch>
-                                    {% endblock %}
-                                    {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_out %}
-                                        <sw-newsletter-recipient-filter-switch
-                                            id="optOut"
-                                            group="status"
-                                            :label="$tc('sw-newsletter-recipient.list.optOut')"
-                                            @change="onChange">
-                                        </sw-newsletter-recipient-filter-switch>
-                                    {% endblock %}
-                                </template>
-                            </sw-sidebar-collapse>
-                        {% endblock %}
+            {% block sw_newsletter_recipient_list_sidebar_filter_language %}
+            <sw-sidebar-collapse>
+                <template slot="header">
+                    {{ $tc('sw-newsletter-recipient.general.language') }}
+                </template>
+                <template slot="content">
+                    {% block sw_newsletter_recipient_list_sidebar_filter_language_items %}
+                    <div
+                        v-for="(item, index) in languageFilters"
+                        :key="index"
+                    >
+                        <sw-newsletter-recipient-filter-switch
+                            :id="item.id"
+                            group="languageId"
+                            :label="item.name"
+                            @change="onChange"
+                        />
+                    </div>
+                    {% endblock %}
+                </template>
+            </sw-sidebar-collapse>
+            {% endblock %}
 
-                        {% block sw_newsletter_recipient_list_sidebar_filter_language %}
-                            <sw-sidebar-collapse>
-                                <template slot="header">{{ $tc('sw-newsletter-recipient.general.language') }}</template>
-                                <template slot="content">
-                                    {% block sw_newsletter_recipient_list_sidebar_filter_language_items %}
-                                        <div v-for="(item, index) in languageFilters">
-                                            <sw-newsletter-recipient-filter-switch
-                                                :id="item.id"
-                                                group="languageId"
-                                                :label="item.name"
-                                                @change="onChange">
-                                            </sw-newsletter-recipient-filter-switch>
-                                        </div>
-                                    {% endblock %}
-                                </template>
-                            </sw-sidebar-collapse>
-                        {% endblock %}
+            {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel %}
+            <sw-sidebar-collapse>
+                <template slot="header">
+                    {{ $tc('sw-newsletter-recipient.general.salesChannel') }}
+                </template>
+                <template slot="content">
+                    {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel_items %}
+                    <div
+                        v-for="(item, index) in salesChannelFilters"
+                        :key="index"
+                    >
+                        <sw-newsletter-recipient-filter-switch
+                            :id="item.id"
+                            group="salesChannelId"
+                            :label="item.translated.name"
+                            @change="onChange"
+                        />
+                    </div>
+                    {% endblock %}
+                </template>
+            </sw-sidebar-collapse>
+            {% endblock %}
 
-                        {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel %}
-                            <sw-sidebar-collapse>
-                                <template slot="header">{{ $tc('sw-newsletter-recipient.general.salesChannel') }}</template>
-                                <template slot="content">
-                                    {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel_items %}
-                                        <div v-for="(item, index) in salesChannelFilters">
-                                            <sw-newsletter-recipient-filter-switch
-                                                :id="item.id"
-                                                group="salesChannelId"
-                                                :label="item.translated.name"
-                                                @change="onChange">
-                                            </sw-newsletter-recipient-filter-switch>
-                                        </div>
-                                    {% endblock %}
-                                </template>
-                            </sw-sidebar-collapse>
-                        {% endblock %}
-
-                        {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags %}
-                            <sw-sidebar-collapse>
-                                <template slot="header">{{ $tc('sw-newsletter-recipient.general.tags') }}</template>
-                                <template slot="content">
-                                    {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
-                                        <sw-entity-multi-select v-model="tagCollection" @change="onChange"></sw-entity-multi-select>
-                                    {% endblock %}
-                                </template>
-                            </sw-sidebar-collapse>
-                        {% endblock %}
-                    </sw-sidebar-item>
-                {% endblock %}
-
-            </sw-sidebar>
+            {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags %}
+            <sw-sidebar-collapse>
+                <template slot="header">
+                    {{ $tc('sw-newsletter-recipient.general.tags') }}
+                </template>
+                <template slot="content">
+                    {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
+                    <sw-entity-multi-select
+                        v-model="tagCollection"
+                        @change="onChange"
+                    />
+                    {% endblock %}
+                </template>
+            </sw-sidebar-collapse>
+            {% endblock %}
+        </sw-sidebar-item>
         {% endblock %}
-    </sw-page>
+
+    </sw-sidebar>
+    {% endblock %}
+</sw-page>
 {% endblock %}

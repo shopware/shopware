@@ -1,40 +1,46 @@
 {% block sw_settings_user_detail_content_confirm_password_modal %}
-    <sw-modal @modal-close="onCloseConfirmPasswordModal"
-              :title="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
-              variant="small">
+<sw-modal
+    :title="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
+    variant="small"
+    @modal-close="onCloseConfirmPasswordModal"
+>
 
-        {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
-            <sw-password-field
-                class="sw-settings-user-detail__confirm-password"
-                v-model="confirmPassword"
-                name="sw-field--confirm-password"
-                :passwordToggleAble="true"
-                :copyAble="false"
-                autocomplete="new-password"
-                @keypress.enter="onSubmitConfirmPassword"
-                :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
-                :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')">
-            </sw-password-field>
+    {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
+    <sw-password-field
+        v-model="confirmPassword"
+        class="sw-settings-user-detail__confirm-password"
+        name="sw-field--confirm-password"
+        :password-toggle-able="true"
+        :copy-able="false"
+        autocomplete="new-password"
+        :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
+        :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')"
+        @keypress.enter="onSubmitConfirmPassword"
+    />
+    {% endblock %}
+
+    {% block sw_settings_user_detail_content_confirm_password_modal_footer %}
+    <template #modal-footer>
+        {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
+        <sw-button
+            size="small"
+            @click="onCloseConfirmPasswordModal"
+        >
+            {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_settings_user_detail_content_confirm_password_modal_footer %}
-            <template #modal-footer>
-                {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
-                    <sw-button @click="onCloseConfirmPasswordModal"
-                               size="small">
-                        {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
-                    <sw-button @click="onSubmitConfirmPassword"
-                               variant="primary"
-                               :disabled="!confirmPassword"
-                               size="small">
-                        {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonConfirm') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+        {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
+        <sw-button
+            variant="primary"
+            :disabled="!confirmPassword"
+            size="small"
+            @click="onSubmitConfirmPassword"
+        >
+            {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonConfirm') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

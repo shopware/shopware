@@ -1,56 +1,89 @@
 {% block sw_pagination %}
-    <div class="sw-pagination" v-if="shouldBeVisible">
-        {% block sw_pagination_page_prev %}
-            <button :disabled="currentPage === 1"
-                    @click="prevPage"
-                    class="sw-pagination__page-button sw-pagination__page-button-prev">
-                <sw-icon name="small-arrow-medium-left" small />
+<div
+    v-if="shouldBeVisible"
+    class="sw-pagination"
+>
+    {% block sw_pagination_page_prev %}
+    <button
+        :disabled="currentPage === 1"
+        class="sw-pagination__page-button sw-pagination__page-button-prev"
+        @click="prevPage"
+    >
+        <sw-icon
+            name="small-arrow-medium-left"
+            small
+        />
+    </button>
+    {% endblock %}
+
+    {% block sw_pagination_page_list %}
+    <ul class="sw-pagination__list">
+        {% block sw_pagination_page_list_item %}
+        <li
+            v-for="(pageNum, index) in displayedPages"
+            :key="index"
+            class="sw-pagination__list-item"
+        >
+            {% block sw_pagination_page_list_item_button %}
+            <button
+                v-if="typeof(pageNum) === 'number'"
+                class="sw-pagination__list-button"
+                :class="{ 'is-active': currentPage === pageNum }"
+                @click="changePageByPageNumber(pageNum)"
+            >
+                {{ pageNum }}
             </button>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_pagination_page_list %}
-            <ul class="sw-pagination__list">
-                {% block sw_pagination_page_list_item %}
-                    <li v-for="(pageNum, index) in displayedPages" :key="index" class="sw-pagination__list-item">
-                        {% block sw_pagination_page_list_item_button %}
-                            <button v-if="typeof(pageNum) === 'number'"
-                                    class="sw-pagination__list-button"
-                                    :class="{ 'is-active': currentPage === pageNum }"
-                                    @click="changePageByPageNumber(pageNum)">
-                                {{ pageNum }}
-                            </button>
-                        {% endblock %}
-
-                        {% block sw_pagination_page_list_item_separator %}
-                            <span class="sw-pagination__list-separator" v-else>
-                                {{ pageNum }}
-                            </span>
-                        {% endblock %}
-                    </li>
-                {% endblock %}
-            </ul>
+            {% block sw_pagination_page_list_item_separator %}
+            <span
+                v-else
+                class="sw-pagination__list-separator"
+            >
+                {{ pageNum }}
+            </span>
+            {% endblock %}
+        </li>
         {% endblock %}
+    </ul>
+    {% endblock %}
 
-        {% block sw_pagination_page_next %}
-            <button :disabled="currentPage === maxPage"
-                    @click="nextPage"
-                    class="sw-pagination__page-button sw-pagination__page-button-next">
-                <sw-icon name="small-arrow-medium-right" small />
-            </button>
-        {% endblock %}
+    {% block sw_pagination_page_next %}
+    <button
+        :disabled="currentPage === maxPage"
+        class="sw-pagination__page-button sw-pagination__page-button-next"
+        @click="nextPage"
+    >
+        <sw-icon
+            name="small-arrow-medium-right"
+            small
+        />
+    </button>
+    {% endblock %}
 
-        {% block sw_pagination_per_page_selection %}
-            <div class="sw-pagination__per-page" v-if="steps.length > 1">
-                <sw-field type="select"
-                          size="small"
-                          name="perPage"
-                          :label="$tc('global.sw-pagination.labelItemsPerPage')"
-                          :value="String(perPage)"
-                          aside
-                          @change="onPageSizeChange">
-                    <option v-for="step in possibleSteps" :value="step">{{ step }}</option>
-                </sw-field>
-            </div>
-        {% endblock %}
+    {% block sw_pagination_per_page_selection %}
+    <div
+        v-if="steps.length > 1"
+        class="sw-pagination__per-page"
+    >
+        <sw-field
+            type="select"
+            size="small"
+            name="perPage"
+            :label="$tc('global.sw-pagination.labelItemsPerPage')"
+            :value="String(perPage)"
+            aside
+            @change="onPageSizeChange"
+        >
+            <option
+                v-for="step in possibleSteps"
+                :key="step"
+                :value="step"
+            >
+                {{ step }}
+            </option>
+        </sw-field>
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

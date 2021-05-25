@@ -1,56 +1,75 @@
 {% block sw_order_promotion_tag_field %}
-    <sw-block-field class="sw-tagged-field sw-order-promotion-tag-field" :class="taggedFieldClasses" v-bind="$attrs" v-on="$listeners" :disabled="disabled">
-        <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+<sw-block-field
+    class="sw-tagged-field sw-order-promotion-tag-field"
+    :class="taggedFieldClasses"
+    v-bind="$attrs"
+    :disabled="disabled"
+    v-on="$listeners"
+>
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
 
-            {% block sw_tagged_field_inner %}
-                <ul class="sw-tagged-field__tag-list" :class="taggedFieldListClasses" @click="setFocus(true)">
+        {% block sw_tagged_field_inner %}
+        <ul
+            class="sw-tagged-field__tag-list"
+            :class="taggedFieldListClasses"
+            @click="setFocus(true)"
+        >
 
-                    {% block sw_order_promotion_tag_field_tag_list %}
-                        <li v-for="(item, index) in value" :key="`sw-tagged-field-value--${index}`">
+            {% block sw_order_promotion_tag_field_tag_list %}
+            <li
+                v-for="(item, index) in value"
+                :key="`sw-tagged-field-value--${index}`"
+            >
 
-                            {% block sw_order_promotion_tag_field_tag_item %}
-                                <sw-label v-if="item.isInvalid"
-                                          :key="item.code + item.isInvalid"
-                                          :size="size"
-                                          variant="danger"
-                                          @selected="setFocus(true)"
-                                          @dismiss="dismissTag(item)">
-                                    {{ item.code }}
-                                </sw-label>
+                {% block sw_order_promotion_tag_field_tag_item %}
+                <sw-label
+                    v-if="item.isInvalid"
+                    :key="item.code + item.isInvalid"
+                    :size="size"
+                    variant="danger"
+                    @selected="setFocus(true)"
+                    @dismiss="dismissTag(item)"
+                >
+                    {{ item.code }}
+                </sw-label>
 
-                                <sw-label v-else
-                                          :key="item.code + item.isInvalid"
-                                          :size="size"
-                                          @selected="setFocus(true)"
-                                          @dismiss="dismissTag(item)"
-                                          v-tooltip="{
-                                              message: getPromotionCodeDescription(item),
-                                              width: 220
-                                          }">
-                                    {{ item.code }}
-                                </sw-label>
-                            {% endblock %}
-                        </li>
-                    {% endblock %}
-
-                    {% block sw_order_promotion_tag_field_item_input %}
-                        <li>
-                            {% block sw_order_promotion_tag_field_input %}
-                                <input type="text"
-                                       ref="taggedFieldInput"
-                                       class="sw-tagged-field__input"
-                                       :class="taggedFieldInputClasses"
-                                       v-model="newTagName"
-                                       :disabled="disabled"
-                                       :placeholder="placeholder"
-                                       @focus="setFocus(true)"
-                                       @blur="setFocus(false)"
-                                       @keydown="performAddTag">
-                            {% endblock %}
-                        </li>
-                    {% endblock %}
-                </ul>
+                <sw-label
+                    v-else
+                    :key="item.code + item.isInvalid"
+                    v-tooltip="{
+                        message: getPromotionCodeDescription(item),
+                        width: 220
+                    }"
+                    :size="size"
+                    @selected="setFocus(true)"
+                    @dismiss="dismissTag(item)"
+                >
+                    {{ item.code }}
+                </sw-label>
+                {% endblock %}
+            </li>
             {% endblock %}
-        </template>
-    </sw-block-field>
+
+            {% block sw_order_promotion_tag_field_item_input %}
+            <li>
+                {% block sw_order_promotion_tag_field_input %}
+                <input
+                    ref="taggedFieldInput"
+                    v-model="newTagName"
+                    type="text"
+                    class="sw-tagged-field__input"
+                    :class="taggedFieldInputClasses"
+                    :disabled="disabled"
+                    :placeholder="placeholder"
+                    @focus="setFocus(true)"
+                    @blur="setFocus(false)"
+                    @keydown="performAddTag"
+                >
+                {% endblock %}
+            </li>
+            {% endblock %}
+        </ul>
+        {% endblock %}
+    </template>
+</sw-block-field>
 {% endblock %}

@@ -1,81 +1,92 @@
 {% block sw_mail_template_list %}
-    <sw-page class="sw-mail-template-list">
-        {% block sw_mail_templates_list_search_bar %}
-            <template #search-bar>
-                <sw-search-bar initialSearchType="mail_template"
-                               :initialSearch="term"
-                               @search="onSearch">
-                </sw-search-bar>
-            </template>
+<sw-page class="sw-mail-template-list">
+    {% block sw_mail_templates_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="mail_template"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+    {% block sw_mail_template_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_mail_template_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_mail_template_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-mail-template.list.textMailTemplateOverview') }}
+            {% endblock %}
+        </h2>
         {% endblock %}
-        {% block sw_mail_template_list_smart_bar_header %}
-            <template #smart-bar-header>
-                {% block sw_mail_template_list_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_mail_template_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-settings.index.title') }}
-                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                            {{ $tc('sw-mail-template.list.textMailTemplateOverview') }}
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_mail_template_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <sw-context-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('mail_templates.creator'),
+                showOnDisabledElements: true
+            }"
+            :disabled="!acl.can('mail_templates.creator')"
+        >
+            <template #button>
+                <sw-button
+                    class="sw-mail-template__button-create"
+                    variant="primary"
+                    :disabled="!acl.can('mail_templates.creator')"
+                >
+                    {{ $tc('sw-mail-template.list.buttonAdd') }}
+                    <sw-icon
+                        name="small-arrow-medium-down"
+                        size="16"
+                    />
+                </sw-button>
             </template>
-        {% endblock %}
 
-        {% block sw_mail_template_list_smart_bar_actions %}
-            <template #smart-bar-actions>
-                <sw-context-button
-                    v-tooltip.bottom="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('mail_templates.creator'),
-                        showOnDisabledElements: true
-                     }"
-                    :disabled="!acl.can('mail_templates.creator')">
-                    <template #button>
-                        <sw-button
-                            class="sw-mail-template__button-create"
-                            variant="primary"
-                            :disabled="!acl.can('mail_templates.creator')">
-                            {{ $tc('sw-mail-template.list.buttonAdd') }}
-                            <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
-                        </sw-button>
-                    </template>
+            {% block sw_mail_template_list_smart_bar_actions_add %}
+            <sw-context-menu-item :router-link="{ name: 'sw.mail.template.create' }">
+                {{ $tc('sw-mail-template.list.buttonAddMailTemplate') }}
+            </sw-context-menu-item>
+            {% endblock %}
 
-                    {% block sw_mail_template_list_smart_bar_actions_add %}
-                        <sw-context-menu-item :routerLink="{ name: 'sw.mail.template.create' }">
-                            {{ $tc('sw-mail-template.list.buttonAddMailTemplate') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
+            {% block sw_mail_header_footer_list_smart_bar_actions_add %}
+            <sw-context-menu-item :router-link="{ name: 'sw.mail.template.create_head_foot' }">
+                {{ $tc('sw-mail-header-footer.list.buttonAddMailHeaderFooter') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </sw-context-button>
+    </template>
+    {% endblock %}
 
-                    {% block sw_mail_header_footer_list_smart_bar_actions_add %}
-                        <sw-context-menu-item :routerLink="{ name: 'sw.mail.template.create_head_foot' }">
-                            {{ $tc('sw-mail-header-footer.list.buttonAddMailHeaderFooter') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
-                </sw-context-button>
-            </template>
-        {% endblock %}
+    {% block sw_mail_template_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
 
-        {% block sw_mail_template_list_language_switch %}
-            <template #language-switch>
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-            </template>
-        {% endblock %}
+    {% block sw_mail_template_list_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_mail_template_list_content_card %}
+            <sw-mail-template-list
+                ref="mailTemplateList"
+                :search-term="term"
+            />
 
-        {% block sw_mail_template_list_content %}
-            <template #content>
-                <sw-card-view>
-                    {% block sw_mail_template_list_content_card %}
-                        <sw-mail-template-list :searchTerm="term"
-                            ref="mailTemplateList">
-                        </sw-mail-template-list>
-
-                        <sw-mail-header-footer-list :searchTerm="term"
-                            ref="mailHeaderFooterList">
-                        </sw-mail-header-footer-list>
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+            <sw-mail-header-footer-list
+                ref="mailHeaderFooterList"
+                :search-term="term"
+            />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

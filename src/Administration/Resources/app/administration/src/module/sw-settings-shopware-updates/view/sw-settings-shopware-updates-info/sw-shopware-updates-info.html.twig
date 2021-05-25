@@ -1,7 +1,10 @@
 {% block sw_shopware_updates_info %}
-    <sw-card :title="$t('sw-settings-shopware-updates.cards.info')" :isLoading="isLoading">
-        {% block sw_shopware_updates_info_content %}
-            <div v-html="changelog"></div>
-        {% endblock %}
-    </sw-card>
+<sw-card
+    :title="$t('sw-settings-shopware-updates.cards.info')"
+    :is-loading="isLoading"
+>
+    {% block sw_shopware_updates_info_content %}
+    <div v-html="changelog" />
+    {% endblock %}
+</sw-card>
 {% endblock %}

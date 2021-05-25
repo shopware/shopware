@@ -1,16 +1,16 @@
 {% block sw_wizard_page_slot_default %}
-    {% block sw_wizard_discount_selection %}
-        <sw-promotion-v2-wizard-description>
-            {{ $tc('sw-promotion-v2.detail.discount-selection.description') }}
-        </sw-promotion-v2-wizard-description>
-    {% endblock %}
+{% block sw_wizard_discount_selection %}
+<sw-promotion-v2-wizard-description>
+    {{ $tc('sw-promotion-v2.detail.discount-selection.description') }}
+</sw-promotion-v2-wizard-description>
+{% endblock %}
 
-    {% block sw_wizard_discount_selection_option_selection %}
-        <sw-radio-field
-            v-model="value"
-            :options="getSelectionOptions()"
-            block
-            @change="onChangeSelection">
-        </sw-radio-field>
+{% block sw_wizard_discount_selection_option_selection %}
+<sw-radio-field
+    v-model="value"
+    :options="getSelectionOptions()"
+    block
+    @change="onChangeSelection"
+/>
     {% endblock %}
 {% endblock %}

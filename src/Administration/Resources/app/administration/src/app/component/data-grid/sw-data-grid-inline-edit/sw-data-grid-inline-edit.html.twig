@@ -1,35 +1,45 @@
 {% block sw_data_grid_inline_edit %}
-    <div class="sw-data-grid-inline-edit" :class="classes">
-        {% block sw_data_grid_inline_edit_type_string %}
-            <sw-field v-if="column.inlineEdit === 'string'"
-                      v-model="currentValue"
-                      :size="inputFieldSize"
-                      key="string"
-                      type="text">
-            </sw-field>
-        {% endblock %}
+<div
+    class="sw-data-grid-inline-edit"
+    :class="classes"
+>
+    {% block sw_data_grid_inline_edit_type_string %}
+    <sw-field
+        v-if="column.inlineEdit === 'string'"
+        key="string"
+        v-model="currentValue"
+        :size="inputFieldSize"
+        type="text"
+    />
+    {% endblock %}
 
-        {% block sw_data_grid_inline_edit_type_number %}
-            <sw-field v-else-if="column.inlineEdit === 'number'"
-                      v-model="currentValue"
-                      :size="inputFieldSize"
-                      key="number"
-                      type="number">
-            </sw-field>
-        {% endblock %}
+    {% block sw_data_grid_inline_edit_type_number %}
+    <sw-field
+        v-else-if="column.inlineEdit === 'number'"
+        key="number"
+        v-model="currentValue"
+        :size="inputFieldSize"
+        type="number"
+    />
+    {% endblock %}
 
-        {% block sw_data_grid_inline_edit_type_boolean %}
-            <sw-field v-else-if="column.inlineEdit === 'boolean'"
-                      v-model="currentValue"
-                      key="boolean"
-                      type="checkbox">
-            </sw-field>
-        {% endblock %}
+    {% block sw_data_grid_inline_edit_type_boolean %}
+    <sw-field
+        v-else-if="column.inlineEdit === 'boolean'"
+        key="boolean"
+        v-model="currentValue"
+        type="checkbox"
+    />
+    {% endblock %}
 
-        {% block sw_data_grid_inline_edit_type_unknown %}
-            <span v-else class="sw-data-grid-inline-edit__placeholder" key="unknown">
-                Unknown type {{ column.inlineEdit }}
-            </span>
-        {% endblock %}
-    </div>
+    {% block sw_data_grid_inline_edit_type_unknown %}
+    <span
+        v-else
+        key="unknown"
+        class="sw-data-grid-inline-edit__placeholder"
+    >
+        Unknown type {{ column.inlineEdit }}
+    </span>
+    {% endblock %}
+</div>
 {% endblock %}

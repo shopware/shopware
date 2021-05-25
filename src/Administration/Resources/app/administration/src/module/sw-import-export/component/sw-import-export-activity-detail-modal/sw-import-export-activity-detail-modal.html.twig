@@ -1,119 +1,143 @@
 {% block sw_import_export_edit_profile_modal %}
-    <sw-modal
-        v-if="logEntity"
-        class="sw-import-export-activity-detail-modal"
-        @modal-close="$emit('log-close')"
-        :title="$tc('sw-import-export.activity.detail.modalTitle')">
+<sw-modal
+    v-if="logEntity"
+    class="sw-import-export-activity-detail-modal"
+    :title="$tc('sw-import-export.activity.detail.modalTitle')"
+    @modal-close="$emit('log-close')"
+>
 
-        {% block sw_import_export_edit_profile_modal_description %}
-            <sw-description-list
-                class="sw-import-export-activity-detail-modal__description-list"
-                grid="1fr 1fr">
-                {% block sw_import_export_edit_profile_modal_description_name %}
-                    <dt>{{ $tc('sw-import-export.activity.detail.labelFilename') }}</dt>
-                    <dd>{{ logEntity.file.originalName }}</dd>
-                {% endblock %}
-                {% block sw_import_export_edit_profile_modal_description_type %}
-                    <dt>{{ $tc('sw-import-export.activity.detail.labelType') }}</dt>
-                    <dd>{{ typeText }}</dd>
-                {% endblock %}
-                {% block sw_import_export_edit_profile_modal_description_records %}
-                    <template v-if="logEntity.activity === 'import'">
-                        <dt>{{ $tc('sw-import-export.activity.detail.labelImportRecords') }}</dt>
-                    </template>
-                    <template v-else>
-                        <dt>{{ $tc('sw-import-export.activity.detail.labelExportRecords') }}</dt>
-                    </template>
-                    <dd>{{ logEntity.records }}</dd>
-                {% endblock %}
-                {% block sw_import_export_edit_profile_modal_description_invalid_records %}
-                    <template v-if="logEntity.invalidRecordsLog">
-                        <dt>
-                            {{ $tc('sw-import-export.activity.detail.labelFailedRecords') }}
-                            <sw-help-text :text="$tc('sw-import-export.activity.detail.helpTextFailedRecords')">
-                            </sw-help-text>
-                        </dt>
-                        <dd>{{ logEntity.invalidRecordsLog.records }}</dd>
-                    </template>
-                {% endblock %}
-                {% block sw_import_export_edit_profile_modal_description_size %}
-                    <dt>{{ $tc('sw-import-export.activity.detail.labelSize') }}</dt>
-                    <dd>{{ calculateFileSize(logEntity.file.size) }}</dd>
-                {% endblock %}
-                {% block sw_import_export_edit_profile_modal_description_user %}
-                    <dt>{{ $tc('sw-import-export.activity.detail.labelUser') }}</dt>
-                    <dd>{{ logEntity.username }}</dd>
-                {% endblock %}
-                {% block sw_import_export_edit_profile_modal_description_date %}
-                    <dt>{{ $tc('sw-import-export.activity.detail.labelDate') }}</dt>
-                    <dd>{{ logEntity.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}</dd>
-                {% endblock %}
-                {% block sw_import_export_edit_profile_modal_description_state %}
-                    <dt>{{ $tc('sw-import-export.activity.detail.labelState') }}</dt>
-                    <dd>
-                        <sw-color-badge v-if="logEntity.state === 'failed'" variant="error" rounded></sw-color-badge>
-                        <sw-color-badge v-else-if="logEntity.state === 'succeeded'" variant="success" rounded></sw-color-badge>
-                        <sw-color-badge v-else rounded></sw-color-badge>
-                        {{ getStateLabel(logEntity.state) }}
-                    </dd>
-                {% endblock %}
-            </sw-description-list>
+    {% block sw_import_export_edit_profile_modal_description %}
+    <sw-description-list
+        class="sw-import-export-activity-detail-modal__description-list"
+        grid="1fr 1fr"
+    >
+        {% block sw_import_export_edit_profile_modal_description_name %}
+        <dt>{{ $tc('sw-import-export.activity.detail.labelFilename') }}</dt>
+        <dd>{{ logEntity.file.originalName }}</dd>
         {% endblock %}
-
-        {% block sw_import_export_edit_profile_modal_download %}
-
+        {% block sw_import_export_edit_profile_modal_description_type %}
+        <dt>{{ $tc('sw-import-export.activity.detail.labelType') }}</dt>
+        <dd>{{ typeText }}</dd>
         {% endblock %}
-
-        {% block sw_import_export_edit_profile_modal_invalid_records %}
-            <template v-if="logEntity.invalidRecordsLog">
-                <sw-button-group>
-                    {% block sw_import_export_edit_profile_modal_invalid_records_context_button_download %}
-                        <sw-button variant="ghost"
-                                   class="sw-import-export-activity-detail-modal__download-failed"
-                                   size="small"
-                                   :link="getDownloadUrl(logEntity.invalidRecordsLog.file)">
-                            {{  $tc('sw-import-export.activity.detail.labelDownloadInvalidFile')  }}
-                        </sw-button>
-                    {% endblock %}
-
-                    {% block sw_import_export_edit_profile_modal_invalid_records_context_button %}
-                        <sw-context-button>
-                            <template #button>
-                                <sw-button variant="ghost"
-                                           size="small"
-                                           square>
-                                    <sw-icon name="small-arrow-small-down"
-                                             small
-                                             decorative>
-                                    </sw-icon>
-                                </sw-button>
-                            </template>
-                            {% block sw_import_export_edit_profile_modal_invalid_records_download %}
-                                <a :href="getDownloadUrl(logEntity.file)"
-                                   class="sw-import-export-activity-detail-modal__download">
-                                    {{  $tc('sw-import-export.activity.detail.labelDownloadFile')  }}
-                                </a>
-                            {% endblock %}
-                        </sw-context-button>
-                    {% endblock %}
-                </sw-button-group>
-            </template>
-            <template v-else>
-                <sw-button variant="ghost"
-                           class="sw-import-export-activity-detail-modal__download-button"
-                           size="small"
-                           :link="getDownloadUrl(logEntity.file)">
-                    {{  $tc('sw-import-export.activity.detail.labelDownloadFile')  }}
-                </sw-button>
-            </template>
+        {% block sw_import_export_edit_profile_modal_description_records %}
+        <template v-if="logEntity.activity === 'import'">
+            <dt>{{ $tc('sw-import-export.activity.detail.labelImportRecords') }}</dt>
+        </template>
+        <template v-else>
+            <dt>{{ $tc('sw-import-export.activity.detail.labelExportRecords') }}</dt>
+        </template>
+        <dd>{{ logEntity.records }}</dd>
         {% endblock %}
-
-        {% block sw_import_export_edit_profile_modal_footer %}
-            <template #modal-footer>
-                <sw-button size="small" @click="$emit('log-close')">
-                    {{ $tc('sw-import-export.activity.detail.labelClose') }}
-                </sw-button>
-            </template>
+        {% block sw_import_export_edit_profile_modal_description_invalid_records %}
+        <template v-if="logEntity.invalidRecordsLog">
+            <dt>
+                {{ $tc('sw-import-export.activity.detail.labelFailedRecords') }}
+                <sw-help-text :text="$tc('sw-import-export.activity.detail.helpTextFailedRecords')" />
+            </dt>
+            <dd>{{ logEntity.invalidRecordsLog.records }}</dd>
+        </template>
         {% endblock %}
-    </sw-modal>
+        {% block sw_import_export_edit_profile_modal_description_size %}
+        <dt>{{ $tc('sw-import-export.activity.detail.labelSize') }}</dt>
+        <dd>{{ calculateFileSize(logEntity.file.size) }}</dd>
+        {% endblock %}
+        {% block sw_import_export_edit_profile_modal_description_user %}
+        <dt>{{ $tc('sw-import-export.activity.detail.labelUser') }}</dt>
+        <dd>{{ logEntity.username }}</dd>
+        {% endblock %}
+        {% block sw_import_export_edit_profile_modal_description_date %}
+        <dt>{{ $tc('sw-import-export.activity.detail.labelDate') }}</dt>
+        <dd>{{ logEntity.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}</dd>
+        {% endblock %}
+        {% block sw_import_export_edit_profile_modal_description_state %}
+        <dt>{{ $tc('sw-import-export.activity.detail.labelState') }}</dt>
+        <dd>
+            <sw-color-badge
+                v-if="logEntity.state === 'failed'"
+                variant="error"
+                rounded
+            />
+            <sw-color-badge
+                v-else-if="logEntity.state === 'succeeded'"
+                variant="success"
+                rounded
+            />
+            <sw-color-badge
+                v-else
+                rounded
+            />
+            {{ getStateLabel(logEntity.state) }}
+        </dd>
+        {% endblock %}
+    </sw-description-list>
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_modal_download %}
+
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_modal_invalid_records %}
+    <template v-if="logEntity.invalidRecordsLog">
+        <sw-button-group>
+            {% block sw_import_export_edit_profile_modal_invalid_records_context_button_download %}
+            <sw-button
+                variant="ghost"
+                class="sw-import-export-activity-detail-modal__download-failed"
+                size="small"
+                :link="getDownloadUrl(logEntity.invalidRecordsLog.file)"
+            >
+                {{ $tc('sw-import-export.activity.detail.labelDownloadInvalidFile') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_import_export_edit_profile_modal_invalid_records_context_button %}
+            <sw-context-button>
+                <template #button>
+                    <sw-button
+                        variant="ghost"
+                        size="small"
+                        square
+                    >
+                        <sw-icon
+                            name="small-arrow-small-down"
+                            small
+                            decorative
+                        />
+                    </sw-button>
+                </template>
+                {% block sw_import_export_edit_profile_modal_invalid_records_download %}
+                <a
+                    :href="getDownloadUrl(logEntity.file)"
+                    class="sw-import-export-activity-detail-modal__download"
+                >
+                    {{ $tc('sw-import-export.activity.detail.labelDownloadFile') }}
+                </a>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </sw-button-group>
+    </template>
+    <template v-else>
+        <sw-button
+            variant="ghost"
+            class="sw-import-export-activity-detail-modal__download-button"
+            size="small"
+            :link="getDownloadUrl(logEntity.file)"
+        >
+            {{ $tc('sw-import-export.activity.detail.labelDownloadFile') }}
+        </sw-button>
+    </template>
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_modal_footer %}
+    <template #modal-footer>
+        <sw-button
+            size="small"
+            @click="$emit('log-close')"
+        >
+            {{ $tc('sw-import-export.activity.detail.labelClose') }}
+        </sw-button>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

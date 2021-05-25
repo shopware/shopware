@@ -1,17 +1,20 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-customer-group sw-condition__condition-value">
-        {% block sw_condition_customer_group_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }" :disabled="disabled"></sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-customer-group sw-condition__condition-value">
+    {% block sw_condition_customer_group_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_customer_group_field_customer_group_ids %}
-            <sw-entity-multi-select
-                size="medium"
-                entity="customer_group"
-                :entityCollection="customerGroups"
-                :disabled="disabled"
-                @change="setCustomerGroupIds">
-            </sw-entity-multi-select>
-        {% endblock %}
-    </div>
+    {% block sw_condition_customer_group_field_customer_group_ids %}
+    <sw-entity-multi-select
+        size="medium"
+        entity="customer_group"
+        :entity-collection="customerGroups"
+        :disabled="disabled"
+        @change="setCustomerGroupIds"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

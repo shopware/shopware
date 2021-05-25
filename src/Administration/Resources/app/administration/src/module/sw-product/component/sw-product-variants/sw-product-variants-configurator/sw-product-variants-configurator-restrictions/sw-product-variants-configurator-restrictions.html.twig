@@ -1,123 +1,156 @@
 {% block sw_product_variants_configurator_restrictions %}
-    <div class="sw-product-variants-configurator-restrictions">
+<div class="sw-product-variants-configurator-restrictions">
 
-        {% block sw_product_variants_configurator_restrictions_search %}
-            <div class="sw-product-variants-configurator-restrictions__search">
-                {% block sw_product_variants_configurator_restrictions_search_field %}
-                    <sw-simple-search-field
-                            size="small"
-                            variant="form"
-                            v-model="term"
-                            :placeholder="$tc('sw-product.variations.configuratorModal.searchRestrictions')">
-                    </sw-simple-search-field>
-                {% endblock %}
-
-                {% block sw_product_variants_configurator_restrictions_buttons %}
-                    <sw-button
-                            variant="ghost"
-                            size="small"
-                            @click="addEmptyRestrictionCombination">
-                        {{ $tc('sw-product.variations.configuratorModal.addNewRestriction') }}
-                    </sw-button>
-                {% endblock %}
-            </div>
+    {% block sw_product_variants_configurator_restrictions_search %}
+    <div class="sw-product-variants-configurator-restrictions__search">
+        {% block sw_product_variants_configurator_restrictions_search_field %}
+        <sw-simple-search-field
+            v-model="term"
+            size="small"
+            variant="form"
+            :placeholder="$tc('sw-product.variations.configuratorModal.searchRestrictions')"
+        />
         {% endblock %}
 
-        {% block sw_product_variants_configurator_restrictions_grid_wrapper %}
-            <div class="sw-product-variants-configurator-restrictions__grid-wrapper">
-                {% block sw_product_variants_configurator_restrictions_data_grid %}
-                    <sw-data-grid v-if="product.variantRestrictions"
-                                  :data-source="filteredRestrictions"
-                                  :columns="restrictionColumns"
-                                  :showSelection="false"
-                                  :compactMode="false"
-                                  ref="swDataGrid"
-                                  fullPage>
-
-                        {% block sw_product_variants_configurator_restrictions_data_grid_column_id %}
-                            <template slot="column-id" slot-scope="{ item, isInlineEdit, compact }">
-                                <template v-for="restriction in getRestrictionsWithNaming(item.id).values">
-                                    <span class="sw-product-variants-configurator-restrictions__group-name">{{ restriction.group }}:</span>
-                                    <sw-label v-for="option in restriction.options" :key="option.id" ghost>{{ option }}</sw-label>
-                                </template>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_product_variants_configurator_restrictions_data_grid_actions %}
-                            <template slot="actions" slot-scope="{ item }">
-                                {% block sw_product_variants_configurator_restrictions_data_grid_actions_items %}
-                                    <sw-context-menu-item @click="editRestrictionCombination(item)">
-                                        {{ $tc('sw-product.variations.configuratorModal.editRestriction') }}
-                                    </sw-context-menu-item>
-
-                                    <sw-context-menu-item variant="danger" @click="deleteRestrictionCombination(item)">
-                                        {{ $tc('sw-product.variations.configuratorModal.deleteRestriction') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-                    </sw-data-grid>
-                {% endblock %}
-            </div>
+        {% block sw_product_variants_configurator_restrictions_buttons %}
+        <sw-button
+            variant="ghost"
+            size="small"
+            @click="addEmptyRestrictionCombination"
+        >
+            {{ $tc('sw-product.variations.configuratorModal.addNewRestriction') }}
+        </sw-button>
         {% endblock %}
-
-        {% block sw_product_variants_configurator_restrictions_modal %}
-            <sw-modal :title="$tc('sw-product.variations.configuratorModal.singleRestrictionAddTitle')"
-                      @modal-close="cancelAddRestriction"
-                      v-if="restrictionModalIsOpen"
-                      class="sw-product-variants-configurator-restrictions__modal">
-
-                {% block sw_product_variants_configurator_restrictions_modal_main %}
-                    <div class="sw-product-variants-configurator-restrictions__modal-main">
-                        {% block sw_product_variants_configurator_restrictions_modal_main_restriction_selection %}
-                            <sw-product-restriction-selection
-                                    v-for="(restriction, index) in actualRestriction.values"
-                                    :key="restriction.id"
-                                    :groupsWithOptions="groupsWithOptions"
-                                    :restriction="restriction"
-                                    @restriction-delete="deleteRestriction">
-
-                                <p slot="contentAfter"
-                                   v-if="index < actualRestrictionValueLength - 1"
-                                   class="sw-product-variants-configurator-restrictions__seperator">
-                                    {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
-                                </p>
-                            </sw-product-restriction-selection>
-                        {% endblock %}
-
-                        {% block sw_product_variants_configurator_restrictions_modal_main_button_new_restriction %}
-                            <sw-button @click="addEmptyRestriction"
-                                       class="sw-product-variants-configurator-restrictions__button-new-restriction">
-                                {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
-                            </sw-button>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
-                {% block sw_product_variants_configurator_restrictions_modal_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_product_variants_configurator_restrictions_modal_footer_cancel %}
-                            <sw-button @click="cancelAddRestriction"
-                                       size="small">
-                                {{ $tc('sw-product.variations.configuratorModal.cancel') }}
-                            </sw-button>
-                        {% endblock %}
-                        {% block sw_product_variants_configurator_restrictions_modal_footer_save_add_restriction %}
-                            <sw-button
-                                    @click="saveAddRestriction"
-                                    variant="primary"
-                                    size="small">
-                                {{ $tc('sw-product.variations.configuratorModal.save') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
-        {% endblock %}
-
-        {% block sw_product_variants_configurator_restrictions_loader %}
-            <sw-loader v-if="isLoading"></sw-loader>
-        {% endblock %}
-
     </div>
+    {% endblock %}
+
+    {% block sw_product_variants_configurator_restrictions_grid_wrapper %}
+    <div class="sw-product-variants-configurator-restrictions__grid-wrapper">
+        {% block sw_product_variants_configurator_restrictions_data_grid %}
+        <sw-data-grid
+            v-if="product.variantRestrictions"
+            ref="swDataGrid"
+            :data-source="filteredRestrictions"
+            :columns="restrictionColumns"
+            :show-selection="false"
+            :compact-mode="false"
+            full-page
+        >
+
+            {% block sw_product_variants_configurator_restrictions_data_grid_column_id %}
+            <template
+                slot="column-id"
+                slot-scope="{ item, isInlineEdit, compact }"
+            >
+                <template v-for="restriction in getRestrictionsWithNaming(item.id).values">
+                    <span
+                        :key="restriction.id"
+                        class="sw-product-variants-configurator-restrictions__group-name"
+                    >
+                        {{ restriction.group }}:
+                    </span>
+                    <sw-label
+                        v-for="option in restriction.options"
+                        :key="option.id"
+                        ghost
+                    >
+                        {{ option }}
+                    </sw-label>
+                </template>
+            </template>
+            {% endblock %}
+
+            {% block sw_product_variants_configurator_restrictions_data_grid_actions %}
+            <template
+                slot="actions"
+                slot-scope="{ item }"
+            >
+                {% block sw_product_variants_configurator_restrictions_data_grid_actions_items %}
+                <sw-context-menu-item @click="editRestrictionCombination(item)">
+                    {{ $tc('sw-product.variations.configuratorModal.editRestriction') }}
+                </sw-context-menu-item>
+
+                <sw-context-menu-item
+                    variant="danger"
+                    @click="deleteRestrictionCombination(item)"
+                >
+                    {{ $tc('sw-product.variations.configuratorModal.deleteRestriction') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </sw-data-grid>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_product_variants_configurator_restrictions_modal %}
+    <sw-modal
+        v-if="restrictionModalIsOpen"
+        :title="$tc('sw-product.variations.configuratorModal.singleRestrictionAddTitle')"
+        class="sw-product-variants-configurator-restrictions__modal"
+        @modal-close="cancelAddRestriction"
+    >
+
+        {% block sw_product_variants_configurator_restrictions_modal_main %}
+        <div class="sw-product-variants-configurator-restrictions__modal-main">
+            {% block sw_product_variants_configurator_restrictions_modal_main_restriction_selection %}
+            <sw-product-restriction-selection
+                v-for="(restriction, index) in actualRestriction.values"
+                :key="restriction.id"
+                :groups-with-options="groupsWithOptions"
+                :restriction="restriction"
+                @restriction-delete="deleteRestriction"
+            >
+
+                <p
+                    v-if="index < actualRestrictionValueLength - 1"
+                    slot="contentAfter"
+                    class="sw-product-variants-configurator-restrictions__seperator"
+                >
+                    {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
+                </p>
+            </sw-product-restriction-selection>
+            {% endblock %}
+
+            {% block sw_product_variants_configurator_restrictions_modal_main_button_new_restriction %}
+            <sw-button
+                class="sw-product-variants-configurator-restrictions__button-new-restriction"
+                @click="addEmptyRestriction"
+            >
+                {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
+            </sw-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_product_variants_configurator_restrictions_modal_footer %}
+        <template slot="modal-footer">
+            {% block sw_product_variants_configurator_restrictions_modal_footer_cancel %}
+            <sw-button
+                size="small"
+                @click="cancelAddRestriction"
+            >
+                {{ $tc('sw-product.variations.configuratorModal.cancel') }}
+            </sw-button>
+            {% endblock %}
+            {% block sw_product_variants_configurator_restrictions_modal_footer_save_add_restriction %}
+            <sw-button
+                variant="primary"
+                size="small"
+                @click="saveAddRestriction"
+            >
+                {{ $tc('sw-product.variations.configuratorModal.save') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+
+    {% block sw_product_variants_configurator_restrictions_loader %}
+    <sw-loader v-if="isLoading" />
+    {% endblock %}
+
+</div>
 {% endblock %}

@@ -1,115 +1,129 @@
 {% block sw_landing_page_tree %}
-    <div class="sw-landing-page-tree">
+<div class="sw-landing-page-tree">
 
-        {% block sw_landing_page_tree_inner %}
-            <sw-tree class="sw-landing-page-tree__inner"
-                 v-if="!isLoadingInitialData"
-                  ref="landingPageTree"
-                 :items="landingPages"
-                 :sortable="false"
-                 :searchable="false"
-                 :translationContext="translationContext"
-                 :onChangeRoute="changeLandingPage"
-                 :disableContextMenu="disableContextMenu"
-                 :allowDeleteCategories="allowDelete"
-                 :allowCreateCategories="false"
-                 :activeTreeItemId="landingPageId"
-                 @batch-delete="deleteCheckedItems"
-                 @delete-element="onDeleteLandingPage"
-                 @editing-end="syncLandingPages"
-                 @checked-elements-count="checkedElementsCount">
+    {% block sw_landing_page_tree_inner %}
+    <sw-tree
+        v-if="!isLoadingInitialData"
+        ref="landingPageTree"
+        class="sw-landing-page-tree__inner"
+        :items="landingPages"
+        :sortable="false"
+        :searchable="false"
+        :translation-context="translationContext"
+        :on-change-route="changeLandingPage"
+        :disable-context-menu="disableContextMenu"
+        :allow-delete-categories="allowDelete"
+        :allow-create-categories="false"
+        :active-tree-item-id="landingPageId"
+        @batch-delete="deleteCheckedItems"
+        @delete-element="onDeleteLandingPage"
+        @editing-end="syncLandingPages"
+        @checked-elements-count="checkedElementsCount"
+    >
 
-                <template slot="headline"><span></span></template>
+        <template slot="headline">
+            <span /></template>
 
+        <template
+            #items="{
+                treeItems,
+                sortable,
+                draggedItem,
+                newElementId,
+                checkItem,
+                translationContext,
+                onChangeRoute,
+                disableContextMenu
+            }"
+        >
+
+            {% block sw_landing_page_tree_items %}
+            <sw-tree-item
+                v-for="item in treeItems"
+                :key="item.id"
+                :item="item"
+                :should-show-active-state="true"
+                :allow-duplicate="true"
+                :allow-new-categories="false"
+                :allow-delete-categories="allowDelete"
+                :active="item.active"
+                :translation-context="translationContext"
+                :on-change-route="onChangeRoute"
+                :sortable="sortable"
+                :dragged-item="draggedItem"
+                :disable-context-menu="disableContextMenu"
+                :display-checkbox="allowEdit"
+                :context-menu-tooltip-text="contextMenuTooltipText"
+                :new-element-id="newElementId"
+                :get-item-url="getLandingPageUrl"
+                @check-item="checkItem"
+            >
+                <template slot="grip">
+                    <span /></template>
                 <template
-                    #items="{
-                        treeItems,
-                        sortable,
-                        draggedItem,
-                        newElementId,
-                        checkItem,
-                        translationContext,
+                    #actions="{
+                        onDuplicate,
                         onChangeRoute,
-                        disableContextMenu
-                    }">
+                        deleteElement,
+                        toolTip
+                    }"
+                >
+                    {% block sw_landing_page_tree_items_actions %}
+                    <sw-context-button
+                        v-tooltip="toolTip"
+                        class="sw-tree-item__context_button"
+                        :disabled="disableContextMenu"
+                    >
 
-                    {% block sw_landing_page_tree_items %}
-                        <sw-tree-item
-                            v-for="item in treeItems"
-                            :key="item.id"
-                            :item="item"
-                            :shouldShowActiveState="true"
-                            :allowDuplicate="true"
-                            :allowNewCategories="false"
-                            :allowDeleteCategories="allowDelete"
-                            :active="item.active"
-                            :translationContext="translationContext"
-                            :onChangeRoute="onChangeRoute"
-                            :sortable="sortable"
-                            :draggedItem="draggedItem"
-                            :disableContextMenu="disableContextMenu"
-                            :displayCheckbox="allowEdit"
-                            :contextMenuTooltipText="contextMenuTooltipText"
-                            :newElementId="newElementId"
-                            :getItemUrl="getLandingPageUrl"
-                            @check-item="checkItem">
-                            <template slot="grip"><span></span></template>
-                            <template
-                                #actions="{
-                                    onDuplicate,
-                                    onChangeRoute,
-                                    deleteElement,
-                                    toolTip
-                                }">
-                                {% block sw_landing_page_tree_items_actions %}
-                                    <sw-context-button v-tooltip="toolTip" class="sw-tree-item__context_button" :disabled="disableContextMenu">
+                        {% block sw_landing_page_tree_items_actions_edit %}
+                        <sw-context-menu-item @click="onChangeRoute(item)">
+                            {{ $tc('global.default.edit') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
 
-                                        {% block sw_landing_page_tree_items_actions_edit %}
-                                            <sw-context-menu-item @click="onChangeRoute(item)">
-                                                {{ $tc('global.default.edit') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
+                        {% block sw_landing_page_tree_items_actions_duplicate %}
+                        <sw-context-menu-item
+                            class="sw-context-menu__duplicate-action"
+                            @click="onDuplicate(item)"
+                        >
+                            {{ $tc(`global.default.duplicate`) }}
+                        </sw-context-menu-item>
+                        {% endblock %}
 
-                                        {% block sw_landing_page_tree_items_actions_duplicate %}
-                                            <sw-context-menu-item
-                                                class="sw-context-menu__duplicate-action"
-                                                @click="onDuplicate(item)">
-                                                {{ $tc(`global.default.duplicate`) }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
+                        {% block sw_landing_page_tree_items_actions_delete %}
+                        <sw-context-menu-item
+                            class="sw-context-menu__group-button-delete"
+                            variant="danger"
+                            @click="deleteElement(item)"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
 
-                                        {% block sw_landing_page_tree_items_actions_delete %}
-                                            <sw-context-menu-item
-                                                class="sw-context-menu__group-button-delete"
-                                                variant="danger"
-                                                @click="deleteElement(item)">
-                                                {{ $tc('global.default.delete') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-
-                                    </sw-context-button>
-                                {% endblock %}
-
-                            </template>
-                        </sw-tree-item>
+                    </sw-context-button>
                     {% endblock %}
 
                 </template>
-            </sw-tree>
-        {% endblock %}
+            </sw-tree-item>
+            {% endblock %}
 
-        {% block sw_landing_page_tree_action %}
-            <div class="sw-landing-page-tree__add-button">
-                <sw-button
-                    class="sw-landing-page-tree__add-button-button"
-                    :routerLink="newLandingPageUrl()"
-                    size="small"
-                    variant="ghost"
-                    :disabled="disableContextMenu || !acl.can('landing_page.creator')">
-                    {{ $tc('sw-landing-page.general.buttonCreate') }}
-                </sw-button>
-            </div>
-        {% endblock %}
+        </template>
+    </sw-tree>
+    {% endblock %}
 
+    {% block sw_landing_page_tree_action %}
+    <div class="sw-landing-page-tree__add-button">
+        <sw-button
+            class="sw-landing-page-tree__add-button-button"
+            :router-link="newLandingPageUrl()"
+            size="small"
+            variant="ghost"
+            :disabled="disableContextMenu || !acl.can('landing_page.creator')"
+        >
+            {{ $tc('sw-landing-page.general.buttonCreate') }}
+        </sw-button>
     </div>
+    {% endblock %}
+
+</div>
 {% endblock %}

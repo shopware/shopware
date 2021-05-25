@@ -1,17 +1,25 @@
 {% block sw_existence_filter %}
-    <div class="sw-existence-filter">
-        <sw-base-filter :title="filter.label"
-                        :showResetButton="!!value"
-                        :active="active"
-                        @filter-reset="resetFilter">
-            {% block sw_existence_filter_content %}
-                <sw-select-field :value="value"
-                                 :placeholder="filter.placeholder"
-                                 @change="changeValue">
-                    <option :value="true">{{ filter.optionHasCriteria }}</option>
-                    <option :value="false">{{ filter.optionNoCriteria }}</option>
-                </sw-select-field>
-            {% endblock %}
-        </sw-base-filter>
-    </div>
+<div class="sw-existence-filter">
+    <sw-base-filter
+        :title="filter.label"
+        :show-reset-button="!!value"
+        :active="active"
+        @filter-reset="resetFilter"
+    >
+        {% block sw_existence_filter_content %}
+        <sw-select-field
+            :value="value"
+            :placeholder="filter.placeholder"
+            @change="changeValue"
+        >
+            <option :value="true">
+                {{ filter.optionHasCriteria }}
+            </option>
+            <option :value="false">
+                {{ filter.optionNoCriteria }}
+            </option>
+        </sw-select-field>
+        {% endblock %}
+    </sw-base-filter>
+</div>
 {% endblock %}

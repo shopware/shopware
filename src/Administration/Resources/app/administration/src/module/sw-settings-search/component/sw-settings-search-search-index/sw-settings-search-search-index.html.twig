@@ -1,62 +1,71 @@
 {% block sw_settings_search_search_index %}
-    <sw-card
-        :title="$tc('sw-settings-search.generalTab.labelSearchIndex')"
-        :isLoading="isLoading">
+<sw-card
+    :title="$tc('sw-settings-search.generalTab.labelSearchIndex')"
+    :is-loading="isLoading"
+>
 
-        {% block sw_settings_search_search_index_description %}
-            <sw-alert
-                v-if="isRebuildInProgress"
-                class="sw-settings-search__search-index-warning-text"
-                variant="warning">
+    {% block sw_settings_search_search_index_description %}
+    <sw-alert
+        v-if="isRebuildInProgress"
+        class="sw-settings-search__search-index-warning-text"
+        variant="warning"
+    >
 
-                {% block sw_settings_search_search_index_warning_top %}
-                    <p class="sw-settings-search__search-index-warning-top">
-                        {{ $tc('sw-settings-search.generalTab.textWarningOpenTab') }}
-                    </p>
-                {% endblock %}
-
-                {% block sw_settings_search_search_index_warning_bottom %}
-                    <p>{{ $tc('sw-settings-search.generalTab.textRebuildSearchIndexDescription') }}</p>
-                {% endblock %}
-
-            </sw-alert>
+        {% block sw_settings_search_search_index_warning_top %}
+        <p class="sw-settings-search__search-index-warning-top">
+            {{ $tc('sw-settings-search.generalTab.textWarningOpenTab') }}
+        </p>
         {% endblock %}
 
-        {% block sw_settings_search_search_index_rebuild_button %}
-            <sw-button-process variant="ghost"
-                               class="sw-settings-search__search-index-rebuild-button"
-                               :isLoading="isRebuildInProgress"
-                               :disabled="isRebuildInProgress || !acl.can('product_search_config.editor')"
-                               :processSuccess="isRebuildSuccess"
-                               @process-finish="buildFinish"
-                               @click="rebuildSearchIndex">
-                {{ $tc('sw-settings-search.generalTab.buttonRebuildSearchIndex') }}
-            </sw-button-process>
-
-            {% block sw_settings_search_search_index_lastest_build %}
-                <span class="sw-settings-search__search-index-latest-build">
-                    {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} {{ latestBuild }}
-                </span>
-            {% endblock %}
+        {% block sw_settings_search_search_index_warning_bottom %}
+        <p>{{ $tc('sw-settings-search.generalTab.textRebuildSearchIndexDescription') }}</p>
         {% endblock %}
 
-        {% block sw_settings_search_search_index_rebuild_progress %}
-            <div v-if="progressBarValue"
-                 class="sw-settings-search__search-index-rebuilding-progress">
+    </sw-alert>
+    {% endblock %}
 
-                {% block sw_settings_search_search_index_rebuild_progress_text %}
-                    <span class="sw-settings-search__search-index-rebuilding-text">
-                         {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
-                    </span>
-                {% endblock %}
+    {% block sw_settings_search_search_index_rebuild_button %}
+    <sw-button-process
+        variant="ghost"
+        class="sw-settings-search__search-index-rebuild-button"
+        :is-loading="isRebuildInProgress"
+        :disabled="isRebuildInProgress || !acl.can('product_search_config.editor')"
+        :process-success="isRebuildSuccess"
+        @process-finish="buildFinish"
+        @click="rebuildSearchIndex"
+    >
+        {{ $tc('sw-settings-search.generalTab.buttonRebuildSearchIndex') }}
+    </sw-button-process>
 
-                {% block sw_settings_search_search_index_rebuild_progress_bar %}
-                    <sw-progress-bar :value="progressBarValue" :maxValue="100">
-                        {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
-                    </sw-progress-bar>
-                {% endblock %}
-            </div>
+    {% block sw_settings_search_search_index_lastest_build %}
+    <span class="sw-settings-search__search-index-latest-build">
+        {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} {{ latestBuild }}
+    </span>
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_settings_search_search_index_rebuild_progress %}
+    <div
+        v-if="progressBarValue"
+        class="sw-settings-search__search-index-rebuilding-progress"
+    >
+
+        {% block sw_settings_search_search_index_rebuild_progress_text %}
+        <span class="sw-settings-search__search-index-rebuilding-text">
+            {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
+        </span>
         {% endblock %}
 
-    </sw-card>
+        {% block sw_settings_search_search_index_rebuild_progress_bar %}
+        <sw-progress-bar
+            :value="progressBarValue"
+            :max-value="100"
+        >
+            {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
+        </sw-progress-bar>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+</sw-card>
 {% endblock %}

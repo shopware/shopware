@@ -1,8 +1,8 @@
 {% block sw_first_run_wizard_mailer_smtp %}
-    <div class="sw-first-run-wizard-mailer-smtp">
-        <sw-loader v-if="isLoading"></sw-loader>
+<div class="sw-first-run-wizard-mailer-smtp">
+    <sw-loader v-if="isLoading" />
 
-        <h2>{{ $tc('sw-first-run-wizard.mailerSmtp.headline') }}</h2>
-        <sw-settings-mailer-smtp :mailerSettings="mailerSettings"></sw-settings-mailer-smtp>
-    </div>
+    <h2>{{ $tc('sw-first-run-wizard.mailerSmtp.headline') }}</h2>
+    <sw-settings-mailer-smtp :mailer-settings="mailerSettings" />
+</div>
 {% endblock %}

@@ -1,44 +1,61 @@
 {% block sw_empty_state %}
-    <div class="sw-empty-state" :class="classes">
-        {% block sw_empty_state_element %}
-            <div class="sw-empty-state__element">
+<div
+    class="sw-empty-state"
+    :class="classes"
+>
+    {% block sw_empty_state_element %}
+    <div class="sw-empty-state__element">
 
-                {% block sw_empty_state_icon %}
-                    <div class="sw-empty-state__icon">
-                        <slot name="icon">
-                            {% block sw_empty_state_slot_icon %}
-                                <sw-icon :name="moduleIcon" size="60px" :color="moduleColor"></sw-icon>
-                            {% endblock %}
-                        </slot>
-                    </div>
+        {% block sw_empty_state_icon %}
+        <div class="sw-empty-state__icon">
+            <slot name="icon">
+                {% block sw_empty_state_slot_icon %}
+                <sw-icon
+                    :name="moduleIcon"
+                    size="60px"
+                    :color="moduleColor"
+                />
                 {% endblock %}
+            </slot>
+        </div>
+        {% endblock %}
 
-                {% block sw_empty_state_title %}
-                    <div class="sw-empty-state__title" role="alert">
-                        {{ title }}
-                    </div>
-                {% endblock %}
+        {% block sw_empty_state_title %}
+        <div
+            class="sw-empty-state__title"
+            role="alert"
+        >
+            {{ title }}
+        </div>
+        {% endblock %}
 
-                {% block sw_empty_state_description %}
-                    <div v-if="showDescription" class="sw-empty-state__description">
-                        <slot>
-                            {% block sw_empty_state_slot_default %}
-                                <div class="sw-empty-state__description-content"
-                                     v-html="$sanitize(moduleDescription)">
-                                </div>
-                            {% endblock %}
-                        </slot>
-                    </div>
+        {% block sw_empty_state_description %}
+        <div
+            v-if="showDescription"
+            class="sw-empty-state__description"
+        >
+            <slot>
+                {% block sw_empty_state_slot_default %}
+                <div
+                    class="sw-empty-state__description-content"
+                    v-html="$sanitize(moduleDescription)"
+                />
                 {% endblock %}
+            </slot>
+        </div>
+        {% endblock %}
 
-                {% block sw_empty_state_actions %}
-                    <div v-if="hasActionSlot" class="sw-empty-state__actions">
-                        <slot name="actions">
-                            {% block sw_empty_state_slot_actions %}{% endblock %}
-                        </slot>
-                    </div>
-                {% endblock %}
-            </div>
+        {% block sw_empty_state_actions %}
+        <div
+            v-if="hasActionSlot"
+            class="sw-empty-state__actions"
+        >
+            <slot name="actions">
+                {% block sw_empty_state_slot_actions %}{% endblock %}
+            </slot>
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

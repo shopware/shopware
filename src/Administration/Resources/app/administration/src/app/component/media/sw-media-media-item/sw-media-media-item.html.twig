@@ -1,132 +1,144 @@
 {% block sw_media_media_item %}
-    <sw-media-base-item
-        class="sw-media-media-item"
-        v-bind="$attrs"
-        v-on="$listeners">
+<sw-media-base-item
+    class="sw-media-media-item"
+    v-bind="$attrs"
+    v-on="$listeners"
+>
 
-        {% block sw_media_media_item_preview %}
-            <template #preview="{ item }">
-                <sw-media-preview-v2
-                    :source="item.id"
-                    @media-preview-play="emitPlayEvent($event, item)"
-                    :mediaIsPrivate="item.private">
-                </sw-media-preview-v2>
+    {% block sw_media_media_item_preview %}
+    <template #preview="{ item }">
+        <sw-media-preview-v2
+            :source="item.id"
+            :media-is-private="item.private"
+            @media-preview-play="emitPlayEvent($event, item)"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_media_media_item_name_container %}
+    <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
+        <sw-field
+            v-if="isInlineEdit"
+            v-autofocus
+            class="sw-media-base-item__name-field"
+            :value="item.fileName"
+            name="media-item-name"
+            @change="onChangeName($event, item, endInlineEdit)"
+            @blur="onBlur($event, item, endInlineEdit)"
+            @keyup.esc="endInlineEdit"
+            @click.stop
+        />
+        <div
+            v-else
+            ref="itemName"
+            class="sw-media-base-item__name"
+            :title="`${item.fileName}.${item.fileExtension}`"
+            @dblclick="startInlineEdit"
+        >
+
+            <template v-if="item.hasFile">
+                {{ item | mediaName }}
             </template>
-        {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
 
-        {% block sw_media_media_item_name_container %}
-            <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
-                <sw-field v-if="isInlineEdit"
-                          class="sw-media-base-item__name-field"
-                          :value="item.fileName"
-                          name="media-item-name"
-                          v-autofocus
-                          @change="onChangeName($event, item, endInlineEdit)"
-                          @blur="onBlur($event, item, endInlineEdit)"
-                          @keyup.esc="endInlineEdit"
-                          @click.stop>
-                </sw-field>
-                <div v-else
-                     class="sw-media-base-item__name"
-                     ref="itemName"
-                     :title="`${item.fileName}.${item.fileExtension}`"
-                     @dblclick="startInlineEdit">
+    {% block sw_media_media_item_metadata %}
+    <template #metadata="{ item }">
+        <div class="sw-media-media-item__metadata">
+            {{ item.uploadedAt | date() }}, {{ item.fileSize | fileSize(locale) }}
+        </div>
+    </template>
+    {% endblock %}
 
-                    <template v-if="item.hasFile">
-                        {{ item | mediaName }}
-                    </template>
-                </div>
-            </template>
-        {% endblock %}
+    {% block sw_media_media_item_context_menu %}
+    <template #context-menu="{ item, startInlineEdit, allowEdit, allowDelete }">
+        <slot>
+            {% block sw_media_media_item_additional_context_menu_slot %}{% endblock %}
+        </slot>
 
-        {% block sw_media_media_item_metadata %}
-            <template #metadata="{ item }">
-                <div class="sw-media-media-item__metadata">{{ item.uploadedAt | date() }}, {{ item.fileSize | fileSize(locale) }}</div>
-            </template>
-        {% endblock %}
-
-        {% block sw_media_media_item_context_menu %}
-            <template #context-menu="{ item, startInlineEdit, allowEdit, allowDelete }">
-                <slot>
-                    {% block sw_media_media_item_additional_context_menu_slot %}{% endblock %}
-                </slot>
-
-                {% block sw_media_media_item_context_group_quick_actions %}
-                    <div :class="defaultContextMenuClass">
-                        {% block sw_media_media_item_context_item_rename_item %}
-                            <sw-context-menu-item
-                                :disabled="!item.hasFile || item.private || !allowEdit"
-                                @click="startInlineEdit">
-                                {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-
-                        {% block sw_media_media_item_context_item_copy_item_link %}
-                            <sw-context-menu-item v-if="item.hasFile"
-                                @click="copyItemLink(item)">
-                                {{ $tc('global.sw-media-media-item.labelContextMenuCopyLink') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-
-                        {% block sw_media_media_item_context_item_replace %}
-                            <sw-context-menu-item
-                                :disabled="item.private || !allowEdit"
-                                class="sw-media-context-item__replace-media-action"
-                                @click="openModalReplace">
-                                {{ $tc('global.sw-media-media-item.labelContextMenuReplace') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-
-                        {% block sw_media_media_item_context_item_move %}
-                            <sw-context-menu-item
-                                :disabled="!allowEdit"
-                                class="sw-media-context-item__move-media-action"
-                                @click="openModalMove">
-                                {{ $tc('global.sw-media-media-item.labelContextMenuMove') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-
-                        {% block sw_media_media_item_context_item_delete %}
-                            <sw-context-menu-item
-                                :disabled="item.private || !allowDelete"
-                                @click="openModalDelete"
-                                variant="danger">
-                                {{ $tc('global.default.delete') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-
-                    </div>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-        <template #modal-windows="{ item, allowEdit, allowDelete }">
-            {% block sw_media_media_item_modal_replace %}
-                <sw-media-modal-replace
-                    v-if="showModalReplace && allowEdit"
-                    :itemToReplace="item"
-                    @media-replace-modal-item-replaced="emitRefreshMediaLibrary"
-                    @media-replace-modal-close="closeModalReplace">
-                </sw-media-modal-replace>
+        {% block sw_media_media_item_context_group_quick_actions %}
+        <div :class="defaultContextMenuClass">
+            {% block sw_media_media_item_context_item_rename_item %}
+            <sw-context-menu-item
+                :disabled="!item.hasFile || item.private || !allowEdit"
+                @click="startInlineEdit"
+            >
+                {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
+            </sw-context-menu-item>
             {% endblock %}
 
-            {% block sw_media_media_item_delete_modal %}
-                <sw-media-modal-delete
-                    v-if="showModalDelete && allowDelete"
-                    :itemsToDelete="[item]"
-                    @media-delete-modal-items-delete="emitItemDeleted"
-                    @media-delete-modal-close="closeModalDelete">
-                </sw-media-modal-delete>
+            {% block sw_media_media_item_context_item_copy_item_link %}
+            <sw-context-menu-item
+                v-if="item.hasFile"
+                @click="copyItemLink(item)"
+            >
+                {{ $tc('global.sw-media-media-item.labelContextMenuCopyLink') }}
+            </sw-context-menu-item>
             {% endblock %}
 
-            {% block sw_media_media_item_move_modal %}
-                <sw-media-modal-move
-                    v-if="showModalMove && allowEdit"
-                    :itemsToMove="[item]"
-                    @media-move-modal-close="closeModalMove"
-                    @media-move-modal-items-move="onMediaItemMoved">
-                </sw-media-modal-move>
+            {% block sw_media_media_item_context_item_replace %}
+            <sw-context-menu-item
+                :disabled="item.private || !allowEdit"
+                class="sw-media-context-item__replace-media-action"
+                @click="openModalReplace"
+            >
+                {{ $tc('global.sw-media-media-item.labelContextMenuReplace') }}
+            </sw-context-menu-item>
             {% endblock %}
-        </template>
-    </sw-media-base-item>
+
+            {% block sw_media_media_item_context_item_move %}
+            <sw-context-menu-item
+                :disabled="!allowEdit"
+                class="sw-media-context-item__move-media-action"
+                @click="openModalMove"
+            >
+                {{ $tc('global.sw-media-media-item.labelContextMenuMove') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_media_media_item_context_item_delete %}
+            <sw-context-menu-item
+                :disabled="item.private || !allowDelete"
+                variant="danger"
+                @click="openModalDelete"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <template #modal-windows="{ item, allowEdit, allowDelete }">
+        {% block sw_media_media_item_modal_replace %}
+        <sw-media-modal-replace
+            v-if="showModalReplace && allowEdit"
+            :item-to-replace="item"
+            @media-replace-modal-item-replaced="emitRefreshMediaLibrary"
+            @media-replace-modal-close="closeModalReplace"
+        />
+        {% endblock %}
+
+        {% block sw_media_media_item_delete_modal %}
+        <sw-media-modal-delete
+            v-if="showModalDelete && allowDelete"
+            :items-to-delete="[item]"
+            @media-delete-modal-items-delete="emitItemDeleted"
+            @media-delete-modal-close="closeModalDelete"
+        />
+        {% endblock %}
+
+        {% block sw_media_media_item_move_modal %}
+        <sw-media-modal-move
+            v-if="showModalMove && allowEdit"
+            :items-to-move="[item]"
+            @media-move-modal-close="closeModalMove"
+            @media-move-modal-items-move="onMediaItemMoved"
+        />
+        {% endblock %}
+    </template>
+</sw-media-base-item>
 {% endblock %}

@@ -1,168 +1,226 @@
 {% block sw_search_bar %}
-    <div class="sw-search-bar"
-         @keyup.esc="clearSearchTerm()"
-         @keyup.enter.prevent="onKeyUpEnter"
-         @keydown.left.prevent="navigateLeftResults"
-         @keydown.right.prevent="navigateRightResults"
-         @keydown.up.prevent="navigateUpResults"
-         @keydown.down.prevent="navigateDownResults">
+<div
+    class="sw-search-bar"
+    @keyup.esc="clearSearchTerm()"
+    @keyup.enter.prevent="onKeyUpEnter"
+    @keydown.left.prevent="navigateLeftResults"
+    @keydown.right.prevent="navigateRightResults"
+    @keydown.up.prevent="navigateUpResults"
+    @keydown.down.prevent="navigateDownResults"
+>
 
-        {% block sw_search_bar_container %}
-            <div class="sw-search-bar__container">
+    {% block sw_search_bar_container %}
+    <div class="sw-search-bar__container">
 
-                {% block sw_search_bar_mobile_controls %}
-                    <div v-if="!isSearchBarShown" class="sw-search-bar__mobile-controls">
+        {% block sw_search_bar_mobile_controls %}
+        <div
+            v-if="!isSearchBarShown"
+            class="sw-search-bar__mobile-controls"
+        >
 
-                        {% block sw_search_bar_button_off_canvas_toggle %}
-                            <button class="sw-search-bar__button" @click="toggleOffCanvas">
-                                <sw-icon v-if="isOffCanvasShown" name="default-basic-x-line"></sw-icon>
-                                <sw-icon v-else name="small-default-stack-line"></sw-icon>
-                            </button>
-                        {% endblock %}
+            {% block sw_search_bar_button_off_canvas_toggle %}
+            <button
+                class="sw-search-bar__button"
+                @click="toggleOffCanvas"
+            >
+                <sw-icon
+                    v-if="isOffCanvasShown"
+                    name="default-basic-x-line"
+                />
+                <sw-icon
+                    v-else
+                    name="small-default-stack-line"
+                />
+            </button>
+            {% endblock %}
 
-                        {% block sw_search_bar_version_display %}
-                            <sw-version></sw-version>
-                        {% endblock %}
+            {% block sw_search_bar_version_display %}
+            <sw-version />
+            {% endblock %}
 
-                        {% block sw_search_bar_button_search %}
-                            <button class="sw-search-bar__button" @click="showSearchBar">
-                                <sw-icon name="default-action-search"></sw-icon>
-                            </button>
-                        {% endblock %}
-                    </div>
+            {% block sw_search_bar_button_search %}
+            <button
+                class="sw-search-bar__button"
+                @click="showSearchBar"
+            >
+                <sw-icon name="default-action-search" />
+            </button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_search_bar_field %}
+        <div
+            v-if="isSearchBarShown"
+            class="sw-search-bar__field"
+            :class="searchBarFieldClasses"
+        >
+
+            {% block sw_search_bar_type %}
+            <span
+                v-if="currentSearchType"
+                class="sw-search-bar__type"
+                :style="{ 'background-color': getEntityIconColor(currentSearchType) }"
+            >
+                {{ getLabelSearchType() }}
+            </span>
+            {% endblock %}
+
+            {% block sw_search_bar_input %}
+            <slot name="search-input">
+                {% block sw_search_bar_slot_input %}
+                <input
+                    ref="searchInput"
+                    v-model="searchTerm"
+                    class="sw-search-bar__input"
+                    :placeholder="placeholderSearchInput"
+                    @input="onSearchTermChange"
+                    @focus="onFocusInput"
+                    @blur="onBlur"
+                    @keydown.delete="resetSearchType"
+                >
                 {% endblock %}
+            </slot>
+            {% endblock %}
 
-                {% block sw_search_bar_field %}
-                    <div v-if="isSearchBarShown" class="sw-search-bar__field" :class="searchBarFieldClasses">
+            {% block sw_search_bar_icon %}
+            <button
+                class="sw-search-bar__field-icon sw-search-bar__field-close"
+                @click="hideSearchBar"
+            >
+                <sw-icon
+                    name="small-default-x-line-medium"
+                    small
+                />
+            </button>
 
-                        {% block sw_search_bar_type %}
-                            <span v-if="currentSearchType"
-                                  class="sw-search-bar__type"
-                                  :style="{ 'background-color': getEntityIconColor(currentSearchType) }">
-                                {{ getLabelSearchType() }}
+            <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
+                <sw-icon
+                    name="small-search"
+                    small
+                />
+            </span>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_search_bar_results %}
+        <div
+            v-if="showResultsContainer"
+            ref="resultsContainer"
+            class="sw-search-bar__results"
+        >
+
+            {% block sw_search_bar_results_empty_state %}
+            <sw-loader v-if="isLoading" />
+            {% endblock %}
+
+            <template
+                v-for="(entity, column) in results"
+                v-else-if="!isResultEmpty()"
+            >
+                {% block sw_search_bar_results_list %}
+                <div
+                    :key="entity.entity"
+                    class="sw-search-bar__results-column"
+                >
+                    {% block sw_search_bar_results_list_column %}
+                    {% block sw_search_bar_results_list_column_header %}
+                    <div class="sw-search-bar__results-column-header">
+                        <template v-if="!currentSearchType">
+                            <sw-icon
+                                v-if="getEntityIconName(entity.entity)"
+                                :name="getEntityIconName(entity.entity)"
+                                size="20px"
+                                :color="getEntityIconColor(entity.entity)"
+                            />
+                            <span class="sw-search-bar__types-header-entity">
+                                {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
                             </span>
-                        {% endblock %}
-
-                        {% block sw_search_bar_input %}
-                            <slot name="search-input">
-                                {% block sw_search_bar_slot_input %}
-                                    <input class="sw-search-bar__input"
-                                           ref="searchInput"
-                                           :placeholder="placeholderSearchInput"
-                                           v-model="searchTerm"
-                                           @input="onSearchTermChange"
-                                           @focus="onFocusInput"
-                                           @blur="onBlur"
-                                           @keydown.delete="resetSearchType">
-                                {% endblock %}
-                            </slot>
-                        {% endblock %}
-
-                        {% block sw_search_bar_icon %}
-                            <button class="sw-search-bar__field-icon sw-search-bar__field-close" @click="hideSearchBar">
-                                <sw-icon name="small-default-x-line-medium" small></sw-icon>
-                            </button>
-
-                            <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
-                                <sw-icon name="small-search" small></sw-icon>
-                            </span>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
-                {% block sw_search_bar_results %}
-                    <div
-                         v-if="showResultsContainer"
-                         ref="resultsContainer"
-                         class="sw-search-bar__results">
-
-                        {% block sw_search_bar_results_empty_state %}
-                            <sw-loader v-if="isLoading"></sw-loader>
-                        {% endblock %}
-
-                        <template v-else-if="!isResultEmpty()"
-                                  v-for="(entity, column) in results">
-                            {% block sw_search_bar_results_list %}
-                                <div class="sw-search-bar__results-column">
-                                    {% block sw_search_bar_results_list_column %}
-                                        {% block sw_search_bar_results_list_column_header %}
-                                            <div class="sw-search-bar__results-column-header">
-                                                <template v-if="!currentSearchType">
-                                                    <sw-icon v-if="getEntityIconName(entity.entity)"
-                                                             :name="getEntityIconName(entity.entity)"
-                                                             size="20px"
-                                                             :color="getEntityIconColor(entity.entity)">
-                                                    </sw-icon>
-                                                    <span class="sw-search-bar__types-header-entity">
-                                                        {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
-                                                    </span>
-                                                </template>
-                                                {% block sw_search_bar_results_list_column_header_more_results %}
-                                                    <sw-search-more-results :result="entity" :term="searchTerm">
-                                                    </sw-search-more-results>
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-                                        <ul class="sw-search-bar__results-list">
-                                            <sw-search-bar-item
-                                                    v-for="(item, index) in entity.entities"
-                                                    :item="item"
-                                                    :type="entity.entity"
-                                                    :searchTerm="searchTerm"
-                                                    :column="column"
-                                                    :index="index"
-                                                    :key="item.id">
-                                            </sw-search-bar-item>
-                                        </ul>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
                         </template>
-
-
-                        {% block sw_search_bar_results_empty %}
-                            <div v-else class="sw-search-bar__results-empty-message">
-                                {% block sw_search_bar_results_empty_icon %}
-                                    <sw-icon name="default-action-search" size="20px"></sw-icon>
-                                {% endblock %}
-
-                                {% block sw_search_bar_results_empty_text %}
-                                    {{ $tc('global.sw-search-bar.messageNoResults', 0, { term: searchTerm }) }}
-                                {% endblock %}
-                            </div>
+                        {% block sw_search_bar_results_list_column_header_more_results %}
+                        <sw-search-more-results
+                            :result="entity"
+                            :term="searchTerm"
+                        />
                         {% endblock %}
                     </div>
+                    {% endblock %}
+                    <ul class="sw-search-bar__results-list">
+                        <sw-search-bar-item
+                            v-for="(item, index) in entity.entities"
+                            :key="item.id"
+                            :item="item"
+                            :type="entity.entity"
+                            :search-term="searchTerm"
+                            :column="column"
+                            :index="index"
+                        />
+                    </ul>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </template>
+
+            {% block sw_search_bar_results_empty %}
+            <div
+                v-else
+                class="sw-search-bar__results-empty-message"
+            >
+                {% block sw_search_bar_results_empty_icon %}
+                <sw-icon
+                    name="default-action-search"
+                    size="20px"
+                />
                 {% endblock %}
 
-                {% block sw_search_bar_types_container %}
-                    <div v-if="showTypeSelectContainer"
-                         class="sw-search-bar__types_container">
-                            <div v-for="(type, index) in typeSelectResults"
-                                 class="sw-search-bar__type-item"
-                                 :class="{ 'is--active': activeTypeListIndex === index }"
-                                 :style="{ 'border-color': getEntityIconColor(type.entityName) }"
-                                 @mouseenter="onMouseEnterSearchType(index)"
-                                 @click="onClickType(type.entityName)">
-                                <span class="sw-search-bar__type"
-                                      :style="{ 'background-color': getEntityIconColor(type.entityName) }">
-                                    {{ getLabelSearchType(type.entityName) }}
-                                </span>
-                            </div>
-                        {% block sw_search_bar_types_container_empty %}
-                            <div v-if="typeSelectResults.length < 1" class="sw-search-bar__type-results-empty-message">
-                                {% block sw_search_bar_types_container_empty_text %}
-                                    {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                        {% block sw_search_bar_types_container_tip %}
-                            <p class="sw-search-bar__shortcut-tip">
-                                {{ $tc('global.sw-search-bar.placeholderShortcutInfo') }}
-                            </p>
-                        {% endblock %}
-                    </div>
+                {% block sw_search_bar_results_empty_text %}
+                {{ $tc('global.sw-search-bar.messageNoResults', 0, { term: searchTerm }) }}
                 {% endblock %}
             </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_search_bar_types_container %}
+        <div
+            v-if="showTypeSelectContainer"
+            class="sw-search-bar__types_container"
+        >
+            <div
+                v-for="(type, index) in typeSelectResults"
+                :key="index"
+                class="sw-search-bar__type-item"
+                :class="{ 'is--active': activeTypeListIndex === index }"
+                :style="{ 'border-color': getEntityIconColor(type.entityName) }"
+                @mouseenter="onMouseEnterSearchType(index)"
+                @click="onClickType(type.entityName)"
+            >
+                <span
+                    class="sw-search-bar__type"
+                    :style="{ 'background-color': getEntityIconColor(type.entityName) }"
+                >
+                    {{ getLabelSearchType(type.entityName) }}
+                </span>
+            </div>
+            {% block sw_search_bar_types_container_empty %}
+            <div
+                v-if="typeSelectResults.length < 1"
+                class="sw-search-bar__type-results-empty-message"
+            >
+                {% block sw_search_bar_types_container_empty_text %}
+                {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
+                {% endblock %}
+            </div>
+            {% endblock %}
+            {% block sw_search_bar_types_container_tip %}
+            <p class="sw-search-bar__shortcut-tip">
+                {{ $tc('global.sw-search-bar.placeholderShortcutInfo') }}
+            </p>
+            {% endblock %}
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

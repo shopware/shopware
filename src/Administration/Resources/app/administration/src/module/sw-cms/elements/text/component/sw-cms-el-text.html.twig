@@ -1,18 +1,20 @@
 {% block sw_cms_element_text %}
-    <div class="sw-cms-el-text">
-        <div class="sw-cms-el-text__mapping-preview content-editor"
-             v-html="$sanitize(demoValue)"
-             v-if="element.config.content.source === 'mapped'">
-        </div>
+<div class="sw-cms-el-text">
+    <div
+        v-if="element.config.content.source === 'mapped'"
+        class="sw-cms-el-text__mapping-preview content-editor"
+        v-html="$sanitize(demoValue)"
+    />
 
-        <sw-text-editor v-else
-                        :disabled="disabled"
-                        v-model="element.config.content.value"
-                        @blur="onBlur"
-                        @input="onInput"
-                        :verticalAlign="element.config.verticalAlign.value"
-                        :allowInlineDataMapping="true"
-                        :isInlineEdit="true">
-        </sw-text-editor>
-    </div>
+    <sw-text-editor
+        v-else
+        v-model="element.config.content.value"
+        :disabled="disabled"
+        :vertical-align="element.config.verticalAlign.value"
+        :allow-inline-data-mapping="true"
+        :is-inline-edit="true"
+        @blur="onBlur"
+        @input="onInput"
+    />
+</div>
 {% endblock %}

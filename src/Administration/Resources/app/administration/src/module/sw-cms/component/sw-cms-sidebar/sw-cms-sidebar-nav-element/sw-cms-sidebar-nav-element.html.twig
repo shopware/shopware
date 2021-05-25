@@ -1,26 +1,36 @@
 {% block sw_cms_sidebar_navigator_element %}
-    <div class="sw-cms-sidebar__navigator-element">
+<div class="sw-cms-sidebar__navigator-element">
 
-        {% block sw_cms_sidebar_sidebar_navigator_element_label %}
-            <div class="navigator-element__label">
-                {{ block.name ? block.name : block.type }}
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_sidebar_sidebar_navigator_element_duplicate %}
-            <div class="navigator-element__action-duplicate"
-                 v-if="removable"
-                 @click="onBlockDuplicate">
-                <sw-icon name="default-action-duplicate" size="16"></sw-icon>
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_sidebar_sidebar_navigator_element_delete %}
-            <div class="navigator-element__action-delete"
-                 v-if="removable"
-                 @click="onBlockDelete">
-                <sw-icon name="default-action-trash" size="16"></sw-icon>
-            </div>
-        {% endblock %}
+    {% block sw_cms_sidebar_sidebar_navigator_element_label %}
+    <div class="navigator-element__label">
+        {{ block.name ? block.name : block.type }}
     </div>
+    {% endblock %}
+
+    {% block sw_cms_sidebar_sidebar_navigator_element_duplicate %}
+    <div
+        v-if="removable"
+        class="navigator-element__action-duplicate"
+        @click="onBlockDuplicate"
+    >
+        <sw-icon
+            name="default-action-duplicate"
+            size="16"
+        />
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_sidebar_sidebar_navigator_element_delete %}
+    <div
+        v-if="removable"
+        class="navigator-element__action-delete"
+        @click="onBlockDelete"
+    >
+        <sw-icon
+            name="default-action-trash"
+            size="16"
+        />
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

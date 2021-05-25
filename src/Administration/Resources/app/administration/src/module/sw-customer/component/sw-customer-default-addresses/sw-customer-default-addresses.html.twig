@@ -1,29 +1,37 @@
 {% block sw_customer_default_addresses %}
-    <sw-container class="sw-customer-default-addresses" columns="repeat(auto-fit, minmax(250px, 1fr))">
+<sw-container
+    class="sw-customer-default-addresses"
+    columns="repeat(auto-fit, minmax(250px, 1fr))"
+>
 
-        {% block sw_customer_default_addresses_shipping %}
-            <sw-card-section v-if="customer.defaultShippingAddress.id" divider="right">
-                {% block sw_customer_default_addresses_shipping_postal %}
-                    <sw-address :address="customer.defaultShippingAddress"
-                                :headline="$tc('sw-customer.detailBase.titleDefaultShippingAddress')"
-                                :showEditButton="customerEditMode"
-                                :editLink="defaultShippingAddressLink">
-                    </sw-address>
-                {% endblock %}
-            </sw-card-section>
+    {% block sw_customer_default_addresses_shipping %}
+    <sw-card-section
+        v-if="customer.defaultShippingAddress.id"
+        divider="right"
+    >
+        {% block sw_customer_default_addresses_shipping_postal %}
+        <sw-address
+            :address="customer.defaultShippingAddress"
+            :headline="$tc('sw-customer.detailBase.titleDefaultShippingAddress')"
+            :show-edit-button="customerEditMode"
+            :edit-link="defaultShippingAddressLink"
+        />
         {% endblock %}
+    </sw-card-section>
+    {% endblock %}
 
-        {% block sw_customer_default_addresses_billing %}
-            <sw-card-section v-if="customer.defaultBillingAddress.id">
-                {% block sw_customer_default_addresses_billing_postal %}
-                    <sw-address :address="customer.defaultBillingAddress"
-                                :headline="$tc('sw-customer.detailBase.titleDefaultBillingAddress')"
-                                :showEditButton="customerEditMode"
-                                :editLink="defaultBillingAddressLink">
-                    </sw-address>
-                {% endblock %}
-            </sw-card-section>
+    {% block sw_customer_default_addresses_billing %}
+    <sw-card-section v-if="customer.defaultBillingAddress.id">
+        {% block sw_customer_default_addresses_billing_postal %}
+        <sw-address
+            :address="customer.defaultBillingAddress"
+            :headline="$tc('sw-customer.detailBase.titleDefaultBillingAddress')"
+            :show-edit-button="customerEditMode"
+            :edit-link="defaultBillingAddressLink"
+        />
         {% endblock %}
+    </sw-card-section>
+    {% endblock %}
 
-    </sw-container>
+</sw-container>
 {% endblock %}

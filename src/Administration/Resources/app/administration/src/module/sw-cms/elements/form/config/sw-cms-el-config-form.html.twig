@@ -1,69 +1,96 @@
 {% block sw_cms_el_config_form %}
-     <sw-tabs class="sw-cms-el-config-form__tabs"
-              defaultItem="content">
+<sw-tabs
+    class="sw-cms-el-config-form__tabs"
+    default-item="content"
+>
 
-        <template slot-scope="{ active }">
-            {% block sw_cms_el_config_form_tab_content %}
-                <sw-tabs-item :title="$tc('sw-cms.elements.general.config.tab.content')"
-                              name="content"
-                              :activeTab="active">
-                    {{ $tc('sw-cms.elements.general.config.tab.content') }}
-                </sw-tabs-item>
+    <template slot-scope="{ active }">
+        {% block sw_cms_el_config_form_tab_content %}
+        <sw-tabs-item
+            :title="$tc('sw-cms.elements.general.config.tab.content')"
+            name="content"
+            :active-tab="active"
+        >
+            {{ $tc('sw-cms.elements.general.config.tab.content') }}
+        </sw-tabs-item>
+        {% endblock %}
+
+        {% block sw_cms_el_form_config_tab_options %}
+        <sw-tabs-item
+            v-if="element.config.type.value === 'contact'"
+            :title="$tc('sw-cms.elements.general.config.tab.settings')"
+            name="options"
+            :active-tab="active"
+        >
+            {{ $tc('sw-cms.elements.general.config.tab.settings') }}
+        </sw-tabs-item>
+        {% endblock %}
+    </template>
+
+    <template
+        slot="content"
+        slot-scope="{ active }"
+    >
+        {% block sw_cms_el_form_config_content %}
+        <sw-container
+            v-if="active === 'content'"
+            class="sw-cms-el-config-form__tab-content"
+        >
+
+            {% block sw_cms_el_form_config_content_form_type %}
+            <sw-select-field
+                v-model="element.config.type.value"
+                :label="$tc('sw-cms.elements.form.config.label.type')"
+            >
+                {% block sw_cms_el_form_config_content_form_type_options %}
+                <option
+                    value=""
+                    disabled
+                >
+                    {{ $tc('sw-cms.elements.form.config.label.type') }}
+                </option>
+                <option value="contact">
+                    {{ $tc('sw-cms.elements.form.config.label.typeContact') }}
+                </option>
+                <option value="newsletter">
+                    {{ $tc('sw-cms.elements.form.config.label.typeNewsletter') }}
+                </option>
+                {% endblock %}
+            </sw-select-field>
             {% endblock %}
 
-            {% block sw_cms_el_form_config_tab_options %}
-                <sw-tabs-item v-if="element.config.type.value === 'contact'"
-                              :title="$tc('sw-cms.elements.general.config.tab.settings')"
-                              name="options"
-                              :activeTab="active">
-                    {{ $tc('sw-cms.elements.general.config.tab.settings') }}
-                </sw-tabs-item>
-            {% endblock %}
-        </template>
-
-        <template slot="content" slot-scope="{ active }">
-            {% block sw_cms_el_form_config_content %}
-                <sw-container v-if="active === 'content'"
-                              class="sw-cms-el-config-form__tab-content">
-
-                    {% block sw_cms_el_form_config_content_form_type %}
-                        <sw-select-field :label="$tc('sw-cms.elements.form.config.label.type')"
-                                         v-model="element.config.type.value">
-                            {% block sw_cms_el_form_config_content_form_type_options %}
-                                <option value="" disabled>{{ $tc('sw-cms.elements.form.config.label.type') }}</option>
-                                <option value="contact">{{ $tc('sw-cms.elements.form.config.label.typeContact') }}</option>
-                                <option value="newsletter">{{ $tc('sw-cms.elements.form.config.label.typeNewsletter') }}</option>
-                            {% endblock %}
-                        </sw-select-field>
-                    {% endblock %}
-
-                    {% block sw_cms_el_form_config_content_form_title %}
-                        <sw-text-field :label="$tc('sw-cms.elements.form.config.label.title')"
-                                       v-model="element.config.title.value">
-                        </sw-text-field>
-                    {% endblock %}
-
-                    {% block sw_cms_el_form_config_content_form_confirmation_text %}
-                        <sw-textarea-field v-if="element.config.type.value === 'contact'"
-                                           :label="$tc('sw-cms.elements.form.config.label.confirmationText')"
-                                           v-model="element.config.confirmationText.value">
-                        </sw-textarea-field>
-                    {% endblock %}
-                </sw-container>
+            {% block sw_cms_el_form_config_content_form_title %}
+            <sw-text-field
+                v-model="element.config.title.value"
+                :label="$tc('sw-cms.elements.form.config.label.title')"
+            />
             {% endblock %}
 
-            {% block sw_cms_el_form_config_options %}
-                <sw-container v-else-if="active === 'options' && element.config.type.value === 'contact'"
-                              class="sw-cms-el-config-form__tab-options">
-                    <sw-tagged-field :class="getLastMailClass"
-                                     :label="$tc('sw-cms.elements.form.config.label.receiverEmail')"
-                                     name="mailReceiver"
-                                     placeholder="john@doe.com"
-                                     @change="updateMailReceiver"
-                                     v-model="element.config.mailReceiver.value">
-                    </sw-tagged-field>
-                </sw-container>
+            {% block sw_cms_el_form_config_content_form_confirmation_text %}
+            <sw-textarea-field
+                v-if="element.config.type.value === 'contact'"
+                v-model="element.config.confirmationText.value"
+                :label="$tc('sw-cms.elements.form.config.label.confirmationText')"
+            />
             {% endblock %}
-        </template>
-    </sw-tabs>
+        </sw-container>
+        {% endblock %}
+
+        {% block sw_cms_el_form_config_options %}
+        <sw-container
+            v-else-if="active === 'options' && element.config.type.value === 'contact'"
+            class="sw-cms-el-config-form__tab-options"
+        >
+            <sw-tagged-field
+                v-model="element.config.mailReceiver.value"
+                :class="getLastMailClass"
+                :label="$tc('sw-cms.elements.form.config.label.receiverEmail')"
+                name="mailReceiver"
+                placeholder="john@doe.com"
+                @change="updateMailReceiver"
+            />
+        </sw-container>
+        {% endblock %}
+    </template>
+</sw-tabs>
 {% endblock %}

@@ -1,5 +1,8 @@
 {% block sw_button_group %}
-    <span class="sw-button-group" :class="buttonGroupClasses">
-        <slot>{% block sw_button_group_slot_default %}{% endblock %}</slot>
-    </span>
+<span
+    class="sw-button-group"
+    :class="buttonGroupClasses"
+>
+    <slot>{% block sw_button_group_slot_default %}{% endblock %}</slot>
+</span>
 {% endblock %}

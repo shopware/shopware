@@ -1,46 +1,67 @@
 {% block sw_radio_field %}
-    <sw-base-field class="sw-field--radio"
-                :class="classes"
-                :name="formFieldName"
-                v-bind="$attrs">
-        <template #sw-field-input="{ identification, helpText, error, disabled }">
-            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
+<sw-base-field
+    class="sw-field--radio"
+    :class="classes"
+    :name="formFieldName"
+    v-bind="$attrs"
+>
+    <template #sw-field-input="{ identification, helpText, error, disabled }">
+        <sw-help-text
+            v-if="helpText"
+            :text="helpText"
+        />
 
-            <div class="sw-field__radio-group">
-                <div
-                    class="sw-field__radio-option group-bordered"
-                    :class="{ 'sw-field__radio-option-checked': currentIndex === index }"
-                    v-for="(option, index) in options">
+        <div class="sw-field__radio-group">
+            <div
+                v-for="(option, index) in options"
+                :key="index"
+                class="sw-field__radio-option group-bordered"
+                :class="{ 'sw-field__radio-option-checked': currentIndex === index }"
+            >
 
-                    <div class="sw-field__radio-input">
-                        <input type="radio"
-                            :name="identification"
-                            :id="`${identification}-${index}`"
-                            :value="index"
-                            :disabled="disabled || option.disabled"
-                            :checked="currentIndex === index"
-                            @change="onChange"/>
-                        <div class="sw-field__radio-state"></div>
-                    </div>
-
-                    <label :for="`${identification}-${index}`">
-                        <span>{{ option.name }}</span>
-                        {% block sw_radio_field_help_text %}
-                            <sw-help-text v-if="option.helpText" :text="option.helpText"></sw-help-text>
-                        {% endblock %}
-
-                        <div v-if="option.description" class="sw-field__radio-option-description">
-                            {{ option.description }}
-                        </div>
-                    </label>
-
-                    <slot :name="`custom-field-${option.value}`" v-bind="{ option, disabled, checked: currentIndex === index }"></slot>
+                <div class="sw-field__radio-input">
+                    <input
+                        :id="`${identification}-${index}`"
+                        type="radio"
+                        :name="identification"
+                        :value="index"
+                        :disabled="disabled || option.disabled"
+                        :checked="currentIndex === index"
+                        @change="onChange"
+                    >
+                    <div class="sw-field__radio-state" />
                 </div>
-            </div>
 
-            <div v-if="description" class="sw-field__radio-description">
-                {{ description }}
+                <label :for="`${identification}-${index}`">
+                    <span>{{ option.name }}</span>
+                    {% block sw_radio_field_help_text %}
+                    <sw-help-text
+                        v-if="option.helpText"
+                        :text="option.helpText"
+                    />
+                    {% endblock %}
+
+                    <div
+                        v-if="option.description"
+                        class="sw-field__radio-option-description"
+                    >
+                        {{ option.description }}
+                    </div>
+                </label>
+
+                <slot
+                    :name="`custom-field-${option.value}`"
+                    v-bind="{ option, disabled, checked: currentIndex === index }"
+                />
             </div>
-        </template>
-    </sw-base-field>
+        </div>
+
+        <div
+            v-if="description"
+            class="sw-field__radio-description"
+        >
+            {{ description }}
+        </div>
+    </template>
+</sw-base-field>
 {% endblock %}

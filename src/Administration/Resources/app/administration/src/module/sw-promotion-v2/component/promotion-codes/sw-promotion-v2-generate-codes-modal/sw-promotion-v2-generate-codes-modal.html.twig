@@ -1,136 +1,147 @@
 {% block sw_promotion_v2_generate_codes_modal %}
-    <sw-modal class="sw-promotion-v2-generate-codes-modal"
-              :title="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.title')"
-              @modal-close="onClose">
+<sw-modal
+    class="sw-promotion-v2-generate-codes-modal"
+    :title="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.title')"
+    @modal-close="onClose"
+>
 
-        {% block sw_promotion_v2_generate_codes_modal_content %}
-            <div class="sw-promotion-v2-generate-codes-modal__content">
+    {% block sw_promotion_v2_generate_codes_modal_content %}
+    <div class="sw-promotion-v2-generate-codes-modal__content">
 
-                {% block sw_promotion_v2_generate_codes_modal_warning %}
-                    <sw-alert class="sw-promotion-v2-generate-codes-modal__warning"
-                              variant="warning">
-                        {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.warning') }}
-                    </sw-alert>
-                {% endblock %}
-
-                {% block sw_promotion_v2_generate_codes_modal_description %}
-                    <p class="sw-promotion-v2-generate-codes-modal__description">
-                        {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.description') }}
-                    </p>
-                {% endblock %}
-
-                {% block sw_promotion_v2_generate_codes_modal_container_pattern %}
-                    {% block sw_promotion_v2_generate_codes_modal_container_pattern_simple %}
-                        <sw-container v-if="!customPatternMode"
-                                      class="sw-promotion-v2-generate-codes-modal__container-pattern"
-                                      columns="1fr 1fr 1fr"
-                                      gap="0px 32px">
-
-                            {% block sw_promotion_v2_generate_codes_modal_prefix %}
-                                <sw-text-field
-                                    v-model="pattern.prefix"
-                                    class="sw-promotion-v2-generate-codes-modal__prefix"
-                                    :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPrefix')"
-                                    :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderPrefix')">
-                                </sw-text-field>
-                            {% endblock %}
-
-                            {% block sw_promotion_v2_generate_codes_modal_replacement %}
-                                <sw-number-field
-                                    v-model="pattern.codeLength"
-                                    class="sw-promotion-v2-generate-codes-modal__replacement"
-                                    :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
-                                    :min="1"
-                                    :max="20">
-                                </sw-number-field>
-                            {% endblock %}
-
-                            {% block sw_promotion_v2_generate_codes_modal_suffix %}
-                                <sw-text-field
-                                    v-model="pattern.suffix"
-                                    class="sw-promotion-v2-generate-codes-modal__suffix"
-                                    :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelSuffix')"
-                                    :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderSuffix')">
-                                </sw-text-field>
-                            {% endblock %}
-
-                        </sw-container>
-                    {% endblock %}
-
-                    {% block sw_promotion_v2_generate_codes_modal_container_pattern_custom %}
-                        <sw-text-field
-                            v-else
-                            v-model="promotion.individualCodePattern"
-                            class="sw-promotion-v2-generate-codes-modal__custom-pattern"
-                            :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCustomPattern')"
-                            :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderCustomPattern')"
-                            :helpText="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.helpTextCustomPattern')">
-                        </sw-text-field>
-                    {% endblock %}
-                {% endblock %}
-
-                {% block sw_promotion_v2_generate_codes_modal_custom_pattern_switch %}
-                    <sw-switch-field
-                        v-model="customPatternMode"
-                        class="sw-promotion-v2-generate-codes-modal__custom-pattern"
-                        :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelUseCustomPattern')"
-                        bordered>
-                    </sw-switch-field>
-                {% endblock %}
-
-                {% block sw_promotion_v2_generate_codes_modal_container_generate %}
-                    <sw-container class="sw-promotion-v2-generate-codes-modal__container-generate"
-                                  columns="1fr 1fr"
-                                  gap="0px 32px">
-
-                        {% block sw_promotion_v2_generate_codes_modal_preview %}
-                            <sw-text-field
-                                v-model="preview"
-                                class="sw-promotion-v2-generate-codes-modal__preview"
-                                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPreview')"
-                                disabled>
-                            </sw-text-field>
-                        {% endblock %}
-
-                        {% block sw_promotion_v2_generate_codes_modal_code_amount %}
-                            <sw-number-field
-                                v-model="codeAmount"
-                                class="sw-promotion-v2-generate-codes-modal__code-amount"
-                                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
-                                :min="1">
-                            </sw-number-field>
-                        {% endblock %}
-
-                    </sw-container>
-                {% endblock %}
-
-            </div>
+        {% block sw_promotion_v2_generate_codes_modal_warning %}
+        <sw-alert
+            class="sw-promotion-v2-generate-codes-modal__warning"
+            variant="warning"
+        >
+            {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.warning') }}
+        </sw-alert>
         {% endblock %}
 
-        {% block sw_promotion_v2_generate_codes_modal_footer %}
-            <template #modal-footer>
-
-                {% block sw_promotion_v2_generate_codes_modal_cancel %}
-                    <sw-button class="sw-promotion-v2-generate-codes-modal__button-cancel"
-                               size="small"
-                               @click="onClose">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_promotion_v2_generate_codes_modal_generate %}
-                    <sw-button-process
-                        class="sw-promotion-v2-generate-codes-modal__button-generate"
-                        variant="primary"
-                        size="small"
-                        :isLoading="isGenerating"
-                        :processSuccess="false"
-                        @click="onGenerate">
-                        {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.buttonGenerate') }}
-                    </sw-button-process>
-                {% endblock %}
-
-            </template>
+        {% block sw_promotion_v2_generate_codes_modal_description %}
+        <p class="sw-promotion-v2-generate-codes-modal__description">
+            {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.description') }}
+        </p>
         {% endblock %}
-    </sw-modal>
+
+        {% block sw_promotion_v2_generate_codes_modal_container_pattern %}
+        {% block sw_promotion_v2_generate_codes_modal_container_pattern_simple %}
+        <sw-container
+            v-if="!customPatternMode"
+            class="sw-promotion-v2-generate-codes-modal__container-pattern"
+            columns="1fr 1fr 1fr"
+            gap="0px 32px"
+        >
+
+            {% block sw_promotion_v2_generate_codes_modal_prefix %}
+            <sw-text-field
+                v-model="pattern.prefix"
+                class="sw-promotion-v2-generate-codes-modal__prefix"
+                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPrefix')"
+                :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderPrefix')"
+            />
+            {% endblock %}
+
+            {% block sw_promotion_v2_generate_codes_modal_replacement %}
+            <sw-number-field
+                v-model="pattern.codeLength"
+                class="sw-promotion-v2-generate-codes-modal__replacement"
+                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
+                :min="1"
+                :max="20"
+            />
+            {% endblock %}
+
+            {% block sw_promotion_v2_generate_codes_modal_suffix %}
+            <sw-text-field
+                v-model="pattern.suffix"
+                class="sw-promotion-v2-generate-codes-modal__suffix"
+                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelSuffix')"
+                :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderSuffix')"
+            />
+            {% endblock %}
+
+        </sw-container>
+        {% endblock %}
+
+        {% block sw_promotion_v2_generate_codes_modal_container_pattern_custom %}
+        <sw-text-field
+            v-else
+            v-model="promotion.individualCodePattern"
+            class="sw-promotion-v2-generate-codes-modal__custom-pattern"
+            :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCustomPattern')"
+            :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderCustomPattern')"
+            :help-text="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.helpTextCustomPattern')"
+        />
+        {% endblock %}
+        {% endblock %}
+
+        {% block sw_promotion_v2_generate_codes_modal_custom_pattern_switch %}
+        <sw-switch-field
+            v-model="customPatternMode"
+            class="sw-promotion-v2-generate-codes-modal__custom-pattern"
+            :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelUseCustomPattern')"
+            bordered
+        />
+        {% endblock %}
+
+        {% block sw_promotion_v2_generate_codes_modal_container_generate %}
+        <sw-container
+            class="sw-promotion-v2-generate-codes-modal__container-generate"
+            columns="1fr 1fr"
+            gap="0px 32px"
+        >
+
+            {% block sw_promotion_v2_generate_codes_modal_preview %}
+            <sw-text-field
+                v-model="preview"
+                class="sw-promotion-v2-generate-codes-modal__preview"
+                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPreview')"
+                disabled
+            />
+            {% endblock %}
+
+            {% block sw_promotion_v2_generate_codes_modal_code_amount %}
+            <sw-number-field
+                v-model="codeAmount"
+                class="sw-promotion-v2-generate-codes-modal__code-amount"
+                :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
+                :min="1"
+            />
+            {% endblock %}
+
+        </sw-container>
+        {% endblock %}
+
+    </div>
+    {% endblock %}
+
+    {% block sw_promotion_v2_generate_codes_modal_footer %}
+    <template #modal-footer>
+
+        {% block sw_promotion_v2_generate_codes_modal_cancel %}
+        <sw-button
+            class="sw-promotion-v2-generate-codes-modal__button-cancel"
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_promotion_v2_generate_codes_modal_generate %}
+        <sw-button-process
+            class="sw-promotion-v2-generate-codes-modal__button-generate"
+            variant="primary"
+            size="small"
+            :is-loading="isGenerating"
+            :process-success="false"
+            @click="onGenerate"
+        >
+            {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.buttonGenerate') }}
+        </sw-button-process>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

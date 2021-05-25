@@ -1,31 +1,34 @@
 {% block sw_settings_shipping_price_matrices %}
-    <div class="sw-settings-shipping-price-matrices">
-        {% block sw_settings_shipping_price_matrices_price_matrix %}
-            <sw-settings-shipping-price-matrix v-for="priceGroup in shippingPriceGroups"
-                                               :key="priceGroup.ruleId"
-                                               :priceGroup="priceGroup"
-                                               :disabled="disabled"
-                                               @duplicate-price-matrix="onDuplicatePriceMatrix"
-                                               @delete-price-matrix="onDeletePriceMatrix">
-            </sw-settings-shipping-price-matrix>
-        {% endblock %}
+<div class="sw-settings-shipping-price-matrices">
+    {% block sw_settings_shipping_price_matrices_price_matrix %}
+    <sw-settings-shipping-price-matrix
+        v-for="priceGroup in shippingPriceGroups"
+        :key="priceGroup.ruleId"
+        :price-group="priceGroup"
+        :disabled="disabled"
+        @duplicate-price-matrix="onDuplicatePriceMatrix"
+        @delete-price-matrix="onDeletePriceMatrix"
+    />
+    {% endblock %}
 
-        {% block sw_settings_shipping_detail_advanced_prices_actions %}
-            <div class="sw-settings-shipping-price-matrices__actions">
-                {% block sw_settings_shipping_detail_advanced_prices_actions_add_button %}
-                    <sw-button :disabled="newPriceMatrixExists || disabled"
-                               class="sw-settings-shipping-price-matrices__actions-add-matrix"
-                               v-tooltip="{
-                                    showDelay: 300,
-                                    showOnDisabledElements: true,
-                                    message: $tc('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
-                                    disabled: !newPriceMatrixExists
-                                }"
-                               @click="onAddNewPriceGroup">
-                        {{ $tc('sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix') }}
-                    </sw-button>
-                {% endblock %}
-            </div>
+    {% block sw_settings_shipping_detail_advanced_prices_actions %}
+    <div class="sw-settings-shipping-price-matrices__actions">
+        {% block sw_settings_shipping_detail_advanced_prices_actions_add_button %}
+        <sw-button
+            v-tooltip="{
+                showDelay: 300,
+                showOnDisabledElements: true,
+                message: $tc('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
+                disabled: !newPriceMatrixExists
+            }"
+            :disabled="newPriceMatrixExists || disabled"
+            class="sw-settings-shipping-price-matrices__actions-add-matrix"
+            @click="onAddNewPriceGroup"
+        >
+            {{ $tc('sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix') }}
+        </sw-button>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

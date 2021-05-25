@@ -1,60 +1,76 @@
 {% block sw_app_app_url_changed_modal %}
-<sw-modal class="sw-app-app-url-changed-modal"
-          variant="large"
-          :title="$tc('sw-app.component.sw-app-app-url-changed-modal.title')"
-          :isLoading="isLoading"
-          @modal-close="closeModal">
+<sw-modal
+    class="sw-app-app-url-changed-modal"
+    variant="large"
+    :title="$tc('sw-app.component.sw-app-app-url-changed-modal.title')"
+    :is-loading="isLoading"
+    @modal-close="closeModal"
+>
     <template #default>
         {% block sw_app_app_url_changed_modal_content %}
-            {% block sw_app_app_url_changed_modal_content_description %}
-                <div class="sw-app-app-url-changed-modal__content-description">
-                    <h3>{{ $tc('sw-app.component.sw-app-app-url-changed-modal.explanationHeader') }}</h3>
-                    <div class="sw-app-app-url-changed-modal__content-description-change">
-                        <span>
-                            <b> {{ $tc('sw-app.component.sw-app-app-url-changed-modal.oldLabel') }} </b>
-                            {{ urlDiff.oldUrl  }}
-                        </span>
-                        <br>
-                        <span>
-                            <b> {{ $tc('sw-app.component.sw-app-app-url-changed-modal.newLabel') }} </b>
-                            {{ urlDiff.newUrl }}
-                        </span>
-                </div>
-                {% block sw_app_app_url_changed_modal_description_explanation %}
-                    {{ $tc('sw-app.component.sw-app-app-url-changed-modal.explanation') }}
-                {% endblock %}
-                </div>
+        {% block sw_app_app_url_changed_modal_content_description %}
+        <div class="sw-app-app-url-changed-modal__content-description">
+            <h3>{{ $tc('sw-app.component.sw-app-app-url-changed-modal.explanationHeader') }}</h3>
+            <div class="sw-app-app-url-changed-modal__content-description-change">
+                <span>
+                    <b> {{ $tc('sw-app.component.sw-app-app-url-changed-modal.oldLabel') }} </b>
+                    {{ urlDiff.oldUrl }}
+                </span>
+                <br>
+                <span>
+                    <b> {{ $tc('sw-app.component.sw-app-app-url-changed-modal.newLabel') }} </b>
+                    {{ urlDiff.newUrl }}
+                </span>
+            </div>
+            {% block sw_app_app_url_changed_modal_description_explanation %}
+            {{ $tc('sw-app.component.sw-app-app-url-changed-modal.explanation') }}
             {% endblock %}
+        </div>
+        {% endblock %}
 
-            {% block sw_app_app_url_changed_modal_content_strategies %}
-                <div v-for="strategy in strategies" class="sw-app-app-url-changed-modal__content-choices">
-                    <sw-button
-                        class="sw-app-app-url-changed-modal__content-migration-strategy"
-                        :class="getActiveStyle(strategy)"
-                        size="large"
-                        block
-                        @click="setSelectedStrategy(strategy)">
+        {% block sw_app_app_url_changed_modal_content_strategies %}
+        <div
+            v-for="(strategy, index) in strategies"
+            :key="`content-strategies-${index}`"
+            class="sw-app-app-url-changed-modal__content-choices"
+        >
+            <sw-button
+                class="sw-app-app-url-changed-modal__content-migration-strategy"
+                :class="getActiveStyle(strategy)"
+                size="large"
+                block
+                @click="setSelectedStrategy(strategy)"
+            >
 
-                        <template v-if="isSelected(strategy)">
-                            <sw-icon small color="#189eff" name="default-basic-shape-circle-filled"></sw-icon>
-                            <sw-icon class="sw-app-app-url-changed-modal__migration-button-center"
-                                small
-                                color="#ffffff"
-                                name="default-basic-shape-circle-filled">
-                            </sw-icon>
-                        </template>
-                        <sw-icon v-else small name="default-basic-shape-circle"></sw-icon>
+                <template v-if="isSelected(strategy)">
+                    <sw-icon
+                        small
+                        color="#189eff"
+                        name="default-basic-shape-circle-filled"
+                    />
+                    <sw-icon
+                        class="sw-app-app-url-changed-modal__migration-button-center"
+                        small
+                        color="#ffffff"
+                        name="default-basic-shape-circle-filled"
+                    />
+                </template>
+                <sw-icon
+                    v-else
+                    small
+                    name="default-basic-shape-circle"
+                />
 
-                        <span class="sw-app-app-url-changed-modal__content-choices-label">
-                            {{ getStrategyLabel(strategy) }}
-                        </span>
+                <span class="sw-app-app-url-changed-modal__content-choices-label">
+                    {{ getStrategyLabel(strategy) }}
+                </span>
 
-                        <span class="sw-app-app-url-changed-modal__content-choices-description">
-                            {{ getStrategyDescription(strategy) }}
-                        </span>
-                    </sw-button>
-                </div>
-            {% endblock %}
+                <span class="sw-app-app-url-changed-modal__content-choices-description">
+                    {{ getStrategyDescription(strategy) }}
+                </span>
+            </sw-button>
+        </div>
+        {% endblock %}
         {% endblock %}
     </template>
 
@@ -65,7 +81,8 @@
 
         <sw-button
             variant="primary"
-            @click="confirm">
+            @click="confirm"
+        >
             {{ $tc('sw-app.component.sw-app-app-url-changed-modal.confirmation') }}
         </sw-button>
     </template>

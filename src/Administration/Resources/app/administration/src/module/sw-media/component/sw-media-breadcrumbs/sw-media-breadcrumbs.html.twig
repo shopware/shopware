@@ -1,29 +1,56 @@
 {% block sw_media_breadcrumbs %}
-    <nav class="sw-media-breadcrumbs" :class="swMediaBreadcrumbsClasses">
-        {% block sw_media_breadcrumbs_root_folder %}
-            <a class="sw-media-breadcrumbs__button-back-to-root" @click="onBreadcrumbsItemClicked(null)">
-                <sw-icon v-if="!small" large name="multicolor-folder-breadcrumbs-back-to-root" multicolor></sw-icon>
-                <sw-icon v-else small name="multicolor-folder-breadcrumbs" multicolor></sw-icon>
-            </a>
-        {% endblock %}
+<nav
+    class="sw-media-breadcrumbs"
+    :class="swMediaBreadcrumbsClasses"
+>
+    {% block sw_media_breadcrumbs_root_folder %}
+    <a
+        class="sw-media-breadcrumbs__button-back-to-root"
+        @click="onBreadcrumbsItemClicked(null)"
+    >
+        <sw-icon
+            v-if="!small"
+            large
+            name="multicolor-folder-breadcrumbs-back-to-root"
+            multicolor
+        />
+        <sw-icon
+            v-else
+            small
+            name="multicolor-folder-breadcrumbs"
+            multicolor
+        />
+    </a>
+    {% endblock %}
 
-        {% block sw_media_breadcrumbs_parent_folder %}
-            <a v-if="parentFolder"
-               class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__parent-folder"
-               @click="onBreadcrumbsItemClicked(parentFolder.id)">
+    {% block sw_media_breadcrumbs_parent_folder %}
+    <a
+        v-if="parentFolder"
+        class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__parent-folder"
+        @click="onBreadcrumbsItemClicked(parentFolder.id)"
+    >
 
-                <sw-icon class="sw-media-breadcrumbs__arrow-separator" name="small-arrow-small-right" :small="small"></sw-icon>
-                {{ parentFolder.name }}
-            </a>
-        {% endblock %}
+        <sw-icon
+            class="sw-media-breadcrumbs__arrow-separator"
+            name="small-arrow-small-right"
+            :small="small"
+        />
+        {{ parentFolder.name }}
+    </a>
+    {% endblock %}
 
-        {% block sw_media_breadcrumbs_current_folder %}
-            <span
-                v-if="currentFolder"
-                class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__current-folder">
-                <sw-icon class="sw-media-breadcrumbs__arrow-separator" name="small-arrow-small-right" :small="small"></sw-icon>
-                {{ currentFolder.name }}
-            </span>
-        {% endblock %}
-    </nav>
+    {% block sw_media_breadcrumbs_current_folder %}
+    <span
+        v-if="currentFolder"
+        class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__current-folder"
+    >
+        <sw-icon
+            class="sw-media-breadcrumbs__arrow-separator"
+            name="small-arrow-small-right"
+            :small="small"
+        />
+        {{ currentFolder.name }}
+    </span>
+    {% endblock %}
+</nav>
 {% endblock %}

@@ -1,23 +1,29 @@
 {% block sw_label %}
-    <span class="sw-label" :class="labelClasses" @click.stop="$emit('selected')">
-        {% block sw_label_text_holder %}
-            <span class="sw-label__caption">
-                <slot>{% block sw_label_slot_default %}{% endblock %}</slot>
-            </span>
-        {% endblock %}
-
-        {% block sw_label_dismiss %}
-            <button v-if="showDismissable"
-                    class="sw-label__dismiss"
-                    :title="$tc('global.sw-label.buttonDismiss')"
-                    @click.prevent.stop="$emit('dismiss')">
-
-                {% block sw_select_selection_dismiss_icon %}
-                    <slot name="dismiss-icon">
-                        <sw-icon name="small-default-x-line-medium"></sw-icon>
-                    </slot>
-                {% endblock %}
-            </button>
-        {% endblock %}
+<span
+    class="sw-label"
+    :class="labelClasses"
+    @click.stop="$emit('selected')"
+>
+    {% block sw_label_text_holder %}
+    <span class="sw-label__caption">
+        <slot>{% block sw_label_slot_default %}{% endblock %}</slot>
     </span>
+    {% endblock %}
+
+    {% block sw_label_dismiss %}
+    <button
+        v-if="showDismissable"
+        class="sw-label__dismiss"
+        :title="$tc('global.sw-label.buttonDismiss')"
+        @click.prevent.stop="$emit('dismiss')"
+    >
+
+        {% block sw_select_selection_dismiss_icon %}
+        <slot name="dismiss-icon">
+            <sw-icon name="small-default-x-line-medium" />
+        </slot>
+        {% endblock %}
+    </button>
+    {% endblock %}
+</span>
 {% endblock %}

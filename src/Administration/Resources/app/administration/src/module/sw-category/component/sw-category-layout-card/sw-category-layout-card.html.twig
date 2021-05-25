@@ -1,90 +1,111 @@
 {% block sw_category_layout_card %}
-    <sw-card class="sw-category-layout-card" :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading">
-        <div class="sw-category-layout-card__base-layout">
+<sw-card
+    class="sw-category-layout-card"
+    :title="$tc('sw-category.base.cms.title')"
+    :is-loading="isLoading"
+>
+    <div class="sw-category-layout-card__base-layout">
 
-            {% block sw_category_detail_layout_preview %}
-                <div class="sw-category-layout-card__preview" @click="openLayoutModal">
-                    <sw-cms-list-item
-                        :page="cmsPage"
-                        :disabled="!acl.can('category.editor')"
-                        active>
-                    </sw-cms-list-item>
+        {% block sw_category_detail_layout_preview %}
+        <div
+            class="sw-category-layout-card__preview"
+            @click="openLayoutModal"
+        >
+            <sw-cms-list-item
+                :page="cmsPage"
+                :disabled="!acl.can('category.editor')"
+                active
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_category_detail_layout_modal %}
+        <sw-cms-layout-modal
+            v-if="showLayoutSelectionModal"
+            :cms-page-types="pageTypes"
+            :headline="headline"
+            @modal-layout-select="onLayoutSelect"
+            @modal-close="closeLayoutModal"
+        />
+        {% endblock %}
+
+        {% block sw_category_detail_layout_desc %}
+        <div class="sw-category-layout-card__desc">
+
+            {% block sw_category_detail_layout_desc_info %}
+            <div class="sw-category-layout-card__desc-info">
+
+                {% block sw_category_detail_layout_desc_info_headline %}
+                <div
+                    class="sw-category-layout-card__desc-headline"
+                    :class="{ 'is--empty': !cmsPage }"
+                >
+                    {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
                 </div>
-            {% endblock %}
+                {% endblock %}
 
-            {% block sw_category_detail_layout_modal %}
-                <sw-cms-layout-modal
-                    v-if="showLayoutSelectionModal"
-                    :cmsPageTypes="pageTypes"
-                    :headline="headline"
-                    @modal-layout-select="onLayoutSelect"
-                    @modal-close="closeLayoutModal">
-                </sw-cms-layout-modal>
-            {% endblock %}
-
-            {% block sw_category_detail_layout_desc %}
-                <div class="sw-category-layout-card__desc">
-
-                    {% block sw_category_detail_layout_desc_info %}
-                        <div class="sw-category-layout-card__desc-info">
-
-                            {% block sw_category_detail_layout_desc_info_headline %}
-                                <div class="sw-category-layout-card__desc-headline" :class="{ 'is--empty': !cmsPage }">
-                                    {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
-                                </div>
-                            {% endblock %}
-
-                            {% block sw_category_detail_layout_desc_info_subheadline %}
-                                <div class="sw-category-layout-card__desc-subheadline" :class="{ 'is--empty': !cmsPage }">
-                                    {{ cmsPage ? cmsPageTypes[cmsPage.type] : $tc('sw-category.base.cms.defaultDesc') }}
-                                </div>
-                            {% endblock %}
-
-                        </div>
-                    {% endblock %}
-
-                    {% block sw_category_detail_layout_desc_actions %}
-                        <div class="sw-category-layout-card__desc-actions">
-
-                            {% block sw_category_detail_layout_desc_actions_layout %}
-                                <sw-button
-                                    class="sw-category-detail-layout__change-layout-action"
-                                    size="small"
-                                    :disabled="!acl.can('category.editor')"
-                                    @click="openLayoutModal">
-                                    {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
-                                </sw-button>
-                            {% endblock %}
-
-                            {% block sw_category_detail_layout_desc_actions_designer %}
-                                <sw-button class="sw-category-detail-layout__open-in-pagebuilder"
-                                           size="small"
-                                           :disabled="!acl.can('category.editor')"
-                                           @click="openInPagebuilder">
-                                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
-                                </sw-button>
-                            {% endblock %}
-
-                            {% block sw_category_detail_layout_desc_actions_remove %}
-                                <sw-button v-if="cmsPage"
-                                           size="small"
-                                           :disabled="!acl.can('category.editor')"
-                                           class="sw-category-detail-layout__layout-reset"
-                                           @click="onLayoutReset"
-                                           square>
-                                    <sw-icon name="default-action-trash" small></sw-icon>
-                                </sw-button>
-                            {% endblock %}
-
-                        </div>
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - will be removed #}
-                    {% block sw_category_detail_layout_desc_link %}{% endblock %}
-
+                {% block sw_category_detail_layout_desc_info_subheadline %}
+                <div
+                    class="sw-category-layout-card__desc-subheadline"
+                    :class="{ 'is--empty': !cmsPage }"
+                >
+                    {{ cmsPage ? cmsPageTypes[cmsPage.type] : $tc('sw-category.base.cms.defaultDesc') }}
                 </div>
+                {% endblock %}
+
+            </div>
             {% endblock %}
+
+            {% block sw_category_detail_layout_desc_actions %}
+            <div class="sw-category-layout-card__desc-actions">
+
+                {% block sw_category_detail_layout_desc_actions_layout %}
+                <sw-button
+                    class="sw-category-detail-layout__change-layout-action"
+                    size="small"
+                    :disabled="!acl.can('category.editor')"
+                    @click="openLayoutModal"
+                >
+                    {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_category_detail_layout_desc_actions_designer %}
+                <sw-button
+                    class="sw-category-detail-layout__open-in-pagebuilder"
+                    size="small"
+                    :disabled="!acl.can('category.editor')"
+                    @click="openInPagebuilder"
+                >
+                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_category_detail_layout_desc_actions_remove %}
+                <sw-button
+                    v-if="cmsPage"
+                    size="small"
+                    :disabled="!acl.can('category.editor')"
+                    class="sw-category-detail-layout__layout-reset"
+                    square
+                    @click="onLayoutReset"
+                >
+                    <sw-icon
+                        name="default-action-trash"
+                        small
+                    />
+                </sw-button>
+                {% endblock %}
+
+            </div>
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            {% block sw_category_detail_layout_desc_link %}{% endblock %}
 
         </div>
-    </sw-card>
+        {% endblock %}
+
+    </div>
+</sw-card>
 {% endblock %}

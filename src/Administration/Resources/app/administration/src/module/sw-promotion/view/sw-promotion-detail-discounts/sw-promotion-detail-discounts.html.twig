@@ -1,37 +1,42 @@
 {% block sw_promotion_detail_discounts %}
-    <div class="sw-promotion-detail-discounts">
-        {% block sw_promotion_detail_discounts_card_add %}
-            <sw-card slot="content" hero :isLoading="isLoading">
-                <div>
-                    {% block sw_promotion_detail_discounts_actions_add %}
-                        <sw-button
-                            variant="ghost"
-                            @click="onAddDiscount"
-                            :disabled="(promotion && promotion.hasOrders) || !acl.can('promotion.editor')"
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('promotion.editor'),
-                                showOnDisabledElements: true
-                            }">
-                            {{ $tc('sw-promotion.detail.main.discounts.buttonAddDiscount') }}
-                        </sw-button>
-                    {% endblock %}
-                </div>
-            </sw-card>
-        {% endblock %}
+<div class="sw-promotion-detail-discounts">
+    {% block sw_promotion_detail_discounts_card_add %}
+    <sw-card
+        slot="content"
+        hero
+        :is-loading="isLoading"
+    >
+        <div>
+            {% block sw_promotion_detail_discounts_actions_add %}
+            <sw-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('promotion.editor'),
+                    showOnDisabledElements: true
+                }"
+                variant="ghost"
+                :disabled="(promotion && promotion.hasOrders) || !acl.can('promotion.editor')"
+                @click="onAddDiscount"
+            >
+                {{ $tc('sw-promotion.detail.main.discounts.buttonAddDiscount') }}
+            </sw-button>
+            {% endblock %}
+        </div>
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_promotion_detail_discounts_items %}
-            <ul class="sw-promotion-detail-discounts__discount-list">
-                {% block sw_promotion_detail_discounts_item_form %}
-                    <sw-promotion-discount-component
-                        v-for="discount in discounts"
-                        :key="discount.id"
-                        :promotion="promotion"
-                        :discount="discount"
-                        @discount-delete="deleteDiscount">
-                    </sw-promotion-discount-component>
-                {% endblock %}
-            </ul>
+    {% block sw_promotion_detail_discounts_items %}
+    <ul class="sw-promotion-detail-discounts__discount-list">
+        {% block sw_promotion_detail_discounts_item_form %}
+        <sw-promotion-discount-component
+            v-for="discount in discounts"
+            :key="discount.id"
+            :promotion="promotion"
+            :discount="discount"
+            @discount-delete="deleteDiscount"
+        />
         {% endblock %}
-    </div>
+    </ul>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,191 +1,227 @@
 {% block sw_tax_rule_card %}
-    <sw-card :title="$tc('sw-settings-tax.taxRuleCard.cardTitle')"
-             class="sw-tax-rule-card"
-             :class="taxRuleCardClasses"
-             :isLoading="isLoading || taxRulesLoading || cardLoading">
-        <template #grid>
-            <template v-if="!taxRulesEmpty && !disabled">
-                {% block sw_tax_rule_card_header %}
-                    <sw-card-section divider="bottom" secondary slim>
-                        {% block sw_tax_rule_card_header_filter %}
-                            <sw-card-filter :placeholder="$tc('sw-settings-tax.taxRuleCard.searchBarPlaceholder')"
-                                            @sw-card-filter-term-change="onSearchTermChange">
-                                <template #filter>
-                                    {% block sw_tax_rule_card_header_create_rule_button %}
-                                        <sw-button
-                                            v-tooltip.bottom="{
-                                                message: $tc('sw-privileges.tooltip.warning'),
-                                                disabled: acl.can('tax.editor'),
-                                                showOnDisabledElements: true
-                                            }"
-                                            class="sw-tax-rule-grid-button"
-                                            slot="button"
-                                            size="small"
-                                            :disabled="!acl.can('tax.editor')"
-                                            @click="showModal = true">
-
-                                            {% block sw_tax_rule_card_header_create_document_button_label %}
-                                                {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
-                                            {% endblock %}
-
-                                        </sw-button>
-                                    {% endblock %}
-                                </template>
-                            </sw-card-filter>
-                        {% endblock %}
-
-                    </sw-card-section>
-                {% endblock %}
-
-                {% block sw_tax_rule_card_grid %}
-                    <sw-data-grid
-                        :dataSource="taxRules"
-                        :columns="getColumns"
-                        :fullPage="false"
-                        :showSettings="true"
-                        :showSelection="false"
-                        :showActions="true"
-                        :isLoading="isLoading"
-                        :allowColumnEdit="false"
-                        :allowInlineEdit="false"
-                        v-bind="{sortBy, sortDirection}"
-                        @column-sort="onColumnSort"
-                        identifier="sw-tax-rule-grid">
-                        {% block sw_settings_tax_rule_grid_column_tax_rate %}
-                            <template #column-taxRate="{ item, isInlineEdit }">
-                                <template v-if="isInlineEdit">
-                                    <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.taxRate">
-                                        <template #suffix>
-                                           <span>
-                                                <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
-                                           </span>
-                                        </template>
-                                    </sw-number-field>
-                                </template>
-                                <template v-else>
-                                    {{ item.taxRate }}%
-                                </template>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_settings_tax_rule_grid_column_tax_rule_type_type_name %}
-                            <template #column-type.typeName="{ item }">
-                                <component v-if="getTypeCellComponent(item)"
-                                           :is="getTypeCellComponent(item)"
-                                           :taxRule="item">
-                                </component>
-                                <template v-else>
-                                    {{ item.type.typeName }}
-                                </template>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_settings_tax_list_grid_columns_actions %}
-                            <template #actions="{ item }">
-                                {% block sw_settings_tax_list_grid_columns_actions_edit %}
-                                    <sw-context-menu-item
-                                        class="sw-tax-list__edit-action"
-                                        :disabled="!acl.can('tax.editor')"
-                                        @click="showRuleModal(item)">
-                                        {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_settings_tax_list_grid_columns_actions_delete %}
-                                    <sw-context-menu-item
-                                        class="sw-tax-list__delete-action"
-                                        variant="danger"
-                                        :disabled="!acl.can('tax.editor')"
-                                        @click="onDelete(item.id)">
-                                        {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_settings_tax_list_grid_action_modals %}
-                            <template #action-modals="{ item }">
-                                {% block sw_settings_tax_list_delete_modal %}
-                                    <sw-modal v-if="showDeleteModal === item.id"
-                                              @modal-close="onCloseDeleteModal"
-                                              :title="$tc('global.default.warning')"
-                                              variant="small">
-                                        {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
-                                            <p class="sw-settings-tax-list__confirm-delete-text">
-                                                {{ $tc('sw-settings-tax.taxRuleCard.textDeleteConfirm', 0, { name: item.country.name, type: item.type.typeName }) }}
-                                            </p>
-                                        {% endblock %}
-
-                                        {% block sw_settings_tax_list_delete_modal_footer %}
-                                            <template #modal-footer>
-                                                {% block sw_settings_tax_list_delete_modal_cancel %}
-                                                    <sw-button @click="onCloseDeleteModal" size="small">
-                                                        {{ $tc('sw-settings-tax.list.buttonCancel') }}
-                                                    </sw-button>
-                                                {% endblock %}
-
-                                                {% block sw_settings_tax_list_delete_modal_confirm %}
-                                                    <sw-button @click="onConfirmDelete(item.id)" variant="danger" size="small">
-                                                        {{ $tc('sw-settings-tax.list.buttonDelete') }}
-                                                    </sw-button>
-                                                {% endblock %}
-                                            </template>
-                                        {% endblock %}
-                                    </sw-modal>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-                        
-                        {% block sw_settings_tax_list_grid_pagination %}
-                            <template #pagination>
-                                <sw-pagination v-bind="{ page, limit, total }" :total-visible="7" @page-change="paginate"/>
-                            </template>
-                        {% endblock %}
-
-                    </sw-data-grid>
-                {% endblock %}
-            </template>
-        </template>
-
-        {% block sw_tax_rule_card_grid_column_modal %}
-            <sw-settings-tax-rule-modal v-if="showModal"
-                                        :tax="tax"
-                                        :currentRule="currentRule"
-                                        @modal-close="onModalClose">
-            </sw-settings-tax-rule-modal>
-        {% endblock %}
-
-        {% block sw_tax_rule_card_empty_state %}
-            <template v-if="taxRulesEmpty || disabled">
-                <div class="sw-settings-tax-rule-card__empty-state">
-                    {% block sw_tax_rule_card_empty_state_image %}
-                        <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
-                    {% endblock %}
-
-                    {% block sw_tax_rule_card_empty_state_label %}
-                        <div class="sw-settings-tax-rule-card__empty-state--label">
-                            <p v-if="disabled">{{ $tc('sw-settings-tax.taxRuleCard.createStateDescription') }}</p>
-                            <p v-else>{{ $tc('sw-settings-tax.taxRuleCard.emptyStateDescription') }}</p>
-                        </div>
-                    {% endblock %}
-
-                    {% block sw_tax_rule_card_empty_state_button %}
+<sw-card
+    :title="$tc('sw-settings-tax.taxRuleCard.cardTitle')"
+    class="sw-tax-rule-card"
+    :class="taxRuleCardClasses"
+    :is-loading="isLoading || taxRulesLoading || cardLoading"
+>
+    <template #grid>
+        <template v-if="!taxRulesEmpty && !disabled">
+            {% block sw_tax_rule_card_header %}
+            <sw-card-section
+                divider="bottom"
+                secondary
+                slim
+            >
+                {% block sw_tax_rule_card_header_filter %}
+                <sw-card-filter
+                    :placeholder="$tc('sw-settings-tax.taxRuleCard.searchBarPlaceholder')"
+                    @sw-card-filter-term-change="onSearchTermChange"
+                >
+                    <template #filter>
+                        {% block sw_tax_rule_card_header_create_rule_button %}
                         <sw-button
+                            slot="button"
                             v-tooltip.bottom="{
                                 message: $tc('sw-privileges.tooltip.warning'),
                                 disabled: acl.can('tax.editor'),
                                 showOnDisabledElements: true
                             }"
-                            class="sw-settings-tax-rule-card__empty-state--button"
-                            variant="ghost"
+                            class="sw-tax-rule-grid-button"
                             size="small"
-                            :disabled="disabled || !acl.can('tax.editor')"
-                            @click="showModal = true">
+                            :disabled="!acl.can('tax.editor')"
+                            @click="showModal = true"
+                        >
+
+                            {% block sw_tax_rule_card_header_create_document_button_label %}
                             {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
+                            {% endblock %}
+
                         </sw-button>
+                        {% endblock %}
+                    </template>
+                </sw-card-filter>
+                {% endblock %}
+
+            </sw-card-section>
+            {% endblock %}
+
+            {% block sw_tax_rule_card_grid %}
+            <sw-data-grid
+                :data-source="taxRules"
+                :columns="getColumns"
+                :full-page="false"
+                :show-settings="true"
+                :show-selection="false"
+                :show-actions="true"
+                :is-loading="isLoading"
+                :allow-column-edit="false"
+                :allow-inline-edit="false"
+                v-bind="{sortBy, sortDirection}"
+                identifier="sw-tax-rule-grid"
+                @column-sort="onColumnSort"
+            >
+                {% block sw_settings_tax_rule_grid_column_tax_rate %}
+                <template #column-taxRate="{ item, isInlineEdit }">
+                    <template v-if="isInlineEdit">
+                        <sw-number-field
+                            v-model="item.taxRate"
+                            :size="compact ? 'small' : 'default'"
+                        >
+                            <template #suffix>
+                                <span>
+                                    <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))" />
+                                </span>
+                            </template>
+                        </sw-number-field>
+                    </template>
+                    <template v-else>
+                        {{ item.taxRate }}%
+                    </template>
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_tax_rule_grid_column_tax_rule_type_type_name %}
+                <!-- eslint-disable vue/valid-v-slot -->
+                <template #column-type.typeName="{ item }">
+                    <component
+                        :is="getTypeCellComponent(item)"
+                        v-if="getTypeCellComponent(item)"
+                        :tax-rule="item"
+                    />
+                    <template v-else>
+                        {{ item.type.typeName }}
+                    </template>
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_tax_list_grid_columns_actions %}
+                <template #actions="{ item }">
+                    {% block sw_settings_tax_list_grid_columns_actions_edit %}
+                    <sw-context-menu-item
+                        class="sw-tax-list__edit-action"
+                        :disabled="!acl.can('tax.editor')"
+                        @click="showRuleModal(item)"
+                    >
+                        {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
+                    </sw-context-menu-item>
                     {% endblock %}
-                </div>
-            </template>
-        {% endblock %}
-    </sw-card>
+
+                    {% block sw_settings_tax_list_grid_columns_actions_delete %}
+                    <sw-context-menu-item
+                        class="sw-tax-list__delete-action"
+                        variant="danger"
+                        :disabled="!acl.can('tax.editor')"
+                        @click="onDelete(item.id)"
+                    >
+                        {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_tax_list_grid_action_modals %}
+                <template #action-modals="{ item }">
+                    {% block sw_settings_tax_list_delete_modal %}
+                    <sw-modal
+                        v-if="showDeleteModal === item.id"
+                        :title="$tc('global.default.warning')"
+                        variant="small"
+                        @modal-close="onCloseDeleteModal"
+                    >
+                        {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
+                        <p class="sw-settings-tax-list__confirm-delete-text">
+                            {{ $tc('sw-settings-tax.taxRuleCard.textDeleteConfirm', 0, { name: item.country.name, type: item.type.typeName }) }}
+                        </p>
+                        {% endblock %}
+
+                        {% block sw_settings_tax_list_delete_modal_footer %}
+                        <template #modal-footer>
+                            {% block sw_settings_tax_list_delete_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('sw-settings-tax.list.buttonCancel') }}
+                            </sw-button>
+                            {% endblock %}
+
+                            {% block sw_settings_tax_list_delete_modal_confirm %}
+                            <sw-button
+                                variant="danger"
+                                size="small"
+                                @click="onConfirmDelete(item.id)"
+                            >
+                                {{ $tc('sw-settings-tax.list.buttonDelete') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-modal>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_tax_list_grid_pagination %}
+                <template #pagination>
+                    <sw-pagination
+                        v-bind="{ page, limit, total }"
+                        :total-visible="7"
+                        @page-change="paginate"
+                    />
+                </template>
+                {% endblock %}
+
+            </sw-data-grid>
+            {% endblock %}
+        </template>
+    </template>
+
+    {% block sw_tax_rule_card_grid_column_modal %}
+    <sw-settings-tax-rule-modal
+        v-if="showModal"
+        :tax="tax"
+        :current-rule="currentRule"
+        @modal-close="onModalClose"
+    />
+    {% endblock %}
+
+    {% block sw_tax_rule_card_empty_state %}
+    <template v-if="taxRulesEmpty || disabled">
+        <div class="sw-settings-tax-rule-card__empty-state">
+            {% block sw_tax_rule_card_empty_state_image %}
+            <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+            {% endblock %}
+
+            {% block sw_tax_rule_card_empty_state_label %}
+            <div class="sw-settings-tax-rule-card__empty-state--label">
+                <p v-if="disabled">
+                    {{ $tc('sw-settings-tax.taxRuleCard.createStateDescription') }}
+                </p>
+                <p v-else>
+                    {{ $tc('sw-settings-tax.taxRuleCard.emptyStateDescription') }}
+                </p>
+            </div>
+            {% endblock %}
+
+            {% block sw_tax_rule_card_empty_state_button %}
+            <sw-button
+                v-tooltip.bottom="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('tax.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-settings-tax-rule-card__empty-state--button"
+                variant="ghost"
+                size="small"
+                :disabled="disabled || !acl.can('tax.editor')"
+                @click="showModal = true"
+            >
+                {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
+            </sw-button>
+            {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
+</sw-card>
 {% endblock %}

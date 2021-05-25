@@ -1,52 +1,62 @@
 {% block sw_button %}
-    {% block sw_button_router_link %}
-        <router-link v-if="routerLink"
-                     :to="routerLink"
-                     class="sw-button"
-                     :event="!disabled ? 'click' : ''"
-                     :class="buttonClasses"
-                     v-bind="$attrs">
-            {% block sw_button_router_link_content %}
-                <span class="sw-button__content">
-                    <slot>{% block sw_button_router_link_slot_default %}{% endblock %}</slot>
-                </span>
-            {% endblock %}
-        </router-link>
+{% block sw_button_router_link %}
+<router-link
+    v-if="routerLink"
+    :to="routerLink"
+    class="sw-button"
+    :event="!disabled ? 'click' : ''"
+    :class="buttonClasses"
+    v-bind="$attrs"
+>
+    {% block sw_button_router_link_content %}
+    <span class="sw-button__content">
+        <slot>{% block sw_button_router_link_slot_default %}{% endblock %}</slot>
+    </span>
     {% endblock %}
+</router-link>
+{% endblock %}
 
-    {% block sw_button_link %}
-        <a v-else-if="link"
-           :href="!disabled ? link : ''"
-           target="_blank"
-           rel="noopener"
-           class="sw-button"
-           :class="buttonClasses"
-           v-bind="$attrs">
-            {% block sw_button_link_content %}
-                <span class="sw-button__content">
-                    <slot>{% block sw_button_link_slot_default %}{% endblock %}</slot>
-                </span>
-            {% endblock %}
-        </a>
+{% block sw_button_link %}
+<a
+    v-else-if="link"
+    :href="!disabled ? link : ''"
+    target="_blank"
+    rel="noopener"
+    class="sw-button"
+    :class="buttonClasses"
+    v-bind="$attrs"
+>
+    {% block sw_button_link_content %}
+    <span class="sw-button__content">
+        <slot>{% block sw_button_link_slot_default %}{% endblock %}</slot>
+    </span>
     {% endblock %}
+</a>
+{% endblock %}
 
-    {% block sw_button_button %}
-        <button v-else
-                class="sw-button"
-                :class="buttonClasses"
-                :disabled="disabled || isLoading"
-                v-bind="$attrs"
-                v-on="disabled ? null : $listeners">
-            {% block sw_button_button_content %}
-                <sw-icon name="default-web-loading-circle"
-                         class="sw-button__loader"
-                         v-if="isLoading"
-                         size="20px">
-                </sw-icon>
-                <span class="sw-button__content" :class="contentVisibilityClass">
-                    <slot>{% block sw_button_button_slot_default %}{% endblock %}</slot>
-                </span>
-            {% endblock %}
-        </button>
+{% block sw_button_button %}
+<button
+    v-else
+    class="sw-button"
+    :class="buttonClasses"
+    :disabled="disabled || isLoading"
+    v-bind="$attrs"
+    v-on="disabled ? null : $listeners"
+>
+    {% block sw_button_button_content %}
+    <sw-icon
+        v-if="isLoading"
+        name="default-web-loading-circle"
+        class="sw-button__loader"
+        size="20px"
+    />
+    <span
+        class="sw-button__content"
+        :class="contentVisibilityClass"
+    >
+        <slot>{% block sw_button_button_slot_default %}{% endblock %}</slot>
+    </span>
+    {% endblock %}
+</button>
     {% endblock %}
 {% endblock %}

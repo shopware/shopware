@@ -1,36 +1,37 @@
 {% block sw_number_filter %}
-    <sw-range-filter
-        class="sw-number-filter"
-        :title="filter.label"
-        :filter="filter"
-        :active="active"
-        :value="numberValue"
-        :property="filter.property"
-        :showResetButton="!!numberValue.from || !!numberValue.to"
-        @filter-update="updateFilter"
-        @filter-reset="resetFilter">
-        {% block sw_number_filter_from_field %}
-            <template #from-field>
-                <sw-number-field
-                    v-model="numberValue.from"
-                    v-bind="$attrs"
-                    class="sw-number-filter__from"
-                    :label="$tc('global.default.from')"
-                    :placeholder="filter.fromPlaceholder">
-                </sw-number-field>
-            </template>
-        {% endblock %}
+<sw-range-filter
+    class="sw-number-filter"
+    :title="filter.label"
+    :filter="filter"
+    :active="active"
+    :value="numberValue"
+    :property="filter.property"
+    :show-reset-button="!!numberValue.from || !!numberValue.to"
+    @filter-update="updateFilter"
+    @filter-reset="resetFilter"
+>
+    {% block sw_number_filter_from_field %}
+    <template #from-field>
+        <sw-number-field
+            v-model="numberValue.from"
+            v-bind="$attrs"
+            class="sw-number-filter__from"
+            :label="$tc('global.default.from')"
+            :placeholder="filter.fromPlaceholder"
+        />
+    </template>
+    {% endblock %}
 
-        {% block sw_number_filter_to_field %}
-            <template #to-field>
-                <sw-number-field
-                    v-model="numberValue.to"
-                    v-bind="$attrs"
-                    class="sw-number-filter__to"
-                    :label="$tc('global.default.to')"
-                    :placeholder="filter.toPlaceholder">
-                </sw-number-field>
-            </template>
-        {% endblock %}
-    </sw-range-filter>
+    {% block sw_number_filter_to_field %}
+    <template #to-field>
+        <sw-number-field
+            v-model="numberValue.to"
+            v-bind="$attrs"
+            class="sw-number-filter__to"
+            :label="$tc('global.default.to')"
+            :placeholder="filter.toPlaceholder"
+        />
+    </template>
+    {% endblock %}
+</sw-range-filter>
 {% endblock %}

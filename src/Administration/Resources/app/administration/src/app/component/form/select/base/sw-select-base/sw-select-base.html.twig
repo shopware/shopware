@@ -1,24 +1,46 @@
 {% block sw_select_base %}
-    <sw-block-field class="sw-select" :class="swFieldClasses" v-bind="$attrs" :disabled="disabled" v-on="$listeners">
-        <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
-            <div class="sw-select__selection"
-                 tabindex="0"
-                 @click="expand"
-                 @focus="expand"
-                 @keydown.tab="collapse"
-                 @keydown.esc="collapse">
-                <slot name="sw-select-selection" v-bind="{ identification, error, disabled, size, expand, collapse }"></slot>
-                <div class="sw-select__selection-indicators">
-                    <sw-loader v-if="isLoading" class="sw-select__select-indicator" size="16px"></sw-loader>
-                    <sw-icon class="sw-select__select-indicator" name="small-arrow-medium-down" small></sw-icon>
-                </div>
+<sw-block-field
+    class="sw-select"
+    :class="swFieldClasses"
+    v-bind="$attrs"
+    :disabled="disabled"
+    v-on="$listeners"
+>
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <div
+            class="sw-select__selection"
+            tabindex="0"
+            @click="expand"
+            @focus="expand"
+            @keydown.tab="collapse"
+            @keydown.esc="collapse"
+        >
+            <slot
+                name="sw-select-selection"
+                v-bind="{ identification, error, disabled, size, expand, collapse }"
+            />
+            <div class="sw-select__selection-indicators">
+                <sw-loader
+                    v-if="isLoading"
+                    class="sw-select__select-indicator"
+                    size="16px"
+                />
+                <sw-icon
+                    class="sw-select__select-indicator"
+                    name="small-arrow-medium-down"
+                    small
+                />
             </div>
+        </div>
 
-            <template v-if="expanded">
-                <transition name="sw-select-result-list-fade-down">
-                    <slot name="results-list" v-bind="{ collapse }"></slot>
-                </transition>
-            </template>
+        <template v-if="expanded">
+            <transition name="sw-select-result-list-fade-down">
+                <slot
+                    name="results-list"
+                    v-bind="{ collapse }"
+                />
+            </transition>
         </template>
-    </sw-block-field>
+    </template>
+</sw-block-field>
 {% endblock %}

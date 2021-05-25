@@ -1,36 +1,44 @@
 {% block sw_order_delivery_metadata %}
-    <sw-card class="sw-order-delivery-metadata" :title="title" :isLoading="isLoading">
-        {% block sw_order_delivery_metadata_deliveries %}
-        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
-            {% block sw_order_delivery_metadata_deliveries_data %}
-                <sw-description-list>
-                    {% block sw_order_delivery_metadata_shipping_method %}
-                        <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
-                        <dd>{{ delivery.shippingMethod.translated.name }}</dd>
-                    {% endblock %}
-
-                    {% block sw_order_delivery_metadata_delivery_date %}
-                        <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
-                        <dd>{{ delivery.shippingDateEarliest | date }}</dd>
-                    {% endblock %}
-
-                    {% block sw_order_delivery_metadata_shipping_costs %}
-                        <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
-                        <dd>{{ order.shippingTotal | currency(order.currency.shortName)}}</dd>
-                    {% endblock %}
-
-                    {% block sw_order_delivery_metadata_slot %}
-                    {% endblock %}
-
-                </sw-description-list>
+<sw-card
+    class="sw-order-delivery-metadata"
+    :title="title"
+    :is-loading="isLoading"
+>
+    {% block sw_order_delivery_metadata_deliveries %}
+    <sw-container
+        columns="repeat(auto-fit, minmax(250px, 1fr))"
+        gap="0 30px"
+    >
+        {% block sw_order_delivery_metadata_deliveries_data %}
+        <sw-description-list>
+            {% block sw_order_delivery_metadata_shipping_method %}
+            <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
+            <dd>{{ delivery.shippingMethod.translated.name }}</dd>
             {% endblock %}
-            {% block sw_order_delivery_metadata_shipping_address %}
-                <sw-address class="sw-order-delivery-metdata__address"
-                            :headline="$tc('sw-order.detailBase.headlineDeliveryAddress')"
-                            :address="delivery.shippingOrderAddress">
-                </sw-address>
+
+            {% block sw_order_delivery_metadata_delivery_date %}
+            <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
+            <dd>{{ delivery.shippingDateEarliest | date }}</dd>
             {% endblock %}
-        </sw-container>
+
+            {% block sw_order_delivery_metadata_shipping_costs %}
+            <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
+            <dd>{{ order.shippingTotal | currency(order.currency.shortName) }}</dd>
+            {% endblock %}
+
+            {% block sw_order_delivery_metadata_slot %}
+            {% endblock %}
+
+        </sw-description-list>
         {% endblock %}
-    </sw-card>
+        {% block sw_order_delivery_metadata_shipping_address %}
+        <sw-address
+            class="sw-order-delivery-metdata__address"
+            :headline="$tc('sw-order.detailBase.headlineDeliveryAddress')"
+            :address="delivery.shippingOrderAddress"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</sw-card>
 {% endblock %}

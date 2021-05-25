@@ -1,112 +1,123 @@
 {% block sw_media_library %}
-    <div class="sw-media-library">
-        {% block sw_media_library_display_options %}
-        <div class="sw-media-library__options-container">
-            <sw-media-display-options
-                class="sw-media-library__display-options"
-                :presentation="presentation"
-                :sorting="sorting"
-                :hidePresentation="compact"
-                @media-presentation-change="presentation = $event"
-                @media-sorting-change="sorting = $event">
-            </sw-media-display-options>
+<div class="sw-media-library">
+    {% block sw_media_library_display_options %}
+    <div class="sw-media-library__options-container">
+        <sw-media-display-options
+            class="sw-media-library__display-options"
+            :presentation="presentation"
+            :sorting="sorting"
+            :hide-presentation="compact"
+            @media-presentation-change="presentation = $event"
+            @media-sorting-change="sorting = $event"
+        />
 
-            {% block sw_media_index_create_folder %}
-                <sw-button
-                    v-if="editable"
-                    :disabled="!acl.can('media.creator')"
-                    class="sw-media-index__create-folder-action"
-                    variant="ghost"
-                    size="small"
-                    @click="createFolder"
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('media.creator'),
-                        showOnDisabledElements: true
-                    }">
-                    {{ $tc('sw-media.index.buttonCreateFolder') }}
-                </sw-button>
-            {% endblock %}
-        </div>
-        {% endblock %}
-
-        {% block sw_media_library_scroll_container %}
-            <div class="sw-media-library__scroll-container" ref="scrollContainer">
-                {% block sw_media_library_empty_state %}
-                    <sw-empty-state
-                            v-if="!isLoading && selectableItems.length === 0"
-                            :title="$tc('sw-media.mediaLibrary.titleEmptyState')">
-                        <template slot="icon">
-                            <sw-icon name="default-object-image" size="60px" color="#ff68b4"></sw-icon>
-                        </template>
-                        {{ $tc('sw-media.mediaLibrary.descriptionEmptyState') }}
-                    </sw-empty-state>
-                {% endblock %}
-
-                <div class="sw-media-library__scroll-content">
-                    {% block sw_media_library_media_grid %}
-                        <sw-media-grid
-                            class="sw-media-library_media-grid"
-                            :presentation="gridPresentation"
-                            ref="mediaGrid"
-                            @media-grid-selection-clear="clearSelection">
-
-                            {% block sw_media_library_back_to_parent_item %}
-                                <sw-media-folder-item
-                                    :allowEdit="acl.can('media.editor')"
-                                    :allowDelete="acl.can('media.deleter')"
-                                    v-if="parentFolder"
-                                    class="sw-media-library__parent-folder"
-                                    :item="parentFolder"
-                                    :showSelectionIndicator="false"
-                                    :showContextMenuButton="false"
-                                    :allowMultiSelect="allowMultiSelect"
-                                    :isList="showItemsAsList"
-                                    @media-item-click="goToParentFolder"
-                                    isParent>
-                                </sw-media-folder-item>
-                            {% endblock %}
-
-                            {% block sw_media_library_media_item_list %}
-                                <sw-media-entity-mapper
-                                    v-for="(gridItem, index) in selectableItems"
-                                    :key="gridItem.getEntityName() + '_' + gridItem.id"
-                                    :class="`sw-media-grid-item__item--${index}`"
-                                    :item="gridItem"
-                                    :allowEdit="acl.can('media.editor')"
-                                    :allowDelete="acl.can('media.deleter')"
-                                    :selected="showItemSelected(gridItem)"
-                                    :showSelectionIndicator="isListSelect"
-                                    :showContextMenuButton="editable"
-                                    :isList="showItemsAsList"
-                                    :editable="editable"
-                                    :allowMultiSelect="allowMultiSelect"
-                                    @media-item-replaced="refreshList"
-                                    @media-item-delete="refreshList"
-                                    @media-folder-delete="refreshList"
-                                    @media-folder-remove="removeNewFolder"
-                                    @media-folder-dissolve="refreshList"
-                                    @media-folder-move="refreshList"
-                                    v-on="mediaItemSelectionHandler">
-                                </sw-media-entity-mapper>
-                            {% endblock %}
-
-                            {% block sw_media_library_load_more_button %}
-                                <sw-button
-                                    v-if="showLoadMoreButton"
-                                    class="sw-media-library__load-more-button"
-                                    @click="loadNextItems">
-                                    {{ $tc('sw-media.mediaLibrary.labelButtonLoadMore') }}
-                                </sw-button>
-                            {% endblock %}
-                        </sw-media-grid>
-                    {% endblock %}
-                </div>
-            </div>
-        {% endblock %}
-
-        {% block sw_media_library_loader %}
-            <sw-loader v-if="isLoading"></sw-loader>
+        {% block sw_media_index_create_folder %}
+        <sw-button
+            v-if="editable"
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('media.creator'),
+                showOnDisabledElements: true
+            }"
+            :disabled="!acl.can('media.creator')"
+            class="sw-media-index__create-folder-action"
+            variant="ghost"
+            size="small"
+            @click="createFolder"
+        >
+            {{ $tc('sw-media.index.buttonCreateFolder') }}
+        </sw-button>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_media_library_scroll_container %}
+    <div
+        ref="scrollContainer"
+        class="sw-media-library__scroll-container"
+    >
+        {% block sw_media_library_empty_state %}
+        <sw-empty-state
+            v-if="!isLoading && selectableItems.length === 0"
+            :title="$tc('sw-media.mediaLibrary.titleEmptyState')"
+        >
+            <template slot="icon">
+                <sw-icon
+                    name="default-object-image"
+                    size="60px"
+                    color="#ff68b4"
+                />
+            </template>
+            {{ $tc('sw-media.mediaLibrary.descriptionEmptyState') }}
+        </sw-empty-state>
+        {% endblock %}
+
+        <div class="sw-media-library__scroll-content">
+            {% block sw_media_library_media_grid %}
+            <sw-media-grid
+                ref="mediaGrid"
+                class="sw-media-library_media-grid"
+                :presentation="gridPresentation"
+                @media-grid-selection-clear="clearSelection"
+            >
+
+                {% block sw_media_library_back_to_parent_item %}
+                <sw-media-folder-item
+                    v-if="parentFolder"
+                    :allow-edit="acl.can('media.editor')"
+                    :allow-delete="acl.can('media.deleter')"
+                    class="sw-media-library__parent-folder"
+                    :item="parentFolder"
+                    :show-selection-indicator="false"
+                    :show-context-menu-button="false"
+                    :allow-multi-select="allowMultiSelect"
+                    :is-list="showItemsAsList"
+                    is-parent
+                    @media-item-click="goToParentFolder"
+                />
+                {% endblock %}
+
+                {% block sw_media_library_media_item_list %}
+                <sw-media-entity-mapper
+                    v-for="(gridItem, index) in selectableItems"
+                    :key="gridItem.getEntityName() + '_' + gridItem.id"
+                    :class="`sw-media-grid-item__item--${index}`"
+                    :item="gridItem"
+                    :allow-edit="acl.can('media.editor')"
+                    :allow-delete="acl.can('media.deleter')"
+                    :selected="showItemSelected(gridItem)"
+                    :show-selection-indicator="isListSelect"
+                    :show-context-menu-button="editable"
+                    :is-list="showItemsAsList"
+                    :editable="editable"
+                    :allow-multi-select="allowMultiSelect"
+                    @media-item-replaced="refreshList"
+                    @media-item-delete="refreshList"
+                    @media-folder-delete="refreshList"
+                    @media-folder-remove="removeNewFolder"
+                    @media-folder-dissolve="refreshList"
+                    @media-folder-move="refreshList"
+                    v-on="mediaItemSelectionHandler"
+                />
+                {% endblock %}
+
+                {% block sw_media_library_load_more_button %}
+                <sw-button
+                    v-if="showLoadMoreButton"
+                    class="sw-media-library__load-more-button"
+                    @click="loadNextItems"
+                >
+                    {{ $tc('sw-media.mediaLibrary.labelButtonLoadMore') }}
+                </sw-button>
+                {% endblock %}
+            </sw-media-grid>
+            {% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_media_library_loader %}
+    <sw-loader v-if="isLoading" />
+    {% endblock %}
+</div>
 {% endblock %}

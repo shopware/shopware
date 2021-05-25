@@ -1,51 +1,60 @@
 {% block sw_settings_custom_field_set_detail %}
-    <sw-page class="sw-settings-set-detail">
+<sw-page class="sw-settings-set-detail">
 
-        {% block sw_settings_customField_set_detail_header %}
-            <template slot="smart-bar-header">
-                <h2 v-if="set && set.config && getInlineSnippet(set.config.label)">{{ getInlineSnippet(set.config.label) }}</h2>
-                <h2 v-else>{{ $tc('sw-settings-custom-field.set.detail.textHeadline') }}</h2>
-            </template>
+    {% block sw_settings_customField_set_detail_header %}
+    <template slot="smart-bar-header">
+        <h2 v-if="set && set.config && getInlineSnippet(set.config.label)">
+            {{ getInlineSnippet(set.config.label) }}
+        </h2>
+        <h2 v-else>
+            {{ $tc('sw-settings-custom-field.set.detail.textHeadline') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_detail_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_custom_field_set_detail_actions_abort %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            :disabled="set.isLoading"
+            @click="onCancel"
+        >
+            {{ $tc('sw-settings-custom-field.set.detail.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_settings_custom_field_set_detail_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_custom_field_set_detail_actions_abort %}
-                    <sw-button :disabled="set.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
-                        {{ $tc('sw-settings-custom-field.set.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
+        {% block sw_settings_custom_field_set_detail_actions_save %}
+        <sw-button-process
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-set-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="set.isLoading || !acl.can('custom_field.editor')"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-settings-custom-field.set.detail.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
 
-                {% block sw_settings_custom_field_set_detail_actions_save %}
-                <sw-button-process
-                        class="sw-settings-set-detail__save-action"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="set.isLoading || !acl.can('custom_field.editor')"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        v-tooltip.bottom="tooltipSave"
-                        @click.prevent="onSave">
-                    {{ $tc('sw-settings-custom-field.set.detail.buttonSave') }}
-                </sw-button-process>
-                {% endblock %}
-            </template>
+    {% block sw_settings_custom_field_set_detail_content %}
+    <sw-card-view slot="content">
+        {% block sw_settings_custom_field_set_detail_content_detail_base %}
+        <sw-custom-field-set-detail-base :set="set" />
         {% endblock %}
 
-        {% block sw_settings_custom_field_set_detail_content %}
-            <sw-card-view slot="content">
-                {% block sw_settings_custom_field_set_detail_content_detail_base %}
-                    <sw-custom-field-set-detail-base :set="set"></sw-custom-field-set-detail-base>
-                {% endblock %}
-
-                {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list %}
-                    <sw-custom-field-list
-                            v-if="set.id"
-                            ref="customFieldList"
-                            :set="set">
-                    </sw-custom-field-list>
-                {% endblock %}
-            </sw-card-view>
+        {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list %}
+        <sw-custom-field-list
+            v-if="set.id"
+            ref="customFieldList"
+            :set="set"
+        />
         {% endblock %}
-    </sw-page>
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
 {% endblock %}

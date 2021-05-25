@@ -1,65 +1,78 @@
 {% block sw_category_view %}
-    <sw-card-view class="sw-category-view">
-        {% block sw_category_view_language_info %}
-            <sw-language-info
-                :entityDescription="placeholder(category, 'name', $tc('sw-manufacturer.detail.textHeadline'))">
-            </sw-language-info>
+<sw-card-view class="sw-category-view">
+    {% block sw_category_view_language_info %}
+    <sw-language-info
+        :entity-description="placeholder(category, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
+    />
+    {% endblock %}
+
+    {% block sw_category_view_column_info %}
+    <sw-alert
+        v-if="category.isColumn"
+        class="swag-category-view__column-info"
+        variant="info"
+    >
+        <div class="swag-category-view__column-info-header">
+            {{ $tc('sw-category.view.columnInfoHeader') }}
+        </div>
+        <div class="swag-category-view__column-info-content">
+            {{ $tc('sw-category.view.columnInfo') }}
+        </div>
+    </sw-alert>
+    {% endblock %}
+
+    {% block sw_category_view_tabs %}
+    <sw-tabs
+        v-if="!isLoading"
+        class="sw-customer-detail-page__tabs"
+    >
+        {% block sw_category_view_tabs_general %}
+        <sw-tabs-item
+            class="sw-category-detail__tab-base"
+            :route="{ name: 'sw.category.detail.base' }"
+            :title="$tc('sw-category.view.general')"
+        >
+            {{ $tc('sw-category.view.general') }}
+        </sw-tabs-item>
         {% endblock %}
 
-        {% block sw_category_view_column_info %}
-            <sw-alert v-if="category.isColumn"
-                      class="swag-category-view__column-info"
-                      variant="info">
-                <div class="swag-category-view__column-info-header" >{{ $tc('sw-category.view.columnInfoHeader') }}</div>
-                <div class="swag-category-view__column-info-content" >{{ $tc('sw-category.view.columnInfo') }}</div>
-            </sw-alert>
+        {% block sw_category_view_tabs_products %}
+        <sw-tabs-item
+            v-show="isPage"
+            class="sw-category-detail__tab-products"
+            :route="{ name: 'sw.category.detail.products' }"
+            :title="$tc('sw-category.view.products')"
+        >
+            {{ $tc('sw-category.view.products') }}
+        </sw-tabs-item>
         {% endblock %}
 
-        {% block sw_category_view_tabs %}
-            <sw-tabs class="sw-customer-detail-page__tabs" v-if="!isLoading">
-                {% block sw_category_view_tabs_general %}
-                    <sw-tabs-item
-                        class="sw-category-detail__tab-base"
-                        :route="{ name: 'sw.category.detail.base' }"
-                        :title="$tc('sw-category.view.general')">
-                        {{ $tc('sw-category.view.general') }}
-                    </sw-tabs-item>
-                {% endblock %}
-
-                {% block sw_category_view_tabs_products %}
-                    <sw-tabs-item
-                        v-show="isPage"
-                        class="sw-category-detail__tab-products"
-                        :route="{ name: 'sw.category.detail.products' }"
-                        :title="$tc('sw-category.view.products')">
-                        {{ $tc('sw-category.view.products') }}
-                    </sw-tabs-item>
-                {% endblock %}
-
-                {% block sw_category_view_tabs_cms %}
-                    <sw-tabs-item
-                        v-show="cmsPage || isPage"
-                        class="sw-category-detail__tab-cms"
-                        :route="{ name: 'sw.category.detail.cms' }"
-                        :title="$tc('sw-category.view.cms')">
-                        {{ $tc('sw-category.view.cms') }}
-                    </sw-tabs-item>
-                {% endblock %}
-
-                {% block sw_category_view_tabs_seo %}
-                    <sw-tabs-item
-                        v-show="isPage"
-                        class="sw-category-detail__tab-seo"
-                        :route="{ name: 'sw.category.detail.seo' }"
-                        :title="$tc('sw-category.view.seo')">
-                        {{ $tc('sw-category.view.seo') }}
-                    </sw-tabs-item>
-                {% endblock %}
-            </sw-tabs>
+        {% block sw_category_view_tabs_cms %}
+        <sw-tabs-item
+            v-show="cmsPage || isPage"
+            class="sw-category-detail__tab-cms"
+            :route="{ name: 'sw.category.detail.cms' }"
+            :title="$tc('sw-category.view.cms')"
+        >
+            {{ $tc('sw-category.view.cms') }}
+        </sw-tabs-item>
         {% endblock %}
 
-        {% block sw_category_view_content %}
-            <router-view :isLoading="isLoading"></router-view>
+        {% block sw_category_view_tabs_seo %}
+        <sw-tabs-item
+            v-show="isPage"
+            class="sw-category-detail__tab-seo"
+            :route="{ name: 'sw.category.detail.seo' }"
+            :title="$tc('sw-category.view.seo')"
+        >
+            {{ $tc('sw-category.view.seo') }}
+        </sw-tabs-item>
         {% endblock %}
-    </sw-card-view>
+    </sw-tabs>
+    {% endblock %}
+
+    {% block sw_category_view_content %}
+    <router-view :is-loading="isLoading" />
+    {% endblock %}
+</sw-card-view>
 {% endblock %}

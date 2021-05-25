@@ -1,72 +1,97 @@
 {% block sw_first_run_wizard_welcome %}
-    <div class="sw-first-run-wizard-welcome">
-        <div class="center">
-            <img class="sw-first-run-wizard__welcome-image" :src="'/administration/static/img/first-run-wizard/welcome.svg' | asset">
-            <h4 class="headline-welcome">{{ $tc('sw-first-run-wizard.welcome.headlineWelcome') }}</h4>
-            <p v-html="$tc('sw-first-run-wizard.welcome.messageWelcome')"
-               class="text-welcome">
-            </p>
-        </div>
-
-        <h5 class="text-change-language">{{ $tc('sw-first-run-wizard.welcome.headlineChangeLanguage') }}</h5>
-
-        <sw-loader v-if="isLoading"></sw-loader>
-
-        <sw-container columns="1fr 1fr" gap="24px 0">
-            <sw-plugin-card v-for="languagePlugin in languagePlugins"
-                            :key="languagePlugin.name"
-                            :plugin="languagePlugin"
-                            @onPluginInstalled="onPluginInstalled"
-                            @onPluginRemoved="onPluginRemoved">
-            </sw-plugin-card>
-        </sw-container>
-
-        {% block sw_first_run_wizard_welcome_confirm_language_switch_modal %}
-            <sw-modal v-if="showConfirmLanguageSwitchModal"
-                      @modal-close="onCancelSwitch"
-                      variant="small"
-                      :title="$tc('sw-first-run-wizard.welcome.switchLanguageModalTitle')"
-                      class="sw-first-run-wizard-confirmLanguageSwitch-modal">
-
-                {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
-                    <p class="sw-first-run-wizard-welcome__modal-text">
-                        {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}
-                    </p>
-                    <sw-select-field
-                        class="sw-profile__language"
-                        :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
-                        v-model="user.localeId">
-                        <option v-for="language in languages"
-                                :value="language.locale.id"
-                                :selected="user.localeId === language.locale.id">
-                            {{ language.customLabel }}
-                        </option>
-                    </sw-select-field>
-                    <sw-password-field
-                        type="password"
-                        :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
-                        :copyAble="false"
-                        @keypress.enter="onConfirmLanguageSwitch"
-                        v-model="user.pw">
-                    </sw-password-field>
-                {% endblock %}
-
-                {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
-                            <sw-button @click="onCancelSwitch" size="small">
-                                {{ $tc('sw-first-run-wizard.welcome.cancelLanguageSwitch') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_switch %}
-                            <sw-button @click="onConfirmLanguageSwitch" size="small" variant="primary">
-                                {{ $tc('sw-first-run-wizard.welcome.confirmLanguageSwitch') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
-        {% endblock %}
+<div class="sw-first-run-wizard-welcome">
+    <div class="center">
+        <img
+            class="sw-first-run-wizard__welcome-image"
+            :src="'/administration/static/img/first-run-wizard/welcome.svg' | asset"
+        >
+        <h4 class="headline-welcome">
+            {{ $tc('sw-first-run-wizard.welcome.headlineWelcome') }}
+        </h4>
+        <p
+            class="text-welcome"
+            v-html="$tc('sw-first-run-wizard.welcome.messageWelcome')"
+        />
     </div>
+
+    <h5 class="text-change-language">
+        {{ $tc('sw-first-run-wizard.welcome.headlineChangeLanguage') }}
+    </h5>
+
+    <sw-loader v-if="isLoading" />
+
+    <sw-container
+        columns="1fr 1fr"
+        gap="24px 0"
+    >
+        <sw-plugin-card
+            v-for="languagePlugin in languagePlugins"
+            :key="languagePlugin.name"
+            :plugin="languagePlugin"
+            @onPluginInstalled="onPluginInstalled"
+            @onPluginRemoved="onPluginRemoved"
+        />
+    </sw-container>
+
+    {% block sw_first_run_wizard_welcome_confirm_language_switch_modal %}
+    <sw-modal
+        v-if="showConfirmLanguageSwitchModal"
+        variant="small"
+        :title="$tc('sw-first-run-wizard.welcome.switchLanguageModalTitle')"
+        class="sw-first-run-wizard-confirmLanguageSwitch-modal"
+        @modal-close="onCancelSwitch"
+    >
+
+        {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
+        <p class="sw-first-run-wizard-welcome__modal-text">
+            {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}
+        </p>
+        <sw-select-field
+            v-model="user.localeId"
+            class="sw-profile__language"
+            :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
+        >
+            <option
+                v-for="language in languages"
+                :key="language.locale.id"
+                :value="language.locale.id"
+                :selected="user.localeId === language.locale.id"
+            >
+                {{ language.customLabel }}
+            </option>
+        </sw-select-field>
+        <sw-password-field
+            v-model="user.pw"
+            type="password"
+            :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
+            :copy-able="false"
+            @keypress.enter="onConfirmLanguageSwitch"
+        />
+        {% endblock %}
+
+        {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}
+        <template slot="modal-footer">
+            {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
+            <sw-button
+                size="small"
+                @click="onCancelSwitch"
+            >
+                {{ $tc('sw-first-run-wizard.welcome.cancelLanguageSwitch') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_switch %}
+            <sw-button
+                size="small"
+                variant="primary"
+                @click="onConfirmLanguageSwitch"
+            >
+                {{ $tc('sw-first-run-wizard.welcome.confirmLanguageSwitch') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</div>
 {% endblock %}

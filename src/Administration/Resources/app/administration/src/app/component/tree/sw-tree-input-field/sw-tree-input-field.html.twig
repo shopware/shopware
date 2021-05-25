@@ -1,32 +1,43 @@
 {% block sw_tree_input_field %}
-    <div class="sw-tree-item sw-tree-input-field is--no-children" :class="classes">
+<div
+    class="sw-tree-item sw-tree-input-field is--no-children"
+    :class="classes"
+>
 
-        {% block sw_tree_input_fieldelement %}
-            <div class="sw-tree-item__element">
+    {% block sw_tree_input_fieldelement %}
+    <div class="sw-tree-item__element">
 
-                {% block sw_tree_input_fieldelement_grip %}
-                    <div class="sw-tree-item__icon">
-                        <sw-icon v-if="!disabled" name="small-default-circle-small" size="18"></sw-icon>
-                    </div>
+        {% block sw_tree_input_fieldelement_grip %}
+        <div class="sw-tree-item__icon">
+            <sw-icon
+                v-if="!disabled"
+                name="small-default-circle-small"
+                size="18"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_tree_input_fieldelement_content %}
+        <div class="sw-tree-item__content">
+            <slot name="content">
+                {% block sw_tree_input_fieldslot_content %}
+                <sw-confirm-field
+                    :value="currentValue"
+                    :disabled="disabled"
+                    :placeholder="$tc('sw-tree.general.buttonCreate')"
+                    @input="createNewItem"
+                />
                 {% endblock %}
-
-                {% block sw_tree_input_fieldelement_content %}
-                    <div class="sw-tree-item__content">
-                        <slot name="content">
-                            {% block sw_tree_input_fieldslot_content %}
-                                <sw-confirm-field :value="currentValue"
-                                                  :disabled="disabled"
-                                                  @input="createNewItem"
-                                                  :placeholder="$tc('sw-tree.general.buttonCreate')">
-                                </sw-confirm-field>
-                            {% endblock %}
-                        </slot>
-                        <span v-if="disabled" class="sw-tree-input-field__language-warning">
-                            {{ $tc('sw-tree.general.actions.actionsDisabledInLanguage') }}.
-                        </span>
-                    </div>
-                {% endblock %}
-            </div>
+            </slot>
+            <span
+                v-if="disabled"
+                class="sw-tree-input-field__language-warning"
+            >
+                {{ $tc('sw-tree.general.actions.actionsDisabledInLanguage') }}.
+            </span>
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,94 +1,100 @@
 {% block sw_manufacturer_list %}
-    <sw-page class="sw-manufacturer-list">
-        {% block sw_manufacturer_list_search_bar %}
-            <template #search-bar>
-                <sw-search-bar initialSearchType="product_manufacturer"
-                               :initialSearch="term"
-                               @search="onSearch">
-                </sw-search-bar>
-            </template>
-        {% endblock %}
+<sw-page class="sw-manufacturer-list">
+    {% block sw_manufacturer_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="product_manufacturer"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
 
-        {% block sw_manufacturer_list_smart_bar_header %}
-            <template #smart-bar-header>
-                {% block sw_manufacturer_list_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_manufacturer_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-manufacturer.list.textManufacturerOverview') }}
-                        {% endblock %}
-
-                        {% block sw_manufacturer_list_smart_bar_header_amount %}
-                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                                ({{ total }})
-                            </span>
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-        {% block sw_manufacturer_list_actions %}
-            <template #smart-bar-actions>
-                {% block sw_manufacturer_list_smart_bar_actions %}
-                    <sw-button
-                        :routerLink="{ name: 'sw.manufacturer.create' }"
-                        :disabled="!acl.can('product_manufacturer.creator')"
-                        v-tooltip.bottom="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('product_manufacturer.creator'),
-                            showOnDisabledElements: true
-                        }"
-                        class="sw-manufacturer-list__add-manufacturer"
-                        variant="primary">
-                        {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-        {% block sw_manufacturer_list_language_switch %}
-            <template #language-switch>
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-            </template>
-        {% endblock %}
-
-        <template #content>
-            {% block sw_manufacturer_list_content %}
-                <div class="sw-manufacturer-list__content">
-                    {% block sw_manufacturer_list_grid %}
-                        <sw-entity-listing
-                            class="sw-manufacturer-list__grid"
-                            detailRoute="sw.manufacturer.detail"
-                            :isLoading="isLoading"
-                            :columns="manufacturerColumns"
-                            :repository="manufacturerRepository"
-                            :items="manufacturers"
-                            :criteriaLimit="limit"
-                            @update-records="updateTotal"
-                            @page-change="onPageChange"
-                            :sortBy="sortBy"
-                            :sortDirection="sortDirection"
-                            @column-sort="onSortColumn"
-                            :disableDataFetching="true"
-                            :allowEdit="acl.can('product_manufacturer.editor')"
-                            :allowInlineEdit="acl.can('product_manufacturer.editor')"
-                            :allowDelete="acl.can('product_manufacturer.deleter')"
-                            :showSelections="acl.can('product_manufacturer.deleter')"
-                            identifier="sw-manufacturer-list">
-                            {% block sw_manufacturer_list_grid_columns_name_preview %}
-                                <template #preview-name="{ item }">
-                                    <sw-media-preview-v2 :source="item.mediaId"></sw-media-preview-v2>
-                                </template>
-                            {% endblock %}
-                        </sw-entity-listing>
-                    {% endblock %}
-
-                    {% block sw_manufacturer_list_grid_loader %}
-                        <sw-loader v-if="isLoading"></sw-loader>
-                    {% endblock %}
-                </div>
+    {% block sw_manufacturer_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_manufacturer_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_manufacturer_list_smart_bar_header_title_text %}
+            {{ $tc('sw-manufacturer.list.textManufacturerOverview') }}
             {% endblock %}
 
-        </template>
-    </sw-page>
+            {% block sw_manufacturer_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_manufacturer_list_actions %}
+    <template #smart-bar-actions>
+        {% block sw_manufacturer_list_smart_bar_actions %}
+        <sw-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('product_manufacturer.creator'),
+                showOnDisabledElements: true
+            }"
+            :router-link="{ name: 'sw.manufacturer.create' }"
+            :disabled="!acl.can('product_manufacturer.creator')"
+            class="sw-manufacturer-list__add-manufacturer"
+            variant="primary"
+        >
+            {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_manufacturer_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    <template #content>
+        {% block sw_manufacturer_list_content %}
+        <div class="sw-manufacturer-list__content">
+            {% block sw_manufacturer_list_grid %}
+            <sw-entity-listing
+                class="sw-manufacturer-list__grid"
+                detail-route="sw.manufacturer.detail"
+                :is-loading="isLoading"
+                :columns="manufacturerColumns"
+                :repository="manufacturerRepository"
+                :items="manufacturers"
+                :criteria-limit="limit"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :disable-data-fetching="true"
+                :allow-edit="acl.can('product_manufacturer.editor')"
+                :allow-inline-edit="acl.can('product_manufacturer.editor')"
+                :allow-delete="acl.can('product_manufacturer.deleter')"
+                :show-selections="acl.can('product_manufacturer.deleter')"
+                identifier="sw-manufacturer-list"
+                @update-records="updateTotal"
+                @page-change="onPageChange"
+                @column-sort="onSortColumn"
+            >
+                {% block sw_manufacturer_list_grid_columns_name_preview %}
+                <template #preview-name="{ item }">
+                    <sw-media-preview-v2 :source="item.mediaId" />
+                </template>
+                {% endblock %}
+            </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_manufacturer_list_grid_loader %}
+            <sw-loader v-if="isLoading" />
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+    </template>
+</sw-page>
 {% endblock %}

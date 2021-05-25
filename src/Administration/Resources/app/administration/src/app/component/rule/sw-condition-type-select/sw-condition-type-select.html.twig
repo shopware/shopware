@@ -1,22 +1,23 @@
 {% block sw_condition_type_select %}
-    <sw-arrow-field
-        class="sw-condition-type-select"
-        :class="typeSelectClasses"
-        :disabled="disabled"
-        v-bind="arrowColor">
+<sw-arrow-field
+    class="sw-condition-type-select"
+    :class="typeSelectClasses"
+    :disabled="disabled"
+    v-bind="arrowColor"
+>
 
-        <sw-single-select
-                class="sw-condition-type-select__select"
-                size="medium"
-                labelValue="label"
-                valueProperty="type"
-                :options="typeOptions"
-                :placeholder="$tc('global.sw-condition.condition.placeholder')"
-                :value="condition.type"
-                :disabled="disabled"
-                @change="changeType"
-                @search-term-change="typeSearchTerm = $event"
-                required>
-        </sw-single-select>
-    </sw-arrow-field>
+    <sw-single-select
+        class="sw-condition-type-select__select"
+        size="medium"
+        label-value="label"
+        value-property="type"
+        :options="typeOptions"
+        :placeholder="$tc('global.sw-condition.condition.placeholder')"
+        :value="condition.type"
+        :disabled="disabled"
+        required
+        @change="changeType"
+        @search-term-change="typeSearchTerm = $event"
+    />
+</sw-arrow-field>
 {% endblock %}

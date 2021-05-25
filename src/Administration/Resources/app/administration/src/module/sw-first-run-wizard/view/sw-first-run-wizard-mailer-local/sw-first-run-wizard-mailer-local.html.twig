@@ -1,14 +1,15 @@
 {% block sw_first_run_wizard_mailer_local %}
-    <div class="sw-first-run-wizard-mailer-local">
-        <sw-loader v-if="isLoading"></sw-loader>
+<div class="sw-first-run-wizard-mailer-local">
+    <sw-loader v-if="isLoading" />
 
-        <h2>{{ $tc('sw-first-run-wizard.mailerLocal.headline') }}</h2>
+    <h2>{{ $tc('sw-first-run-wizard.mailerLocal.headline') }}</h2>
 
-        <div class="sw-settings-mailer-local">
-            <sw-field type="radio"
-                      :options="emailSendmailOptions"
-                      v-model="mailerSettings['core.mailerSettings.sendMailOptions']">
-            </sw-field>
-        </div>
+    <div class="sw-settings-mailer-local">
+        <sw-field
+            v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
+            type="radio"
+            :options="emailSendmailOptions"
+        />
     </div>
+</div>
 {% endblock %}

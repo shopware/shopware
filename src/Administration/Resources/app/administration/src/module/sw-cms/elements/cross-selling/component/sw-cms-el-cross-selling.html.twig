@@ -1,54 +1,63 @@
 {% block sw_cms_element_cross_selling %}
-    <div class="sw-cms-el-cross-selling">
-        {% block sw_cms_element_cross_selling_title %}
-            <h2 class="sw-cms-el-cross-selling__title">
-                {{ placeholder(crossSelling, 'name', crossSelling.name) }}
-            </h2>
+<div class="sw-cms-el-cross-selling">
+    {% block sw_cms_element_cross_selling_title %}
+    <h2 class="sw-cms-el-cross-selling__title">
+        {{ placeholder(crossSelling, 'name', crossSelling.name) }}
+    </h2>
+    {% endblock %}
+
+    {% block sw_cms_element_cross_selling_content %}
+    <div class="sw-cms-el-cross-selling__content">
+        {% block sw_cms_element_cross_selling_arrow_left %}
+        <div class="sw-cms-el-cross-selling__navigation">
+            <sw-icon
+                class="sw-cms-el-cross-selling__navigation-button"
+                name="default-arrow-head-left"
+                size="24"
+            />
+        </div>
         {% endblock %}
 
-        {% block sw_cms_element_cross_selling_content %}
-            <div class="sw-cms-el-cross-selling__content">
-                {% block sw_cms_element_cross_selling_arrow_left %}
-                    <div class="sw-cms-el-cross-selling__navigation">
-                        <sw-icon class="sw-cms-el-cross-selling__navigation-button"
-                                 name="default-arrow-head-left"
-                                 size="24">
-                        </sw-icon>
-                    </div>
+        {% block sw_cms_element_cross_selling_product_holder %}
+        <div
+            ref="productHolder"
+            class="sw-cms-el-cross-selling__product-holder"
+            :style="sliderBoxMinWidth"
+        >
+            <template v-if="!element.data.product || !element.data.product.crossSellings.length">
+                {% block sw_cms_element_cross_selling_demo_data %}
+                <sw-cms-el-product-box
+                    v-for="index in sliderBoxLimit"
+                    :key="index"
+                    :element="demoProductElement"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_cms_element_cross_selling_product_holder %}
-                    <div class="sw-cms-el-cross-selling__product-holder" :style="sliderBoxMinWidth" ref="productHolder">
-                        <template v-if="!element.data.product || !element.data.product.crossSellings.length">
-                            {% block sw_cms_element_cross_selling_demo_data %}
-                                <sw-cms-el-product-box v-for="index in sliderBoxLimit"
-                                                       :element="demoProductElement"
-                                                       :key="index">
-                                </sw-cms-el-product-box>
-                            {% endblock %}
-                        </template>
-
-                        <template v-else>
-                            {% block sw_cms_element_cross_selling_products %}
-                                <sw-cms-el-product-box v-for="(crossSelling, index) in crossSellingProducts"
-                                                       v-if="index < sliderBoxLimit"
-                                                       :element="getProductEl(crossSelling.product)"
-                                                       :key="crossSelling.id">
-                                </sw-cms-el-product-box>
-                            {% endblock %}
-                        </template>
-                    </div>
+            <template v-else>
+                {% block sw_cms_element_cross_selling_products %}
+                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                <sw-cms-el-product-box
+                    v-for="(crossSelling, index) in crossSellingProducts"
+                    v-if="index < sliderBoxLimit"
+                    :key="crossSelling.id"
+                    :element="getProductEl(crossSelling.product)"
+                />
                 {% endblock %}
+            </template>
+        </div>
+        {% endblock %}
 
-                {% block sw_cms_element_cross_selling_arrow_right %}
-                    <div class="sw-cms-el-cross-selling__navigation">
-                        <sw-icon class="sw-cms-el-cross-selling__navigation-button"
-                                 name="default-arrow-head-right"
-                                 size="24">
-                        </sw-icon>
-                    </div>
-                {% endblock %}
-            </div>
+        {% block sw_cms_element_cross_selling_arrow_right %}
+        <div class="sw-cms-el-cross-selling__navigation">
+            <sw-icon
+                class="sw-cms-el-cross-selling__navigation-button"
+                name="default-arrow-head-right"
+                size="24"
+            />
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

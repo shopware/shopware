@@ -1,313 +1,383 @@
 {% block sw_settings_snippet_set_list %}
-    <sw-page class="sw-settings-snippet-set-list">
-        {% block sw_settings_snippet_set_list_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar :initialSearchType="$tc('sw-settings-snippet.general.searchBarTitleSets')"
-                               :placeholder="$tc('sw-settings-snippet.general.placeholderSearchBarSets')"
-                               :initialSearch="term"
-                               @search="onSearch">
-                </sw-search-bar>
-            </template>
+<sw-page class="sw-settings-snippet-set-list">
+    {% block sw_settings_snippet_set_list_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar
+            :initial-search-type="$tc('sw-settings-snippet.general.searchBarTitleSets')"
+            :placeholder="$tc('sw-settings-snippet.general.placeholderSearchBarSets')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_snippet_set_list_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_snippet_set_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_snippet_set_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-snippet.general.mainMenuItemGeneral') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_snippet_set_list_card %}
+    <sw-card-view slot="content">
+        {% block sw_settings_snippet_set_list_card_title %}
+        <sw-card>
+            <h3>{{ $tc('sw-settings-snippet.setList.title') }}</h3>
+            <p>{{ $tc('sw-settings-snippet.setList.description') }}</p>
+        </sw-card>
         {% endblock %}
 
-        {% block sw_settings_snippet_set_list_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_settings_snippet_set_list_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_snippet_set_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-settings.index.title') }}
-                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                            {{ $tc('sw-settings-snippet.general.mainMenuItemGeneral') }}
+        {% block sw_settings_snippet_set_list_card_list %}
+        <sw-card
+            :is-loading="isLoading"
+            :title="$tc('sw-settings-snippet.setList.cardTitle')"
+        >
+            {% block sw_settings_snippet_set_list_card_list_container %}
+            <sw-container columns="1fr">
+                <sw-card-section divider="bottom">
+                    {% block sw_settings_snippet_set_list_card_list_container_header %}
+                    <div class="sw-settings-snippet-set-list__actions">
+                        {% block sw_settings_snippet_set_list_card_list_container_header_btn_export %}
+                        <sw-button
+                            v-if="false"
+                            size="small"
+                            variant="ghost"
+                            disabled
+                        >
+                            {{ $tc('sw-settings-snippet.setList.buttonExport') }}
+                        </sw-button>
                         {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
-        {% endblock %}
 
-        {% block sw_settings_snippet_set_list_card %}
-            <sw-card-view slot="content">
-                {% block sw_settings_snippet_set_list_card_title %}
-                    <sw-card>
-                        <h3>{{ $tc('sw-settings-snippet.setList.title') }}</h3>
-                        <p>{{ $tc('sw-settings-snippet.setList.description') }}</p>
-                    </sw-card>
-                {% endblock %}
+                        {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}
+                        <sw-button
+                            v-tooltip="getNoPermissionsTooltip('snippet.editor')"
+                            class="sw-settings-snippet-set-list__edit-set-action"
+                            size="small"
+                            variant="primary"
+                            :disabled="!acl.can('snippet.editor') || !snippetsEditable"
+                            @click="onEditSnippetSets"
+                        >
+                            {{ $tc('sw-settings-snippet.setList.buttonEditSet') }}
+                        </sw-button>
+                        {% endblock %}
 
-                {% block sw_settings_snippet_set_list_card_list %}
-                    <sw-card :isLoading="isLoading"
-                             :title="$tc('sw-settings-snippet.setList.cardTitle')">
-                        {% block sw_settings_snippet_set_list_card_list_container %}
-                            <sw-container columns="1fr">
-                                <sw-card-section divider="bottom">
-                                    {% block sw_settings_snippet_set_list_card_list_container_header %}
-                                        <div class="sw-settings-snippet-set-list__actions">
-                                            {% block sw_settings_snippet_set_list_card_list_container_header_btn_export %}
-                                                <sw-button v-if="false" size="small" variant="ghost" disabled>
-                                                    {{ $tc('sw-settings-snippet.setList.buttonExport') }}
-                                                </sw-button>
-                                            {% endblock %}
+                        {% block sw_settings_snippet_set_list_card_list_container_header_btn_split %}
+                        <sw-button-group
+                            v-tooltip="getNoPermissionsTooltip('snippet.creator', false)"
+                            class="sw-settings-snippet-set-list__action-split"
+                            split-button
+                        >
+                            {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}
+                            <sw-button
+                                class="sw-settings-snippet-set-list__action-add"
+                                size="small"
+                                variant="ghost"
+                                :disabled="!acl.can('snippet.creator')"
+                                @click="onAddSnippetSet"
+                            >
+                                {{ $tc('sw-settings-snippet.setList.buttonAddSet') }}
+                            </sw-button>
+                            {% endblock %}
 
-                                            {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}
-                                                <sw-button class="sw-settings-snippet-set-list__edit-set-action"
-                                                           size="small"
-                                                           variant="primary"
-                                                           :disabled="!acl.can('snippet.editor') || !snippetsEditable"
-                                                           v-tooltip="getNoPermissionsTooltip('snippet.editor')"
-                                                           @click="onEditSnippetSets">
-                                                    {{ $tc('sw-settings-snippet.setList.buttonEditSet') }}
-                                                </sw-button>
-                                            {% endblock %}
+                            {% block sw_settings_snippet_set_list_card_list_btn_copy_split %}
+                            <sw-context-button
+                                headline="hi"
+                                :disabled="!acl.can('snippet.creator')"
+                            >
 
-                                            {% block sw_settings_snippet_set_list_card_list_container_header_btn_split %}
-                                                <sw-button-group class="sw-settings-snippet-set-list__action-split"
-                                                                 splitButton
-                                                                 v-tooltip="getNoPermissionsTooltip('snippet.creator', false)">
-                                                    {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}
-                                                        <sw-button class="sw-settings-snippet-set-list__action-add"
-                                                                   size="small"
-                                                                   variant="ghost"
-                                                                   :disabled="!acl.can('snippet.creator')"
-                                                                   @click="onAddSnippetSet">
-                                                            {{ $tc('sw-settings-snippet.setList.buttonAddSet') }}
-                                                        </sw-button>
-                                                    {% endblock %}
-
-                                                    {% block sw_settings_snippet_set_list_card_list_btn_copy_split %}
-                                                        <sw-context-button headline="hi"
-                                                            :disabled="!acl.can('snippet.creator')">
-
-                                                            {% block sw_settings_snippet_set_list_card_btn_copy %}
-                                                                <sw-button slot="button"
-                                                                           class="sw-settings-snippet-set-list__action-context-menu"
-                                                                           size="small"
-                                                                           variant="ghost"
-                                                                           :disabled="!acl.can('snippet.creator')"
-                                                                           square>
-                                                                    {% block sw_settings_snippet_set_list_card_btn_copy_icon %}
-                                                                        <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
-                                                                    {% endblock %}
-                                                                </sw-button>
-                                                            {% endblock %}
-
-                                                            {% block sw_settings_snippet_set_list_card_copy_context_menu %}
-                                                                <sw-context-menu-item variant="headline">
-                                                                    {{ $tc('sw-settings-snippet.setList.splitButtonDuplicateContent') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-
-                                                            {% block sw_settings_snippet_set_list_card_copy_context_divider %}
-                                                                <sw-context-menu-divider></sw-context-menu-divider>
-                                                            {% endblock %}
-
-                                                            {% block sw_settings_snippet_set_list_card_copy_context_menu_items %}
-                                                                <sw-context-menu-item v-for="set in snippetSets"
-                                                                                      :key="set.id"
-                                                                                      @click="onClone(set.id)">
-                                                                    {{ set.name }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-                                                        </sw-context-button>
-                                                    {% endblock %}
-                                                </sw-button-group>
-                                            {% endblock %}
-                                        </div>
+                                {% block sw_settings_snippet_set_list_card_btn_copy %}
+                                <sw-button
+                                    slot="button"
+                                    class="sw-settings-snippet-set-list__action-context-menu"
+                                    size="small"
+                                    variant="ghost"
+                                    :disabled="!acl.can('snippet.creator')"
+                                    square
+                                >
+                                    {% block sw_settings_snippet_set_list_card_btn_copy_icon %}
+                                    <sw-icon
+                                        name="small-arrow-medium-down"
+                                        size="16"
+                                    />
                                     {% endblock %}
-                                </sw-card-section>
-                            </sw-container>
-                        {% endblock %}
-
-                        {% block sw_settings_snippet_set_list_card_list_grid %}
-                            <sw-grid ref="snippetSetList"
-                                     slot="grid"
-                                     :items="snippetSets"
-                                     :sortDirection="sortDirection"
-                                     :sortBy="sortBy"
-                                     @inline-edit-finish="onInlineEditSave"
-                                     @inline-edit-cancel="onInlineEditCancel"
-                                     @sw-grid-select-item="onSelectionChanged"
-                                     @sw-grid-select-all="onSelectionChanged"
-                                     @sort-column="onSortColumn"
-                                     :selectable="acl.can('snippet.editor')"
-                                     :allowInlineEdit="acl.can('snippet.editor')"
-                                     table>
-                                {% block sw_settings_snippet_set_list_card_list_grid_template %}
-                                    <template slot="columns" slot-scope="{ item }">
-                                        {% block sw_settings_snippet_set_list_card_list_grid_column_name %}
-                                            <sw-grid-column flex="minmax(200px, 1fr)"
-                                                            class="sw-settings-snippet-set__column-name"
-                                                            :label="$tc('sw-settings-snippet.setList.columnName')"
-                                                            dataIndex="name"
-                                                            editable
-                                                            truncate
-                                                            sortable>
-
-                                                {% block sw_settings_snippet_set_list_card_list_grid_column_name_link %}
-                                                    <router-link :to="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }">
-                                                        {{ item.name }}
-                                                    </router-link>
-                                                {% endblock %}
-
-                                                {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}
-                                                    <sw-field type="text"
-                                                              v-model="item.name"
-                                                              slot="inline-edit"
-                                                              :placeholder="$tc('sw-settings-snippet.setList.placeholderName')"
-                                                              ref="nameEditor">
-                                                    </sw-field>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_settings_snippet_set_list_card_list_grid_column_changed %}
-                                            <sw-grid-column flex="1fr"
-                                                            class="sw-settings-snippet-set-file__column-changed-at"
-                                                            sortable
-                                                            :label="$tc('sw-settings-snippet.setList.columnChangedAt')"
-                                                            dataIndex="createdAt"
-                                                            sortable>
-                                                {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
-                                                    <div v-if="item.updatedAt">{{ item.updatedAt | date }}</div>
-                                                    <div v-else="item.createdAt">{{ item.createdAt | date }}</div>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_file %}
-                                            <sw-grid-column flex="minmax(200px, 1fr)"
-                                                            class="sw-settings-snippet-set-file__column-base-file"
-                                                            sortable
-                                                            :label="$tc('sw-settings-snippet.setList.columnBaseFile')"
-                                                            dataIndex="baseFile"
-                                                            truncate
-                                                            sortable>
-                                                {{ item.baseFile }}
-
-                                                {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}
-                                                    <sw-field type="select" slot="inline-edit" v-model="item.baseFile">
-                                                        <option v-for="file in baseFiles" :value="file.name">
-                                                            {{ file.name }}
-                                                        </option>
-                                                    </sw-field>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action %}
-                                            <sw-grid-column flex="100px" align="center">
-                                                {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons %}
-                                                    <sw-context-button>
-                                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}
-                                                            <sw-context-menu-item class="sw-setting-snippet-set-list__edit-action"
-                                                                :routerLink="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }">
-                                                                {{ contextMenuEditSnippet }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
-                                                            <sw-context-menu-item @click="onClone(item.id)"
-                                                                :disabled="!acl.can('snippet.creator')"
-                                                                v-tooltip.left="getNoPermissionsTooltip('snippet.editor')">
-                                                                {{ $tc('sw-settings-snippet.setList.contextMenuClone') }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete %}
-                                                            <sw-context-menu-item variant="danger"
-                                                                @click="onDeleteSet(item.id)"
-                                                                :disabled="!acl.can('snippet.deleter')"
-                                                                v-tooltip.left="getNoPermissionsTooltip('snippet.deleter')">
-                                                                {{ $tc('sw-settings-snippet.setList.contextMenuDelete') }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-                                                    </sw-context-button>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_settings_snippet_set_list_columns_delete_modal %}
-                                            <sw-modal v-if="showDeleteModal === item.id"
-                                                      @modal-close="onCloseDeleteModal"
-                                                      :title="$tc('global.default.warning')"
-                                                      variant="small">
-                                                {% block sw_settings_snippet_set_list_delete_modal_confirm_delete_text %}
-                                                    <p class="sw-settings-snippet-set-list__confirm-delete-text">
-                                                        {{ $tc('sw-settings-snippet.setList.textDeleteConfirm', 0, { name: item.name }) }}
-                                                    </p>
-                                                {% endblock %}
-
-                                                {% block sw_settings_snippet_set_list_delete_modal_footer %}
-                                                    <template slot="modal-footer">
-                                                        {% block sw_settings_snippet_set_list_delete_modal_cancel %}
-                                                            <sw-button @click="onCloseDeleteModal"
-                                                                       size="small">
-                                                                {{ $tc('sw-settings-snippet.setList.buttonCancel') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_snippet_set_list_delete_modal_confirm %}
-                                                            <sw-button @click="onConfirmDelete(item.id)"
-                                                                       variant="danger"
-                                                                       size="small">
-                                                                {{ $tc('sw-settings-snippet.setList.buttonDelete') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-                                                    </template>
-                                                {% endblock %}
-                                            </sw-modal>
-                                        {% endblock %}
-
-                                        {% block sw_settings_snippet_set_list_columns_clone_modal %}
-                                            <sw-modal v-if="showCloneModal === item.id"
-                                                      @modal-close="closeCloneModal"
-                                                      :title="$tc('sw-settings-snippet.setList.modalTitleClone')"
-                                                      variant="small">
-                                                {% block sw_settings_snippet_set_list_clone_modal_confirm_delete_text %}
-                                                    <p class="sw-settings-snippet-set-list__confirm-delete-text">
-                                                        {{ $tc('sw-settings-snippet.setList.textCloneConfirm', 0, { name: item.name }) }}
-                                                    </p>
-                                                {% endblock %}
-
-                                                {% block sw_settings_snippet_set_list_clone_modal_footer %}
-                                                    <template slot="modal-footer">
-                                                        {% block sw_settings_snippet_set_list_clone_modal_cancel %}
-                                                            <sw-button @click="closeCloneModal"
-                                                                       size="small">
-                                                                {{ $tc('sw-settings-snippet.setList.buttonCancel') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_snippet_set_list_clone_modal_confirm %}
-                                                            <sw-button @click="onConfirmClone(item.id)"
-                                                                       variant="primary"
-                                                                       size="small">
-                                                                {{ $tc('sw-settings-snippet.setList.buttonClone') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-                                                    </template>
-                                                {% endblock %}
-                                            </sw-modal>
-                                        {% endblock %}
-                                    </template>
+                                </sw-button>
                                 {% endblock %}
 
-                                {% block sw_settings_snippet_set_list_card_list_grid_pagination %}
-                                    <template slot="pagination">
-                                        {% block sw_settings_snippet_set_list_card_list_grid_pagination_bar %}
-                                            <sw-pagination :offset="offset"
-                                                           :limit="limit"
-                                                           :total="total"
-                                                           :total-visible="7"
-                                                           :page="page"
-                                                           @page-change="onPageChange">
-                                            </sw-pagination>
-                                        {% endblock %}
-                                    </template>
+                                {% block sw_settings_snippet_set_list_card_copy_context_menu %}
+                                <sw-context-menu-item variant="headline">
+                                    {{ $tc('sw-settings-snippet.setList.splitButtonDuplicateContent') }}
+                                </sw-context-menu-item>
                                 {% endblock %}
-                            </sw-grid>
+
+                                {% block sw_settings_snippet_set_list_card_copy_context_divider %}
+                                <sw-context-menu-divider />
+                                {% endblock %}
+
+                                {% block sw_settings_snippet_set_list_card_copy_context_menu_items %}
+                                <sw-context-menu-item
+                                    v-for="set in snippetSets"
+                                    :key="set.id"
+                                    @click="onClone(set.id)"
+                                >
+                                    {{ set.name }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+                            </sw-context-button>
+                            {% endblock %}
+                        </sw-button-group>
                         {% endblock %}
-                    </sw-card>
+                    </div>
+                    {% endblock %}
+                </sw-card-section>
+            </sw-container>
+            {% endblock %}
+
+            {% block sw_settings_snippet_set_list_card_list_grid %}
+            <sw-grid
+                ref="snippetSetList"
+                slot="grid"
+                :items="snippetSets"
+                :sort-direction="sortDirection"
+                :sort-by="sortBy"
+                :selectable="acl.can('snippet.editor')"
+                :allow-inline-edit="acl.can('snippet.editor')"
+                table
+                @inline-edit-finish="onInlineEditSave"
+                @inline-edit-cancel="onInlineEditCancel"
+                @sw-grid-select-item="onSelectionChanged"
+                @sw-grid-select-all="onSelectionChanged"
+                @sort-column="onSortColumn"
+            >
+                {% block sw_settings_snippet_set_list_card_list_grid_template %}
+                <template
+                    slot="columns"
+                    slot-scope="{ item }"
+                >
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_name %}
+                    <sw-grid-column
+                        flex="minmax(200px, 1fr)"
+                        class="sw-settings-snippet-set__column-name"
+                        :label="$tc('sw-settings-snippet.setList.columnName')"
+                        data-index="name"
+                        editable
+                        truncate
+                        sortable
+                    >
+
+                        {% block sw_settings_snippet_set_list_card_list_grid_column_name_link %}
+                        <router-link :to="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }">
+                            {{ item.name }}
+                        </router-link>
+                        {% endblock %}
+
+                        {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}
+                        <sw-field
+                            slot="inline-edit"
+                            ref="nameEditor"
+                            v-model="item.name"
+                            type="text"
+                            :placeholder="$tc('sw-settings-snippet.setList.placeholderName')"
+                        />
+                        {% endblock %}
+                    </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_changed %}
+                    <sw-grid-column
+                        flex="1fr"
+                        class="sw-settings-snippet-set-file__column-changed-at"
+                        sortable
+                        :label="$tc('sw-settings-snippet.setList.columnChangedAt')"
+                        data-index="createdAt"
+                    >
+                        {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
+                        <div v-if="item.updatedAt">
+                            {{ item.updatedAt | date }}
+                        </div>
+                        <div v-else>
+                            {{ item.createdAt | date }}
+                        </div>
+                        {% endblock %}
+                    </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_file %}
+                    <sw-grid-column
+                        flex="minmax(200px, 1fr)"
+                        class="sw-settings-snippet-set-file__column-base-file"
+                        sortable
+                        :label="$tc('sw-settings-snippet.setList.columnBaseFile')"
+                        data-index="baseFile"
+                        truncate
+                    >
+                        {{ item.baseFile }}
+
+                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}
+                        <sw-field
+                            slot="inline-edit"
+                            v-model="item.baseFile"
+                            type="select"
+                        >
+                            <option
+                                v-for="file in baseFiles"
+                                :key="file.name"
+                                :value="file.name"
+                            >
+                                {{ file.name }}
+                            </option>
+                        </sw-field>
+                        {% endblock %}
+                    </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_action %}
+                    <sw-grid-column
+                        flex="100px"
+                        align="center"
+                    >
+                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons %}
+                        <sw-context-button>
+                            {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}
+                            <sw-context-menu-item
+                                class="sw-setting-snippet-set-list__edit-action"
+                                :router-link="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }"
+                            >
+                                {{ contextMenuEditSnippet }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
+                            <sw-context-menu-item
+                                v-tooltip.left="getNoPermissionsTooltip('snippet.editor')"
+                                :disabled="!acl.can('snippet.creator')"
+                                @click="onClone(item.id)"
+                            >
+                                {{ $tc('sw-settings-snippet.setList.contextMenuClone') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete %}
+                            <sw-context-menu-item
+                                v-tooltip.left="getNoPermissionsTooltip('snippet.deleter')"
+                                variant="danger"
+                                :disabled="!acl.can('snippet.deleter')"
+                                @click="onDeleteSet(item.id)"
+                            >
+                                {{ $tc('sw-settings-snippet.setList.contextMenuDelete') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </sw-context-button>
+                        {% endblock %}
+                    </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_settings_snippet_set_list_columns_delete_modal %}
+                    <sw-modal
+                        v-if="showDeleteModal === item.id"
+                        :title="$tc('global.default.warning')"
+                        variant="small"
+                        @modal-close="onCloseDeleteModal"
+                    >
+                        {% block sw_settings_snippet_set_list_delete_modal_confirm_delete_text %}
+                        <p class="sw-settings-snippet-set-list__confirm-delete-text">
+                            {{ $tc('sw-settings-snippet.setList.textDeleteConfirm', 0, { name: item.name }) }}
+                        </p>
+                        {% endblock %}
+
+                        {% block sw_settings_snippet_set_list_delete_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_settings_snippet_set_list_delete_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('sw-settings-snippet.setList.buttonCancel') }}
+                            </sw-button>
+                            {% endblock %}
+
+                            {% block sw_settings_snippet_set_list_delete_modal_confirm %}
+                            <sw-button
+                                variant="danger"
+                                size="small"
+                                @click="onConfirmDelete(item.id)"
+                            >
+                                {{ $tc('sw-settings-snippet.setList.buttonDelete') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-modal>
+                    {% endblock %}
+
+                    {% block sw_settings_snippet_set_list_columns_clone_modal %}
+                    <sw-modal
+                        v-if="showCloneModal === item.id"
+                        :title="$tc('sw-settings-snippet.setList.modalTitleClone')"
+                        variant="small"
+                        @modal-close="closeCloneModal"
+                    >
+                        {% block sw_settings_snippet_set_list_clone_modal_confirm_delete_text %}
+                        <p class="sw-settings-snippet-set-list__confirm-delete-text">
+                            {{ $tc('sw-settings-snippet.setList.textCloneConfirm', 0, { name: item.name }) }}
+                        </p>
+                        {% endblock %}
+
+                        {% block sw_settings_snippet_set_list_clone_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_settings_snippet_set_list_clone_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="closeCloneModal"
+                            >
+                                {{ $tc('sw-settings-snippet.setList.buttonCancel') }}
+                            </sw-button>
+                            {% endblock %}
+
+                            {% block sw_settings_snippet_set_list_clone_modal_confirm %}
+                            <sw-button
+                                variant="primary"
+                                size="small"
+                                @click="onConfirmClone(item.id)"
+                            >
+                                {{ $tc('sw-settings-snippet.setList.buttonClone') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-modal>
+                    {% endblock %}
+                </template>
                 {% endblock %}
-            </sw-card-view>
+
+                {% block sw_settings_snippet_set_list_card_list_grid_pagination %}
+                <template slot="pagination">
+                    {% block sw_settings_snippet_set_list_card_list_grid_pagination_bar %}
+                    <sw-pagination
+                        :offset="offset"
+                        :limit="limit"
+                        :total="total"
+                        :total-visible="7"
+                        :page="page"
+                        @page-change="onPageChange"
+                    />
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-grid>
+            {% endblock %}
+        </sw-card>
         {% endblock %}
-    </sw-page>
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
 {% endblock %}

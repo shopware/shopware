@@ -1,13 +1,20 @@
 {% block sw_settings_tax_rule_type_zip_code_range %}
-    <sw-container columns="1fr 1fr" gap="0 32px">
-        {% block sw_settings_tax_rule_type_zip_code_range_from %}
-            <sw-text-field v-model="taxRule.data.fromZipCode" :label="$tc('sw-settings-tax.taxRuleCard.labelToZipCode')">
-            </sw-text-field>
-        {% endblock %}
+<sw-container
+    columns="1fr 1fr"
+    gap="0 32px"
+>
+    {% block sw_settings_tax_rule_type_zip_code_range_from %}
+    <sw-text-field
+        v-model="taxRule.data.fromZipCode"
+        :label="$tc('sw-settings-tax.taxRuleCard.labelToZipCode')"
+    />
+    {% endblock %}
 
-        {% block sw_settings_tax_rule_type_zip_code_range_to %}
-            <sw-text-field v-model="taxRule.data.toZipCode" :label="$tc('sw-settings-tax.taxRuleCard.labelFromZipCode')">
-            </sw-text-field>
-        {% endblock %}
-    </sw-container>
+    {% block sw_settings_tax_rule_type_zip_code_range_to %}
+    <sw-text-field
+        v-model="taxRule.data.toZipCode"
+        :label="$tc('sw-settings-tax.taxRuleCard.labelFromZipCode')"
+    />
+    {% endblock %}
+</sw-container>
 {% endblock %}

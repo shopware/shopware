@@ -1,38 +1,55 @@
 {% block sw_product_variants_price_field %}
-    <div class="sw-product-variants-price-field" :class="{'is--readonly': readonly}">
-        {% block sw_product_variants_price_field_gross %}
-            <div class="sw-field">
-                <sw-field type="number"
-                       v-model="price.gross"
-                       size="small"
-                       class="sw-product-variants-price-field__input"
-                       :disabled="readonly"
-                       @input-change="onPriceGrossChange"
-                       :digits="currency.decimalPrecision"
-                       v-bind="$attrs"/>
-            </div>
-        {% endblock %}
-
-        {% block sw_product_variants_price_field_lock_button %}
-            <button class="sw-product-variants-price-field__lock"
-                    :class="{'is--locked': price.linked}"
-                    @click="onLockSwitch">
-                <sw-icon name="default-lock-closed" size="16" v-if="price.linked"></sw-icon>
-                <sw-icon name="default-lock-open" size="16" v-else></sw-icon>
-            </button>
-        {% endblock %}
-
-        {% block sw_product_variants_price_field_net %}
-            <div class="sw-field">
-                <sw-field type="number"
-                       v-model="price.net"
-                       size="small"
-                       class="sw-field sw-product-variants-price-field__input"
-                       :disabled="readonly"
-                       @input-change="onPriceNetChange"
-                       :digits="currency.decimalPrecision"
-                       v-bind="$attrs"/>
-            </div>
-        {% endblock %}
+<div
+    class="sw-product-variants-price-field"
+    :class="{'is--readonly': readonly}"
+>
+    {% block sw_product_variants_price_field_gross %}
+    <div class="sw-field">
+        <sw-field
+            v-model="price.gross"
+            type="number"
+            size="small"
+            class="sw-product-variants-price-field__input"
+            :disabled="readonly"
+            :digits="currency.decimalPrecision"
+            v-bind="$attrs"
+            @input-change="onPriceGrossChange"
+        />
     </div>
+    {% endblock %}
+
+    {% block sw_product_variants_price_field_lock_button %}
+    <button
+        class="sw-product-variants-price-field__lock"
+        :class="{'is--locked': price.linked}"
+        @click="onLockSwitch"
+    >
+        <sw-icon
+            v-if="price.linked"
+            name="default-lock-closed"
+            size="16"
+        />
+        <sw-icon
+            v-else
+            name="default-lock-open"
+            size="16"
+        />
+    </button>
+    {% endblock %}
+
+    {% block sw_product_variants_price_field_net %}
+    <div class="sw-field">
+        <sw-field
+            v-model="price.net"
+            type="number"
+            size="small"
+            class="sw-field sw-product-variants-price-field__input"
+            :disabled="readonly"
+            :digits="currency.decimalPrecision"
+            v-bind="$attrs"
+            @input-change="onPriceNetChange"
+        />
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

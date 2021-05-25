@@ -1,13 +1,19 @@
 {% block sw_cms_add_block %}
-    <div class="sw-cms-stage-add-block" @click="$emit('stage-block-add')">
-        {% block sw_cms_add_block_handle %}
-            <div class="sw-cms-stage-add-block__handle"></div>
-        {% endblock %}
+<div
+    class="sw-cms-stage-add-block"
+    @click="$emit('stage-block-add')"
+>
+    {% block sw_cms_add_block_handle %}
+    <div class="sw-cms-stage-add-block__handle" />
+    {% endblock %}
 
-        {% block sw_cms_add_block_button %}
-            <div class="sw-cms-stage-add-block__button">
-                <sw-icon name="default-basic-plus-line" size="16"></sw-icon>
-            </div>
-        {% endblock %}
+    {% block sw_cms_add_block_button %}
+    <div class="sw-cms-stage-add-block__button">
+        <sw-icon
+            name="default-basic-plus-line"
+            size="16"
+        />
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

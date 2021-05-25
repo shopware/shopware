@@ -1,100 +1,105 @@
 {% block sw_settings_delivery_time_list %}
-    <sw-page class="sw-settings-delivery-time-list">
+<sw-page class="sw-settings-delivery-time-list">
 
-        {% block sw_settings_delivery_time_list_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_settings_delivery_time_list_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_delivery_time_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-settings.index.title') }}
-                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                            {{ $tc('sw-settings-delivery-time.list.textHeadline') }}
+    {% block sw_settings_delivery_time_list_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_delivery_time_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_delivery_time_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-delivery-time.list.textHeadline') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_delivery_time_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="delivery_time"
+            :placeholder="$tc('sw-settings-delivery-time.general.placeholder')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_delivery_time_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_delivery_time_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_delivery_time_list_smart_bar_actions_create %}
+        <sw-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('delivery_times.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-delivery-time-list__create"
+            variant="primary"
+            :disabled="!acl.can('delivery_times.creator')"
+            :router-link="{ name: 'sw.settings.delivery.time.create' }"
+        >
+            {{ $tc('sw-settings-delivery-time.general.buttonCreate') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_delivery_time_list_content %}
+    <template #content>
+
+        {% block sw_settings_delivery_time_list_content_inner %}
+        <sw-card-view>
+
+            {% block sw_settings_delivery_time_list_grid_wrapper %}
+            <sw-card>
+                <template #grid>
+
+                    {% block sw_settings_delivery_time_list_grid %}
+                    <sw-entity-listing
+                        class="sw-settings-delivery-time-list-grid"
+                        :items="deliveryTimes"
+                        :columns="deliveryTimeColumns()"
+                        :repository="deliveryTimeRepository"
+                        detail-route="sw.settings.delivery.time.detail"
+                        :allow-view="acl.can('delivery_times.viewer')"
+                        :allow-edit="acl.can('delivery_times.editor')"
+                        :allow-delete="acl.can('delivery_times.deleter')"
+                        :sort-by="sortBy"
+                        :sort-direction="sortDirection"
+                        :allow-column-edit="false"
+                        :show-selection="acl.can('delivery_times.deleter')"
+                        :show-settings="false"
+                        :is-loading="isLoading"
+                        :full-page="false"
+                        :disable-data-fetching="true"
+                        @column-sort="onSortColumn"
+                        @page-change="onPageChange"
+                    >
+
+                        {% block sw_settings_delivery_time_list_grid_column_unit %}
+                        <template #column-unit="{ item }">
+                            {{ $tc(`sw-settings-delivery-time.list.columnUnit_${item.unit}`) }}
+                        </template>
                         {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
+                    </sw-entity-listing>
+                    {% endblock %}
+                </template>
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
         {% endblock %}
-
-        {% block sw_settings_delivery_time_list_search_bar %}
-            <template #search-bar>
-                <sw-search-bar
-                    initialSearchType="delivery_time"
-                    :placeholder="$tc('sw-settings-delivery-time.general.placeholder')"
-                    :initialSearch="term"
-                    @search="onSearch">
-                </sw-search-bar>
-            </template>
-        {% endblock %}
-
-        {% block sw_settings_delivery_time_list_language_switch %}
-            <template #language-switch>
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-            </template>
-        {% endblock %}
-
-        {% block sw_settings_delivery_time_list_smart_bar_actions %}
-            <template #smart-bar-actions>
-                {% block sw_settings_delivery_time_list_smart_bar_actions_create %}
-                    <sw-button
-                        v-tooltip.bottom="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('delivery_times.creator'),
-                            showOnDisabledElements: true
-                        }"
-                        class="sw-settings-delivery-time-list__create"
-                        variant="primary"
-                        :disabled="!acl.can('delivery_times.creator')"
-                        :routerLink="{ name: 'sw.settings.delivery.time.create' }">
-                        {{ $tc('sw-settings-delivery-time.general.buttonCreate') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-        {% block sw_settings_delivery_time_list_content %}
-            <template #content>
-
-                {% block sw_settings_delivery_time_list_content_inner %}
-                    <sw-card-view>
-
-                        {% block sw_settings_delivery_time_list_grid_wrapper %}
-                            <sw-card>
-                                <template #grid>
-
-                                    {% block sw_settings_delivery_time_list_grid %}
-                                        <sw-entity-listing
-                                            class="sw-settings-delivery-time-list-grid"
-                                            :items="deliveryTimes"
-                                            :columns="deliveryTimeColumns()"
-                                            :repository="deliveryTimeRepository"
-                                            detailRoute="sw.settings.delivery.time.detail"
-                                            :allowView="acl.can('delivery_times.viewer')"
-                                            :allowEdit="acl.can('delivery_times.editor')"
-                                            :allowDelete="acl.can('delivery_times.deleter')"
-                                            :sortBy="sortBy"
-                                            :sortDirection="sortDirection"
-                                            @column-sort="onSortColumn"
-                                            @page-change="onPageChange"
-                                            :allowColumnEdit="false"
-                                            :showSelection="acl.can('delivery_times.deleter')"
-                                            :showSettings="false"
-                                            :isLoading="isLoading"
-                                            :fullPage="false"
-                                            :disableDataFetching="true">
-
-                                            {% block sw_settings_delivery_time_list_grid_column_unit %}
-                                                <template #column-unit="{ item }">
-                                                    {{ $tc(`sw-settings-delivery-time.list.columnUnit_${item.unit}`) }}
-                                                </template>
-                                            {% endblock %}
-                                        </sw-entity-listing>
-                                    {% endblock %}
-                                </template>
-                            </sw-card>
-                        {% endblock %}
-                    </sw-card-view>
-                {% endblock %}
-            </template>
-        {% endblock %}
-    </sw-page>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

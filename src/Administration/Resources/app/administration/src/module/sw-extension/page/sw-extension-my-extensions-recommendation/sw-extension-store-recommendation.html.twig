@@ -1,7 +1,7 @@
 {% block sw_extension_my_extensions_recommendation %}
-    <sw-meteor-card>
-        {% block sw_extension_my_extensions_recommendation_plugin_wizard %}
-            <sw-first-run-wizard-plugins @loading-finish="finishLoading"></sw-first-run-wizard-plugins>
-        {% endblock %}
-    </sw-meteor-card>
+<sw-meteor-card>
+    {% block sw_extension_my_extensions_recommendation_plugin_wizard %}
+    <sw-first-run-wizard-plugins @loading-finish="finishLoading" />
+    {% endblock %}
+</sw-meteor-card>
 {% endblock %}

@@ -1,45 +1,50 @@
 {% block sw_rating_stars %}
-    <div v-tooltip="ratingTooltip"
-         class="sw-rating-stars"
-         :style="dynamicWidthStyle">
+<div
+    v-tooltip="ratingTooltip"
+    class="sw-rating-stars"
+    :style="dynamicWidthStyle"
+>
 
-        {% block sw_rating_stars_placeholder %}
-            <div class="sw-rating-stars__placeholder">
+    {% block sw_rating_stars_placeholder %}
+    <div class="sw-rating-stars__placeholder">
 
-                {% block sw_rating_stars_placeholder_stars %}
-                    <sw-icon v-for="currentStar in maxStars"
-                             :key="`placeholder${currentStar}`"
-                             class="sw-rating-stars__star star-empty"
-                             name="default-review-star-full"
-                             :size="iconSize.toString()">
-                    </sw-icon>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_rating_stars_value %}
-            <div class="sw-rating-stars__value">
-
-                {% block sw_rating_stars_value_stars %}
-                    {% block sw_rating_stars_value_stars_full %}
-                        <sw-icon v-for="currentStar in Math.floor(cappedValue)"
-                                 :key="`full${currentStar}`"
-                                 class="sw-rating-stars__star star-full"
-                                 name="default-review-star-full"
-                                 :size="iconSize.toString()">
-                        </sw-icon>
-                    {% endblock %}
-
-                    {% block sw_rating_stars_value_stars_partial %}
-                        <sw-icon v-if="(cappedValue % 1) > 0"
-                                 class="sw-rating-stars__star star-partial"
-                                 :style="partialStarCutStyle"
-                                 name="default-review-star-full"
-                                 :size="iconSize.toString()">
-                        </sw-icon>
-                    {% endblock %}
-                {% endblock %}
-            </div>
+        {% block sw_rating_stars_placeholder_stars %}
+        <sw-icon
+            v-for="currentStar in maxStars"
+            :key="`placeholder${currentStar}`"
+            class="sw-rating-stars__star star-empty"
+            name="default-review-star-full"
+            :size="iconSize.toString()"
+        />
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_rating_stars_value %}
+    <div class="sw-rating-stars__value">
+
+        {% block sw_rating_stars_value_stars %}
+        {% block sw_rating_stars_value_stars_full %}
+        <sw-icon
+            v-for="currentStar in Math.floor(cappedValue)"
+            :key="`full${currentStar}`"
+            class="sw-rating-stars__star star-full"
+            name="default-review-star-full"
+            :size="iconSize.toString()"
+        />
+        {% endblock %}
+
+        {% block sw_rating_stars_value_stars_partial %}
+        <sw-icon
+            v-if="(cappedValue % 1) > 0"
+            class="sw-rating-stars__star star-partial"
+            :style="partialStarCutStyle"
+            name="default-review-star-full"
+            :size="iconSize.toString()"
+        />
+        {% endblock %}
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,32 +1,37 @@
 {% block sw_settings_listing_option_general_info %}
-    <sw-card :title="$tc('sw-settings-listing.base.general.title')">
+<sw-card :title="$tc('sw-settings-listing.base.general.title')">
 
-        {% block sw_settings_listing_option_general_info_container %}
-            <sw-container columns="1fr 1fr" gap="0 20px">
+    {% block sw_settings_listing_option_general_info_container %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 20px"
+    >
 
-                {% block sw_settings_listing_option_general_info_name %}
-                    <sw-text-field v-model="sortingOption.label"
-                        class="sw-settings-listing-edit__general-input"
-                        :label="$tc('sw-settings-listing.base.general.labelName')"
-                        :required="true"
-                        :error="sortingOptionLabelError">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_settings_listing_option_general_info_active %}
-                    <sw-switch-field v-model="sortingOption.active"
-                        :disabled="isDefaultSorting"
-                        class="sw-settings-listing-edit__general-input"
-                        :bordered="true"
-                        :label="$tc('sw-settings-listing.base.general.labelActive')"
-                        v-tooltip="{
-                               showDelay: 300,
-                               message: $tc('sw-cms.elements.productListing.config.sorting.defaultSortingCantBeDisabled'),
-                               disabled: !isDefaultSorting
-                           }">
-                    </sw-switch-field>
-                {% endblock %}
-            </sw-container>
+        {% block sw_settings_listing_option_general_info_name %}
+        <sw-text-field
+            v-model="sortingOption.label"
+            class="sw-settings-listing-edit__general-input"
+            :label="$tc('sw-settings-listing.base.general.labelName')"
+            :required="true"
+            :error="sortingOptionLabelError"
+        />
         {% endblock %}
-    </sw-card>
+
+        {% block sw_settings_listing_option_general_info_active %}
+        <sw-switch-field
+            v-model="sortingOption.active"
+            v-tooltip="{
+                showDelay: 300,
+                message: $tc('sw-cms.elements.productListing.config.sorting.defaultSortingCantBeDisabled'),
+                disabled: !isDefaultSorting
+            }"
+            :disabled="isDefaultSorting"
+            class="sw-settings-listing-edit__general-input"
+            :bordered="true"
+            :label="$tc('sw-settings-listing.base.general.labelActive')"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</sw-card>
 {% endblock %}

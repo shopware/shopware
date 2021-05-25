@@ -1,59 +1,60 @@
 {%  block sw_customer_create %}
-    <sw-page class="sw-customer-create">
+<sw-page class="sw-customer-create">
 
-        {% block sw_customer_create_header %}
-            <template #smart-bar-header>
-                <h2>{{ customer | salutation($tc('sw-customer.general.newCustomer')) }}</h2>
-            </template>
-        {% endblock %}
+    {% block sw_customer_create_header %}
+    <template #smart-bar-header>
+        <h2>{{ customer | salutation($tc('sw-customer.general.newCustomer')) }}</h2>
+    </template>
+    {% endblock %}
 
-        {% block sw_customer_create_language_switch %}
-            <template #language-switch>
-                <sw-language-switch
-                        disabled
-                        v-tooltip="{ message: $tc('sw-customer.general.tooltipLanguageSwitch') }">
-                </sw-language-switch>
-            </template>
-        {% endblock %}
+    {% block sw_customer_create_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            v-tooltip="{ message: $tc('sw-customer.general.tooltipLanguageSwitch') }"
+            disabled
+        />
+    </template>
+    {% endblock %}
 
-        {% block sw_customer_create_actions %}
-            <template #smart-bar-actions>
-                <sw-button-process
-                    class="sw-customer-create__save-action"
-                    :isLoading="isLoading"
-                    :disabled="isLoading"
-                    :processSuccess="isSaveSuccessful"
-                    variant="primary"
-                    @process-finish="saveFinish"
-                    @click.prevent="onSave">
+    {% block sw_customer_create_actions %}
+    <template #smart-bar-actions>
+        <sw-button-process
+            class="sw-customer-create__save-action"
+            :is-loading="isLoading"
+            :disabled="isLoading"
+            :process-success="isSaveSuccessful"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
 
-                    {{ $tc('sw-customer.detail.buttonSave') }}
-                </sw-button-process>
-            </template>
-        {% endblock %}
+            {{ $tc('sw-customer.detail.buttonSave') }}
+        </sw-button-process>
+    </template>
+    {% endblock %}
 
-        {% block sw_customer_create_content %}
-            <template #content>
-                <sw-card-view>
-                    {% block sw_customer_create_base_form %}
-                        <sw-card :title="$tc('sw-customer.detailBase.labelAccountCard')">
-                            <sw-customer-base-form
-                                :isLoading="isLoading"
-                                :customer="customer"
-                                @sales-channel-change="onChangeSalesChannel">
-                            </sw-customer-base-form>
-                        </sw-card>
-                    {% endblock %}
+    {% block sw_customer_create_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_customer_create_base_form %}
+            <sw-card :title="$tc('sw-customer.detailBase.labelAccountCard')">
+                <sw-customer-base-form
+                    :is-loading="isLoading"
+                    :customer="customer"
+                    @sales-channel-change="onChangeSalesChannel"
+                />
+            </sw-card>
+            {% endblock %}
 
-                    {% block sw_customer_create_adress_form %}
-                        <sw-card :title="$tc('sw-customer.detailBase.labelAddressesCard')">
-                            <sw-customer-address-form
-                                v-bind="{ customer, address }">
-                            </sw-customer-address-form>
-                        </sw-card>
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+            {% block sw_customer_create_adress_form %}
+            <sw-card :title="$tc('sw-customer.detailBase.labelAddressesCard')">
+                <sw-customer-address-form
+                    v-bind="{ customer, address }"
+                />
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

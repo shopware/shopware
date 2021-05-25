@@ -1,37 +1,37 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-date-range sw-condition__condition-value">
-        {% block sw_condition_date_range_field_use_time %}
-            <sw-arrow-field :disabled="disabled">
-                <sw-single-select
-                    size="medium"
-                    :options="selectValues"
-                    :disabled="disabled"
-                    :placeholder="$tc('global.sw-condition.condition.withTime')"
-                    v-model="useTime">
-                </sw-single-select>
-            </sw-arrow-field>
-        {% endblock %}
+<div class="sw-condition-date-range sw-condition__condition-value">
+    {% block sw_condition_date_range_field_use_time %}
+    <sw-arrow-field :disabled="disabled">
+        <sw-single-select
+            v-model="useTime"
+            size="medium"
+            :options="selectValues"
+            :disabled="disabled"
+            :placeholder="$tc('global.sw-condition.condition.withTime')"
+        />
+    </sw-arrow-field>
+    {% endblock %}
 
-        {% block sw_condition_date_range_field_from_date %}
-            <sw-arrow-field :disabled="disabled">
-                <sw-datepicker
-                    size="medium"
-                    :dateType="isDateTime"
-                    required
-                    :disabled="disabled"
-                    v-model="fromDate">
-                </sw-datepicker>
-            </sw-arrow-field>
-        {% endblock %}
+    {% block sw_condition_date_range_field_from_date %}
+    <sw-arrow-field :disabled="disabled">
+        <sw-datepicker
+            v-model="fromDate"
+            size="medium"
+            :date-type="isDateTime"
+            required
+            :disabled="disabled"
+        />
+    </sw-arrow-field>
+    {% endblock %}
 
-        {% block sw_condiiton_date_range_field_to_date %}
-            <sw-datepicker
-                size="medium"
-                :dateType="isDateTime"
-                required
-                :disabled="disabled"
-                v-model="toDate">
-            </sw-datepicker>
-        {% endblock %}
-    </div>
+    {% block sw_condiiton_date_range_field_to_date %}
+    <sw-datepicker
+        v-model="toDate"
+        size="medium"
+        :date-type="isDateTime"
+        required
+        :disabled="disabled"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

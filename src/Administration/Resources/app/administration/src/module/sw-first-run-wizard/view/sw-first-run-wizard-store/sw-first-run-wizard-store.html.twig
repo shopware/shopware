@@ -1,76 +1,84 @@
 {% block sw_first_run_wizard_store %}
-    <div class="sw-first-run-wizard-store">
-        <template v-if="loadStatus">
-            <sw-icon class="sw-first-run-wizard-store__loading-icon"
-                     name="default-web-loading-circle"
-                     size="48px"
-                     small>
-            </sw-icon>
+<div class="sw-first-run-wizard-store">
+    <template v-if="loadStatus">
+        <sw-icon
+            class="sw-first-run-wizard-store__loading-icon"
+            name="default-web-loading-circle"
+            size="48px"
+            small
+        />
 
-            <p class="message">
-                {{ $tc('sw-first-run-wizard.store.loadStatusCollect') }}
-                <br>
-                {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
-            </p>
-        </template>
+        <p class="message">
+            {{ $tc('sw-first-run-wizard.store.loadStatusCollect') }}
+            <br>
+            {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
+        </p>
+    </template>
 
-        <template v-else-if="extensionStatus && extensionStatus.active">
-            <sw-label class="sw-first-run-wizard-store__label"
-                      appearance="pill"
-                      variant="success">
-                <sw-icon name="default-basic-checkmark-circle"
-                         size="30px"
-                ></sw-icon>
-            </sw-label>
+    <template v-else-if="extensionStatus && extensionStatus.active">
+        <sw-label
+            class="sw-first-run-wizard-store__label"
+            appearance="pill"
+            variant="success"
+        >
+            <sw-icon
+                name="default-basic-checkmark-circle"
+                size="30px"
+            />
+        </sw-label>
 
-            <h2>
-                {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
-            </h2>
-        </template>
+        <h2>
+            {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
+        </h2>
+    </template>
 
-        <template v-else-if="isActivating">
-            <sw-icon class="sw-first-run-wizard-store__loading-icon"
-                     name="default-web-loading-circle"
-                     size="48px"
-                     small>
-            </sw-icon>
+    <template v-else-if="isActivating">
+        <sw-icon
+            class="sw-first-run-wizard-store__loading-icon"
+            name="default-web-loading-circle"
+            size="48px"
+            small
+        />
 
-            <p class="message">
-                {{ $tc('sw-first-run-wizard.store.enablingStore') }}
-                <br>
-                {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
-            </p>
-        </template>
+        <p class="message">
+            {{ $tc('sw-first-run-wizard.store.enablingStore') }}
+            <br>
+            {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
+        </p>
+    </template>
 
-        <template v-else-if="activationError">
-            <sw-label class="sw-first-run-wizard-store__label"
-                      appearance="pill"
-                      variant="danger">
-                <sw-icon name="default-basic-x-circle"
-                         size="30px"
-                ></sw-icon>
-            </sw-label>
+    <template v-else-if="activationError">
+        <sw-label
+            class="sw-first-run-wizard-store__label"
+            appearance="pill"
+            variant="danger"
+        >
+            <sw-icon
+                name="default-basic-x-circle"
+                size="30px"
+            />
+        </sw-label>
 
-            <h2>
-                {{ error && error.title || $tc('sw-first-run-wizard.store.activationErrorTitle') }}
-            </h2>
-            <p>
-                {{ error && error.detail || $tc('sw-first-run-wizard.store.activationErrorDescription') }}
-            </p>
-        </template>
+        <h2>
+            {{ error && error.title || $tc('sw-first-run-wizard.store.activationErrorTitle') }}
+        </h2>
+        <p>
+            {{ error && error.detail || $tc('sw-first-run-wizard.store.activationErrorDescription') }}
+        </p>
+    </template>
 
-        <template v-else>
-            <img :src="'/administration/static/img/extension-store/store_illustration.svg' | asset">
+    <template v-else>
+        <img :src="'/administration/static/img/extension-store/store_illustration.svg' | asset">
 
-            <h2 class="sw-first-run-wizard-store__heading">
-                {{ $tc('sw-first-run-wizard.store.headingOne') }}
-                <br>
-                {{ $tc('sw-first-run-wizard.store.headingTwo') }}
-            </h2>
+        <h2 class="sw-first-run-wizard-store__heading">
+            {{ $tc('sw-first-run-wizard.store.headingOne') }}
+            <br>
+            {{ $tc('sw-first-run-wizard.store.headingTwo') }}
+        </h2>
 
-            <p>
-                {{ $tc('sw-first-run-wizard.store.description') }}
-            </p>
-        </template>
-    </div>
+        <p>
+            {{ $tc('sw-first-run-wizard.store.description') }}
+        </p>
+    </template>
+</div>
 {% endblock %}

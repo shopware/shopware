@@ -1,73 +1,91 @@
 {% block sw_media_modal_move %}
-    <sw-modal variant="default"
-              class="sw-media-modal-move"
-              @modal-close="closeMoveModal"
-              :title="$tc('global.sw-media-modal-move.titleModal', itemsToMove.length, { mediaName: mediaNameFilter(itemsToMove[0]), count: itemsToMove.length }) ">
+<sw-modal
+    variant="default"
+    class="sw-media-modal-move"
+    :title="$tc('global.sw-media-modal-move.titleModal', itemsToMove.length, { mediaName: mediaNameFilter(itemsToMove[0]), count: itemsToMove.length }) "
+    @modal-close="closeMoveModal"
+>
 
-        {% block sw_media_modal_body %}
-            {% block sw_media_modal_move_breadcrumbs %}
-                <div class="sw-media-modal-move-folder-breadcrumbs">
-                    <sw-icon class="sw-media-modal-move__folder-icon"
-                             name="multicolor-folder-thumbnail"
-                             size="16px"
-                             multicolor>
-                    </sw-icon>
+    {% block sw_media_modal_body %}
+    {% block sw_media_modal_move_breadcrumbs %}
+    <div class="sw-media-modal-move-folder-breadcrumbs">
+        <sw-icon
+            class="sw-media-modal-move__folder-icon"
+            name="multicolor-folder-thumbnail"
+            size="16px"
+            multicolor
+        />
 
-                    <button v-if="parentFolder && parentFolder.id !== targetFolder.id"
-                            class="sw-media-modal-move__breadcrumb-btn --parent"
-                            @click="onSelection(parentFolder)">
-                        <sw-icon class="sw-media-folder-content__switch-button"
-                                 name="small-arrow-small-right"
-                                 size="16px">
-                        </sw-icon>
-                        {{ parentFolder.name }}
-                    </button>
+        <button
+            v-if="parentFolder && parentFolder.id !== targetFolder.id"
+            class="sw-media-modal-move__breadcrumb-btn --parent"
+            @click="onSelection(parentFolder)"
+        >
+            <sw-icon
+                class="sw-media-folder-content__switch-button"
+                name="small-arrow-small-right"
+                size="16px"
+            />
+            {{ parentFolder.name }}
+        </button>
 
-                    <button v-if="displayFolder && displayFolder.id !== targetFolder.id"
-                            class="sw-media-modal-move__breadcrumb-btn"
-                            @click="onSelection(displayFolder)">
-                        <sw-icon class="sw-media-folder-content__switch-button"
-                                 name="small-arrow-small-right"
-                                 size="16px">
-                        </sw-icon>
-                        {{ displayFolder.name }}
-                    </button>
+        <button
+            v-if="displayFolder && displayFolder.id !== targetFolder.id"
+            class="sw-media-modal-move__breadcrumb-btn"
+            @click="onSelection(displayFolder)"
+        >
+            <sw-icon
+                class="sw-media-folder-content__switch-button"
+                name="small-arrow-small-right"
+                size="16px"
+            />
+            {{ displayFolder.name }}
+        </button>
 
-                    <button v-if="targetFolder"
-                            class="sw-media-modal-move__breadcrumb-btn --target"
-                            @click="onSelection(targetFolder)">
-                        <sw-icon class="sw-media-folder-content__switch-button"
-                                 name="small-arrow-small-right"
-                                 size="16px">
-                        </sw-icon>
-                        {{ targetFolder.name }}
-                    </button>
-                </div>
-                {% endblock %}
-            <sw-media-folder-content :startFolderId="displayFolderId"
-                                     :selectedId="targetFolderId"
-                                     @selected="onSelection">
-            </sw-media-folder-content>
+        <button
+            v-if="targetFolder"
+            class="sw-media-modal-move__breadcrumb-btn --target"
+            @click="onSelection(targetFolder)"
+        >
+            <sw-icon
+                class="sw-media-folder-content__switch-button"
+                name="small-arrow-small-right"
+                size="16px"
+            />
+            {{ targetFolder.name }}
+        </button>
+    </div>
+    {% endblock %}
+    <sw-media-folder-content
+        :start-folder-id="displayFolderId"
+        :selected-id="targetFolderId"
+        @selected="onSelection"
+    />
+    {% endblock %}
+
+    {% block sw_media_modal_footer %}
+    <template slot="modal-footer">
+        {% block sw_media_modal_move_cancel_button %}
+        <sw-button
+            size="small"
+            @click="closeMoveModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_media_modal_footer %}
-            <template slot="modal-footer">
-                {% block sw_media_modal_move_cancel_button %}
-                    <sw-button @click="closeMoveModal" size="small">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_media_modal_move_confirm_button %}
-                    <sw-button class="sw-media-modal-move__confirm"
-                               @click="moveSelection"
-                               size="small"
-                               variant="primary"
-                               :disabled="isMoveDisabled">
-                        {{ $tc('global.sw-media-modal-move.buttonMove') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+        {% block sw_media_modal_move_confirm_button %}
+        <sw-button
+            class="sw-media-modal-move__confirm"
+            size="small"
+            variant="primary"
+            :disabled="isMoveDisabled"
+            @click="moveSelection"
+        >
+            {{ $tc('global.sw-media-modal-move.buttonMove') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

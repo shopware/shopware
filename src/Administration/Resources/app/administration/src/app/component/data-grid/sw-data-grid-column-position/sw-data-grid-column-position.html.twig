@@ -1,39 +1,49 @@
 {% block sw_data_grid_column_position %}
-    <div class="sw-data-grid-column-position">
-        {% block sw_data_grid_column_position_value %}
-            <template v-if="showValue">
-                <span class="sw-data-grid-column-position__value">
-                    {{ item[field] }}
-                </span>
-            </template>
+<div class="sw-data-grid-column-position">
+    {% block sw_data_grid_column_position_value %}
+    <template v-if="showValue">
+        <span class="sw-data-grid-column-position__value">
+            {{ item[field] }}
+        </span>
+    </template>
+    {% endblock %}
+
+    {% block sw_data_grid_column_position_button_group %}
+    <sw-button-group class="sw-data-grid-column-position__group">
+        {% block sw_data_grid_column_position_button_up %}
+        <sw-button
+            class="sw-data-grid-column-position__arrow arrow_up"
+            size="x-small"
+            :disabled="disabled || itemMin"
+            square
+            @click="onLowerPositionValue(item)"
+        >
+            {% block sw_data_grid_column_position_button_up_content %}
+            <sw-icon
+                name="small-arrow-medium-up"
+                size="12"
+            />
+            {% endblock %}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_data_grid_column_position_button_group %}
-            <sw-button-group class="sw-data-grid-column-position__group">
-                {% block sw_data_grid_column_position_button_up %}
-                    <sw-button class="sw-data-grid-column-position__arrow arrow_up"
-                               size="x-small"
-                               :disabled="disabled || itemMin"
-                               square
-                               @click="onLowerPositionValue(item)">
-                        {% block sw_data_grid_column_position_button_up_content %}
-                            <sw-icon name="small-arrow-medium-up" size="12"></sw-icon>
-                        {% endblock %}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_data_grid_column_position_button_down %}
-                    <sw-button class="sw-data-grid-column-position__arrow arrow_down"
-                               size="x-small"
-                               :disabled="disabled || itemMax"
-                               square
-                               @click="onRaisePositionValue(item)">
-                        {% block sw_data_grid_column_position_button_down_content %}
-                            <sw-icon name="small-arrow-medium-down" size="12"></sw-icon>
-                        {% endblock %}
-                    </sw-button>
-                {% endblock %}
-            </sw-button-group>
+        {% block sw_data_grid_column_position_button_down %}
+        <sw-button
+            class="sw-data-grid-column-position__arrow arrow_down"
+            size="x-small"
+            :disabled="disabled || itemMax"
+            square
+            @click="onRaisePositionValue(item)"
+        >
+            {% block sw_data_grid_column_position_button_down_content %}
+            <sw-icon
+                name="small-arrow-medium-down"
+                size="12"
+            />
+            {% endblock %}
+        </sw-button>
         {% endblock %}
-    </div>
+    </sw-button-group>
+    {% endblock %}
+</div>
 {% endblock %}

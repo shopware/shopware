@@ -1,79 +1,91 @@
 {% block sw_extension_card_base_activation_switch %}
-    {% parent %}
+{% parent %}
 
-    {% block sw_bought_extension_card_deactivation_modal %}
-        <sw-extension-deactivation-modal v-if="showDeactivationModal"
-            :extensionName="label"
-            :isLicensed="license !== null"
-            :isLoading="isLoading"
-            @modal-close="closeDeactivationModal"
-            @extension-deactivate="closeModalAndDeactivateExtension">
-        </sw-extension-deactivation-modal>
-    {% endblock %}
+{% block sw_bought_extension_card_deactivation_modal %}
+<sw-extension-deactivation-modal
+    v-if="showDeactivationModal"
+    :extension-name="label"
+    :is-licensed="license !== null"
+    :is-loading="isLoading"
+    @modal-close="closeDeactivationModal"
+    @extension-deactivate="closeModalAndDeactivateExtension"
+/>
+{% endblock %}
 {% endblock %}
 
 {% block sw_extension_card_base_info_content %}
-    {% parent %}
+{% parent %}
 
-    {% block sw_extension_card_base_calculated_price %}
-        <section v-if="priceInfo && extension.storeLicense.variant === 'rent'">
-            {% block sw_bought_extension_card_info_price %}
-                <span class="sw-extension-card-bought__info-price">
-                    {{ priceInfo }}
-                </span>
-            {% endblock %}
-        </section>
+{% block sw_extension_card_base_calculated_price %}
+<section v-if="priceInfo && extension.storeLicense.variant === 'rent'">
+    {% block sw_bought_extension_card_info_price %}
+    <span class="sw-extension-card-bought__info-price">
+        {{ priceInfo }}
+    </span>
     {% endblock %}
+</section>
+{% endblock %}
 
-    {% block sw_extension_card_base_subscription_expired_info %}
-        <section v-if="subscriptionExpiredText">
-            {% block sw_extension_card_base_subscription_expired_info_text %}
-                <span>
-                    {{ subscriptionExpiredText }}
-                </span>
-            {% endblock %}
-        </section>
+{% block sw_extension_card_base_subscription_expired_info %}
+<section v-if="subscriptionExpiredText">
+    {% block sw_extension_card_base_subscription_expired_info_text %}
+    <span>
+        {{ subscriptionExpiredText }}
+    </span>
     {% endblock %}
+</section>
+{% endblock %}
 {% endblock %}
 
 {% block sw_extension_card_base_context_menu_actions %}
 
-    {% block sw_bought_extension_card_context_menu_open_detail %}
-        <sw-context-menu-item class="sw-extension-card-bought__detail-link" v-if="detailLink" :routerLink="detailLink">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel') }}
-        </sw-context-menu-item>
-    {% endblock %}
+{% block sw_bought_extension_card_context_menu_open_detail %}
+<sw-context-menu-item
+    v-if="detailLink"
+    class="sw-extension-card-bought__detail-link"
+    :router-link="detailLink"
+>
+    {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel') }}
+</sw-context-menu-item>
+{% endblock %}
 
-    {% block sw_bought_extension_card_context_menu_rate %}
-        <sw-context-menu-item class="sw-extension-card-bought__rate-link" v-if="isInstalled && extension.storeLicense" @click="openRatingModal">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel') }}
-        </sw-context-menu-item>
-    {% endblock %}
+{% block sw_bought_extension_card_context_menu_rate %}
+<sw-context-menu-item
+    v-if="isInstalled && extension.storeLicense"
+    class="sw-extension-card-bought__rate-link"
+    @click="openRatingModal"
+>
+    {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel') }}
+</sw-context-menu-item>
+{% endblock %}
 
-    {% parent %}
+{% parent %}
 {% endblock %}
 
 {% block sw_extension_card_base_modals %}
-    {% parent %}
+{% parent %}
 
-    {% block sw_bought_extension_card_rating_modal %}
-        <sw-extension-rating-modal v-if="showRatingModal"
-            :extension="extension"
-            @modal-close="closeRatingModal">
-        </sw-extension-rating-modal>
-    {% endblock %}
+{% block sw_bought_extension_card_rating_modal %}
+<sw-extension-rating-modal
+    v-if="showRatingModal"
+    :extension="extension"
+    @modal-close="closeRatingModal"
+/>
+{% endblock %}
 
+{% block sw_bought_extension_card_installation_failed_modal %}
+<sw-modal
+    v-if="showExtensionInstallationFailedModal"
+    :title="extension.label"
+    variant="small"
+    @modal-close="closeInstallationFailedNotification"
+>
     {% block sw_bought_extension_card_installation_failed_modal %}
-        <sw-modal v-if="showExtensionInstallationFailedModal"
-                  :title="extension.label"
-                  variant="small"
-                  @modal-close="closeInstallationFailedNotification">
-            {% block sw_bought_extension_card_installation_failed_modal %}
-                <sw-extension-adding-failed
-                    :extensionName="extension.name"
-                    @close="closeInstallationFailedNotification">
-                </sw-extension-adding-failed>
-            {% endblock %}
-        </sw-modal>
+    <sw-extension-adding-failed
+        :extension-name="extension.name"
+        @close="closeInstallationFailedNotification"
+    />
+    {% endblock %}
+</sw-modal>
     {% endblock %}
 {% endblock %}

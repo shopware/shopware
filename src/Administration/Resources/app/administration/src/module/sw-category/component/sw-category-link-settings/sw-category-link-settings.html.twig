@@ -1,92 +1,96 @@
 {%  block sw_category_link_settings %}
-    <sw-card class="sw-category-link-settings" :title="$tc('sw-category.base.link.title')" :isLoading="isLoading">
-        {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-        {% block sw_category_detail_link_desc_external %}{% endblock %}
+<sw-card
+    class="sw-category-link-settings"
+    :title="$tc('sw-category.base.link.title')"
+    :is-loading="isLoading"
+>
+    {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    {% block sw_category_detail_link_desc_external %}{% endblock %}
 
-        {# @deprecated tag:v6.5.0 - will be removed without replacement #}
-        {% block sw_category_detail_link_desc_internal %}{% endblock %}
+    {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    {% block sw_category_detail_link_desc_internal %}{% endblock %}
 
-        {% block sw_category_detail_link_type_select_main %}
-            <sw-single-select
-                class="sw-category-link-settings__type"
-                v-model="mainType"
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('sw-category.base.link.mainTypeLabel')"
-                :placeholder="$tc('sw-category.base.link.mainTypePlaceholder')"
-                :options="linkTypeValues">
-            </sw-single-select>
-        {% endblock %}
+    {% block sw_category_detail_link_type_select_main %}
+    <sw-single-select
+        v-model="mainType"
+        class="sw-category-link-settings__type"
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('sw-category.base.link.mainTypeLabel')"
+        :placeholder="$tc('sw-category.base.link.mainTypePlaceholder')"
+        :options="linkTypeValues"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_link_type_select_entity %}
-            <sw-single-select
-                v-if="isInternal"
-                class="sw-category-link-settings__entity"
-                v-model="category.linkType"
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('sw-category.base.link.internalTypeLabel')"
-                :placeholder="$tc('sw-category.base.link.internalTypePlaceholder')"
-                :options="entityValues"
-                @change="changeEntity">
-            </sw-single-select>
-        {% endblock %}
+    {% block sw_category_detail_link_type_select_entity %}
+    <sw-single-select
+        v-if="isInternal"
+        v-model="category.linkType"
+        class="sw-category-link-settings__entity"
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('sw-category.base.link.internalTypeLabel')"
+        :placeholder="$tc('sw-category.base.link.internalTypePlaceholder')"
+        :options="entityValues"
+        @change="changeEntity"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_link_type_select_entity_category %}
-            <sw-entity-single-select
-                v-if="category.linkType === 'category'"
-                class="sw-category-link-settings__selection-category"
-                v-model="category.internalLink"
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('global.entities.category')"
-                :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
-                :criteria="categoryCriteria"
-                entity="category">
-            </sw-entity-single-select>
-        {% endblock %}
+    {% block sw_category_detail_link_type_select_entity_category %}
+    <sw-entity-single-select
+        v-if="category.linkType === 'category'"
+        v-model="category.internalLink"
+        class="sw-category-link-settings__selection-category"
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('global.entities.category')"
+        :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+        :criteria="categoryCriteria"
+        entity="category"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_link_type_select_entity_product %}
-            <sw-entity-single-select
-                v-if="category.linkType === 'product'"
-                class="sw-category-link-settings__selection-product"
-                v-model="category.internalLink"
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('global.entities.product')"
-                :placeholder="$tc('sw-category.base.link.productPlaceholder')"
-                :criteria="productCriteria"
-                :displayVariants="true"
-                entity="product">
-            </sw-entity-single-select>
-        {% endblock %}
+    {% block sw_category_detail_link_type_select_entity_product %}
+    <sw-entity-single-select
+        v-if="category.linkType === 'product'"
+        v-model="category.internalLink"
+        class="sw-category-link-settings__selection-product"
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('global.entities.product')"
+        :placeholder="$tc('sw-category.base.link.productPlaceholder')"
+        :criteria="productCriteria"
+        :display-variants="true"
+        entity="product"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_link_type_select_entity_landing_page %}
-            <sw-entity-single-select
-                v-if="category.linkType === 'landing_page'"
-                class="sw-category-link-settings__selection-landing-page"
-                v-model="category.internalLink"
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('global.entities.landing_page')"
-                :placeholder="$tc('sw-category.base.link.landingPagePlaceholder')"
-                entity="landing_page">
-            </sw-entity-single-select>
-        {% endblock %}
+    {% block sw_category_detail_link_type_select_entity_landing_page %}
+    <sw-entity-single-select
+        v-if="category.linkType === 'landing_page'"
+        v-model="category.internalLink"
+        class="sw-category-link-settings__selection-landing-page"
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('global.entities.landing_page')"
+        :placeholder="$tc('sw-category.base.link.landingPagePlaceholder')"
+        entity="landing_page"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_link_field %}
-            <sw-text-field
-                v-if="isExternal"
-                class="sw-category-link-settings__external-link"
-                v-model="category.externalLink"
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('sw-category.base.link.linkLabel')"
-                :placeholder="$tc('sw-category.base.link.linkLabel')">
-            </sw-text-field>
-        {% endblock %}
+    {% block sw_category_detail_link_field %}
+    <sw-text-field
+        v-if="isExternal"
+        v-model="category.externalLink"
+        class="sw-category-link-settings__external-link"
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('sw-category.base.link.linkLabel')"
+        :placeholder="$tc('sw-category.base.link.linkLabel')"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_link_new_tab %}
-            <sw-switch-field
-                class="sw-category-link-settings__link-new-tab"
-                v-model="category.linkNewTab"
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('sw-category.base.link.linkNewTabLabel')">
-            </sw-switch-field>
-        {% endblock %}
-    </sw-card>
+    {% block sw_category_detail_link_new_tab %}
+    <sw-switch-field
+        v-model="category.linkNewTab"
+        class="sw-category-link-settings__link-new-tab"
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('sw-category.base.link.linkNewTabLabel')"
+    />
+    {% endblock %}
+</sw-card>
 {%  endblock %}

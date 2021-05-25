@@ -1,17 +1,24 @@
 {% block sw_desktop %}
-    <div class="sw-desktop" :class="desktopClasses">
+<div
+    class="sw-desktop"
+    :class="desktopClasses"
+>
 
-        {% block sw_desktop_sidebar %}
-            <sw-admin-menu v-if="!noNavigation"></sw-admin-menu>
-        {% endblock %}
+    {% block sw_desktop_sidebar %}
+    <sw-admin-menu v-if="!noNavigation" />
+    {% endblock %}
 
-        {% block sw_desktop_content %}
-            <div class="sw-desktop__content">
-                {% block sw_desktop_content_view %}
-                    <router-view></router-view>
-                {% endblock %}
-            </div>
-            <sw-app-app-url-changed-modal v-if="urlDiff !== null" :urlDiff="urlDiff" @modal-close="closeModal"></sw-app-app-url-changed-modal>
+    {% block sw_desktop_content %}
+    <div class="sw-desktop__content">
+        {% block sw_desktop_content_view %}
+        <router-view />
         {% endblock %}
     </div>
+    <sw-app-app-url-changed-modal
+        v-if="urlDiff !== null"
+        :url-diff="urlDiff"
+        @modal-close="closeModal"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

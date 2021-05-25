@@ -1,16 +1,24 @@
 {% block sw_collapse_panel_header_slot %}
-    <div class="sw-media-collapse__header">
-        {% block sw_media_collapse_title %}
-            <h4 class="sw-media-collapse__title">
-                {{ title }}
-            </h4>
-        {% endblock %}
+<div class="sw-media-collapse__header">
+    {% block sw_media_collapse_title %}
+    <h4 class="sw-media-collapse__title">
+        {{ title }}
+    </h4>
+    {% endblock %}
 
-        {% block sw_media_collapse_buttons %}
-            <div class="sw-media-collapse__indicator">
-                <sw-icon name="small-arrow-small-right" class="sw-media-collapse__button" :class="expandButtonClass"></sw-icon>
-                <sw-icon name="small-arrow-small-down" class="sw-media-collapse__button" :class="collapseButtonClass"></sw-icon>
-            </div>
-        {% endblock %}
+    {% block sw_media_collapse_buttons %}
+    <div class="sw-media-collapse__indicator">
+        <sw-icon
+            name="small-arrow-small-right"
+            class="sw-media-collapse__button"
+            :class="expandButtonClass"
+        />
+        <sw-icon
+            name="small-arrow-small-down"
+            class="sw-media-collapse__button"
+            :class="collapseButtonClass"
+        />
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

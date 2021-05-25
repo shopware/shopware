@@ -1,5 +1,10 @@
 {% block sw_color_badge %}
-    <span class="sw-color-badge" :class="variantClass" v-bind="$attrs" :style="colorStyle">
-        <slot>{% block sw_color_badfge_slot_default %}{% endblock %}</slot>
-    </span>
+<span
+    class="sw-color-badge"
+    :class="variantClass"
+    v-bind="$attrs"
+    :style="colorStyle"
+>
+    <slot>{% block sw_color_badfge_slot_default %}{% endblock %}</slot>
+</span>
 {% endblock %}

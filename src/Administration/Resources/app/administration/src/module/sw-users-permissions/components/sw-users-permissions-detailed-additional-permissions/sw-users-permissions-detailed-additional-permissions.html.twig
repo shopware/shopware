@@ -1,37 +1,47 @@
 {% block sw_users_permissions_detailed_additional_permissions %}
-    <sw-card class="sw-users-permissions-detailed-additional-permissions"
-             :title="$tc('sw-users-permissions.roles.detailed-additional-permissions.title')">
-        {% block sw_users_permissions_detailed_additional_permissions_additional_privileges %}
-            <template v-for="privilege in detailedAdditionalPermissions">
-                {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_headline %}
-                    <h4 :class="'sw-users-permissions-additional-permissions_' + privilege.key">
-                        {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_headline_content %}
-                            <strong>
-                                {{ $tc('sw-privileges.additional_permissions.' + privilege.key + '.label') }}
-                            </strong>
-                        {% endblock %}
-                    </h4>
-                {% endblock %}
+<sw-card
+    class="sw-users-permissions-detailed-additional-permissions"
+    :title="$tc('sw-users-permissions.roles.detailed-additional-permissions.title')"
+>
+    {% block sw_users_permissions_detailed_additional_permissions_additional_privileges %}
+    <template v-for="privilege in detailedAdditionalPermissions">
+        {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_headline %}
+        <h4
+            :key="privilege.key"
+            :class="'sw-users-permissions-additional-permissions_' + privilege.key"
+        >
+            {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_headline_content %}
+            <strong>
+                {{ $tc('sw-privileges.additional_permissions.' + privilege.key + '.label') }}
+            </strong>
+            {% endblock %}
+        </h4>
+        {% endblock %}
 
-                {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches %}
-                    <div class="sw-users-permissions-detailed-additional-permissions__switches">
-                        {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content %}
-                            <template v-for="(value, roleName) in privilege.roles">
-                                {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content_switch %}
-                                    <sw-field type="switch"
-                                              :class="'sw_users_permissions_detailed_additional_permissions_' + privilege.key + '_' + roleName"
-                                              :value="isEntitySelected(roleName)"
-                                              :disabled="isEntityDisabled(roleName) || disabled"
-                                              @change="changePermissionForEntity(roleName)"
-                                              :label="roleName"
-                                              :bordered="true">
-                                    </sw-field>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-                    </div>
+        {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches %}
+        <div
+            :key="`body-${privilege.key}`"
+            class="sw-users-permissions-detailed-additional-permissions__switches"
+        >
+            {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content %}
+            <template v-for="(value, roleName) in privilege.roles">
+                {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content_switch %}
+                <sw-field
+                    :key="`field-${privilege.key}-${roleName}`"
+                    type="switch"
+                    :class="'sw_users_permissions_detailed_additional_permissions_' + privilege.key + '_' + roleName"
+                    :value="isEntitySelected(roleName)"
+                    :disabled="isEntityDisabled(roleName) || disabled"
+                    :label="roleName"
+                    :bordered="true"
+                    @change="changePermissionForEntity(roleName)"
+                />
                 {% endblock %}
             </template>
+            {% endblock %}
+        </div>
         {% endblock %}
-    </sw-card>
+    </template>
+    {% endblock %}
+</sw-card>
 {% endblock %}

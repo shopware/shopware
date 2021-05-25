@@ -1,26 +1,35 @@
 {% block sw_order_leave_page_modal %}
-    <sw-modal :title="$tc('sw-order.leavePageModal.headline')"
-              variant="small"
-              @modal-close="onCancel">
+<sw-modal
+    :title="$tc('sw-order.leavePageModal.headline')"
+    variant="small"
+    @modal-close="onCancel"
+>
 
-        {% block sw_order_leave_page_modal_content %}
-            {{ $tc('sw-order.leavePageModal.description') }}
+    {% block sw_order_leave_page_modal_content %}
+    {{ $tc('sw-order.leavePageModal.description') }}
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_order_leave_page_modal_actions %}
+        {% block sw_order_leave_page_modal_action_cancel %}
+        <sw-button
+            size="small"
+            @click="onCancel"
+        >
+            {{ $tc('sw-order.leavePageModal.cancelButton') }}
+        </sw-button>
         {% endblock %}
 
-        <template #modal-footer>
-            {% block sw_order_leave_page_modal_actions %}
-                {% block sw_order_leave_page_modal_action_cancel %}
-                    <sw-button size="small" @click="onCancel">
-                        {{ $tc('sw-order.leavePageModal.cancelButton') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_order_leave_page_modal_action_confirm %}
-                    <sw-button variant="primary" size="small" @click="onConfirm">
-                        {{ $tc('sw-order.leavePageModal.confirmButton') }}
-                    </sw-button>
-                {% endblock %}
-            {% endblock %}
-        </template>
-    </sw-modal>
+        {% block sw_order_leave_page_modal_action_confirm %}
+        <sw-button
+            variant="primary"
+            size="small"
+            @click="onConfirm"
+        >
+            {{ $tc('sw-order.leavePageModal.confirmButton') }}
+        </sw-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+</sw-modal>
 {% endblock %}

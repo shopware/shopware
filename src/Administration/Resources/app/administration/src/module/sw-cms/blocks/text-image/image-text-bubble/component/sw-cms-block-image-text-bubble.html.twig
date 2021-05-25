@@ -1,18 +1,18 @@
 {% block sw_cms_block_image_text_bubble %}
-    <div class="sw-cms-block-image-text-bubble">
-        <div class="sw-cms-block-image-text-bubble__left">
-            <slot name="left-image"></slot>
-            <slot name="left-text"></slot>
-        </div>
-
-        <div class="sw-cms-block-image-text-bubble__center">
-            <slot name="center-image"></slot>
-            <slot name="center-text"></slot>
-        </div>
-
-        <div class="sw-cms-block-image-text-bubble__right">
-            <slot name="right-image"></slot>
-            <slot name="right-text"></slot>
-        </div>
+<div class="sw-cms-block-image-text-bubble">
+    <div class="sw-cms-block-image-text-bubble__left">
+        <slot name="left-image" />
+        <slot name="left-text" />
     </div>
+
+    <div class="sw-cms-block-image-text-bubble__center">
+        <slot name="center-image" />
+        <slot name="center-text" />
+    </div>
+
+    <div class="sw-cms-block-image-text-bubble__right">
+        <slot name="right-image" />
+        <slot name="right-text" />
+    </div>
+</div>
 {% endblock %}

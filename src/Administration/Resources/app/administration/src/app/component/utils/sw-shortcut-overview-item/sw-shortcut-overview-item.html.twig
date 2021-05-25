@@ -1,6 +1,14 @@
 {% block sw_shortcut_overview_item %}
-    <div class="sw-shortcut-overview-item" v-if="showItem">
-        <kbd v-for="key in keys"><span>{{ key }}</span></kbd>
-        <span class="sw-shortcut-overview-item__title">{{ title }}</span>
-    </div>
+<div
+    v-if="showItem"
+    class="sw-shortcut-overview-item"
+>
+    <kbd
+        v-for="key in keys"
+        :key="key"
+    >
+        <span>{{ key }}</span>
+    </kbd>
+    <span class="sw-shortcut-overview-item__title">{{ title }}</span>
+</div>
 {% endblock %}

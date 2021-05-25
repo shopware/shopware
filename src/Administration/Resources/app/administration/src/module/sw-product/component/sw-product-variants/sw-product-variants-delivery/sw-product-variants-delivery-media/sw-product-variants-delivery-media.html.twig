@@ -1,67 +1,84 @@
 {% block sw_product_variants_delivery_media %}
-    <div class="sw-product-variants-delivery-media">
-        {% block sw_product_variants_delivery_media_groups %}
-            <div class="sw-product-variants-delivery-media__groups">
-                <ul>
-                    <li v-for="group in selectedGroupsSorted"
-                        :key="group.id"
-                        @click="activeGroup = group"
-                        class="sw-product-variants-delivery-media__groupElement"
-                        :class="{'is--selected': activeGroup.id == group.id}">
-                        <sw-icon name="multicolor-folder-breadcrumbs" size="16px" multicolor></sw-icon>
-                        {{ group.translated.name }}
-                    </li>
-                </ul>
-            </div>
-        {% endblock %}
-
-        {% block sw_product_variants_delivery_media_media %}
-            <div class="sw-product-variants-delivery-media__media" v-if="activeOptions.length">
-                {% block sw_product_variants_delivery_media_data_grid %}
-                    <sw-data-grid :data-source="activeOptions"
-                                  :columns="optionColumns"
-                                  :showActions="false"
-                                  :showSelection="false"
-                                  :compactMode="false"
-                                  ref="variantsMedia"
-                                  fullPage>
-
-                        {% block sw_product_variants_delivery_media_data_grid_column_name %}
-                            <template slot="column-name" slot-scope="{ item, isInlineEdit, compact }">
-                                {{ item.option.translated.name }}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_product_variants_delivery_media_data_grid_column_option_media %}
-                            <template slot="column-option.media" slot-scope="{ item, isInlineEdit, compact }">
-                                {% block sw_product_variants_delivery_media_data_grid_column_option_media_listener %}
-                                    <sw-upload-listener
-                                            :uploadTag="item.id"
-                                            @media-upload-add="onUploadsAdded"
-                                            @media-upload-finish="successfulUpload">
-                                    </sw-upload-listener>
-                                {% endblock %}
-
-                                {% block sw_product_variants_delivery_media_data_grid_column_option_media_upload %}
-                                    <sw-media-compact-upload-v2
-                                            :source="item.mediaId"
-                                            :uploadTag="item.id"
-                                            :defaultFolder="product.getEntityName()"
-                                            @media-upload-remove-image="removeMedia(item)"
-                                            @selection-change="setMedia">
-                                    </sw-media-compact-upload-v2>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                    </sw-data-grid>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_product_variants_delivery_media_loader %}
-            <sw-loader v-if="isLoading"></sw-loader>
-        {% endblock %}
-
+<div class="sw-product-variants-delivery-media">
+    {% block sw_product_variants_delivery_media_groups %}
+    <div class="sw-product-variants-delivery-media__groups">
+        <ul>
+            <li
+                v-for="group in selectedGroupsSorted"
+                :key="group.id"
+                class="sw-product-variants-delivery-media__groupElement"
+                :class="{'is--selected': activeGroup.id == group.id}"
+                @click="activeGroup = group"
+            >
+                <sw-icon
+                    name="multicolor-folder-breadcrumbs"
+                    size="16px"
+                    multicolor
+                />
+                {{ group.translated.name }}
+            </li>
+        </ul>
     </div>
+    {% endblock %}
+
+    {% block sw_product_variants_delivery_media_media %}
+    <div
+        v-if="activeOptions.length"
+        class="sw-product-variants-delivery-media__media"
+    >
+        {% block sw_product_variants_delivery_media_data_grid %}
+        <sw-data-grid
+            ref="variantsMedia"
+            :data-source="activeOptions"
+            :columns="optionColumns"
+            :show-actions="false"
+            :show-selection="false"
+            :compact-mode="false"
+            full-page
+        >
+
+            {% block sw_product_variants_delivery_media_data_grid_column_name %}
+            <template
+                slot="column-name"
+                slot-scope="{ item, isInlineEdit, compact }"
+            >
+                {{ item.option.translated.name }}
+            </template>
+            {% endblock %}
+
+            {% block sw_product_variants_delivery_media_data_grid_column_option_media %}
+            <template
+                slot="column-option.media"
+                slot-scope="{ item, isInlineEdit, compact }"
+            >
+                {% block sw_product_variants_delivery_media_data_grid_column_option_media_listener %}
+                <sw-upload-listener
+                    :upload-tag="item.id"
+                    @media-upload-add="onUploadsAdded"
+                    @media-upload-finish="successfulUpload"
+                />
+                {% endblock %}
+
+                {% block sw_product_variants_delivery_media_data_grid_column_option_media_upload %}
+                <sw-media-compact-upload-v2
+                    :source="item.mediaId"
+                    :upload-tag="item.id"
+                    :default-folder="product.getEntityName()"
+                    @media-upload-remove-image="removeMedia(item)"
+                    @selection-change="setMedia"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+        </sw-data-grid>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_product_variants_delivery_media_loader %}
+    <sw-loader v-if="isLoading" />
+    {% endblock %}
+
+</div>
 {% endblock %}

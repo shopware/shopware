@@ -1,17 +1,25 @@
 {% block sw_cms_block %}
-    <div class="sw-cms-block" :class="customBlockClass" :style="blockStyles">
-        {% block sw_cms_block_content %}
-            <div class="sw-cms-block__content" :style="blockPadding">
-                <slot>{% block sw_cms_block_slot_default %}{% endblock %}</slot>
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_block_overlay %}
-            <div class="sw-cms-block__config-overlay"
-                 v-if="!disabled"
-                 :class="overlayClasses"
-                 @click="onBlockOverlayClick">
-            </div>
-        {% endblock %}
+<div
+    class="sw-cms-block"
+    :class="customBlockClass"
+    :style="blockStyles"
+>
+    {% block sw_cms_block_content %}
+    <div
+        class="sw-cms-block__content"
+        :style="blockPadding"
+    >
+        <slot>{% block sw_cms_block_slot_default %}{% endblock %}</slot>
     </div>
+    {% endblock %}
+
+    {% block sw_cms_block_overlay %}
+    <div
+        v-if="!disabled"
+        class="sw-cms-block__config-overlay"
+        :class="overlayClasses"
+        @click="onBlockOverlayClick"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,249 +1,267 @@
 {% block sw_product_list %}
-    <sw-page class="sw-product-list">
+<sw-page class="sw-product-list">
 
-        {% block sw_product_list_search_bar %}
-            <template #search-bar>
-                <sw-search-bar initialSearchType="product"
-                               :initialSearch="term"
-                               @search="onSearch">
-                </sw-search-bar>
-            </template>
+    {% block sw_product_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="product"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_product_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_product_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_product_list_smart_bar_header_title_text %}
+            {{ $tc('sw-product.list.textProductOverview') }}
+            {% endblock %}
+
+            {% block sw_product_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_product_list_smart_bar_header %}
-            <template #smart-bar-header>
-                {% block sw_product_list_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_product_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-product.list.textProductOverview') }}
-                        {% endblock %}
+    {% block sw_product_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_product_list_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('product.creator'),
+                showOnDisabledElements: true
+            }"
+            :router-link="{ name: 'sw.product.create' }"
+            variant="primary"
+            :disabled="!acl.can('product.creator')"
+        >
+            {{ $tc('sw-product.list.buttonAddProduct') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
 
-                        {% block sw_product_list_smart_bar_header_amount %}
-                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                                ({{ total }})
-                            </span>
-                        {% endblock %}
-                    </h2>
+    {% block sw_product_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    <template #content>
+        {% block sw_product_list_content %}
+        <div class="sw-product-list__content">
+
+            {% block sw_product_list_grid %}
+            <sw-entity-listing
+                ref="swProductGrid"
+                class="sw-product-list-grid"
+                :items="products"
+                :columns="productColumns"
+                :repository="productRepository"
+                detail-route="sw.product.detail"
+                :show-selection="true"
+                :is-loading="isLoading"
+                identifier="sw-product-list"
+                :allow-edit="acl.can('product.editor')"
+                :allow-delete="acl.can('product.deleter')"
+                :allow-inline-edit="acl.can('product.editor')"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :natural-sorting="naturalSorting"
+                :criteria-limit="limit"
+                :disable-data-fetching="true"
+                @column-sort="onColumnSort"
+                @page-change="onPageChange"
+                @inline-edit-save="onInlineEditSave"
+                @selection-change="updateSelection"
+                @update-records="updateTotal"
+            >
+                {% block sw_product_list_grid_columns %}
+                {% block sw_product_list_grid_columns_name_preview %}
+                <template #preview-name="{ item }">
+                    <sw-media-preview-v2 :source="item.cover ? item.cover.media : null" />
+                </template>
                 {% endblock %}
-            </template>
-        {% endblock %}
 
-        {% block sw_product_list_smart_bar_actions %}
-            <template #smart-bar-actions>
-                {% block sw_product_list_smart_bar_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.product.create' }"
-                               variant="primary"
-                               :disabled="!acl.can('product.creator')"
-                               v-tooltip="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
-                                    disabled: acl.can('product.creator'),
-                                    showOnDisabledElements: true
-                                }">
-                        {{ $tc('sw-product.list.buttonAddProduct') }}
-                    </sw-button>
+                <template #column-name="{ item, isInlineEdit }">
+                    <sw-text-field
+                        v-if="isInlineEdit"
+                        v-model="item.name"
+                        size="small"
+                    />
+
+                    <div v-else>
+                        <sw-button
+                            v-if="productHasVariants(item)"
+                            v-tooltip="{ message: $tc('sw-product.list.variantIndicatorTooltip') }"
+                            class="sw-product-list__variant-indicator"
+                            size="x-small"
+                            @click="openVariantModal(item)"
+                        >
+                            <sw-icon
+                                name="default-web-variants"
+                                size="14px"
+                            />
+                        </sw-button>
+
+                        <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                            {{ item.translated ? item.translated.name : item.name }}
+                        </router-link>
+                    </div>
+                </template>
+
+                {% block sw_product_list_grid_columns_active %}
+                <template #column-active="{ item, isInlineEdit }">
+                    {% block sw_product_list_grid_columns_active_inline_edit %}
+                    <template v-if="isInlineEdit">
+                        <sw-checkbox-field v-model="item.active" />
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_product_list_grid_columns_active_content %}
+                    <template v-else>
+                        <sw-icon
+                            v-if="item.active"
+                            name="small-default-checkmark-line-medium"
+                            small
+                            class="is--active"
+                        />
+                        <sw-icon
+                            v-else
+                            name="small-default-x-line-medium"
+                            small
+                            class="is--inactive"
+                        />
+                    </template>
+                    {% endblock %}
+                </template>
                 {% endblock %}
-            </template>
-        {% endblock %}
 
-        {% block sw_product_list_language_switch %}
-            <template #language-switch>
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-            </template>
-        {% endblock %}
+                {% block sw_product_list_grid_columns_price %}
+                <template
+                    v-for="currency in currencies"
+                    :slot="`column-price-${currency.isoCode}`"
+                    slot-scope="{ item }"
+                >
+                    {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+                </template>
+                {% endblock %}
 
-        <template #content>
-            {% block sw_product_list_content %}
-                <div class="sw-product-list__content">
-
-                    {% block sw_product_list_grid %}
-                        <sw-entity-listing ref="swProductGrid"
-                                           class="sw-product-list-grid"
-                                           :items="products"
-                                           :columns="productColumns"
-                                           :repository="productRepository"
-                                           detailRoute="sw.product.detail"
-                                           :showSelection="true"
-                                           :isLoading="isLoading"
-                                           identifier="sw-product-list"
-                                           :allowEdit="acl.can('product.editor')"
-                                           :allowDelete="acl.can('product.deleter')"
-                                           :allowInlineEdit="acl.can('product.editor')"
-                                           :sortBy="sortBy"
-                                           :sortDirection="sortDirection"
-                                           :naturalSorting="naturalSorting"
-                                           :criteriaLimit="limit"
-                                           @column-sort="onColumnSort"
-                                           @page-change="onPageChange"
-                                           :disableDataFetching="true"
-                                           @inline-edit-save="onInlineEditSave"
-                                           @selection-change="updateSelection"
-                                           @update-records="updateTotal"
-                                           @bulk-edit-modal-open="onBulkEditModalOpen"
-                                           :allowBulkEdit="acl.can('product.editor')">
-                            {% block sw_product_list_grid_columns %}
-                                {% block sw_product_list_grid_columns_name_preview %}
-                                    <template #preview-name="{ item }">
-                                        <sw-media-preview-v2 :source="item.cover ? item.cover.media : null"></sw-media-preview-v2>
-                                    </template>
-                                {% endblock %}
-
-                                <template #column-name="{ item, isInlineEdit }">
-                                    <sw-text-field v-if="isInlineEdit"
-                                        v-model="item.name"
-                                        size="small">
-                                    </sw-text-field>
-
-                                    <div v-else>
-                                        <sw-button v-if="productHasVariants(item)"
-                                            class="sw-product-list__variant-indicator"
-                                            size="x-small"
-                                            @click="openVariantModal(item)"
-                                            v-tooltip="{ message: $tc('sw-product.list.variantIndicatorTooltip') }">
-                                                <sw-icon name="default-web-variants"
-                                                    size="14px">
-                                                </sw-icon>
-                                        </sw-button>
-
-                                        <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
-                                            {{ item.translated ? item.translated.name : item.name }}
-                                        </router-link>
-                                    </div>
-                                </template>
-
-                                {% block sw_product_list_grid_columns_active %}
-                                    <template #column-active="{ item, isInlineEdit }">
-                                        {% block sw_product_list_grid_columns_active_inline_edit %}
-                                            <template v-if="isInlineEdit">
-                                                <sw-checkbox-field v-model="item.active"></sw-checkbox-field>
-                                            </template>
-                                        {% endblock %}
-
-                                        {% block sw_product_list_grid_columns_active_content %}
-                                            <template v-else>
-                                                <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
-                                                <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
-                                            </template>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_product_list_grid_columns_price %}
-                                    <template v-for="currency in currencies"
-                                              :slot="`column-price-${currency.isoCode}`"
-                                              slot-scope="{ item }">
-                                        {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_product_list_grid_columns_stock %}
-                                    <template #column-stock="{ item, isInlineEdit, compact }">
-                                        {% block sw_product_list_grid_columns_stock_inline_edit %}
-                                            <template v-if="isInlineEdit">
-                                                <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.stock"></sw-number-field>
-                                            </template>
-                                        {% endblock %}
-
-                                        {% block sw_product_list_grid_columns_stock_content %}
-                                            <template v-else>
-                                                {{ item.stock }}
-                                                <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
-                                            </template>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_product_list_grid_columns_actions %}
-                                    <template #more-actions="{ item }">
-                                        {% block sw_product_list_grid_columns_actions_duplicate %}
-                                            <sw-context-menu-item
-                                                class="sw-product-list-grid__duplicate-action"
-                                                :disabled="item.parentId != null || !acl.can('product.creator')"
-                                                @click="onDuplicate(item)">
-                                                {{ $tc('sw-product.list.buttonDuplicate') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-
-                                        {% block sw_product_list_grid_columns_actions_open_variant %}
-                                            <sw-context-menu-item v-if="productHasVariants(item)"
-                                                @click="openVariantModal(item)">
-                                                {{ $tc('sw-product.list.contextMenuShowVariants') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                            {% endblock %}
-
-                            {% block sw_product_list_bulk_edit_modal %}
-                                <template #bulk-edit-modal="{ selection }">
-                                    <sw-product-bulk-edit-modal
-                                        v-if="showBulkEditModal"
-                                        :selection="selection"
-                                        :bulkGridEditColumns="productBulkEditColumns"
-                                        :currencies="currencies"
-                                        @modal-close="showBulkEditModal = false">
-                                    </sw-product-bulk-edit-modal>
-                                </template>
-                            {% endblock %}
-                        </sw-entity-listing>
-
+                {% block sw_product_list_grid_columns_stock %}
+                <template #column-stock="{ item, isInlineEdit, compact }">
+                    {% block sw_product_list_grid_columns_stock_inline_edit %}
+                    <template v-if="isInlineEdit">
+                        <sw-number-field
+                            v-model="item.stock"
+                            :size="compact ? 'small' : 'default'"
+                        />
+                    </template>
                     {% endblock %}
 
-                    {% block sw_product_list_empty_state %}
-                        <template v-if="!isLoading && !total">
-                            <sw-empty-state
-                                v-if="filterCriteria.length"
-                                :title="$tc('sw-product.filters.messageEmptyTitle')"
-                                :subline="$tc('sw-product.filters.messageEmptySubline')">
-                            </sw-empty-state>
-                            <sw-empty-state
-                                v-else
-                                :title="$tc('sw-product.list.messageEmpty')">
-                            </sw-empty-state>
-                        </template>
+                    {% block sw_product_list_grid_columns_stock_content %}
+                    <template v-else>
+                        {{ item.stock }}
+                        <sw-color-badge :variant="item.stock | stockColorVariant" />
+                    </template>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_product_list_grid_columns_actions %}
+                <template #more-actions="{ item }">
+                    {% block sw_product_list_grid_columns_actions_duplicate %}
+                    <sw-context-menu-item
+                        class="sw-product-list-grid__duplicate-action"
+                        :disabled="item.parentId != null || !acl.can('product.creator')"
+                        @click="onDuplicate(item)"
+                    >
+                        {{ $tc('sw-product.list.buttonDuplicate') }}
+                    </sw-context-menu-item>
                     {% endblock %}
 
-                    {% block sw_product_list_grid_loader %}
-                        <sw-loader v-if="isLoading"></sw-loader>
+                    {% block sw_product_list_grid_columns_actions_open_variant %}
+                    <sw-context-menu-item
+                        v-if="productHasVariants(item)"
+                        @click="openVariantModal(item)"
+                    >
+                        {{ $tc('sw-product.list.contextMenuShowVariants') }}
+                    </sw-context-menu-item>
                     {% endblock %}
-                </div>
+                </template>
+                {% endblock %}
+                {% endblock %}
+            </sw-entity-listing>
+
             {% endblock %}
 
-            {% block sw_product_list_content_clone_modal %}
-                <sw-product-clone-modal :product="product"
-                    v-if="cloning"
-                    @clone-finish="onDuplicateFinish">
-                </sw-product-clone-modal>
-            {% endblock %}
-
-            {% block sw_product_list_content_variant_modal %}
-                <sw-product-variant-modal v-if="showVariantModal"
-                    :productEntity="productEntityVariantModal"
-                    @modal-close="closeVariantModal">
-                </sw-product-variant-modal>
-            {% endblock %}
-        </template>
-
-        {% block sw_product_list_sidebar %}
-            <template #sidebar>
-                <sw-sidebar>
-                    {% block sw_product_list_sidebar_refresh %}
-                        <sw-sidebar-item
-                            icon="default-arrow-360-left"
-                            :title="$tc('sw-product.list.titleSidebarItemRefresh')"
-                            @click="onRefresh">
-                        </sw-sidebar-item>
-                    {% endblock %}
-
-                    <sw-sidebar-filter-panel
-                        entity="product"
-                        :storeKey="storeKey"
-                        @criteria-changed="updateCriteria"
-                        :activeFilterNumber="activeFilterNumber"
-                        :filters="listFilters"
-                        :defaults="defaultFilters">
-                    </sw-sidebar-filter-panel>
-                </sw-sidebar>
+            {% block sw_product_list_empty_state %}
+            <template v-if="!isLoading && !total">
+                <sw-empty-state
+                    v-if="filterCriteria.length"
+                    :title="$tc('sw-product.filters.messageEmptyTitle')"
+                    :subline="$tc('sw-product.filters.messageEmptySubline')"
+                />
+                <sw-empty-state
+                    v-else
+                    :title="$tc('sw-product.list.messageEmpty')"
+                />
             </template>
+            {% endblock %}
+
+            {% block sw_product_list_grid_loader %}
+            <sw-loader v-if="isLoading" />
+            {% endblock %}
+        </div>
         {% endblock %}
-    </sw-page>
+
+        {% block sw_product_list_content_clone_modal %}
+        <sw-product-clone-modal
+            v-if="cloning"
+            :product="product"
+            @clone-finish="onDuplicateFinish"
+        />
+        {% endblock %}
+
+        {% block sw_product_list_content_variant_modal %}
+        <sw-product-variant-modal
+            v-if="showVariantModal"
+            :product-entity="productEntityVariantModal"
+            @modal-close="closeVariantModal"
+        />
+        {% endblock %}
+    </template>
+
+    {% block sw_product_list_sidebar %}
+    <template #sidebar>
+        <sw-sidebar>
+            {% block sw_product_list_sidebar_refresh %}
+            <sw-sidebar-item
+                icon="default-arrow-360-left"
+                :title="$tc('sw-product.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+
+            <sw-sidebar-filter-panel
+                entity="product"
+                :store-key="storeKey"
+                :active-filter-number="activeFilterNumber"
+                :filters="listFilters"
+                :defaults="defaultFilters"
+                @criteria-changed="updateCriteria"
+            />
+        </sw-sidebar>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

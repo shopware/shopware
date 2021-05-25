@@ -1,34 +1,34 @@
 {% block sw_custom_field_type_base_content %}
 
-    {% block sw_custom_field_type_select_options %}{% endblock %}
+{% block sw_custom_field_type_select_options %}{% endblock %}
 
-    {% block sw_custom_field_type_select_add_option %}{% endblock %}
+{% block sw_custom_field_type_select_add_option %}{% endblock %}
 
-    {% block sw_custom_field_type_select_multi %}{% endblock %}
+{% block sw_custom_field_type_select_multi %}{% endblock %}
 
-    {% parent() %}
+{% parent() %}
 
-    {% block sw_custom_field_type_entity_type %}
-        <sw-single-select
-            :disabled="!currentCustomField._isNew"
-            :helpText="$tc('sw-settings-custom-field.customField.detail.helpTextEntitySelect')"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelEntityTypeSelect')"
-            :options="sortedEntityTypes"
-            v-model="currentCustomField.config.entity"
-            @change="onChangeEntityType">
-        </sw-single-select>
-    {% endblock %}
+{% block sw_custom_field_type_entity_type %}
+<sw-single-select
+    v-model="currentCustomField.config.entity"
+    :disabled="!currentCustomField._isNew"
+    :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextEntitySelect')"
+    :label="$tc('sw-settings-custom-field.customField.detail.labelEntityTypeSelect')"
+    :options="sortedEntityTypes"
+    @change="onChangeEntityType"
+/>
+{% endblock %}
 
-    {% block sw_custom_field_type_entity_multi %}
-        <sw-field
-            type="switch"
-            class="sw-custom-field-detail__switch"
-            :disabled="!currentCustomField._isNew"
-            :helpText="$tc('sw-settings-custom-field.customField.detail.helpTextMultiSelect')"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
-            v-model="multiSelectSwitch"
-            @change="onChangeMultiSelectSwitch">
-        </sw-field>
+{% block sw_custom_field_type_entity_multi %}
+<sw-field
+    v-model="multiSelectSwitch"
+    type="switch"
+    class="sw-custom-field-detail__switch"
+    :disabled="!currentCustomField._isNew"
+    :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextMultiSelect')"
+    :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
+    @change="onChangeMultiSelectSwitch"
+/>
     {% endblock %}
 
 {% endblock %}

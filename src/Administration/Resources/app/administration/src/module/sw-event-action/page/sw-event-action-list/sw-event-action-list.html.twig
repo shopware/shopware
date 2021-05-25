@@ -1,121 +1,125 @@
 {% block sw_event_action_list %}
-    <sw-page class="sw-event-action-list">
+<sw-page class="sw-event-action-list">
 
-        {% block sw_event_action_list_search_bar %}
-            <template #search-bar>
-                <sw-search-bar
-                    initialSearchType="event_action"
-                    :placeholder="$tc('sw-event-action.general.placeholderSearchBar')"
-                    :initialSearch="term"
-                    @search="onSearch">
-                </sw-search-bar>
-            </template>
+    {% block sw_event_action_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="event_action"
+            :placeholder="$tc('sw-event-action.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_event_action_list_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-event-action.list.textHeadline') }}
+            <span
+                v-if="total > 0"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_event_action_list_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_event_action_list_actions_save %}
+        <sw-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('event_action.creator'),
+                showOnDisabledElements: true
+            }"
+            :router-link="{ name: 'sw.event.action.create' }"
+            :disabled="!acl.can('event_action.creator')"
+            class="sw-event-action-list__action-create"
+            variant="primary"
+        >
+            {{ $tc('sw-event-action.list.labelActionAdd') }}
+        </sw-button>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_event_action_list_smart_bar_header %}
-            <template #smart-bar-header>
-                <h2>
-                    {{ $tc('sw-event-action.list.textHeadline') }}
-                    <span
-                        v-if="total > 0"
-                        class="sw-page__smart-bar-amount">
-                        ({{ total }})
-                    </span>
-                </h2>
+    {% block sw_event_action_list_content %}
+    <template #content>
+
+        {% block sw_event_action_list_grid %}
+        <sw-entity-listing
+            class="sw-event-action-list__grid"
+            :repository="eventActionRepository"
+            :columns="eventActionColumns"
+            :items="items"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            :is-loading="isLoading"
+            :allow-inline-edit="false"
+            :allow-view="acl.can('event_action.viewer')"
+            :allow-edit="acl.can('event_action.editor')"
+            :allow-delete="acl.can('event_action.deleter')"
+            detail-route="sw.event.action.detail"
+            @update-records="fetchMailTemplates"
+        >
+
+            {% block sw_event_action_list_grid_column_event_name %}
+            <template #column-eventName="{ item, column }">
+                <strong>
+                    <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
+                        {{ $tc('global.businessEvents.' + snakeCaseEventName(item.eventName)) }}
+                    </router-link>
+                </strong><br>
+                {{ item.eventName }}
             </template>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_event_action_list_smart_bar_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_event_action_list_actions_save %}
-                    <sw-button
-                        :routerLink="{ name: 'sw.event.action.create' }"
-                        :disabled="!acl.can('event_action.creator')"
-                        class="sw-event-action-list__action-create"
-                        variant="primary"
-                        v-tooltip.bottom="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('event_action.creator'),
-                            showOnDisabledElements: true
-                        }">
-                        {{ $tc('sw-event-action.list.labelActionAdd') }}
-                    </sw-button>
-                {% endblock %}
+            {% block sw_event_action_list_grid_column_sales_channesl %}
+            <template #column-salesChannels="{ item, isInlineEdit }">
+                <sw-event-action-list-expand-labels
+                    :items="item.salesChannels"
+                    :disabled="isInlineEdit"
+                />
             </template>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_event_action_list_content %}
-            <template #content>
-
-                {% block sw_event_action_list_grid %}
-                    <sw-entity-listing
-                        class="sw-event-action-list__grid"
-                        :repository="eventActionRepository"
-                        :columns="eventActionColumns"
-                        :items="items"
-                        :sortBy="sortBy"
-                        :sortDirection="sortDirection"
-                        :isLoading="isLoading"
-                        :allowInlineEdit="false"
-                        :allowView="acl.can('event_action.viewer')"
-                        :allowEdit="acl.can('event_action.editor')"
-                        :allowDelete="acl.can('event_action.deleter')"
-                        detailRoute="sw.event.action.detail"
-                        @update-records="fetchMailTemplates">
-
-                        {% block sw_event_action_list_grid_column_event_name %}
-                            <template #column-eventName="{ item, column }">
-                                <strong>
-                                    <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
-                                        {{ $tc('global.businessEvents.' + snakeCaseEventName(item.eventName)) }}
-                                    </router-link>
-                                </strong><br>
-                                {{ item.eventName }}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_event_action_list_grid_column_sales_channesl %}
-                            <template #column-salesChannels="{ item, isInlineEdit }">
-                                <sw-event-action-list-expand-labels
-                                    :items="item.salesChannels"
-                                    :disabled="isInlineEdit">
-                                </sw-event-action-list-expand-labels>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_event_action_list_grid_column_rules %}
-                            <template #column-rules="{ item, isInlineEdit }">
-                                <sw-event-action-list-expand-labels
-                                    :items="item.rules"
-                                    :disabled="isInlineEdit">
-                                </sw-event-action-list-expand-labels>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_event_action_list_grid_column_active %}
-                            <template #column-active="{ item, isInlineEdit }">
-                                <sw-data-grid-column-boolean
-                                    v-model="item.active"
-                                    :isInlineEdit="isInlineEdit">
-                                </sw-data-grid-column-boolean>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_event_action_list_grid_column_mail_template %}
-                            <template #column-mailTemplate="{ item }">
-                                <template v-if="mailTemplates">
-                                    <strong
-                                        v-if="mailTemplateDescription(item)"
-                                        class="sw-event-action-list__column-mail-template-title">
-                                        {{ mailTemplateDescription(item) }}
-                                    </strong>
-                                    {{ mailTemplateTypeName(item) }}
-                                </template>
-                            </template>
-                        {% endblock %}
-                    </sw-entity-listing>
-                {% endblock %}
+            {% block sw_event_action_list_grid_column_rules %}
+            <template #column-rules="{ item, isInlineEdit }">
+                <sw-event-action-list-expand-labels
+                    :items="item.rules"
+                    :disabled="isInlineEdit"
+                />
             </template>
+            {% endblock %}
+
+            {% block sw_event_action_list_grid_column_active %}
+            <template #column-active="{ item, isInlineEdit }">
+                <sw-data-grid-column-boolean
+                    v-model="item.active"
+                    :is-inline-edit="isInlineEdit"
+                />
+            </template>
+            {% endblock %}
+
+            {% block sw_event_action_list_grid_column_mail_template %}
+            <template #column-mailTemplate="{ item }">
+                <template v-if="mailTemplates">
+                    <strong
+                        v-if="mailTemplateDescription(item)"
+                        class="sw-event-action-list__column-mail-template-title"
+                    >
+                        {{ mailTemplateDescription(item) }}
+                    </strong>
+                    {{ mailTemplateTypeName(item) }}
+                </template>
+            </template>
+            {% endblock %}
+        </sw-entity-listing>
         {% endblock %}
-    </sw-page>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

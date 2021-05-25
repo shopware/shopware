@@ -1,100 +1,121 @@
 {% block sw_promotion_basic_form %}
-    <div class="sw-promotion-basic-form">
-        <template v-if="promotion !== null">
-            <sw-container columns="3fr 1fr" gap="0px 30px">
-                {% block sw_promotion_basic_form_title_field %}
-                    <sw-field type="text"
-                              :label="$tc('sw-promotion.detail.main.general.labelTitle')"
-                              :placeholder="placeholder(promotion, 'name', $tc('sw-promotion.detail.main.general.placeholderName'))"
-                              v-model="promotion.name"
-                              :error="promotionNameError"
-                              required
-                              :disabled="!acl.can('promotion.editor')"
-                              validation="required">
-                    </sw-field>
-                {% endblock %}
+<div class="sw-promotion-basic-form">
+    <template v-if="promotion !== null">
+        <sw-container
+            columns="3fr 1fr"
+            gap="0px 30px"
+        >
+            {% block sw_promotion_basic_form_title_field %}
+            <sw-field
+                v-model="promotion.name"
+                type="text"
+                :label="$tc('sw-promotion.detail.main.general.labelTitle')"
+                :placeholder="placeholder(promotion, 'name', $tc('sw-promotion.detail.main.general.placeholderName'))"
+                :error="promotionNameError"
+                required
+                :disabled="!acl.can('promotion.editor')"
+                validation="required"
+            />
+            {% endblock %}
 
-                {% block sw_promotion_basic_form_active_field %}
-                    <sw-field type="switch"
-                              bordered
-                              :disabled="!acl.can('promotion.editor')"
-                              :label="$tc('sw-promotion.detail.main.general.labelActive')"
-                              v-model="promotion.active">
-                    </sw-field>
-                {% endblock %}
-            </sw-container>
+            {% block sw_promotion_basic_form_active_field %}
+            <sw-field
+                v-model="promotion.active"
+                type="switch"
+                bordered
+                :disabled="!acl.can('promotion.editor')"
+                :label="$tc('sw-promotion.detail.main.general.labelActive')"
+            />
+            {% endblock %}
+        </sw-container>
 
-            <sw-container columns="1fr" gap="0px 30px">
-                {% block sw_promotion_basic_form_sales_channels %}
-                    <sw-promotion-sales-channel-select
-                        class="sw-promotion-basic-form__select-sales-channels"
-                        :label="$tc('sw-promotion.detail.main.general.labelSalesChannels')"
-                        :placeholder="$tc('sw-promotion.detail.main.general.placeholderSalesChannels')"
-                        :disabled="!acl.can('promotion.editor')"
-                        :promotion="promotion">
-                    </sw-promotion-sales-channel-select>
-                {% endblock %}
-            </sw-container>
+        <sw-container
+            columns="1fr"
+            gap="0px 30px"
+        >
+            {% block sw_promotion_basic_form_sales_channels %}
+            <sw-promotion-sales-channel-select
+                class="sw-promotion-basic-form__select-sales-channels"
+                :label="$tc('sw-promotion.detail.main.general.labelSalesChannels')"
+                :placeholder="$tc('sw-promotion.detail.main.general.placeholderSalesChannels')"
+                :disabled="!acl.can('promotion.editor')"
+                :promotion="promotion"
+            />
+            {% endblock %}
+        </sw-container>
 
-            <sw-container columns="1fr 1fr" gap="0px 30px">
-                {% block sw_promotion_basic_form_valid_from_field %}
-                    <sw-datepicker dateType="datetime-local"
-                                   :disabled="!acl.can('promotion.editor')"
-                                   :label="$tc('sw-promotion.detail.main.general.labelValidFrom')"
-                                   v-model="promotion.validFrom">
-                    </sw-datepicker>
-                {% endblock %}
+        <sw-container
+            columns="1fr 1fr"
+            gap="0px 30px"
+        >
+            {% block sw_promotion_basic_form_valid_from_field %}
+            <sw-datepicker
+                v-model="promotion.validFrom"
+                date-type="datetime-local"
+                :disabled="!acl.can('promotion.editor')"
+                :label="$tc('sw-promotion.detail.main.general.labelValidFrom')"
+            />
+            {% endblock %}
 
-                {% block sw_promotion_basic_form_valid_until_field %}
-                    <sw-datepicker dateType="datetime-local"
-                                   :label="$tc('sw-promotion.detail.main.general.labelValidUntil')"
-                                   v-model="promotion.validUntil"
-                                   :disabled="!acl.can('promotion.editor')"
-                                   :error="promotionValidUntilError">
-                    </sw-datepicker>
-                {% endblock %}
-            </sw-container>
+            {% block sw_promotion_basic_form_valid_until_field %}
+            <sw-datepicker
+                v-model="promotion.validUntil"
+                date-type="datetime-local"
+                :label="$tc('sw-promotion.detail.main.general.labelValidUntil')"
+                :disabled="!acl.can('promotion.editor')"
+                :error="promotionValidUntilError"
+            />
+            {% endblock %}
+        </sw-container>
 
-            <sw-container columns="1fr 1fr 2fr" gap="0px 30px">
-                {% block sw_promotion_basic_form_max_redemption_global %}
-                    <sw-field type="number"
-                              :label="$tc('sw-promotion.detail.main.general.labelMaxRedemptionsGlobal')"
-                              :placeholder="$tc('sw-promotion.detail.main.general.placeholderMaxRedemptionsGlobal')"
-                              :helpText="$tc('sw-promotion.detail.main.general.helpTextMaxRedemptionsGlobal')"
-                              numberType="int"
-                              :disabled="!acl.can('promotion.editor')"
-                              v-model="promotion.maxRedemptionsGlobal">
-                    </sw-field>
-                {% endblock %}
+        <sw-container
+            columns="1fr 1fr 2fr"
+            gap="0px 30px"
+        >
+            {% block sw_promotion_basic_form_max_redemption_global %}
+            <sw-field
+                v-model="promotion.maxRedemptionsGlobal"
+                type="number"
+                :label="$tc('sw-promotion.detail.main.general.labelMaxRedemptionsGlobal')"
+                :placeholder="$tc('sw-promotion.detail.main.general.placeholderMaxRedemptionsGlobal')"
+                :help-text="$tc('sw-promotion.detail.main.general.helpTextMaxRedemptionsGlobal')"
+                number-type="int"
+                :disabled="!acl.can('promotion.editor')"
+            />
+            {% endblock %}
 
-                {% block sw_promotion_basic_form_max_redemption_per_customer %}
-                    <sw-field type="number"
-                              :label="$tc('sw-promotion.detail.main.general.labelMaxRedemptionsPerCustomer')"
-                              :placeholder="$tc('sw-promotion.detail.main.general.placeholderMaxRedemptionsPerCustomer')"
-                              :helpText="$tc('sw-promotion.detail.main.general.helpTextMaxRedemptionsPerCustomer')"
-                              numberType="int"
-                              :disabled="!acl.can('promotion.editor')"
-                              v-model="promotion.maxRedemptionsPerCustomer">
-                    </sw-field>
-                {% endblock %}
-            </sw-container>
+            {% block sw_promotion_basic_form_max_redemption_per_customer %}
+            <sw-field
+                v-model="promotion.maxRedemptionsPerCustomer"
+                type="number"
+                :label="$tc('sw-promotion.detail.main.general.labelMaxRedemptionsPerCustomer')"
+                :placeholder="$tc('sw-promotion.detail.main.general.placeholderMaxRedemptionsPerCustomer')"
+                :help-text="$tc('sw-promotion.detail.main.general.helpTextMaxRedemptionsPerCustomer')"
+                number-type="int"
+                :disabled="!acl.can('promotion.editor')"
+            />
+            {% endblock %}
+        </sw-container>
 
-            <sw-container columns="1fr" gap="0px 30px">
-                {%  block sw_promotion_basic_form_exclusions %}
-                    <sw-entity-multi-select
-                            v-if="excludedPromotions"
-                            class="sw-promotion-basic__select-exclusions"
-                            :label="$tc('sw-promotion.detail.main.general.labelPromotionExclusions')"
-                            :placeholder="$tc('sw-promotion.detail.main.general.placeholderPromotionExclusions')"
-                            :criteria="exclusionCriteria"
-                            :entityCollection="excludedPromotions"
-                            :disabled="!acl.can('promotion.editor')"
-                            @change="onChangeExclusions">
-                    </sw-entity-multi-select>
-                {% endblock %}
-            </sw-container>
+        <sw-container
+            columns="1fr"
+            gap="0px 30px"
+        >
+            {%  block sw_promotion_basic_form_exclusions %}
+            <sw-entity-multi-select
+                v-if="excludedPromotions"
+                class="sw-promotion-basic__select-exclusions"
+                :label="$tc('sw-promotion.detail.main.general.labelPromotionExclusions')"
+                :placeholder="$tc('sw-promotion.detail.main.general.placeholderPromotionExclusions')"
+                :criteria="exclusionCriteria"
+                :entity-collection="excludedPromotions"
+                :disabled="!acl.can('promotion.editor')"
+                @change="onChangeExclusions"
+            />
+            {% endblock %}
+        </sw-container>
 
-        </template>
-    </div>
+    </template>
+</div>
 {% endblock %}
 

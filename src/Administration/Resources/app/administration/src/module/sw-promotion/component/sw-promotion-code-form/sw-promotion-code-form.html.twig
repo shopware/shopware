@@ -1,52 +1,68 @@
 {% block sw_promotion_code_form %}
 <div class="sw-promotion-code-form">
 
-    <sw-container columns="1fr" gap="0px 30px">
+    <sw-container
+        columns="1fr"
+        gap="0px 30px"
+    >
         {% block sw_promotion_code_form_use_codes %}
-            <sw-switch-field class="sw-promotion-code-form__switch-codes"
-                             :label="$tc('sw-promotion.detail.main.general.codes.switchUseCodes')"
-                             v-model="promotion.useCodes"
-                             :disabled="isEditingDisabled">
-            </sw-switch-field>
+        <sw-switch-field
+            v-model="promotion.useCodes"
+            class="sw-promotion-code-form__switch-codes"
+            :label="$tc('sw-promotion.detail.main.general.codes.switchUseCodes')"
+            :disabled="isEditingDisabled"
+        />
         {% endblock %}
     </sw-container>
 
     {% block sw_promotion_code_form_code_field %}
-        <sw-field type="text"
-                  :label="$tc('sw-promotion.detail.main.general.codes.labelCode')"
-                  :placeholder="placeholder(promotion, 'code', $tc('sw-promotion.detail.main.general.codes.placeholderCode'))"
-                  :helpText="codeHelpText"
-                  v-model="promotion.code"
-                  :disabled="isCodeFieldDisabled"
-                  :error="promotionCodeError"
-                  :validation="isCodeFieldValid">
-        </sw-field>
+    <sw-field
+        v-model="promotion.code"
+        type="text"
+        :label="$tc('sw-promotion.detail.main.general.codes.labelCode')"
+        :placeholder="placeholder(promotion, 'code', $tc('sw-promotion.detail.main.general.codes.placeholderCode'))"
+        :help-text="codeHelpText"
+        :disabled="isCodeFieldDisabled"
+        :error="promotionCodeError"
+        :validation="isCodeFieldValid"
+    />
     {% endblock %}
     <sw-container columns="2fr 1fr">
         {% block sw_promotion_code_form_use_individual_field %}
-            <sw-switch-field class="sw-promotion-code-form__switch-individual"
-                             v-model="promotion.useIndividualCodes"
-                             :label="$tc('sw-promotion.detail.main.general.codes.switchUseIndividualCodes')"
-                             :disabled="isSwitchIndividualDisabled">
-            </sw-switch-field>
+        <sw-switch-field
+            v-model="promotion.useIndividualCodes"
+            class="sw-promotion-code-form__switch-individual"
+            :label="$tc('sw-promotion.detail.main.general.codes.switchUseIndividualCodes')"
+            :disabled="isSwitchIndividualDisabled"
+        />
         {% endblock %}
         {% block sw_promotion_code_form_edit_individual_link %}
-            <a class="sw-card__quick-link sw-promotion-code-form__link-manage-individual"
-               v-if="(promotion.useCodes && promotion.useIndividualCodes)"
-               @click="openModalIndividualCodes">
-                {{ $tc('sw-promotion.detail.main.general.codes.linkEditIndividualCodes') }}
-                <sw-icon name="default-arrow-simple-right" small></sw-icon>
-            </a>
+        <a
+            v-if="(promotion.useCodes && promotion.useIndividualCodes)"
+            class="sw-card__quick-link sw-promotion-code-form__link-manage-individual"
+            @click="openModalIndividualCodes"
+        >
+            {{ $tc('sw-promotion.detail.main.general.codes.linkEditIndividualCodes') }}
+            <sw-icon
+                name="default-arrow-simple-right"
+                small
+            />
+        </a>
         {% endblock %}
     </sw-container>
     {% block sw_promotion_code_form_modal_individual %}
-        <sw-modal :title="$tc('sw-promotion.detail.main.general.codes.individual.title')"
-                  class="sw-promotion-code-form__modal-individual"
-                  variant="large"
-                  v-if="isModalIndividualVisible"
-                  @modal-close="closeModalIndividualCodes">
-            <sw-promotion-individualcodes ref="cmpIndividuals" :promotion="promotion"></sw-promotion-individualcodes>
-        </sw-modal>
+    <sw-modal
+        v-if="isModalIndividualVisible"
+        :title="$tc('sw-promotion.detail.main.general.codes.individual.title')"
+        class="sw-promotion-code-form__modal-individual"
+        variant="large"
+        @modal-close="closeModalIndividualCodes"
+    >
+        <sw-promotion-individualcodes
+            ref="cmpIndividuals"
+            :promotion="promotion"
+        />
+    </sw-modal>
     {% endblock %}
 </div>
 {% endblock %}

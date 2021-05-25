@@ -1,248 +1,270 @@
 {% block sw_product_packaging_form %}
-    <div class="sw-product-packaging-form">
-        <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
-            {% block sw_product_packaging_form_width_field %}
-                <sw-inherit-wrapper
-                    v-model="product.width"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.width">
-                    <template #content="props">
+<div class="sw-product-packaging-form">
+    <sw-container
+        columns="1fr 1fr 1fr"
+        gap="0px 30px"
+    >
+        {% block sw_product_packaging_form_width_field %}
+        <sw-inherit-wrapper
+            v-model="product.width"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.width"
+        >
+            <template #content="props">
 
-                        <sw-field
-                            type="number"
-                            :mapInheritance="props"
-                            :label="$tc('sw-product.settingsForm.labelWidth')"
-                            :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
-                            allowEmpty
-                            :min="0"
-                            :error="productWidthError"
-                            :disabled="props.isInherited || !allowEdit"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue">
-                            <template #suffix>
-                                <span>mm</span>
-                            </template>
-                        </sw-field>
-
+                <sw-field
+                    type="number"
+                    :map-inheritance="props"
+                    :label="$tc('sw-product.settingsForm.labelWidth')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
+                    allow-empty
+                    :min="0"
+                    :error="productWidthError"
+                    :disabled="props.isInherited || !allowEdit"
+                    :value="props.currentValue"
+                    @change="props.updateCurrentValue"
+                >
+                    <template #suffix>
+                        <span>mm</span>
                     </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
+                </sw-field>
 
-            {% block sw_product_packaging_form_height_field %}
-                <sw-inherit-wrapper
-                    v-model="product.height"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.height">
-                    <template #content="props">
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
 
-                        <sw-field
-                            type="number"
-                            :mapInheritance="props"
-                            :label="$tc('sw-product.settingsForm.labelHeight')"
-                            :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
-                            allowEmpty
-                            :min="0"
-                            :error="productHeightError"
-                            :disabled="props.isInherited || !allowEdit"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue">
-                            <template #suffix>
-                                <span>mm</span>
-                            </template>
-                        </sw-field>
+        {% block sw_product_packaging_form_height_field %}
+        <sw-inherit-wrapper
+            v-model="product.height"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.height"
+        >
+            <template #content="props">
 
+                <sw-field
+                    type="number"
+                    :map-inheritance="props"
+                    :label="$tc('sw-product.settingsForm.labelHeight')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
+                    allow-empty
+                    :min="0"
+                    :error="productHeightError"
+                    :disabled="props.isInherited || !allowEdit"
+                    :value="props.currentValue"
+                    @change="props.updateCurrentValue"
+                >
+                    <template #suffix>
+                        <span>mm</span>
                     </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
+                </sw-field>
 
-            {% block sw_product_settings_form_length_field %}
-                <sw-inherit-wrapper
-                    v-model="product.length"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.length">
-                    <template #content="props">
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
 
-                        <sw-field
-                            type="number"
-                            :mapInheritance="props"
-                            :label="$tc('sw-product.settingsForm.labelLength')"
-                            :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
-                            allowEmpty
-                            :min="0"
-                            :error="productLengthError"
-                            :disabled="props.isInherited || !allowEdit"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue">
-                            <template #suffix>
-                                <span>mm</span>
-                            </template>
-                        </sw-field>
+        {% block sw_product_settings_form_length_field %}
+        <sw-inherit-wrapper
+            v-model="product.length"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.length"
+        >
+            <template #content="props">
 
+                <sw-field
+                    type="number"
+                    :map-inheritance="props"
+                    :label="$tc('sw-product.settingsForm.labelLength')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
+                    allow-empty
+                    :min="0"
+                    :error="productLengthError"
+                    :disabled="props.isInherited || !allowEdit"
+                    :value="props.currentValue"
+                    @change="props.updateCurrentValue"
+                >
+                    <template #suffix>
+                        <span>mm</span>
                     </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
-        </sw-container>
-        <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
-            {% block sw_product_settings_form_weight_field %}
-                <sw-inherit-wrapper
-                    v-model="product.weight"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.weight">
-                    <template #content="props">
+                </sw-field>
 
-                        <sw-field
-                            type="number"
-                            :mapInheritance="props"
-                            :label="$tc('sw-product.settingsForm.labelWeight')"
-                            :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
-                            allowEmpty
-                            :min="0"
-                            :digits="3"
-                            :error="productWeightError"
-                            :disabled="props.isInherited || !allowEdit"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue">
-                            <template #suffix>
-                                <span>kg</span>
-                            </template>
-                        </sw-field>
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
+    <sw-container
+        columns="1fr 1fr 1fr"
+        gap="0px 30px"
+    >
+        {% block sw_product_settings_form_weight_field %}
+        <sw-inherit-wrapper
+            v-model="product.weight"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.weight"
+        >
+            <template #content="props">
 
+                <sw-field
+                    type="number"
+                    :map-inheritance="props"
+                    :label="$tc('sw-product.settingsForm.labelWeight')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
+                    allow-empty
+                    :min="0"
+                    :digits="3"
+                    :error="productWeightError"
+                    :disabled="props.isInherited || !allowEdit"
+                    :value="props.currentValue"
+                    @change="props.updateCurrentValue"
+                >
+                    <template #suffix>
+                        <span>kg</span>
                     </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
+                </sw-field>
 
-            {% block sw_product_price_form_purchase_unit_field %}
-                <sw-inherit-wrapper
-                    v-show="showSettingPackaging"
-                    v-model="product.purchaseUnit"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.purchaseUnit">
-                    <template #content="props">
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
 
-                        <sw-field
-                            type="number"
-                            class="sw-product-packaging-form__purchase-unit-field"
-                            :mapInheritance="props"
-                            numberType="float"
-                            allowEmpty
-                            :min="0"
-                            :digits="3"
-                            :error="productPurchaseUnitError"
-                            :label="$tc('sw-product.priceForm.labelPurchaseUnit')"
-                            :disabled="props.isInherited || !allowEdit"
-                            :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
-                            :helpText="$tc('sw-product.packagingForm.purchaseUnitHelpText')"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue">
-                        </sw-field>
+        {% block sw_product_price_form_purchase_unit_field %}
+        <sw-inherit-wrapper
+            v-show="showSettingPackaging"
+            v-model="product.purchaseUnit"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.purchaseUnit"
+        >
+            <template #content="props">
 
-                    </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
+                <sw-field
+                    type="number"
+                    class="sw-product-packaging-form__purchase-unit-field"
+                    :map-inheritance="props"
+                    number-type="float"
+                    allow-empty
+                    :min="0"
+                    :digits="3"
+                    :error="productPurchaseUnitError"
+                    :label="$tc('sw-product.priceForm.labelPurchaseUnit')"
+                    :disabled="props.isInherited || !allowEdit"
+                    :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
+                    :help-text="$tc('sw-product.packagingForm.purchaseUnitHelpText')"
+                    :value="props.currentValue"
+                    @change="props.updateCurrentValue"
+                />
 
-            {% block sw_product_price_form_unit_field %}
-                <sw-inherit-wrapper
-                    v-show="showSettingPackaging"
-                    v-model="product.unitId"
-                    :hasParent="!!parentProduct.id"
-                    :label="$tc('sw-product.packagingForm.labelUnit')"
-                    :inheritedValue="parentProduct.unitId">
-                    <template #content="{ currentValue, updateCurrentValue, isInherited }">
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
 
-                        <sw-entity-single-select
-                            :value="currentValue"
-                            @change="updateCurrentValue"
-                            entity="unit"
-                            :disabled="isInherited || !allowEdit"
-                            class="sw-select-product__select_unit"
-                            :key="isInherited"
-                            pointer="product.unit"
-                            :placeholder="$tc('sw-product.packagingForm.placeholderUnit')">
-                        </sw-entity-single-select>
+        {% block sw_product_price_form_unit_field %}
+        <sw-inherit-wrapper
+            v-show="showSettingPackaging"
+            v-model="product.unitId"
+            :has-parent="!!parentProduct.id"
+            :label="$tc('sw-product.packagingForm.labelUnit')"
+            :inherited-value="parentProduct.unitId"
+        >
+            <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
-                    </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
-        </sw-container>
-        <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
-            {% block sw_product_price_form_pack_unit_field %}
-                <sw-inherit-wrapper
-                    v-show="showSettingPackaging"
-                    v-model="product.packUnit"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.packUnit">
-                    <template #content="props">
+                <sw-entity-single-select
+                    :key="isInherited"
+                    :value="currentValue"
+                    entity="unit"
+                    :disabled="isInherited || !allowEdit"
+                    class="sw-select-product__select_unit"
+                    pointer="product.unit"
+                    :placeholder="$tc('sw-product.packagingForm.placeholderUnit')"
+                    @change="updateCurrentValue"
+                />
 
-                        <sw-field
-                            type="text"
-                            class="sw-product-packaging-form__pack-unit-field"
-                            :mapInheritance="props"
-                            :error="productPackUnitError"
-                            :label="$tc('sw-product.priceForm.labelPackUnit')"
-                            :placeholder="$tc('sw-product.priceForm.placeholderPackUnit')"
-                            :disabled="props.isInherited || !allowEdit"
-                            :helpText="$tc('sw-product.packagingForm.packUnitHelpText')"
-                            :value="props.currentValue"
-                            @input="props.updateCurrentValue">
-                        </sw-field>
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
+    <sw-container
+        columns="1fr 1fr 1fr"
+        gap="0px 30px"
+    >
+        {% block sw_product_price_form_pack_unit_field %}
+        <sw-inherit-wrapper
+            v-show="showSettingPackaging"
+            v-model="product.packUnit"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.packUnit"
+        >
+            <template #content="props">
 
-                    </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
+                <sw-field
+                    type="text"
+                    class="sw-product-packaging-form__pack-unit-field"
+                    :map-inheritance="props"
+                    :error="productPackUnitError"
+                    :label="$tc('sw-product.priceForm.labelPackUnit')"
+                    :placeholder="$tc('sw-product.priceForm.placeholderPackUnit')"
+                    :disabled="props.isInherited || !allowEdit"
+                    :help-text="$tc('sw-product.packagingForm.packUnitHelpText')"
+                    :value="props.currentValue"
+                    @input="props.updateCurrentValue"
+                />
 
-            {% block sw_product_price_form_pack_unit_plural_field %}
-                <sw-inherit-wrapper
-                    v-show="showSettingPackaging"
-                    v-model="product.packUnitPlural"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.packUnitPlural">
-                    <template #content="props">
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
 
-                        <sw-field
-                            type="text"
-                            class="sw-product-packaging-form__pack-unit-plural-field"
-                            :mapInheritance="props"
-                            :error="productPackUnitPluralError"
-                            :label="$tc('sw-product.priceForm.labelPackUnitPlural')"
-                            :placeholder="$tc('sw-product.priceForm.placeholderPackUnitPlural')"
-                            :disabled="props.isInherited || !allowEdit"
-                            :helpText="$tc('sw-product.packagingForm.packUnitPluralHelpText')"
-                            :value="props.currentValue"
-                            @input="props.updateCurrentValue">
-                        </sw-field>
+        {% block sw_product_price_form_pack_unit_plural_field %}
+        <sw-inherit-wrapper
+            v-show="showSettingPackaging"
+            v-model="product.packUnitPlural"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.packUnitPlural"
+        >
+            <template #content="props">
 
-                    </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
+                <sw-field
+                    type="text"
+                    class="sw-product-packaging-form__pack-unit-plural-field"
+                    :map-inheritance="props"
+                    :error="productPackUnitPluralError"
+                    :label="$tc('sw-product.priceForm.labelPackUnitPlural')"
+                    :placeholder="$tc('sw-product.priceForm.placeholderPackUnitPlural')"
+                    :disabled="props.isInherited || !allowEdit"
+                    :help-text="$tc('sw-product.packagingForm.packUnitPluralHelpText')"
+                    :value="props.currentValue"
+                    @input="props.updateCurrentValue"
+                />
 
-            {% block sw_product_price_form_reference_unit_field %}
-                <sw-inherit-wrapper
-                    v-show="showSettingPackaging"
-                    v-model="product.referenceUnit"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.referenceUnit">
-                    <template #content="props">
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
 
-                        <sw-field
-                            type="number"
-                            class="sw-product-packaging-form__reference-unit-field"
-                            :mapInheritance="props"
-                            numberType="float"
-                            allowEmpty
-                            :min="0"
-                            :digits="3"
-                            :error="productReferenceUnitError"
-                            :disabled="props.isInherited || !allowEdit"
-                            :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
-                            :label="$tc('sw-product.priceForm.labelReferenceUnit')"
-                            :value="props.currentValue"
-                            :helpText="$tc('sw-product.packagingForm.referenceUnitHelpText')"
-                            @change="props.updateCurrentValue">
-                        </sw-field>
+        {% block sw_product_price_form_reference_unit_field %}
+        <sw-inherit-wrapper
+            v-show="showSettingPackaging"
+            v-model="product.referenceUnit"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.referenceUnit"
+        >
+            <template #content="props">
 
-                    </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
-        </sw-container>
-    </div>
+                <sw-field
+                    type="number"
+                    class="sw-product-packaging-form__reference-unit-field"
+                    :map-inheritance="props"
+                    number-type="float"
+                    allow-empty
+                    :min="0"
+                    :digits="3"
+                    :error="productReferenceUnitError"
+                    :disabled="props.isInherited || !allowEdit"
+                    :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
+                    :label="$tc('sw-product.priceForm.labelReferenceUnit')"
+                    :value="props.currentValue"
+                    :help-text="$tc('sw-product.packagingForm.referenceUnitHelpText')"
+                    @change="props.updateCurrentValue"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
+</div>
 {% endblock %}

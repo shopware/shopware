@@ -89,7 +89,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
             $media = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
             $this->mediaFiles[$deserialized['id']] = [
                 'media' => $media,
-                'destination' => $pathInfo['filename'] ?? $deserialized['id'],
+                'destination' => $pathInfo['filename'],
             ];
         }
 

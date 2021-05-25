@@ -32,6 +32,9 @@ class CacheTagCollection
         }
     }
 
+    /**
+     * @return mixed|null All kind of data could be cached
+     */
     public function trace(string $key, \Closure $param)
     {
         $this->traces[$key] = [];

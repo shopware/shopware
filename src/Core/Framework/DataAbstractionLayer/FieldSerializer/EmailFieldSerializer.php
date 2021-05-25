@@ -29,7 +29,12 @@ class EmailFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue();
     }
 
-    public function decode(Field $field, $value)
+    /**
+     * @return string|null
+     *
+     * @deprecated tag:v6.5.0 The parameter $value and return type will be native typed
+     */
+    public function decode(Field $field, /*?string */$value)/*: ?string*/
     {
         return $value;
     }

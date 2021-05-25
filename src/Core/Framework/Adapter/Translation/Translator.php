@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
+use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
@@ -24,69 +25,33 @@ class Translator extends AbstractTranslator
     use TranslatorTrait;
 
     /**
-     * @var TranslatorInterface|TranslatorBagInterface
+     * @var TranslatorInterface|TranslatorBagInterface|WarmableInterface
      */
     private $translator;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var CacheItemPoolInterface
-     */
-    private $cache;
+    private CacheItemPoolInterface $cache;
 
-    /**
-     * @var array
-     */
-    private $isCustomized = [];
+    private array $isCustomized = [];
 
-    /**
-     * @var MessageFormatterInterface
-     */
-    private $formatter;
+    private MessageFormatterInterface $formatter;
 
-    /**
-     * @var SnippetService
-     */
-    private $snippetService;
+    private SnippetService $snippetService;
 
-    /**
-     * @var string|null
-     */
-    private $fallbackLocale;
+    private ?string $fallbackLocale = null;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
-    /**
-     * @var string|null
-     */
-    private $snippetSetId = null;
+    private ?string $snippetSetId = null;
 
-    /**
-     * @var string|null
-     */
-    private $localeBeforeInject = null;
+    private ?string $localeBeforeInject = null;
 
-    /**
-     * @var string
-     */
-    private $environment;
+    private string $environment;
 
-    /**
-     * @var array
-     */
-    private $keys = ['all' => true];
+    private array $keys = ['all' => true];
 
-    /**
-     * @var array
-     */
-    private $traces = [];
+    private array $traces = [];
 
     public function __construct(
         TranslatorInterface $translator,
@@ -116,6 +81,9 @@ class Translator extends AbstractTranslator
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @return mixed|null All kind of data could be cached
+     */
     public function trace(string $key, \Closure $param)
     {
         $this->traces[$key] = [];
@@ -141,6 +109,7 @@ class Translator extends AbstractTranslator
      */
     public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
+        \assert($this->translator instanceof TranslatorBagInterface);
         $catalog = $this->translator->getCatalogue($locale);
 
         $fallbackLocale = $this->getFallbackLocale();
@@ -183,6 +152,7 @@ class Translator extends AbstractTranslator
      */
     public function setLocale($locale): void
     {
+        \assert($this->translator instanceof LocaleAwareInterface);
         $this->translator->setLocale($locale);
     }
 
@@ -191,11 +161,13 @@ class Translator extends AbstractTranslator
      */
     public function getLocale(): string
     {
+        \assert($this->translator instanceof LocaleAwareInterface);
+
         return $this->translator->getLocale();
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $cacheDir
      */
     public function warmUp($cacheDir): void
     {
@@ -225,6 +197,7 @@ class Translator extends AbstractTranslator
 
     public function resetInjection(): void
     {
+        \assert($this->localeBeforeInject !== null);
         $this->setLocale($this->localeBeforeInject);
         $this->snippetSetId = null;
     }

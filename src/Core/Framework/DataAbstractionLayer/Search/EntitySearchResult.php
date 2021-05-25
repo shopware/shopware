@@ -165,6 +165,9 @@ class EntitySearchResult extends EntityCollection
         $this->entity = $entity;
     }
 
+    /**
+     * @param EntityCollection $elements
+     */
     protected function createNew(iterable $elements = [])
     {
         return new static(

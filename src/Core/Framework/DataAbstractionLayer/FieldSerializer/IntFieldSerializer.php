@@ -31,7 +31,10 @@ class IntFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue();
     }
 
-    public function decode(Field $field, $value): ?int
+    /**
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function decode(Field $field, /*?string */$value): ?int
     {
         return $value === null ? null : (int) $value;
     }

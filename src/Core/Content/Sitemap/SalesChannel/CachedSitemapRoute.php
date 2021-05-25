@@ -33,6 +33,9 @@ class CachedSitemapRoute extends AbstractSitemapRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<SitemapRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -43,6 +46,9 @@ class CachedSitemapRoute extends AbstractSitemapRoute
 
     private SystemConfigService $config;
 
+    /**
+     *  @param AbstractCacheTracer<SitemapRouteResponse> $tracer
+     */
     public function __construct(
         AbstractSitemapRoute $decorated,
         TagAwareAdapterInterface $cache,

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
@@ -23,10 +24,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 {
-    /**
-     * @var RuleConditionRegistry
-     */
-    private $ruleConditionRegistry;
+    private RuleConditionRegistry $ruleConditionRegistry;
 
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
@@ -44,7 +42,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
 
         if ($value !== null) {
             if (!\array_key_exists('type', $value)) {
@@ -111,32 +109,40 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, $value)
+    /**
+     * @return AbsolutePriceDefinition|PercentagePriceDefinition|QuantityPriceDefinition|null
+     *
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed and the return type is PriceDefinitionInterface|null
+     */
+    public function decode(Field $field, /*?string */$value)/*: ?PriceDefinitionInterface*/
     {
         if ($value === null) {
             return null;
         }
 
-        $value = parent::decode($field, $value);
+        $decoded = parent::decode($field, $value);
+        if ($decoded === null) {
+            return null;
+        }
 
-        if (!\array_key_exists('type', $value)) {
+        if (!\array_key_exists('type', $decoded)) {
             throw new InvalidPriceFieldTypeException('none');
         }
 
-        switch ($value['type']) {
+        switch ($decoded['type']) {
             case QuantityPriceDefinition::TYPE:
-                return QuantityPriceDefinition::fromArray($value);
+                return QuantityPriceDefinition::fromArray($decoded);
             case AbsolutePriceDefinition::TYPE:
-                $rules = (\array_key_exists('filter', $value) && $value['filter'] !== null) ? $this->decodeRule($value['filter']) : null;
+                $rules = (\array_key_exists('filter', $decoded) && $decoded['filter'] !== null) ? $this->decodeRule($decoded['filter']) : null;
 
-                return new AbsolutePriceDefinition($value['price'], $rules);
+                return new AbsolutePriceDefinition($decoded['price'], $rules);
             case PercentagePriceDefinition::TYPE:
-                $rules = \array_key_exists('filter', $value) && $value['filter'] !== null ? $this->decodeRule($value['filter']) : null;
+                $rules = \array_key_exists('filter', $decoded) && $decoded['filter'] !== null ? $this->decodeRule($decoded['filter']) : null;
 
-                return new PercentagePriceDefinition($value['percentage'], $rules);
+                return new PercentagePriceDefinition($decoded['percentage'], $rules);
         }
 
-        throw new InvalidPriceFieldTypeException($value['type']);
+        throw new InvalidPriceFieldTypeException($decoded['type']);
     }
 
     private function validateRules(array $data, string $basePath): ConstraintViolationList
@@ -153,7 +159,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             $violationList->add(
                 $this->buildViolation(
                     'This "_name" value (%value%) is invalid.',
-                    ['%value%' => $type ?? 'NULL'],
+                    ['%value%' => 'NULL'],
                     $basePath . '/_name'
                 )
             );
@@ -189,7 +195,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 $object->addRule($this->decodeRule($item));
             }
         } else {
-            /* @var Rule $object */
             $object->assign($rule);
         }
 

@@ -31,6 +31,9 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<ProductCrossSellingRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -39,6 +42,9 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<ProductCrossSellingRouteResponse> $tracer
+     */
     public function __construct(
         AbstractProductCrossSellingRoute $decorated,
         TagAwareAdapterInterface $cache,

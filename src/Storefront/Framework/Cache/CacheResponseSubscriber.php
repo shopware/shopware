@@ -26,20 +26,11 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     public const SYSTEM_STATE_COOKIE = 'sw-states';
     public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var int
-     */
-    private $defaultTtl;
+    private int $defaultTtl;
 
-    /**
-     * @var bool
-     */
-    private $httpCacheEnabled;
+    private bool $httpCacheEnabled;
 
     public function __construct(CartService $cartService, int $defaultTtl, bool $httpCacheEnabled)
     {
@@ -110,7 +101,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $maxAge = $cache->getMaxAge() ?? $this->defaultTtl;
-        $maxAge = $maxAge ?? 3600;
 
         $response->setSharedMaxAge($maxAge);
         $response->headers->addCacheControlDirective('must-revalidate');

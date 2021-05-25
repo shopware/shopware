@@ -16,10 +16,7 @@ class UpdateHtaccess implements EventSubscriberInterface
         'ba812f2a64b337b032b10685ca6e2308', // https://github.com/shopware/production/commit/18ce6ffc904b8d2d237dc4ee6654c1fa9a6df719
     ];
 
-    /**
-     * @var string
-     */
-    private $htaccessPath;
+    private string $htaccessPath;
 
     public function __construct(string $htaccessPath)
     {
@@ -96,11 +93,11 @@ class UpdateHtaccess implements EventSubscriberInterface
         }
     }
 
-    private function getLinesFromMarkedFile(string $path): ?array
+    private function getLinesFromMarkedFile(string $path): array
     {
         $fp = fopen($path, 'rb+');
         if (!$fp) {
-            return null;
+            return [];
         }
 
         $lines = [];

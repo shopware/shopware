@@ -11,24 +11,9 @@ parameters:
 			path: src/Core/Checkout/Cart/CartBehavior.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/CartPersister.php
-
-		-
-			message: "#^Parameter \\#1 \\$entity of static method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryTime\\:\\:createFromEntity\\(\\) expects Shopware\\\\Core\\\\System\\\\DeliveryTime\\\\DeliveryTimeEntity, Shopware\\\\Core\\\\System\\\\DeliveryTime\\\\DeliveryTimeEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
-
-		-
 			message: "#^Cannot call method getDeliveryDate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
-
-		-
-			message: "#^Cannot call method getFreeDelivery\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryInformation\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryCalculator.php
 
 		-
 			message: "#^Parameter \\#1 \\$price of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\DeliveryCalculator\\:\\:getPriceForTaxState\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null given\\.$#"
@@ -49,11 +34,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$entity of method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection\\:\\:add\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/Struct/DeliveryCollection.php
-
-		-
-			message: "#^Cannot call method getWeight\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryInformation\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/Struct/DeliveryPositionCollection.php
 
 		-
 			message: "#^Parameter \\#1 \\$country of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation constructor expects Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity, Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null given\\.$#"
@@ -86,11 +66,6 @@ parameters:
 			path: src/Core/Checkout/Cart/LineItem/LineItem.php
 
 		-
-			message: "#^Cannot call method getPriority\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\PriceDefinitionInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
-
-		-
 			message: "#^Cannot call method getUnitPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
@@ -119,16 +94,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\RecalculationService\\:\\:fetchOrder\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Order/RecalculationService.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/Transformer/DeliveryTransformer.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/Transformer/LineItemTransformer.php
 
 		-
 			message: "#^Parameter \\#2 \\$type of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem constructor expects string, string\\|null given\\.$#"
@@ -256,11 +221,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Rule/DifferentAddressesRule.php
 
 		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Customer/Rule/IsNewCustomerRule.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\LastNameRule\\:\\:\\$lastName \\(string\\) does not accept string\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Rule/LastNameRule.php
@@ -301,11 +261,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Subscriber/CustomerGroupSubscriber.php
 
 		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Subscriber/CustomerMetaFieldSubscriber.php
-
-		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatchesValidator.php
@@ -329,11 +284,6 @@ parameters:
 			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/DocumentGenerator/CreditNoteGenerator.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderDelivery\\\\OrderDeliveryCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentGenerator/DeliveryNoteGenerator.php
 
 		-
 			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
@@ -416,11 +366,6 @@ parameters:
 			path: src/Core/Checkout/Order/OrderEntity.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
@@ -451,11 +396,6 @@ parameters:
 			path: src/Core/Checkout/Payment/PaymentService.php
 
 		-
-			message: "#^Cannot call method getTargetUrl\\(\\) on Symfony\\\\Component\\\\HttpFoundation\\\\RedirectResponse\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRouteResponse.php
-
-		-
 			message: "#^Cannot cast array\\|string to float\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Cart/Discount/Calculator/DiscountPercentageCalculator.php
@@ -476,11 +416,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
 
 		-
-			message: "#^Cannot call method match\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\PromotionCartAddedInformationError\\:\\:\\$name \\(string\\) does not accept string\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Cart/PromotionCartAddedInformationError.php
@@ -494,16 +429,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$label of class Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Exception\\\\InvalidPriceDefinitionException constructor expects string, string\\|null given\\.$#"
 			count: 5
 			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryCalculator.php
-
-		-
-			message: "#^Cannot call method match\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryCalculator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionIndexer.php
 
 		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
@@ -541,21 +466,6 @@ parameters:
 			path: src/Core/Checkout/Test/Payment/Handler/V630/SyncTestPaymentHandler.php
 
 		-
-			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryBreadcrumbUpdater\\:\\:buildBreadcrumb\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Category/DataAbstractionLayer/CategoryBreadcrumbUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Category/DataAbstractionLayer/CategoryIndexer.php
-
-		-
-			message: "#^Cannot call method getState\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityExistence\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Category/DataAbstractionLayer/CategoryIndexer.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Tree/Tree.php
@@ -576,29 +486,9 @@ parameters:
 			path: src/Core/Content/Category/Tree/TreeItem.php
 
 		-
-			message: "#^Parameter \\#1 \\$collection of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\:\\:merge\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection, Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Aggregate/CmsBlock/CmsBlockCollection.php
-
-		-
 			message: "#^Parameter \\#2 \\$entity of method Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotCollection\\:\\:set\\(\\) expects Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity, Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/Aggregate/CmsBlock/CmsBlockCollection.php
-
-		-
-			message: "#^Parameter \\#1 \\$collection of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\:\\:merge\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection, Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsBlock\\\\CmsBlockCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Aggregate/CmsSection/CmsSectionCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\:\\:getName\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/CmsPageEntity.php
-
-		-
-			message: "#^Cannot call method getBlocks\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/CmsPageEntity.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\Command\\\\CreatePageCommand\\:\\:\\$products \\(array\\<string\\>\\) does not accept array\\<array\\|string\\>\\.$#"
@@ -654,16 +544,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\FieldConfig\\:\\:getValue\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/DataResolver/FieldConfig.php
-
-		-
-			message: "#^Cannot call method sort\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
 
 		-
 			message: "#^Cannot call method getBlocks\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null\\.$#"
@@ -726,11 +606,6 @@ parameters:
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
 
 		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\ToOneSerializer\\:\\:deserialize\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
@@ -746,22 +621,12 @@ parameters:
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
 
 		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\TranslationsSerializer\\:\\:deserialize\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\TranslationsSerializer\\:\\:deserialize\\(\\) has parameter \\$translations with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
-
-		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
 
@@ -1001,24 +866,9 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderConfigurationIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderConfigurationIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderRepositoryDecorator\\:\\:getRawIds\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaIndexer.php
 
 		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
@@ -1156,11 +1006,6 @@ parameters:
 			path: src/Core/Content/Media/Pathname/PathnameStrategy/FilenamePathnameStrategy.php
 
 		-
-			message: "#^Cannot call method getTimestamp\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Pathname/PathnameStrategy/PhysicalFilenamePathnameStrategy.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\PathnameStrategy\\\\StrategyFactory\\:\\:\\$strategies \\(array\\<Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\PathnameStrategy\\\\PathnameStrategyInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Pathname/PathnameStrategy/StrategyFactory.php
@@ -1171,24 +1016,9 @@ parameters:
 			path: src/Core/Content/Media/Pathname/UrlGenerator.php
 
 		-
-			message: "#^Parameter \\#1 \\$variable_representation of function unserialize expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Subscriber/MediaFolderConfigLoadedSubscriber.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Subscriber/MediaLoadedSubscriber.php
-
-		-
-			message: "#^Parameter \\#1 \\$variable_representation of function unserialize expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Media/Subscriber/MediaLoadedSubscriber.php
-
-		-
-			message: "#^Parameter \\#3 \\$thumbnailSizes of method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:createThumbnailsForSizes\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeCollection, Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
 
 		-
 			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeCollection\\|null\\.$#"
@@ -1306,13 +1136,8 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductReview/ProductReviewEntity.php
 
 		-
-			message: "#^Cannot call method getMedia\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
-
-		-
 			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
 
 		-
@@ -1334,11 +1159,6 @@ parameters:
 			message: "#^Cannot call method addAssociation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria\\|null\\.$#"
 			count: 2
 			path: src/Core/Content/Product/Cms/ProductSliderCmsElementResolver.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\ChangeSetAware\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\InsertCommand\\:\\:getDefinition\\(\\)\\.$#"
@@ -1381,21 +1201,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
 
 		-
-			message: "#^Cannot call method sortByPosition\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
-
-		-
-			message: "#^Cannot call method getProductIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
-
-		-
-			message: "#^Parameter \\#1 \\$productId of method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationLoader\\:\\:load\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Detail/ProductConfiguratorLoader.php
-
-		-
 			message: "#^Cannot call method add\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Detail/ProductConfiguratorLoader.php
@@ -1434,11 +1239,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingResult\\:\\:getCurrentFilter\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
-
-		-
-			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Subscriber/ProductSubscriber.php
 
 		-
 			message: "#^Parameter \\#1 \\$salesChannel of method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ProductExportEntity\\:\\:setSalesChannel\\(\\) expects Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity, Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null given\\.$#"
@@ -1511,29 +1311,9 @@ parameters:
 			path: src/Core/Content/ProductExport/Service/ProductExporter.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of static method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:createFrom\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Content/Property/PropertyGroupCollection.php
-
-		-
-			message: "#^Cannot call method sort\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Property/PropertyGroupCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\DataAbstractionLayer\\\\RuleIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/DataAbstractionLayer/RuleIndexer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\:\\:filterMatchingRules\\(\\) has no return typehint specified\\.$#"
@@ -1557,11 +1337,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getConfig\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/Api/SeoActionController.php
-
-		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/Api/SeoActionController.php
 
@@ -1676,11 +1451,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php
 
 		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheClearer\\:\\:handle\\(\\) has parameter \\$message with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/CacheClearer.php
@@ -1769,11 +1539,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:getEntitySchema\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Cannot call method getFields\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
 
 		-
 			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string\\|false given\\.$#"
@@ -1921,11 +1686,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/ApiController.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/SalesChannelProxyController.php
-
-		-
 			message: "#^Parameter \\#1 \\$accessKey of static method Shopware\\\\Core\\\\Framework\\\\Api\\\\Util\\\\AccessKeyHelper\\:\\:getOrigin\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/EventListener/Authentication/SalesChannelAuthenticationListener.php
@@ -1934,11 +1694,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$accessKey of method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\Authentication\\\\SalesChannelAuthenticationListener\\:\\:getSalesChannelId\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/EventListener/Authentication/SalesChannelAuthenticationListener.php
-
-		-
-			message: "#^Parameter \\#1 \\$exception of method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ErrorResponseFactory\\:\\:convertExceptionToError\\(\\) expects Throwable, Throwable\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/EventListener/ErrorResponseFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ResponseExceptionListener\\:\\:__construct\\(\\) has parameter \\$debug with no typehint specified\\.$#"
@@ -2071,16 +1826,6 @@ parameters:
 			path: src/Core/Framework/App/Command/AppPrinter.php
 
 		-
-			message: "#^Cannot call method getActionButtons\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/Persister/ActionButtonPersister.php
-
-		-
-			message: "#^Cannot call method getWebhooks\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhooks\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/Persister/WebhookPersister.php
-
-		-
 			message: "#^Cannot call method getAccessKey\\(\\) on Shopware\\\\Core\\\\System\\\\Integration\\\\IntegrationEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Lifecycle/Registration/AppRegistrationService.php
@@ -2147,21 +1892,11 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$aggregation of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityAggregator\\:\\:extendQuery\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null given\\.$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
-
-		-
-			message: "#^Parameter \\#1 \\$sorting of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityAggregator\\:\\:addSorting\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Sorting\\\\FieldSorting, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Sorting\\\\FieldSorting\\|null given\\.$#"
-			count: 2
+			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
 
 		-
 			message: "#^Parameter \\#1 \\$aggregation of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityAggregator\\:\\:hydrateResult\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null given\\.$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
-
-		-
-			message: "#^Parameter \\#1 \\$format of method DateTime\\:\\:format\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
 
@@ -2267,16 +2002,11 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
-			count: 4
+			count: 2
 			path: src/Core/Framework/DataAbstractionLayer/DefinitionValidator.php
 
 		-
 			message: "#^Cannot call method getName\\(\\) on ReflectionClass\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionValidator.php
-
-		-
-			message: "#^Parameter \\#1 \\$haystack of function mb_strpos expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/DefinitionValidator.php
 
@@ -2386,16 +2116,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/EntityTranslationDefinition.php
 
 		-
-			message: "#^Array \\(array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityExistence\\>\\) does not accept Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityExistence\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\:\\:getExistences\\(\\) should return array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityExistence\\> but returns array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityExistence\\|null\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidLimitQueryException\\:\\:__construct\\(\\) has parameter \\$limit with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Exception/InvalidLimitQueryException.php
@@ -2446,86 +2166,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\BlobFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/BlobFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\BoolFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/BoolFieldSerializer.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CalculatedPriceFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CalculatedPriceFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CalculatedPriceFieldSerializer.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CartPriceFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CartPriceFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CartPriceFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ConfigJsonFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ConfigJsonFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CustomFieldsSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CustomFieldsSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\DateFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/DateFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\DateTimeFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/DateTimeFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\EmailFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/EmailFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\FieldSerializerInterface\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FieldSerializerInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\FkFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FkFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\FloatFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FloatFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\IdFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/IdFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\IntFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/IntFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:encodeJson\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
@@ -2534,46 +2174,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:encodeJson\\(\\) should return string but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\LongTextFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/LongTextFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToManyAssociationFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToManyAssociationFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToManyAssociationFieldSerializer\\:\\:map\\(\\) has parameter \\$data with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToManyAssociationFieldSerializer.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 5
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToOneAssociationFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToOneAssociationFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToOneAssociationFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\OneToManyAssociationFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToManyAssociationFieldSerializer.php
 
 		-
 			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
@@ -2586,74 +2186,9 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToOneAssociationFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\OneToOneAssociationFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToOneAssociationFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PasswordFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PasswordFieldSerializer.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ReferenceVersionFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ReferenceVersionFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\RemoteAddressFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/RemoteAddressFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\StringFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/StringFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\TranslatedFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslatedFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\TranslationsAssociationFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslationsAssociationFieldSerializer.php
-
-		-
 			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslationsAssociationFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\VersionDataPayloadFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/VersionDataPayloadFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\VersionFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/VersionFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexer.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:\\$indexer \\(array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexer\\>\\) does not accept iterable\\.$#"
@@ -2832,22 +2367,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$aggregation of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\AggregationParser\\:\\:aggregationToArray\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null given\\.$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/AggregationParser.php
-
-		-
-			message: "#^Cannot call method getDirection\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Sorting\\\\FieldSorting\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/AggregationParser.php
-
-		-
-			message: "#^Cannot call method getNaturalSorting\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Sorting\\\\FieldSorting\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/AggregationParser.php
-
-		-
-			message: "#^Cannot call method getField\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Sorting\\\\FieldSorting\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/AggregationParser.php
 
 		-
@@ -2916,11 +2436,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
 
 		-
-			message: "#^Parameter \\#1 \\$fieldName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityDefinitionQueryHelper\\:\\:getFieldAccessor\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
@@ -2947,11 +2462,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriterInterface\\:\\:delete\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
-
-		-
-			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
 
@@ -3116,11 +2626,6 @@ parameters:
 			path: src/Core/Framework/Demodata/Generator/MediaGenerator.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/MediaGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductGenerator\\:\\:getTaxes\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
@@ -3264,11 +2769,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getPluginIconRaw\\(\\) should return string\\|null but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/PluginService.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function base64_encode expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Subscriber/PluginLoadedSubscriber.php
 
 		-
 			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
@@ -3646,16 +3146,6 @@ parameters:
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
 
 		-
-			message: "#^Parameter \\#1 \\$data of method Symfony\\\\Component\\\\Serializer\\\\Encoder\\\\JsonDecode\\:\\:decode\\(\\) expects string, bool\\|float\\|int\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
-			message: "#^Cannot call method getParameters\\(\\) on ReflectionMethod\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:getReflectionClass\\(\\) return type with generic class ReflectionClass does not specify its types\\: T$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
@@ -3664,11 +3154,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\\:\\:createRecursiveFileIterator\\(\\) return type with generic class RecursiveIteratorIterator does not specify its types\\: T$#"
@@ -3841,11 +3326,6 @@ parameters:
 			path: src/Core/Framework/Webhook/WebhookCollection.php
 
 		-
-			message: "#^Cannot call method getAclRoleId\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/WebhookCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$catch with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/HttpKernel.php
@@ -3869,31 +3349,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/HttpKernel.php
-
-		-
-			message: "#^Cannot call method getBundles\\(\\) on Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Cannot call method initializePlugins\\(\\) on Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Kernel\\:\\:getPluginLoader\\(\\) should return Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader but returns Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Cannot call method getPluginInstances\\(\\) on Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Cannot call method getPluginDir\\(\\) on Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\NullConnection\\:\\:setOriginalConnection\\(\\) has parameter \\$originalConnection with no typehint specified\\.$#"
@@ -3959,11 +3414,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:formatQuery\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Cannot call method sortByPositionAndName\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\Aggregate\\\\CountryState\\\\CountryStateCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Country/CountryCollection.php
 
 		-
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
@@ -4046,69 +3496,9 @@ parameters:
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\DataAbstractionLayer\\\\SalesChannelIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/DataAbstractionLayer/SalesChannelIndexer.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of static method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\RepositorySearchDetector\\:\\:isSearchRequired\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntitySearchResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntitySearchResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntityAggregatorInterface\\:\\:aggregate\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityAggregationResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Read\\\\EntityReaderInterface\\:\\:read\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntityLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearcherInterface\\:\\:search\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntityIdSearchResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Exception\\\\LanguageOfSalesChannelDomainDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$maintenanceIpWhitelist \\(string\\) does not accept string\\|null\\.$#"
@@ -4381,11 +3771,6 @@ parameters:
 			path: src/Docs/Convert/DocumentMetadata.php
 
 		-
-			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\WikiApiService\\:\\:getOrCreateMissingCategoryTree\\(\\) should return int but returns int\\|null\\.$#"
-			count: 1
-			path: src/Docs/Convert/WikiApiService.php
-
-		-
 			message: "#^Parameter \\#1 \\$categoryId of method Shopware\\\\Docs\\\\Convert\\\\WikiApiService\\:\\:deleteCategory\\(\\) expects string, int\\|string given\\.$#"
 			count: 1
 			path: src/Docs/Convert/WikiApiService.php
@@ -4397,11 +3782,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\WikiApiService\\:\\:disableArticle\\(\\) has parameter \\$articleId with no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Convert/WikiApiService.php
-
-		-
-			message: "#^Cannot call method getCategoryId\\(\\) on Shopware\\\\Docs\\\\Convert\\\\Document\\|null\\.$#"
 			count: 1
 			path: src/Docs/Convert/WikiApiService.php
 
@@ -4436,11 +3816,6 @@ parameters:
 			path: src/Elasticsearch/Elasticsearch.php
 
 		-
-			message: "#^Cannot call method getGuest\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/AccountOrderController.php
-
-		-
 			message: "#^Cannot call method setDefaultShippingAddress\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/AddressController.php
@@ -4449,11 +3824,6 @@ parameters:
 			message: "#^Cannot call method setDefaultBillingAddress\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/AddressController.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/ContextController.php
 
 		-
 			message: "#^Cannot access offset 'port' on array\\(\\?'scheme' \\=\\> string, \\?'host' \\=\\> string, \\?'port' \\=\\> int, \\?'user' \\=\\> string, \\?'pass' \\=\\> string, \\?'path' \\=\\> string, \\?'query' \\=\\> string, \\?'fragment' \\=\\> string\\)\\|false\\.$#"
@@ -4474,11 +3844,6 @@ parameters:
 			message: "#^Cannot access property \\$attributes on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/ContextController.php
-
-		-
-			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelAnalytics\\\\SalesChannelAnalyticsEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CookieController.php
 
 		-
 			message: "#^Cannot call method getStates\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
@@ -4504,11 +3869,6 @@ parameters:
 			message: "#^Cannot call method getCity\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/NewsletterController.php
-
-		-
-			message: "#^Cannot call method getGuest\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Controller/RegisterController.php
 
 		-
 			message: "#^Cannot access property \\$attributes on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"
@@ -4601,11 +3961,6 @@ parameters:
 			path: src/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRoute.php
 
 		-
-			message: "#^Cannot call method sortByPosition\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\ErrorTemplateStruct\\:\\:__construct\\(\\) has parameter \\$arguments with no typehint specified\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
@@ -4644,11 +3999,6 @@ parameters:
 			message: "#^Cannot access offset 'port' on array\\(\\?'scheme' \\=\\> string, \\?'host' \\=\\> string, \\?'port' \\=\\> int, \\?'user' \\=\\> string, \\?'pass' \\=\\> string, \\?'path' \\=\\> string, \\?'query' \\=\\> string, \\?'fragment' \\=\\> string\\)\\|false\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Page/Account/Order/AccountEditOrderPageLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinder\\:\\:searchForOptions\\(\\) should return string\\|null but returns array\\|string\\|null\\.$#"
@@ -4796,11 +4146,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeLifecycleService.php
 
 		-
-			message: "#^Parameter \\#1 \\$path of method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleService\\:\\:createMediaStruct\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
 			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleService.php
@@ -4827,7 +4172,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$name of method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection\\:\\:getByTechnicalName\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
+			count: 1
 			path: src/Storefront/Theme/ThemeService.php
 
 		-

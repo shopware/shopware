@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
@@ -24,12 +25,18 @@ class CacheStore implements StoreInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @var AbstractCacheTracer<StoreApiResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private AbstractHttpCacheKeyGenerator $cacheKeyGenerator;
 
     private MaintenanceModeResolver $maintenanceResolver;
 
+    /**
+     * @param AbstractCacheTracer<StoreApiResponse> $tracer
+     */
     public function __construct(
         TagAwareAdapterInterface $cache,
         CacheStateValidator $stateValidator,

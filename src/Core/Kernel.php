@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
@@ -45,7 +46,7 @@ class Kernel extends HttpKernel
     protected static $connection;
 
     /**
-     * @var KernelPluginLoader|null
+     * @var KernelPluginLoader
      */
     protected $pluginLoader;
 
@@ -64,15 +65,9 @@ class Kernel extends HttpKernel
      */
     protected $projectDir;
 
-    /**
-     * @var bool
-     */
-    private $rebooting = false;
+    private bool $rebooting = false;
 
-    /**
-     * @var string
-     */
-    private $cacheId;
+    private string $cacheId;
 
     /**
      * {@inheritdoc}
@@ -98,7 +93,12 @@ class Kernel extends HttpKernel
         $this->projectDir = $projectDir;
     }
 
-    public function registerBundles()
+    /**
+     * @return \Generator<BundleInterface>
+     *
+     * @deprecated tag:v6.5.0 The return type will be native
+     */
+    public function registerBundles()/*: \Generator*/
     {
         /** @var array $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
@@ -117,7 +117,12 @@ class Kernel extends HttpKernel
         yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);
     }
 
-    public function getProjectDir()
+    /**
+     * @return string
+     *
+     * @deprecated tag:v6.5.0 The return type will be native
+     */
+    public function getProjectDir()/*: string*/
     {
         if ($this->projectDir === null) {
             $r = new \ReflectionObject($this);

@@ -9,20 +9,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\ContainerInterface;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class RulePayloadUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var RuleConditionRegistry
-     */
-    private $ruleConditionRegistry;
+    private RuleConditionRegistry $ruleConditionRegistry;
 
     public function __construct(Connection $connection, RuleConditionRegistry $ruleConditionRegistry)
     {
@@ -88,7 +81,6 @@ class RulePayloadUpdater
             $object = new $ruleClass();
 
             if ($rule['value'] !== null) {
-                /* @var Rule $object */
                 $object->assign(json_decode($rule['value'], true));
             }
 

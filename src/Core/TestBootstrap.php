@@ -57,7 +57,7 @@ $testDb = sprintf(
     $auth,
     $dbUrlParts['host'] ?? 'localhost',
     isset($dbUrlParts['port']) ? (':' . $dbUrlParts['port']) : '',
-    $dbUrlParts['path'] ?? '',
+    $dbUrlParts['path'],
     isset($dbUrlParts['query']) ? ('?' . $dbUrlParts['query']) : ''
 );
 

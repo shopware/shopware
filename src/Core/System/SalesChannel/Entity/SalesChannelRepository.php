@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class SalesChannelRepository implements SalesChannelRepositoryInterface
 {
     /**
-     * @var EntityDefinition|SalesChannelDefinitionInterface
+     * @var EntityDefinition
      */
     protected $definition;
 

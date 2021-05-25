@@ -82,7 +82,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             $pattern,
             -1,
             \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY
-        ) ?? null;
+        );
     }
 
     protected function readConfiguration(string $definition, Context $context, ?string $salesChannelId): void

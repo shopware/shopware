@@ -59,7 +59,12 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
         $this->data = $data;
     }
 
-    public function addData(string $key, $value): void
+    /**
+     * @param string $value
+     *
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function addData(string $key, /*string */$value): void
     {
         $this->data[$key] = $value;
     }
@@ -79,7 +84,12 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
         $this->templateData = $templateData;
     }
 
-    public function addTemplateData(string $key, $value): void
+    /**
+     * @param string $value
+     *
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function addTemplateData(string $key, /*string */$value): void
     {
         $this->templateData[$key] = $value;
     }

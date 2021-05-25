@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -37,35 +38,17 @@ final class FirstRunWizardClient
 
     private const FRW_MAX_FAILURES = 3;
 
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var StoreService
-     */
-    private $storeService;
+    private StoreService $storeService;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $configService;
+    private SystemConfigService $configService;
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystem;
 
-    /**
-     * @var bool
-     */
-    private $frwAutoRun;
+    private bool $frwAutoRun;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         StoreService $storeService,
@@ -96,6 +79,7 @@ final class FirstRunWizardClient
 
     /**
      * @throws StoreLicenseDomainMissingException
+     * @throws ClientException
      */
     public function frwLogin(string $shopwareId, string $password, string $language, string $userId): AccessTokenStruct
     {
@@ -200,6 +184,7 @@ final class FirstRunWizardClient
 
     /**
      * @throws StoreLicenseDomainMissingException
+     * @throws ClientException
      */
     public function getLanguagePlugins(string $language, PluginCollection $pluginCollection): array
     {
@@ -214,6 +199,7 @@ final class FirstRunWizardClient
 
     /**
      * @throws StoreLicenseDomainMissingException
+     * @throws ClientException
      */
     public function getDemoDataPlugins(string $language, PluginCollection $pluginCollection): array
     {
@@ -229,6 +215,7 @@ final class FirstRunWizardClient
 
     /**
      * @throws StoreLicenseDomainMissingException
+     * @throws ClientException
      */
     public function getRecommendationRegions(string $language): PluginRegionCollection
     {

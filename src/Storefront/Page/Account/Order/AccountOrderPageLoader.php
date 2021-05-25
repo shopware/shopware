@@ -4,6 +4,8 @@ namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -21,25 +23,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AccountOrderPageLoader
 {
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
+    private GenericPageLoaderInterface $genericLoader;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AbstractOrderRoute
-     */
-    private $orderRoute;
+    private AbstractOrderRoute $orderRoute;
 
-    /**
-     * @var AccountService
-     */
-    private $accountService;
+    private AccountService $accountService;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
@@ -56,8 +46,10 @@ class AccountOrderPageLoader
     /**
      * @throws CategoryNotFoundException
      * @throws CustomerNotLoggedInException
+     * @throws GuestNotAuthenticatedException
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
+     * @throws WrongGuestCredentialsException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderPage
     {
@@ -92,6 +84,11 @@ class AccountOrderPageLoader
         return $page;
     }
 
+    /**
+     * @throws CustomerNotLoggedInException
+     * @throws GuestNotAuthenticatedException
+     * @throws WrongGuestCredentialsException
+     */
     private function getOrders(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = $this->createCriteria($request);

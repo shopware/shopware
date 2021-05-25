@@ -32,6 +32,9 @@ class CachedLanguageRoute extends AbstractLanguageRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<LanguageRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -40,6 +43,9 @@ class CachedLanguageRoute extends AbstractLanguageRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<LanguageRouteResponse> $tracer
+     */
     public function __construct(
         AbstractLanguageRoute $decorated,
         TagAwareAdapterInterface $cache,

@@ -82,8 +82,6 @@ class Download
         curl_setopt($ch, \CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, \CURLOPT_NOPROGRESS, false);
 
-        $me = $this;
-
         // Do not remove $_ch, although it is marked as unused. It somehow important
         curl_setopt($ch, \CURLOPT_PROGRESSFUNCTION, function ($_ch, $dltotal, $dlnow) use ($size): void {
             if ($dlnow > 0) {
@@ -91,11 +89,9 @@ class Download
             }
         });
 
-        /** @var bool $isHalted */
         $isHalted = false;
-        /** @var bool $isError */
         $isError = false;
-        curl_setopt($ch, \CURLOPT_WRITEFUNCTION, function ($ch, $str) use ($me, $partFile, &$isHalted, &$isError) {
+        curl_setopt($ch, \CURLOPT_WRITEFUNCTION, function ($ch, $str) use ($partFile, &$isHalted, &$isError) {
             if (curl_getinfo($ch, \CURLINFO_HTTP_CODE) !== 206) {
                 $isError = true;
 
@@ -104,7 +100,7 @@ class Download
 
             $writtenBytes = $partFile->fwrite($str);
 
-            if ($me->shouldHalt()) {
+            if ($this->shouldHalt()) {
                 $isHalted = true;
 
                 return -1;

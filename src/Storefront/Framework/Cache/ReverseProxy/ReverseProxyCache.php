@@ -9,12 +9,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 
+/**
+ * @template TCachedContent
+ */
 class ReverseProxyCache implements StoreInterface
 {
     private AbstractReverseProxyGateway $gateway;
 
+    /**
+     * @var AbstractCacheTracer<TCachedContent>
+     */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @param AbstractCacheTracer<TCachedContent> $tracer
+     */
     public function __construct(AbstractReverseProxyGateway $gateway, AbstractCacheTracer $tracer)
     {
         $this->gateway = $gateway;

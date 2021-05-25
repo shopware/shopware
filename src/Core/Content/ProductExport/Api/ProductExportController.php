@@ -31,20 +31,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductExportController extends AbstractController
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelDomainRepository;
+    private EntityRepositoryInterface $salesChannelDomainRepository;
 
-    /**
-     * @var ProductExportGeneratorInterface
-     */
-    private $productExportGenerator;
+    private ProductExportGeneratorInterface $productExportGenerator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         EntityRepositoryInterface $salesChannelDomainRepository,
@@ -136,7 +127,7 @@ class ProductExportController extends AbstractController
         $entity = new ProductExportEntity();
 
         $entity->setId('');
-        $entity->setHeaderTemplate($dataBag->get('headerTemplate' ?? ''));
+        $entity->setHeaderTemplate($dataBag->get('headerTemplate') ?? '');
         $entity->setBodyTemplate($dataBag->get('bodyTemplate') ?? '');
         $entity->setFooterTemplate($dataBag->get('footerTemplate') ?? '');
         $entity->setProductStreamId($dataBag->get('productStreamId'));

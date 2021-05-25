@@ -32,6 +32,9 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<ShippingMethodRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -40,6 +43,9 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<ShippingMethodRouteResponse> $tracer
+     */
     public function __construct(
         AbstractShippingMethodRoute $decorated,
         TagAwareAdapterInterface $cache,

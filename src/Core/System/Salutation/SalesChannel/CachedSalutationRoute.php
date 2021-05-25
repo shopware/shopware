@@ -34,6 +34,9 @@ class CachedSalutationRoute extends AbstractSalutationRoute
 
     private EntityCacheKeyGenerator $generator;
 
+    /**
+     * @var AbstractCacheTracer<SalutationRouteResponse>
+     */
     private AbstractCacheTracer $tracer;
 
     private array $states;
@@ -42,6 +45,9 @@ class CachedSalutationRoute extends AbstractSalutationRoute
 
     private LoggerInterface $logger;
 
+    /**
+     * @param AbstractCacheTracer<SalutationRouteResponse> $tracer
+     */
     public function __construct(
         AbstractSalutationRoute $decorated,
         TagAwareAdapterInterface $cache,

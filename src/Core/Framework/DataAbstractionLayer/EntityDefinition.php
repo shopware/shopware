@@ -56,10 +56,7 @@ abstract class EntityDefinition
      */
     private $parentDefinition = false;
 
-    /**
-     * @var string
-     */
-    private $className;
+    private string $className;
 
     final public function __construct()
     {
@@ -197,11 +194,17 @@ abstract class EntityDefinition
         return $this->getFields()->get($propertyName);
     }
 
+    /**
+     * @return class-string<EntityCollection>
+     */
     public function getCollectionClass(): string
     {
         return EntityCollection::class;
     }
 
+    /**
+     * @return class-string<Entity>
+     */
     public function getEntityClass(): string
     {
         return ArrayEntity::class;

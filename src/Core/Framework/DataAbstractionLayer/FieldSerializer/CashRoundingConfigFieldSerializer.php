@@ -27,11 +27,11 @@ class CashRoundingConfigFieldSerializer extends JsonFieldSerializer
     }
 
     /**
-     * @param string|null $value
-     *
      * @return CashRoundingConfig|null
+     *
+     * @deprecated tag:v6.5.0 The parameter $value and return type will be native typed
      */
-    public function decode(Field $field, $value)
+    public function decode(Field $field, /*?string */$value)/*: ?CashRoundingConfig*/
     {
         if ($value === null) {
             return null;

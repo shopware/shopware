@@ -30,7 +30,10 @@ class BoolFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue() ? 1 : 0;
     }
 
-    public function decode(Field $field, $value): ?bool
+    /**
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     */
+    public function decode(Field $field, /*?string */$value): ?bool
     {
         if ($value === null) {
             return null;

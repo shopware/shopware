@@ -1,12 +1,13 @@
 includes:
     - phpstan-baseline.neon
+    - ../dev-ops/analyze/vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
     level: 8
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
     inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: false # Could be set to false if necessary during PHPStan update
+    reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
     tmpDir: ../var/cache/phpstan
     paths:
         - src
@@ -15,9 +16,6 @@ parameters:
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
         container_xml_path: '..%ShopwareHashedCacheDir%/Shopware_Development_KernelDevDebugContainer.xml'
         console_application_loader: ../dev-ops/analyze/console-application.php
-
-    featureToggles:
-        unusedClassElements: true
 
     excludes_analyse:
         - src/Recovery/*
@@ -56,97 +54,18 @@ parameters:
     ignoreErrors:
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
+        # Method gets always an EntityCollection
         -
-            message: '#Call to an undefined method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityDefinition\|Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelDefinitionInterface::getEntityName\(\)\.#'
-            path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-        -
-            message: '#Method Shopware\\Core\\System\\SystemConfig\\SystemConfigService::trace\(\) has no return typehint specified\.#'
-            path: src/Core/System/SystemConfig/SystemConfigService.php
-        -
-            message: '#Parameter \#3 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection, iterable given\.#'
+            message: '#Default value of the parameter \#1 \$elements \(array\) of method Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::createNew\(\) is incompatible with type Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection\.#'
             path: src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php
-        -
-            message: '#Method Shopware\\Storefront\\Theme\\ThemeConfigValueAccessor::get\(\) has no return typehint specified\.#'
-            path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-        -
-            message: '#Method Shopware\\Storefront\\Theme\\ThemeConfigValueAccessor::trace\(\) has no return typehint specified\.#'
-            path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-        -
-            message: '#Method Shopware\\Storefront\\Framework\\Cache\\CacheTracer::trace\(\) has no return typehint specified\.#'
-            path: src/Storefront/Framework/Cache/CacheTracer.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\CacheTagCollection::trace\(\) has no return typehint specified\.#'
-            path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\Adapter\\Translation\\Translator::trace\(\) has no return typehint specified\.#'
-            path: src/Core/Framework/Adapter/Translation/Translator.php
-        -
-            message: '#Call to an undefined method Symfony\\Component\\Translation\\TranslatorBagInterface\|Symfony\\Contracts\\Translation\\TranslatorInterface::getCatalogue\(\)\.#'
-            path: src/Core/Framework/Adapter/Translation/Translator.php
-        -
-            message: '#Call to an undefined method Symfony\\Component\\Translation\\TranslatorBagInterface\|Symfony\\Contracts\\Translation\\TranslatorInterface::getLocale\(\)\.#'
-            path: src/Core/Framework/Adapter/Translation/Translator.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\Adapter\\Translation\\Translator::warmUp\(\) has parameter \$cacheDir with no typehint specified\.#'
-            path: src/Core/Framework/Adapter/Translation/Translator.php
-        -
-            message: '#Parameter \#1 \$locale of method Shopware\\Core\\Framework\\Adapter\\Translation\\Translator::setLocale\(\) expects string, string\|null given\.#'
-            path: src/Core/Framework/Adapter/Translation/Translator.php
-        -
-            message: '#Call to an undefined method Symfony\\Component\\Translation\\TranslatorBagInterface|Symfony\\Contracts\\Translation\\TranslatorInterface::setLocale\(\)\.#'
-            path: src/Core/Framework/Adapter/Translation/Translator.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\CacheTracer::trace\(\) has no return typehint specified\.#'
-            path: src/Core/Framework/Adapter/Cache/CacheTracer.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\CacheCompressor::compress\(\) has parameter \$content with no typehint specified\.#'
-            path: src/Core/Framework/Adapter/Cache/CacheCompressor.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\CacheCompressor::uncompress\(\) has no return typehint specified\.#'
-            path: src/Core/Framework/Adapter/Cache/CacheCompressor.php
-        -
-            message: '#Parameter \#1 \$variable_representation of function unserialize expects string, string\|false given\.#'
-            path: src/Core/Framework/Adapter/Cache/CacheCompressor.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\AbstractCacheTracer::trace\(\) has no return typehint specified\.#'
-            path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\Adapter\\Translation\\AbstractTranslator::trace\(\) has no return typehint specified\.#'
-            path: src/Core/Framework/Adapter/Translation/AbstractTranslator.php
-        -
-            message: '#Method Shopware\\Core\\Content\\Product\\DataAbstractionLayer\\ProductStreamUpdater::iterate\(\) has parameter \$offset with no typehint specified\.#'
-            path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
-        -
-            message: '#Cannot call method getPluginInfos\(\) on Shopware\\Core\\Framework\\Plugin\\KernelPluginLoader\\KernelPluginLoader\|null\.#'
-            path: src/Core/Kernel.php
+        # @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455)
         -
             message: '#Method Shopware\\Storefront\\Framework\\Captcha\\AbstractCaptcha::isValid\(\) invoked with 2 parameters, 1 required\.#'
             path: src/Storefront/Framework/Captcha/CaptchaRouteListener.php
-
-        - '#Method .*FieldSerializer::decode\(\) has no return typehint specified\.#'
-        - '#Method .*FieldSerializer::decode\(\) has parameter \$value with no typehint specified\.#'
-        - '#Method .*CustomFieldsSerializer::decode\(\) has no return typehint specified\.#'
-        - '#Method .*FieldSerializerInterface::decode\(\) has no return typehint specified\.#'
-
-        # Inheritance checks for not nullable fields of the product entity (for example product.price contains always a value inside a sales channel context) - Could be fixed if php allows function type hint override
-        -
-            message: '#Parameter \#2 \$prices of method Shopware\\Core\\Content\\Product\\SalesChannel\\Price\\ProductPriceCalculator::buildDefinition\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Pricing\\PriceCollection, Shopware\\Core\\Framework\\DataAbstractionLayer\\Pricing\\PriceCollection\|null given\.#'
-            path: src/Core/Content/Product/SalesChannel/Price/ProductPriceCalculator.php
-        -
-            message: '#Parameter \#1 \$taxId of method Shopware\\Core\\System\\SalesChannel\\SalesChannelContext::buildTaxRules\(\) expects string, string\|null given\.#'
-            path: src/Core/Content/Product/SalesChannel/Price/ProductPriceCalculator.php
         # OngrDSL wrong type hint
         -
             message: '#Parameter \#3 \$script of class ONGR\\ElasticsearchDSL\\Aggregation\\Metric\\StatsAggregation constructor expects string\|null, array<string, array\|string> given\.#'
             path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-        # For BC with Symfony 4
-        -
-            message: '#Method Shopware\\Core\\Content\\MailTemplate\\Service\\Event\\MailBeforeValidateEvent::addData\(\) has parameter \$value with no typehint specified#'
-            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeValidateEvent.php
-        -
-            message: '#Method Shopware\\Core\\Content\\MailTemplate\\Service\\Event\\MailBeforeValidateEvent::addTemplateData\(\) has parameter \$value with no typehint specified#'
-            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeValidateEvent.php
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
@@ -165,12 +84,16 @@ parameters:
              message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'
              path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
         -
-                    message: '#Strict comparison using#'
-                    path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
-        # storageName could not be null, because the `compile` method is called first
+            message: '#Strict comparison using#'
+            path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
+        # The implementations should always declare their specific return type
         -
-            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\ReferenceVersionField::getStorageName\(\) should return string but returns string\|null#'
-            path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
+            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\FieldSerializerInterface::decode\(\) has no return typehint specified\.#'
+            path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FieldSerializerInterface.php
+        # For handling type errors
+        -
+            message: '#Dead catch - Error\|Exception is never thrown in the try block\.#'
+            path: src/Core/Framework/Struct/AssignArrayTrait.php
 
 services:
     -

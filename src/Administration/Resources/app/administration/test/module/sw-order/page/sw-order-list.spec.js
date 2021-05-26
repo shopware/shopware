@@ -21,6 +21,9 @@ const mockItem = {
         translated: { name: 'Open' },
         name: 'Open'
     },
+    salesChannel: {
+        name: 'Test'
+    },
     transactions: new EntityCollection(null, null, null, new Criteria(), [
         {
             stateMachineState: {

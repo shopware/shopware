@@ -493,20 +493,43 @@ Component.register('sw-data-grid', {
         },
 
         renderColumn(item, column) {
-            let accessor = column.property.split('.');
-            let workingProperty = column.property;
+            // horror (pseudo) example: deliveries[0].stateMachineState.transactions.last().name
+            // (name is a translated field - developer forgot translated accessor)
+            // pointer is now the order
+            const accessor = column.property.split('.');
+            let pointer = item;
 
-            if (accessor.lastIndexOf('last()') !== -1) {
-                item = item?.[accessor.splice(0, accessor.lastIndexOf('last()'))].last();
-                accessor = accessor.splice(accessor.lastIndexOf('last()') + 1, accessor.length - 1);
-                workingProperty = accessor.join('.');
-            }
-            accessor.splice(accessor.length - 1, 0, 'translated');
-            const translated = item?.[accessor];
-            if (translated) {
-                return translated;
-            }
-            return utils.get(item, workingProperty);
+            // parts:  [`deliveries[0]`, `type`, `name`]
+            accessor.forEach((part) => {
+                // #1 loop: part=delivieres[0]      pointer=order object
+                // #2 loop: part=stateMachineState  pointer=delivery object
+                // #3 loop: part=transactions       pointer=stateMachineState
+                // #4 loop: part=last()             pointer=transactions
+                // #5 loop: part=name               pointer=last entity in transaction collection
+
+                if (typeof pointer !== 'object' || pointer === null) {
+                    utils.debug.warn(`[sw-data-grid] Can not resolve accessor: ${column.property}`);
+                    return false;
+                }
+
+                // check if the current accessor part is a function call like e.g. entity collection "last()"
+                if (part.includes('()')) {
+                    part = part.replace('()', '');
+                }
+
+                if (typeof pointer[part] === 'function') {
+                    pointer = pointer[part]();
+                } else if (pointer.hasOwnProperty('translated') && pointer.translated.hasOwnProperty(part)) {
+                    pointer = pointer.translated[part];
+                } else {
+                    // resolve dynamic accessor part: (name, deliveries[0], translated)
+                    pointer = utils.get(pointer, part);
+                }
+
+                return true;
+            });
+
+            return pointer;
         },
 
         selectAll(selected) {

@@ -38,6 +38,15 @@ export default class GeneralPageObject {
             alert: '.sw-alert',
             alertClose: '.sw-alert__close',
             notification: '.sw-notifications__notification',
+
+            // Listing
+            manufacturerFilter:
+                '#filter-panel-wrapper .filter-multi-select-manufacturer',
+            productCard: '.cms-block-product-listing .card-body',
+            filterLabel: '.custom-control-label',
+
+            // Product detail page
+            productDetailManufacturerLink: '.filter-active',
         };
     }
 }

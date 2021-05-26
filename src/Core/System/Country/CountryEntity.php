@@ -86,24 +86,18 @@ class CountryEntity extends Entity
 
     /**
      * @internal (flag:FEATURE_NEXT_14114)
-     *
-     * @var bool
      */
-    protected $vatIdRequired;
+    protected bool $vatIdRequired;
 
     /**
      * @internal (flag:FEATURE_NEXT_14114)
-     *
-     * @var TaxFreeConfig
      */
-    protected $customerTax;
+    protected TaxFreeConfig $customerTax;
 
     /**
      * @internal (flag:FEATURE_NEXT_14114)
-     *
-     * @var TaxFreeConfig
      */
-    protected $companyTax;
+    protected TaxFreeConfig $companyTax;
 
     /**
      * @var CountryStateCollection|null

@@ -634,6 +634,49 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(5.0, $newShippingCosts->getCalculatedTaxes()->last()->getTaxRate());
     }
 
+    public function testRecalculateOrderWithInactiveProduct(): void
+    {
+        $inactiveProductId = Uuid::randomHex();
+        // create order
+        $cart = $this->generateDemoCart($inactiveProductId);
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.positions.orderLineItem')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
+        static::assertSame(224.07, $order->getPrice()->getNetPrice());
+        static::assertSame(249.98, $order->getPrice()->getTotalPrice());
+        static::assertSame(239.98, $order->getPrice()->getPositionPrice());
+
+        $this->getContainer()->get('product.repository')->update([['id' => $inactiveProductId, 'active' => false]], $this->context);
+
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
+        static::assertSame(224.07, $order->getPrice()->getNetPrice());
+        static::assertSame(249.98, $order->getPrice()->getTotalPrice());
+        static::assertSame(239.98, $order->getPrice()->getPositionPrice());
+    }
+
     public function testForeachLoopInCalculateDeliveryFunction(): void
     {
         $priceRuleId = Uuid::randomHex();

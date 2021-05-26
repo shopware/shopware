@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -33,22 +33,22 @@ class CartTaxTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $currencyRepository;
 
@@ -58,44 +58,51 @@ class CartTaxTest extends TestCase
 
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
-        $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
-        ]);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->countryRepository = $this->getContainer()->get('country.repository');
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
-
-        $this->createTestData();
     }
 
     /**
      * @dataProvider dataTestHandlingTaxFreeInStorefront
      */
-    public function testHandlingTaxFreeInStorefront(
+    public function testHandlingTaxFreeInStorefrontWithBaseCurrencyEuro(
         string $testCase,
         float $currencyTaxFreeFrom,
         bool $countryTaxFree,
         bool $countryCompanyTaxFree,
         float $countryTaxFreeFrom,
-        int $quantity
+        float $countryCompanyTaxFreeFrom,
+        int $quantity,
+        ?array $vatIds = null
     ): void {
-        $this->createCustomerAndLogin();
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+        ]);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
+
+        $this->createTestData();
+
+        $countryId = Uuid::fromBytesToHex($this->getCountryIdByIso());
+
+        $this->createCustomerAndLogin($countryId);
+
+        if ($vatIds) {
+            $this->customerRepository->update(
+                [['id' => $this->ids->get('customer'), 'vatIds' => $vatIds]],
+                $this->ids->context
+            );
+        }
 
         $this->currencyRepository->update([[
             'id' => Defaults::CURRENCY,
             'taxFreeFrom' => $currencyTaxFreeFrom,
         ]], $this->ids->context);
 
-        $this->countryRepository->update([[
-            'id' => Uuid::fromBytesToHex($this->getCountryIdByIso()),
-            'taxFree' => $countryTaxFree,
-            'companyTaxFree' => $countryCompanyTaxFree,
-            'taxFreeFrom' => $countryTaxFreeFrom,
-        ]], $this->ids->context);
+        $this->updateCountry($countryId, $countryTaxFree, $countryTaxFreeFrom, $countryCompanyTaxFree, $countryCompanyTaxFreeFrom);
 
         $this->browser->request(
             'POST',
@@ -123,26 +130,204 @@ class CartTaxTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider dataTestHandlingTaxFreeInStorefront
+     */
+    public function testHandlingTaxFreeInStorefrontWithBaseCurrencyVND(
+        string $testCase,
+        float $currencyTaxFreeFrom,
+        bool $countryTaxFree,
+        bool $countryCompanyTaxFree,
+        float $countryTaxFreeFrom,
+        float $countryCompanyTaxFreeFrom,
+        int $quantity,
+        ?array $vatIds = null
+    ): void {
+        $currencyId = Uuid::fromBytesToHex($this->getCurrencyIdByIso('CHF'));
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+            'currencyId' => $currencyId,
+        ]);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
+
+        $this->createTestData();
+
+        $countryId = Uuid::fromBytesToHex($this->getCountryIdByIso('CH'));
+
+        $this->createCustomerAndLogin($countryId);
+
+        if ($vatIds) {
+            $this->customerRepository->update(
+                [['id' => $this->ids->get('customer'), 'vatIds' => $vatIds]],
+                $this->ids->context
+            );
+        }
+
+        $this->currencyRepository->update([[
+            'id' => $currencyId,
+            'taxFreeFrom' => $currencyTaxFreeFrom,
+        ]], $this->ids->context);
+
+        $this->updateCountry(
+            $countryId,
+            $countryTaxFree,
+            $countryTaxFreeFrom,
+            $countryCompanyTaxFree,
+            $countryCompanyTaxFreeFrom
+        );
+
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [
+                'items' => [
+                    [
+                        'id' => $this->ids->get('p1'),
+                        'type' => 'product',
+                        'referencedId' => $this->ids->get('p1'),
+                        'quantity' => $quantity,
+                    ],
+                ],
+            ]
+        );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+
+        if ($testCase === 'tax-free') {
+            static::assertEquals(550 * $quantity, $response['price']['totalPrice']);
+        } else {
+            static::assertEquals(605, $response['price']['totalPrice']);
+        }
+    }
+
+    /**
+     * @dataProvider dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD
+     */
+    public function testHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(
+        string $testCase,
+        bool $countryTaxFree,
+        bool $countryCompanyTaxFree,
+        float $countryTaxFreeFrom,
+        float $countryCompanyTaxFreeFrom,
+        int $quantity
+    ): void {
+        $currencyId = Uuid::fromBytesToHex($this->getCurrencyIdByIso('USD'));
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+            'currencyId' => $currencyId,
+        ]);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
+
+        $this->createTestData();
+
+        $usCountryId = Uuid::fromBytesToHex($this->getCountryIdByIso('US'));
+
+        $this->createCustomerAndLogin($usCountryId);
+
+        $this->updateCountry(
+            $usCountryId,
+            $countryTaxFree,
+            $countryTaxFreeFrom,
+            $countryCompanyTaxFree,
+            $countryCompanyTaxFreeFrom,
+            $currencyId
+        );
+
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [
+                'items' => [
+                    [
+                        'id' => $this->ids->get('p1'),
+                        'type' => 'product',
+                        'referencedId' => $this->ids->get('p1'),
+                        'quantity' => $quantity,
+                    ],
+                ],
+            ]
+        );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+
+        if ($testCase === 'tax-free') {
+            static::assertEquals(585.43 * $quantity, $response['price']['totalPrice']);
+        } else {
+            static::assertEquals(643.97 * $quantity, $response['price']['totalPrice']);
+        }
+    }
+
+    /**
+     * string $testCase
+     * bool $countryTaxFree
+     * bool $countryCompanyTaxFree
+     * float $countryTaxFreeFrom
+     * float $countryCompanyTaxFreeFrom
+     * int $quantity
+     *
+     * @return array[]
+     */
+    public function dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(): array
+    {
+        return [
+            'case 1 tax-free' => ['tax-free', true, false, 100, 100, 1],
+            'case 2 tax-free' => ['tax-free', true, false, 1000, 100, 2],
+            'case 3 tax-free' => ['tax-free', true, true, 1000, 100, 1],
+            'case 4 tax-free' => ['tax-free', true, true, 1000, 1000, 2],
+            'case 5 no-tax-free' => ['no-tax-free', true, false, 1000, 100, 1],
+            'case 6 no-tax-free' => ['no-tax-free', true, true, 1000, 1000, 1],
+            'case 7 no-tax-free' => ['no-tax-free', false, false, 1000, 1000, 1],
+            'case 8 no-tax-free' => ['no-tax-free', false, false, 1000, 1000, 2],
+            'case 9 tax-free' => ['tax-free', false, true, 100, 100, 1],
+            'case 10 tax-free' => ['tax-free', false, true, 100, 1000, 2],
+            'case 11 tax-free' => ['tax-free', true, true, 100, 1000, 1],
+        ];
+    }
+
+    /**
+     * string $testCase
+     * float $currencyTaxFreeFrom
+     * bool $countryTaxFree
+     * bool $countryCompanyTaxFree
+     * float $countryTaxFreeFrom
+     * float $countryCompanyTaxFreeFrom
+     * int $quantity
+     * ?array vatIds
+     *
+     * @return array[]
+     */
     public function dataTestHandlingTaxFreeInStorefront(): array
     {
         return [
-            'case 1 tax-free' => ['tax-free', 100, false, false, 0, 1],
-            'case 2 no tax-free' => ['no tax-free', 1000, false, false, 0, 1],
-            'case 3 no tax-free' => ['no tax-free', 1000, true, false, 100, 1],
-            'case 4 tax-free' => ['tax-free', 0, true, false, 100, 1],
-            'case 5 no tax-free' => ['no tax-free', 0, true, false, 1000, 1],
-            'case 6 tax-free' => ['tax-free', 0, false, true, 100, 1],
-            'case 7 no tax-free' => ['no tax-free', 0, false, true, 1000, 1],
-            'case 8 tax-free' => ['tax-free', 100, true, false, 0, 1],
-            'case 9 tax-free' => ['tax-free', 100, true, false, 100, 1],
-            'case 10 tax-free' => ['tax-free', 100, false, true, 0, 1],
-            'case 11 tax-free' => ['tax-free', 100, false, true, 100, 1],
-            'case 12 tax-free' => ['tax-free', 1000, false, false, 0, 2],
-            'case 13 tax-free' => ['tax-free', 0, false, true, 1000, 2],
-            'case 14 tax-free' => ['tax-free', 0, true, false, 1000, 2],
-            'case 15 no tax-free' => ['no tax-free', 1000, true, false, 10000, 1],
-            'case 16 no tax-free' => ['no tax-free', 1000, true, true, 100, 1],
-            'case 17 tax-free' => ['no tax-free', 0, true, true, 1000, 1],
+            'case 1 tax-free' => ['tax-free', 100, false, false, 0, 0, 1],
+            'case 2 tax-free' => ['tax-free', 1000, false, false, 0, 0, 2],
+            'case 3 no tax-free' => ['no tax-free', 1000, false, false, 0, 0, 1],
+            'case 4 no tax-free' => ['no tax-free', 1000, true, false, 100, 0,  1],
+            'case 5 no tax-free' => ['no tax-free', 1000, true, true, 100, 0, 1],
+            'case 6 no tax-free' => ['no tax-free', 1000, false, true, 100, 0, 1],
+            'case 7 no tax-free' => ['no tax-free', 1000, false, true, 100, 100, 1],
+            'case 8 no tax-free' => ['no tax-free', 1000, true, false, 100, 100,  1],
+            'case 9 no tax-free' => ['no tax-free', 1000, true, true, 100, 100, 1],
+            'case 10 tax-free' => ['tax-free', 0, true, true, 100, 100, 1],
+            'case 11 tax-free' => ['tax-free', 0, false, true, 100, 100, 1],
+            'case 12 tax-free' => ['tax-free', 0, false, true, 0, 100, 1],
+            'case 13 tax-free' => ['tax-free', 0, false, true, 1000, 100, 1],
+            'case 14 tax-free' => ['tax-free', 0, true, false, 100, 100, 1],
+            'case 15 tax-free' => ['tax-free', 0, true, false, 100, 1000, 1],
+            'case 16 tax-free' => ['tax-free', 0, true, false, 100, 0, 1],
+            'case 17 tax-free' => ['tax-free', 0, true, false, 1000, 0, 2],
+            'case 18 tax-free' => ['tax-free', 0, false, true, 0, 1000, 2],
+            'case 19 tax-free' => ['tax-free', 0, false, true, 0, 999.99, 3],
+            'case 20 tax-free' => ['tax-free', 0, true, false, 1000, 0, 3],
+            'case 21 no tax-free' => ['no tax-free', 0, true, true, 1000, 100, 1, ['DE1234567890123']],
         ];
     }
 
@@ -165,11 +350,11 @@ class CartTaxTest extends TestCase
         ], $this->ids->context);
     }
 
-    private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
+    private function createCustomerAndLogin(string $countryId, ?string $email = null, ?string $password = null): void
     {
         $email = $email ?? (Uuid::randomHex() . '@example.com');
         $password = $password ?? 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($countryId, $password, $email);
 
         $this->login($email, $password);
     }
@@ -193,7 +378,7 @@ class CartTaxTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
-    private function createCustomer(string $password, ?string $email = null): void
+    private function createCustomer(string $countryId, string $password, ?string $email = null): void
     {
         $this->customerRepository->create([
             [
@@ -207,7 +392,7 @@ class CartTaxTest extends TestCase
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => Uuid::fromBytesToHex($this->getCountryIdByIso()),
+                    'countryId' => $countryId,
                 ],
                 'defaultBillingAddressId' => $this->ids->get('address'),
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
@@ -224,8 +409,37 @@ class CartTaxTest extends TestCase
         ], $this->ids->context);
     }
 
+    private function updateCountry(
+        string $countryId,
+        bool $countryTaxFree,
+        float $countryTaxFreeFrom,
+        bool $countryCompanyTaxFree,
+        float $countryCompanyTaxFreeFrom,
+        string $currencyId = Defaults::CURRENCY
+    ): void {
+        $this->countryRepository->update([[
+            'id' => $countryId,
+            'customerTax' => [
+                'enabled' => $countryTaxFree,
+                'currencyId' => $currencyId,
+                'amount' => $countryTaxFreeFrom,
+            ],
+            'companyTax' => [
+                'enabled' => $countryCompanyTaxFree,
+                'currencyId' => $currencyId,
+                'amount' => $countryCompanyTaxFreeFrom,
+            ],
+            'vatIdPattern' => '(DE)?[0-9]{9}',
+        ]], $this->ids->context);
+    }
+
     private function getCountryIdByIso(string $iso = 'DE'): string
     {
         return $this->connection->fetchOne('SELECT id FROM country WHERE iso = :iso', ['iso' => $iso]);
+    }
+
+    private function getCurrencyIdByIso(string $iso = 'EUR'): string
+    {
+        return $this->connection->fetchOne('SELECT id FROM currency WHERE iso_code = :iso', ['iso' => $iso]);
     }
 }

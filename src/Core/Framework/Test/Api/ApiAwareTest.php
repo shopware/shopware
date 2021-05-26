@@ -51,7 +51,8 @@ class ApiAwareTest extends TestCase
 
         if (Feature::isActive('FEATURE_NEXT_14114')) {
             $expected[] = 'country.vatIdRequired';
-            $expected[] = 'country.taxFreeFrom';
+            $expected[] = 'country.customerTax';
+            $expected[] = 'country.companyTax';
             $expected[] = 'currency.taxFreeFrom';
         }
 

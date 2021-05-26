@@ -254,6 +254,13 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TaxFreeConfigFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="validator"/>
+            <tag name="shopware.field_serializer"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_14114"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceDefinitionFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="validator" />

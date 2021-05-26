@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class TaxDetector
@@ -15,13 +17,39 @@ class TaxDetector
     public function isNetDelivery(SalesChannelContext $context): bool
     {
         $shippingLocationCountry = $context->getShippingLocation()->getCountry();
-        if ($shippingLocationCountry->getTaxFree()) {
+        $countryTaxFree = Feature::isActive('FEATURE_NEXT_14114')
+            ? $shippingLocationCountry->getCustomerTax()->getEnabled()
+            : $shippingLocationCountry->getTaxFree();
+
+        if ($countryTaxFree) {
             return true;
         }
 
+        return $this->isCompanyTaxFree($context, $shippingLocationCountry);
+    }
+
+    public function getTaxState(SalesChannelContext $context): string
+    {
+        if ($this->isNetDelivery($context)) {
+            return CartPrice::TAX_STATE_FREE;
+        }
+
+        if ($this->useGross($context)) {
+            return CartPrice::TAX_STATE_GROSS;
+        }
+
+        return CartPrice::TAX_STATE_NET;
+    }
+
+    public function isCompanyTaxFree(SalesChannelContext $context, CountryEntity $shippingLocationCountry): bool
+    {
         $customer = $context->getCustomer();
 
-        if (!$shippingLocationCountry->getCompanyTaxFree() || !$customer || !$customer->getCompany()) {
+        $countryCompanyTaxFree = Feature::isActive('FEATURE_NEXT_14114')
+            ? $shippingLocationCountry->getCompanyTax()->getEnabled()
+            : $shippingLocationCountry->getCompanyTaxFree();
+
+        if (!$countryCompanyTaxFree || !$customer || !$customer->getCompany()) {
             return false;
         }
 
@@ -41,18 +69,5 @@ class TaxDetector
         }
 
         return true;
-    }
-
-    public function getTaxState(SalesChannelContext $context): string
-    {
-        if ($this->isNetDelivery($context)) {
-            return CartPrice::TAX_STATE_FREE;
-        }
-
-        if ($this->useGross($context)) {
-            return CartPrice::TAX_STATE_GROSS;
-        }
-
-        return CartPrice::TAX_STATE_NET;
     }
 }

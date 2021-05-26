@@ -4,20 +4,22 @@ namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TaxFreeConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -32,6 +34,10 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 class CountryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'country';
+
+    public const TYPE_CUSTOMER_TAX_FREE = 'customer-tax-free';
+
+    public const TYPE_COMPANY_TAX_FREE = 'company-tax-free';
 
     public function getEntityName(): string
     {
@@ -50,7 +56,23 @@ class CountryDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return Feature::isActive('FEATURE_NEXT_14114') ? ['vatIdRequired' => false] : [];
+        $defaults = [];
+
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $defaultTax = [
+                'enabled' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ];
+
+            $defaults = [
+                'vatIdRequired' => false,
+                'customerTax' => $defaultTax,
+                'companyTax' => $defaultTax,
+            ];
+        }
+
+        return $defaults;
     }
 
     public function since(): ?string
@@ -102,9 +124,15 @@ class CountryDefinition extends EntityDefinition
         ]);
 
         if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $collection->add((new FloatField('tax_free_from', 'taxFreeFrom'))->addFlags(new ApiAware()));
-
             $collection->add((new BoolField('vat_id_required', 'vatIdRequired'))->addFlags(new ApiAware()));
+
+            $collection->add((new BoolField('tax_free', 'taxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')));
+
+            $collection->add((new BoolField('company_tax_free', 'companyTaxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')));
+
+            $collection->add((new TaxFreeConfigField('customer_tax', 'customerTax'))->addFlags(new ApiAware()));
+
+            $collection->add((new TaxFreeConfigField('company_tax', 'companyTax'))->addFlags(new ApiAware()));
         }
 
         return $collection;

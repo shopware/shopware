@@ -7,9 +7,12 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,7 +48,14 @@ class TaxDetectorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();
-        $country->setTaxFree(true);
+
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $country->setCustomerTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
+            $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
+        } else {
+            $country->setTaxFree(true);
+            $country->setCompanyTaxFree(true);
+        }
 
         $context->expects(static::once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
@@ -65,14 +75,31 @@ class TaxDetectorTest extends TestCase
         $criteria->setLimit(1);
 
         $country = $countryRepository->search($criteria, Context::createDefaultContext())->first();
-        $countryRepository->update([
-            [
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $data = [
+                'id' => $country->getId(),
+                'customerTax' => [
+                    'enabled' => false,
+                    'currencyId' => Defaults::CURRENCY,
+                    'amount' => 0,
+                ],
+                'companyTax' => [
+                    'enabled' => true,
+                    'currencyId' => Defaults::CURRENCY,
+                    'amount' => 0,
+                ],
+                'vatIdPattern' => '(DE)?[0-9]{9}',
+            ];
+        } else {
+            $data = [
                 'id' => $country->getId(),
                 'taxFree' => false,
                 'companyTaxFree' => true,
                 'vatIdPattern' => '(DE)?[0-9]{9}',
-            ],
-        ], Context::createDefaultContext());
+            ];
+        }
+
+        $countryRepository->update([$data], Context::createDefaultContext());
         $country = $countryRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customer = $this->createMock(CustomerEntity::class);
@@ -131,15 +158,32 @@ class TaxDetectorTest extends TestCase
         $criteria->setLimit(1);
 
         $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
-        $countryRepository->update([
-            [
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $data = [
+                'id' => $deCountry->getId(),
+                'customerTax' => [
+                    'enabled' => false,
+                    'currencyId' => Defaults::CURRENCY,
+                    'amount' => 0,
+                ],
+                'companyTax' => [
+                    'enabled' => true,
+                    'currencyId' => Defaults::CURRENCY,
+                    'amount' => 0,
+                ],
+                'vatIdPattern' => '(DE)?[0-9]{9}',
+                'checkVatIdPattern' => false,
+            ];
+        } else {
+            $data = [
                 'id' => $deCountry->getId(),
                 'taxFree' => false,
                 'companyTaxFree' => true,
                 'vatIdPattern' => '(DE)?[0-9]{9}',
                 'checkVatIdPattern' => false,
-            ],
-        ], Context::createDefaultContext());
+            ];
+        }
+        $countryRepository->update([$data], Context::createDefaultContext());
         $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customer = $this->createMock(CustomerEntity::class);

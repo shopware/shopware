@@ -119,7 +119,7 @@ export default {
         getMenuStructure() {
             return this.$filesInfo.reduce((accumulator, item) => {
                 // skip meteor components
-                if (!item || !item || !item.path || item.path.includes('meteor')) {
+                if (!item || !item || !item.path || item.path.includes('meteor') || item.source.readableName === undefined) {
                     return accumulator;
                 }
 

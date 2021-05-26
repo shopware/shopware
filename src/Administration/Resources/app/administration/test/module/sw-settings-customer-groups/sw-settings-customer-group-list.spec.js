@@ -156,7 +156,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
         expect(entityList.exists()).toBeTruthy();
-        expect(entityList.attributes().allowinlineedit).toBeFalsy();
+        expect(entityList.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should be able to inline edit', async () => {
@@ -166,7 +166,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
         expect(entityList.exists()).toBeTruthy();
-        expect(entityList.attributes().allowinlineedit).toBeTruthy();
+        expect(entityList.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should not be able to delete without delete permission', async () => {
@@ -192,7 +192,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
         expect(entityList.exists()).toBeTruthy();
-        expect(entityList.attributes().showselection).toBeFalsy();
+        expect(entityList.attributes()['show-selection']).toBeFalsy();
     });
 
     it('should show item selection if user has delete permission', async () => {
@@ -202,6 +202,6 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
         expect(entityList.exists()).toBeTruthy();
-        expect(entityList.attributes().showselection).toBeTruthy();
+        expect(entityList.attributes()['show-selection']).toBeTruthy();
     });
 });

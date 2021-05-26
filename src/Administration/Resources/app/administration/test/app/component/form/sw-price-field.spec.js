@@ -152,7 +152,7 @@ describe('components/form/sw-price-field', () => {
             netHelpText: 'help for net price'
         });
 
-        expect(wrapper.find('.sw-price-field__gross').attributes().helptext).toBe('help for gross price');
-        expect(wrapper.find('.sw-price-field__net').attributes().helptext).toBe('help for net price');
+        expect(wrapper.find('.sw-price-field__gross').attributes()['help-text']).toBe('help for gross price');
+        expect(wrapper.find('.sw-price-field__net').attributes()['help-text']).toBe('help for net price');
     });
 });

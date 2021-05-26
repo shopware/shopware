@@ -222,7 +222,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const mediaModal = wrapper.find('sw-media-modal-v2-stub');
 
         expect(mediaModal.exists()).toBeTruthy();
-        expect(mediaModal.attributes('entitycontext')).toBe('product');
+        expect(mediaModal.attributes('entity-context')).toBe('product');
     });
 
     it('should turn off media modal', async () => {

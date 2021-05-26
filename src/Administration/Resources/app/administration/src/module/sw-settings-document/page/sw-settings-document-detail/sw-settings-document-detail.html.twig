@@ -101,13 +101,13 @@
                 {% block sw_settings_document_detail_content_form_field_renderer_content %}
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <template
-                    v-for="formField in generalFormFields"
+                    v-for="(formField, index) in generalFormFields"
                     v-if="documentConfig.config"
                 >
                     {% block sw_settings_document_detail_content_form_field_renderer %}
                     <sw-form-field-renderer
                         v-if="formField"
-                        :key="formField.name"
+                        :key="`formField-${index}`"
                         v-model="documentConfig.config[formField.name]"
                         :disabled="!acl.can('document.editor')"
                         class="sw-settings-document-detail__form-field-renderer"
@@ -115,7 +115,7 @@
                     />
                     <div
                         v-else
-                        :key="`else-${formField.name}`"
+                        :key="`else-formField-${index}`"
                     />
                     {% endblock %}
                 </template>

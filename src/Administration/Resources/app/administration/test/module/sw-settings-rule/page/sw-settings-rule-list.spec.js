@@ -64,9 +64,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const contextMenuItemDuplicate = wrapper.find('sw-context-menu-item-stub');
 
         expect(buttonAddRule.attributes().disabled).toBe('true');
-        expect(entityListing.attributes().showselection).toBeUndefined();
-        expect(entityListing.attributes().allowedit).toBeUndefined();
-        expect(entityListing.attributes().allowdelete).toBeUndefined();
+        expect(entityListing.attributes()['show-selection']).toBeUndefined();
+        expect(entityListing.attributes()['allow-edit']).toBeUndefined();
+        expect(entityListing.attributes()['allow-delete']).toBeUndefined();
         expect(contextMenuItemDuplicate.attributes().disabled).toBe('true');
     });
 
@@ -81,13 +81,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const contextMenuItemDuplicate = wrapper.find('sw-context-menu-item-stub');
 
         expect(buttonAddRule.attributes().disabled).toBeUndefined();
-        expect(entityListing.attributes().showselection).toBeUndefined();
-        expect(entityListing.attributes().allowedit).toBeUndefined();
-        expect(entityListing.attributes().allowdelete).toBeUndefined();
+        expect(entityListing.attributes()['show-selection']).toBeUndefined();
+        expect(entityListing.attributes()['allow-edit']).toBeUndefined();
+        expect(entityListing.attributes()['allow-delete']).toBeUndefined();
         expect(contextMenuItemDuplicate.attributes().disabled).toBeUndefined();
     });
 
-    it('should have enabled fields for editor', async () => {
+    it.only('should have enabled fields for editor', async () => {
         const wrapper = createWrapper([
             'rule.editor'
         ]);
@@ -98,9 +98,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const contextMenuItemDuplicate = wrapper.find('sw-context-menu-item-stub');
 
         expect(buttonAddRule.attributes().disabled).toBe('true');
-        expect(entityListing.attributes().showselection).toBeUndefined();
-        expect(entityListing.attributes().allowedit).toBe('true');
-        expect(entityListing.attributes().allowdelete).toBeUndefined();
+        expect(entityListing.attributes()['show-selection']).toBeUndefined();
+        expect(entityListing.attributes()['allow-edit']).toBe('true');
+        expect(entityListing.attributes()['allow-delete']).toBeUndefined();
         expect(contextMenuItemDuplicate.attributes().disabled).toBe('true');
     });
 
@@ -115,9 +115,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const contextMenuItemDuplicate = wrapper.find('sw-context-menu-item-stub');
 
         expect(buttonAddRule.attributes().disabled).toBe('true');
-        expect(entityListing.attributes().showselection).toBe('true');
-        expect(entityListing.attributes().allowedit).toBeUndefined();
-        expect(entityListing.attributes().allowdelete).toBe('true');
+        expect(entityListing.attributes()['show-selection']).toBe('true');
+        expect(entityListing.attributes()['allow-edit']).toBeUndefined();
+        expect(entityListing.attributes()['allow-delete']).toBe('true');
         expect(contextMenuItemDuplicate.attributes().disabled).toBe('true');
     });
 });

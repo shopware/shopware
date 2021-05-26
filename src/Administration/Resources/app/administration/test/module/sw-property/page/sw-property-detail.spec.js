@@ -69,7 +69,7 @@ describe('module/sw-property/page/sw-property-detail', () => {
 
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 
-        expect(saveButton.attributes().isLoading).toBeFalsy();
+        expect(saveButton.attributes()['is-loading']).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 

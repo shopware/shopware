@@ -188,7 +188,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         await wrapper.vm.$nextTick();
         const entityListing = wrapper.find('.sw-settings-salutation-list-grid');
         expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes().allowinlineedit).toBeTruthy();
+        expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should not be able to edit a salutation inline if have not a editor privilege', async () => {
@@ -196,7 +196,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         await wrapper.vm.$nextTick();
         const entityListing = wrapper.find('.sw-settings-salutation-list-grid');
         expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes().allowinlineedit).toBeFalsy();
+        expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should not be able to edit a salutation inline if have privileges which do not contain editor privilege',
@@ -208,7 +208,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
             await wrapper.vm.$nextTick();
             const entityListing = wrapper.find('.sw-settings-salutation-list-grid');
             expect(entityListing.exists()).toBeTruthy();
-            expect(entityListing.attributes().allowinlineedit).toBeFalsy();
+            expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
         });
 
     it('should be able to delete a salutation if have a deleter privilege', async () => {
@@ -245,7 +245,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-salutation-list-grid');
-        expect(entityList.attributes().showselection).toBeFalsy();
+        expect(entityList.attributes()['show-selection']).toBeFalsy();
     });
 
     it('should show item selection if have a deleter privilege', async () => {
@@ -253,6 +253,6 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-salutation-list-grid');
-        expect(entityList.attributes().showselection).toBeTruthy();
+        expect(entityList.attributes()['show-selection']).toBeTruthy();
     });
 });

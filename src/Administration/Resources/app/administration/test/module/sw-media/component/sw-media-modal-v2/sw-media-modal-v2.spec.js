@@ -34,7 +34,7 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
 
     it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
-        expect(fileInput.attributes().fileaccept).toBe('image/*');
+        expect(fileInput.attributes()['file-accept']).toBe('image/*');
     });
 
     it('should contain "application/pdf" value', async () => {
@@ -42,6 +42,6 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             fileAccept: 'application/pdf'
         });
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
-        expect(fileInput.attributes().fileaccept).toBe('application/pdf');
+        expect(fileInput.attributes()['file-accept']).toBe('application/pdf');
     });
 });

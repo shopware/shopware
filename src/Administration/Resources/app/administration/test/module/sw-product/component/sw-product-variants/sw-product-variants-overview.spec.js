@@ -100,13 +100,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         ]);
 
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
-        expect(dataGrid.attributes().allowinlineedit).toBeTruthy();
+        expect(dataGrid.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should disallow inline editing', async () => {
         const wrapper = createWrapper();
 
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
-        expect(dataGrid.attributes().allowinlineedit).toBeFalsy();
+        expect(dataGrid.attributes()['allow-inline-edit']).toBeFalsy();
     });
 });

@@ -2,6 +2,7 @@
 <div
     v-if="images.length > 0"
     class="sw-image-slider"
+    :style="wrapperStyles"
 >
 
     {% block sw_image_slider_image_container %}
@@ -12,7 +13,7 @@
 
         {% block sw_image_slider_image_container_scrollable %}
         <div
-            class="sw-image-slider__image-container-scrollable"
+            class="sw-image-slider__image-scrollable"
             :style="scrollableContainerStyles"
         >
 
@@ -20,21 +21,24 @@
             <div
                 v-for="(image, index) in images"
                 :key="index"
-                class="sw-image-slider__image-container-element-wrapper"
+                class="sw-image-slider__element-wrapper"
+                :aria-hidden="isHiddenItem(index)"
                 :style="componentStyles"
             >
 
                 {% block sw_image_slider_image_container %}
                 <div
-                    class="sw-image-slider__image-container-element"
+                    class="sw-image-slider__element-container"
+                    :class="elementClasses(index)"
                     :style="elementStyles(image, index)"
-                    @click="currentPageNumber = index"
+                    @click="onSetCurrentItem(index)"
                 >
 
                     {% block sw_image_slider_image %}
                     <img
-                        class="sw-image-slider__image-container-element-image"
-                        :style="borderStyles(image)"
+                        class="sw-image-slider__element-image"
+                        :class="imageClasses(index)"
+                        :style="[borderStyles(image), imageStyles]"
                         :src="getImage(image)"
                         :alt="imageAlt(index)"
                     >
@@ -45,7 +49,7 @@
                 {% block sw_image_slider_element_description %}
                 <div
                     v-if="hasValidDescription(image)"
-                    class="sw-image-slider__image-container-element-description"
+                    class="sw-image-slider__element-description"
                     :style="componentStyles"
                 >
                     {{ image.description }}
@@ -57,12 +61,11 @@
         {% endblock %}
 
         {% block sw_image_slider_image_container_arrows %}
-        <template v-if="['arrow', 'all'].includes(navigationType)">
+        <template v-if="showArrows">
 
             {% block sw_image_slider_image_container_arrow_left %}
             <div
                 class="sw-image-slider__arrow arrow-left"
-                :style="arrowStyles"
                 @click="goToPreviousImage"
             >
                 <sw-icon name="default-arrow-head-left" />
@@ -72,7 +75,6 @@
             {% block sw_image_slider_image_container_arrow_right %}
             <div
                 class="sw-image-slider__arrow arrow-right"
-                :style="arrowStyles"
                 @click="goToNextImage"
             >
                 <sw-icon name="default-arrow-head-right" />
@@ -85,13 +87,14 @@
 
     {% block sw_image_slider_button_container %}
     <div
-        v-if="images.length >= 2 && ['button', 'all'].includes(navigationType)"
+        v-if="showButtons"
         class="sw-image-slider__buttons"
+        :class="buttonClasses"
     >
 
         {% block sw_image_slider_buttons %}
         <button
-            v-for="(image, index) in images"
+            v-for="(item, index) in buttonList"
             :key="index"
             class="sw-image-slider__buttons-element"
             :class="{ 'is--active': index === currentPageNumber }"

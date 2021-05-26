@@ -18,7 +18,9 @@ exports[`components/base/sw-alert should render correctly 1`] = `
     <div
       class="sw-alert__title"
     >
-      Alert title
+      
+            Alert title
+        
     </div>
      
     <div

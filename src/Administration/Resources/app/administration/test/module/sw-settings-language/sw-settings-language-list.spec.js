@@ -188,7 +188,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const entityListing = wrapper.find('.sw-settings-language-list-grid');
 
         expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes().allowinlineedit).toBeTruthy();
+        expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should not be able to inline edit a language', async () => {
@@ -198,6 +198,6 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const entityListing = wrapper.find('.sw-settings-language-list-grid');
 
         expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes().allowinlineedit).toBeFalsy();
+        expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
     });
 });

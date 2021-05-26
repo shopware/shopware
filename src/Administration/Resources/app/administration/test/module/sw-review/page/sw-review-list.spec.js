@@ -82,7 +82,7 @@ describe('module/sw-review/page/sw-review-list', () => {
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(deleteMenuItem.attributes().allowdelete).toBeFalsy();
+        expect(deleteMenuItem.attributes()['allow-delete']).toBeFalsy();
     });
 
     it('should be able to delete', async () => {
@@ -92,7 +92,7 @@ describe('module/sw-review/page/sw-review-list', () => {
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(deleteMenuItem.attributes().allowdelete).toBeTruthy();
+        expect(deleteMenuItem.attributes()['allow-delete']).toBeTruthy();
     });
 
     it('should not be able to edit', async () => {
@@ -100,7 +100,7 @@ describe('module/sw-review/page/sw-review-list', () => {
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(editMenuItem.attributes().allowedit).toBeFalsy();
+        expect(editMenuItem.attributes()['allow-edit']).toBeFalsy();
     });
 
     it('should be able to edit', async () => {
@@ -110,6 +110,6 @@ describe('module/sw-review/page/sw-review-list', () => {
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(editMenuItem.attributes().allowedit).toBeTruthy();
+        expect(editMenuItem.attributes()['allow-edit']).toBeTruthy();
     });
 });

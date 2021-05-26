@@ -5,11 +5,11 @@ exports[`components/form/sw-purchase-price-field should renders correctly 1`] = 
   class="sw-purchase-price-field"
   currency="[object Object]"
   defaultprice="[object Object]"
-  grosslabel="sw-product.priceForm.labelPurchasePriceGross"
+  gross-label="sw-product.priceForm.labelPurchasePriceGross"
   label="true"
   name="sw-purchase-price-field"
-  netlabel="sw-product.priceForm.labelPurchasePriceNet"
+  net-label="sw-product.priceForm.labelPurchasePriceNet"
   price="[object Object]"
-  taxrate="[object Object]"
+  tax-rate="[object Object]"
 />
 `;

@@ -278,7 +278,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: undefined },
             {
                 selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'),
-                attribute: 'showselection',
+                attribute: 'show-selection',
                 expect: 'true'
             }
         ].forEach(element => {

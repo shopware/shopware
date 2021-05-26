@@ -287,7 +287,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(displayAdditionalNoteDeliveryCheckbox.attributes('value')).toBe('true');
         expect(displayAdditionalNoteDeliveryCheckbox.attributes('label'))
             .toBe('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery');
-        expect(deliveryCountriesSelect.attributes('helptext'))
+        expect(deliveryCountriesSelect.attributes('help-text'))
             .toBe('sw-settings-document.detail.helpTextDisplayDeliveryCountries');
         expect(deliveryCountriesSelect.attributes('label'))
             .toBe('sw-settings-document.detail.labelDeliveryCountries');

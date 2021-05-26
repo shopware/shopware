@@ -18,8 +18,8 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
           title="sw-settings.index.tabShop"
         >
           
-                                        sw-settings.index.tabShop
-                                    
+                        sw-settings.index.tabShop
+                    
         </a>
          
         <a
@@ -27,8 +27,8 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
           title="sw-settings.index.tabSystem"
         >
           
-                                        sw-settings.index.tabSystem
-                                    
+                        sw-settings.index.tabSystem
+                    
         </a>
          
         <!---->
@@ -49,7 +49,9 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
         <h1
           class="sw-settings__content-header"
         >
-          sw-settings.index.title
+          
+                        sw-settings.index.title
+                    
         </h1>
          
         <div
@@ -76,7 +78,9 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
               <div
                 class="sw-settings-item__label"
               >
-                a
+                
+            a
+        
               </div>
             </a>
             <a
@@ -95,7 +99,9 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
               <div
                 class="sw-settings-item__label"
               >
-                b
+                
+            b
+        
               </div>
             </a>
             <a
@@ -114,7 +120,9 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
               <div
                 class="sw-settings-item__label"
               >
-                c
+                
+            c
+        
               </div>
             </a>
           </div>
@@ -138,7 +146,9 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
               <div
                 class="sw-settings-item__label"
               >
-                a
+                
+            a
+        
               </div>
             </a>
             <a
@@ -157,7 +167,9 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
               <div
                 class="sw-settings-item__label"
               >
-                h
+                
+            h
+        
               </div>
             </a>
             <a
@@ -176,7 +188,9 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
               <div
                 class="sw-settings-item__label"
               >
-                s
+                
+            s
+        
               </div>
             </a>
           </div>

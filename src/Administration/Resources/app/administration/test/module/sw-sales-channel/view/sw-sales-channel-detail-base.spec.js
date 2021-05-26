@@ -206,7 +206,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = createWrapper();
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="countries"]'
+            'sw-sales-channel-defaults-select-stub[property-name="countries"]'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -218,7 +218,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         ]);
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="countries"]'
+            'sw-sales-channel-defaults-select-stub[property-name="countries"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -228,7 +228,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = createWrapper();
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="languages"]'
+            'sw-sales-channel-defaults-select-stub[property-name="languages"]'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -240,7 +240,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         ]);
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="languages"]'
+            'sw-sales-channel-defaults-select-stub[property-name="languages"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -250,7 +250,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = createWrapper();
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="paymentMethods"]'
+            'sw-sales-channel-defaults-select-stub[property-name="paymentMethods"]'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -262,7 +262,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         ]);
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="paymentMethods"]'
+            'sw-sales-channel-defaults-select-stub[property-name="paymentMethods"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -272,7 +272,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = createWrapper();
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="shippingMethods"]'
+            'sw-sales-channel-defaults-select-stub[property-name="shippingMethods"]'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -284,7 +284,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         ]);
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="shippingMethods"]'
+            'sw-sales-channel-defaults-select-stub[property-name="shippingMethods"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -294,7 +294,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = createWrapper();
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="currencies"]'
+            'sw-sales-channel-defaults-select-stub[property-name="currencies"]'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -306,7 +306,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         ]);
 
         const field = wrapper.find(
-            'sw-sales-channel-defaults-select-stub[propertyname="currencies"]'
+            'sw-sales-channel-defaults-select-stub[property-name="currencies"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -381,7 +381,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             'sw-sales-channel-detail-domains'
         );
 
-        expect(field.attributes().disableedit).toBe('true');
+        expect(field.attributes()['disable-edit']).toBe('true');
     });
 
     it('should have the sales-channel-detail-domains component enabled', async () => {
@@ -399,7 +399,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             'sw-sales-channel-detail-domains'
         );
 
-        expect(field.attributes().disableedit).toBeUndefined();
+        expect(field.attributes()['disable-edit']).toBeUndefined();
     });
 
     it('should have the select field for product export storefront sales channel id disabled', async () => {
@@ -1054,6 +1054,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const field = wrapper.find(
             'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressWhitleList"]'
         );
+
+        console.log('hello', field.attributes());
 
         expect(field.attributes().disabled).toBeUndefined();
     });

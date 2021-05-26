@@ -156,11 +156,12 @@
 
             {% block sw_cms_sidebar_block_overview_preview %}
             <div
-                v-if="block.category === currentBlockCategory && block.hidden !== true"
                 class="sw-cms-sidebar__block-selection"
             >
+                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <div
                     v-for="block in cmsBlocks"
+                    v-if="block.category === currentBlockCategory && block.hidden !== true"
                     :key="block.name"
                 >
 

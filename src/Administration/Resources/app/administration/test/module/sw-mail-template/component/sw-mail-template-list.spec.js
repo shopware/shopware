@@ -139,7 +139,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
         const entityList = wrapper.find('.sw-mail-templates-list-grid');
 
         expect(entityList.exists()).toBeTruthy();
-        expect(entityList.attributes().showselection).toBeFalsy();
+        expect(entityList.attributes()['show-selection']).toBeFalsy();
     });
 
     it('should show item selection if user has delete permission', async () => {
@@ -149,7 +149,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
         const entityList = wrapper.find('.sw-mail-templates-list-grid');
 
         expect(entityList.exists()).toBeTruthy();
-        expect(entityList.attributes().showselection).toBeTruthy();
+        expect(entityList.attributes()['show-selection']).toBeTruthy();
     });
 
     it('should return three skeletons when there are no mail templates', () => {

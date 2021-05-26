@@ -11,7 +11,7 @@
       "labelVisibility": "Sales Channels",
       "closeModal": "Apply",
       "bodyVisibility": "Add Sales Channels in which this product should be displayed. You may further define the product visibility for each Storefront Sales Channel via the link below.",
-      "errorMessage": "Could not fetch default sales channel config."
+      "errorMessage": "Unable to load default Sales Channel configuration."
     },
     "general": {
       "mainMenuItemGeneral": "Products",

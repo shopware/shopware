@@ -11,7 +11,7 @@
       "labelVisibility": "Sichtbarkeit",
       "closeModal": "Übernehmen",
       "bodyVisibility": "Füge Verkaufskanäle hinzu, die dieses Produkt anzeigen. Über den unten stehenden Link kannst Du die Sichtbarkeit des Produktes in Deinen Storefront-Verkausfkanälen weiter beeinflussen.",
-      "errorMessage": "Could not fetch default sales channel config."
+      "errorMessage": "Die Standardkonfiguration des Verkaufskanals konnte nicht geladen werden."
     },
     "general": {
       "mainMenuItemGeneral": "Produkte",

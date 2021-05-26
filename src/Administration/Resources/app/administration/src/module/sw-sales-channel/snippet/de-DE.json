@@ -239,6 +239,12 @@
         "verticalDescription": "Die Mehrwertsteuersumme wird anhand des Bestellungs-Gesamtbetrags errechnet. Die Mehrwertsteueranteile der einzelnen Positionen werden im Bestellabschluss nicht angezeigt. ",
         "horizontalName": "Zeilenweise (horizontale) Berechnung",
         "horizontalDescription": "Die Mehrwertsteuer wird pro Warenkorb-Position berechnet. Die Mehrwertsteueranteile jeder einzelnen Warenkorb-Position werden während des Bestellabschlusses angezeigt. Die Mehrwertsteuersumme berechnet sich aus den Mehrwertsteueranteilen der einzelnen Positionen."
+      },
+      "productAssigmentModal": {
+        "title": "Produkte hinzufügen",
+        "singleProducts": "Einzelne Produkte",
+        "categories": "Nach Kategorien filtern",
+        "dynamicProductGroups": "Nach Dynamischen Produktgruppen filtern"
       }
     },
     "sw-sales-channel-defaults-select": {

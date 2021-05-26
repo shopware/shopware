@@ -18,6 +18,8 @@ import './view/sw-sales-channel-detail-product-comparison';
 import './view/sw-sales-channel-detail-product-comparison-preview';
 import './service/export-template.service';
 import './product-export-templates';
+import './component/sw-sales-channel-products-assignment-modal';
+import './component/sw-sales-channel-products-assignment-single-products';
 
 import './acl';
 

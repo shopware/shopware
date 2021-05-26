@@ -88,12 +88,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             // add products to data collection
             foreach ($products as $product) {
-                $data->set($this->getDataKey($product->getId(), $context), $product);
-
-                if (!Feature::isActive('FEATURE_NEXT_13250')) {
-                    //@major-deprecated tag:v6.5.0 - use self::getDataKey instead to access product data
-                    $data->set('product-' . $product->getId(), $product);
-                }
+                $data->set($this->getDataKey($product->getId()), $product);
             }
 
             $hash = $this->generator->getSalesChannelContextHash($context);
@@ -129,6 +124,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItems = $original
             ->getLineItems()
             ->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        $hash = $this->generator->getSalesChannelContextHash($context);
 
         foreach ($lineItems as $lineItem) {
             $definition = $lineItem->getPriceDefinition();
@@ -192,6 +189,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             $lineItem->setPrice($this->calculator->calculate($definition, $context));
+            $lineItem->setDataContextHash($hash);
 
             $toCalculate->add($lineItem);
         }
@@ -209,7 +207,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $id = $lineItem->getReferencedId();
 
         $product = $data->get(
-            $this->getDataKey((string) $id, $context)
+            $this->getDataKey((string) $id)
         );
 
         // product data was never detected and the product is not inside the data collection
@@ -364,7 +362,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();
 
-            $key = $this->getDataKey((string) $id, $context);
+            $key = $this->getDataKey((string) $id);
 
             // data already fetched?
             if ($data->has($key)) {
@@ -464,8 +462,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         return (int) (floor(($current - $min) / $steps) * $steps + $min);
     }
 
-    private function getDataKey(string $id, SalesChannelContext $context): string
+    private function getDataKey(string $id): string
     {
-        return 'product-' . $id . '-' . $this->generator->getSalesChannelContextHash($context);
+        return 'product-' . $id;
     }
 }

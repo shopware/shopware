@@ -22,7 +22,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
         $connection->expects(static::once())
-            ->method('fetchColumn')
+            ->method('fetchAssociative')
             ->willReturn(false);
 
         $persister = new CartPersister($connection, $eventDispatcher);
@@ -44,9 +44,9 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
         $connection->expects(static::once())
-            ->method('fetchColumn')
+            ->method('fetchAssociative')
             ->willReturn(
-                serialize(new Cart('shopware', 'existing'))
+                ['cart' => serialize(new Cart('shopware', 'existing')), 'rule_ids' => json_encode([])]
             );
 
         $persister = new CartPersister($connection, $eventDispatcher);

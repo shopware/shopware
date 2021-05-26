@@ -82,6 +82,11 @@ class Cart extends Struct
      */
     private $data;
 
+    /**
+     * @var string[]
+     */
+    private array $ruleIds = [];
+
     public function __construct(string $name, string $token)
     {
         $this->name = $name;
@@ -297,5 +302,21 @@ class Cart extends Struct
     public function getApiAlias(): string
     {
         return 'cart';
+    }
+
+    /**
+     * @param string[] $ruleIds
+     */
+    public function setRuleIds(array $ruleIds): void
+    {
+        $this->ruleIds = $ruleIds;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRuleIds(): array
+    {
+        return $this->ruleIds;
     }
 }

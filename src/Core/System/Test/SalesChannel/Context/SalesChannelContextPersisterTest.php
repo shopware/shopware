@@ -275,6 +275,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'name' => 'test',
             'cart' => 'test',
             'price' => 19.5,
+            'rule_ids' => json_encode([]),
             'line_item_count' => 3,
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'shipping_method_id' => Uuid::fromHexToBytes($this->getValidShippingMethodId()),

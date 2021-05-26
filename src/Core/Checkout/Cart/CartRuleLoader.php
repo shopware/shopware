@@ -73,16 +73,18 @@ class CartRuleLoader
     {
         try {
             $cart = $this->cartPersister->load($cartToken, $context);
+
+            return $this->load($context, $cart, new CartBehavior($context->getPermissions()), false);
         } catch (CartTokenNotFoundException $e) {
             $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
-        }
 
-        return $this->loadByCart($context, $cart, new CartBehavior($context->getPermissions()));
+            return $this->load($context, $cart, new CartBehavior($context->getPermissions()), true);
+        }
     }
 
     public function loadByCart(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
     {
-        return $this->load($context, $cart, $behaviorContext);
+        return $this->load($context, $cart, $behaviorContext, false);
     }
 
     public function reset(): void
@@ -91,15 +93,17 @@ class CartRuleLoader
         $this->cache->deleteItem(CachedRuleLoader::CACHE_KEY);
     }
 
-    private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
+    private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $new): RuleLoaderResult
     {
         $rules = $this->loadRules($context->getContext());
 
         // save all rules for later usage
         $all = $rules;
 
+        $ids = $new ? $rules->getIds() : $cart->getRuleIds();
+
         // update rules in current context
-        $context->setRuleIds($rules->getIds());
+        $context->setRuleIds($ids);
 
         $iteration = 1;
 

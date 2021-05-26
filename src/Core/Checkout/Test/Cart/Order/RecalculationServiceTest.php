@@ -209,6 +209,7 @@ class RecalculationServiceTest extends TestCase
         foreach ($cart->getDeliveries() as $delivery) {
             $this->resetDataTimestamps($delivery->getPositions()->getLineItems());
         }
+        $cart->setRuleIds([]);
 
         static::assertEquals($cart, $convertedCart);
     }

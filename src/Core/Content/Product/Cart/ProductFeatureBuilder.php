@@ -10,7 +10,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -26,16 +25,12 @@ class ProductFeatureBuilder
 
     private EntityRepositoryInterface $customFieldRepository;
 
-    private EntityCacheKeyGenerator $generator;
-
     public function __construct(
         EntityRepositoryInterface $languageRepository,
-        EntityRepositoryInterface $customFieldRepository,
-        EntityCacheKeyGenerator $generator
+        EntityRepositoryInterface $customFieldRepository
     ) {
         $this->languageRepository = $languageRepository;
         $this->customFieldRepository = $customFieldRepository;
-        $this->generator = $generator;
     }
 
     public function prepare(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
@@ -48,7 +43,7 @@ class ProductFeatureBuilder
     {
         foreach ($lineItems as $lineItem) {
             $product = $data->get(
-                $this->getDataKey($lineItem->getReferencedId(), $context)
+                $this->getDataKey($lineItem->getReferencedId())
             );
 
             if (!($product instanceof SalesChannelProductEntity)) {
@@ -148,7 +143,7 @@ class ProductFeatureBuilder
         /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
             $product = $data->get(
-                $this->getDataKey((string) $lineItem->getReferencedId(), $context)
+                $this->getDataKey((string) $lineItem->getReferencedId())
             );
 
             if ($product === null || $product->getCustomFields() === null) {
@@ -357,8 +352,8 @@ class ProductFeatureBuilder
         return $labels[$localeCode];
     }
 
-    private function getDataKey(string $id, SalesChannelContext $context): string
+    private function getDataKey(string $id): string
     {
-        return 'product-' . $id . '-' . $this->generator->getSalesChannelContextHash($context);
+        return 'product-' . $id;
     }
 }

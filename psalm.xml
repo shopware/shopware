@@ -135,6 +135,7 @@
                 <file name="src/Core/Checkout/Customer/Validation/Constraint/CustomerVatIdentificationValidator.php"/>
                 <file name="src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/*Serializer.php"/>
                 <file name="src/Storefront/Framework/Seo/SeoUrlRoute/*PageSeoUrlRoute.php"/>
+                <file name="src/Core/Framework/Test/Routing/TestRouteLoader.php"/>
             </errorLevel>
         </ParamNameMismatch>
 

@@ -142,7 +142,6 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         $query->setMaxResults($criteria->getLimit() * 6 + 1);
-        return;
     }
 
     private function getTotalCount(Criteria $criteria, QueryBuilder $query, array $data): int
@@ -151,17 +150,15 @@ class EntitySearcher implements EntitySearcherInterface
             return \count($data);
         }
 
-        $previousLimit = $query->getMaxResults();
         $query->setMaxResults(null);
+        $query->setFirstResult(null);
 
-        $totalQuery = new QueryBuilder($query->getConnection());
-        $totalQuery->select(['COUNT(*)'])
+        $total = new QueryBuilder($query->getConnection());
+        $total->select(['COUNT(*)'])
             ->from(sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());
 
-        $query->setMaxResults($previousLimit);
-
-        return (int) $totalQuery->execute()->fetchNumeric()[0];
+        return (int) $total->execute()->fetchOne();
     }
 
     private function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void

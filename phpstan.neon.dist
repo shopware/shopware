@@ -62,10 +62,13 @@ parameters:
         -
             message: '#Method Shopware\\Storefront\\Framework\\Captcha\\AbstractCaptcha::isValid\(\) invoked with 2 parameters, 1 required\.#'
             path: src/Storefront/Framework/Captcha/CaptchaRouteListener.php
-        # OngrDSL wrong type hint
+        # Library wrong type hint
         -
             message: '#Parameter \#3 \$script of class ONGR\\ElasticsearchDSL\\Aggregation\\Metric\\StatsAggregation constructor expects string\|null, array<string, array\|string> given\.#'
             path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
+        -
+            message: '#Parameter \#1 \$firstResult of method Doctrine\\DBAL\\Query\\QueryBuilder::setFirstResult\(\) expects int, null given\.#'
+            path: src/Core/Framework/DataAbstractionLayer/Dbal/EntitySearcher.php
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -

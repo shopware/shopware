@@ -93,6 +93,7 @@ describe('Snippets: Test acl privileges', () => {
         });
     });
 
+    // TODO: Unskip with NEXT-15489
     it.skip('@settings: Create snippets', () => {
         cy.loginAsUserWithPermissions([
             {

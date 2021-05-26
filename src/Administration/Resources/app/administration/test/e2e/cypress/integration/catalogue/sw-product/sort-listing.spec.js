@@ -66,6 +66,7 @@ describe('Product: Sort grid', () => {
             });
     });
 
+    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15471
     it.skip('@catalogue: sort product listing', () => {
         // Request we want to wait for later
         cy.server();

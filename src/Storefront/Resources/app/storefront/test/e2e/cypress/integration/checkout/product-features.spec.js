@@ -37,6 +37,7 @@ describe('Test if essential characteristics are displayed in checkout', () => {
         });
     });
 
+    // TODO: Unskip with NEXT-15502
     it.skip('@checkout: Should display essential characteristics', () => {
         const page = new CheckoutPageObject();
 

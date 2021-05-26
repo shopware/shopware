@@ -53,6 +53,7 @@ describe('Country: Test crud operations', () => {
             .contains('01.Niemandsland');
     });
 
+    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15487
     it.skip('@settings: update and read country', () => {
         const page = new SettingsPageObject();
 

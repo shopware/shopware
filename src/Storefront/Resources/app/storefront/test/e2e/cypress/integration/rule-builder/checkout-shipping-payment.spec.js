@@ -50,6 +50,7 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         });
     });
 
+    // TODO: Unskip with NEXT-15497
     it.skip('@cart @payment @shipping: Check rule conditions in cart', () => {
         const page = new CheckoutPageObject();
 

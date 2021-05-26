@@ -289,6 +289,7 @@ describe('Order: Read order', () => {
         });
     });
 
+    // TODO: Unskip with NEXT-15481, all checks after line item dbclick are not working because of change detection modal
     it.skip('@base @order: can edit existing line items', () => {
         const page = new OrderPageObject();
 

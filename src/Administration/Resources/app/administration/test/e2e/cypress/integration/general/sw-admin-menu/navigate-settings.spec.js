@@ -48,7 +48,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-page__main-content').should('be.visible');
     });
 
-    it.skip('@navigation: navigate to snippet module', () => {
+    it('@navigation: navigate to snippet module', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/search/snippet-set`,
@@ -60,9 +60,7 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-snippet').click();
-        cy.wait('@getData', {
-            timeout: 30000
-        }).then((xhr) => {
+        cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-grid').should('be.visible');

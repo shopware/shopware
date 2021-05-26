@@ -55,6 +55,7 @@ describe('Currency: Test crud operations', () => {
         });
     });
 
+    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15487
     it.skip('@settings: update and read currency', () => {
         const page = new SettingsPageObject();
 
@@ -88,6 +89,7 @@ describe('Currency: Test crud operations', () => {
             .contains('Kreuzer');
     });
 
+    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15487
     it.skip('@settings: delete currency', () => {
         const page = new SettingsPageObject();
 

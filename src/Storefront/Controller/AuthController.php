@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -36,40 +38,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AuthController extends StorefrontController
 {
-    /**
-     * @var AccountLoginPageLoader
-     */
-    private $loginPageLoader;
+    private AccountLoginPageLoader $loginPageLoader;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRecoveryRepository;
+    private EntityRepositoryInterface $customerRecoveryRepository;
 
-    /**
-     * @var AbstractSendPasswordRecoveryMailRoute
-     */
-    private $sendPasswordRecoveryMailRoute;
+    private AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute;
 
-    /**
-     * @var AbstractResetPasswordRoute
-     */
-    private $resetPasswordRoute;
+    private AbstractResetPasswordRoute $resetPasswordRoute;
 
-    /**
-     * @var AbstractLoginRoute
-     */
-    private $loginRoute;
+    private AbstractLoginRoute $loginRoute;
 
-    /**
-     * @var AbstractLogoutRoute
-     */
-    private $logoutRoute;
+    private AbstractLogoutRoute $logoutRoute;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
@@ -113,6 +94,7 @@ class AuthController extends StorefrontController
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
             'page' => $page,
             'loginError' => (bool) $request->get('loginError'),
+            'waitTime' => $request->get('waitTime'),
             'errorSnippet' => $request->get('errorSnippet'),
             'data' => $data,
         ]);
@@ -133,6 +115,11 @@ class AuthController extends StorefrontController
             $request->request->set('redirectTo', $redirect);
 
             return $this->createActionResponse($request);
+        }
+
+        $waitTime = (int) $request->get('waitTime');
+        if ($waitTime) {
+            $this->addFlash(self::INFO, $this->trans('account.loginThrottled', ['%seconds%' => $waitTime]));
         }
 
         if ((bool) $request->get('loginError')) {
@@ -187,9 +174,13 @@ class AuthController extends StorefrontController
 
                 return $this->createActionResponse($request);
             }
-        } catch (BadCredentialsException | UnauthorizedHttpException | InactiveCustomerException $e) {
+        } catch (BadCredentialsException | UnauthorizedHttpException | InactiveCustomerException | CustomerAuthThrottledException $e) {
             if ($e instanceof InactiveCustomerException) {
                 $errorSnippet = $e->getSnippetKey();
+            }
+
+            if ($e instanceof CustomerAuthThrottledException) {
+                $waitTime = $e->getWaitTime();
             }
         }
 
@@ -200,6 +191,7 @@ class AuthController extends StorefrontController
             [
                 'loginError' => true,
                 'errorSnippet' => $errorSnippet ?? null,
+                'waitTime' => $waitTime ?? null,
             ]
         );
     }
@@ -242,6 +234,8 @@ class AuthController extends StorefrontController
             $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
         } catch (InconsistentCriteriaIdsException $e) {
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
+        } catch (RateLimitExceededException $e) {
+            $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));
         }
 
         return $this->redirectToRoute('frontend.account.recover.page');

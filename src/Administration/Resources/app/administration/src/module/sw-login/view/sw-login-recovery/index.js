@@ -32,13 +32,32 @@ Component.register('sw-login-recovery', {
         sendRecoveryMail() {
             this.$emit('is-loading');
 
-            this.userRecoveryService.createRecovery(this.email).finally(() => {
+            this.userRecoveryService.createRecovery(this.email).then(() => {
                 this.displayRecoveryInfo();
+            }).catch(error => {
+                this.displayRecoveryInfo(error.response.data);
             });
         },
 
-        displayRecoveryInfo() {
-            this.$router.push({ name: 'sw.login.index.recoveryInfo' });
+        displayRecoveryInfo(data = null) {
+            let seconds = 0;
+
+            if (Shopware.Feature.isActive('FEATURE_NEXT_13795') && data !== null) {
+                let error = data?.errors;
+
+                error = Array.isArray(error) ? error[0] : error;
+
+                if (parseInt(error?.status, 10) === 429) {
+                    seconds = error?.meta?.parameters?.seconds;
+                }
+            }
+
+            this.$router.push({
+                name: 'sw.login.index.recoveryInfo',
+                params: {
+                    waitTime: seconds,
+                },
+            });
         },
     },
 });

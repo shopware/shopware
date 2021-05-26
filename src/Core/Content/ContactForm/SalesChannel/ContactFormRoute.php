@@ -9,7 +9,9 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -45,6 +48,10 @@ class ContactFormRoute extends AbstractContactFormRoute
 
     private EntityRepositoryInterface $productRepository;
 
+    private RequestStack $requestStack;
+
+    private RateLimiter $rateLimiter;
+
     public function __construct(
         DataValidationFactoryInterface $contactFormValidationFactory,
         DataValidator $validator,
@@ -54,7 +61,9 @@ class ContactFormRoute extends AbstractContactFormRoute
         EntityRepositoryInterface $salutationRepository,
         EntityRepositoryInterface $categoryRepository,
         EntityRepositoryInterface $landingPageRepository,
-        EntityRepositoryInterface $productRepository
+        EntityRepositoryInterface $productRepository,
+        RequestStack $requestStack,
+        RateLimiter $rateLimiter
     ) {
         $this->contactFormValidationFactory = $contactFormValidationFactory;
         $this->validator = $validator;
@@ -65,6 +74,8 @@ class ContactFormRoute extends AbstractContactFormRoute
         $this->categoryRepository = $categoryRepository;
         $this->landingPageRepository = $landingPageRepository;
         $this->productRepository = $productRepository;
+        $this->requestStack = $requestStack;
+        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractContactFormRoute
@@ -152,6 +163,11 @@ Take a look at the settings of a category containing a concact form in the admin
     public function load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
     {
         $this->validateContactForm($data, $context);
+
+        if (Feature::isActive('FEATURE_NEXT_13795') && ($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
+            $this->rateLimiter->ensureAccepted(RateLimiter::CONTACT_FORM, $request->getClientIp());
+        }
+
         $mailConfigs = $this->getMailConfigs($context, $data->get('slotId'), $data->get('navigationId'), $data->get('entityName'));
 
         $salutationCriteria = new Criteria([$data->get('salutationId')]);

@@ -8,7 +8,8 @@
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
       "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
-      "INVALID_URL": "Bitte gib eine gültige URL ein."
+      "INVALID_URL": "Bitte gib eine gültige URL ein.",
+      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen."
     },
     "default": {
       "add": "Hinzufügen",

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -81,6 +82,14 @@ class FormController extends StorefrontController
                 'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
                     'type' => 'danger',
                     'list' => $violations,
+                ]),
+            ];
+        } catch (RateLimitExceededException $exception) {
+            $response[] = [
+                'type' => 'info',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'info',
+                    'content' => $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]),
                 ]),
             ];
         }

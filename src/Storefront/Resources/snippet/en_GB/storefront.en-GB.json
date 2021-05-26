@@ -68,6 +68,7 @@
     "message-403": "Your session has expired. Please return to the last page and try again.",
     "product-out-of-stock": "%name% is not available at the moment.",
     "auto-promotion-not-found": "Promotion \"%name%\" is no longer valid!",
+    "rateLimitExceeded": "Too many requests. Please wait %seconds% seconds before trying again.",
     "captcha" : {
       "basic-captcha-invalid": "Incorrect input. Please try again."
     }
@@ -89,6 +90,7 @@
     "loginPasswordRecover": "I have forgotten my password.",
     "loginSubmit": "Login",
     "loginBadCredentials": "Could not find an account that matches the given credentials.",
+    "loginThrottled": "Too many login attempts. Please wait %seconds% seconds before trying to log in again.",
     "registerAdvantagesHeader": "Login advantages:",
     "registerAdvantage1": "Express shopping",
     "registerAdvantage2": "Save your data and settings",

@@ -125,6 +125,21 @@ class UserRecoveryService
         return true;
     }
 
+    public function getUserByHash(string $hash, Context $context): ?UserEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('hash', $hash));
+        $criteria->addAssociation('user');
+
+        $user = $this->getUserRecovery($criteria, $context);
+
+        if ($user === null) {
+            return null;
+        }
+
+        return $user->getUser();
+    }
+
     private function getUserByEmail(string $userEmail, Context $context): ?UserEntity
     {
         $criteria = new Criteria();

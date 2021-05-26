@@ -8,7 +8,8 @@
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "The type can not be assigned while category is an entry point.",
       "SHOPWARE_INVALID_IP": "Please enter a valid IP address.",
-      "INVALID_URL": "Please enter a valid url."
+      "INVALID_URL": "Please enter a valid url.",
+      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again."
     },
     "default": {
       "add": "Add",

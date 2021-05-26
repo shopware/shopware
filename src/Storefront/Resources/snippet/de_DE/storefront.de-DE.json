@@ -68,6 +68,7 @@
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",
     "product-out-of-stock": "%name% ist momentan nicht verfügbar.",
     "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht mehr gültig!",
+    "rateLimitExceeded": "Zu viele Anfragen. Bitte warten Sie %seconds% Sekunden, bevor Sie es erneut versuchen.",
     "captcha" : {
       "basic-captcha-invalid": "Eingabe ungültig. Bitte versuchen Sie es erneut."
     }
@@ -89,6 +90,7 @@
     "loginPasswordRecover": "Ich habe mein Passwort vergessen.",
     "loginSubmit": "Anmelden",
     "loginBadCredentials": "Es konnte kein Account mit den angegebenen Zugangsdaten gefunden werden.",
+    "loginThrottled": "Zu viele Anmeldeversuche. Bitte warten Sie %seconds% Sekunden, bevor Sie erneut versuchen, sich anzumelden.",
     "registerAdvantagesHeader": "Vorteile einer Registrierung:",
     "registerAdvantage1": "Schnelles Einkaufen",
     "registerAdvantage2": "Speichern Sie Ihre Daten und Einstellungen.",

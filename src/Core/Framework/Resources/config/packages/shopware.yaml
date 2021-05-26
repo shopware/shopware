@@ -32,6 +32,68 @@ shopware:
             auth_required: true
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
+        rate_limiter:
+            login:
+                policy: 'time_backoff'
+                reset: '24 hours' # reset limit after this time if no more requests failed
+                limits:
+                    - limit: 10
+                      interval: '10 seconds'
+                    - limit: 15
+                      interval: '30 seconds'
+                    - limit: 20
+                      interval: '60 seconds'
+            guest_login:
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 10
+                      interval: '10 seconds'
+                    - limit: 15
+                      interval: '30 seconds'
+                    - limit: 20
+                      interval: '60 seconds'
+            oauth:
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 10
+                      interval: '10 seconds'
+                    - limit: 15
+                      interval: '30 seconds'
+                    - limit: 20
+                      interval: '60 seconds'
+            reset_password:
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
+            user_recovery:
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
+            contact_form:
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
+
     admin_worker:
         enable_admin_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
@@ -228,6 +290,11 @@ shopware:
               major: true
               description: "VAT id field for guest"
               # issue: NEXT-15957
+            - name: FEATURE_NEXT_13795
+              default: false
+              major: false
+              description: "Rate Limiting against Login Bruteforce"
+              # issue: NEXT-13795
 
     logger:
         file_rotation_count: 14

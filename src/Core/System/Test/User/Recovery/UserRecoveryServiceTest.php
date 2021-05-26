@@ -156,6 +156,23 @@ class UserRecoveryServiceTest extends TestCase
         static::assertNotEquals($passwordBefore, $passwordAfter);
     }
 
+    public function testGetUserByHash(): void
+    {
+        $this->createRecovery(static::VALID_EMAIL);
+
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+
+        $hash = $this->userRecoveryRepo->search($criteria, $this->context)->first()->getHash();
+
+        $invalid = $this->userRecoveryService->getUserByHash('invalid', $this->context);
+        static::assertNull($invalid);
+
+        $valid = $this->userRecoveryService->getUserByHash($hash, $this->context);
+        static::assertNotNull($valid);
+        static::assertEquals(static::VALID_EMAIL, $valid->getEmail());
+    }
+
     private function createRecovery(string $email): void
     {
         $this->userRecoveryService->generateUserRecovery(

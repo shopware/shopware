@@ -22,6 +22,7 @@
       "messageInvalidRefreshToken": "Invalid refresh token.",
       "messageAccessDenied": "Request denied by authorization server.",
       "messageGeneralRequestError": "Something went wrong requesting \"{url}\".",
+      "messageAuthThrottled": "Too many login attempts. Please wait {seconds} seconds before trying to log in again.",
       "forgottenPasswordLink": "Did you forget your password?"
     },
     "recovery" : {

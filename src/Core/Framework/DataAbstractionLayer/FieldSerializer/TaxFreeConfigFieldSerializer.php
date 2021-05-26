@@ -30,11 +30,9 @@ class TaxFreeConfigFieldSerializer extends JsonFieldSerializer
     }
 
     /**
-     * @param string|null $value
-     *
-     * @return TaxFreeConfig|null
+     * @deprecated tag:v6.5.0 The parameter $value will be native typed
      */
-    public function decode(Field $field, $value)
+    public function decode(Field $field, /*?string */$value): ?TaxFreeConfig
     {
         if ($value === null) {
             return null;

@@ -13,15 +13,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
 {
-    /**
-     * @var bool
-     */
-    private $blueGreenEnabled;
+    private bool $blueGreenEnabled;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(bool $blueGreenEnabled, Connection $connection)
     {
@@ -29,7 +23,7 @@ class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
         $this->connection = $connection;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             CountryEvents::COUNTRY_WRITTEN_EVENT => 'updated',

@@ -7,12 +7,9 @@
     :is-loading="isLoading"
 >
 
-    <sw-alert
-        variant="error"
-        class="sw-license-violation__alert"
-    >
+    <span class="sw-license-violation__text">
         {{ $tc('sw-license-violation.alertText') }}
-    </sw-alert>
+    </span>
 
     <table class="sw-license-violation__table">
         <tr>
@@ -34,11 +31,9 @@
                         v-if="getPluginForViolation(violation).icon || getPluginForViolation(violation).iconRaw"
                         :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
                     >
-                    <p>
-                        <strong>{{ (getPluginForViolation(violation).translated &&
-                            getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label
-                        }}</strong>
-                    </p>
+                    <strong>{{ (getPluginForViolation(violation).translated &&
+                        getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label
+                    }}</strong>
                 </template>
 
                 <template v-else>
@@ -56,13 +51,14 @@
                     :key="action.externalLink"
                     class="sw-license-violation__table-actions-wrap"
                 >
-                    <a
+                    <sw-button
                         class="sw-license-violation__table-action-remove"
-                        href="#"
+                        variant="ghost-danger"
+                        size="small"
                         @click.prevent="deletePlugin(violation)"
                     >
                         {{ $tc('sw-license-violation.deletePlugin') }}
-                    </a>
+                    </sw-button>
 
                     <sw-button
                         :link="action.externalLink"

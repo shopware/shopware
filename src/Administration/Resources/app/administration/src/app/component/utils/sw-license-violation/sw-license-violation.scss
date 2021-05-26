@@ -9,29 +9,23 @@
 
     .sw-modal__body {
         font-size: $font-size-small;
-        padding: 0;
     }
 
-    .sw-license-violation__alert {
-        margin: 20px;
+    .sw-license-violation__text {
+        display: block;
         line-height: 1.5;
-
-        a {
-            text-decoration: none;
-            color: $color-shopware-brand-500;
-
-            &:hover {
-                text-decoration: none;
-            }
-        }
     }
 
     .sw-license-violation__table {
         border-collapse: collapse;
-        margin: 25px 10px 0 10px;
+        margin: 25px 0 0;
 
         tr {
             border-bottom: 1px solid $color-gray-300;
+        }
+
+        > :last-child {
+            border-bottom: 0;
         }
 
         th,
@@ -49,6 +43,10 @@
             max-width: 40px;
             margin-right: 10px;
         }
+
+        strong {
+            transform: translateY(-4px);
+        }
     }
 
     td.sw-license-violation__table-actions {
@@ -62,8 +60,6 @@
     }
 
     .sw-license-violation__table-action-remove {
-        color: $color-crimson-500;
-        text-decoration: none;
         margin-right: 8px;
     }
 

@@ -77,7 +77,9 @@
                                            :disableDataFetching="true"
                                            @inline-edit-save="onInlineEditSave"
                                            @selection-change="updateSelection"
-                                           @update-records="updateTotal">
+                                           @update-records="updateTotal"
+                                           @bulk-edit-modal-open="onBulkEditModalOpen"
+                                           :allowBulkEdit="acl.can('product.editor')">
                             {% block sw_product_list_grid_columns %}
                                 {% block sw_product_list_grid_columns_name_preview %}
                                     <template #preview-name="{ item }">
@@ -169,6 +171,18 @@
                                         {% endblock %}
                                     </template>
                                 {% endblock %}
+                            {% endblock %}
+
+                            {% block sw_product_list_bulk_edit_modal %}
+                                <template #bulk-edit-modal="{ selection }">
+                                    <sw-product-bulk-edit-modal
+                                        v-if="showBulkEditModal"
+                                        :selection="selection"
+                                        :bulkGridEditColumns="productBulkEditColumns"
+                                        :currencies="currencies"
+                                        @modal-close="showBulkEditModal = false">
+                                    </sw-product-bulk-edit-modal>
+                                </template>
                             {% endblock %}
                         </sw-entity-listing>
 

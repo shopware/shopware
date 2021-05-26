@@ -3,34 +3,57 @@
 {% endblock %}
 
 {% block sw_data_grid_bulk_selected_actions_content %}
-    <a class="link link-danger" v-if="allowDelete" @click="showBulkDeleteModal = true">
-        {{ $tc('global.default.delete') }}
-    </a>
+    {% block sw_data_grid_bulk_edit_content %}
+        <a class="link link-primary" v-if="feature.isActive('FEATURE_NEXT_6061') && allowBulkEdit" @click="onClickBulkEdit">
+            {{ $tc('global.default.bulkEdit') }}
+        </a>
+    {% endblock %}
+
+    {% block sw_data_grid_bulk_delete_content %}
+        <a class="link link-danger" v-if="allowDelete" @click="showBulkDeleteModal = true">
+            {{ $tc('global.default.delete') }}
+        </a>
+    {% endblock %}
 {% endblock %}
 
 {% block sw_data_grid_slot_bulk_modals %}
-    <sw-modal v-if="showBulkDeleteModal"
-              @modal-close="showBulkDeleteModal = false"
-              :title="$tc('global.default.warning')"
-              variant="small">
-        <p class="sw-data-grid__confirm-bulk-delete-text">
-            {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
-        </p>
+    {% block sw_data_grid_bulk_edit_modal %}
+        <slot name="bulk-edit-modal" v-bind="{ selection }">
+            {% block sw_data_grid_slot_bulk_edit_modal %}
+                <sw-bulk-edit-modal
+                    v-if="showBulkEditModal"
+                    :selection="selection"
+                    :bulkGridEditColumns="bulkGridEditColumns"
+                    @modal-close="onCloseBulkEditModal">
+                </sw-bulk-edit-modal>
+            {% endblock %}
+        </slot>
+    {% endblock %}
 
-        <template #modal-footer>
-            <slot name="bulk-modal-cancel">
-                <sw-button @click="showBulkDeleteModal = false" size="small">
-                    {{ $tc('global.default.cancel') }}
-                </sw-button>
-            </slot>
+    {% block sw_data_grid_bulk_delete_modal %}
+        <sw-modal v-if="showBulkDeleteModal"
+                  variant="small"
+                  :title="$tc('global.default.warning')"
+                  @modal-close="showBulkDeleteModal = false">
+            <p class="sw-data-grid__confirm-bulk-delete-text">
+                {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
+            </p>
 
-            <slot name="bulk-modal-delete-items">
-                <sw-button @click="deleteItems" variant="danger" size="small" :isLoading="isBulkLoading">
-                    {{ $tc('global.default.delete') }}
-                </sw-button>
-            </slot>
-        </template>
-    </sw-modal>
+            <template #modal-footer>
+                <slot name="bulk-modal-cancel">
+                    <sw-button @click="showBulkDeleteModal = false" size="small">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                </slot>
+
+                <slot name="bulk-modal-delete-items">
+                    <sw-button @click="deleteItems" variant="danger" size="small" :isLoading="isBulkLoading">
+                        {{ $tc('global.default.delete') }}
+                    </sw-button>
+                </slot>
+            </template>
+        </sw-modal>
+    {% endblock %}
 {% endblock %}
 
 {% block sw_data_grid_slot_actions %}

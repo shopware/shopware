@@ -31,7 +31,10 @@
       "xTimesIn": "{n} times in",
       "close": "Close",
       "from": "From",
-      "to": "To"
+      "to": "To",
+      "bulkEdit": "Bulk edit",
+      "startBulkEdit": "Start bulk edit",
+      "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",

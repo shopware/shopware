@@ -31,7 +31,10 @@
       "xTimesIn": "{n} mal in",
       "close": "Schließen",
       "from": "Von",
-      "to": "Bis"
+      "to": "Bis",
+      "bulkEdit": "Mehrfach-Bearbeitung",
+      "startBulkEdit": "Beginne die Mehrfach-Bearbeitung",
+      "bulkEditModalTitle": "Mehrfach-Bearbeitung - {count} Element ausgewählt | Mehrfach-Bearbeitung - {count} Elemente ausgewählt"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

@@ -209,7 +209,7 @@ describe('Product: Testing filter and reset filter', () => {
             cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
             // Check if Reset All button shows up
             cy.get('.sw-sidebar-item__headline a').should('exist');
-            cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
+            cy.get('#active-filter').find('.sw-base-filter__reset').should('exist');
         });
 
         cy.get('.sw-filter-panel').should('exist');
@@ -221,35 +221,34 @@ describe('Product: Testing filter and reset filter', () => {
         });
 
         // Filter results with single criteria
-        cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
+        cy.get('#active-filter').find('select').select('true');
         cy.wait('@filterProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-page__smart-bar-amount').contains('26');
 
-        cy.get('.sw-filter-panel__item').eq(0).find('select').select('false');
+        cy.get('#active-filter').find('select').select('false');
         cy.wait('@filterProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-page__smart-bar-amount').contains('2');
 
         // Check notification badge after filtering
-        cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('exist');
-        cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '1');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '1');
 
         // Combine multiple filter criterias
-        cy.get('.sw-filter-panel__item').eq(2).find('select').select('true');
+        cy.get('#product-without-images-filter').find('select').select('true');
         cy.wait('@filterProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-page__smart-bar-amount').contains('1');
 
-        cy.get('.sw-filter-panel__item').eq(2).find('select').select('false');
+        cy.get('#product-without-images-filter').find('select').select('false');
         cy.wait('@filterProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-page__smart-bar-amount').contains('1');
-        cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '2');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
     });
 
     it('@catalogue: check reset filter', () => {
@@ -274,18 +273,18 @@ describe('Product: Testing filter and reset filter', () => {
         cy.get('.sw-sidebar-item__headline a').click();
 
         // Check Reset button when filter is active
-        cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
+        cy.get('#active-filter').find('select').select('true');
+        cy.get('#active-filter').find('.sw-base-filter__reset').should('exist');
 
         // Click Reset button to reset filter
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').click();
+        cy.get('#active-filter').find('.sw-base-filter__reset').click();
 
         cy.wait('@getUserConfig').then((xhr) => {
-            cy.get('.sw-filter-panel__item').eq(0).find('option:selected').should('have.value', '');
+            cy.get('#active-filter').find('option:selected').should('have.value', '');
         });
 
         // Reset All button should show up when there is active filter
-        cy.get('.sw-filter-panel__item').eq(2).find('select').select('true');
+        cy.get('#product-without-images-filter').find('select').select('true');
         cy.get('.sw-sidebar-item__headline a').should('exist');
 
         // Click Reset All button

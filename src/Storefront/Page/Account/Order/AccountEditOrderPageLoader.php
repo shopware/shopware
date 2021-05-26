@@ -155,13 +155,13 @@ class AccountEditOrderPageLoader
         $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
         $routeRequest->query->set('onlyAvailable', '1');
 
-        $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
+        $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
         return $this->paymentMethodRoute->load(
             $event->getStoreApiRequest(),
             $context,
-            new Criteria()
+            $event->getCriteria()
         )->getPaymentMethods();
     }
 

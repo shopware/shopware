@@ -1,7 +1,7 @@
-/// <reference types='Cypress' />
+// / <reference types='Cypress' />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
-import ProductStreamObject from "../../../support/pages/module/sw-product-stream.page-object";
+import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
 describe('Dynamic product group: Add custom fields to condition', () => {
     beforeEach(() => {
@@ -20,7 +20,7 @@ describe('Dynamic product group: Add custom fields to condition', () => {
             });
     });
 
-    it('@visual: can create dynamic product group with custom field', () => {
+    it.skip('@visual: can create dynamic product group with custom field', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,

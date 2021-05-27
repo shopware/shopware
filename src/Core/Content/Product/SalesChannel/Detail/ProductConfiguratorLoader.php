@@ -209,7 +209,7 @@ class ProductConfiguratorLoader
         $keyMap = $groups->getOptionIdMap();
 
         $current = [];
-        foreach ($product->getOptionIds() as $optionId) {
+        foreach ($product->getOptionIds() ?? [] as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {
                 continue;

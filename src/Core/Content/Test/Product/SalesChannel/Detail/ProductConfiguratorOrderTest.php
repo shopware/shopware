@@ -86,6 +86,12 @@ class ProductConfiguratorOrderTest extends TestCase
         static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
+    public function testOrderWithoutOptions(): void
+    {
+        $groupNames = $this->getOrder([], [], []);
+        static::assertEquals([], $groupNames);
+    }
+
     private static function ashuffle(array &$a)
     {
         $keys = array_keys($a);
@@ -99,13 +105,16 @@ class ProductConfiguratorOrderTest extends TestCase
         return true;
     }
 
-    private function getOrder(?array $groupPositionOrder = null, ?array $configuratorGroupConfigOrder = null): array
-    {
+    private function getOrder(
+        ?array $groupPositionOrder = null,
+        ?array $configuratorGroupConfigOrder = null,
+        ?array $groupIds = null
+    ): array {
         // create product with property groups and 1 variant and get its configurator settings
         $productId = Uuid::randomHex();
         $variantId = Uuid::randomHex();
 
-        $groupIds = [
+        $groupIds ??= [
             'a' => Uuid::randomHex(),
             'b' => Uuid::randomHex(),
             'c' => Uuid::randomHex(),

@@ -73,9 +73,9 @@
         <service id="Shopware\Storefront\Theme\ThemeLifecycleHandler">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
-            <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
 

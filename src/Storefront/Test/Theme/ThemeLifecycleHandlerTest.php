@@ -56,9 +56,9 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeLifecycleHandler = new ThemeLifecycleHandler(
             $this->getContainer()->get(ThemeLifecycleService::class),
             $this->themeServiceMock,
-            $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get('theme.repository'),
-            $this->configurationRegistryMock
+            $this->configurationRegistryMock,
+            $this->getContainer()->get(Connection::class)
         );
 
         $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);

@@ -15,5 +15,32 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
+        <service id="Shopware\Core\Content\Flow\FlowDispatcher" decorates="event_dispatcher" decoration-priority="1000">
+            <argument type="service" id="Shopware\Core\Content\Flow\FlowDispatcher.inner"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\FlowExecutor" public="true">
+            <argument type="service" id="event_dispatcher" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Action\AddOrderTagAction">
+            <argument type="service" id="order_tag.repository" />
+            <tag name="kernel.event_subscriber" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\FlowCacheClearer">
+            <argument type="service" id="Shopware\Core\Content\Flow\FlowDispatcher"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
     </services>
 </container>

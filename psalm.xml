@@ -202,6 +202,13 @@
             </errorLevel>
         </RedundantPropertyInitializationCheck>
 
+        <!-- This will be removed after removing flag FEATURE_NEXT_8225 -->
+        <UnnecessaryVarAnnotation>
+            <errorLevel type="suppress">
+                <file name="src/Core/Content/Flow/FlowDispatcher.php" />
+            </errorLevel>
+        </UnnecessaryVarAnnotation>
+
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 
         <DeprecatedMethod errorLevel="info"/>

@@ -23,6 +23,7 @@ class Migration1621845370AddFlowSequence extends MigrationStep
                 `action_name`           VARCHAR(255)    NULL,
                 `config`                JSON            NULL,
                 `position`              INT(11)         NOT NULL DEFAULT 1,
+                `display_group`         INT(11)         NOT NULL DEFAULT 1,
                 `true_case`             TINYINT(1)      NOT NULL DEFAULT 0,
                 `custom_fields`         JSON            NULL,
                 `created_at`            DATETIME(3)     NOT NULL,

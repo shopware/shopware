@@ -62,7 +62,7 @@ class FlowSequenceEntity extends Entity
     protected $actionName;
 
     /**
-     * @var array|null
+     * @var array
      */
     protected $config;
 
@@ -70,6 +70,11 @@ class FlowSequenceEntity extends Entity
      * @var int
      */
     protected $position;
+
+    /**
+     * @var int
+     */
+    protected $displayGroup;
 
     /**
      * @var bool
@@ -156,7 +161,7 @@ class FlowSequenceEntity extends Entity
         $this->actionName = $actionName;
     }
 
-    public function getConfig(): ?array
+    public function getConfig(): array
     {
         return $this->config;
     }
@@ -174,6 +179,16 @@ class FlowSequenceEntity extends Entity
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function getDisplayGroup(): int
+    {
+        return $this->displayGroup;
+    }
+
+    public function setDisplayGroup(int $displayGroup): void
+    {
+        $this->displayGroup = $displayGroup;
     }
 
     public function isTrueCase(): bool

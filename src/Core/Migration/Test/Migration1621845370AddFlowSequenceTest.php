@@ -22,6 +22,7 @@ class Migration1621845370AddFlowSequenceTest extends TestCase
         static::assertContains('rule_id', $flowSequenceColumns);
         static::assertContains('config', $flowSequenceColumns);
         static::assertContains('position', $flowSequenceColumns);
+        static::assertContains('display_group', $flowSequenceColumns);
         static::assertContains('true_case', $flowSequenceColumns);
         static::assertContains('custom_fields', $flowSequenceColumns);
         static::assertContains('created_at', $flowSequenceColumns);

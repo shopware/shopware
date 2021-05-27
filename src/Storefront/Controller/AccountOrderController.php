@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
+use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\HandlePaymentMethodRouteRequestEvent;
@@ -43,7 +43,7 @@ class AccountOrderController extends StorefrontController
     private $orderPageLoader;
 
     /**
-     * @var ContextSwitchRoute
+     * @var AbstractContextSwitchRoute
      */
     private $contextSwitchRoute;
 
@@ -90,7 +90,7 @@ class AccountOrderController extends StorefrontController
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
         AccountEditOrderPageLoader $accountEditOrderPageLoader,
-        ContextSwitchRoute $contextSwitchRoute,
+        AbstractContextSwitchRoute $contextSwitchRoute,
         AbstractCancelOrderRoute $cancelOrderRoute,
         AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
         AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute,

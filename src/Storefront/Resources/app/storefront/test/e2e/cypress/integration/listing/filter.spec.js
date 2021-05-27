@@ -4,7 +4,18 @@ import generalPageObject from "../../support/pages/general.page-object";
 
 describe("Filter on startpage", () => {
     beforeEach(() => {
-        cy.visit("/");
+        cy.setToInitialState()
+            .then(() => {
+                // Takes care on API authorization
+                cy.loginViaApi();
+            })
+            .then(() => {
+                // Creates a product with manufacturer
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                cy.visit("/");
+            });
     });
 
     it("Filter for manufacturer", () => {
@@ -12,7 +23,7 @@ describe("Filter on startpage", () => {
 
         const actualItems = 24;
         const filteredItems = 1;
-        const manufacturer = "Armstrong Group";
+        const manufacturer = "shopware AG";
 
         cy.get(page.elements.productCard).as("productCard");
 

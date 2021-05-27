@@ -253,6 +253,7 @@
     >
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
         <sw-entity-single-select
+            v-model="productExport.storefrontSalesChannelId"
             class="sw-sales-channel-detail__product-comparison-storefront"
             :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
             :criteria="storefrontSalesChannelCriteria"
@@ -260,7 +261,6 @@
             :disabled="!acl.can('sales_channel.editor')"
             value-property="id"
             entity="sales_channel"
-            v-model="productExport.storefrontSalesChannelId"
             required
             @change="onStorefrontSelectionChange"
         />
@@ -268,6 +268,7 @@
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
         <sw-entity-single-select
+            v-model="productExport.salesChannelDomainId"
             class="sw-sales-channel-detail__product-comparison-domain"
             :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomain')"
             :criteria="storefrontSalesChannelDomainCriteria"
@@ -275,7 +276,6 @@
             value-property="id"
             entity="sales_channel_domain"
             required
-            v-model="productExport.salesChannelDomainId"
             :disabled="(!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId) || !acl.can('sales_channel.editor')"
             :error="productExportSalesChannelDomainIdError"
             @change="onStorefrontDomainSelectionChange"

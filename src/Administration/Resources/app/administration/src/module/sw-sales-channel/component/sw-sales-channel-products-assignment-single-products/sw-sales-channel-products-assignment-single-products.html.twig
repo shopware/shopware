@@ -1,56 +1,60 @@
 {% block sw_sales_channel_products_assignment_single_products %}
-    <sw-container class="sw-sales-channel-products-assignment-single-products">
-        {% block sw_sales_channel_products_assignment_single_products_card %}
-            <sw-card :isLoading="isLoading">
-                <sw-container rows="auto 500px">
-                    {% block sw_sales_channel_products_assignment_single_products_secondary %}
-                        <sw-card-section secondary>
-                            {% block sw_sales_channel_products_assignment_single_products_search_field %}
-                                <sw-simple-search-field
-                                    v-model="searchTerm"
-                                    variant="form"
-                                    size="small"
-                                    @search-term-change="onChangeSearchTerm">
-                                </sw-simple-search-field>
-                            {% endblock %}
-                        </sw-card-section>
-                    {% endblock %}
+<sw-container class="sw-sales-channel-products-assignment-single-products">
+    {% block sw_sales_channel_products_assignment_single_products_card %}
+    <sw-card :is-loading="isLoading">
+        <sw-container rows="auto 500px">
+            {% block sw_sales_channel_products_assignment_single_products_secondary %}
+            <sw-card-section secondary>
+                {% block sw_sales_channel_products_assignment_single_products_search_field %}
+                <sw-simple-search-field
+                    v-model="searchTerm"
+                    variant="form"
+                    size="small"
+                    @search-term-change="onChangeSearchTerm"
+                />
+                {% endblock %}
+            </sw-card-section>
+            {% endblock %}
 
-                    {% block sw_sales_channel_products_assignment_single_products_primary %}
-                        <sw-card-section class="sw-sales-channel-products-assignment-single-products-primary" divider="top">
-                            {% block sw_sales_channel_products_assignment_single_products_primary_listing %}
-                                <sw-entity-listing
-                                    v-if="products.length > 0"
-                                    ref="entityListing"
-                                    identifier="sw-sales-channel-detail-products-list"
-                                    :repository="productRepository"
-                                    :items="products"
-                                    :columns="productColumns"
-                                    :plainAppearance="true"
-                                    :skeletonItemAmount="skeletonItemAmount"
-                                    :isLoading="isLoading"
-                                    :allowInlineEdit="false"
-                                    :allowDelete="false"
-                                    :showActions="false"
-                                    @selection-change="onSelectionChange">
-                                </sw-entity-listing>
-                            {% endblock %}
+            {% block sw_sales_channel_products_assignment_single_products_primary %}
+            <sw-card-section
+                class="sw-sales-channel-products-assignment-single-products-primary"
+                divider="top"
+            >
+                {% block sw_sales_channel_products_assignment_single_products_primary_listing %}
+                <sw-entity-listing
+                    v-if="products.length > 0"
+                    ref="entityListing"
+                    identifier="sw-sales-channel-detail-products-list"
+                    :repository="productRepository"
+                    :items="products"
+                    :columns="productColumns"
+                    :plain-appearance="true"
+                    :skeleton-item-amount="skeletonItemAmount"
+                    :is-loading="isLoading"
+                    :allow-inline-edit="false"
+                    :allow-delete="false"
+                    :show-actions="false"
+                    @selection-change="onSelectionChange"
+                />
+                {% endblock %}
 
-                            {% block sw_sales_channel_products_assignment_single_products_primary_empty_state %}
-                                <sw-empty-state
-                                    v-else
-                                    :showDescription="false"
-                                    :absolute="false"
-                                    :title="$tc('sw-sales-channel.detail.products.titleEmptyState')">
-                                    <template #icon>
-                                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
-                                    </template>
-                                </sw-empty-state>
-                            {% endblock %}
-                        </sw-card-section>
-                    {% endblock %}
-                </sw-container>
-            </sw-card>
-        {% endblock %}
-    </sw-container>
+                {% block sw_sales_channel_products_assignment_single_products_primary_empty_state %}
+                <sw-empty-state
+                    v-else
+                    :show-description="false"
+                    :absolute="false"
+                    :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
+                >
+                    <template #icon>
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                    </template>
+                </sw-empty-state>
+                {% endblock %}
+            </sw-card-section>
+            {% endblock %}
+        </sw-container>
+    </sw-card>
+    {% endblock %}
+</sw-container>
 {% endblock %}

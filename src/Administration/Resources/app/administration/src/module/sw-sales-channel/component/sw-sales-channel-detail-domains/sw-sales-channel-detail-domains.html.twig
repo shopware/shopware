@@ -76,8 +76,8 @@
                     {% block sw_sales_channel_detail_domains_column_action_domain_delete %}
                     <sw-context-menu-item
                         :disabled="disableEdit"
-                        @click="onClickDeleteDomain(item)"
                         variant="danger"
+                        @click="onClickDeleteDomain(item)"
                     >
                         {{ $tc('sw-sales-channel.detail.buttonDeleteDomain') }}
                     </sw-context-menu-item>

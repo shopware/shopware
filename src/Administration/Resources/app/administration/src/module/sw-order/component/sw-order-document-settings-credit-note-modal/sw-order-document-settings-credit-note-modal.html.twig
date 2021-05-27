@@ -29,8 +29,12 @@
     <dt>{{ $tc('sw-order.documentModal.labelHighlightedItemsHeader') }}</dt>
     <dd>{{ $tc('sw-order.documentModal.labelHighlightedItemsEntry') }}</dd>
     <template v-for="(item, index) in highlightedItems">
-        <dt :key="`dt-${index}`">{{ item.label }}</dt>
-        <dd :key="`dd-${index}`">{{ item.totalPrice | currency(order.currency.shortName) }}</dd>
+        <dt :key="`dt-${index}`">
+            {{ item.label }}
+        </dt>
+        <dd :key="`dd-${index}`">
+            {{ item.totalPrice | currency(order.currency.shortName) }}
+        </dd>
     </template>
 </sw-description-list>
 <div

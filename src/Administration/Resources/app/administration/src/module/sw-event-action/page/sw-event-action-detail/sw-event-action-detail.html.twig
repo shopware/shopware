@@ -106,8 +106,8 @@
 
                 <sw-entity-single-select
                     v-if="eventAction"
-                    class="sw-event-action-detail__mail-template-select"
                     v-model="eventAction.config.mail_template_id"
+                    class="sw-event-action-detail__mail-template-select"
                     entity="mail_template"
                     :criteria="mailTemplateCriteria"
                     :label="$tc('sw-event-action.detail.fieldMailTemplate')"

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Action;
 
+use Shopware\Core\Framework\Event\FlowEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -18,4 +19,6 @@ abstract class FlowAction implements EventSubscriberInterface
     abstract public function requirements(): array;
 
     abstract public function getName(): string;
+
+    abstract public function handle(FlowEvent $event): void;
 }

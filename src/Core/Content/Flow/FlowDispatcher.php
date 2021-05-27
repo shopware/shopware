@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Flow;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Psr\EventDispatcher\StoppableEventInterface;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -20,13 +19,20 @@ class FlowDispatcher implements EventDispatcherInterface
 {
     private EventDispatcherInterface $dispatcher;
 
-    private ?FlowCollection $flows = null;
-
     private ContainerInterface $container;
 
-    public function __construct(EventDispatcherInterface $dispatcher)
-    {
+    private AbstractFlowLoader $flowLoader;
+
+    private LoggerInterface $logger;
+
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        AbstractFlowLoader $flowLoader,
+        LoggerInterface $logger
+    ) {
         $this->dispatcher = $dispatcher;
+        $this->flowLoader = $flowLoader;
+        $this->logger = $logger;
     }
 
     public function setContainer(ContainerInterface $container): void
@@ -41,9 +47,19 @@ class FlowDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        if ($event instanceof BusinessEventInterface) {
-            $this->callFlowExecutor($event);
+        if (!$event instanceof BusinessEventInterface) {
+            return $event;
         }
+
+        if ($event instanceof BusinessEvent || $event instanceof FlowEvent) {
+            return $event;
+        }
+
+        if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
+            return $event;
+        }
+
+        $this->callFlowExecutor($event);
 
         return $event;
     }
@@ -96,62 +112,31 @@ class FlowDispatcher implements EventDispatcherInterface
         return $this->dispatcher->hasListeners($eventName);
     }
 
-    public function clearInternalFlowCache(): void
-    {
-        $this->flows = null;
-    }
-
     private function callFlowExecutor(BusinessEventInterface $event): void
     {
-        $flowsForEvent = $this->getFlows($event->getName());
+        $flows = $this->flowLoader->load($event->getName());
 
-        if ($flowsForEvent->count() === 0) {
+        if ($flows->count() === 0) {
             return;
         }
 
-        foreach ($flowsForEvent as $flow) {
-            if (!$this->container->has(FlowExecutor::class)) {
-                throw new ServiceNotFoundException(FlowExecutor::class);
-            }
+        /** @var FlowExecutor|null $flowExecutor */
+        $flowExecutor = $this->container->get(FlowExecutor::class);
 
-            // TODO: if statement will be removed after removing flag FEATURE_NEXT_8225
-            /** @var FlowExecutor $flowExecutor */
-            $flowExecutor = $this->container->get(FlowExecutor::class);
-            if ($flowExecutor !== null) {
+        if ($flowExecutor === null) {
+            throw new ServiceNotFoundException(FlowExecutor::class);
+        }
+
+        foreach ($flows as $flow) {
+            try {
                 $flowExecutor->execute($flow, $event);
+            } catch (\Throwable $e) {
+                $this->logger->error(
+                    "Could not execute flow with error message:\n"
+                    . $e->getMessage() . "\n"
+                    . 'Error Code: ' . $e->getCode() . "\n"
+                );
             }
         }
-    }
-
-    private function getFlows(string $eventName): FlowCollection
-    {
-        if ($this->flows) {
-            return $this->flows;
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('eventName', $eventName));
-        $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
-        $criteria->getAssociation('flowSequences')->addSorting(
-            new FieldSorting('parentId'),
-            new FieldSorting('trueCase'),
-            new FieldSorting('position')
-        );
-
-        if (!$this->container->has('flow.repository')) {
-            throw new ServiceNotFoundException('flow.repository');
-        }
-
-        // TODO: if statement will be removed after removing flag FEATURE_NEXT_8225
-        /** @var EntityRepositoryInterface $flowRepository */
-        $flowRepository = $this->container->get('flow.repository');
-        $flows = new FlowCollection();
-        if ($flowRepository !== null) {
-            /** @var FlowCollection $flows */
-            $flows = $flowRepository->search($criteria, Context::createDefaultContext())->getEntities();
-        }
-
-        return $this->flows = $flows;
     }
 }

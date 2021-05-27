@@ -48,7 +48,7 @@ class BusinessEventDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        if (!$event instanceof BusinessEventInterface) {
+        if (!$event instanceof BusinessEventInterface || $event instanceof FlowEvent) {
             return $event;
         }
 

@@ -2,40 +2,32 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Content\Flow\FlowState;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+ * @internal (flag:FEATURE_NEXT_8225)
  */
-class BusinessEvent extends Event implements BusinessEventInterface
+class FlowEvent extends Event
 {
-    /**
-     * @var BusinessEventInterface
-     */
-    private $event;
+    private FlowState $state;
 
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
-    /**
-     * @var string
-     */
-    private $actionName;
+    private string $actionName;
 
-    public function __construct(string $actionName, BusinessEventInterface $event, ?array $config = [])
+    public function __construct(string $actionName, FlowState $state, ?array $config = [])
     {
         $this->actionName = $actionName;
-        $this->event = $event;
+        $this->state = $state;
         $this->config = $config ?? [];
     }
 
     public function getEvent(): BusinessEventInterface
     {
-        return $this->event;
+        return $this->state->event;
     }
 
     public function getConfig(): array
@@ -55,11 +47,16 @@ class BusinessEvent extends Event implements BusinessEventInterface
 
     public function getName(): string
     {
-        return $this->event->getName();
+        return $this->state->event->getName();
     }
 
     public function getContext(): Context
     {
-        return $this->event->getContext();
+        return $this->state->event->getContext();
+    }
+
+    public function getFlowState(): FlowState
+    {
+        return $this->state;
     }
 }

@@ -2,13 +2,17 @@
 
 namespace Shopware\Core\Content\Flow;
 
-use Shopware\Core\Content\Flow\FlowSequence\FlowSequenceDefinition;
+use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -54,9 +58,10 @@ class FlowDefinition extends EntityDefinition
             (new StringField('name', 'name', 255))->addFlags(new Required()),
             (new StringField('event_name', 'eventName', 255))->addFlags(new Required()),
             new IntField('priority', 'priority'),
+            (new BlobField('payload', 'payload'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new BoolField('active', 'active'),
             (new StringField('description', 'description', 500)),
-            (new OneToManyAssociationField('flowSequences', FlowSequenceDefinition::class, 'flow_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('sequences', FlowSequenceDefinition::class, 'flow_id', 'id'))->addFlags(new CascadeDelete()),
             new CustomFields(),
         ]);
     }

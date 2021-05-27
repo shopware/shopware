@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Flow;
+namespace Shopware\Core\Content\Flow\SequenceTree;
 
 /**
  * @internal (FEATURE_NEXT_8225)

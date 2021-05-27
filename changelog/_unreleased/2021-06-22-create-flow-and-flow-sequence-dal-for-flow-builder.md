@@ -6,7 +6,7 @@ flag: FEATURE_NEXT_8225
 # Core
 * Added two new tables `flow` and `flow_sequence` to stored flow and flow sequence data for Flow Builder.
 * Added entities, definition and collection for table `flow` at `Shopware\Core\Content\Flow`.
-* Added entities, definition and collection for table `flow_sequence` at `Shopware\Core\Content\Flow\FlowSequence`.
+* Added entities, definition and collection for table `flow_sequence` at `Shopware\Core\Content\Flow\Aggregate\FlowSequence`.
 * Added OneToMany association between `rule` and `flow_sequence`.
 * Added new property `flowSequences` to `Shopware/Core/Content/Rule/RuleEntity`.
 * Deprecated `EventActionRuleDefinition` at `Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule`.

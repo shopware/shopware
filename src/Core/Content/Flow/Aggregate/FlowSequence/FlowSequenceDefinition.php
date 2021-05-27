@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Flow\FlowSequence;
+namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;

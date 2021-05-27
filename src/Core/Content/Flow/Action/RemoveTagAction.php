@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Action;
 
-use Shopware\Core\Framework\Event\BusinessEvent;
+use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\WebhookAware;
 
@@ -19,7 +19,7 @@ class RemoveTagAction extends FlowAction
     public static function getSubscribedEvents()
     {
         return [
-            FlowAction::REMOVE_TAG => 'removeTag',
+            FlowAction::REMOVE_TAG => 'handle',
         ];
     }
 
@@ -28,7 +28,7 @@ class RemoveTagAction extends FlowAction
         return [OrderAware::class, WebhookAware::class];
     }
 
-    public function removeTag(BusinessEvent $event): void
+    public function handle(FlowEvent $event): void
     {
         //TODO TBD
     }

@@ -29,6 +29,8 @@ class Migration1621845370AddFlowSequence extends MigrationStep
                 `created_at`            DATETIME(3)     NOT NULL,
                 `updated_at`            DATETIME(3)     NULL,
                 PRIMARY KEY (`id`),
+                INDEX `idx.true_case` (`true_case`),
+                INDEX `idx.position` (`position`),
                 CONSTRAINT `json.flow_sequence.config` CHECK (JSON_VALID(`config`)),
                 CONSTRAINT `json.flow_sequence.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
                 CONSTRAINT `fk.flow_sequence.flow_id` FOREIGN KEY (`flow_id`)

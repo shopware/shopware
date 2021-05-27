@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Flow;
 
-use Shopware\Core\Content\Flow\FlowSequence\FlowSequenceCollection;
+use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -15,40 +15,19 @@ class FlowEntity extends Entity
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $eventName;
 
-    /**
-     * @var string
-     */
-    protected $eventName;
+    protected string $description;
 
-    /**
-     * @var string
-     */
-    protected $description;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected int $priority;
 
-    /**
-     * @var int
-     */
-    protected $priority;
+    protected ?string $payload;
 
-    /**
-     * @var FlowSequenceCollection|null
-     */
-    protected $flowSequences;
+    protected ?FlowSequenceCollection $sequences = null;
 
     public function getName(): string
     {
@@ -100,13 +79,23 @@ class FlowEntity extends Entity
         $this->priority = $priority;
     }
 
-    public function getFlowSequences(): ?FlowSequenceCollection
+    public function getPayload(): ?string
     {
-        return $this->flowSequences;
+        return $this->payload;
     }
 
-    public function setFlowSequences(FlowSequenceCollection $flowSequences): void
+    public function setPayload(string $payload): void
     {
-        $this->flowSequences = $flowSequences;
+        $this->payload = $payload;
+    }
+
+    public function getSequences(): ?FlowSequenceCollection
+    {
+        return $this->sequences;
+    }
+
+    public function setSequences(FlowSequenceCollection $sequences): void
+    {
+        $this->sequences = $sequences;
     }
 }

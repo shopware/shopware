@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Flow\FlowSequence;
+namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -16,70 +16,29 @@ class FlowSequenceEntity extends Entity
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $flowId;
 
-    /**
-     * @var string
-     */
-    protected $flowId;
+    protected ?FlowEntity $flow = null;
 
-    /**
-     * @var FlowEntity|null
-     */
-    protected $flow;
+    protected ?string $parentId;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?FlowSequenceEntity $parent = null;
 
-    /**
-     * @var FlowSequenceEntity|null
-     */
-    protected $parent;
+    protected ?FlowSequenceCollection $children = null;
 
-    /**
-     * @var FlowSequenceCollection|null
-     */
-    protected $children;
+    protected ?string $ruleId;
 
-    /**
-     * @var string|null
-     */
-    protected $ruleId;
+    protected ?RuleEntity $rule = null;
 
-    /**
-     * @var RuleEntity|null
-     */
-    protected $rule;
+    protected ?string $actionName;
 
-    /**
-     * @var string|null
-     */
-    protected $actionName;
+    protected array $config;
 
-    /**
-     * @var array
-     */
-    protected $config;
+    protected int $position;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $displayGroup;
 
-    /**
-     * @var int
-     */
-    protected $displayGroup;
-
-    /**
-     * @var bool
-     */
-    protected $trueCase;
+    protected bool $trueCase;
 
     public function getFlowId(): string
     {

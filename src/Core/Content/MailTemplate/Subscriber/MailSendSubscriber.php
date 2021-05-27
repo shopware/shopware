@@ -135,10 +135,14 @@ class MailSendSubscriber implements EventSubscriberInterface
         $this->eventDispatcher->dispatch(new MailSendSubscriberBridgeEvent($data, $mailTemplate, $event));
 
         if ($data->has('templateId')) {
-            $this->mailTemplateTypeRepository->update([[
-                'id' => $mailTemplate->getMailTemplateTypeId(),
-                'templateData' => $this->getTemplateData($mailEvent),
-            ]], $mailEvent->getContext());
+            try {
+                $this->mailTemplateTypeRepository->update([[
+                    'id' => $mailTemplate->getMailTemplateTypeId(),
+                    'templateData' => $this->getTemplateData($mailEvent),
+                ]], $mailEvent->getContext());
+            } catch (\Throwable $e) {
+                // Dont throw errors if this fails // Fix with NEXT-15475
+            }
         }
 
         try {

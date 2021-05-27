@@ -157,6 +157,19 @@ Component.register('sw-order-detail-base', {
                 .addAssociation('orderCustomer')
                 .addAssociation('language');
 
+            if (Shopware.Feature.isActive('FEATURE_NEXT_12635')) {
+                criteria
+                    .getAssociation('lineItems')
+                    .addFilter(Criteria.equals('parentId', null));
+
+                criteria
+                    .getAssociation('lineItems.children')
+                    .addSorting(Criteria.naturalSorting('label'));
+            } else {
+                criteria
+                    .addAssociation('lineItems');
+            }
+
             criteria
                 .getAssociation('lineItems')
                 .addSorting(Criteria.sort('label', 'ASC'));

@@ -126,14 +126,26 @@
                                     {% endblock %}
 
                                     {% block sw_order_line_items_grid_column_payload_options %}
-                                        <router-link v-if="item.payload && item.payload.options"
-                                                     class="sw-order-line-items-grid__item-payload-options"
-                                                     :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                                                     :to="{ name: 'sw.product.detail', params: { id: item.productId } }">
-                                            <sw-product-variant-info :variations="item.payload.options">
-                                                {{ item.label }}
-                                            </sw-product-variant-info>
-                                        </router-link>
+                                        {% block sw_order_line_items_grid_column_payload_options_link %}
+                                            <router-link v-if="item.payload && item.payload.options"
+                                                         class="sw-order-line-items-grid__item-payload-options"
+                                                         :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                                                         :to="{ name: 'sw.product.detail', params: { id: item.productId } }">
+                                                <sw-product-variant-info :variations="item.payload.options">
+                                                    <div class="sw-order-line-items-grid__item-label">
+                                                        {{ item.label }}
+                                                    </div>
+                                                </sw-product-variant-info>
+                                            </router-link>
+                                        {% endblock %}
+
+                                        {% block sw_order_line_items_grid_column_payload_options_linkless %}
+                                            <template v-else class="sw-order-line-items-grid__item-payload-options">
+                                                <div class="sw-order-line-items-grid__item-label">
+                                                    {{ item.label }}
+                                                </div>
+                                            </template>
+                                        {% endblock %}
                                     {% endblock %}
 
                                 </div>
@@ -141,7 +153,9 @@
 
                             {% block sw_order_line_items_grid_grid_columns_label_content %}
                                 <template v-else>
-                                    {{ item.label }}
+                                    <div class="sw-order-line-items-grid__item-label">
+                                        {{ item.label }}
+                                    </div>
                                 </template>
                             {% endblock %}
 

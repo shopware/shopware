@@ -382,7 +382,7 @@ E2E:
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
         - npm install -g npm@6.14.11
-        - npm i @shopware-ag/e2e-testsuite-platform@2.0.0-beta.4 --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@2.0.0-beta.6 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - CYPRESS_CMD="cypress run"

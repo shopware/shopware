@@ -41,6 +41,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
 
+    public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
+
     private ProductGatewayInterface $productGateway;
 
     private QuantityPriceCalculator $calculator;
@@ -214,6 +216,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         // product data was never detected and the product is not inside the data collection
         if ($product === null && $lineItem->getDataTimestamp() === null) {
+            if ($context->hasPermission(self::KEEP_INACTIVE_PRODUCT)) {
+                return;
+            }
+
             $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
             $cart->getLineItems()->remove($lineItem->getId());
 

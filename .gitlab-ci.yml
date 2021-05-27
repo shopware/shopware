@@ -547,7 +547,6 @@ Component Library:
         - if: '$CI_MERGE_REQUEST_LABELS =~ /.*build::skip.*/'
           when: never
         - if: '$CI_MERGE_REQUEST_LABELS =~ /.*build::all.*/'
-        - when: manual
         - changes:
             - src/Administration/**/*
             - src/Storefront/**/*

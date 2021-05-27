@@ -55,6 +55,7 @@
 
         <service id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2">
             <argument type="service" id="shopware.jwt_config"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry">

@@ -158,42 +158,38 @@ class PaymentService
      * @throws TokenExpiredException
      * @throws UnknownPaymentMethodException
      */
-    public function finalizeTransaction(
-        string $paymentToken,
-        Request $request,
-        SalesChannelContext $salesChannelContext
-    ): TokenStruct {
-        $paymentTokenStruct = $this->parseToken($paymentToken);
-        $transactionId = $paymentTokenStruct->getTransactionId();
+    public function finalizeTransaction(string $paymentToken, Request $request, SalesChannelContext $context): TokenStruct
+    {
+        $token = $this->parseToken($paymentToken);
+
+        $transactionId = $token->getTransactionId();
+
         if ($transactionId === null || !Uuid::isValid($transactionId)) {
             throw new AsyncPaymentProcessException((string) $transactionId, "Payment JWT didn't contain a valid orderTransactionId");
         }
 
-        $context = $salesChannelContext->getContext();
-        $paymentTransactionStruct = $this->getPaymentTransactionStruct($transactionId, $context);
+        $transaction = $this->getPaymentTransactionStruct($transactionId, $context->getContext());
 
-        $paymentHandler = $this->getPaymentHandlerById($paymentTokenStruct->getPaymentMethodId(), $context);
+        $paymentHandler = $this->getPaymentHandlerById($token->getPaymentMethodId(), $context->getContext());
 
         if (!$paymentHandler) {
-            throw new UnknownPaymentMethodException($paymentTokenStruct->getPaymentMethodId());
+            throw new UnknownPaymentMethodException($token->getPaymentMethodId());
         }
 
         try {
-            $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
+            $paymentHandler->finalize($transaction, $request, $context);
         } catch (CustomerCanceledAsyncPaymentException $e) {
-            $this->transactionStateHandler->cancel($transactionId, $context);
-            $paymentTokenStruct->setException($e);
-
-            return $paymentTokenStruct;
+            $this->transactionStateHandler->cancel($transactionId, $context->getContext());
+            $token->setException($e);
         } catch (PaymentProcessException $e) {
             $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
-            $this->transactionStateHandler->fail($transactionId, $context);
-            $paymentTokenStruct->setException($e);
-
-            return $paymentTokenStruct;
+            $this->transactionStateHandler->fail($transactionId, $context->getContext());
+            $token->setException($e);
+        } finally {
+            $this->tokenFactory->invalidateToken($token->getToken());
         }
 
-        return $paymentTokenStruct;
+        return $token;
     }
 
     /**
@@ -206,8 +202,6 @@ class PaymentService
         if ($tokenStruct->isExpired()) {
             throw new TokenExpiredException($tokenStruct->getToken());
         }
-
-        $this->tokenFactory->invalidateToken($tokenStruct->getToken());
 
         return $tokenStruct;
     }

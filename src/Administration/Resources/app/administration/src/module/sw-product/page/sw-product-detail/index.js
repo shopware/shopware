@@ -589,7 +589,7 @@ Component.register('sw-product-detail', {
 
             return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
                 Shopware.State.commit('swProductDetail/setAttributeSet', res);
-            }).then(() => {
+            }).finally(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', false]);
             });
         },

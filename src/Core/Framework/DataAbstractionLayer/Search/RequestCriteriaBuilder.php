@@ -151,7 +151,7 @@ class RequestCriteriaBuilder
     {
         $searchException = new SearchRequestException();
 
-        if (isset($payload['ids'])) {
+        if (isset($payload['ids']) && !empty($payload['ids'])) {
             if (\is_string($payload['ids'])) {
                 $ids = array_filter(explode('|', $payload['ids']));
             } else {

@@ -8,7 +8,7 @@ const utils = Shopware.Utils;
 Component.register('sw-settings-payment-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -52,6 +52,11 @@ Component.register('sw-settings-payment-list', {
 
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+
+            if (this.feature.isActive('FEATURE_NEXT_15170')) {
+                criteria.addAssociation('plugin');
+                criteria.addAssociation('appPaymentMethod.app');
+            }
 
             this.paymentRepository.search(criteria).then((items) => {
                 this.total = items.total;
@@ -112,7 +117,7 @@ Component.register('sw-settings-payment-list', {
         }, 800),
 
         getPaymentColumns() {
-            return [{
+            const columns = [{
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
@@ -131,6 +136,27 @@ Component.register('sw-settings-payment-list', {
                 property: 'position',
                 label: 'sw-settings-payment.list.columnPosition'
             }];
+
+            if (this.feature.isActive('FEATURE_NEXT_15170')) {
+                columns.splice(1, 0, {
+                    property: 'extension',
+                    label: 'sw-settings-payment.list.columnExtension'
+                });
+            }
+
+            return columns;
+        },
+
+        getExtensionName(paymentMethod) {
+            if (paymentMethod.plugin) {
+                return paymentMethod.plugin.translated.label;
+            }
+
+            if (paymentMethod.appPaymentMethod) {
+                return paymentMethod.appPaymentMethod.app.translated.label;
+            }
+
+            return null;
         }
     }
 });

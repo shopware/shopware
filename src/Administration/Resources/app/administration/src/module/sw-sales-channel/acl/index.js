@@ -13,7 +13,7 @@ Shopware.Service('privileges')
                 privileges: [
                     'sales_channel:read',
                     'sales_channel_type:read',
-                    'payment_method:read',
+                    Shopware.Service('privileges').getPrivileges('payment.viewer'),
                     'shipping_method:read',
                     'country:read',
                     'currency:read',

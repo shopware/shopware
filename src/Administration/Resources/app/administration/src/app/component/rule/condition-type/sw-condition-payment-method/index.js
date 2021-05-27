@@ -14,7 +14,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
  */
 Component.extend('sw-condition-payment-method', 'sw-condition-base', {
     template,
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {

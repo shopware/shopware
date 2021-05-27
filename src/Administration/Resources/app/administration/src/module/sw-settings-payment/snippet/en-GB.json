@@ -11,6 +11,7 @@
       "columnDescription": "Description",
       "columnActive": "Active",
       "columnPosition": "Position",
+      "columnExtension": "Extension",
       "buttonAddPaymentMethod": "Add payment method",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",

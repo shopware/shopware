@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Test\Framework\Cache;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Cache\CacheStateValidator;
 use Shopware\Storefront\Framework\Cache\CacheStore;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CacheStoreTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private const IP = '127.0.0.1';
 

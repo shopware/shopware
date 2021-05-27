@@ -175,10 +175,10 @@
                             v-for="(delivery, index) in deliveryDiscounts"
                             v-if="deliveryDiscounts"
                         >
-                            <dt :key="`dt-${index}`">
+                            <dt :key="`delivery-discount-dt-${index}`">
                                 {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
                             </dt>
-                            <dd :key="`dt-${index}`">
+                            <dd :key="`delivery-discount-dd-${index}`">
                                 {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
                             </dd>
                         </template>
@@ -193,11 +193,11 @@
 
                         {% block sw_order_detail_base_line_items_summary_taxes %}
                         <template v-if="taxStatus !== 'tax-free'">
-                            <template v-for="calculatedTax in sortedCalculatedTaxes">
-                                <dt :key="`dt-${calculatedTax.taxRate}`">
+                            <template v-for="(calculatedTax, index) in sortedCalculatedTaxes">
+                                <dt :key="`sorted-calculated-taxes-dt-${index}`">
                                     {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                 </dt>
-                                <dd :key="`dd-${calculatedTax.taxRate}`">
+                                <dd :key="`sorted-calculated-taxes-dt-${index}`">
                                     {{ calculatedTax.tax | currency(order.currency.translated.shortName) }}
                                 </dd>
                             </template>

@@ -211,8 +211,8 @@ describe('Order: Read order', () => {
         });
 
         // Assert the price breakdown contains both VATs. This also implies that a recalculation has taken place.
-        assertPriceBreakdownContains(/^plus 19\% VAT$/, /^€.[0-9]+\.[0-9]{2}$/);
-        assertPriceBreakdownContains(/^plus 10\% VAT$/, /^€1,215\.45$/);
+        assertPriceBreakdownContains(/^\s*plus 19\% VAT\s*$/, /^\s*€.[0-9]+\.[0-9]{2}\s*$/);
+        assertPriceBreakdownContains(/^\s*plus 10\% VAT\s*$/, /^\s*€1,215\.45\s*$/);
     });
 
     it('@base @order: can add custom credit items', () => {
@@ -252,7 +252,7 @@ describe('Order: Read order', () => {
         });
 
         // Assert that the total is negative
-        assertPriceBreakdownContains(/^Total including VAT$/, /^-€[0-9,]+.[0-9]{2}$/);
+        assertPriceBreakdownContains(/^\s*Total including VAT\s*$/, /^\s*-€[0-9,]+.[0-9]{2}\s*$/);
     });
 
     it('@base @order: can delete items', () => {
@@ -324,6 +324,6 @@ describe('Order: Read order', () => {
         cy.get('.sw-data-grid__cell--quantity').contains('10');
         cy.get('.sw-data-grid__cell--price-taxRules\\[0\\]').contains(/10.%/);
 
-        assertPriceBreakdownContains(/^plus 10% VAT$/, /121,55.€/);
+        assertPriceBreakdownContains(/^\s*plus 10% VAT\s*$/, /121,55.€/);
     });
 });

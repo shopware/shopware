@@ -54,6 +54,7 @@ class CleanupCartTaskHandlerTest extends TestCase
             'cart' => '',
             'price' => 1,
             'line_item_count' => 1,
+            'rule_ids' => json_encode([]),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'shipping_method_id' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM shipping_method LIMIT 1'),
             'payment_method_id' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM payment_method LIMIT 1'),

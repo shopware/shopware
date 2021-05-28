@@ -85,6 +85,8 @@ class Processor
             $this->transactionProcessor->process($cart, $context)
         );
 
+        $cart->setRuleIds($context->getRuleIds());
+
         return $cart;
     }
 

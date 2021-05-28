@@ -33,22 +33,24 @@ class CartPersister implements CartPersisterInterface
 
     public function load(string $token, SalesChannelContext $context): Cart
     {
-        $content = $this->connection->fetchColumn(
+        $content = $this->connection->fetchAssociative(
             '#cart-persister::load
-            SELECT `cart`.`cart` FROM cart WHERE `token` = :token',
+            SELECT `cart`.`cart`, `cart`.rule_ids FROM cart WHERE `token` = :token',
             ['token' => $token]
         );
 
-        if ($content === false) {
+        if (!\is_array($content)) {
             throw new CartTokenNotFoundException($token);
         }
 
-        $cart = unserialize((string) $content);
+        $cart = unserialize((string) $content['cart']);
+
         if (!$cart instanceof Cart) {
             throw new CartDeserializeFailedException();
         }
 
         $cart->setToken($token);
+        $cart->setRuleIds(json_decode((string) $content['rule_ids'], true) ?? []);
 
         return $cart;
     }
@@ -59,9 +61,9 @@ class CartPersister implements CartPersisterInterface
     public function save(Cart $cart, SalesChannelContext $context): void
     {
         $sql = <<<SQL
-            INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `created_at`)
-            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :now)
-            ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :cart, `updated_at` = :now
+            INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
+            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :rule_ids, :now)
+            ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :cart, `rule_ids` = :rule_ids, `updated_at` = :now
             ;
         SQL;
         //prevent empty carts
@@ -86,6 +88,7 @@ class CartPersister implements CartPersisterInterface
             'line_item_count' => $cart->getLineItems()->count(),
             'cart' => $this->serializeCart($cart),
             'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'rule_ids' => json_encode($context->getRuleIds()),
         ];
 
         $this->connection->executeUpdate($sql, $data);

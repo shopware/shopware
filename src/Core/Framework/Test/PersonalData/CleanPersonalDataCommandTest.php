@@ -311,6 +311,7 @@ class CleanPersonalDataCommandTest extends TestCase
             'cart' => '',
             'price' => 0,
             'line_item_count' => '',
+            'rule_ids' => json_encode([]),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'shipping_method_id' => Uuid::fromHexToBytes($this->fetchFirstIdFromTable('shipping_method')),
             'payment_method_id' => Uuid::fromHexToBytes($this->fetchFirstIdFromTable('payment_method')),

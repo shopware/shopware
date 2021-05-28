@@ -123,4 +123,25 @@ class AppUrlChangeControllerTest extends TestCase
 
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
     }
+
+    public function testGetUrlDiffWithTemporaryUrlChange(): void
+    {
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        // Simulates that during the app_url was different during a webhook
+        // but is now back to the old value
+        $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
+        $oldUrl = $_SERVER['APP_URL'];
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
+            'app_url' => $oldUrl,
+            'value' => Uuid::randomHex(),
+        ]);
+
+        $url = '/api/app-system/app-url-change/url-difference';
+        $this->getBrowser()->request('GET', $url);
+
+        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertNull($systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY));
+        static::assertNull($systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+    }
 }

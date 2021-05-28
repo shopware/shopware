@@ -1,19 +1,25 @@
 {% block sw_promotion_detail_base %}
-    <div class="sw-promotion-detail-base">
-        {% block sw_promotion_detail_base_basic_info_card %}
-            <sw-card :title="$tc('sw-promotion.detail.main.general.cardTitlePromotionInfo')" :isLoading="!$attrs.promotion">
-                {% block sw_promotion_detail_base_basic_info_form %}
-                    <sw-promotion-basic-form :promotion="$attrs.promotion"></sw-promotion-basic-form>
-                {% endblock %}
-            </sw-card>
+<div class="sw-promotion-detail-base">
+    {% block sw_promotion_detail_base_basic_info_card %}
+    <sw-card
+        :title="$tc('sw-promotion.detail.main.general.cardTitlePromotionInfo')"
+        :is-loading="!$attrs.promotion"
+    >
+        {% block sw_promotion_detail_base_basic_info_form %}
+        <sw-promotion-basic-form :promotion="$attrs.promotion" />
         {% endblock %}
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_promotion_detail_base_code_card %}
-            <sw-card :title="$tc('sw-promotion.detail.main.general.codes.card')" v-if="$attrs.promotion">
-                {% block sw_promotion_detail_base_code_form %}
-                    <sw-promotion-code-form :promotion="$attrs.promotion"></sw-promotion-code-form>
-                {% endblock %}
-            </sw-card>
+    {% block sw_promotion_detail_base_code_card %}
+    <sw-card
+        v-if="$attrs.promotion"
+        :title="$tc('sw-promotion.detail.main.general.codes.card')"
+    >
+        {% block sw_promotion_detail_base_code_form %}
+        <sw-promotion-code-form :promotion="$attrs.promotion" />
         {% endblock %}
-    </div>
+    </sw-card>
+    {% endblock %}
+</div>
 {% endblock %}

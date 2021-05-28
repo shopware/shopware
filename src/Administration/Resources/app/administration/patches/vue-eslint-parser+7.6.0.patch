@@ -1,0 +1,30 @@
+diff --git a/node_modules/vue-eslint-parser/index.js b/node_modules/vue-eslint-parser/index.js
+index b59c31c..26e14c8 100644
+--- a/node_modules/vue-eslint-parser/index.js
++++ b/node_modules/vue-eslint-parser/index.js
+@@ -230,7 +230,7 @@ function isSFCFile(parserOptions) {
+     if (parserOptions.filePath === "<input>") {
+         return true;
+     }
+-    return path.extname(parserOptions.filePath || "unknown.vue") === ".vue";
++    return ['.vue', '.twig'].includes(path.extname(parserOptions.filePath || "unknown.vue"));
+ }
+ 
+ function isUnique(reference, index, references) {
+@@ -4325,7 +4325,7 @@ function define(sourceText, rootAST, document, globalLocationCalculator, { parse
+ const STARTS_WITH_LT = /^\s*</u;
+ function isVueFile(code, options) {
+     const filePath = options.filePath || "unknown.js";
+-    return path.extname(filePath) === ".vue" || STARTS_WITH_LT.test(code);
++    return [".vue", ".twig"].includes(path.extname(filePath)) || STARTS_WITH_LT.test(code);
+ }
+ function isTemplateElement(node) {
+     return node.type === "VElement" && node.name === "template";
+@@ -4380,6 +4380,7 @@ function parseForESLint(code, options) {
+             result = parseScriptElement(script, locationCalculator, options);
+         }
+         result.ast.templateBody = templateBody;
++        result.modifiedSourceCode = code;
+         document = rootAST;
+     }
+     result.services = Object.assign(result.services || {}, define(code, result.ast, document, locationCalculator, {

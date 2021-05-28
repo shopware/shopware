@@ -1,87 +1,115 @@
 {% block sw_property_detail_base %}
-    <sw-card v-if="propertyGroup" :title="$tc('sw-property.detail.cardTitleGroupInfo')" :isLoading="isLoading">
+<sw-card
+    v-if="propertyGroup"
+    :title="$tc('sw-property.detail.cardTitleGroupInfo')"
+    :is-loading="isLoading"
+>
 
-        {% block sw_property_detail_base_name %}
-            <sw-field
-                v-model="propertyGroup.name"
-                type="text"
-                required
-                :error="propertyGroupNameError"
-                :label="$tc('sw-property.detail.labelName')"
-                :placeholder="placeholder(propertyGroup, 'name', $tc('sw-property.detail.placeholderName'))"
-                :disabled="!allowEdit"/>
+    {% block sw_property_detail_base_name %}
+    <sw-field
+        v-model="propertyGroup.name"
+        type="text"
+        required
+        :error="propertyGroupNameError"
+        :label="$tc('sw-property.detail.labelName')"
+        :placeholder="placeholder(propertyGroup, 'name', $tc('sw-property.detail.placeholderName'))"
+        :disabled="!allowEdit"
+    />
+    {% endblock %}
+
+    {% block sw_property_detail_base_description %}
+    <sw-field
+        v-model="propertyGroup.description"
+        type="textarea"
+        :label="$tc('sw-property.detail.labelDescription')"
+        :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))"
+        :disabled="!allowEdit"
+    />
+    {% endblock %}
+
+    {% block sw_property_detail_filter_visible_container %}
+    <sw-container
+        columns="repeat(2, 1fr)"
+        gap="0px 30px"
+    >
+        {% block sw_property_detail_base_filterable %}
+        <sw-switch-field
+            v-model="propertyGroup.filterable"
+            name="propertyGroupFilterable"
+            class="sw-property-detail__filterable"
+            :label="$tc('sw-property.detail.labelFilterable')"
+            :disabled="!allowEdit"
+        />
         {% endblock %}
 
-        {% block sw_property_detail_base_description %}
-            <sw-field
-                v-model="propertyGroup.description"
-                type="textarea"
-                :label="$tc('sw-property.detail.labelDescription')"
-                :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))"
-                :disabled="!allowEdit"/>
+        {% block sw_property_detail_base_visible_on_detail %}
+        <sw-switch-field
+            v-model="propertyGroup.visibleOnProductDetailPage"
+            name="propertyGroupvisibleOnProductDetailPage"
+            class="sw-property-detail__visible-on-detail"
+            :label="$tc('sw-property.detail.labelvisibleOnProductDetailPage')"
+            :disabled="!allowEdit"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_property_detail_sorting_display_container %}
+    <sw-container
+        columns="repeat(3, 1fr)"
+        gap="0px 30px"
+    >
+        {% block sw_property_detail_display_type %}
+        <sw-field
+            v-model="propertyGroup.displayType"
+            type="select"
+            validation="required"
+            required
+            :label="$tc('sw-property.detail.labelDisplayType')"
+            :disabled="!allowEdit"
+        >
+            <option
+                v-for="option in displayTypes"
+                slot="options"
+                :key="option.value"
+                :value="option.value"
+            >
+                {{ option.label }}
+            </option>
+        </sw-field>
         {% endblock %}
 
-        {% block sw_property_detail_filter_visible_container %}
-            <sw-container columns="repeat(2, 1fr)" gap="0px 30px">
-                {% block sw_property_detail_base_filterable %}
-                    <sw-switch-field
-                        name="propertyGroupFilterable"
-                        class="sw-property-detail__filterable"
-                        :label="$tc('sw-property.detail.labelFilterable')"
-                        :disabled="!allowEdit"
-                        v-model="propertyGroup.filterable">
-                    </sw-switch-field>
-                {% endblock %}
-
-                {% block sw_property_detail_base_visible_on_detail %}
-                    <sw-switch-field
-                        name="propertyGroupvisibleOnProductDetailPage"
-                        class="sw-property-detail__visible-on-detail"
-                        :label="$tc('sw-property.detail.labelvisibleOnProductDetailPage')"
-                        :disabled="!allowEdit"
-                        v-model="propertyGroup.visibleOnProductDetailPage">
-                    </sw-switch-field>
-                {% endblock %}
-            </sw-container>
+        {% block sw_property_detail_sorting_type %}
+        <sw-field
+            v-model="propertyGroup.sortingType"
+            type="select"
+            validation="required"
+            :disabled="!allowEdit"
+            required
+            :label="$tc('sw-property.detail.labelSortingType')"
+        >
+            <option
+                v-for="option in sortingTypes"
+                slot="options"
+                :key="option.value"
+                :value="option.value"
+            >
+                {{ option.label }}
+            </option>
+        </sw-field>
         {% endblock %}
 
-        {% block sw_property_detail_sorting_display_container %}
-            <sw-container columns="repeat(3, 1fr)" gap="0px 30px">
-                {% block sw_property_detail_display_type %}
-                    <sw-field
-                        type="select"
-                        v-model="propertyGroup.displayType"
-                        validation="required"
-                        required
-                        :label="$tc('sw-property.detail.labelDisplayType')"
-                        :disabled="!allowEdit">
-                        <option slot="options" v-for="option in displayTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_property_detail_sorting_type %}
-                    <sw-field
-                        type="select"
-                        v-model="propertyGroup.sortingType"
-                        validation="required"
-                        :disabled="!allowEdit"
-                        required
-                        :label="$tc('sw-property.detail.labelSortingType')" >
-                        <option slot="options" v-for="option in sortingTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_property_detail_position %}
-                    <sw-number-field
-                        v-model="propertyGroup.position"
-                        pattern="[0-9]"
-                        :step="1"
-                        :label="$tc('sw-property.detail.labelPosition')"
-                        :disabled="!allowEdit"
-                        :placeholder="$tc('sw-property.detail.placeholderPosition')">
-                    </sw-number-field>
-                {% endblock %}
-            </sw-container>
+        {% block sw_property_detail_position %}
+        <sw-number-field
+            v-model="propertyGroup.position"
+            pattern="[0-9]"
+            :step="1"
+            :label="$tc('sw-property.detail.labelPosition')"
+            :disabled="!allowEdit"
+            :placeholder="$tc('sw-property.detail.placeholderPosition')"
+        />
         {% endblock %}
-    </sw-card>
+    </sw-container>
+    {% endblock %}
+</sw-card>
 {% endblock %}

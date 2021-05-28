@@ -1,39 +1,53 @@
 {% block sw_order_saveable_field %}
-    <sw-container v-if="isEditing"
-                  columns="1fr 20px 25px"
-                  gap="0px 10px"
-                  class="sw-order-saveable-field">
-        {% block sw_order_saveable_field_input %}
-            {% block  sw_order_saveable_field_input_field%}
+<sw-container
+    v-if="isEditing"
+    columns="1fr 20px 25px"
+    gap="0px 10px"
+    class="sw-order-saveable-field"
+>
+    {% block sw_order_saveable_field_input %}
+    {% block  sw_order_saveable_field_input_field%}
                 <sw-field ref="edit-field"
                     :type="type"
                     :value="value"
                     :placeholder="placeholder">
                 </sw-field>
             {% endblock %}
-        {% endblock %}
-        {% block sw_order_saveable_field_actions %}
-            {% block sw_order_saveable_field_cancel_button %}
-                <sw-button size="x-small"
-                    square
-                    @click="onCancelButtonClicked">
-                    <sw-icon name="small-default-x-line-small" small></sw-icon>
-                </sw-button>
-            {%  endblock %}
-            {%  block sw_order_saveable_field_save_button %}
-                <sw-button size="x-small"
-                    variant="primary"
-                    square
-                    @click="onSaveButtonClicked">
-                    <sw-icon name="small-default-checkmark-line-small" small></sw-icon>
-                </sw-button>
-            {%  endblock %}
-        {% endblock %}
-    </sw-container>
-    <div v-else
-        @click="onClick">
-        {% block sw_order_saveable_field_content %}
-            <slot></slot>
-        {% endblock %}
-    </div>
+    {% endblock %}
+    {% block sw_order_saveable_field_actions %}
+    {% block sw_order_saveable_field_cancel_button %}
+    <sw-button
+        size="x-small"
+        square
+        @click="onCancelButtonClicked"
+    >
+        <sw-icon
+            name="small-default-x-line-small"
+            small
+        />
+    </sw-button>
+    {%  endblock %}
+    {%  block sw_order_saveable_field_save_button %}
+    <sw-button
+        size="x-small"
+        variant="primary"
+        square
+        @click="onSaveButtonClicked"
+    >
+        <sw-icon
+            name="small-default-checkmark-line-small"
+            small
+        />
+    </sw-button>
+    {%  endblock %}
+    {% endblock %}
+</sw-container>
+<div
+    v-else
+    @click="onClick"
+>
+    {% block sw_order_saveable_field_content %}
+    <slot />
+    {% endblock %}
+</div>
 {% endblock %}

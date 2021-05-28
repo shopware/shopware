@@ -1,73 +1,73 @@
 {% block sw_promotion_v2_conditions %}
-    <div class="sw-promotion-v2-conditions">
+<div class="sw-promotion-v2-conditions">
 
-        {% block sw_promotion_v2_conditions_pre_conditions_card %}
-            <sw-card :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitlePreConditions')">
+    {% block sw_promotion_v2_conditions_pre_conditions_card %}
+    <sw-card :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitlePreConditions')">
 
-                {% block sw_promotion_v2_conditions_pre_conditions_sales_channel_selection %}
-                    <sw-promotion-v2-sales-channel-select
-                        class="sw-promotion-v2-conditions__sales-channel-selection"
-                        :promotion="promotion"
-                        :entityCollection="promotion.salesChannels"
-                        :disabled="!acl.can('promotion.editor')"
-                        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')"
-                        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')">
-                    </sw-promotion-v2-sales-channel-select>
-                {% endblock %}
-
-                {% block sw_promotion_v2_conditions_pre_conditions_exclusions %}
-                    <sw-entity-multi-select
-                        class="sw-promotion-v2-conditions__rules-exclusion-selection"
-                        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionExclusions')"
-                        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderPromotionExclusions')"
-                        :criteria="exclusionCriteria"
-                        :entityCollection="excludedPromotions"
-                        :disabled="!acl.can('promotion.editor')"
-                        @change="onChangeExclusions">
-                    </sw-entity-multi-select>
-                {% endblock %}
-
-            </sw-card>
+        {% block sw_promotion_v2_conditions_pre_conditions_sales_channel_selection %}
+        <sw-promotion-v2-sales-channel-select
+            class="sw-promotion-v2-conditions__sales-channel-selection"
+            :promotion="promotion"
+            :entity-collection="promotion.salesChannels"
+            :disabled="!acl.can('promotion.editor')"
+            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')"
+            :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')"
+        />
         {% endblock %}
 
-        {% block sw_promotion_v2_rule_conditions_card %}
-            <sw-card :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitleRuleConditions')">
-
-                {% block sw_promotion_v2_rule_conditions_rule_select_customer %}
-                    <sw-promotion-v2-rule-select
-                        v-if="promotion"
-                        v-model="promotion.personaRules"
-                        class="sw-promotion-v2-conditions__rule-select-customer"
-                        :localMode="promotion.isNew()"
-                        :criteria="personaRuleFilter"
-                        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCustomerSelect')"
-                        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCustomerSelect')"
-                        :ruleScope="['checkout']"
-                        :disabled="!acl.can('promotion.editor')">
-                    </sw-promotion-v2-rule-select>
-                {% endblock %}
-
-                {% block sw_promotion_v2_rule_conditions_rule_select_cart_conditions %}
-                    <sw-promotion-v2-cart-condition-form
-                        :promotion="promotion">
-                    </sw-promotion-v2-cart-condition-form>
-                {% endblock %}
-
-                {% block sw_promotion_v2_rule_conditions_rule_select_order_conditions %}
-                    <sw-promotion-v2-rule-select
-                        v-if="promotion"
-                        v-model="promotion.orderRules"
-                        class="sw-promotion-v2-conditions__rule-select-order-conditions"
-                        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelOrderConditionSelect')"
-                        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderOrderConditionSelect')"
-                        :criteria="orderConditionsFilter"
-                        :ruleScope="['checkout']"
-                        :disabled="!acl.can('promotion.editor')">
-                    </sw-promotion-v2-rule-select>
-                {% endblock %}
-
-            </sw-card>
+        {% block sw_promotion_v2_conditions_pre_conditions_exclusions %}
+        <sw-entity-multi-select
+            class="sw-promotion-v2-conditions__rules-exclusion-selection"
+            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionExclusions')"
+            :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderPromotionExclusions')"
+            :criteria="exclusionCriteria"
+            :entity-collection="excludedPromotions"
+            :disabled="!acl.can('promotion.editor')"
+            @change="onChangeExclusions"
+        />
         {% endblock %}
 
-    </div>
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_promotion_v2_rule_conditions_card %}
+    <sw-card :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitleRuleConditions')">
+
+        {% block sw_promotion_v2_rule_conditions_rule_select_customer %}
+        <sw-promotion-v2-rule-select
+            v-if="promotion"
+            v-model="promotion.personaRules"
+            class="sw-promotion-v2-conditions__rule-select-customer"
+            :local-mode="promotion.isNew()"
+            :criteria="personaRuleFilter"
+            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCustomerSelect')"
+            :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCustomerSelect')"
+            :rule-scope="['checkout']"
+            :disabled="!acl.can('promotion.editor')"
+        />
+        {% endblock %}
+
+        {% block sw_promotion_v2_rule_conditions_rule_select_cart_conditions %}
+        <sw-promotion-v2-cart-condition-form
+            :promotion="promotion"
+        />
+        {% endblock %}
+
+        {% block sw_promotion_v2_rule_conditions_rule_select_order_conditions %}
+        <sw-promotion-v2-rule-select
+            v-if="promotion"
+            v-model="promotion.orderRules"
+            class="sw-promotion-v2-conditions__rule-select-order-conditions"
+            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelOrderConditionSelect')"
+            :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderOrderConditionSelect')"
+            :criteria="orderConditionsFilter"
+            :rule-scope="['checkout']"
+            :disabled="!acl.can('promotion.editor')"
+        />
+        {% endblock %}
+
+    </sw-card>
+    {% endblock %}
+
+</div>
 {% endblock %}

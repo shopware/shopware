@@ -1,64 +1,69 @@
 {% block sw_product_detail_cross_selling %}
-    <div class="sw-product-detail-cross-selling">
-        {% block sw_product_detail_cross_selling_items_wrapper %}
-            <template v-if="showCrossSellingCard">
-                {% block sw_product_detail_cross_selling_items %}
-                    <ul class="sw-product-detail-cross-selling__cross-selling-list">
-                        <sw-product-cross-selling-form
-                            v-for="item in product.crossSellings"
-                            :key="item.id"
-                            :crossSelling="item"
-                            :allowEdit="acl.can('product.editor')">
-                        </sw-product-cross-selling-form>
-                    </ul>
-                {% endblock %}
-
-                {% block sw_product_detail_cross_selling_add %}
-                        <sw-button
-                            class="sw-product-detail-cross-selling__add-btn"
-                            variant="ghost"
-                            @click="onAddCrossSelling"
-                            :disabled="!acl.can('product.editor')"
-                            v-tooltip="{
-                                    message: this.$tc('sw-privileges.tooltip.warning'),
-                                    disabled: this.acl.can('product.editor'),
-                                    showOnDisabledElements: true
-                            }">
-                            {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
-                        </sw-button>
-                {% endblock %}
-            </template>
+<div class="sw-product-detail-cross-selling">
+    {% block sw_product_detail_cross_selling_items_wrapper %}
+    <template v-if="showCrossSellingCard">
+        {% block sw_product_detail_cross_selling_items %}
+        <ul class="sw-product-detail-cross-selling__cross-selling-list">
+            <sw-product-cross-selling-form
+                v-for="item in product.crossSellings"
+                :key="item.id"
+                :cross-selling="item"
+                :allow-edit="acl.can('product.editor')"
+            />
+        </ul>
         {% endblock %}
 
-        {% block sw_product_detail_empty_state %}
-            <sw-card class="sw-product-detail-cross-selling__empty-state"  v-else>
-                <sw-loader v-if="isLoading"></sw-loader>
-                <div v-else>
-                    <template>
-                        <div class="sw-product-detail-cross-selling__empty-state-inner">
-                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+        {% block sw_product_detail_cross_selling_add %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('product.editor'),
+                showOnDisabledElements: true
+            }"
+            class="sw-product-detail-cross-selling__add-btn"
+            variant="ghost"
+            :disabled="!acl.can('product.editor')"
+            @click="onAddCrossSelling"
+        >
+            {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
 
-                            <div class="sw-product-detail-cross-selling__empty-state-inner--label">
-                                <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
-                            </div>
+    {% block sw_product_detail_empty_state %}
+    <sw-card
+        v-else
+        class="sw-product-detail-cross-selling__empty-state"
+    >
+        <sw-loader v-if="isLoading" />
+        <div v-else>
+            <template>
+                <div class="sw-product-detail-cross-selling__empty-state-inner">
+                    <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
 
-                            {% block sw_product_detail_empty_state_cross_selling_add %}
-                            <sw-button
-                                variant="ghost"
-                                @click="onAddCrossSelling"
-                                :disabled="!acl.can('product.editor')"
-                                v-tooltip="{
-                                        message: this.$tc('sw-privileges.tooltip.warning'),
-                                        disabled: this.acl.can('product.editor'),
-                                        showOnDisabledElements: true
-                                }">
-                                {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
-                            </sw-button>
-                            {% endblock %}
-                        </div>
-                    </template>
+                    <div class="sw-product-detail-cross-selling__empty-state-inner--label">
+                        <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
+                    </div>
+
+                    {% block sw_product_detail_empty_state_cross_selling_add %}
+                    <sw-button
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('product.editor'),
+                            showOnDisabledElements: true
+                        }"
+                        variant="ghost"
+                        :disabled="!acl.can('product.editor')"
+                        @click="onAddCrossSelling"
+                    >
+                        {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
+                    </sw-button>
+                    {% endblock %}
                 </div>
-            </sw-card>
-        {% endblock %}
-    </div>
+            </template>
+        </div>
+    </sw-card>
+    {% endblock %}
+</div>
 {% endblock %}

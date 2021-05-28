@@ -1,34 +1,64 @@
 {% block sw_tabs %}
-    <div class="sw-tabs" :class="tabClasses">
+<div
+    class="sw-tabs"
+    :class="tabClasses"
+>
 
-            {% block sw_tabs_content %}
-                <div class="sw-tabs__content" ref="swTabContent" :style="tabContentStyle">
-                    {% block sw_tabs_content_slot %}
-                        <slot :active="active"></slot>
-                    {% endblock %}
-                    {% block sw_tabs_slider %}
-                        <span class="sw-tabs__slider" :class="sliderClasses" :style="sliderStyle"></span>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-
-            {% block sw_tabs_arrow_left %}
-                <button v-if="isScrollable" class="sw-tabs__arrow sw-tabs__arrow--left" :class="arrowClassesLeft" @click="scrollTo('left')">
-                    <sw-icon name="small-arrow-medium-left" small></sw-icon>
-                </button>
-            {% endblock %}
-
-            {% block sw_tabs_arrow_right %}
-                <button v-if="isScrollable" class="sw-tabs__arrow sw-tabs__arrow--right" :class="arrowClassesRight" @click="scrollTo('right')">
-                    <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                </button>
-            {% endblock %}
-
-            <div class="sw-tabs__custom-content">
-                {% block sw_tabs_custom_content %}
-                    <slot name="content" :active="active"></slot>
-                {% endblock %}
-            </div>
-
+    {% block sw_tabs_content %}
+    <div
+        ref="swTabContent"
+        class="sw-tabs__content"
+        :style="tabContentStyle"
+    >
+        {% block sw_tabs_content_slot %}
+        <slot :active="active" />
+        {% endblock %}
+        {% block sw_tabs_slider %}
+        <span
+            class="sw-tabs__slider"
+            :class="sliderClasses"
+            :style="sliderStyle"
+        />
+        {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_tabs_arrow_left %}
+    <button
+        v-if="isScrollable"
+        class="sw-tabs__arrow sw-tabs__arrow--left"
+        :class="arrowClassesLeft"
+        @click="scrollTo('left')"
+    >
+        <sw-icon
+            name="small-arrow-medium-left"
+            small
+        />
+    </button>
+    {% endblock %}
+
+    {% block sw_tabs_arrow_right %}
+    <button
+        v-if="isScrollable"
+        class="sw-tabs__arrow sw-tabs__arrow--right"
+        :class="arrowClassesRight"
+        @click="scrollTo('right')"
+    >
+        <sw-icon
+            name="small-arrow-medium-right"
+            small
+        />
+    </button>
+    {% endblock %}
+
+    <div class="sw-tabs__custom-content">
+        {% block sw_tabs_custom_content %}
+        <slot
+            name="content"
+            :active="active"
+        />
+        {% endblock %}
+    </div>
+
+</div>
 {% endblock %}

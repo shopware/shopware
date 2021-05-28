@@ -1,27 +1,39 @@
 {% block sw_cms_block_layout_config %}
-    <div class="sw-cms-block-layout-config">
-        {% block sw_cms_block_layout_config_css_class %}
-            <sw-text-field
-                :label="$tc('sw-cms.detail.label.cssClassField')"
-                :helpText="$tc('sw-cms.detail.helpText.cssClassField')"
-                v-model="block.cssClass">
-            </sw-text-field>
-        {% endblock %}
+<div class="sw-cms-block-layout-config">
+    {% block sw_cms_block_layout_config_css_class %}
+    <sw-text-field
+        v-model="block.cssClass"
+        :label="$tc('sw-cms.detail.label.cssClassField')"
+        :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
+    />
+    {% endblock %}
 
-        {% block sw_cms_block_layout_config_top_margin_field %}
-            <sw-text-field :label="$tc('sw-cms.detail.label.blockTopMarginField')" v-model="block.marginTop"></sw-text-field>
-        {% endblock %}
+    {% block sw_cms_block_layout_config_top_margin_field %}
+    <sw-text-field
+        v-model="block.marginTop"
+        :label="$tc('sw-cms.detail.label.blockTopMarginField')"
+    />
+    {% endblock %}
 
-        {% block sw_cms_block_layout_config_bottom_margin_field %}
-            <sw-text-field :label="$tc('sw-cms.detail.label.blockBottomMarginField')" v-model="block.marginBottom"></sw-text-field>
-        {% endblock %}
+    {% block sw_cms_block_layout_config_bottom_margin_field %}
+    <sw-text-field
+        v-model="block.marginBottom"
+        :label="$tc('sw-cms.detail.label.blockBottomMarginField')"
+    />
+    {% endblock %}
 
-        {% block sw_cms_block_layout_config_left_margin_field %}
-            <sw-text-field :label="$tc('sw-cms.detail.label.blockLeftMarginField')" v-model="block.marginLeft"></sw-text-field>
-        {% endblock %}
+    {% block sw_cms_block_layout_config_left_margin_field %}
+    <sw-text-field
+        v-model="block.marginLeft"
+        :label="$tc('sw-cms.detail.label.blockLeftMarginField')"
+    />
+    {% endblock %}
 
-        {% block sw_cms_block_layout_config_right_margin_field %}
-            <sw-text-field :label="$tc('sw-cms.detail.label.blockRightMarginField')" v-model="block.marginRight"></sw-text-field>
-        {% endblock %}
-    </div>
+    {% block sw_cms_block_layout_config_right_margin_field %}
+    <sw-text-field
+        v-model="block.marginRight"
+        :label="$tc('sw-cms.detail.label.blockRightMarginField')"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,44 +1,50 @@
 {% block sw_confirm_modal %}
-    <sw-modal class="sw-confirm-modal"
-              v-bind="$attrs"
-              :variant="variant"
-              :title="titleText"
-              @modal-close="$emit('close')">
+<sw-modal
+    class="sw-confirm-modal"
+    v-bind="$attrs"
+    :variant="variant"
+    :title="titleText"
+    @modal-close="$emit('close')"
+>
 
-        {% block sw_confirm_modal_text %}
-            <slot>
+    {% block sw_confirm_modal_text %}
+    <slot>
 
-                {% block sw_confirm_modal_text_default %}
-                    <p class="sw-confirm-modal__text">
-                        {{ descriptionText }}
-                    </p>
-                {% endblock %}
-
-            </slot>
+        {% block sw_confirm_modal_text_default %}
+        <p class="sw-confirm-modal__text">
+            {{ descriptionText }}
+        </p>
         {% endblock %}
 
-        {% block sw_confirm_modal_footer %}
-            <template #modal-footer>
+    </slot>
+    {% endblock %}
 
-                {% block sw_confirm_modal_footer_cancel %}
-                    <sw-button class="sw-confirm-modal__button-cancel"
-                               size="small"
-                               @click="$emit('cancel')">
-                        {{ cancelText }}
-                    </sw-button>
-                {% endblock %}
+    {% block sw_confirm_modal_footer %}
+    <template #modal-footer>
 
-                {% block sw_confirm_modal_footer_confirm %}
-                    <sw-button class="sw-confirm-modal__button-confirm"
-                               :variant="type === 'delete' ? 'danger' : 'primary'"
-                               size="small"
-                               @click="$emit('confirm')">
-                        {{ confirmText }}
-                    </sw-button>
-                {% endblock %}
-
-            </template>
+        {% block sw_confirm_modal_footer_cancel %}
+        <sw-button
+            class="sw-confirm-modal__button-cancel"
+            size="small"
+            @click="$emit('cancel')"
+        >
+            {{ cancelText }}
+        </sw-button>
         {% endblock %}
 
-    </sw-modal>
+        {% block sw_confirm_modal_footer_confirm %}
+        <sw-button
+            class="sw-confirm-modal__button-confirm"
+            :variant="type === 'delete' ? 'danger' : 'primary'"
+            size="small"
+            @click="$emit('confirm')"
+        >
+            {{ confirmText }}
+        </sw-button>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+</sw-modal>
 {% endblock %}

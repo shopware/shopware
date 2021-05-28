@@ -1,44 +1,48 @@
 {% block sw_category_detail_menu %}
-    <sw-card class="sw-category-detail-base__menu" :title="$tc('sw-category.base.menu.title')" :isLoading="isLoading">
+<sw-card
+    class="sw-category-detail-base__menu"
+    :title="$tc('sw-category.base.menu.title')"
+    :is-loading="isLoading"
+>
 
-        {% block sw_category_detail_information_visible %}
-            <sw-switch-field
-                borderd
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('sw-category.base.menu.visible')"
-                v-model="reversedVisibility">
-            </sw-switch-field>
-        {% endblock %}
+    {% block sw_category_detail_information_visible %}
+    <sw-switch-field
+        v-model="reversedVisibility"
+        borderd
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('sw-category.base.menu.visible')"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_menu_media %}
-            <sw-upload-listener
-                    :uploadTag="category.id"
-                    @media-upload-finish="onSetMediaItem"
-                    autoUpload>
-            </sw-upload-listener>
-            <sw-media-upload-v2
-                    :label="$tc('sw-category.base.menu.imageLabel')"
-                    variant="regular"
-                    :disabled="!acl.can('category.editor')"
-                    :source="mediaItem"
-                    :uploadTag="category.id"
-                    :allowMultiSelect="false"
-                    :defaultFolder="category.getEntityName()"
-                    @media-drop="onMediaDropped"
-                    @media-upload-sidebar-open="openMediaSidebar"
-                    @media-upload-remove-image="onRemoveMediaItem">
-            </sw-media-upload-v2>
-        {% endblock %}
+    {% block sw_category_detail_menu_media %}
+    <sw-upload-listener
+        :upload-tag="category.id"
+        auto-upload
+        @media-upload-finish="onSetMediaItem"
+    />
+    <sw-media-upload-v2
+        :label="$tc('sw-category.base.menu.imageLabel')"
+        variant="regular"
+        :disabled="!acl.can('category.editor')"
+        :source="mediaItem"
+        :upload-tag="category.id"
+        :allow-multi-select="false"
+        :default-folder="category.getEntityName()"
+        @media-drop="onMediaDropped"
+        @media-upload-sidebar-open="openMediaSidebar"
+        @media-upload-remove-image="onRemoveMediaItem"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_menu_description %}
-            <sw-text-editor
-                class="sw-category-detail-base__description"
-                type="textarea"
-                :disabled="!acl.can('category.editor')"
-                :label="$tc('sw-category.base.menu.descriptionLabel')"
-                :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
-                v-model="category.description">
-            </sw-text-editor>
-        {% endblock %}
-    </sw-card>
+    {% block sw_category_detail_menu_description %}
+    <sw-text-editor
+        v-model="category.description"
+        class="sw-category-detail-base__description"
+        type="textarea"
+        :disabled="!acl.can('category.editor')"
+        :label="$tc('sw-category.base.menu.descriptionLabel')"
+        :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
+    />
+    {% endblock %}
+</sw-card>
 {% endblock %}

@@ -1,51 +1,53 @@
 {% block sw_order_create %}
-    <sw-page class="sw-order-create">
-        {% block sw_order_create_smart_bar_header %}
-            <template #smart-bar-header>
-                {% block sw_order_create_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_order_create_smart_bar_header_title_text %}
-                            {{ $tc('sw-order.create.textNewOrder') }}
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
+<sw-page class="sw-order-create">
+    {% block sw_order_create_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_order_create_smart_bar_header_title %}
+        <h2>
+            {% block sw_order_create_smart_bar_header_title_text %}
+            {{ $tc('sw-order.create.textNewOrder') }}
+            {% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_order_create_smart_bar_actions %}
-            <template #smart-bar-actions>
-                {% block sw_order_create_smart_bar_actions_slot %}
-                    {% block sw_order_create_smart_bar_actions_cancel %}
-                        <sw-button @click="onCancelOrder">
-                            {{ $tc('sw-order.create.buttonCancelOrder') }}
-                        </sw-button>
-                    {% endblock %}
-                    {% block sw_order_create_smart_bar_actions_add %}
-                        <sw-button-process variant="primary"
-                                           :disabled="isLoading"
-                                           :isLoading="isLoading"
-                                           :processSuccess="isSaveSuccessful"
-                                           @process-finish="saveFinish"
-                                           @click.prevent="onSaveOrder">
-                            {{ $tc('sw-order.create.buttonSaveOrder') }}
-                        </sw-button-process>
-                    {% endblock %}
-                {% endblock %}
-            </template>
+    {% block sw_order_create_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_order_create_smart_bar_actions_slot %}
+        {% block sw_order_create_smart_bar_actions_cancel %}
+        <sw-button @click="onCancelOrder">
+            {{ $tc('sw-order.create.buttonCancelOrder') }}
+        </sw-button>
         {% endblock %}
-
-        {% block sw_order_create_content %}
-            <template #content>
-                <router-view @error="showError"></router-view>
-
-                {% block sw_order_create_invalid_promotion_modal %}
-                    <sw-order-create-invalid-promotion-modal
-                        v-if="showInvalidCodeModal"
-                        @confirm="removeInvalidCode"
-                        @close="closeInvalidCodeModal">
-                    </sw-order-create-invalid-promotion-modal>
-                {% endblock %}
-            </template>
+        {% block sw_order_create_smart_bar_actions_add %}
+        <sw-button-process
+            variant="primary"
+            :disabled="isLoading"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            @process-finish="saveFinish"
+            @click.prevent="onSaveOrder"
+        >
+            {{ $tc('sw-order.create.buttonSaveOrder') }}
+        </sw-button-process>
         {% endblock %}
-    </sw-page>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_order_create_content %}
+    <template #content>
+        <router-view @error="showError" />
+
+        {% block sw_order_create_invalid_promotion_modal %}
+        <sw-order-create-invalid-promotion-modal
+            v-if="showInvalidCodeModal"
+            @confirm="removeInvalidCode"
+            @close="closeInvalidCodeModal"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

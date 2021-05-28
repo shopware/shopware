@@ -2,8 +2,12 @@
     :to="routerLink"
     :target="target"
     class="sw-internal-link"
-    :class="componentClasses">
+    :class="componentClasses"
+>
 
-    <slot/>
-    <sw-icon :name="icon" small></sw-icon>
+    <slot />
+    <sw-icon
+        :name="icon"
+        small
+    />
 </router-link>

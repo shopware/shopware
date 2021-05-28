@@ -1,73 +1,84 @@
 {% block sw_settings_rule_detail %}
-    <sw-page class="sw-settings-rule-detail">
-        {% block sw_settings_rule_detail_header %}
-            <template slot="smart-bar-header">
-                <h2 v-if="rule">{{ rule.name }}</h2>
-                <h2 v-else>{{ $tc('sw-settings-rule.detail.textHeadline') }}</h2>
-            </template>
+<sw-page class="sw-settings-rule-detail">
+    {% block sw_settings_rule_detail_header %}
+    <template slot="smart-bar-header">
+        <h2 v-if="rule">
+            {{ rule.name }}
+        </h2>
+        <h2 v-else>
+            {{ $tc('sw-settings-rule.detail.textHeadline') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_rule_detail_actions %}
+    <template slot="smart-bar-actions">
+
+        {% block sw_settings_rule_detail_actions_cancel %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            :disabled="isLoading"
+            @click="onCancel"
+        >
+            {{ $tc('sw-settings-rule.detail.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_settings_rule_detail_actions %}
-            <template slot="smart-bar-actions">
+        {% block sw_settings_rule_detail_actions_save %}
+        <sw-button-process
+            v-model="isSaveSuccessful"
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-rule-detail__save-action"
+            :is-loading="isLoading"
+            variant="primary"
+            :disabled="!acl.can('rule.editor')"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-rule.detail.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
 
-                {% block sw_settings_rule_detail_actions_cancel %}
-                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
-                        {{ $tc('sw-settings-rule.detail.buttonCancel') }}
-                    </sw-button>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_rule_detail_content %}
+    <template #content>
+        <sw-card-view>
+
+            <template>
+                {% block sw_settings_rule_detail_tabs %}
+                <sw-tabs
+                    v-if="rule && !rule.isNew()"
+                    class="sw-settings-rule-detail__tabs"
+                >
+                    {% block sw_settings_rule_detail_tab_items %}
+                    <sw-tabs-item
+                        v-for="tab in tabItems"
+                        :key="tab.route.name"
+                        :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
+                        :route="tab.route"
+                        :title="tab.title"
+                    >
+                        {{ tab.title }}
+                    </sw-tabs-item>
+                    {% endblock %}
+                </sw-tabs>
                 {% endblock %}
 
-                {% block sw_settings_rule_detail_actions_save %}
-                    <sw-button-process
-                            class="sw-settings-rule-detail__save-action"
-                            :isLoading="isLoading"
-                            v-model="isSaveSuccessful"
-                            variant="primary"
-                            v-tooltip.bottom="tooltipSave"
-                            :disabled="!acl.can('rule.editor')"
-                            @click="onSave">
-                        {{ $tc('sw-settings-rule.detail.buttonSave') }}
-                    </sw-button-process>
+                {% block sw_settings_rule_detail_content_view %}
+                <router-view
+                    v-if="rule !== null"
+                    :key="$route.path"
+                    :rule="rule"
+                    :conditions="conditions"
+                    :condition-repository="conditionRepository"
+                    :is-loading="isLoading"
+                    @conditions-changed="conditionsChanged"
+                />
                 {% endblock %}
-
             </template>
-        {% endblock %}
-
-        {% block sw_settings_rule_detail_content %}
-            <template #content>
-                <sw-card-view>
-
-                    <template>
-                        {% block sw_settings_rule_detail_tabs %}
-                            <sw-tabs
-                                v-if="rule && !rule.isNew()"
-                                class="sw-settings-rule-detail__tabs">
-                                {% block sw_settings_rule_detail_tab_items %}
-                                    <sw-tabs-item
-                                        v-for="tab in tabItems"
-                                        :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
-                                        :key="tab.route.name"
-                                        :route="tab.route"
-                                        :title="tab.title">
-                                        {{ tab.title }}
-                                    </sw-tabs-item>
-                                {% endblock %}
-                            </sw-tabs>
-                        {% endblock %}
-
-                        {% block sw_settings_rule_detail_content_view %}
-                            <router-view
-                                v-if="rule !== null"
-                                :rule="rule"
-                                :conditions="conditions"
-                                :conditionRepository="conditionRepository"
-                                :isLoading="isLoading"
-                                @conditions-changed="conditionsChanged"
-                                :key="$route.path">
-                            </router-view>
-                        {% endblock %}
-                    </template>
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

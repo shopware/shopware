@@ -1,17 +1,20 @@
 {% block sw_text_field %}
-    {% block sw_select_rating %}
-        <sw-base-field class="sw-field--rating-select" v-bind="$attrs">
-            {% block sw_select_rating_input %}
-                <template #sw-field-input>
-                    {% block sw_select_rating_input_stars %}
-                        <sw-extension-rating-stars
-                            v-model="currentValue"
-                            @rating-changed="onChange"
-                            editable>
-                        </sw-extension-rating-stars>
-                    {% endblock %}
-                </template>
-            {% endblock %}
-        </sw-base-field>
+{% block sw_select_rating %}
+<sw-base-field
+    class="sw-field--rating-select"
+    v-bind="$attrs"
+>
+    {% block sw_select_rating_input %}
+    <template #sw-field-input>
+        {% block sw_select_rating_input_stars %}
+        <sw-extension-rating-stars
+            v-model="currentValue"
+            editable
+            @rating-changed="onChange"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-base-field>
     {% endblock %}
 {% endblock %}

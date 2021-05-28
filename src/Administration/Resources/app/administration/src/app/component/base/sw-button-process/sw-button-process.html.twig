@@ -1,15 +1,20 @@
 {% block sw_button_process %}
-    <sw-button class="sw-button-process"
-            v-on="$listeners"
-            v-bind="$attrs">
+<sw-button
+    class="sw-button-process"
+    v-bind="$attrs"
+    v-on="$listeners"
+>
 
-        <sw-icon v-if="processSuccess"
-                class="sw-button-process__status-indicator"
-                name="small-default-checkmark-line-medium">
-        </sw-icon>
-        <span class="sw-button-process__content"
-            :class="contentVisibilityClass">
-            <slot></slot>
-        </span>
-    </sw-button>
+    <sw-icon
+        v-if="processSuccess"
+        class="sw-button-process__status-indicator"
+        name="small-default-checkmark-line-medium"
+    />
+    <span
+        class="sw-button-process__content"
+        :class="contentVisibilityClass"
+    >
+        <slot />
+    </span>
+</sw-button>
 {% endblock %}

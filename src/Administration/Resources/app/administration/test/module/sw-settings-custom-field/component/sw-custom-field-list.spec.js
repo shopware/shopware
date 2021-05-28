@@ -165,7 +165,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
 
         // Should be in grid on correct position
         const expectedRow = wrapper.findAll('.sw-grid .sw-grid__body .sw-grid-row').at(0);
-        expect(expectedRow.find('.sw-grid-column[dataIndex="label"]').text()).toBe('New');
+        expect(expectedRow.find('.sw-grid-column[data-index="label"]').text()).toBe('New');
     });
 
     it('should delete custom field', async () => {
@@ -192,7 +192,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(rows.length).toBe(9);
 
         const expectedRow = rows.at(0);
-        expect(expectedRow.find('.sw-grid-column[dataIndex="label"]').text()).toBe('Special field 1');
+        expect(expectedRow.find('.sw-grid-column[data-index="label"]').text()).toBe('Special field 1');
     });
 
     it('should sort custom fields by position ', async () => {
@@ -200,7 +200,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
 
         await wrapper.vm.$nextTick();
 
-        const customFieldPositionCells = wrapper.findAll('.sw-grid-column[dataIndex="position"]').wrappers;
+        const customFieldPositionCells = wrapper.findAll('.sw-grid-column[data-index="position"]').wrappers;
         const [first, second, third, fourth] = customFieldPositionCells;
 
         expect(first.text()).toBe('1');

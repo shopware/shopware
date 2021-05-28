@@ -1,95 +1,117 @@
 {% block sw_settings_snippet_detail %}
-    <sw-page class="sw-settings-snippet-detail">
+<sw-page class="sw-settings-snippet-detail">
 
-        {% block sw_settings_snippet_detail_smart_bar %}
-            <template slot="smart-bar-back">
-                <router-link class="smart-bar__back-btn"
-                             :to="backPath"
-                             :style="{ 'color': moduleData.color }">
-                    <sw-icon name="default-arrow-head-left" small></sw-icon>
-                    <sw-icon :name="moduleData.icon" v-if="moduleData && moduleData.icon" small></sw-icon>
-                </router-link>
-            </template>
+    {% block sw_settings_snippet_detail_smart_bar %}
+    <template slot="smart-bar-back">
+        <router-link
+            class="smart-bar__back-btn"
+            :to="backPath"
+            :style="{ 'color': moduleData.color }"
+        >
+            <sw-icon
+                name="default-arrow-head-left"
+                small
+            />
+            <sw-icon
+                v-if="moduleData && moduleData.icon"
+                :name="moduleData.icon"
+                small
+            />
+        </router-link>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_snippet_detail_header %}
+    <template slot="smart-bar-header">
+        <h2 v-if="translationKey">
+            {{ translationKey }}
+        </h2>
+        <h2 v-else>
+            {{ $tc('sw-settings-snippet.detail.textHeadline') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_snippet_detail_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_snippet_detail_actions_abort %}
+        <sw-button
+            :disabled="isLoading"
+            :router-link="backPath"
+        >
+            {{ $tc('sw-settings-snippet.detail.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_settings_snippet_detail_header %}
-            <template slot="smart-bar-header">
-                <h2 v-if="translationKey">{{ translationKey }}</h2>
-                <h2 v-else>{{ $tc('sw-settings-snippet.detail.textHeadline') }}</h2>
-            </template>
+        {% block sw_settings_snippet_detail_actions_save %}
+        <sw-button-process
+            v-tooltip="getNoPermissionsTooltip('snippet.editor')"
+            class="sw-snippet-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="!acl.can('snippet.editor') || isLoading || !translationKey || !isSaveable"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-settings-snippet.detail.buttonSave') }}
+        </sw-button-process>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_snippet_detail_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_snippet_detail_actions_abort %}
-                    <sw-button :disabled="isLoading"
-                               :routerLink="backPath">
-                        {{ $tc('sw-settings-snippet.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
+    {% block sw_settings_snippet_detail_content %}
+    <sw-card-view slot="content">
+        {% block sw_settings_snippet_set_detail_card %}
+        <div class="sw-settings-snippet-set-detail-card">
+            {% block sw_settings_snippet_set_detail_card_information %}
+            <sw-card
+                :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
+                :is-loading="isLoading"
+            >
+                <div class="snippet-general-card">
+                    {% block sw_settings_snippet_set_detail_card_information_key %}
+                    <sw-field
+                        v-model="translationKey"
+                        v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                        type="text"
+                        :label="$tc('sw-settings-snippet.detail.labelName')"
+                        :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
+                        :disabled="!(isCreate || isAddedSnippet)"
+                        :error="invalidKeyError"
+                        @input="onChange"
+                    />
+                    {% endblock %}
+                </div>
+            </sw-card>
+            {% endblock %}
 
-                {% block sw_settings_snippet_detail_actions_save %}
-                    <sw-button-process
-                        class="sw-snippet-detail__save-action"
-                        :isLoading="isLoading"
-                        v-tooltip="getNoPermissionsTooltip('snippet.editor')"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="!acl.can('snippet.editor') || isLoading || !translationKey || !isSaveable"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        @click.prevent="onSave">
-                        {{ $tc('sw-settings-snippet.detail.buttonSave') }}
-                    </sw-button-process>
-                {% endblock %}
-            </template>
+            {% block sw_settings_snippet_set_detail_card_snippets %}
+            <sw-card
+                :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
+                :is-loading="isLoading"
+            >
+                <div class="snippet-overview-card">
+                    {% block sw_settings_snippet_set_detail_card_snippets_fields %}
+                    <sw-field
+                        v-for="(snippet, index) in snippets"
+                        :key="snippet.setId"
+                        v-model="snippet.value"
+                        v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                        type="text"
+                        :class="`sw-settings-snippet-detail__translation-field--${index}`"
+                        :disabled="!acl.can('snippet.editor')"
+                        :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
+                        :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
+                        @input="onChange"
+                    />
+                    {% endblock %}
+                </div>
+            </sw-card>
+            {% endblock %}
+        </div>
         {% endblock %}
-
-        {% block sw_settings_snippet_detail_content %}
-            <sw-card-view slot="content">
-                {% block sw_settings_snippet_set_detail_card %}
-                    <div class="sw-settings-snippet-set-detail-card">
-                        {% block sw_settings_snippet_set_detail_card_information %}
-                            <sw-card :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
-                                     :isLoading="isLoading">
-                                <div class="snippet-general-card">
-                                    {% block sw_settings_snippet_set_detail_card_information_key %}
-                                        <sw-field type="text"
-                                                  :label="$tc('sw-settings-snippet.detail.labelName')"
-                                                  :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
-                                                  v-model="translationKey"
-                                                  @input="onChange"
-                                                  v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                                                  :disabled="!(isCreate || isAddedSnippet)"
-                                                  :error="invalidKeyError">
-                                        </sw-field>
-                                    {% endblock %}
-                                </div>
-                            </sw-card>
-                        {% endblock %}
-
-                        {% block sw_settings_snippet_set_detail_card_snippets %}
-                            <sw-card :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
-                                     :isLoading="isLoading">
-                                <div class="snippet-overview-card">
-                                    {% block sw_settings_snippet_set_detail_card_snippets_fields %}
-                                        <sw-field type="text"
-                                                  v-for="(snippet, index) in snippets"
-                                                  v-model="snippet.value"
-                                                  :class="`sw-settings-snippet-detail__translation-field--${index}`"
-                                                  :key="snippet.setId"
-                                                  @input="onChange"
-                                                  :disabled="!acl.can('snippet.editor')"
-                                                  v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                                                  :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
-                                                  :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')">
-                                        </sw-field>
-                                    {% endblock %}
-                                </div>
-                            </sw-card>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </sw-card-view>
-        {% endblock %}
-    </sw-page>
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
 {% endblock %}

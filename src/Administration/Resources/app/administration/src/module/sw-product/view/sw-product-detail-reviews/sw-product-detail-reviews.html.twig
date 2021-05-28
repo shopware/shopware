@@ -1,129 +1,147 @@
 {% block sw_product_detail_reviews %}
-    <sw-card class="sw-product-detail-reviews" :title="$tc('sw-product.reviews.cardTitleReviews')" :isLoading="isLoading">
-        {% block sw_product_detail_reviews_data %}
-            <template v-if="total" #grid>
-                <sw-data-grid
-                    ref="gridReview"
-                    :dataSource="dataSource"
-                    :columns="reviewColumns"
-                    :isLoading="isLoading"
-                    :showSelection="false"
-                    :showActions="true">
-                    {% block sw_product_detail_reviews_data_stars %}
-                        <template #column-points="{ item }">
-                            {% block sw_product_detail_reviews_data_stars_content %}
-                                <div class="sw-product-detail-reviews__stars">
-                                    {% block sw_product_detail_reviews_data_stars_filled %}
-                                        <sw-icon
-                                            v-for="(filledStar, index) in item.points"
-                                            size="14"
-                                            name="default-review-star-full"
-                                            :key="`filledStar-${index}`">
-                                        </sw-icon>
-                                    {% endblock %}
-
-                                    {% block sw_product_detail_reviews_data_stars_empty %}
-                                        <sw-icon
-                                            v-for="(emptyStar, index) in (5-item.points)"
-                                            size="14"
-                                            name="default-basic-shape-star"
-                                            :key="`emptyStar-${index}`">
-                                        </sw-icon>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </template>
+<sw-card
+    class="sw-product-detail-reviews"
+    :title="$tc('sw-product.reviews.cardTitleReviews')"
+    :is-loading="isLoading"
+>
+    {% block sw_product_detail_reviews_data %}
+    <template
+        v-if="total"
+        #grid
+    >
+        <sw-data-grid
+            ref="gridReview"
+            :data-source="dataSource"
+            :columns="reviewColumns"
+            :is-loading="isLoading"
+            :show-selection="false"
+            :show-actions="true"
+        >
+            {% block sw_product_detail_reviews_data_stars %}
+            <template #column-points="{ item }">
+                {% block sw_product_detail_reviews_data_stars_content %}
+                <div class="sw-product-detail-reviews__stars">
+                    {% block sw_product_detail_reviews_data_stars_filled %}
+                    <sw-icon
+                        v-for="(filledStar, index) in item.points"
+                        :key="`filledStar-${index}`"
+                        size="14"
+                        name="default-review-star-full"
+                    />
                     {% endblock %}
 
-                    {% block sw_product_detail_reviews_data_status %}
-                        <template #column-status="{ item }">
-                            <sw-data-grid-column-boolean
-                                v-model="item.status"
-                                :isInlineEdit="false">
-                            </sw-data-grid-column-boolean>
-                        </template>
+                    {% block sw_product_detail_reviews_data_stars_empty %}
+                    <sw-icon
+                        v-for="(emptyStar, index) in (5-item.points)"
+                        :key="`emptyStar-${index}`"
+                        size="14"
+                        name="default-basic-shape-star"
+                    />
                     {% endblock %}
-
-                    {% block sw_product_detail_reviews_data_created_at %}
-                        <template #column-createdAt="{ item }">
-                            {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
-                        </template>
-                    {% endblock %}
-
-                    {% block sw_product_detail_reviews_data_action %}
-                        <template #actions="{ item }">
-                            {% block sw_product_detail_reviews_data_action_edit %}
-                                <sw-context-menu-item
-                                    class="sw-product-detail-reviews__action-edit"
-                                    :disabled="!acl.can('product.editor')"
-                                    :routerLink="{ name: 'sw.review.detail', params: { id: item.id } }">
-                                    {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
-
-                            {% block sw_product_detail_reviews_data_action_delete %}
-                                <sw-context-menu-item
-                                    class="sw-product-detail-reviews__action-delete"
-                                    variant="danger"
-                                    :disabled="!acl.can('product.editor')"
-                                    @click="onStartReviewDelete(item)">
-                                    {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
-                        </template>
-                    {% endblock %}
-
-                    {% block sw_product_detail_reviews_data_pagination %}
-                        <template #pagination>
-                            <sw-pagination
-                                :total="total"
-                                :limit="limit"
-                                :page="page"
-                                :total-visible="7"
-                                :steps="[10]"
-                                @page-change="onChangePage">
-                            </sw-pagination>
-                        </template>
-                    {% endblock %}
-                </sw-data-grid>
+                </div>
+                {% endblock %}
             </template>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_product_detail_reviews_empty_state %}
-            <sw-empty-state
-                v-if="!total"
-                icon="default-documentation-file"
-                :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
-                :subline="$tc('sw-product.reviewForm.messageEmptySubline')">
-            </sw-empty-state>
-        {% endblock %}
+            {% block sw_product_detail_reviews_data_status %}
+            <template #column-status="{ item }">
+                <sw-data-grid-column-boolean
+                    v-model="item.status"
+                    :is-inline-edit="false"
+                />
+            </template>
+            {% endblock %}
 
-        {% block sw_product_detail_reviews_modal_delete %}
-            <sw-modal
-                v-if="showReviewDeleteModal"
-                variant="small"
-                :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
-                @modal-close="onCancelReviewDelete">
-                {% block sw_product_detail_reviews_modal_delete_body %}
-                    <p>{{ $tc('sw-product.reviewForm.modal.confirmText') }}</p>
+            {% block sw_product_detail_reviews_data_created_at %}
+            <template #column-createdAt="{ item }">
+                {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
+            </template>
+            {% endblock %}
+
+            {% block sw_product_detail_reviews_data_action %}
+            <template #actions="{ item }">
+                {% block sw_product_detail_reviews_data_action_edit %}
+                <sw-context-menu-item
+                    class="sw-product-detail-reviews__action-edit"
+                    :disabled="!acl.can('product.editor')"
+                    :router-link="{ name: 'sw.review.detail', params: { id: item.id } }"
+                >
+                    {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
+                </sw-context-menu-item>
                 {% endblock %}
 
-                {% block sw_product_detail_reviews_modal_delete_footer %}
-                    <template #modal-footer>
-                        {% block sw_product_detail_reviews_modal_delete_button_cancel %}
-                            <sw-button size="small" @click="onCancelReviewDelete">
-                                {{ $tc('sw-product.reviewForm.modal.buttonCancel') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_product_detail_reviews_modal_delete_button_confirm %}
-                            <sw-button size="small" variant="danger" @click="onConfirmReviewDelete">
-                                {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
+                {% block sw_product_detail_reviews_data_action_delete %}
+                <sw-context-menu-item
+                    class="sw-product-detail-reviews__action-delete"
+                    variant="danger"
+                    :disabled="!acl.can('product.editor')"
+                    @click="onStartReviewDelete(item)"
+                >
+                    {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
+                </sw-context-menu-item>
                 {% endblock %}
-            </sw-modal>
+            </template>
+            {% endblock %}
+
+            {% block sw_product_detail_reviews_data_pagination %}
+            <template #pagination>
+                <sw-pagination
+                    :total="total"
+                    :limit="limit"
+                    :page="page"
+                    :total-visible="7"
+                    :steps="[10]"
+                    @page-change="onChangePage"
+                />
+            </template>
+            {% endblock %}
+        </sw-data-grid>
+    </template>
+    {% endblock %}
+
+    {% block sw_product_detail_reviews_empty_state %}
+    <sw-empty-state
+        v-if="!total"
+        icon="default-documentation-file"
+        :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
+        :subline="$tc('sw-product.reviewForm.messageEmptySubline')"
+    />
+    {% endblock %}
+
+    {% block sw_product_detail_reviews_modal_delete %}
+    <sw-modal
+        v-if="showReviewDeleteModal"
+        variant="small"
+        :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
+        @modal-close="onCancelReviewDelete"
+    >
+        {% block sw_product_detail_reviews_modal_delete_body %}
+        <p>{{ $tc('sw-product.reviewForm.modal.confirmText') }}</p>
         {% endblock %}
-    </sw-card>
+
+        {% block sw_product_detail_reviews_modal_delete_footer %}
+        <template #modal-footer>
+            {% block sw_product_detail_reviews_modal_delete_button_cancel %}
+            <sw-button
+                size="small"
+                @click="onCancelReviewDelete"
+            >
+                {{ $tc('sw-product.reviewForm.modal.buttonCancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_product_detail_reviews_modal_delete_button_confirm %}
+            <sw-button
+                size="small"
+                variant="danger"
+                @click="onConfirmReviewDelete"
+            >
+                {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</sw-card>
 {% endblock %}

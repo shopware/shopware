@@ -1,97 +1,157 @@
 {% block sw_text_editor_toolbar_button %}
-    <div class="sw-text-editor-toolbar-button" :class="'sw-text-editor-toolbar-button__type-' + buttonConfig.type">
+<div
+    class="sw-text-editor-toolbar-button"
+    :class="'sw-text-editor-toolbar-button__type-' + buttonConfig.type"
+>
 
-        {% block sw_text_editor_toolbar_button_icon %}
-            <template v-if="buttonConfig.icon">
-                <div class="sw-text-editor-toolbar-button__icon"
-                     v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
-                     :class="classes"
-                     @click="buttonHandler($event, buttonConfig)">
-                    <sw-icon :name="buttonConfig.icon" size="12"></sw-icon>
-                    <sw-icon v-if="buttonConfig.children" name="default-arrow-head-down" size="8"></sw-icon>
-                </div>
-            </template>
-        {% endblock %}
+    {% block sw_text_editor_toolbar_button_icon %}
+    <template v-if="buttonConfig.icon">
+        <div
+            v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
+            class="sw-text-editor-toolbar-button__icon"
+            :class="classes"
+            @click="buttonHandler($event, buttonConfig)"
+        >
+            <sw-icon
+                :name="buttonConfig.icon"
+                size="12"
+            />
+            <sw-icon
+                v-if="buttonConfig.children"
+                name="default-arrow-head-down"
+                size="8"
+            />
+        </div>
+    </template>
+    {% endblock %}
 
-        {% block sw_text_editor_toolbar_button_name %}
-            <div v-else-if="buttonConfig.name" v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }" :class="classes" @click="buttonHandler($event, buttonConfig)">{{ buttonConfig.name }}</div>
-        {% endblock %}
+    {% block sw_text_editor_toolbar_button_name %}
+    <div
+        v-else-if="buttonConfig.name"
+        v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
+        :class="classes"
+        @click="buttonHandler($event, buttonConfig)"
+    >
+        {{ buttonConfig.name }}
+    </div>
+    {% endblock %}
 
-        {% block sw_text_editor_toolbar_button_color %}
-            <div v-else-if="buttonConfig.type === 'foreColor'" v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }" :class="classes" @click="buttonHandler($event, buttonConfig)">
-                <sw-field type="compactColorpicker"
-                          v-model="buttonConfig.value"
-                          :disabled="disabled"
-                          compact
-                          :alpha="false"
-                          @input="handleButtonClick(buttonConfig)">
-                </sw-field>
-            </div>
-        {% endblock %}
+    {% block sw_text_editor_toolbar_button_color %}
+    <div
+        v-else-if="buttonConfig.type === 'foreColor'"
+        v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
+        :class="classes"
+        @click="buttonHandler($event, buttonConfig)"
+    >
+        <sw-field
+            v-model="buttonConfig.value"
+            type="compactColorpicker"
+            :disabled="disabled"
+            compact
+            :alpha="false"
+            @input="handleButtonClick(buttonConfig)"
+        />
+    </div>
+    {% endblock %}
 
-        {% block sw_text_editor_toolbar_button_child %}
-            <div v-if="buttonConfig.children && buttonConfig.expanded"
-                 class="sw-text-editor-toolbar-button__children"
-                 :class="getDropdownClasses(buttonConfig)">
-                <div class="sw-text-editor-toolbar-button__children-inner-container">
-                    <div v-for="(child, childIndex) in buttonConfig.children"
-                         :key="childIndex"
-                         :class="childActive(child)"
-                         v-tooltip.right="getTooltipConfig(buttonConfig, child)"
-                         class="sw-text-editor-toolbar-button__children-child"
-                         @click="handleButtonClick(child)">
-                        {% block sw_text_editor_toolbar_button_child_item %}
-                            <div>
-                                <sw-icon v-if="child.icon" :name="child.icon" size="16"></sw-icon>
-                                <div class="sw-text-editor-toolbar-button__children-child-content" v-else>{{ child.name }}</div>
-                            </div>
-                        {% endblock %}
+    {% block sw_text_editor_toolbar_button_child %}
+    <div
+        v-if="buttonConfig.children && buttonConfig.expanded"
+        class="sw-text-editor-toolbar-button__children"
+        :class="getDropdownClasses(buttonConfig)"
+    >
+        <div class="sw-text-editor-toolbar-button__children-inner-container">
+            <div
+                v-for="(child, childIndex) in buttonConfig.children"
+                :key="childIndex"
+                v-tooltip.right="getTooltipConfig(buttonConfig, child)"
+                :class="childActive(child)"
+                class="sw-text-editor-toolbar-button__children-child"
+                @click="handleButtonClick(child)"
+            >
+                {% block sw_text_editor_toolbar_button_child_item %}
+                <div>
+                    <sw-icon
+                        v-if="child.icon"
+                        :name="child.icon"
+                        size="16"
+                    />
+                    <div
+                        v-else
+                        class="sw-text-editor-toolbar-button__children-child-content"
+                    >
+                        {{ child.name }}
                     </div>
                 </div>
-            </div>
-        {% endblock %}
-
-        {% block sw_text_editor_toolbar_button_link_menu %}
-            <div v-if="buttonConfig.type === 'link' && buttonConfig.expanded"
-                 class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__link-menu">
-                {% block sw_text_editor_toolbar_button_link_menu_content %}
-                    <p class="sw-text-editor-toolbar-button__link-menu-text">{{ $tc('sw-text-editor-toolbar.link.linkTo') }}</p>
-                    <sw-field v-model="buttonConfig.value" type="text" :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"></sw-field>
-                    <sw-field v-model="buttonConfig.newTab" type="switch" :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"></sw-field>
-                    <sw-field v-model="buttonConfig.displayAsButton" type="switch" :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"></sw-field>
-                    <sw-field v-if="buttonConfig.displayAsButton"
-                              v-model="buttonConfig.buttonVariant"
-                              :options="buttonConfig.buttonVariantList"
-                              type="select"
-                              :label="$tc('sw-text-editor-toolbar.link.buttonVariant')">
-                    </sw-field>
-                    <div class="sw-text-editor-toolbar-button__link-menu-buttons">
-                        {% block sw_text_editor_toolbar_button_link_menu_buttons %}
-                            <sw-button size="small"
-                                       variant="primary"
-                                       class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
-                                       @click="handleButtonClick(buttonConfig)">
-                                {{ $tc('sw-text-editor-toolbar.link.insert') }}
-                            </sw-button>
-                        {% endblock %}
-                    </div>
                 {% endblock %}
             </div>
-        {% endblock %}
+        </div>
+    </div>
+    {% endblock %}
 
-        {% block sw_text_editor_toolbar_button_table %}
-            <div v-if="buttonConfig.type === 'table' && buttonConfig.expanded"
-                 class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__table-menu">
-                {% block sw_text_editor_toolbar_button_table_menu_content %}
-                    <sw-text-editor-toolbar-table-button :buttonConfig="buttonConfig"
-                                                         @table-create="handleButtonClick(buttonConfig)">
-                    </sw-text-editor-toolbar-table-button>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_text_editor_toolbar_button_slot %}
-            <slot name="buttonSlot"></slot>
+    {% block sw_text_editor_toolbar_button_link_menu %}
+    <div
+        v-if="buttonConfig.type === 'link' && buttonConfig.expanded"
+        class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__link-menu"
+    >
+        {% block sw_text_editor_toolbar_button_link_menu_content %}
+        <p class="sw-text-editor-toolbar-button__link-menu-text">
+            {{ $tc('sw-text-editor-toolbar.link.linkTo') }}
+        </p>
+        <sw-field
+            v-model="buttonConfig.value"
+            type="text"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+        />
+        <sw-field
+            v-model="buttonConfig.newTab"
+            type="switch"
+            :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
+        />
+        <sw-field
+            v-model="buttonConfig.displayAsButton"
+            type="switch"
+            :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
+        />
+        <sw-field
+            v-if="buttonConfig.displayAsButton"
+            v-model="buttonConfig.buttonVariant"
+            :options="buttonConfig.buttonVariantList"
+            type="select"
+            :label="$tc('sw-text-editor-toolbar.link.buttonVariant')"
+        />
+        <div class="sw-text-editor-toolbar-button__link-menu-buttons">
+            {% block sw_text_editor_toolbar_button_link_menu_buttons %}
+            <sw-button
+                size="small"
+                variant="primary"
+                class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
+                @click="handleButtonClick(buttonConfig)"
+            >
+                {{ $tc('sw-text-editor-toolbar.link.insert') }}
+            </sw-button>
+            {% endblock %}
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_table %}
+    <div
+        v-if="buttonConfig.type === 'table' && buttonConfig.expanded"
+        class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__table-menu"
+    >
+        {% block sw_text_editor_toolbar_button_table_menu_content %}
+        <sw-text-editor-toolbar-table-button
+            :button-config="buttonConfig"
+            @table-create="handleButtonClick(buttonConfig)"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_slot %}
+    <slot name="buttonSlot" />
+    {% endblock %}
+</div>
 {% endblock %}

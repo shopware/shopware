@@ -1,28 +1,32 @@
 {% block sw_sales_channel_defaults_select %}
-    <sw-container class="sw-sales-channel-defaults-select" gap="0px 30px" columns="1fr 200px">
-        <template v-if="salesChannel">
-            <sw-entity-multi-select
-                :labelProperty="labelProperty"
-                :disabled="disabled"
-                :class="multiSelectClass"
-                :label="propertyLabel"
-                :helpText="helpText"
-                :entityCollection="propertyCollection"
-                @change="updateCollection">
-            </sw-entity-multi-select>
+<sw-container
+    class="sw-sales-channel-defaults-select"
+    gap="0px 30px"
+    columns="1fr 200px"
+>
+    <template v-if="salesChannel">
+        <sw-entity-multi-select
+            :label-property="labelProperty"
+            :disabled="disabled"
+            :class="multiSelectClass"
+            :label="propertyLabel"
+            :help-text="helpText"
+            :entity-collection="propertyCollection"
+            @change="updateCollection"
+        />
 
-            <sw-entity-single-select
-                :labelProperty="labelProperty"
-                :disabled="disabled"
-                :class="singleSelectClass"
-                :label="defaultPropertyLabel"
-                :helpText="helpText"
-                required
-                :entity="propertyEntityName"
-                :value="defaultId"
-                :error="defaultsValueError"
-                @change="updateDefault">
-            </sw-entity-single-select>
-        </template>
-    </sw-container>
+        <sw-entity-single-select
+            :label-property="labelProperty"
+            :disabled="disabled"
+            :class="singleSelectClass"
+            :label="defaultPropertyLabel"
+            :help-text="helpText"
+            required
+            :entity="propertyEntityName"
+            :value="defaultId"
+            :error="defaultsValueError"
+            @change="updateDefault"
+        />
+    </template>
+</sw-container>
 {% endblock %}

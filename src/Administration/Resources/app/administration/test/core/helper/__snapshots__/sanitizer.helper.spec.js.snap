@@ -20,8 +20,8 @@ exports[`core/helper/sanitizer.helper.js should sanitize untrusted HTML in a com
       role="alert"
     >
       
-                        
-                    
+            
+        
     </div>
      
     <div

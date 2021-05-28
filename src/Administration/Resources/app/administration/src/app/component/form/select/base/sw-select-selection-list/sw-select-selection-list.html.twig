@@ -1,60 +1,82 @@
 {% block sw_select_selection_list %}
-    <ul class="sw-select-selection-list">
-        {% block sw_select_selection_list_item %}
-            <li v-if="!hideLabels"
-                v-for="(selection, index) in selections"
-                class="sw-select-selection-list__item-holder"
-                :class="'sw-select-selection-list__item-holder--' + index"
-                :key="selection[valueProperty]"
-                :data-id="selection[valueProperty]">
+<ul class="sw-select-selection-list">
+    {% block sw_select_selection_list_item %}
+    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+    <li
+        v-for="(selection, index) in selections"
+        v-if="!hideLabels"
+        :key="selection[valueProperty]"
+        class="sw-select-selection-list__item-holder"
+        :class="'sw-select-selection-list__item-holder--' + index"
+        :data-id="selection[valueProperty]"
+    >
 
-                {% block sw_select_selection_list_item_inner %}
-                    <slot name="selected-option" v-bind="{ selection, defaultLabel: selection[labelProperty], disabled }">
-                        <sw-label
-                            @dismiss="onClickDismiss(selection)"
-                            :dismissable="!disabled"
-                            :size="size">
-                            {% block sw_select_selection_list_item_text %}
-                                <span class="sw-select-selection-list__item">
-                                    <slot name="label-property" v-bind="{ item: selection, index, labelProperty, valueProperty }">
-                                        {{ selection[labelProperty] }}
-                                    </slot>
-                                </span>
-                            {% endblock %}
-                        </sw-label>
+        {% block sw_select_selection_list_item_inner %}
+        <slot
+            name="selected-option"
+            v-bind="{ selection, defaultLabel: selection[labelProperty], disabled }"
+        >
+            <sw-label
+                :dismissable="!disabled"
+                :size="size"
+                @dismiss="onClickDismiss(selection)"
+            >
+                {% block sw_select_selection_list_item_text %}
+                <span class="sw-select-selection-list__item">
+                    <slot
+                        name="label-property"
+                        v-bind="{ item: selection, index, labelProperty, valueProperty }"
+                    >
+                        {{ selection[labelProperty] }}
                     </slot>
+                </span>
                 {% endblock %}
-            </li>
+            </sw-label>
+        </slot>
         {% endblock %}
+    </li>
+    {% endblock %}
 
-        {% block sw_select_selection_list_load_more %}
-            <li v-if="invisibleCount > 0 && !hideLabels"
-                class="sw-select-selection-list__load-more">
-                <slot name="invisible-count" v-bind="{ invisibleCount, onClickInvisibleCount }">
-                    {% block sw_select_selection_list_load_more_item_button %}
-                        <sw-button class="sw-select-selection-list__load-more-button"
-                                   @click.stop="onClickInvisibleCount">
-                            +{{ invisibleCount }}
-                        </sw-button>
-                    {% endblock %}
-                </slot>
-            </li>
-        {% endblock %}
+    {% block sw_select_selection_list_load_more %}
+    <li
+        v-if="invisibleCount > 0 && !hideLabels"
+        class="sw-select-selection-list__load-more"
+    >
+        <slot
+            name="invisible-count"
+            v-bind="{ invisibleCount, onClickInvisibleCount }"
+        >
+            {% block sw_select_selection_list_load_more_item_button %}
+            <sw-button
+                class="sw-select-selection-list__load-more-button"
+                @click.stop="onClickInvisibleCount"
+            >
+                +{{ invisibleCount }}
+            </sw-button>
+            {% endblock %}
+        </slot>
+    </li>
+    {% endblock %}
 
-        {% block sw_select_selection_list_input %}
-            <li>
-                <slot name="input" v-bind="{ placeholder, searchTerm, onSearchTermChange, onKeyDownDelete }">
-                    <input ref="swSelectInput"
-                           class="sw-select-selection-list__input"
-                           type="text"
-                           :disabled="disabled"
-                           :readonly="!enableSearch"
-                           :placeholder="showPlaceholder"
-                           :value="searchTerm"
-                           @input="onSearchTermChange"
-                           @keydown.delete="onKeyDownDelete">
-                </slot>
-            </li>
-        {% endblock %}
-    </ul>
+    {% block sw_select_selection_list_input %}
+    <li>
+        <slot
+            name="input"
+            v-bind="{ placeholder, searchTerm, onSearchTermChange, onKeyDownDelete }"
+        >
+            <input
+                ref="swSelectInput"
+                class="sw-select-selection-list__input"
+                type="text"
+                :disabled="disabled"
+                :readonly="!enableSearch"
+                :placeholder="showPlaceholder"
+                :value="searchTerm"
+                @input="onSearchTermChange"
+                @keydown.delete="onKeyDownDelete"
+            >
+        </slot>
+    </li>
+    {% endblock %}
+</ul>
 {% endblock %}

@@ -1,19 +1,20 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-currency sw-condition__condition-value">
-        {% block sw_condition_currency_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-currency sw-condition__condition-value">
+    {% block sw_condition_currency_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_currency_field_currency_ids %}
-            <sw-entity-multi-select
-                size="medium"
-                entity="currency"
-                :entityCollection="currencies"
-                :disabled="disabled"
-                @change="setCurrencyIds">
-            </sw-entity-multi-select>
-        {% endblock %}
-    </div>
+    {% block sw_condition_currency_field_currency_ids %}
+    <sw-entity-multi-select
+        size="medium"
+        entity="currency"
+        :entity-collection="currencies"
+        :disabled="disabled"
+        @change="setCurrencyIds"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

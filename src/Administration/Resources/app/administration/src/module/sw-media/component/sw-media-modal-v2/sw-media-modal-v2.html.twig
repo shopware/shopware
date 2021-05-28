@@ -1,151 +1,171 @@
 {% block sw_media_modal_v2 %}
-    <sw-modal class="sw-media-modal-v2"
-              variant="full"
-              :title="$tc('sw-media.sw-media-modal-v2.titleModal')"
-              @modal-close="onEmitModalClosed">
+<sw-modal
+    class="sw-media-modal-v2"
+    variant="full"
+    :title="$tc('sw-media.sw-media-modal-v2.titleModal')"
+    @modal-close="onEmitModalClosed"
+>
 
-        {% block sw_media_modal_v2_content %}
-            <div class="sw-media-modal-v2__content">
+    {% block sw_media_modal_v2_content %}
+    <div class="sw-media-modal-v2__content">
 
-                {% block sw_media_modal_v2_tabs %}
-                    <sw-tabs variant="minimal" :defaultItem="defaultTab" class="sw-media-modal-v2__tabs">
-                        <template #default="{ active }">
+        {% block sw_media_modal_v2_tabs %}
+        <sw-tabs
+            variant="minimal"
+            :default-item="defaultTab"
+            class="sw-media-modal-v2__tabs"
+        >
+            <template #default="{ active }">
 
-                            {% block sw_media_modal_v2_tab_items %}
-                                {% block sw_media_modal_v2_tab_item_library %}
-                                    <sw-tabs-item
-                                        :name="tabNameLibrary"
-                                        :activeTab="active"
-                                        :disabled="hasUploads">
-                                        {{ $tc('sw-media.sw-media-modal-v2.labelTabItemLibrary') }}
-                                    </sw-tabs-item>
-                                {% endblock %}
-
-                                {% block sw_media_modal_v2_tab_item_upload %}
-                                    <sw-tabs-item
-                                        :name="tabNameUpload"
-                                        :activeTab="active"
-                                        @click="resetSelection">
-                                        {{ $tc('sw-media.sw-media-modal-v2.labelTabItemUpload') }}
-                                    </sw-tabs-item>
-                                {% endblock %}
-                            {% endblock %}
-                        </template>
-
-                        <template #content="{ active }">
-
-                            {% block sw_media_modal_v2_tab_content %}
-                                <div class="sw-media-modal-v2__tab-content">
-
-                                    {% block sw_media_modal_v2_tab_content_library %}
-                                        <template v-if="active === tabNameLibrary">
-
-                                            {% block sw_media_modal_v2_navigation_and_search %}
-                                                <div class="sw-media-modal-v2__breadcrumbs-and-search"
-                                                     :class="{'sw-media-modal-v2__breadcrumbs-and-search--compact': compact}">
-
-                                                    {% block sw_media_modal_v2_folder_breadcrumbs %}
-                                                        <sw-media-breadcrumbs v-model="folderId" :small="compact"></sw-media-breadcrumbs>
-                                                    {% endblock %}
-
-                                                    {% block sw_media_modal_v2_search_field %}
-                                                        <sw-simple-search-field v-model="term"></sw-simple-search-field>
-                                                    {% endblock %}
-                                                </div>
-                                            {% endblock %}
-
-                                            {% block sw_media_modal_v2_media_library %}
-                                                <sw-media-library
-                                                    ref="mediaLibrary"
-                                                    :selection="selection"
-                                                    :folderId="folderId"
-                                                    :term="term"
-                                                    :compact="compact"
-                                                    :allowMultiSelect="allowMultiSelect"
-                                                    @media-selection-change="selection = $event"
-                                                    @media-folder-change="folderId = $event">
-                                                </sw-media-library>
-                                            {% endblock %}
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_media_modal_v2_tab_content_upload %}
-                                        <template v-if="active === tabNameUpload"
-                                                  class="sw-media-modal-v2__uploads-content">
-
-                                            {% block sw_media_modal_v2_upload_component %}
-                                                <sw-upload-listener
-                                                    :uploadTag="uploadTag"
-                                                    @media-upload-add="onUploadsAdded"
-                                                    @media-upload-finish="onUploadFinished"
-                                                    @media-upload-fail="onUploadFailed">
-                                                </sw-upload-listener>
-
-                                                <sw-media-upload-v2
-                                                    class="sw-media-modal-v2__upload-container"
-                                                    variant="regular"
-                                                    :fileAccept="fileAccept"
-                                                    :uploadTag="uploadTag"
-                                                    :defaultFolder="entityContext"
-                                                    :targetFolder="folderId"
-                                                    :allowMultiSelect="allowMultiSelect">
-                                                </sw-media-upload-v2>
-                                            {% endblock %}
-
-                                            {% block sw_media_modal_v2_uploaded_items %}
-                                                <sw-media-grid :presentation="compact ? 'list-preview' : 'medium-preview'"
-                                                               :class="{'sw-media-modal-v2__upload-media-grid--compact': compact }">
-                                                    <sw-media-media-item
-                                                        v-for="upload in uploads"
-                                                        :key="`sw-media-modal-v2-upload-${upload.id}`"
-                                                        :item="upload"
-                                                        :showContextMenuButton="false"
-                                                        :showSelectionIndicator="allowMultiSelect"
-                                                        :allowMultiSelect="allowMultiSelect"
-                                                        :selected="checkMediaItem(upload)"
-                                                        :editable="false"
-                                                        :isList="compact"
-                                                        @media-item-selection-remove="onMediaRemoveSelected"
-                                                        @media-item-selection-add="onMediaAddSelected"
-                                                        @media-item-click="onMediaItemSelect">
-                                                    </sw-media-media-item>
-                                                </sw-media-grid>
-                                            {% endblock %}
-                                        </template>
-                                    {% endblock %}
-                                </div>
-                            </template>
-                        {% endblock %}
-                    </sw-tabs>
+                {% block sw_media_modal_v2_tab_items %}
+                {% block sw_media_modal_v2_tab_item_library %}
+                <sw-tabs-item
+                    :name="tabNameLibrary"
+                    :active-tab="active"
+                    :disabled="hasUploads"
+                >
+                    {{ $tc('sw-media.sw-media-modal-v2.labelTabItemLibrary') }}
+                </sw-tabs-item>
                 {% endblock %}
 
-                {% block sw_media_modal_v2_media_sidebar %}
-                    <sw-media-sidebar
-                        :items="selection"
-                        :currentFolderId="null"
-                        @media-sidebar-items-delete="onItemsDeleted"
-                        @media-sidebar-folder-items-dissolve="onMediaFoldersDissolved"
-                        @media-sidebar-items-move="refreshList"
-                        @media-item-selection-remove="onMediaRemoveSelected">
-                    </sw-media-sidebar>
+                {% block sw_media_modal_v2_tab_item_upload %}
+                <sw-tabs-item
+                    :name="tabNameUpload"
+                    :active-tab="active"
+                    @click="resetSelection"
+                >
+                    {{ $tc('sw-media.sw-media-modal-v2.labelTabItemUpload') }}
+                </sw-tabs-item>
                 {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_media_modal_v2_modal_footer %}
-            <template #modal-footer>
-                {% block sw_media_modal_v2_button_cancel %}
-                    <sw-button @click="onEmitModalClosed">
-                        {{ $tc('sw-media.sw-media-modal-v2.labelButtonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_media_modal_v2_button_confirm_selection %}
-                    <sw-button variant="primary" @click="onEmitSelection">
-                        {{ $tc('sw-media.sw-media-modal-v2.labelButtonSaveSelection') }}
-                    </sw-button>
                 {% endblock %}
             </template>
+
+            <template #content="{ active }">
+
+                {% block sw_media_modal_v2_tab_content %}
+                <div class="sw-media-modal-v2__tab-content">
+
+                    {% block sw_media_modal_v2_tab_content_library %}
+                    <template v-if="active === tabNameLibrary">
+
+                        {% block sw_media_modal_v2_navigation_and_search %}
+                        <div
+                            class="sw-media-modal-v2__breadcrumbs-and-search"
+                            :class="{'sw-media-modal-v2__breadcrumbs-and-search--compact': compact}"
+                        >
+
+                            {% block sw_media_modal_v2_folder_breadcrumbs %}
+                            <sw-media-breadcrumbs
+                                v-model="folderId"
+                                :small="compact"
+                            />
+                            {% endblock %}
+
+                            {% block sw_media_modal_v2_search_field %}
+                            <sw-simple-search-field v-model="term" />
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_media_modal_v2_media_library %}
+                        <sw-media-library
+                            ref="mediaLibrary"
+                            :selection="selection"
+                            :folder-id="folderId"
+                            :term="term"
+                            :compact="compact"
+                            :allow-multi-select="allowMultiSelect"
+                            @media-selection-change="selection = $event"
+                            @media-folder-change="folderId = $event"
+                        />
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_media_modal_v2_tab_content_upload %}
+                    <template
+                        v-if="active === tabNameUpload"
+                        class="sw-media-modal-v2__uploads-content"
+                    >
+
+                        {% block sw_media_modal_v2_upload_component %}
+                        <sw-upload-listener
+                            :upload-tag="uploadTag"
+                            @media-upload-add="onUploadsAdded"
+                            @media-upload-finish="onUploadFinished"
+                            @media-upload-fail="onUploadFailed"
+                        />
+
+                        <sw-media-upload-v2
+                            class="sw-media-modal-v2__upload-container"
+                            variant="regular"
+                            :file-accept="fileAccept"
+                            :upload-tag="uploadTag"
+                            :default-folder="entityContext"
+                            :target-folder="folderId"
+                            :allow-multi-select="allowMultiSelect"
+                        />
+                        {% endblock %}
+
+                        {% block sw_media_modal_v2_uploaded_items %}
+                        <sw-media-grid
+                            :presentation="compact ? 'list-preview' : 'medium-preview'"
+                            :class="{'sw-media-modal-v2__upload-media-grid--compact': compact }"
+                        >
+                            <sw-media-media-item
+                                v-for="upload in uploads"
+                                :key="`sw-media-modal-v2-upload-${upload.id}`"
+                                :item="upload"
+                                :show-context-menu-button="false"
+                                :show-selection-indicator="allowMultiSelect"
+                                :allow-multi-select="allowMultiSelect"
+                                :selected="checkMediaItem(upload)"
+                                :editable="false"
+                                :is-list="compact"
+                                @media-item-selection-remove="onMediaRemoveSelected"
+                                @media-item-selection-add="onMediaAddSelected"
+                                @media-item-click="onMediaItemSelect"
+                            />
+                        </sw-media-grid>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </div>
+            </template>
+            {% endblock %}
+        </sw-tabs>
         {% endblock %}
-    </sw-modal>
+
+        {% block sw_media_modal_v2_media_sidebar %}
+        <sw-media-sidebar
+            :items="selection"
+            :current-folder-id="null"
+            @media-sidebar-items-delete="onItemsDeleted"
+            @media-sidebar-folder-items-dissolve="onMediaFoldersDissolved"
+            @media-sidebar-items-move="refreshList"
+            @media-item-selection-remove="onMediaRemoveSelected"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_media_modal_v2_modal_footer %}
+    <template #modal-footer>
+        {% block sw_media_modal_v2_button_cancel %}
+        <sw-button @click="onEmitModalClosed">
+            {{ $tc('sw-media.sw-media-modal-v2.labelButtonCancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_media_modal_v2_button_confirm_selection %}
+        <sw-button
+            variant="primary"
+            @click="onEmitSelection"
+        >
+            {{ $tc('sw-media.sw-media-modal-v2.labelButtonSaveSelection') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

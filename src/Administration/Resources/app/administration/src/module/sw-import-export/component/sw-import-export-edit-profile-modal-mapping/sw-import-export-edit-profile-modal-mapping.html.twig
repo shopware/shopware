@@ -1,78 +1,81 @@
 {% block sw_import_export_edit_profile_modal_mapping %}
-    <div class="sw-import-export-edit-profile-modal-mapping">
+<div class="sw-import-export-edit-profile-modal-mapping">
 
-        {% block sw_import_export_edit_profile_modal_mapping_toolbar %}
-            <div class="sw-import-export-edit-profile-modal-mapping__toolbar">
-                {% block sw_import_export_edit_profile_modal_mapping_toolbar_search_field %}
-                    <sw-simple-search-field
-                        size="small"
-                        variant="form"
-                        v-model="searchTerm"
-                        @search-term-change="onSearch">
-                    </sw-simple-search-field>
-                {% endblock %}
-
-                {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
-                    <sw-button
-                        class="sw-import-export-edit-profile-modal-mapping__add-action"
-                        variant="ghost"
-                        @click="onAddMapping"
-                        :disabled="profile.systemDefault || !addMappingEnabled"
-                        size="small"
-                        v-tooltip="{
-                            message: $tc('sw-import-export.profile.addMappingTooltipText'),
-                            disabled: addMappingEnabled,
-                            showOnDisabledElements: true
-                        }">
-                        {{ $tc('sw-import-export.profile.addMappingLabel') }}
-                    </sw-button>
-                {% endblock %}
-            </div>
+    {% block sw_import_export_edit_profile_modal_mapping_toolbar %}
+    <div class="sw-import-export-edit-profile-modal-mapping__toolbar">
+        {% block sw_import_export_edit_profile_modal_mapping_toolbar_search_field %}
+        <sw-simple-search-field
+            v-model="searchTerm"
+            size="small"
+            variant="form"
+            @search-term-change="onSearch"
+        />
         {% endblock %}
 
-        {% block sw_import_export_edit_profile_modal_mapping_grid %}
-            <sw-data-grid
-                :dataSource="mappings"
-                :compactMode="false"
-                :showSelection="false"
-                :showActions="!profile.systemDefault"
-                :columns="mappingColumns">
-
-                {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
-                    <template #column-csvName="{ item, itemIndex }">
-                        <sw-field
-                            :name="`mappedKey-${itemIndex}`"
-                            type="text"
-                            :disabled="profile.systemDefault"
-                            v-model="item.mappedKey">
-                        </sw-field>
-                    </template>
-                {% endblock %}
-
-                {% block sw_import_export_edit_profile_modal_mapping_grid_entry_column %}
-                    <template #column-entry="{ item }">
-                        <sw-import-export-entity-path-select
-                            :languages="languages"
-                            :currencies="currencies"
-                            :entityType="profile.sourceEntity"
-                            :disabled="profile.systemDefault"
-                            v-model="item.key">
-                        </sw-import-export-entity-path-select>
-                    </template>
-                {% endblock %}
-
-                {% block sw_import_export_edit_profile_modal_mapping_grid_context_menu_delete %}
-                    <template #actions="{ item }">
-                        <sw-context-menu-item
-                            variant="danger"
-                            :disabled="profile.systemDefault"
-                            @click="onDeleteMapping(item.id)">
-                            {{ $tc('sw-import-export.profile.deleteLabel') }}
-                        </sw-context-menu-item>
-                    </template>
-                {% endblock %}
-
-            </sw-data-grid>
+        {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-import-export.profile.addMappingTooltipText'),
+                disabled: addMappingEnabled,
+                showOnDisabledElements: true
+            }"
+            class="sw-import-export-edit-profile-modal-mapping__add-action"
+            variant="ghost"
+            :disabled="profile.systemDefault || !addMappingEnabled"
+            size="small"
+            @click="onAddMapping"
+        >
+            {{ $tc('sw-import-export.profile.addMappingLabel') }}
+        </sw-button>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_modal_mapping_grid %}
+    <sw-data-grid
+        :data-source="mappings"
+        :compact-mode="false"
+        :show-selection="false"
+        :show-actions="!profile.systemDefault"
+        :columns="mappingColumns"
+    >
+
+        {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
+        <template #column-csvName="{ item, itemIndex }">
+            <sw-field
+                v-model="item.mappedKey"
+                :name="`mappedKey-${itemIndex}`"
+                type="text"
+                :disabled="profile.systemDefault"
+            />
+        </template>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_modal_mapping_grid_entry_column %}
+        <template #column-entry="{ item }">
+            <sw-import-export-entity-path-select
+                v-model="item.key"
+                :languages="languages"
+                :currencies="currencies"
+                :entity-type="profile.sourceEntity"
+                :disabled="profile.systemDefault"
+            />
+        </template>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_modal_mapping_grid_context_menu_delete %}
+        <template #actions="{ item }">
+            <sw-context-menu-item
+                variant="danger"
+                :disabled="profile.systemDefault"
+                @click="onDeleteMapping(item.id)"
+            >
+                {{ $tc('sw-import-export.profile.deleteLabel') }}
+            </sw-context-menu-item>
+        </template>
+        {% endblock %}
+
+    </sw-data-grid>
+    {% endblock %}
+</div>
 {% endblock %}

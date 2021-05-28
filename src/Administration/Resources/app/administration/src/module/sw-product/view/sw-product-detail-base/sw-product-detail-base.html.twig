@@ -1,253 +1,272 @@
 {% block sw_product_detail_base %}
-    <div class="sw-product-detail-base">
+<div class="sw-product-detail-base">
 
-        {% block sw_product_detail_base_basic_info_card %}
-            <sw-card
-                v-show="showProductCard('general_information')"
-                class="sw-product-detail-base__info"
-                :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
-                :isLoading="isLoading">
+    {% block sw_product_detail_base_basic_info_card %}
+    <sw-card
+        v-show="showProductCard('general_information')"
+        class="sw-product-detail-base__info"
+        :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
+        :is-loading="isLoading"
+    >
 
-                {% block sw_product_detail_base_basic_info_form %}
-                    <sw-product-basic-form
-                        v-if="!isLoading"
-                        :showSettingsInformation="showModeSetting"
-                        :allowEdit="acl.can('product.editor')">
-                    </sw-product-basic-form>
-                {% endblock %}
-
-            </sw-card>
+        {% block sw_product_detail_base_basic_info_form %}
+        <sw-product-basic-form
+            v-if="!isLoading"
+            :show-settings-information="showModeSetting"
+            :allow-edit="acl.can('product.editor')"
+        />
         {% endblock %}
 
-        {% block sw_product_detail_base_price_card %}
-            <sw-card
-                v-show="showProductCard('prices')"
-                class="sw-product-detail-base__prices"
-                :title="$tc('sw-product.detailBase.cardTitlePrices')"
-                :isLoading="loading.product">
+    </sw-card>
+    {% endblock %}
 
-                {% block sw_product_detail_base_price_form %}
-                    <sw-product-price-form :allowEdit="acl.can('product.editor')">
-                    </sw-product-price-form>
-                {% endblock %}
+    {% block sw_product_detail_base_price_card %}
+    <sw-card
+        v-show="showProductCard('prices')"
+        class="sw-product-detail-base__prices"
+        :title="$tc('sw-product.detailBase.cardTitlePrices')"
+        :is-loading="loading.product"
+    >
 
-                {% block sw_product_detail_base_advanced_prices_link %}
-                    <sw-container
-                        v-if="productId"
-                        columns="1fr"
-                        justify="end">
-
-                        <router-link
-                            :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                            class="sw-card__quick-link">
-                            {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                        </router-link>
-                    </sw-container>
-                {% endblock %}
-
-            </sw-card>
+        {% block sw_product_detail_base_price_form %}
+        <sw-product-price-form :allow-edit="acl.can('product.editor')" />
         {% endblock %}
 
-        {% block sw_product_detail_deliverability_info_card %}
-            <sw-card
-                v-show="showProductCard('deliverability')"
-                class="sw-product-detail-base__deliverability"
-                :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
-                :isLoading="isLoading">
+        {% block sw_product_detail_base_advanced_prices_link %}
+        <sw-container
+            v-if="productId"
+            columns="1fr"
+            justify="end"
+        >
 
-                {% block sw_product_detail_deliverability_info_form %}
-                    <sw-product-deliverability-form
-                        v-if="!isLoading"
-                        :allowEdit="acl.can('product.editor')">
-                    </sw-product-deliverability-form>
-                {% endblock %}
-            </sw-card>
+            <router-link
+                :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                class="sw-card__quick-link"
+            >
+                {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon
+                    name="default-arrow-simple-right"
+                    small
+                />
+            </router-link>
+        </sw-container>
         {% endblock %}
 
-        {% block sw_product_detail_base_category_card %}
-            <sw-card
-                v-show="showProductCard('visibility_structure')"
-                class="sw-product-detail-base__visibility-structure"
-                :title="$tc('sw-product.detailBase.cardTitleAssignment')"
-                :isLoading="loading.product">
+    </sw-card>
+    {% endblock %}
 
-                {% block sw_product_detail_base_category_form %}
-                    <sw-product-category-form :allowEdit="acl.can('product.editor')"></sw-product-category-form>
-                {% endblock %}
+    {% block sw_product_detail_deliverability_info_card %}
+    <sw-card
+        v-show="showProductCard('deliverability')"
+        class="sw-product-detail-base__deliverability"
+        :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
+        :is-loading="isLoading"
+    >
 
-            </sw-card>
+        {% block sw_product_detail_deliverability_info_form %}
+        <sw-product-deliverability-form
+            v-if="!isLoading"
+            :allow-edit="acl.can('product.editor')"
+        />
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_product_detail_base_category_card %}
+    <sw-card
+        v-show="showProductCard('visibility_structure')"
+        class="sw-product-detail-base__visibility-structure"
+        :title="$tc('sw-product.detailBase.cardTitleAssignment')"
+        :is-loading="loading.product"
+    >
+
+        {% block sw_product_detail_base_category_form %}
+        <sw-product-category-form :allow-edit="acl.can('product.editor')" />
         {% endblock %}
 
-        {% block sw_product_detail_base_media %}
-            <sw-inherit-wrapper
-                v-show="showProductCard('media')"
-                v-model="product.media"
-                class="sw-product-detail-base__media"
-                ref="productMediaInheritance"
-                :inheritedValue="parentProduct.media"
-                :customRestoreInheritanceFunction="mediaRestoreInheritanceFunction"
-                :customRemoveInheritanceFunction="mediaRemoveInheritanceFunction"
-                isAssociation>
-                <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
+    </sw-card>
+    {% endblock %}
 
-                    {% block sw_product_detail_base_media_card %}
-                        <sw-card :isLoading="loading.product || loading.customFieldSets || loading.media"
-                                 :class="{ 'sw-card__inherited': isInherited }">
-                            <template #title>
+    {% block sw_product_detail_base_media %}
+    <sw-inherit-wrapper
+        v-show="showProductCard('media')"
+        ref="productMediaInheritance"
+        v-model="product.media"
+        class="sw-product-detail-base__media"
+        :inherited-value="parentProduct.media"
+        :custom-restore-inheritance-function="mediaRestoreInheritanceFunction"
+        :custom-remove-inheritance-function="mediaRemoveInheritanceFunction"
+        is-association
+    >
+        <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
 
-                                {% block sw_product_detail_base_media_card_title %}
-                                    <div class="sw-card__title" :class="{ 'sw-card__title__inherited': isInherited }">
-                                        <sw-inheritance-switch
-                                            v-if="isInheritField"
-                                            class="sw-inherit-wrapper__inheritance-icon"
-                                            :isInherited="isInherited"
-                                            @inheritance-restore="restoreInheritance"
-                                            @inheritance-remove="removeInheritance">
-                                        </sw-inheritance-switch>
-                                        {{ $tc('sw-product.detailBase.cardTitleMedia') }}
-                                    </div>
-                                {% endblock %}
+            {% block sw_product_detail_base_media_card %}
+            <sw-card
+                :is-loading="loading.product || loading.customFieldSets || loading.media"
+                :class="{ 'sw-card__inherited': isInherited }"
+            >
+                <template #title>
 
-                            </template>
-
-                            {% block sw_product_detail_base_media_card_form %}
-                                <sw-product-media-form
-                                    v-if="mediaFormVisible"
-                                    :productId="isInherited ? parentProduct.id : product.id"
-                                    :key="isInherited"
-                                    :isInherited="isInherited"
-                                    :disabled="isInherited || !acl.can('product.editor')"
-                                    @media-open="onOpenMediaModal">
-                                </sw-product-media-form>
-                            {% endblock %}
-
-                        </sw-card>
+                    {% block sw_product_detail_base_media_card_title %}
+                    <div
+                        class="sw-card__title"
+                        :class="{ 'sw-card__title__inherited': isInherited }"
+                    >
+                        <sw-inheritance-switch
+                            v-if="isInheritField"
+                            class="sw-inherit-wrapper__inheritance-icon"
+                            :is-inherited="isInherited"
+                            @inheritance-restore="restoreInheritance"
+                            @inheritance-remove="removeInheritance"
+                        />
+                        {{ $tc('sw-product.detailBase.cardTitleMedia') }}
+                    </div>
                     {% endblock %}
 
                 </template>
-            </sw-inherit-wrapper>
-        {% endblock %}
 
-        {% block sw_product_detail_base_media_modal %}
-            <sw-media-modal-v2
-                v-if="showMediaModal"
-                :initialFolderId="mediaDefaultFolderId"
-                :entityContext="product.getEntityName()"
-                @media-modal-selection-change="onAddMedia"
-                @modal-close="onCloseMediaModal">
-            </sw-media-modal-v2>
-        {% endblock %}
-
-        {% block sw_product_detail_base_settings_card %}
-            <sw-card
-                v-show="showProductCard('labelling')"
-                class="sw-product-detail-base__labelling-card"
-                :title="$tc('sw-product.detailBase.cardTitleSettings')"
-                :isLoading="loading.product">
-
-                {% block sw_product_detail_base_settings_form %}
-                    <sw-product-settings-form :allowEdit="acl.can('product.editor')"></sw-product-settings-form>
+                {% block sw_product_detail_base_media_card_form %}
+                <sw-product-media-form
+                    v-if="mediaFormVisible"
+                    :key="isInherited"
+                    :product-id="isInherited ? parentProduct.id : product.id"
+                    :is-inherited="isInherited"
+                    :disabled="isInherited || !acl.can('product.editor')"
+                    @media-open="onOpenMediaModal"
+                />
                 {% endblock %}
 
             </sw-card>
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-seo" component, like following:
-            {% block sw_product_detail_seo %}
-                <div>
-                    {% block sw_product_detail_seo_general %}
-                        <sw-card>...</sw-card>
-                    {% endblock %}
-
-                    {% block sw_product_detail_seo_urls %}
-                        <sw-seo-url>....</sw-seo-url>
-                    {% endblock %}
-                </div>
             {% endblock %}
-        #}
-        {% block sw_product_detail_base_settings_seo_settings %}
+
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_product_detail_base_media_modal %}
+    <sw-media-modal-v2
+        v-if="showMediaModal"
+        :initial-folder-id="mediaDefaultFolderId"
+        :entity-context="product.getEntityName()"
+        @media-modal-selection-change="onAddMedia"
+        @modal-close="onCloseMediaModal"
+    />
+    {% endblock %}
+
+    {% block sw_product_detail_base_settings_card %}
+    <sw-card
+        v-show="showProductCard('labelling')"
+        class="sw-product-detail-base__labelling-card"
+        :title="$tc('sw-product.detailBase.cardTitleSettings')"
+        :is-loading="loading.product"
+    >
+
+        {% block sw_product_detail_base_settings_form %}
+        <sw-product-settings-form :allow-edit="acl.can('product.editor')" />
         {% endblock %}
 
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
-            {% block sw_product_detail_specifications %}
-                <div>
-                    ...
-                    {% block sw_product_detail_specifications_measures_packaging %}
-                        <sw-card
-                            :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
-                            :isLoading="isLoading">
-                            {% block sw_product_detail_specifications_measures_packaging_content %}
-                                <sw-product-packaging-form
-                                    v-if="!isLoading"
-                                    :allowEdit="acl.can('product.editor')">
-                                </sw-product-packaging-form>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-                    ...
-                </div>
-            {% endblock %}
-        #}
-        {% block sw_product_detail_base_packaging_card %}
+    </sw-card>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-seo" component, like following:
+    {% block sw_product_detail_seo %}
+    <div>
+        {% block sw_product_detail_seo_general %}
+        <sw-card>...</sw-card>
         {% endblock %}
 
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
-            {% block sw_product_detail_specifications %}
-                <div>
-                    ...
-                    {% block sw_product_detail_specifications_essential_characteristics %}
-                        <sw-card
-                            :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
-                            :isLoading="isLoading">
-                            {% block sw_product_detail_specifications_essential_characteristics_content %}
-                                <sw-product-feature-set-form
-                                    ...>
-                                </sw-product-feature-set-form>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-                    ...
-                </div>
-            {% endblock %}
-        #}
-        {% block sw_product_detail_base_feature_set_card %}
+        {% block sw_product_detail_seo_urls %}
+        <sw-seo-url>....</sw-seo-url>
         {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
-            {% block sw_product_detail_specifications %}
-                <div>
-                    ...
-                    {% block sw_product_detail_specifications_custom_fields %}
-                        <sw-card
-                            :title="$tc('sw-product.specifications.cardTitleCustomFields')"
-                            :isLoading="isLoading">
-                            {% block sw_product_detail_specifications_custom_fields_content %}
-                                <sw-custom-field-set-renderer
-                                    ...>
-                                </sw-custom-field-set-renderer>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-                    ...
-                </div>
-            {% endblock %}
-        #}
-        {% block sw_product_detail_attribute_sets %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-reviews" component, like following:
-            {% block sw_product_detail_reviews %}
-                <sw-card
-
-                    class="sw-product-detail-reviews"
-                    :title="$tc('sw-product.reviews.cardTitleReviews')"
-                    :isLoading="isLoading">
-                    ...
-                </sw-card>
-            {% endblock %}
-        #}
-        {% block sw_product_detail_base_ratings_card %}
-        {% endblock %}
-
     </div>
+    {% endblock %}
+    #}
+    {% block sw_product_detail_base_settings_seo_settings %}
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
+    {% block sw_product_detail_specifications %}
+    <div>
+        ...
+        {% block sw_product_detail_specifications_measures_packaging %}
+        <sw-card
+            :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
+            :is-loading="isLoading"
+        >
+            {% block sw_product_detail_specifications_measures_packaging_content %}
+            <sw-product-packaging-form
+                v-if="!isLoading"
+                :allow-edit="acl.can('product.editor')"
+            />
+            {% endblock %}
+        </sw-card>
+        {% endblock %}
+        ...
+    </div>
+    {% endblock %}
+    #}
+    {% block sw_product_detail_base_packaging_card %}
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
+    {% block sw_product_detail_specifications %}
+    <div>
+        ...
+        {% block sw_product_detail_specifications_essential_characteristics %}
+        <sw-card
+            :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
+            :is-loading="isLoading"
+        >
+            {% block sw_product_detail_specifications_essential_characteristics_content %}
+            <sw-product-feature-set-form
+                ...
+            />
+            {% endblock %}
+        </sw-card>
+        {% endblock %}
+        ...
+    </div>
+    {% endblock %}
+    #}
+    {% block sw_product_detail_base_feature_set_card %}
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
+    {% block sw_product_detail_specifications %}
+    <div>
+        ...
+        {% block sw_product_detail_specifications_custom_fields %}
+        <sw-card
+            :title="$tc('sw-product.specifications.cardTitleCustomFields')"
+            :is-loading="isLoading"
+        >
+            {% block sw_product_detail_specifications_custom_fields_content %}
+            <sw-custom-field-set-renderer
+                ...
+            />
+            {% endblock %}
+        </sw-card>
+        {% endblock %}
+        ...
+    </div>
+    {% endblock %}
+    #}
+    {% block sw_product_detail_attribute_sets %}
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-reviews" component, like following:
+    {% block sw_product_detail_reviews %}
+    <sw-card
+
+        class="sw-product-detail-reviews"
+        :title="$tc('sw-product.reviews.cardTitleReviews')"
+        :is-loading="isLoading"
+    >
+        ...
+    </sw-card>
+    {% endblock %}
+    #}
+    {% block sw_product_detail_base_ratings_card %}
+    {% endblock %}
+
+</div>
 {% endblock %}

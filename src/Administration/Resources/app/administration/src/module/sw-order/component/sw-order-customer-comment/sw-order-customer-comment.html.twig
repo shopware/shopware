@@ -1,11 +1,16 @@
 {% block sw_order_customer_comment %}
-    <sw-card class="sw-order-customer-comment" :title="$tc('sw-order.detailCustomerComment.title')" :isLoading="isLoading">
-        {% block sw_order_customer_comment_content %}
-            <sw-text-preview
-                :text="customerComment"
-                :modal-title="$tc('sw-order.detailCustomerComment.title')"
-                :maximum-length="750"
-                :maximum-new-lines="5"></sw-text-preview>
-        {% endblock %}
-    </sw-card>
+<sw-card
+    class="sw-order-customer-comment"
+    :title="$tc('sw-order.detailCustomerComment.title')"
+    :is-loading="isLoading"
+>
+    {% block sw_order_customer_comment_content %}
+    <sw-text-preview
+        :text="customerComment"
+        :modal-title="$tc('sw-order.detailCustomerComment.title')"
+        :maximum-length="750"
+        :maximum-new-lines="5"
+    />
+    {% endblock %}
+</sw-card>
 {% endblock %}

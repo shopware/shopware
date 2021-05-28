@@ -1,97 +1,111 @@
 {% block sw_custom_field_detail %}
-    <sw-modal
-            class="sw-custom-field-detail"
-            :title="modalTitle"
-            @modal-close="onCancel">
-        {% block sw_custom_field_detail_modal %}
-            <sw-container columns="1fr 1fr" gap="20px">
-                {% block sw_custom_field_detail_modal_type %}
-                    <sw-field
-                            :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
-                            :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
-                            class="sw-custom-field-detail__modal-type"
-                            type="select"
-                            v-model="currentCustomField.config.customFieldType"
-                            :helpText="$tc('sw-settings-custom-field.general.tooltipType')"
-                            :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor')">
-                        <option v-for="(option, key) in fieldTypes" :value="key">
-                            {{ $tc(`sw-settings-custom-field.types.${key}`) }}
-                        </option>
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_custom_field_detail_modal_technical_name %}
-                    <sw-field
-                            type="text"
-                            class="sw-custom-field-detail__technical-name"
-                            :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
-                            :helpText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
-                            :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor')"
-                            v-model="currentCustomField.name">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_custom_field_detail_modal_position %}
-                    <sw-field
-                            type="number"
-                            class="sw-custom-field-detail__modal-position"
-                            :helpText="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
-                            numberType="int"
-                            :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldPosition')"
-                            v-model="currentCustomField.config.customFieldPosition"
-                            :disabled="!acl.can('custom_field.editor')">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_custom_field_detail_modal_required %}
-                    <sw-field
-                            type="switch"
-                            bordered
-                            :helpText="$tc('sw-settings-custom-field.customField.detail.tooltipRequired')"
-                            class="sw-custom-field-detail__switch"
-                            :label="$tc('sw-settings-custom-field.customField.detail.labelRequired')"
-                            required
-                            v-model="required"
-                            :disabled="!acl.can('custom_field.editor')">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_custom_field_detail_modal_snippet_info  %}
-                    <sw-alert class="sw-custom-field-detail__info">
-                        {{ $tc('sw-settings-custom-field.customField.detail.infoText', 0, { name: currentCustomField.name }) }}
-                    </sw-alert>
-                {% endblock %}
-            </sw-container>
-
-            {% block sw_custom_field_detail_modal_render_component %}
-                <div v-if="currentCustomField.config.customFieldType.length > 0">
-                    <component v-bind:is="renderComponentName"
-                            :currentCustomField="currentCustomField"
-                            :set="set">
-                    </component>
-                </div>
-            {% endblock %}
-
-            {% block sw_custom_field_detail_modal_footer %}
-                <template slot="modal-footer">
-                    {% block sw_custom_field_detail_modal_footer_cancel %}
-                        <sw-button size="small" @click="onCancel">
-                            {{ $tc('sw-settings-custom-field.customField.detail.buttonCancel') }}
-                        </sw-button>
-                    {% endblock %}
-
-                    {% block sw_custom_field_detail_modal_footer_save %}
-                        <sw-button
-                            class="sw-custom-field-detail__footer-save"
-                            variant="primary"
-                            size="small"
-                            :disabled="!canSave || !acl.can('custom_field.editor')"
-                            @click="onSave">
-                            {{ labelSaveButton }}
-                        </sw-button>
-                    {% endblock %}
-                </template>
-            {% endblock %}
+<sw-modal
+    class="sw-custom-field-detail"
+    :title="modalTitle"
+    @modal-close="onCancel"
+>
+    {% block sw_custom_field_detail_modal %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="20px"
+    >
+        {% block sw_custom_field_detail_modal_type %}
+        <sw-field
+            v-model="currentCustomField.config.customFieldType"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
+            :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
+            class="sw-custom-field-detail__modal-type"
+            type="select"
+            :help-text="$tc('sw-settings-custom-field.general.tooltipType')"
+            :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor')"
+        >
+            <option
+                v-for="(option, key) in fieldTypes"
+                :key="key"
+                :value="key"
+            >
+                {{ $tc(`sw-settings-custom-field.types.${key}`) }}
+            </option>
+        </sw-field>
         {% endblock %}
-    </sw-modal>
+
+        {% block sw_custom_field_detail_modal_technical_name %}
+        <sw-field
+            v-model="currentCustomField.name"
+            type="text"
+            class="sw-custom-field-detail__technical-name"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
+            :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+            :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor')"
+        />
+        {% endblock %}
+
+        {% block sw_custom_field_detail_modal_position %}
+        <sw-field
+            v-model="currentCustomField.config.customFieldPosition"
+            type="number"
+            class="sw-custom-field-detail__modal-position"
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
+            number-type="int"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldPosition')"
+            :disabled="!acl.can('custom_field.editor')"
+        />
+        {% endblock %}
+
+        {% block sw_custom_field_detail_modal_required %}
+        <sw-field
+            v-model="required"
+            type="switch"
+            bordered
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipRequired')"
+            class="sw-custom-field-detail__switch"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelRequired')"
+            required
+            :disabled="!acl.can('custom_field.editor')"
+        />
+        {% endblock %}
+
+        {% block sw_custom_field_detail_modal_snippet_info  %}
+        <sw-alert class="sw-custom-field-detail__info">
+            {{ $tc('sw-settings-custom-field.customField.detail.infoText', 0, { name: currentCustomField.name }) }}
+        </sw-alert>
+        {% endblock %}
+    </sw-container>
+
+    {% block sw_custom_field_detail_modal_render_component %}
+    <div v-if="currentCustomField.config.customFieldType.length > 0">
+        <component
+            :is="renderComponentName"
+            :current-custom-field="currentCustomField"
+            :set="set"
+        />
+    </div>
+    {% endblock %}
+
+    {% block sw_custom_field_detail_modal_footer %}
+    <template slot="modal-footer">
+        {% block sw_custom_field_detail_modal_footer_cancel %}
+        <sw-button
+            size="small"
+            @click="onCancel"
+        >
+            {{ $tc('sw-settings-custom-field.customField.detail.buttonCancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_custom_field_detail_modal_footer_save %}
+        <sw-button
+            class="sw-custom-field-detail__footer-save"
+            variant="primary"
+            size="small"
+            :disabled="!canSave || !acl.can('custom_field.editor')"
+            @click="onSave"
+        >
+            {{ labelSaveButton }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+    {% endblock %}
+</sw-modal>
 {% endblock %}

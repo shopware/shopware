@@ -1,71 +1,75 @@
 {% block sw_product_settings_mode %}
-    <sw-context-button
-        v-tooltip="{ message: $tc('sw-product.general.tooltipModeSettings') }"
-        class="sw-product-settings-mode"
-        :menuWidth="300"
-        :autoClose="false">
-        <template #button>
-            {% block sw_product_settings_mode_trigger %}
-                <sw-button
-                    class="sw-product-settings-mode__trigger"
-                    size="x-small"
-                    square
-                    :aria-label="$tc('sw-product.general.tooltipModeSettings')">
-                    {% block sw_product_settings_mode_trigger_icon %}
-                        <sw-icon
-                            name="small-default-stack-line"
-                            size="14px">
-                        </sw-icon>
-                    {% endblock %}
-                </sw-button>
+<sw-context-button
+    v-tooltip="{ message: $tc('sw-product.general.tooltipModeSettings') }"
+    class="sw-product-settings-mode"
+    :menu-width="300"
+    :auto-close="false"
+>
+    <template #button>
+        {% block sw_product_settings_mode_trigger %}
+        <sw-button
+            class="sw-product-settings-mode__trigger"
+            size="x-small"
+            square
+            :aria-label="$tc('sw-product.general.tooltipModeSettings')"
+        >
+            {% block sw_product_settings_mode_trigger_icon %}
+            <sw-icon
+                name="small-default-stack-line"
+                size="14px"
+            />
             {% endblock %}
-        </template>
-
-        {% block sw_product_settings_mode_content %}
-            {% block sw_product_settings_mode_main %}
-                <div class="sw-product-settings-mode__container">
-                    {% block sw_product_settings_mode_advanced_switch %}
-                        <sw-switch-field
-                            v-model="advancedMode.enabled"
-                            class="sw-product-settings-mode__advanced-mode"
-                            size="medium"
-                            :label="$tc(advancedMode.label)"
-                            @change="onChangeSetting">
-                        </sw-switch-field>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-
-            {% block sw_product_settings_mode_devider %}
-                <sw-context-menu-divider></sw-context-menu-divider>
-            {% endblock %}
-
-            {% block sw_product_settings_mode_list %}
-                <transition-group
-                    class="sw-product-settings-mode__container sw-product-settings-mode__list"
-                    name="item-list"
-                    tag="div">
-                    {% block sw_product_settings_mode_item %}
-                        <div
-                            v-for="(item, index) in settings"
-                            class="sw-product-settings-mode__item"
-                            :key="item.key">
-                            {% block sw_product_settings_mode_item_visibility_checkbox %}
-                                <sw-checkbox-field
-                                    v-model="item.enabled"
-                                    :disabled="!advancedMode.enabled"
-                                    :label="$tc(item.label)"
-                                    @change="onChangeSettingItem">
-                                </sw-checkbox-field>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </transition-group>
-            {% endblock %}
-
-            {% block sw_product_settings_mode_loader %}
-                <sw-loader v-if="isLoading"></sw-loader>
-            {% endblock %}
+        </sw-button>
         {% endblock %}
-    </sw-context-button>
+    </template>
+
+    {% block sw_product_settings_mode_content %}
+    {% block sw_product_settings_mode_main %}
+    <div class="sw-product-settings-mode__container">
+        {% block sw_product_settings_mode_advanced_switch %}
+        <sw-switch-field
+            v-model="advancedMode.enabled"
+            class="sw-product-settings-mode__advanced-mode"
+            size="medium"
+            :label="$tc(advancedMode.label)"
+            @change="onChangeSetting"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_product_settings_mode_devider %}
+    <sw-context-menu-divider />
+    {% endblock %}
+
+    {% block sw_product_settings_mode_list %}
+    <transition-group
+        class="sw-product-settings-mode__container sw-product-settings-mode__list"
+        name="item-list"
+        tag="div"
+    >
+        {% block sw_product_settings_mode_item %}
+        <div
+            v-for="(item, index) in settings"
+            :key="item.key"
+            class="sw-product-settings-mode__item"
+        >
+            {% block sw_product_settings_mode_item_visibility_checkbox %}
+            <sw-checkbox-field
+                v-model="item.enabled"
+                :disabled="!advancedMode.enabled"
+                :label="$tc(item.label)"
+                @change="onChangeSettingItem"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </transition-group>
+    {% endblock %}
+
+    {% block sw_product_settings_mode_loader %}
+    <sw-loader v-if="isLoading" />
+    {% endblock %}
+    {% endblock %}
+</sw-context-button>
 {% endblock %}

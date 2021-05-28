@@ -1,9 +1,13 @@
 {% block sw_settings_search_view_live_search_keyword %}
-    <div class="sw-settings-search-live-search-keyword">
+<div class="sw-settings-search-live-search-keyword">
 
-        {% block sw_settings_search_view_live_search_keyword_highlight %}
-            <span v-for="(keyword, i) in parsedMsg" v-bind:class="getClass(i%2)">{{ keyword }}</span>
-        {% endblock %}
+    {% block sw_settings_search_view_live_search_keyword_highlight %}
+    <span
+        v-for="(keyword, i) in parsedMsg"
+        :key="i"
+        :class="getClass(i%2)"
+    >{{ keyword }}</span>
+    {% endblock %}
 
-    </div>
+</div>
 {% endblock %}

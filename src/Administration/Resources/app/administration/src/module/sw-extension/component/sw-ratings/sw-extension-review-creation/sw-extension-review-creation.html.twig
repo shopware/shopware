@@ -1,37 +1,42 @@
 {% block sw_extension_review_creation %}
-    <div class="sw-extension-review-creation">
-        {% block sw_extension_review_creation_inputs %}
-            <sw-extension-review-creation-inputs @changed="onChange"
-                                                 :errors="errors">
-            </sw-extension-review-creation-inputs>
+<div class="sw-extension-review-creation">
+    {% block sw_extension_review_creation_inputs %}
+    <sw-extension-review-creation-inputs
+        :errors="errors"
+        @changed="onChange"
+    />
+    {% endblock %}
+
+    {% block sw_extension_review_creation_gtc_checkbox %}
+    <sw-gtc-checkbox v-model="tocAccepted" />
+    {% endblock %}
+
+    {% block sw_extension_review_creation_buttons %}
+    <div class="sw-extension-review-creation__buttons">
+        {% block sw_extension_review_creation_buttons_cancel_button %}
+        <sw-button
+            size="small"
+            :disabled="isLoading"
+            @click="clearData"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_extension_review_creation_gtc_checkbox %}
-            <sw-gtc-checkbox v-model="tocAccepted" />
-        {% endblock %}
-
-        {% block sw_extension_review_creation_buttons %}
-            <div class="sw-extension-review-creation__buttons">
-                {% block sw_extension_review_creation_buttons_cancel_button %}
-                    <sw-button @click="clearData"
-                               size="small"
-                               :disabled="isLoading">
-                            {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_extension_review_creation_buttons_submit_button %}
-                    <sw-button-process variant="primary"
-                                       size="small"
-                                       :isLoading="isLoading"
-                                       :processSuccess="isCreatedSuccessful"
-                                       :disabled="disabled"
-                                       @process-finish="emitCreated"
-                                       @click="handleCreateReview">
-                        {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn') }}
-                    </sw-button-process>
-                {% endblock %}
-            </div>
+        {% block sw_extension_review_creation_buttons_submit_button %}
+        <sw-button-process
+            variant="primary"
+            size="small"
+            :is-loading="isLoading"
+            :process-success="isCreatedSuccessful"
+            :disabled="disabled"
+            @process-finish="emitCreated"
+            @click="handleCreateReview"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn') }}
+        </sw-button-process>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

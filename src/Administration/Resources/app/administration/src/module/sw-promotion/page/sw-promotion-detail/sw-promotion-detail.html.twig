@@ -1,89 +1,100 @@
 {% block sw_promotion_detail %}
-    <sw-page class="sw-promotion-detail">
-        {% block sw_promotion_detail_header %}
-            <template slot="smart-bar-header">
-                <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleEdit')) }}</h2>
-            </template>
+<sw-page class="sw-promotion-detail">
+    {% block sw_promotion_detail_header %}
+    <template slot="smart-bar-header">
+        <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleEdit')) }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_promotion_detail_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_promotion_detail_actions_abort %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            :disabled="promotion != null && promotion.isLoading"
+            @click="onCancel"
+        >
+            {{ $tc('sw-promotion.detail.header.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_promotion_detail_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_promotion_detail_actions_abort %}
-                    <sw-button :disabled="promotion != null && promotion.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
-                        {{ $tc('sw-promotion.detail.header.buttonCancel') }}
-                    </sw-button>
+        {% block sw_promotion_detail_actions_save %}
+        <sw-button-process
+            v-model="isSaveSuccessful"
+            v-tooltip.bottom="tooltipSave"
+            class="sw-promotion-detail__save-action"
+            :is-loading="isLoading"
+            variant="primary"
+            :disabled="isLoading || !acl.can('promotion.editor')"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-promotion.detail.header.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_promotion_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="!promotionId"
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_promotion_detail_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_promotion_detail_content_language_info %}
+            <sw-language-info
+                :entity-description="placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleCreate'))"
+                :is-new-entity="!promotionId"
+            />
+            {% endblock %}
+
+            {% block sw_promotion_detail_content_tabs %}
+            <sw-tabs class="sw-promotion-detail-page__tabs">
+                {% block sw_promotion_detail_content_tabs_general %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"
+                    :title="$tc('sw-promotion.detail.tabs.tabGeneral')"
+                    :has-error="swPromotionDetailBaseError"
+                    :disabled="promotionId ? false : true"
+                >
+                    {{ $tc('sw-promotion.detail.tabs.tabGeneral') }}
+                </sw-tabs-item>
                 {% endblock %}
 
-                {% block sw_promotion_detail_actions_save %}
-                    <sw-button-process
-                        class="sw-promotion-detail__save-action"
-                        v-model="isSaveSuccessful"
-                        :isLoading="isLoading"
-                        variant="primary"
-                        v-tooltip.bottom="tooltipSave"
-                        :disabled="isLoading || !acl.can('promotion.editor')"
-                        @click.prevent="onSave">
-                        {{ $tc('sw-promotion.detail.header.buttonSave') }}
-                    </sw-button-process>
+                {% block sw_promotion_detail_content_tabs_restrictions %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.promotion.detail.restrictions', params: { id: $route.params.id } }"
+                    :title="$tc('sw-promotion.detail.tabs.tabPreconditions')"
+                    :disabled="promotionId ? false : true"
+                >
+                    {{ $tc('sw-promotion.detail.tabs.tabPreconditions') }}
+                </sw-tabs-item>
                 {% endblock %}
-            </template>
-        {% endblock %}
 
-        {% block sw_promotion_detail_language_switch %}
-            <template #language-switch>
-                <sw-language-switch
-                    :disabled="!promotionId"
-                    @on-change="onChangeLanguage"
-                    :saveChangesFunction="saveOnLanguageChange"
-                    :abortChangeFunction="abortOnLanguageChange">
-                </sw-language-switch>
-            </template>
-        {% endblock %}
+                {% block sw_promotion_detail_content_tabs_rebate %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.promotion.detail.discounts', params: { id: $route.params.id } }"
+                    :title="$tc('sw-promotion.detail.tabs.tabDiscounts')"
+                    :disabled="promotionId ? false : true"
+                >
+                    {{ $tc('sw-promotion.detail.tabs.tabDiscounts') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </sw-tabs>
+            {% endblock %}
 
-        {% block sw_promotion_detail_content %}
-            <template #content>
-                <sw-card-view>
-                    {% block sw_promotion_detail_content_language_info %}
-                        <sw-language-info
-                            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleCreate'))"
-                            :isNewEntity="!promotionId">
-                        </sw-language-info>
-                    {% endblock %}
-
-                    {% block sw_promotion_detail_content_tabs %}
-                        <sw-tabs class="sw-promotion-detail-page__tabs">
-                            {% block sw_promotion_detail_content_tabs_general %}
-                                <sw-tabs-item :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"
-                                              :title="$tc('sw-promotion.detail.tabs.tabGeneral')"
-                                              :hasError="swPromotionDetailBaseError"
-                                              :disabled="promotionId ? false : true">
-                                    {{ $tc('sw-promotion.detail.tabs.tabGeneral') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                            {% block sw_promotion_detail_content_tabs_restrictions %}
-                                <sw-tabs-item :route="{ name: 'sw.promotion.detail.restrictions', params: { id: $route.params.id } }"
-                                              :title="$tc('sw-promotion.detail.tabs.tabPreconditions')"
-                                              :disabled="promotionId ? false : true">
-                                    {{ $tc('sw-promotion.detail.tabs.tabPreconditions') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                            {% block sw_promotion_detail_content_tabs_rebate %}
-                                <sw-tabs-item :route="{ name: 'sw.promotion.detail.discounts', params: { id: $route.params.id } }"
-                                              :title="$tc('sw-promotion.detail.tabs.tabDiscounts')"
-                                              :disabled="promotionId ? false : true">
-                                    {{ $tc('sw-promotion.detail.tabs.tabDiscounts') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-                        </sw-tabs>
-                    {% endblock %}
-
-                    {% block sw_product_detail_content_view %}
-                    <router-view :promotion="promotion"></router-view>
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+            {% block sw_product_detail_content_view %}
+            <router-view :promotion="promotion" />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

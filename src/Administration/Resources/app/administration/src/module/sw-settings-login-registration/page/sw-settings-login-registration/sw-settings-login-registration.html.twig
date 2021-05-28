@@ -1,71 +1,76 @@
 {% block sw_settings_login_registration_index %}
-    <sw-page class="sw-settings-login-registration">
+<sw-page class="sw-settings-login-registration">
 
-        {% block sw_settings_login_registration_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar>
-                </sw-search-bar>
-            </template>
+    {% block sw_settings_login_registration_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_login_registration_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_login_registration_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_login_registration_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-login-registration.general.textHeadline') }}
+            {% endblock %}
+
+            {% block sw_settings_login_registration_smart_bar_header_amount %}
+            <span
+                v-if="false"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_login_registration_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_settings_login_registration_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_login_registration_smart_bar_header_title_text %}
-                                {{ $tc('sw-settings.index.title') }}
-                                <sw-icon name="small-arrow-medium-right" small>
-                                </sw-icon>
-                                {{ $tc('sw-settings-login-registration.general.textHeadline') }}
-                        {% endblock %}
-
-                        {% block sw_settings_login_registration_smart_bar_header_amount %}
-                            <span v-if="false" class="sw-page__smart-bar-amount">
-                                ({{ total }})
-                            </span>
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
+    {% block sw_settings_login_registration_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_login_registration_actions_save %}
+        <sw-button-process
+            class="sw-settings-login-registration__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-login-registration.general.buttonSave') }}
+        </sw-button-process>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_login_registration_smart_bar_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_login_registration_actions_save %}
-                <sw-button-process
-                        class="sw-settings-login-registration__save-action"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        @click="onSave">
-                    {{ $tc('sw-settings-login-registration.general.buttonSave') }}
-                </sw-button-process>
-                {% endblock %}
-            </template>
-        {% endblock %}
+    {% block sw_settings_login_registration_content %}
+    <template slot="content">
+        <sw-card-view>
+            {% block sw_setting_login_registration_system_config %}
+            <sw-system-config
+                ref="systemConfig"
+                sales-channel-switchable
+                domain="core.loginRegistration"
+            />
+            {% endblock %}
 
-        {% block sw_settings_login_registration_content %}
-            <template slot="content">
-                <sw-card-view>
-                    {% block sw_setting_login_registration_system_config %}
-                        <sw-system-config
-                            ref="systemConfig"
-                            salesChannelSwitchable
-                            domain="core.loginRegistration">
-                        </sw-system-config>
-                    {% endblock %}
-
-                    {% block sw_setting_login_registration_system_wide %}
-                        <sw-system-config
-                            ref="systemConfigSystemWide"
-                            :salesChannelSwitchable="false"
-                            domain="core.systemWideLoginRegistration">
-                        </sw-system-config>
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+            {% block sw_setting_login_registration_system_wide %}
+            <sw-system-config
+                ref="systemConfigSystemWide"
+                :sales-channel-switchable="false"
+                domain="core.systemWideLoginRegistration"
+            />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

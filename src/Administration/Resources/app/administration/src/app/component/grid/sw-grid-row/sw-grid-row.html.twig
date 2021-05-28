@@ -1,20 +1,32 @@
 {% block sw_grid_row %}
-    <div class="sw-grid-row" @dblclick="onInlineEditStart($event.currentTarget)" ref="swGridRow">
-        {% block sw_grid_row_actions %}
-            <div class="sw-grid-row__actions">
-                <slot name="actions">
-                    {% block sw_grid_row_slot_actions %}
-                        <sw-button @click="onInlineEditCancel(id, index)" size="small">
-                            {{ $tc('global.default.cancel') }}
-                        </sw-button>
-                        <sw-button class="sw-grid-row__inline-edit-action" variant="primary" @click="onInlineEditFinish" size="small">
-                            {{ $tc('global.default.save') }}
-                        </sw-button>
-                    {% endblock %}
-                </slot>
-            </div>
-        {% endblock %}
-
-        <slot>{% block sw_grid_row_slot_default %}{% endblock %}</slot>
+<div
+    ref="swGridRow"
+    class="sw-grid-row"
+    @dblclick="onInlineEditStart($event.currentTarget)"
+>
+    {% block sw_grid_row_actions %}
+    <div class="sw-grid-row__actions">
+        <slot name="actions">
+            {% block sw_grid_row_slot_actions %}
+            <sw-button
+                size="small"
+                @click="onInlineEditCancel(id, index)"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            <sw-button
+                class="sw-grid-row__inline-edit-action"
+                variant="primary"
+                size="small"
+                @click="onInlineEditFinish"
+            >
+                {{ $tc('global.default.save') }}
+            </sw-button>
+            {% endblock %}
+        </slot>
     </div>
+    {% endblock %}
+
+    <slot>{% block sw_grid_row_slot_default %}{% endblock %}</slot>
+</div>
 {% endblock %}

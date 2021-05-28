@@ -1,47 +1,64 @@
 {% block sw_media_quickinfo_usage %}
-    <div class="sw-media-quickinfo-usage">
-        {% block sw_media_quickinfo_usage_loader %}
-            <sw-loader v-if="isLoading" size="30" class="sw-media-quickinfo-usage__loading-indicator"></sw-loader>
-        {% endblock %}
+<div class="sw-media-quickinfo-usage">
+    {% block sw_media_quickinfo_usage_loader %}
+    <sw-loader
+        v-if="isLoading"
+        size="30"
+        class="sw-media-quickinfo-usage__loading-indicator"
+    />
+    {% endblock %}
 
-        {% block sw_media_quickinfo_usage_empty_state %}
-            <sw-alert v-else-if="isNotUsed"
-                      class="sw-media-quickinfo-usage__info-not-used"
-                      variant="info"
-                      :title="$tc('sw-media.sidebar.usage.titleMediaNotUsed')">
-                {{ $tc('sw-media.sidebar.usage.labelMediaNotUsed') }}
-            </sw-alert>
-        {% endblock %}
+    {% block sw_media_quickinfo_usage_empty_state %}
+    <sw-alert
+        v-else-if="isNotUsed"
+        class="sw-media-quickinfo-usage__info-not-used"
+        variant="info"
+        :title="$tc('sw-media.sidebar.usage.titleMediaNotUsed')"
+    >
+        {{ $tc('sw-media.sidebar.usage.labelMediaNotUsed') }}
+    </sw-alert>
+    {% endblock %}
 
-        {% block sw_media_quickinfo_usage_list %}
-            <ul v-else class="sw-media-quickinfo-usage__list">
-                {% block sw_media_quickinfo_usage_item %}
-                    <router-link v-for="usage in getUsages"
-                                 :to="{ name: usage.link.name, params: { id: usage.link.id } }"
-                                 :key="usage.link.id"
-                                 :target="routerLinkTarget">
-                        <li class="sw-media-quickinfo-usage__item"
-                            v-tooltip="{
-                                showDelay: 300,
-                                hideDelay: 5,
-                                message: usage.tooltip
-                            }">
-                            {% block sw_media_quickinfo_usage_item_icon %}
-                                <div class="sw-media-quickinfo-usage__label">
-                                    <sw-icon :name="usage.icon.name" :color="usage.icon.color" small></sw-icon>
-                                </div>
-                            {% endblock %}
-
-                            {% block sw_media_quickinfo_usage_item_label %}
-                                <div class="sw-media-quickinfo-usage__label">
-                                    {{ usage.name }}
-                                </div>
-                            {% endblock %}
-                        </li>
-                    </router-link>
+    {% block sw_media_quickinfo_usage_list %}
+    <ul
+        v-else
+        class="sw-media-quickinfo-usage__list"
+    >
+        {% block sw_media_quickinfo_usage_item %}
+        <router-link
+            v-for="usage in getUsages"
+            :key="usage.link.id"
+            :to="{ name: usage.link.name, params: { id: usage.link.id } }"
+            :target="routerLinkTarget"
+        >
+            <li
+                v-tooltip="{
+                    showDelay: 300,
+                    hideDelay: 5,
+                    message: usage.tooltip
+                }"
+                class="sw-media-quickinfo-usage__item"
+            >
+                {% block sw_media_quickinfo_usage_item_icon %}
+                <div class="sw-media-quickinfo-usage__label">
+                    <sw-icon
+                        :name="usage.icon.name"
+                        :color="usage.icon.color"
+                        small
+                    />
+                </div>
                 {% endblock %}
-            </ul>
+
+                {% block sw_media_quickinfo_usage_item_label %}
+                <div class="sw-media-quickinfo-usage__label">
+                    {{ usage.name }}
+                </div>
+                {% endblock %}
+            </li>
+        </router-link>
         {% endblock %}
-    </div>
+    </ul>
+    {% endblock %}
+</div>
 {% endblock %}
 

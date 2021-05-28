@@ -1,52 +1,55 @@
 {% block sw_settings_search_searchable_content_example_modal %}
-    <sw-modal
-        class="sw-settings-search-example-modal"
-        :title="$tc('sw-settings-search.generalTab.titleExampleModal')"
-        @modal-close="closeModal">
-        {% block sw_settings_search_searchable_content_example_modal_content %}
-            {% block sw_settings_search_searchable_content_example_modal_explain %}
-                <label class="sw-field sw-settings-search__example-text">
-                    {{ $tc('sw-settings-search.generalTab.modal.textExplain') }}
-                </label>
-            {% endblock %}
+<sw-modal
+    class="sw-settings-search-example-modal"
+    :title="$tc('sw-settings-search.generalTab.titleExampleModal')"
+    @modal-close="closeModal"
+>
+    {% block sw_settings_search_searchable_content_example_modal_content %}
+    {% block sw_settings_search_searchable_content_example_modal_explain %}
+    <label class="sw-field sw-settings-search__example-text">
+        {{ $tc('sw-settings-search.generalTab.modal.textExplain') }}
+    </label>
+    {% endblock %}
 
-            {% block sw_settings_search_searchable_content_example_modal_result %}
-                <ul class="sw-settings-search__searchable-content-example-list">
-                    <li
-                        v-for="result in exampleResults"
-                        :key="result.textProductRankedScore"
-                        class="sw-settings-search__example-text">
-                        <div class="sw-settings-search__searchable-content-example-wrapper">
-                            <div class="sw-settings-search__searchable-content-example-detail">
-                                <div>{{ result.textTitle }}: {{ result.textSuperProductName }}</div>
-                                <div>{{ result.scoreSuperProductName }}</div>
-                                <div>{{ result.textDescription }}: {{ result.textProductName }}</div>
-                                <div>{{ result.scoreProductName }}</div>
-                                <div>{{ result.textTag }}: {{ result.textDetailName }}</div>
-                                <div>{{ result.scoreDetail }}</div>
-                                <div>{{ result.textTotal }}:</div>
-                                <div>{{ result.scoreTotal }}</div>
-                            </div>
-                            <div class="sw-settings-search__example-text">
-                                <p>{{ result.textProductRankedScore }}</p>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            {% endblock %}
-        {% endblock %}
+    {% block sw_settings_search_searchable_content_example_modal_result %}
+    <ul class="sw-settings-search__searchable-content-example-list">
+        <li
+            v-for="result in exampleResults"
+            :key="result.textProductRankedScore"
+            class="sw-settings-search__example-text"
+        >
+            <div class="sw-settings-search__searchable-content-example-wrapper">
+                <div class="sw-settings-search__searchable-content-example-detail">
+                    <div>{{ result.textTitle }}: {{ result.textSuperProductName }}</div>
+                    <div>{{ result.scoreSuperProductName }}</div>
+                    <div>{{ result.textDescription }}: {{ result.textProductName }}</div>
+                    <div>{{ result.scoreProductName }}</div>
+                    <div>{{ result.textTag }}: {{ result.textDetailName }}</div>
+                    <div>{{ result.scoreDetail }}</div>
+                    <div>{{ result.textTotal }}:</div>
+                    <div>{{ result.scoreTotal }}</div>
+                </div>
+                <div class="sw-settings-search__example-text">
+                    <p>{{ result.textProductRankedScore }}</p>
+                </div>
+            </div>
+        </li>
+    </ul>
+    {% endblock %}
+    {% endblock %}
 
-        {% block sw_settings_search_searchable_content_example_modal_footer %}
-            <template #modal-footer>
-                {% block sw_settings_search_searchable_content_example_modal_close %}
-                    <sw-button
-                        variant="primary"
-                        size="small"
-                        @click="closeModal">
-                        {{ $tc('global.sw-modal.labelClose') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+    {% block sw_settings_search_searchable_content_example_modal_footer %}
+    <template #modal-footer>
+        {% block sw_settings_search_searchable_content_example_modal_close %}
+        <sw-button
+            variant="primary"
+            size="small"
+            @click="closeModal"
+        >
+            {{ $tc('global.sw-modal.labelClose') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

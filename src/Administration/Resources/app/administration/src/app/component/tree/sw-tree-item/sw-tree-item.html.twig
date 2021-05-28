@@ -1,356 +1,443 @@
 {% block sw_tree_item %}
-    <div class="sw-tree-item" :class="styling">
+<div
+    class="sw-tree-item"
+    :class="styling"
+>
 
-        {% block sw_tree_item_element %}
-            <div class="sw-tree-item__element"
-                 v-droppable="{ dragGroup: 'sw-tree-item', data: item }"
-                 v-draggable="dragConf">
+    {% block sw_tree_item_element %}
+    <div
+        v-droppable="{ dragGroup: 'sw-tree-item', data: item }"
+        v-draggable="dragConf"
+        class="sw-tree-item__element"
+    >
 
-                {% block sw_tree_item_element_leaf_icon %}
-                    <div class="sw-tree-item__leaf" v-if="item.childCount <= 0"></div>
+        {% block sw_tree_item_element_leaf_icon %}
+        <div
+            v-if="item.childCount <= 0"
+            class="sw-tree-item__leaf"
+        />
+        {% endblock %}
+
+        {% block sw_tree_item_element_toggle %}
+        <div
+            v-else
+            class="sw-tree-item__toggle"
+            @click="openTreeItem(); getTreeItemChildren(item)"
+        >
+
+            {% block sw_tree_item_element_toggle_loader %}
+            <sw-loader
+                v-if="isLoading"
+                size="14"
+            />
+            {% endblock %}
+
+            {% block sw_tree_item_element_toggle_icon %}
+            <sw-icon
+                v-else
+                :name="opened ? 'small-arrow-small-down' : 'small-arrow-small-right'"
+                size="18"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_tree_item_element_selection %}
+        <div class="sw-tree-item__selection">
+            <sw-field
+                v-if="displayCheckbox"
+                :disabled="currentEditElement === item.data.id"
+                type="checkbox"
+                :ghost-value="checkedGhost"
+                :value="checked"
+                @change="toggleItemCheck($event, item)"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_tree_item_element_grip %}
+        <slot name="grip">
+            <div
+                v-if="item.childCount > 0"
+                class="sw-tree-item__icon"
+            >
+                <sw-icon
+                    v-if="opened"
+                    name="multicolor-folder-tree-open"
+                    multicolor
+                    small
+                />
+                <sw-icon
+                    v-else
+                    name="multicolor-folder-tree"
+                    multicolor
+                    small
+                />
+            </div>
+            <div
+                v-else
+                class="sw-tree-item__icon"
+            >
+                <sw-icon
+                    name="small-default-circle-small"
+                    size="18"
+                />
+            </div>
+        </slot>
+        {% endblock %}
+
+        {% block sw_tree_item_element_content %}
+        <div
+            ref="item"
+            class="sw-tree-item__content"
+        >
+            <slot
+                name="content"
+                v-bind="{ item, openTreeItem, getName }"
+            >
+
+                {% block sw_tree_items_item_content_edit %}
+                <template v-if="currentEditElement === item.data.id">
+                    <sw-confirm-field
+                        v-model="item.data.name"
+                        class="sw-tree-detail__edit-tree-item"
+                        :prevent-empty-submit="true"
+                        :placeholder="$tc(`${translationContext}.general.buttonCreate`)"
+                        @input="onFinishNameingElement"
+                        @blur="onCancelSubmit(item)"
+                        @submit-cancel="onBlurTreeItemInput(item)"
+                    />
+                </template>
                 {% endblock %}
 
-                {% block sw_tree_item_element_toggle %}
-                    <div class="sw-tree-item__toggle" @click="openTreeItem(); getTreeItemChildren(item)" v-else>
+                {% block sw_tree_items_item_content_default %}
+                <template v-else>
+                    <a
+                        v-if="onChangeRoute"
+                        class="tree-link"
+                        :href="showItemUrl(item)"
+                        @click.prevent="onChangeRoute(item)"
+                    >
+                        <span class="sw-tree-item__label">{{ getName(item) }}</span>
+                    </a>
+                    <span
+                        v-else
+                        class="sw-tree-item__label"
+                    >{{ getName(item) }}</span>
+                </template>
+                {% endblock %}
+            </slot>
+        </div>
+        {% endblock %}
 
-                        {% block sw_tree_item_element_toggle_loader %}
-                            <sw-loader v-if="isLoading" size="14"></sw-loader>
+        {% block sw_tree_item_element_actions %}
+        <div class="sw-tree-item__actions">
+
+            {% block sw_tree_items_active_state %}
+            <sw-icon
+                v-if="shouldShowActiveState"
+                size="6"
+                :color="getActiveIconColor(item)"
+                name="default-basic-shape-circle-filled"
+            />
+            {% endblock %}
+
+            <slot
+                name="actions"
+                :item="item"
+                :openTreeItem="openTreeItem"
+                :addElement="addElement"
+                :addSubElement="addSubElement"
+                :onDuplicate="onDuplicate"
+                :onChangeRoute="onChangeRoute"
+                :deleteElement="deleteElement"
+                :toolTip="toolTip"
+                :isDisabled="isDisabled"
+            >
+                <sw-context-button
+                    v-tooltip="toolTip"
+                    class="sw-tree-item__context_button"
+                    :disabled="isDisabled"
+                >
+
+                    {% block sw_tree_items_actions_without_position %}
+                    <sw-context-menu-item
+                        v-if="allowCreateWithoutPosition"
+                        class="sw-tree-item__without-position-action"
+                        @click="addElement(item)"
+                    >
+                        {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_tree_items_actions_before %}
+                    <sw-context-menu-item
+                        v-if="!allowCreateWithoutPosition"
+                        :disabled="!allowNewCategories"
+                        class="sw-tree-item__before-action"
+                        @click="addElement(item, 'before')"
+                    >
+                        {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_tree_items_actions_after %}
+                    <sw-context-menu-item
+                        v-if="!allowCreateWithoutPosition"
+                        :disabled="!allowNewCategories"
+                        class="sw-tree-item__after-action"
+                        @click="addElement(item, 'after')"
+                    >
+                        {{ $tc(`${translationContext}.general.actions.createAfter`) }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_tree_items_actions_sub %}
+                    <sw-context-menu-item
+                        v-if="!allowCreateWithoutPosition"
+                        :disabled="!allowNewCategories"
+                        class="sw-tree-item__sub-action"
+                        @click="addSubElement(item); openTreeItem(true)"
+                    >
+                        {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_tree_items_actions_duplicate %}
+                    <sw-context-menu-item
+                        v-if="allowDuplicate"
+                        class="sw-context-menu__duplicate-action"
+                        @click="onDuplicate(item)"
+                    >
+                        {{ $tc(`global.default.duplicate`) }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_tree_items_actions_group %}
+                    <div class="sw-context-menu__group">
+
+                        {% block sw_tree_items_actions_edit %}
+                        <sw-context-menu-item @click="onChangeRoute(item)">
+                            {{ $tc('global.default.edit') }}
+                        </sw-context-menu-item>
                         {% endblock %}
 
-                        {% block sw_tree_item_element_toggle_icon %}
-                            <sw-icon :name="opened ? 'small-arrow-small-down' : 'small-arrow-small-right'" size="18"
-                                     v-else></sw-icon>
+                        {% block sw_tree_items_actions_delete %}
+                        <sw-context-menu-item
+                            class="sw-context-menu__group-button-delete"
+                            :disabled="!allowDeleteCategories"
+                            variant="danger"
+                            @click="deleteElement(item)"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </sw-context-menu-item>
                         {% endblock %}
                     </div>
-                {% endblock %}
+                    {% endblock %}
+                </sw-context-button>
+            </slot>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
 
-                {% block sw_tree_item_element_selection %}
-                    <div class="sw-tree-item__selection">
-                        <sw-field v-if="displayCheckbox"
-                                  :disabled="currentEditElement === item.data.id"
-                                  @change="toggleItemCheck($event, item)"
-                                  type="checkbox"
-                                  :ghostValue="checkedGhost"
-                                  :value="checked">
-                        </sw-field>
-                    </div>
-                {% endblock %}
+    {# ToDO: Repeat statt duplicated Content #}
+    {% block sw_tree_item_children_transition %}
+    <transition name="fade">
 
-                {% block sw_tree_item_element_grip %}
-                    <slot name="grip">
-                        <div v-if="item.childCount > 0" class="sw-tree-item__icon">
-                            <sw-icon v-if="opened" name="multicolor-folder-tree-open" multicolor small></sw-icon>
-                            <sw-icon v-else name="multicolor-folder-tree" multicolor small></sw-icon>
-                        </div>
-                        <div v-else class="sw-tree-item__icon">
-                            <sw-icon name="small-default-circle-small" size="18"></sw-icon>
-                        </div>
-                    </slot>
-                {% endblock %}
+        {% block sw_tree_item_children_content %}
+        <div
+            v-if="isOpened && item.children.length > 0"
+            class="sw-tree-item__children"
+        >
 
-                {% block sw_tree_item_element_content %}
-                    <div class="sw-tree-item__content" ref="item">
-                        <slot name="content" v-bind="{ item, openTreeItem, getName }">
+            {% block sw_tree_item_children_items %}
+            <sw-tree-item
+                v-for="child in item.children"
+                :key="child.id"
+                :item="child"
+                :dragged-item="draggedItem"
+                :parent-scope="parentScope"
+                :new-element-id="newElementId"
+                :translation-context="translationContext"
+                :on-change-route="onChangeRoute"
+                :active-parent-ids="activeParentIds"
+                :active-item-ids="activeItemIds"
+                :mark-inactive="markInactive"
+                :sortable="sortable"
+                :should-focus="shouldFocus"
+                :active-focus-id="activeFocusId"
+                :display-checkbox="displayCheckbox"
+                :disable-context-menu="disableContextMenu"
+                :get-is-highlighted="getIsHighlighted"
+                @check-item="emitCheckedItem"
+            >
 
-                            {% block sw_tree_items_item_content_edit %}
-                                <template v-if="currentEditElement === item.data.id">
-                                    <sw-confirm-field class="sw-tree-detail__edit-tree-item"
-                                                      v-model="item.data.name"
-                                                      :preventEmptySubmit="true"
-                                                      @input="onFinishNameingElement"
-                                                      @blur="onCancelSubmit(item)"
-                                                      @submit-cancel="onBlurTreeItemInput(item)"
-                                                      :placeholder="$tc(`${translationContext}.general.buttonCreate`)">
-                                    </sw-confirm-field>
-                                </template>
-                            {% endblock %}
+                {% block sw_tree_item_children_items_slots %}
+                <template #content="{ item, openTreeItem, getName: innerGetName }">
 
-                            {% block sw_tree_items_item_content_default %}
-                                <template v-else>
-                                    <a
-                                        v-if="onChangeRoute"
-                                        class="tree-link"
-                                        :href="showItemUrl(item)"
-                                        @click.prevent="onChangeRoute(item)">
-                                        <span class="sw-tree-item__label">{{ getName(item) }}</span>
-                                    </a>
-                                    <span v-else class="sw-tree-item__label">{{ getName(item) }}</span>
-                                </template>
-                            {% endblock %}
-                        </slot>
-                    </div>
-                {% endblock %}
+                    {% block sw_tree_item_children_items_slot_content %}
+                    <sw-vnode-renderer
+                        v-if="$scopedSlots.content"
+                        :node="$scopedSlots.content({ item, openTreeItem, getName })"
+                    />
 
-                {% block sw_tree_item_element_actions %}
-                    <div class="sw-tree-item__actions">
+                    {% block sw_tree_item_children_items_slot_content_default_block %}
+                    <template v-else>
+
+                        {% block sw_tree_item_children_items_slot_content_edit %}
+                        <template v-if="currentEditElement === item.data.id">
+                            <sw-confirm-field
+                                v-model="item.data.name"
+                                class="sw-tree-detail__edit-tree-item"
+                                :prevent-empty-submit="true"
+                                :placeholder="$tc(`${translationContext}.general.buttonCreate`)"
+                                @input="onFinishNameingElement"
+                                @blur="onBlurTreeItemInput(item)"
+                                @submit-cancel="onCancelSubmit(item)"
+                            />
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_tree_item_children_items_slot_content_default %}
+                        <template v-else>
+                            <a
+                                v-if="onChangeRoute"
+                                class="tree-link"
+                                :href="showItemUrl(item)"
+                                @click.prevent="onChangeRoute(item)"
+                            >
+                                <span class="sw-tree-item__label">{{ getName(item) }}</span>
+                            </a>
+                            <span
+                                v-else
+                                class="sw-tree-item__label"
+                            >{{ getName(item) }}</span>
+                        </template>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                    {% endblock %}
+                </template>
+
+                <template #actions="{ item, openTreeItem }">
+
+                    {% block sw_tree_item_children_items_slot_actions %}
+                    <sw-vnode-renderer
+                        v-if="$scopedSlots.actions"
+                        :node="$scopedSlots.actions({ item, openTreeItem })"
+                    />
+                    <div
+                        v-else
+                        class="sw-tree-item__actions"
+                    >
 
                         {% block sw_tree_items_active_state %}
-                            <sw-icon
-                                v-if="shouldShowActiveState"
-                                size="6"
-                                :color="getActiveIconColor(item)"
-                                name="default-basic-shape-circle-filled">
-                            </sw-icon>
+                        <sw-icon
+                            v-if="shouldShowActiveState"
+                            size="6"
+                            :color="getActiveIconColor(item)"
+                            name="default-basic-shape-circle-filled"
+                        />
                         {% endblock %}
 
-                        <slot name="actions"
-                              :item="item"
-                              :openTreeItem="openTreeItem"
-                              :addElement="addElement"
-                              :addSubElement="addSubElement"
-                              :onDuplicate="onDuplicate"
-                              :onChangeRoute="onChangeRoute"
-                              :deleteElement="deleteElement"
-                              :toolTip="toolTip"
-                              :isDisabled="isDisabled"
+                        <slot
+                            name="actions"
+                            :item="item"
+                            :openTreeItem="openTreeItem"
+                            :addElement="addElement"
+                            :addSubElement="addSubElement"
+                            :onDuplicate="onDuplicate"
+                            :onChangeRoute="onChangeRoute"
+                            :deleteElement="deleteElement"
+                            :toolTip="toolTip"
+                            :isDisabled="isDisabled"
                         >
-                            <sw-context-button class="sw-tree-item__context_button" v-tooltip="toolTip" :disabled="isDisabled">
+                            <sw-context-button
+                                v-tooltip="toolTip"
+                                :disabled="isDisabled"
+                            >
 
-                            {% block sw_tree_items_actions_without_position %}
+                                {% block sw_tree_items_actions_without_position %}
                                 <sw-context-menu-item
                                     v-if="allowCreateWithoutPosition"
                                     class="sw-tree-item__without-position-action"
-                                    @click="addElement(item)">
+                                    @click="addElement(item)"
+                                >
                                     {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
                                 </sw-context-menu-item>
-                            {% endblock %}
+                                {% endblock %}
 
-                            {% block sw_tree_items_actions_before %}
+                                {% block sw_tree_items_actions_before %}
                                 <sw-context-menu-item
                                     v-if="!allowCreateWithoutPosition"
                                     :disabled="!allowNewCategories"
-                                    class="sw-tree-item__before-action"
-                                    @click="addElement(item, 'before')">
+                                    @click="addElement(item, 'before')"
+                                >
                                     {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                 </sw-context-menu-item>
-                            {% endblock %}
+                                {% endblock %}
 
-                            {% block sw_tree_items_actions_after %}
+                                {% block sw_tree_items_actions_after %}
                                 <sw-context-menu-item
                                     v-if="!allowCreateWithoutPosition"
                                     :disabled="!allowNewCategories"
-                                    class="sw-tree-item__after-action"
-                                    @click="addElement(item, 'after')">
+                                    @click="addElement(item, 'after')"
+                                >
                                     {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                 </sw-context-menu-item>
-                            {% endblock %}
+                                {% endblock %}
 
-                            {% block sw_tree_items_actions_sub %}
+                                {% block sw_tree_items_actions_sub %}
                                 <sw-context-menu-item
                                     v-if="!allowCreateWithoutPosition"
                                     :disabled="!allowNewCategories"
-                                    class="sw-tree-item__sub-action"
-                                    @click="addSubElement(item); openTreeItem(true)">
+                                    @click="addSubElement(item); openTreeItem(true)"
+                                >
                                     {{ $tc(`${translationContext}.general.actions.createSub`) }}
                                 </sw-context-menu-item>
-                            {% endblock %}
+                                {% endblock %}
 
-                            {% block sw_tree_items_actions_duplicate %}
+                                {% block sw_tree_items_actions_duplicate %}
                                 <sw-context-menu-item
                                     v-if="allowDuplicate"
-                                    class="sw-context-menu__duplicate-action"
-                                    @click="onDuplicate(item)">
+                                    @click="onDuplicate(item)"
+                                >
                                     {{ $tc(`global.default.duplicate`) }}
                                 </sw-context-menu-item>
-                            {% endblock %}
+                                {% endblock %}
 
-                            {% block sw_tree_items_actions_group %}
+                                {% block sw_tree_items_actions_group %}
                                 <div class="sw-context-menu__group">
 
                                     {% block sw_tree_items_actions_edit %}
-                                        <sw-context-menu-item @click="onChangeRoute(item)">
-                                            {{ $tc('global.default.edit') }}
-                                        </sw-context-menu-item>
+                                    <sw-context-menu-item @click="onChangeRoute(item)">
+                                        {{ $tc('sw-tree.actions.edit') }}
+                                    </sw-context-menu-item>
                                     {% endblock %}
 
                                     {% block sw_tree_items_actions_delete %}
-                                        <sw-context-menu-item
-                                            class="sw-context-menu__group-button-delete"
-                                            :disabled="!allowDeleteCategories"
-                                            variant="danger"
-                                            @click="deleteElement(item)">
-                                            {{ $tc('global.default.delete') }}
-                                        </sw-context-menu-item>
+                                    <sw-context-menu-item
+                                        variant="danger"
+                                        :disabled="!allowDeleteCategories"
+                                        @click="deleteElement(item)"
+                                    >
+                                        {{ $tc('sw-tree.actions.delete') }}
+                                    </sw-context-menu-item>
                                     {% endblock %}
                                 </div>
-                            {% endblock %}
+                                {% endblock %}
                             </sw-context-button>
                         </slot>
                     </div>
+                    {% endblock %}
+                </template>
                 {% endblock %}
-            </div>
+            </sw-tree-item>
+            {% endblock %}
+        </div>
         {% endblock %}
-
-        {# ToDO: Repeat statt duplicated Content #}
-        {% block sw_tree_item_children_transition %}
-            <transition name="fade">
-
-                {% block sw_tree_item_children_content %}
-                    <div class="sw-tree-item__children" v-if="isOpened && item.children.length > 0">
-
-                        {% block sw_tree_item_children_items %}
-                            <sw-tree-item v-for="child in item.children"
-                                          :key="child.id"
-                                          :item="child"
-                                          :draggedItem="draggedItem"
-                                          :parentScope="parentScope"
-                                          :newElementId="newElementId"
-                                          :translationContext="translationContext"
-                                          :onChangeRoute="onChangeRoute"
-                                          @check-item="emitCheckedItem"
-                                          :activeParentIds="activeParentIds"
-                                          :activeItemIds="activeItemIds"
-                                          :markInactive="markInactive"
-                                          :sortable="sortable"
-                                          :shouldFocus="shouldFocus"
-                                          :activeFocusId="activeFocusId"
-                                          :displayCheckbox="displayCheckbox"
-                                          :disableContextMenu="disableContextMenu"
-                                          :getIsHighlighted="getIsHighlighted">
-
-                                {% block sw_tree_item_children_items_slots %}
-                                    <template #content="{ item, openTreeItem, getName: innerGetName }">
-
-                                        {% block sw_tree_item_children_items_slot_content %}
-                                            <sw-vnode-renderer :node="$scopedSlots.content({ item, openTreeItem, getName })"
-                                                               v-if="$scopedSlots.content"></sw-vnode-renderer>
-
-                                            {% block sw_tree_item_children_items_slot_content_default_block %}
-                                                <template v-else>
-
-                                                    {% block sw_tree_item_children_items_slot_content_edit %}
-                                                        <template v-if="currentEditElement === item.data.id">
-                                                            <sw-confirm-field class="sw-tree-detail__edit-tree-item"
-                                                                              v-model="item.data.name"
-                                                                              :preventEmptySubmit="true"
-                                                                              @input="onFinishNameingElement"
-                                                                              @blur="onBlurTreeItemInput(item)"
-                                                                              @submit-cancel="onCancelSubmit(item)"
-                                                                              :placeholder="$tc(`${translationContext}.general.buttonCreate`)">
-                                                            </sw-confirm-field>
-                                                        </template>
-                                                    {% endblock %}
-
-                                                    {% block sw_tree_item_children_items_slot_content_default %}
-                                                        <template v-else>
-                                                            <a
-                                                                v-if="onChangeRoute"
-                                                                class="tree-link"
-                                                                :href="showItemUrl(item)"
-                                                                @click.prevent="onChangeRoute(item)">
-                                                                <span class="sw-tree-item__label">{{ getName(item) }}</span>
-                                                            </a>
-                                                            <span v-else class="sw-tree-item__label">{{ getName(item) }}</span>
-                                                        </template>
-                                                    {% endblock %}
-                                                </template>
-                                            {% endblock %}
-                                        {% endblock %}
-                                    </template>
-
-                                    <template #actions="{ item, openTreeItem }">
-
-                                        {% block sw_tree_item_children_items_slot_actions %}
-                                            <sw-vnode-renderer :node="$scopedSlots.actions({ item, openTreeItem })"
-                                                               v-if="$scopedSlots.actions"></sw-vnode-renderer>
-                                            <div v-else class="sw-tree-item__actions">
-
-                                                {% block sw_tree_items_active_state %}
-                                                    <sw-icon
-                                                        v-if="shouldShowActiveState"
-                                                        size="6"
-                                                        :color="getActiveIconColor(item)"
-                                                        name="default-basic-shape-circle-filled">
-                                                    </sw-icon>
-                                                {% endblock %}
-
-                                                <slot name="actions"
-                                                      :item="item"
-                                                      :openTreeItem="openTreeItem"
-                                                      :addElement="addElement"
-                                                      :addSubElement="addSubElement"
-                                                      :onDuplicate="onDuplicate"
-                                                      :onChangeRoute="onChangeRoute"
-                                                      :deleteElement="deleteElement"
-                                                      :toolTip="toolTip"
-                                                      :isDisabled="isDisabled"
-                                                >
-                                                    <sw-context-button v-tooltip="toolTip" :disabled="isDisabled">
-
-                                                        {% block sw_tree_items_actions_without_position %}
-                                                            <sw-context-menu-item
-                                                                v-if="allowCreateWithoutPosition"
-                                                                class="sw-tree-item__without-position-action"
-                                                                @click="addElement(item)">
-                                                                {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_tree_items_actions_before %}
-                                                            <sw-context-menu-item
-                                                                v-if="!allowCreateWithoutPosition"
-                                                                :disabled="!allowNewCategories"
-                                                                @click="addElement(item, 'before')">
-                                                                {{ $tc(`${translationContext}.general.actions.createBefore`) }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_tree_items_actions_after %}
-                                                            <sw-context-menu-item
-                                                                v-if="!allowCreateWithoutPosition"
-                                                                :disabled="!allowNewCategories"
-                                                                @click="addElement(item, 'after')">
-                                                                {{ $tc(`${translationContext}.general.actions.createAfter`) }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_tree_items_actions_sub %}
-                                                            <sw-context-menu-item
-                                                                v-if="!allowCreateWithoutPosition"
-                                                                :disabled="!allowNewCategories"
-                                                                @click="addSubElement(item); openTreeItem(true)">
-                                                                {{ $tc(`${translationContext}.general.actions.createSub`) }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_tree_items_actions_duplicate %}
-                                                            <sw-context-menu-item
-                                                                v-if="allowDuplicate"
-                                                                @click="onDuplicate(item)">
-                                                                {{ $tc(`global.default.duplicate`) }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_tree_items_actions_group %}
-                                                            <div class="sw-context-menu__group">
-
-                                                                {% block sw_tree_items_actions_edit %}
-                                                                    <sw-context-menu-item @click="onChangeRoute(item)">
-                                                                        {{ $tc('sw-tree.actions.edit') }}
-                                                                    </sw-context-menu-item>
-                                                                {% endblock %}
-
-                                                                {% block sw_tree_items_actions_delete %}
-                                                                    <sw-context-menu-item
-                                                                        variant="danger"
-                                                                        :disabled="!allowDeleteCategories"
-                                                                        @click="deleteElement(item)">
-                                                                        {{ $tc('sw-tree.actions.delete') }}
-                                                                    </sw-context-menu-item>
-                                                                {% endblock %}
-                                                            </div>
-                                                        {% endblock %}
-                                                    </sw-context-button>
-                                                </slot>
-                                            </div>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                            </sw-tree-item>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </transition>
-        {% endblock %}
-    </div>
+    </transition>
+    {% endblock %}
+</div>
 {% endblock %}

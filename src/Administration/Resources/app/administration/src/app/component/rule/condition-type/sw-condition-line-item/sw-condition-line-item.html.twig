@@ -1,48 +1,61 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-line-item sw-condition__condition-value">
-        {% block sw_condition_line_item_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-line-item sw-condition__condition-value">
+    {% block sw_condition_line_item_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_line_item_field_identifier %}
-            <sw-entity-multi-select
-                entity="product"
-                size="medium"
-                :disabled="disabled"
-                :entityCollection="products"
-                :criteria="productCriteria"
-                :context="productContext"
-                @change="setIds">
-                <template #selection-label-property="{ item }">
-                    <slot name="selection-label-property" v-bind="{ item }">
-                        {% block sw_condition_line_item_results_variant_info %}
-                            <sw-product-variant-info
-                                :variations="item.variation">
-                                {{ item.translated.name || item.name }}
-                            </sw-product-variant-info>
-                        {% endblock %}
-                    </slot>
-                </template>
+    {% block sw_condition_line_item_field_identifier %}
+    <sw-entity-multi-select
+        entity="product"
+        size="medium"
+        :disabled="disabled"
+        :entity-collection="products"
+        :criteria="productCriteria"
+        :context="productContext"
+        @change="setIds"
+    >
+        <template #selection-label-property="{ item }">
+            <slot
+                name="selection-label-property"
+                v-bind="{ item }"
+            >
+                {% block sw_condition_line_item_results_variant_info %}
+                <sw-product-variant-info
+                    :variations="item.variation"
+                >
+                    {{ item.translated.name || item.name }}
+                </sw-product-variant-info>
+                {% endblock %}
+            </slot>
+        </template>
 
-                <template #result-item="{ item, index, searchTerm, highlightSearchTerm }">
-                    <slot name="result-item" v-bind="{ item, index, searchTerm, highlightSearchTerm }">
-                        <li is="sw-select-result" v-bind="{ item, index, searchTerm, highlightSearchTerm }">
-                            {% block sw_condition_line_item_results_list_result_label %}
-                                <span class="sw-select-result__result-item-text">
-                                    <sw-product-variant-info
-                                        :variations="item.variation"
-                                        :highlighted="highlightSearchTerm"
-                                        :searchTerm="searchTerm">
-                                            {{ item.translated.name || item.name }}
-                                    </sw-product-variant-info>
-                                </span>
-                            {% endblock %}
-                        </li>
-                    </slot>
-                </template>
-            </sw-entity-multi-select>
-        {% endblock %}
-    </div>
+        <template #result-item="{ item, index, searchTerm, highlightSearchTerm }">
+            <slot
+                name="result-item"
+                v-bind="{ item, index, searchTerm, highlightSearchTerm }"
+            >
+                <li
+                    is="sw-select-result"
+                    v-bind="{ item, index, searchTerm, highlightSearchTerm }"
+                >
+                    {% block sw_condition_line_item_results_list_result_label %}
+                    <span class="sw-select-result__result-item-text">
+                        <sw-product-variant-info
+                            :variations="item.variation"
+                            :highlighted="highlightSearchTerm"
+                            :search-term="searchTerm"
+                        >
+                            {{ item.translated.name || item.name }}
+                        </sw-product-variant-info>
+                    </span>
+                    {% endblock %}
+                </li>
+            </slot>
+        </template>
+    </sw-entity-multi-select>
+    {% endblock %}
+</div>
 {% endblock %}

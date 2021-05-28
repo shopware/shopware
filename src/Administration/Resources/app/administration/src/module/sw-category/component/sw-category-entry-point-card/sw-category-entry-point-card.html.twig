@@ -1,70 +1,79 @@
 {% block sw_category_entry_point_card %}
-    <sw-card class="sw-category-entry-point-card" :title="$tc('sw-category.base.entry-point-card.cardTitle')">
+<sw-card
+    class="sw-category-entry-point-card"
+    :title="$tc('sw-category.base.entry-point-card.cardTitle')"
+>
 
-        {% block sw_category_entry_point_card_selection %}
-            <sw-single-select
-                class="sw-category-entry-point-card__entry-point-selection"
-                v-model="selectedEntryPoint"
-                :options="entryPoints"
-                :label="$tc('sw-category.base.entry-point-card.labelEntryPoint')"
-                :placeholder="$tc('sw-category.base.entry-point-card.placeholderEntryPoint')"
-                :helpText="helpText"
-                :disabled="hasExistingNavigation || !acl.can('category.editor')"
-                @change="onEntryPointChange">
-            </sw-single-select>
+    {% block sw_category_entry_point_card_selection %}
+    <sw-single-select
+        v-model="selectedEntryPoint"
+        class="sw-category-entry-point-card__entry-point-selection"
+        :options="entryPoints"
+        :label="$tc('sw-category.base.entry-point-card.labelEntryPoint')"
+        :placeholder="$tc('sw-category.base.entry-point-card.placeholderEntryPoint')"
+        :help-text="helpText"
+        :disabled="hasExistingNavigation || !acl.can('category.editor')"
+        @change="onEntryPointChange"
+    />
+    {% endblock %}
+
+    {% block sw_category_entry_point_card_navigation_headline %}
+    <p v-if="hasExistingNavigation">
+        {{ $tc('sw-category.base.entry-point-card.existingNavigationDescription') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_category_entry_point_card_navigation_list %}
+    <div
+        v-if="hasExistingNavigation"
+        class="sw-category-entry-point-card__navigation-list"
+    >
+
+        {% block sw_category_detail_entry_point_navigation_list_link %}
+        <router-link
+            v-for="salesChannel in initialNavigationSalesChannels"
+            :key="salesChannel.id"
+            :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
+            class="sw-category-entry-point-card__navigation-entry"
+        >
+            {{ salesChannel.translated.name }}
+        </router-link>
         {% endblock %}
 
-        {% block sw_category_entry_point_card_navigation_headline %}
-            <p v-if="hasExistingNavigation">
-                {{ $tc('sw-category.base.entry-point-card.existingNavigationDescription') }}
-            </p>
-        {% endblock %}
+    </div>
+    {% endblock %}
 
-        {% block sw_category_entry_point_card_navigation_list %}
-            <div class="sw-category-entry-point-card__navigation-list" v-if="hasExistingNavigation">
+    {% block sw_category_entry_point_card_sales_channel_selection %}
+    <sw-category-sales-channel-multi-select
+        v-if="associatedCollection"
+        class="sw-category-entry-point-card__sales-channel-selection"
+        :entity-collection="associatedCollection"
+        :label="salesChannelSelectionLabel"
+        :criteria="salesChannelCriteria"
+        :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')"
+        :disabled="!selectedEntryPoint || !acl.can('category.editor')"
+        @change="onSalesChannelChange"
+    />
+    {% endblock %}
 
-                {% block sw_category_detail_entry_point_navigation_list_link %}
-                    <router-link v-for="salesChannel in initialNavigationSalesChannels"
-                                 :key="salesChannel.id"
-                                 :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
-                                 class="sw-category-entry-point-card__navigation-entry">
-                        {{ salesChannel.translated.name }}
-                    </router-link>
-                {% endblock %}
+    {% block sw_category_entry_point_card_button_configure_home %}
+    <sw-button
+        class="sw-category-entry-point-card__button-configure-home"
+        variant="ghost"
+        size="small"
+        :disabled="selectedEntryPoint !== 'navigationSalesChannels' || category.navigationSalesChannels.length === 0"
+        @click="openConfigureHomeModal"
+    >
+        {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}
+    </sw-button>
+    {% endblock %}
 
-            </div>
-        {% endblock %}
-
-        {% block sw_category_entry_point_card_sales_channel_selection %}
-            <sw-category-sales-channel-multi-select
-                v-if="associatedCollection"
-                class="sw-category-entry-point-card__sales-channel-selection"
-                @change="onSalesChannelChange"
-                :entityCollection="associatedCollection"
-                :label="salesChannelSelectionLabel"
-                :criteria="salesChannelCriteria"
-                :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')"
-                :disabled="!selectedEntryPoint || !acl.can('category.editor')">
-            </sw-category-sales-channel-multi-select>
-        {% endblock %}
-
-        {% block sw_category_entry_point_card_button_configure_home %}
-            <sw-button
-                class="sw-category-entry-point-card__button-configure-home"
-                variant="ghost"
-                size="small"
-                :disabled="selectedEntryPoint !== 'navigationSalesChannels' || category.navigationSalesChannels.length === 0"
-                @click="openConfigureHomeModal">
-                {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}
-            </sw-button>
-        {% endblock %}
-
-        {% block sw_category_entry_point_card_configure_home_modal %}
-            <sw-category-entry-point-modal
-                v-if="configureHomeModalVisible"
-                :salesChannelCollection="category.navigationSalesChannels"
-                @modal-close="closeConfigureHomeModal">
-            </sw-category-entry-point-modal>
-        {% endblock %}
-    </sw-card>
+    {% block sw_category_entry_point_card_configure_home_modal %}
+    <sw-category-entry-point-modal
+        v-if="configureHomeModalVisible"
+        :sales-channel-collection="category.navigationSalesChannels"
+        @modal-close="closeConfigureHomeModal"
+    />
+    {% endblock %}
+</sw-card>
 {% endblock %}

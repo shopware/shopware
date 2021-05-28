@@ -1,118 +1,123 @@
 {% block sw_media_index %}
-    <sw-page class="sw-media-index">
+<sw-page class="sw-media-index">
 
-        {% block sw_media_list_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar initialSearchType="media"
-                               :initialSearch="term"
-                               @search="onSearch">
-                </sw-search-bar>
-            </template>
-        {% endblock %}
+    {% block sw_media_list_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar
+            initial-search-type="media"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
 
-        {% block sw_media_index_smart_bar %}
-            {% block sw_media_index_bread_crumb_navigation %}
-                <template slot="smart-bar-back">
-                    <div class="sw-media-index__navigation">
+    {% block sw_media_index_smart_bar %}
+    {% block sw_media_index_bread_crumb_navigation %}
+    <template slot="smart-bar-back">
+        <div class="sw-media-index__navigation">
 
-                        <template v-if="parentFolder">
-                             {% block sw_media_index_bread_crumb_navigation_icon %}
-                                <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
-                                    <sw-icon class="sw-media-index__navigation-breadcrumb"
-                                             name="multicolor-folder-breadcrumbs-back-to-root"
-                                             large
-                                             multicolor>
-                                    </sw-icon>
-                                </router-link>
-                            {% endblock %}
+            <template v-if="parentFolder">
+                {% block sw_media_index_bread_crumb_navigation_icon %}
+                <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
+                    <sw-icon
+                        class="sw-media-index__navigation-breadcrumb"
+                        name="multicolor-folder-breadcrumbs-back-to-root"
+                        large
+                        multicolor
+                    />
+                </router-link>
+                {% endblock %}
 
-                            {% block sw_media_index_bread_crumb_navigation_parent%}
+                {% block sw_media_index_bread_crumb_navigation_parent%}
                                 <router-link class="sw-media-index__navigation-label"
                                              :to="{ name: 'sw.media.index', params: { folderId: parentFolder.id } }">
                                     {{ parentFolder.name }}
                                 </router-link>
                             {% endblock %}
-                        </template>
-                    </div>
-                </template>
+            </template>
+        </div>
+    </template>
+    {% endblock %}
+
+    {% block sw_media_index_smart_bar_header %}
+    <template
+        v-if="currentFolder"
+        slot="smart-bar-header"
+    >
+        <h2>
+            {% block sw_media_index_smart_bar_heading %}
+            {{ currentFolder.name }}
+            {% endblock %}
+        </h2>
+    </template>
+    {% endblock %}
+
+    <template slot="smart-bar-actions">
+        {% block sw_media_index_smart_bar_media_upload %}
+        <sw-media-upload-v2
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('media.creator'),
+                showOnDisabledElements: true
+            }"
+            :disabled="!acl.can('media.creator')"
+            variant="compact"
+            :file-accept="fileAccept"
+            :target-folder-id="routeFolderId"
+            :upload-tag="uploadTag"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_media_index_language_switch %}
+    <template slot="language-switch">
+        <sw-language-switch @on-change="reloadList" />
+    </template>
+    {% endblock %}
+
+    {% block sw_media_index_page_content %}
+    <template slot="content">
+        <div class="sw-media-index__page-content">
+            {% block sw_media_index_listing_grid %}
+            <sw-upload-listener
+                :upload-tag="uploadTag"
+                @media-upload-add="onUploadsAdded"
+                @media-upload-finish="onUploadFinished"
+                @media-upload-fail="onUploadFailed"
+                @media-upload-cancel="reloadList"
+            />
+            <sw-media-library
+                ref="mediaLibrary"
+                v-model="selectedItems"
+                class="sw-media-index__media-library"
+                :folder-id="routeFolderId"
+                :pending-uploads="uploads"
+                :term="term"
+                editable
+                @media-folder-change="updateRoute"
+            />
             {% endblock %}
 
-            {% block sw_media_index_smart_bar_header %}
-                <template slot="smart-bar-header" v-if="currentFolder">
-                    <h2>
-                        {% block sw_media_index_smart_bar_heading %}
-                            {{ currentFolder.name }}
-                        {% endblock %}
-                    </h2>
-                </template>
+            {% block sw_media_index_sidebar %}
+            <sw-media-sidebar
+                :items="selectedItems"
+                :current-folder-id="routeFolderId"
+                editable
+                @media-sidebar-folder-renamed="updateFolder"
+                @media-sidebar-items-delete="onItemsDeleted"
+                @media-sidebar-folder-items-dissolve="onMediaFoldersDissolved"
+                @media-sidebar-items-move="reloadList"
+                @media-item-replaced="reloadList"
+                @media-item-selection-remove="onMediaUnselect"
+            />
             {% endblock %}
 
-            <template slot="smart-bar-actions">
-                {% block sw_media_index_smart_bar_media_upload %}
-                    <sw-media-upload-v2
-                        :disabled="!acl.can('media.creator')"
-                        variant="compact"
-                        :fileAccept="fileAccept"
-                        :targetFolderId="routeFolderId"
-                        :uploadTag="uploadTag"
-                        v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('media.creator'),
-                            showOnDisabledElements: true
-                        }">
-                    </sw-media-upload-v2>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-        {% block sw_media_index_language_switch %}
-            <template slot="language-switch">
-                <sw-language-switch @on-change="reloadList"></sw-language-switch>
-            </template>
-        {% endblock %}
-
-        {% block sw_media_index_page_content %}
-            <template slot="content">
-                <div class="sw-media-index__page-content">
-                    {% block sw_media_index_listing_grid %}
-                        <sw-upload-listener
-                            :uploadTag="uploadTag"
-                            @media-upload-add="onUploadsAdded"
-                            @media-upload-finish="onUploadFinished"
-                            @media-upload-fail="onUploadFailed"
-                            @media-upload-cancel="reloadList">
-                        </sw-upload-listener>
-                        <sw-media-library
-                            class="sw-media-index__media-library"
-                            :folderId="routeFolderId"
-                            :pendingUploads="uploads"
-                            :term="term"
-                            editable
-                            @media-folder-change="updateRoute"
-                            v-model="selectedItems"
-                            ref="mediaLibrary">
-                        </sw-media-library>
-                    {% endblock %}
-
-                    {% block sw_media_index_sidebar %}
-                        <sw-media-sidebar
-                            :items="selectedItems"
-                            :currentFolderId="routeFolderId"
-                            editable
-                            @media-sidebar-folder-renamed="updateFolder"
-                            @media-sidebar-items-delete="onItemsDeleted"
-                            @media-sidebar-folder-items-dissolve="onMediaFoldersDissolved"
-                            @media-sidebar-items-move="reloadList"
-                            @media-item-replaced="reloadList"
-                            @media-item-selection-remove="onMediaUnselect">
-                        </sw-media-sidebar>
-                    {% endblock %}
-
-                    {% block sw_media_index_list_grid_loader %}
-                        <sw-loader v-if="isLoading"></sw-loader>
-                    {% endblock %}
-                </div>
-            </template>
-        {% endblock %}
-    </sw-page>
+            {% block sw_media_index_list_grid_loader %}
+            <sw-loader v-if="isLoading" />
+            {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

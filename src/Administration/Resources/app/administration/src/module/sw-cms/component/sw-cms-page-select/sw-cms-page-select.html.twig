@@ -1,12 +1,12 @@
 {% block sw_cms_page_select %}
-    <div class="sw-cms-page-select">
-        <sw-entity-single-select
-            class="sw-cms-page-select-box"
-            entity="cms_page"
-            :criteria="pageTypeCriteria"
-            v-bind="bind"
-            ref="component"
-            v-model="currentValue">
-        </sw-entity-single-select>
-    </div>
+<div class="sw-cms-page-select">
+    <sw-entity-single-select
+        v-bind="bind"
+        ref="component"
+        v-model="currentValue"
+        class="sw-cms-page-select-box"
+        entity="cms_page"
+        :criteria="pageTypeCriteria"
+    />
+</div>
 {% endblock %}

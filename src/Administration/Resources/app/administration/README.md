@@ -28,3 +28,14 @@ npm test
 ```
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+
+## Twig Linting Setup
+
+### VSCode
+
+Should work out of the box @see [.vscode/settings.json](../../../../../.vscode/settings.json).
+
+### PHPStorm
+
+Add `html,twig` to `eslint.additional.file.extensions` list in Registry (Help > Find Action..., type registry... to locate it) and re-start the IDE.

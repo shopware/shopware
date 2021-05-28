@@ -1,153 +1,198 @@
 {% block sw_media_upload_v2 %}
-    <div class="sw-media-upload-v2 sw-media-compact-upload-v2">
-        {% block sw_media_upload_v2_compact %}
-            {% block sw_media_upload_v2_compact_label %}
-                <label class="sw-media-compact-upload-v2__label" v-if="label">
-                    {{ label }}
-                </label>
+<div class="sw-media-upload-v2 sw-media-compact-upload-v2">
+    {% block sw_media_upload_v2_compact %}
+    {% block sw_media_upload_v2_compact_label %}
+    <label
+        v-if="label"
+        class="sw-media-compact-upload-v2__label"
+    >
+        {{ label }}
+    </label>
+    {% endblock %}
+
+    <div
+        v-if="variant == 'compact'"
+        class="sw-media-upload-v2__content"
+    >
+        <sw-button-group split-button>
+            {% block sw_media_upload_v2_compact_button_file_upload %}
+            <sw-button
+                :disabled="disabled"
+                class="sw-media-upload-v2__button-compact-upload"
+                variant="primary"
+                @click="onClickUpload"
+            >
+                {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
+            </sw-button>
             {% endblock %}
 
-            <div v-if="variant == 'compact'" class="sw-media-upload-v2__content">
-                <sw-button-group splitButton>
-                    {% block sw_media_upload_v2_compact_button_file_upload %}
-                        <sw-button
-                            :disabled="disabled"
-                            class="sw-media-upload-v2__button-compact-upload"
-                            variant="primary"
-                            @click="onClickUpload">
-                            {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
-                        </sw-button>
-                    {% endblock %}
+            {% block sw_media_upload_v2_compact_button_context_menu %}
+            <sw-context-button
+                v-if="uploadUrlFeatureEnabled"
+                :disabled="disabled"
+            >
+                <template slot="button">
+                    <sw-button
+                        :disabled="disabled"
+                        square
+                        variant="primary"
+                        class="sw-media-upload-v2__button-context-menu"
+                    >
+                        <sw-icon
+                            name="small-arrow-medium-down"
+                            size="16"
+                        />
+                    </sw-button>
+                </template>
 
-                    {% block sw_media_upload_v2_compact_button_context_menu %}
-                        <sw-context-button
-                            v-if="uploadUrlFeatureEnabled"
-                            :disabled="disabled">
-                            <template slot="button">
-                                <sw-button
-                                    :disabled="disabled"
-                                    square variant="primary"
-                                    class="sw-media-upload-v2__button-context-menu">
-                                    <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
-                                </sw-button>
-                            </template>
+                <sw-context-menu-item
+                    class="sw-media-upload-v2__button-url-upload"
+                    @click="useUrlUpload"
+                >
+                    {{ $tc('global.sw-media-upload-v2.buttonUrlUpload') }}
+                </sw-context-menu-item>
+            </sw-context-button>
+            {% endblock %}
+        </sw-button-group>
 
-                            <sw-context-menu-item @click="useUrlUpload" class="sw-media-upload-v2__button-url-upload">
-                                {{ $tc('global.sw-media-upload-v2.buttonUrlUpload') }}
-                            </sw-context-menu-item>
-                        </sw-context-button>
-                    {% endblock %}
-                </sw-button-group>
-
-                {% block sw_media_upload_v2_compact_url_form %}
-                    <sw-media-url-form
-                        v-if="isUrlUpload"
-                        variant="modal"
-                        @modal-close="useFileUpload"
-                        @media-url-form-submit="onUrlUpload">
-                    </sw-media-url-form>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_media_upload_v2_regular %}
-            <div v-if="variant == 'regular'" class="sw-media-upload-v2__content">
-                {% block sw_media_upload_v2_regular_header %}
-                {% endblock %}
-
-                {% block sw_media_upload_v2_regular_drop_zone %}
-                    <div class="sw-media-upload-v2__dropzone" ref="dropzone" :class="isDragActiveClass">
-
-                        {% block sw_media_upload_v2_preview %}
-                            <template v-if="showPreview">
-                                {% block sw_media_upload_v2_regular_preview_file %}
-                                    <sw-media-preview-v2
-                                            v-if="source || preview"
-                                            class="sw-media-upload-v2__preview"
-                                            :source="source || preview">
-                                    </sw-media-preview-v2>
-                                {% endblock %}
-                                {% block sw_media_upload_v2_regular_preview_fallback %}
-                                    <div v-else class="sw-media-upload-v2__preview is--fallback">
-                                        <sw-icon class="sw-media-upload-v2__fallback-icon" name="default-object-image"></sw-icon>
-                                    </div>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_media_upload_v2_actions %}
-                        <div class="sw-media-upload-v2__actions" :class="{ 'has--source': source }">
-                            <div class="sw-media-upload-v2__file-info" v-if="source">
-                                <div class="sw-media-upload-v2__file-headline">
-                                    {{ source | mediaName }}
-                                </div>
-                                <sw-icon class="sw-media-upload-v2__remove-icon"
-                                         name="small-default-x-line-small"
-                                         @click="onRemoveMediaItem"
-                                         small>
-                                </sw-icon>
-                            </div>
-
-                            <template v-else>
-                                {% block sw_media_upload_v2_regular_actions_url %}
-                                    <sw-media-url-form
-                                            class="sw-media-upload-v2__url-form"
-                                            v-if="isUrlUpload"
-                                            variant="inline"
-                                            @media-url-form-submit="onUrlUpload">
-                                    </sw-media-url-form>
-                                {% endblock %}
-
-                                {% block sw_media_upload_v2_regular_actions_add %}
-                                    <template v-if="!isUrlUpload">
-                                        {% block sw_media_upload_v2_regular_upload_button %}
-                                            <sw-button
-                                                class="sw-media-upload-v2__button upload"
-                                                :disabled="disabled"
-                                                variant="ghost"
-                                                size="small"
-                                                @click="onClickUpload">
-                                                {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
-                                            </sw-button>
-                                        {% endblock %}
-
-                                        <sw-button
-                                            variant="primary"
-                                            :disabled="disabled"
-                                            class="sw-media-compact-upload-v2__browse-button"
-                                            @click="mediaModalIsOpen = true">
-                                            <sw-icon class="sw-media-compact-upload-v2__browse-icon"
-                                                     name="default-object-image"></sw-icon>
-                                        </sw-button>
-
-                                        <sw-media-modal-v2
-                                            v-if="mediaModalIsOpen"
-                                            @modal-close="mediaModalIsOpen = false"
-                                            @media-modal-selection-change="onModalClosed"
-                                            :allowMultiSelect="false">
-                                        </sw-media-modal-v2>
-
-                                        {% block sw_media_upload_v2_regular_media_sidebar_button %}{% endblock %}
-                                    </template>
-                                {% endblock %}
-                            </template>
-                        </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_media_upload_v2_file_input %}
-            <form class="sw-media-upload-v2__form" ref="fileForm">
-                <input class="sw-media-upload-v2__file-input"
-                       type="file"
-                       id="files"
-                       ref="fileInput"
-                       :accept="fileAccept"
-                       :multiple="multiSelect"
-                       @change="onFileInputChange"/>
-            </form>
+        {% block sw_media_upload_v2_compact_url_form %}
+        <sw-media-url-form
+            v-if="isUrlUpload"
+            variant="modal"
+            @modal-close="useFileUpload"
+            @media-url-form-submit="onUrlUpload"
+        />
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_media_upload_v2_regular %}
+    <div
+        v-if="variant == 'regular'"
+        class="sw-media-upload-v2__content"
+    >
+        {% block sw_media_upload_v2_regular_header %}
+        {% endblock %}
+
+        {% block sw_media_upload_v2_regular_drop_zone %}
+        <div
+            ref="dropzone"
+            class="sw-media-upload-v2__dropzone"
+            :class="isDragActiveClass"
+        >
+
+            {% block sw_media_upload_v2_preview %}
+            <template v-if="showPreview">
+                {% block sw_media_upload_v2_regular_preview_file %}
+                <sw-media-preview-v2
+                    v-if="source || preview"
+                    class="sw-media-upload-v2__preview"
+                    :source="source || preview"
+                />
+                {% endblock %}
+                {% block sw_media_upload_v2_regular_preview_fallback %}
+                <div
+                    v-else
+                    class="sw-media-upload-v2__preview is--fallback"
+                >
+                    <sw-icon
+                        class="sw-media-upload-v2__fallback-icon"
+                        name="default-object-image"
+                    />
+                </div>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_media_upload_v2_actions %}
+            <div
+                class="sw-media-upload-v2__actions"
+                :class="{ 'has--source': source }"
+            >
+                <div
+                    v-if="source"
+                    class="sw-media-upload-v2__file-info"
+                >
+                    <div class="sw-media-upload-v2__file-headline">
+                        {{ source | mediaName }}
+                    </div>
+                    <sw-icon
+                        class="sw-media-upload-v2__remove-icon"
+                        name="small-default-x-line-small"
+                        small
+                        @click="onRemoveMediaItem"
+                    />
+                </div>
+
+                <template v-else>
+                    {% block sw_media_upload_v2_regular_actions_url %}
+                    <sw-media-url-form
+                        v-if="isUrlUpload"
+                        class="sw-media-upload-v2__url-form"
+                        variant="inline"
+                        @media-url-form-submit="onUrlUpload"
+                    />
+                    {% endblock %}
+
+                    {% block sw_media_upload_v2_regular_actions_add %}
+                    <template v-if="!isUrlUpload">
+                        {% block sw_media_upload_v2_regular_upload_button %}
+                        <sw-button
+                            class="sw-media-upload-v2__button upload"
+                            :disabled="disabled"
+                            variant="ghost"
+                            size="small"
+                            @click="onClickUpload"
+                        >
+                            {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
+                        </sw-button>
+                        {% endblock %}
+
+                        <sw-button
+                            variant="primary"
+                            :disabled="disabled"
+                            class="sw-media-compact-upload-v2__browse-button"
+                            @click="mediaModalIsOpen = true"
+                        >
+                            <sw-icon
+                                class="sw-media-compact-upload-v2__browse-icon"
+                                name="default-object-image"
+                            />
+                        </sw-button>
+
+                        <sw-media-modal-v2
+                            v-if="mediaModalIsOpen"
+                            :allow-multi-select="false"
+                            @modal-close="mediaModalIsOpen = false"
+                            @media-modal-selection-change="onModalClosed"
+                        />
+
+                        {% block sw_media_upload_v2_regular_media_sidebar_button %}{% endblock %}
+                    </template>
+                    {% endblock %}
+                </template>
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_media_upload_v2_file_input %}
+    <form
+        ref="fileForm"
+        class="sw-media-upload-v2__form"
+    >
+        <input
+            id="files"
+            ref="fileInput"
+            class="sw-media-upload-v2__file-input"
+            type="file"
+            :accept="fileAccept"
+            :multiple="multiSelect"
+            @change="onFileInputChange"
+        >
+    </form>
+    {% endblock %}
+</div>
 {% endblock %}

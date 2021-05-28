@@ -1,73 +1,102 @@
 {% block sw_address %}
-    <div class="sw-address" :class="addressClasses">
+<div
+    class="sw-address"
+    :class="addressClasses"
+>
 
-        {% block sw_address_headline %}
-            <div class="sw-address__headline" v-if="headline">
-                {{ headline }}
-                <router-link v-if="showEditButton && editLink"
-                             class="sw-address-headline-link"
-                             :to="editLink">
-                    {{ $tc('global.default.edit') }}
-                </router-link>
-            </div>
+    {% block sw_address_headline %}
+    <div
+        v-if="headline"
+        class="sw-address__headline"
+    >
+        {{ headline }}
+        <router-link
+            v-if="showEditButton && editLink"
+            class="sw-address-headline-link"
+            :to="editLink"
+        >
+            {{ $tc('global.default.edit') }}
+        </router-link>
+    </div>
+    {% endblock %}
+
+    {% block sw_address_body %}
+    <div class="sw-address__body">
+        {% block sw_address_company %}
+        <div
+            v-if="address.company"
+            class="sw-address__company sw-address__line"
+        >
+            {{ address.company }}
+        </div>
         {% endblock %}
 
-        {% block sw_address_body %}
-            <div class="sw-address__body">
-                {% block sw_address_company %}
-                    <div v-if="address.company" class="sw-address__company sw-address__line">
-                        {{ address.company }}
-                    </div>
-                {% endblock %}
+        {% block sw_address_full_name %}
+        <div
+            v-if="address.lastName"
+            class="sw-address__full-name sw-address__line"
+        >
+            {{ address | salutation }}
+        </div>
+        {% endblock %}
 
-                {% block sw_address_full_name %}
-                    <div v-if="address.lastName" class="sw-address__full-name sw-address__line">
-                        {{ address | salutation }}
-                    </div>
-                {% endblock %}
+        {% block sw_address_street %}
+        <div
+            v-if="address.street"
+            class="sw-address__street sw-address__line"
+        >
+            {{ address.street }}
+        </div>
+        {% endblock %}
 
-                {% block sw_address_street %}
-                    <div v-if="address.street" class="sw-address__street sw-address__line">
-                        {{ address.street }}
-                    </div>
-                {% endblock %}
+        {% block sw_address_additional_address_line_1 %}
+        <div
+            v-if="address.additionalAddressLine1"
+            class="sw-address__additional-line-1 sw-address__line"
+        >
+            {{ address.additionalAddressLine1 }}
+        </div>
+        {% endblock %}
 
-                {% block sw_address_additional_address_line_1 %}
-                    <div v-if="address.additionalAddressLine1" class="sw-address__additional-line-1 sw-address__line">
-                        {{ address.additionalAddressLine1 }}
-                    </div>
-                {% endblock %}
+        {% block sw_address_additional_address_line_2 %}
+        <div
+            v-if="address.additionalAddressLine2"
+            class="sw-address__additional-line-2 sw-address__line"
+        >
+            {{ address.additionalAddressLine2 }}
+        </div>
+        {% endblock %}
 
-                {% block sw_address_additional_address_line_2 %}
-                    <div v-if="address.additionalAddressLine2" class="sw-address__additional-line-2 sw-address__line">
-                        {{ address.additionalAddressLine2 }}
-                    </div>
-                {% endblock %}
+        {% block sw_address_city_zipcode %}
+        <div
+            v-if="address.city || address.zipcode"
+            class="sw-address__location sw-address__line"
+        >
+            {% block sw_address_zipcode %}
+            <span v-if="address.zipcode">{{ address.zipcode }} </span>
+            {% endblock %}
 
-                {% block sw_address_city_zipcode %}
-                    <div v-if="address.city || address.zipcode" class="sw-address__location sw-address__line">
-                        {% block sw_address_zipcode %}
-                            <span v-if="address.zipcode">{{ address.zipcode }} </span>
-                        {% endblock %}
+            {% block sw_address_city %}
+            <span v-if="address.city">{{ address.city }}</span>
+            {% endblock %}
+        </div>
+        {% endblock %}
 
-                        {% block sw_address_city %}
-                            <span v-if="address.city">{{ address.city }}</span>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
+        {% block sw_address_country %}
+        <div class="sw-address__line">
+            <span v-if="address.countryState && address.countryState.name">
+                {{ address.countryState.name }},
+            </span>
 
-                {% block sw_address_country %}
-                    <div class="sw-address__line">
-                        <span v-if="address.countryState && address.countryState.name">
-                            {{ address.countryState.name }},
-                        </span>
-
-                        <span v-if="address.country && address.country.name" class="sw-address__country">
-                            {{ address.country.name }}
-                        </span>
-                    </div>
-                {% endblock %}
-            </div>
+            <span
+                v-if="address.country && address.country.name"
+                class="sw-address__country"
+            >
+                {{ address.country.name }}
+            </span>
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

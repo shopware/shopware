@@ -1,50 +1,92 @@
 {% block sw_text_editor_table_toolbar %}
-    <div class="sw-text-editor-table-toolbar">
-        {% block sw_text_editor_table_toolbar_buttons %}
-            <div class="sw-text-editor-table-toolbar__buttons">
+<div class="sw-text-editor-table-toolbar">
+    {% block sw_text_editor_table_toolbar_buttons %}
+    <div class="sw-text-editor-table-toolbar__buttons">
 
-                {% block sw_text_editor_table_toolbar_button_row_before %}
-                <div class="sw-text-editor-table-toolbar__button" @mousedown="onAddRow('before')">
-                    <sw-icon name="default-text-editor-table-insert-row-before" size="12"></sw-icon>
-                </div>
-                {% endblock %}
-                
-                {% block sw_text_editor_table_toolbar_button_row_after %}
-                <div class="sw-text-editor-table-toolbar__button" @mousedown="onAddRow('after')">
-                    <sw-icon name="default-text-editor-table-insert-row-after" size="12"></sw-icon>
-                </div>
-                {% endblock %}
-                
-                {% block sw_text_editor_table_toolbar_button_row_delete %}
-                <div class="sw-text-editor-table-toolbar__button" @mousedown="onDeleteRow">
-                    <sw-icon name="default-text-editor-table-delete-row" size="12"></sw-icon>
-                </div>
-                {% endblock %}
-                
-                {% block sw_text_editor_table_toolbar_button_column_before %}
-                <div class="sw-text-editor-table-toolbar__button" @mousedown="onAddColumn('before')">
-                    <sw-icon name="default-text-editor-table-insert-column-before" size="12"></sw-icon>
-                </div>
-                {% endblock %}
-                
-                {% block sw_text_editor_table_toolbar_button_column_after %}
-                <div class="sw-text-editor-table-toolbar__button" @mousedown="onAddColumn('after')">
-                    <sw-icon name="default-text-editor-table-insert-column-after" size="12"></sw-icon>
-                </div>
-                {% endblock %}
-                
-                {% block sw_text_editor_table_toolbar_button_column_delete %}
-                <div class="sw-text-editor-table-toolbar__button" @mousedown="onDeleteColumn">
-                    <sw-icon name="default-text-editor-table-delete-column" size="12"></sw-icon>
-                </div>
-                {% endblock %}
-                
-                {% block sw_text_editor_table_toolbar_button_table_delete %}
-                <div class="sw-text-editor-table-toolbar__button" @mousedown="onDeleteTable">
-                    <sw-icon name="small-default-x-line-large" size="12"></sw-icon>
-                </div>
-                {% endblock %}
-            </div>
+        {% block sw_text_editor_table_toolbar_button_row_before %}
+        <div
+            class="sw-text-editor-table-toolbar__button"
+            @mousedown="onAddRow('before')"
+        >
+            <sw-icon
+                name="default-text-editor-table-insert-row-before"
+                size="12"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_text_editor_table_toolbar_button_row_after %}
+        <div
+            class="sw-text-editor-table-toolbar__button"
+            @mousedown="onAddRow('after')"
+        >
+            <sw-icon
+                name="default-text-editor-table-insert-row-after"
+                size="12"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_text_editor_table_toolbar_button_row_delete %}
+        <div
+            class="sw-text-editor-table-toolbar__button"
+            @mousedown="onDeleteRow"
+        >
+            <sw-icon
+                name="default-text-editor-table-delete-row"
+                size="12"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_text_editor_table_toolbar_button_column_before %}
+        <div
+            class="sw-text-editor-table-toolbar__button"
+            @mousedown="onAddColumn('before')"
+        >
+            <sw-icon
+                name="default-text-editor-table-insert-column-before"
+                size="12"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_text_editor_table_toolbar_button_column_after %}
+        <div
+            class="sw-text-editor-table-toolbar__button"
+            @mousedown="onAddColumn('after')"
+        >
+            <sw-icon
+                name="default-text-editor-table-insert-column-after"
+                size="12"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_text_editor_table_toolbar_button_column_delete %}
+        <div
+            class="sw-text-editor-table-toolbar__button"
+            @mousedown="onDeleteColumn"
+        >
+            <sw-icon
+                name="default-text-editor-table-delete-column"
+                size="12"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_text_editor_table_toolbar_button_table_delete %}
+        <div
+            class="sw-text-editor-table-toolbar__button"
+            @mousedown="onDeleteTable"
+        >
+            <sw-icon
+                name="small-default-x-line-large"
+                size="12"
+            />
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

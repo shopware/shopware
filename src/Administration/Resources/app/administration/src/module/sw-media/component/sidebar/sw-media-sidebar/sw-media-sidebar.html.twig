@@ -1,45 +1,61 @@
 {% block sw_media_sidebar %}
-    <div class="sw-media-sidebar" :class="mediaSidebarClasses">
-        {% block sw_media_sidebar_headline %}
-            <h3 v-if="headLine" class="sw-media-sidebar__headline">{{ headLine }}</h3>
-        {% endblock %}
+<div
+    class="sw-media-sidebar"
+    :class="mediaSidebarClasses"
+>
+    {% block sw_media_sidebar_headline %}
+    <h3
+        v-if="headLine"
+        class="sw-media-sidebar__headline"
+    >
+        {{ headLine }}
+    </h3>
+    {% endblock %}
 
-        {% block sw_media_sidebar_item_quickinfo_content %}
-            <div class="sw-media-sidebar__quickinfo-scroll-container">
-                <sw-media-quickinfo
-                    v-if="isSingleFile && firstEntity.getEntityName() === 'media'"
-                    :item="firstEntity"
-                    :editable="editable"
-                    v-on="$listeners">
-                </sw-media-quickinfo>
+    {% block sw_media_sidebar_item_quickinfo_content %}
+    <div class="sw-media-sidebar__quickinfo-scroll-container">
+        <sw-media-quickinfo
+            v-if="isSingleFile && firstEntity.getEntityName() === 'media'"
+            :item="firstEntity"
+            :editable="editable"
+            v-on="$listeners"
+        />
 
-                <sw-media-folder-info
-                    v-else-if="isSingleFile && firstEntity.getEntityName() === 'media_folder'"
-                    :mediaFolder="firstEntity"
-                    :editable="editable"
-                    v-on="$listeners">
-                </sw-media-folder-info>
+        <sw-media-folder-info
+            v-else-if="isSingleFile && firstEntity.getEntityName() === 'media_folder'"
+            :media-folder="firstEntity"
+            :editable="editable"
+            v-on="$listeners"
+        />
 
-                <sw-media-quickinfo-multiple
-                    v-else-if="isMultipleFile"
-                    :editable="editable"
-                    :items="items"
-                    v-on="$listeners">
-                </sw-media-quickinfo-multiple>
+        <sw-media-quickinfo-multiple
+            v-else-if="isMultipleFile"
+            :editable="editable"
+            :items="items"
+            v-on="$listeners"
+        />
 
-                <sw-media-folder-info
-                    v-else-if="currentFolder"
-                    :mediaFolder="currentFolder"
-                    :editable="editable"
-                    @media-folder-renamed="onMediaFolderRenamed"
-                    v-on="$listeners">
-                </sw-media-folder-info>
+        <sw-media-folder-info
+            v-else-if="currentFolder"
+            :media-folder="currentFolder"
+            :editable="editable"
+            @media-folder-renamed="onMediaFolderRenamed"
+            v-on="$listeners"
+        />
 
-                <div v-else class="sw-media-sidebar__empty-state">
-                    <img :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset" :alt="$tc('sw-media.sidebar.labelNoMediaSelected')">
-                    <div class="sw-media-sidebar__empty-state-label">{{ $tc('sw-media.sidebar.labelNoMediaSelected') }}</div>
-                </div>
+        <div
+            v-else
+            class="sw-media-sidebar__empty-state"
+        >
+            <img
+                :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
+                :alt="$tc('sw-media.sidebar.labelNoMediaSelected')"
+            >
+            <div class="sw-media-sidebar__empty-state-label">
+                {{ $tc('sw-media.sidebar.labelNoMediaSelected') }}
             </div>
-        {% endblock %}
+        </div>
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

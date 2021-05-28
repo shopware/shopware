@@ -1,193 +1,215 @@
 {% block sw_settings_payment_detail %}
-    <sw-page class="sw-settings-payment-detail">
+<sw-page class="sw-settings-payment-detail">
 
-        {% block sw_settings_payment_detail_header %}
-            <template slot="smart-bar-header">
-                <h2>{{ placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.textHeadline')) }}</h2>
+    {% block sw_settings_payment_detail_header %}
+    <template slot="smart-bar-header">
+        <h2>{{ placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.textHeadline')) }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_detail_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_payment_detail_actions_abort %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            :disabled="isLoading"
+            @click="onCancel"
+        >
+            {{ $tc('sw-settings-payment.detail.buttonCancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_settings_payment_detail_actions_save %}
+        <sw-button-process
+            v-tooltip.bottom="tooltipSave"
+            class="sw-payment-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading || !acl.can('payment.editor')"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-settings-payment.detail.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_detail_language_switch %}
+    <sw-language-switch
+        slot="language-switch"
+        :save-changes-function="saveOnLanguageChange"
+        :abort-change-function="abortOnLanguageChange"
+        @on-change="onChangeLanguage"
+    />
+    {% endblock %}
+
+    {% block sw_settings_payment_detail_content %}
+    <sw-card-view slot="content">
+
+        {% block sw_product_stream_detail_content_language_info %}
+        <sw-language-info
+            :entity-description="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.textHeadline'))"
+        />
+        {% endblock %}
+
+        {% block sw_settings_payment_detail_content_card %}
+        <sw-card
+            :title="$tc('sw-settings-payment.detail.titleCard')"
+            :is-loading="isLoading"
+        >
+            <template v-if="!isLoading">
+                {% block sw_settings_payment_detail_content_field_plugin %}
+                <sw-plugin-box
+                    v-if="!!paymentMethod.pluginId"
+                    :plugin-id="paymentMethod.pluginId"
+                />
+                {% endblock %}
+
+                <sw-container
+                    columns="3fr 1fr"
+                    gap="0px 30px"
+                >
+                    {% block sw_settings_payment_detail_content_field_name %}
+                    <sw-field
+                        v-model="paymentMethod.name"
+                        type="text"
+                        class="sw-settings-payment-detail__field-name"
+                        required
+                        :disabled="!acl.can('payment.editor')"
+                        :label="$tc('sw-settings-payment.detail.labelName')"
+                        :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_payment_detail_content_field_position %}
+                    <sw-field
+                        v-model="paymentMethod.position"
+                        type="number"
+                        class="sw-settings-payment-detail__field-position"
+                        :disabled="!acl.can('payment.editor')"
+                        :label="$tc('sw-settings-payment.detail.labelPosition')"
+                        :placeholder="$tc('sw-settings-payment.detail.placeholderPosition')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                <sw-container
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="0px 30px"
+                >
+                    {% block sw_settings_payment_detail_base_content_field_description %}
+                    <sw-textarea-field
+                        v-model="paymentMethod.description"
+                        :disabled="!acl.can('payment.editor')"
+                        :value="paymentMethod.description"
+                        class="sw-settings-payment-detail__description"
+                        :label="$tc('sw-settings-payment.detail.labelDescription')"
+                        :placeholder="placeholder(paymentMethod, 'description', $tc('sw-settings-payment.detail.placeholderDescription'))"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_payment_detail_base_content_media_upload %}
+                    <sw-upload-listener
+                        :upload-tag="uploadTag"
+                        auto-upload
+                        @media-upload-finish="setMediaItem"
+                    />
+                    <sw-media-upload-v2
+                        :disabled="!acl.can('payment.editor')"
+                        :upload-tag="uploadTag"
+                        :source="mediaItem"
+                        class="sw-settings-payment-detail__logo-image-upload"
+                        :allow-multi-select="false"
+                        variant="regular"
+                        :label="$tc('sw-settings-payment.detail.labelLogoUpload')"
+                        :default-folder="paymentMethod.getEntityName()"
+                        @media-drop="onDropMedia"
+                        @media-upload-sidebar-open="openMediaSidebar"
+                        @media-upload-remove-image="onUnlinkLogo"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                <sw-container
+                    columns="repeat(auto-fit, minmax(250px, 2fr))"
+                    gap="0px 30px"
+                >
+                    {% block sw_settings_payment_detail_content_field_active %}
+                    <sw-field
+                        v-model="paymentMethod.active"
+                        class="sw-settings-payment-detail__field-active"
+                        type="switch"
+                        :disabled="!acl.can('payment.editor')"
+                        :label="$tc('sw-settings-payment.detail.labelActive')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_payment_detail_content_field_after_order_enabled %}
+                    <sw-field
+                        v-model="paymentMethod.afterOrderEnabled"
+                        class="sw-settings-payment-detail__field-after-order"
+                        type="switch"
+                        :disabled="!acl.can('payment.editor')"
+                        :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
+                    />
+                    {% endblock %}
+                </sw-container>
             </template>
+        </sw-card>
         {% endblock %}
 
-        {% block sw_settings_payment_detail_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_payment_detail_actions_abort %}
-                    <sw-button :disabled="isLoading"
-                               v-tooltip.bottom="tooltipCancel"
-                               @click="onCancel">
-                        {{ $tc('sw-settings-payment.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_settings_payment_detail_actions_save %}
-                <sw-button-process
-                        class="sw-payment-detail__save-action"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || !acl.can('payment.editor')"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        v-tooltip.bottom="tooltipSave"
-                        @click.prevent="onSave">
-                    {{ $tc('sw-settings-payment.detail.buttonSave') }}
-                </sw-button-process>
-                {% endblock %}
-            </template>
+        {% block sw_settings_payment_detail_top_rule %}
+        <sw-card
+            class="sw-settings-payment-detail__condition_container"
+            :title="$tc('sw-settings-payment.detail.topRule')"
+            :is-loading="isLoading"
+        >
+            {% block sw_settings_payment_detail_top_rule_select %}
+            <sw-select-rule-create
+                v-if="!isLoading"
+                class="sw-settings-payment-detail__field-availability-rule"
+                :disabled="!acl.can('payment.editor')"
+                :rule-id="paymentMethod.availabilityRuleId"
+                :rule-filter="ruleFilter"
+                @save-rule="onSaveRule"
+                @dismiss-rule="onDismissRule"
+            />
+            {% endblock %}
+        </sw-card>
         {% endblock %}
 
-        {% block sw_settings_payment_detail_language_switch %}
-            <sw-language-switch
-                slot="language-switch"
-                @on-change="onChangeLanguage"
-                :saveChangesFunction="saveOnLanguageChange"
-                :abortChangeFunction="abortOnLanguageChange">
-            </sw-language-switch>
+        {% block sw_settings_payment_detail_custom_field_sets %}
+        <sw-card
+            v-if="showCustomFields"
+            :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+            :is-loading="isLoading"
+        >
+            <sw-custom-field-set-renderer
+                :entity="paymentMethod"
+                :disabled="!acl.can('payment.editor')"
+                :sets="customFieldSets"
+            />
+        </sw-card>
         {% endblock %}
+    </sw-card-view>
+    {% endblock %}
 
-        {% block sw_settings_payment_detail_content %}
-            <sw-card-view slot="content">
+    <template slot="sidebar">
+        <sw-sidebar :propagate-width="true">
+            <sw-sidebar-media-item ref="mediaSidebarItem">
+                <template
+                    slot="context-menu-items"
+                    slot-scope="media"
+                >
+                    <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
+                        {{ $tc('sw-settings-payment.detail.sidebar.labelUseAsLogo') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-sidebar-media-item>
+        </sw-sidebar>
+    </template>
 
-                {% block sw_product_stream_detail_content_language_info %}
-                    <sw-language-info
-                            :entityDescription="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.textHeadline'))">
-                    </sw-language-info>
-                {% endblock %}
-
-                {% block sw_settings_payment_detail_content_card %}
-                    <sw-card :title="$tc('sw-settings-payment.detail.titleCard')" :isLoading="isLoading">
-                        <template v-if="!isLoading">
-                            {% block sw_settings_payment_detail_content_field_plugin %}
-                            <sw-plugin-box
-                                v-if="!!paymentMethod.pluginId"
-                                :pluginId="paymentMethod.pluginId">
-                            </sw-plugin-box>
-                            {% endblock %}
-
-                            <sw-container columns="3fr 1fr" gap="0px 30px">
-                                {% block sw_settings_payment_detail_content_field_name %}
-                                <sw-field
-                                    type="text"
-                                    class="sw-settings-payment-detail__field-name"
-                                    required
-                                    :disabled="!acl.can('payment.editor')"
-                                    :label="$tc('sw-settings-payment.detail.labelName')"
-                                    :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
-                                    v-model="paymentMethod.name">
-                                </sw-field>
-                                {% endblock %}
-
-                                {% block sw_settings_payment_detail_content_field_position %}
-                                <sw-field
-                                    type="number"
-                                    class="sw-settings-payment-detail__field-position"
-                                    :disabled="!acl.can('payment.editor')"
-                                    :label="$tc('sw-settings-payment.detail.labelPosition')"
-                                    :placeholder="$tc('sw-settings-payment.detail.placeholderPosition')"
-                                    v-model="paymentMethod.position">
-                                </sw-field>
-                                {% endblock %}
-                            </sw-container>
-
-                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
-                                {% block sw_settings_payment_detail_base_content_field_description %}
-                                <sw-textarea-field
-                                    :disabled="!acl.can('payment.editor')"
-                                    :value="paymentMethod.description"
-                                    class="sw-settings-payment-detail__description"
-                                    :label="$tc('sw-settings-payment.detail.labelDescription')"
-                                    :placeholder="placeholder(paymentMethod, 'description', $tc('sw-settings-payment.detail.placeholderDescription'))"
-                                    v-model="paymentMethod.description">
-                                </sw-textarea-field>
-                                {% endblock %}
-
-                                {% block sw_settings_payment_detail_base_content_media_upload %}
-                                <sw-upload-listener
-                                    :uploadTag="uploadTag"
-                                    autoUpload
-                                    @media-upload-finish="setMediaItem">
-                                </sw-upload-listener>
-                                <sw-media-upload-v2
-                                    :disabled="!acl.can('payment.editor')"
-                                    :uploadTag="uploadTag"
-                                    :source="mediaItem"
-                                    class="sw-settings-payment-detail__logo-image-upload"
-                                    :allowMultiSelect="false"
-                                    variant="regular"
-                                    :label="$tc('sw-settings-payment.detail.labelLogoUpload')"
-                                    :defaultFolder="paymentMethod.getEntityName()"
-                                    @media-drop="onDropMedia"
-                                    @media-upload-sidebar-open="openMediaSidebar"
-                                    @media-upload-remove-image="onUnlinkLogo">
-                                </sw-media-upload-v2>
-                                {% endblock %}
-                            </sw-container>
-
-                            <sw-container columns="repeat(auto-fit, minmax(250px, 2fr))" gap="0px 30px">
-                                {% block sw_settings_payment_detail_content_field_active %}
-                                <sw-field
-                                    class="sw-settings-payment-detail__field-active"
-                                    type="switch"
-                                    :disabled="!acl.can('payment.editor')"
-                                    :label="$tc('sw-settings-payment.detail.labelActive')"
-                                    v-model="paymentMethod.active">
-                                </sw-field>
-                                {% endblock %}
-
-                                {% block sw_settings_payment_detail_content_field_after_order_enabled %}
-                                <sw-field
-                                    class="sw-settings-payment-detail__field-after-order"
-                                    type="switch"
-                                    :disabled="!acl.can('payment.editor')"
-                                    :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
-                                    v-model="paymentMethod.afterOrderEnabled">
-                                </sw-field>
-                                {% endblock %}
-                            </sw-container>
-                        </template>
-                    </sw-card>
-                {% endblock %}
-
-                {% block sw_settings_payment_detail_top_rule %}
-                    <sw-card class="sw-settings-payment-detail__condition_container"
-                             :title="$tc('sw-settings-payment.detail.topRule')"
-                             :isLoading="isLoading">
-                        {% block sw_settings_payment_detail_top_rule_select %}
-                            <sw-select-rule-create
-                                v-if="!isLoading"
-                                class="sw-settings-payment-detail__field-availability-rule"
-                                :disabled="!acl.can('payment.editor')"
-                                :ruleId="paymentMethod.availabilityRuleId"
-                                :ruleFilter="ruleFilter"
-                                @save-rule="onSaveRule"
-                                @dismiss-rule="onDismissRule">
-                            </sw-select-rule-create>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
-
-                {% block sw_settings_payment_detail_custom_field_sets %}
-                    <sw-card v-if="showCustomFields"
-                             :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                             :isLoading="isLoading">
-                        <sw-custom-field-set-renderer
-                            :entity="paymentMethod"
-                            :disabled="!acl.can('payment.editor')"
-                            :sets="customFieldSets">
-                        </sw-custom-field-set-renderer>
-                    </sw-card>
-                {% endblock %}
-            </sw-card-view>
-        {% endblock %}
-
-        <template slot="sidebar">
-            <sw-sidebar :propagateWidth="true">
-                <sw-sidebar-media-item ref="mediaSidebarItem">
-                    <template slot="context-menu-items" slot-scope="media">
-                        <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
-                            {{ $tc('sw-settings-payment.detail.sidebar.labelUseAsLogo') }}
-                        </sw-context-menu-item>
-                    </template>
-                </sw-sidebar-media-item>
-            </sw-sidebar>
-        </template>
-
-    </sw-page>
+</sw-page>
 {% endblock %}

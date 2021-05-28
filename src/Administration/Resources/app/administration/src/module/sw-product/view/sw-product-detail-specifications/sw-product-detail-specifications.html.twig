@@ -1,61 +1,64 @@
 {% block sw_product_detail_specifications %}
-    <div>
-        {% block sw_product_detail_specifications_measures_packaging %}
-            <sw-card
-                v-show="showProductCard('measures_packaging')"
-                class="sw-product-detail-specification__measures-packaging"
-                :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
-                :isLoading="isLoading">
-                {% block sw_product_detail_specifications_measures_packaging_content %}
-                    <sw-product-packaging-form
-                        v-if="!isLoading"
-                        :showSettingPackaging="showModeSetting"
-                        :allowEdit="acl.can('product.editor')">
-                    </sw-product-packaging-form>
-                {% endblock %}
-            </sw-card>
+<div>
+    {% block sw_product_detail_specifications_measures_packaging %}
+    <sw-card
+        v-show="showProductCard('measures_packaging')"
+        class="sw-product-detail-specification__measures-packaging"
+        :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
+        :is-loading="isLoading"
+    >
+        {% block sw_product_detail_specifications_measures_packaging_content %}
+        <sw-product-packaging-form
+            v-if="!isLoading"
+            :show-setting-packaging="showModeSetting"
+            :allow-edit="acl.can('product.editor')"
+        />
         {% endblock %}
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_product_detail_specifications_properties %}
-            <sw-product-detail-properties
-                v-show="showProductCard('properties')">
-            </sw-product-detail-properties>
-        {% endblock %}
+    {% block sw_product_detail_specifications_properties %}
+    <sw-product-detail-properties
+        v-show="showProductCard('properties')"
+    />
+    {% endblock %}
 
-        {% block sw_product_detail_specifications_essential_characteristics %}
-            <sw-card
-                v-show="showProductCard('essential_characteristics')"
-                class="sw-product-detail-specification__essential-characteristics"
-                :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
-                :isLoading="isLoading">
-                {% block sw_product_detail_specifications_essential_characteristics_content %}
-                    <sw-product-feature-set-form
-                        v-if="!isLoading"
-                        :allowEdit="acl.can('product.editor')">
-                    </sw-product-feature-set-form>
-                {% endblock %}
-            </sw-card>
+    {% block sw_product_detail_specifications_essential_characteristics %}
+    <sw-card
+        v-show="showProductCard('essential_characteristics')"
+        class="sw-product-detail-specification__essential-characteristics"
+        :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
+        :is-loading="isLoading"
+    >
+        {% block sw_product_detail_specifications_essential_characteristics_content %}
+        <sw-product-feature-set-form
+            v-if="!isLoading"
+            :allow-edit="acl.can('product.editor')"
+        />
         {% endblock %}
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_product_detail_specifications_custom_products %}
-        {% endblock %}
+    {% block sw_product_detail_specifications_custom_products %}
+    {% endblock %}
 
-        {% block sw_product_detail_specifications_custom_fields %}
-            <sw-card
-                v-show="showCustomFieldsCard"
-                class="sw-product-detail-specification__custom-fields"
-                :title="$tc('sw-product.specifications.cardTitleCustomFields')"
-                :isLoading="isLoading">
-                {% block sw_product_detail_specifications_custom_fields_content %}
-                    <sw-custom-field-set-renderer
-                        showCustomFieldSetSelection
-                        :entity="product"
-                        :parentEntity="parentProduct"
-                        :sets="customFieldSets"
-                        :disabled="!acl.can('product.editor')">
-                    </sw-custom-field-set-renderer>
-                {% endblock %}
-            </sw-card>
+    {% block sw_product_detail_specifications_custom_fields %}
+    <sw-card
+        v-show="showCustomFieldsCard"
+        class="sw-product-detail-specification__custom-fields"
+        :title="$tc('sw-product.specifications.cardTitleCustomFields')"
+        :is-loading="isLoading"
+    >
+        {% block sw_product_detail_specifications_custom_fields_content %}
+        <sw-custom-field-set-renderer
+            show-custom-field-set-selection
+            :entity="product"
+            :parent-entity="parentProduct"
+            :sets="customFieldSets"
+            :disabled="!acl.can('product.editor')"
+        />
         {% endblock %}
-    </div>
+    </sw-card>
+    {% endblock %}
+</div>
 {% endblock %}

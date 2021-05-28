@@ -1,69 +1,96 @@
 {% block sw_price_field %}
-    <div class="sw-price-field" :class="{
+<div
+    class="sw-price-field"
+    :class="{
         'sw-price-field--label': label,
         'sw-price-field--compact': compact,
         'sw-price-field--disabled': isDisabled
-    }">
+    }"
+>
 
-        {% block sw_price_field_gross %}
-            <sw-field type="number"
-                      class="sw-price-field__gross" {# TODO: check selectors #}
-                      :allowEmpty="allowEmpty"
-                      :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
-                      :label="labelGross"
-                      :helpText="grossHelpText"
-                      :validation="validation"
-                      :size="compact ? 'small' : 'default'"
-                      :min="0"
-                      :digits="20"
-                      :error="grossError"
-                      @change="onPriceGrossChange"
-                      :disabled="isDisabled"
-                      :name="grossFieldName"
-                      v-bind="$attrs"
-                      v-model="priceForCurrency.gross"
-                      @keyup="keymonitor">
-                <template #suffix v-if="!disableSuffix">
-                    {{ currency.symbol }}
-                </template>
-            </sw-field>
-        {% endblock %}
+    {% block sw_price_field_gross %}
+    {# TODO: check selectors #}
+    <sw-field
+        v-model="priceForCurrency.gross"
+        type="number"
+        class="sw-price-field__gross"
+        :allow-empty="allowEmpty"
+        :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
+        :label="labelGross"
+        :help-text="grossHelpText"
+        :validation="validation"
+        :size="compact ? 'small' : 'default'"
+        :min="0"
+        :digits="20"
+        :error="grossError"
+        :disabled="isDisabled"
+        :name="grossFieldName"
+        v-bind="$attrs"
+        @change="onPriceGrossChange"
+        @keyup="keymonitor"
+    >
+        <template
+            v-if="!disableSuffix"
+            #suffix
+        >
+            {{ currency.symbol }}
+        </template>
+    </sw-field>
+    {% endblock %}
 
-        {% block sw_price_field_lock_button %}
-            <button class="sw-price-field__lock"
-                    :class="{
-                        'is--locked': priceForCurrency.linked,
-                        'is--disabled': isDisabled
-                     }"
-                    @click="onLockSwitch">
-                <sw-icon v-if="priceForCurrency.linked" key="price-field-locked-indicator" name="default-lock-closed" size="16" ></sw-icon>
-                <sw-icon v-else key="price-field-locked-indicator" name="default-lock-open" size="16"></sw-icon>
-            </button>
-        {% endblock %}
+    {% block sw_price_field_lock_button %}
+    <button
+        class="sw-price-field__lock"
+        :class="{
+            'is--locked': priceForCurrency.linked,
+            'is--disabled': isDisabled
+        }"
+        @click="onLockSwitch"
+    >
+        <sw-icon
+            v-if="priceForCurrency.linked"
+            key="price-field-locked-indicator"
+            name="default-lock-closed"
+            size="16"
+        />
+        <sw-icon
+            v-else
+            key="price-field-locked-indicator"
+            name="default-lock-open"
+            size="16"
+        />
+    </button>
+    {% endblock %}
 
-        {% block sw_price_field_net %}
-            <sw-field type="number"
-                      class="sw-price-field__net" {# TODO: check selectors #}
-                      :allowEmpty="allowEmpty"
-                      :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
-                      :label="labelNet"
-                      :helpText="netHelpText"
-                      :validation="validation"
-                      :size="compact ? 'small' : 'default'"
-                      :min="0"
-                      @change="onPriceNetChange"
-                      :digits="20"
-                      :error="netError"
-                      :disabled="isInherited || disabled"
-                      :name="netFieldName"
-                      v-bind="$attrs"
-                      v-model="priceForCurrency.net"
-                      @keyup="keymonitor">
-                <template #suffix v-if="!disableSuffix">
-                    {{ currency.symbol }}
-                </template>
-            </sw-field>
-        {% endblock %}
+    {% block sw_price_field_net %}
+    {# TODO: check selectors #}
+    <sw-field
+        v-model="priceForCurrency.net"
+        type="number"
+        class="sw-price-field__net"
+        :allow-empty="allowEmpty"
+        :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
+        :label="labelNet"
+        :help-text="netHelpText"
+        :validation="validation"
+        :size="compact ? 'small' : 'default'"
+        :min="0"
+        :digits="20"
+        :error="netError"
+        :disabled="isInherited || disabled"
+        :name="netFieldName"
+        v-bind="$attrs"
+        @change="onPriceNetChange"
+        @keyup="keymonitor"
+    >
+        <template
+            v-if="!disableSuffix"
+            #suffix
+        >
+            {{ currency.symbol }}
+        </template>
+    </sw-field>
+    {% endblock %}
 
-    </div>
+</div>
 {% endblock %}

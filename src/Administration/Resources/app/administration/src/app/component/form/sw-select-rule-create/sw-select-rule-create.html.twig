@@ -1,68 +1,91 @@
 {% block sw_select_rule_create %}
-    <div class="sw-select-rule-create">
-        <sw-entity-multi-select
-            v-if="rules !== null"
-            v-bind="$attrs"
-            v-model="collection">
+<div class="sw-select-rule-create">
+    <sw-entity-multi-select
+        v-if="rules !== null"
+        v-model="collection"
+        v-bind="$attrs"
+    >
 
-            <template #before-item-list>
-                {% block sw_select_rule_create_select_before %}
-                <div class="sw-select-rule-create__create-rule-item sw-select-result" @click="openCreateRuleModal">
-                    {{ $tc('sw-select-rule-create.addNewRule') }}
-                </div>
-                {% endblock %}
-            </template>
+        <template #before-item-list>
+            {% block sw_select_rule_create_select_before %}
+            <div
+                class="sw-select-rule-create__create-rule-item sw-select-result"
+                @click="openCreateRuleModal"
+            >
+                {{ $tc('sw-select-rule-create.addNewRule') }}
+            </div>
+            {% endblock %}
+        </template>
 
-        </sw-entity-multi-select>
+    </sw-entity-multi-select>
 
-        {% block sw_select_rule_create_select %}
-            <sw-entity-single-select
-                entity="rule"
-                v-else
-                :criteria="ruleFilter"
-                :value="ruleId"
-                v-bind="$attrs"
-                @change="onSelectRule">
-                    <template #before-item-list>
-                        {% block sw_select_rule_create_select_before %}
-                            <div class="sw-select-rule-create__create-rule-item sw-select-result" @click="openCreateRuleModal">
-                                {{ $tc('sw-select-rule-create.addNewRule') }}
-                            </div>
-                        {% endblock %}
-                    </template>
-                    <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                        {% block sw_select_rule_create_select_entity_select_result_list_item %}
-                            <slot name="result-item" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                                <li is="sw-select-result" :selected="isSelected(item)" @item-select="setValue" v-bind="{ item, index }">
-                                    {% block sw_select_rule_create_select_entity_select_result_item_label %}
-                                        <slot name="result-label-property" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                            <sw-highlight-text v-if="highlightSearchTerm"
-                                                               :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                               :searchTerm="searchTerm">
-                                            </sw-highlight-text>
-                                            <template v-else>
-                                                {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                            </template>
-                                        </slot>
-                                    {% endblock %}
-                                </li>
-                            </slot>
-                        {% endblock %}
-                    </template>
-            </sw-entity-single-select>
-        {% endblock %}
-
-        {% block sw_select_rule_create_rule_modal %}
-            <slot name="rule-modal" v-bind="{ showRuleModal, onSaveRule, onCloseRuleModal }">
-                {% block sw_select_rule_create_rule_modal_inner%}
-                    <sw-rule-modal
-                        v-if="showRuleModal"
-                        @save="onSaveRule"
-                        @modal-close="onCloseRuleModal"
-                        :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
-                    </sw-rule-modal>
-                {% endblock %}
+    {% block sw_select_rule_create_select %}
+    <sw-entity-single-select
+        v-else
+        entity="rule"
+        :criteria="ruleFilter"
+        :value="ruleId"
+        v-bind="$attrs"
+        @change="onSelectRule"
+    >
+        <template #before-item-list>
+            {% block sw_select_rule_create_select_before %}
+            <div
+                class="sw-select-rule-create__create-rule-item sw-select-result"
+                @click="openCreateRuleModal"
+            >
+                {{ $tc('sw-select-rule-create.addNewRule') }}
+            </div>
+            {% endblock %}
+        </template>
+        <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+            {% block sw_select_rule_create_select_entity_select_result_list_item %}
+            <slot
+                name="result-item"
+                v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+            >
+                <li
+                    is="sw-select-result"
+                    :selected="isSelected(item)"
+                    v-bind="{ item, index }"
+                    @item-select="setValue"
+                >
+                    {% block sw_select_rule_create_select_entity_select_result_item_label %}
+                    <slot
+                        name="result-label-property"
+                        v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }"
+                    >
+                        <sw-highlight-text
+                            v-if="highlightSearchTerm"
+                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                            :search-term="searchTerm"
+                        />
+                        <template v-else>
+                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                        </template>
+                    </slot>
+                    {% endblock %}
+                </li>
             </slot>
+            {% endblock %}
+        </template>
+    </sw-entity-single-select>
+    {% endblock %}
+
+    {% block sw_select_rule_create_rule_modal %}
+    <slot
+        name="rule-modal"
+        v-bind="{ showRuleModal, onSaveRule, onCloseRuleModal }"
+    >
+        {% block sw_select_rule_create_rule_modal_inner%}
+        <sw-rule-modal
+            v-if="showRuleModal"
+            @save="onSaveRule"
+            @modal-close="onCloseRuleModal"
+            :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
+        </sw-rule-modal>
         {% endblock %}
-    </div>
+    </slot>
+    {% endblock %}
+</div>
 {% endblock %}

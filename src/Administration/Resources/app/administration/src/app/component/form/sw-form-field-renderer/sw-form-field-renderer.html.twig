@@ -1,13 +1,15 @@
 {% block sw_form_field_renderer %}
-    <component v-bind:is="componentName"
-               v-bind="bind"
-               ref="component"
-               v-model="currentValue"
-               class="sw-form-field-renderer"
-               @change="$emit('change', $event)">
+<component
+    :is="componentName"
+    v-bind="bind"
+    ref="component"
+    v-model="currentValue"
+    class="sw-form-field-renderer"
+    @change="$emit('change', $event)"
+>
 
-        {% block sw_form_field_renderer_inner %}
-            <slot>{% block sw_form_field_renderer_inner_slot %}{% endblock %}</slot>
-        {% endblock %}
-    </component>
+    {% block sw_form_field_renderer_inner %}
+    <slot>{% block sw_form_field_renderer_inner_slot %}{% endblock %}</slot>
+    {% endblock %}
+</component>
 {% endblock %}

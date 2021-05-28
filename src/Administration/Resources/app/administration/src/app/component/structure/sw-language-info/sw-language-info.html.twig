@@ -1,12 +1,20 @@
 {% block sw_language_info %}
-    <p class="sw-language-info" v-if="infoText">
-        {% block sw_language_info_text %}
-            <span class="sw_language-info__info" v-html="$sanitize(infoText)"></span>
-            <span v-if="infoParent"
-                  @click="onClickParentLanguage"
-                  class="sw-language-info__link-parent">
-                "{{ infoParent }}".
-            </span>
-        {% endblock %}
-    </p>
+<p
+    v-if="infoText"
+    class="sw-language-info"
+>
+    {% block sw_language_info_text %}
+    <span
+        class="sw_language-info__info"
+        v-html="$sanitize(infoText)"
+    />
+    <span
+        v-if="infoParent"
+        class="sw-language-info__link-parent"
+        @click="onClickParentLanguage"
+    >
+        "{{ infoParent }}".
+    </span>
+    {% endblock %}
+</p>
 {% endblock %}

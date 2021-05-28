@@ -1,68 +1,76 @@
 {% block sw_customer_detail_order_card %}
-    <sw-card class="sw-customer-detail-order">
-        {% block sw_customer_detail_order_card_toolbar %}
-            <template #toolbar>
-                <sw-card-filter
-                        :placeholder="$tc('sw-customer.detailOrder.searchbarPlaceholder')"
-                        v-if="(orders && orders.total > 0) || term"
-                        @sw-card-filter-term-change="onChange">
-                </sw-card-filter>
+<sw-card class="sw-customer-detail-order">
+    {% block sw_customer_detail_order_card_toolbar %}
+    <template #toolbar>
+        <sw-card-filter
+            v-if="(orders && orders.total > 0) || term"
+            :placeholder="$tc('sw-customer.detailOrder.searchbarPlaceholder')"
+            @sw-card-filter-term-change="onChange"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_detail_order_card_grid %}
+    <template
+        v-if="(orders && orders.total > 0) || term"
+        #grid
+    >
+        <sw-entity-listing
+            :columns="orderColumns"
+            :repository="orderRepository"
+            :items="orders"
+            :allow-column-edit="false"
+            :show-settings="false"
+            :show-selection="false"
+            :full-page="false"
+            :is-loading="isLoading"
+        >
+            {% block sw_customer_detail_order_card_grid_columns %}
+            {% block sw_customer_detail_order_card_grid_columns_number %}
+            <template #column-orderNumber="{ item }">
+                <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                    {{ item.orderNumber }}
+                </router-link>
             </template>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_customer_detail_order_card_grid %}
-            <template #grid v-if="(orders && orders.total > 0) || term">
-                <sw-entity-listing :columns="orderColumns"
-                                   :repository="orderRepository"
-                                   :items="orders"
-                                   :allowColumnEdit="false"
-                                   :showSettings="false"
-                                   :showSelection="false"
-                                   :fullPage="false"
-                                   :isLoading="isLoading">
-                    {% block sw_customer_detail_order_card_grid_columns %}
-                        {% block sw_customer_detail_order_card_grid_columns_number %}
-                            <template #column-orderNumber="{ item }">
-                                <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
-                                    {{ item.orderNumber }}
-                                </router-link>
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_customer_detail_order_card_grid_columns_amount %}
-                            <template #column-amountTotal="{ item }">
-                                {{ item.amountTotal | currency(item.currency.shortName) }}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_customer_detail_order_card_grid_columns_date %}
-                            <template #column-createdAt="{ item }">
-                                {{ item.createdAt|date }}
-                            </template>
-                        {% endblock %}
-                    {% endblock %}
-
-                    {% block sw_customer_detail_order_card_grid_columns_action %}
-                        <template #actions="{ item }">
-                            {% block sw_customer_detail_order_card_grid_columns_action_button %}
-                                <sw-context-menu-item class="sw-order-list-order-view-action"
-                                                      :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
-                                    {{ $tc('sw-customer.detailOrder.columnContextOpenOrder') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
-                        </template>
-                    {% endblock %}
-                </sw-entity-listing>
+            {% block sw_customer_detail_order_card_grid_columns_amount %}
+            <template #column-amountTotal="{ item }">
+                {{ item.amountTotal | currency(item.currency.shortName) }}
             </template>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_customer_detail_order_card_grid_empty_state %}
-            <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
-                <sw-empty-state :icon="orderIcon"
-                                :title="emptyTitle"
-                                :subline="$tc('sw-customer.detailOrder.emptySubline')">
-                </sw-empty-state>
+            {% block sw_customer_detail_order_card_grid_columns_date %}
+            <template #column-createdAt="{ item }">
+                {{ item.createdAt|date }}
             </template>
-        {% endblock %}
-    </sw-card>
+            {% endblock %}
+            {% endblock %}
+
+            {% block sw_customer_detail_order_card_grid_columns_action %}
+            <template #actions="{ item }">
+                {% block sw_customer_detail_order_card_grid_columns_action_button %}
+                <sw-context-menu-item
+                    class="sw-order-list-order-view-action"
+                    :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
+                >
+                    {{ $tc('sw-customer.detailOrder.columnContextOpenOrder') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </sw-entity-listing>
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_detail_order_card_grid_empty_state %}
+    <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
+        <sw-empty-state
+            :icon="orderIcon"
+            :title="emptyTitle"
+            :subline="$tc('sw-customer.detailOrder.emptySubline')"
+        />
+    </template>
+    {% endblock %}
+</sw-card>
 {% endblock %}

@@ -1,19 +1,27 @@
-<sw-meteor-page class="sw-extension-config" hideIcon>
+<sw-meteor-page
+    class="sw-extension-config"
+    hide-icon
+>
     <template #smart-bar-header>
         {{ namespace }}
     </template>
 
     <template #smart-bar-actions>
-        <sw-button variant="primary" class="sw-extension-config__save-action" @click.prevent="onSave">
+        <sw-button
+            variant="primary"
+            class="sw-extension-config__save-action"
+            @click.prevent="onSave"
+        >
             {{ $tc('global.default.save') }}
         </sw-button>
     </template>
 
     <template #default>
-        <sw-system-config :domain="domain"
-                          salesChannelSwitchable
-                          :salesChannelId="salesChannelId"
-                          ref="systemConfig">
-        </sw-system-config>
+        <sw-system-config
+            ref="systemConfig"
+            :domain="domain"
+            sales-channel-switchable
+            :sales-channel-id="salesChannelId"
+        />
     </template>
 </sw-meteor-page>

@@ -1,45 +1,64 @@
 <div class="sw-cms-el-form-contact">
-    <h3 class="sw-cms-el-form-headline" v-if="formSettings.title.value.length > 0">
+    <h3
+        v-if="formSettings.title.value.length > 0"
+        class="sw-cms-el-form-headline"
+    >
         {{ formSettings.title.value }}
     </h3>
 
     <div class="sw-cms-el-form-contact-form-group three-items">
         <sw-select-field :label="$tc('sw-cms.elements.form.element.label.salutation')">
-            <option value="" disabled selected>{{ $tc('sw-cms.elements.form.element.label.salutationUndisclosed') }}</option>
+            <option
+                value=""
+                disabled
+                selected
+            >
+                {{ $tc('sw-cms.elements.form.element.label.salutationUndisclosed') }}
+            </option>
         </sw-select-field>
 
-        <sw-text-field :label="$tc('sw-cms.elements.form.element.label.firstName')"
-                       :value="$tc('sw-cms.elements.form.element.placeholder.firstName')">
-        </sw-text-field>
+        <sw-text-field
+            :label="$tc('sw-cms.elements.form.element.label.firstName')"
+            :value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
+        />
 
-        <sw-text-field :label="$tc('sw-cms.elements.form.element.label.lastName')"
-                       :value="$tc('sw-cms.elements.form.element.placeholder.lastName')">
-        </sw-text-field>
+        <sw-text-field
+            :label="$tc('sw-cms.elements.form.element.label.lastName')"
+            :value="$tc('sw-cms.elements.form.element.placeholder.lastName')"
+        />
     </div>
 
     <div class="sw-cms-el-form-contact-form-group two-items">
-        <sw-text-field :label="$tc('sw-cms.elements.form.element.label.email')"
-                       :value="$tc('sw-cms.elements.form.element.placeholder.email')">
-        </sw-text-field>
+        <sw-text-field
+            :label="$tc('sw-cms.elements.form.element.label.email')"
+            :value="$tc('sw-cms.elements.form.element.placeholder.email')"
+        />
 
-        <sw-text-field :label="$tc('sw-cms.elements.form.element.label.phone')"
-                       :value="$tc('sw-cms.elements.form.element.placeholder.phone')">
-        </sw-text-field>
+        <sw-text-field
+            :label="$tc('sw-cms.elements.form.element.label.phone')"
+            :value="$tc('sw-cms.elements.form.element.placeholder.phone')"
+        />
     </div>
 
-    <sw-text-field :label="$tc('sw-cms.elements.form.element.label.subject')"
-                   :value="$tc('sw-cms.elements.form.element.placeholder.subject')">
-    </sw-text-field>
+    <sw-text-field
+        :label="$tc('sw-cms.elements.form.element.label.subject')"
+        :value="$tc('sw-cms.elements.form.element.placeholder.subject')"
+    />
 
-    <sw-textarea-field :label="$tc('sw-cms.elements.form.element.label.message')"
-                       :value="$tc('sw-cms.elements.form.element.placeholder.message')">
-    </sw-textarea-field>
+    <sw-textarea-field
+        :label="$tc('sw-cms.elements.form.element.label.message')"
+        :value="$tc('sw-cms.elements.form.element.placeholder.message')"
+    />
 
     <h4>{{ $tc('sw-cms.elements.form.element.label.privacy') }}</h4>
 
     <sw-checkbox-field :label="$tc('sw-cms.elements.form.element.helpText.privacy')" />
 
-    <p class="sw-cms-el-form-note">{{ $tc('sw-cms.elements.form.element.helpText.requiredFields') }}</p>
+    <p class="sw-cms-el-form-note">
+        {{ $tc('sw-cms.elements.form.element.helpText.requiredFields') }}
+    </p>
 
-    <div class="sw-cms-el-form__action">{{ $tc('sw-cms.elements.form.element.label.send') }}</div>
+    <div class="sw-cms-el-form__action">
+        {{ $tc('sw-cms.elements.form.element.label.send') }}
+    </div>
 </div>

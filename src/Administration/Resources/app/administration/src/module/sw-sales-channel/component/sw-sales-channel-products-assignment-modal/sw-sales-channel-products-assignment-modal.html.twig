@@ -1,74 +1,86 @@
 {% block sw_sales_channel_products_assignment_modal %}
-    <sw-modal
-        :title="$tc('sw-sales-channel.detail.productAssigmentModal.title')"
-        @modal-close="onCloseModal">
+<sw-modal
+    :title="$tc('sw-sales-channel.detail.productAssigmentModal.title')"
+    @modal-close="onCloseModal"
+>
 
-        <template #default>
-            <div class="sw-sales-channel-products-assignment-modal-tabs">
-                {% block sw_sales_channel_products_assignment_modal_tabs %}
-                    <sw-tabs defaultItem="singleProducts">
+    <template #default>
+        <div class="sw-sales-channel-products-assignment-modal-tabs">
+            {% block sw_sales_channel_products_assignment_modal_tabs %}
+            <sw-tabs default-item="singleProducts">
 
-                        <template #default="{ active }">
-                            {% block sw_sales_channel_products_assignment_modal_tabs_single_products %}
-                                <sw-tabs-item name="singleProducts"
-                                              :title="$tc('sw-sales-channel.detail.productAssigmentModal.singleProducts')"
-                                              :activeTab="active">
-                                    {{ $tc('sw-sales-channel.detail.productAssigmentModal.singleProducts') }}
-                                </sw-tabs-item>
-                            {% endblock %}
+                <template #default="{ active }">
+                    {% block sw_sales_channel_products_assignment_modal_tabs_single_products %}
+                    <sw-tabs-item
+                        name="singleProducts"
+                        :title="$tc('sw-sales-channel.detail.productAssigmentModal.singleProducts')"
+                        :active-tab="active"
+                    >
+                        {{ $tc('sw-sales-channel.detail.productAssigmentModal.singleProducts') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                            {% block sw_sales_channel_products_assignment_modal_tabs_categories %}
-                                <sw-tabs-item
-                                    name="categories"
-                                    :title="$tc('sw-sales-channel.detail.productAssigmentModal.categories')"
-                                    :activeTab="active">
-                                    {{ $tc('sw-sales-channel.detail.productAssigmentModal.categories') }}
-                                </sw-tabs-item>
-                            {% endblock %}
+                    {% block sw_sales_channel_products_assignment_modal_tabs_categories %}
+                    <sw-tabs-item
+                        name="categories"
+                        :title="$tc('sw-sales-channel.detail.productAssigmentModal.categories')"
+                        :active-tab="active"
+                    >
+                        {{ $tc('sw-sales-channel.detail.productAssigmentModal.categories') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                            {% block sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups %}
-                                <sw-tabs-item
-                                    name="dynamicProductGroups"
-                                    :title="$tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups')"
-                                    :activeTab="active">
-                                    {{ $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-                        </template>
+                    {% block sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups %}
+                    <sw-tabs-item
+                        name="dynamicProductGroups"
+                        :title="$tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups')"
+                        :active-tab="active"
+                    >
+                        {{ $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+                </template>
 
-                        <template #content="{ active }">
-                            {% block sw_sales_channel_products_assignment_modal_tab_content_single_products %}
-                                <sw-sales-channel-products-assignment-single-products
-                                    v-if="active === 'singleProducts'"
-                                    :salesChannel="salesChannel"
-                                    @selection-change="onChangeSelection">
-                                </sw-sales-channel-products-assignment-single-products>
-                            {% endblock %}
+                <template #content="{ active }">
+                    {% block sw_sales_channel_products_assignment_modal_tab_content_single_products %}
+                    <sw-sales-channel-products-assignment-single-products
+                        v-if="active === 'singleProducts'"
+                        :sales-channel="salesChannel"
+                        @selection-change="onChangeSelection"
+                    />
+                    {% endblock %}
 
-                            {% block sw_sales_channel_products_assignment_modal_tab_content_categories %}
-                                {#TODO: NEXT-14828 - Assign products to the sales channel by categories#}
-                                <sw-container v-if="active === 'categories'"></sw-container>
-                            {% endblock %}
+                    {% block sw_sales_channel_products_assignment_modal_tab_content_categories %}
+                    {# TODO: NEXT-14828 - Assign products to the sales channel by categories #}
+                    <sw-container v-if="active === 'categories'" />
+                    {% endblock %}
 
-                            {% block sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups %}
-                                {#TODO: NEXT-14829 - Assign products to the sales channel by dynamic product groups#}
-                                <sw-container v-if="active === 'dynamicProductGroups'"></sw-container>
-                            {% endblock %}
-                        </template>
-                    </sw-tabs>
-                {% endblock %}
-            </div>
-        </template>
+                    {% block sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups %}
+                    {# TODO: NEXT-14829 - Assign products to the sales channel by dynamic product groups #}
+                    <sw-container v-if="active === 'dynamicProductGroups'" />
+                    {% endblock %}
+                </template>
+            </sw-tabs>
+            {% endblock %}
+        </div>
+    </template>
 
-        {% block sw_sales_channel_products_assignment_modal_footer %}
-            <template #modal-footer>
-                <sw-button size="small" @click="onCloseModal">
-                    {{ $tc('global.default.cancel') }}
-                </sw-button>
-                <sw-button size="small" variant="primary" @click="onAddProducts">
-                    {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}
-                </sw-button>
-            </template>
-        {% endblock %}
-    </sw-modal>
+    {% block sw_sales_channel_products_assignment_modal_footer %}
+    <template #modal-footer>
+        <sw-button
+            size="small"
+            @click="onCloseModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        <sw-button
+            size="small"
+            variant="primary"
+            @click="onAddProducts"
+        >
+            {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}
+        </sw-button>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

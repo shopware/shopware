@@ -5,15 +5,15 @@
 
     <sw-users-permissions-detailed-permissions-grid
         :role="role"
-        :detailedPrivileges="detailedPrivileges"
+        :detailed-privileges="detailedPrivileges"
         :disabled="!acl.can('users_and_permissions.editor')"
-    ></sw-users-permissions-detailed-permissions-grid>
+    />
 
     {% block sw_users_permissions_role_role_view_general_card_view_additional_permissions %}
-        <sw-users-permissions-detailed-additional-permissions
-            :role="role"
-            :detailedPrivileges="detailedPrivileges"
-            :disabled="!acl.can('users_and_permissions.editor')">
-        </sw-users-permissions-detailed-additional-permissions>
+    <sw-users-permissions-detailed-additional-permissions
+        :role="role"
+        :detailed-privileges="detailedPrivileges"
+        :disabled="!acl.can('users_and_permissions.editor')"
+    />
     {% endblock %}
 </div>

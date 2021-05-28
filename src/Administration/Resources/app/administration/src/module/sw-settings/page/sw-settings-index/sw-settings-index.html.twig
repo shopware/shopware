@@ -1,81 +1,106 @@
 {% block sw_settings %}
-    <sw-page class="sw-settings-index" :showSmartBar="false">
+<sw-page
+    class="sw-settings-index"
+    :show-smart-bar="false"
+>
 
-        {% block sw_settings_content %}
-            <template #content>
-                <sw-card-view>
-                    {% block sw_settings_content_tabs %}
-                        <sw-tabs class="sw-settings__tabs"
-                                 :isVertical="true"
-                                 :small="false"
-                                 defaultItem="shop">
-                            <template #default="{ active }">
-                                {% block sw_settings_content_tab_shop %}
-                                    <sw-tabs-item class="sw-settings__tab-shop"
-                                                  v-if="settingsGroups['shop']"
-                                                  name="shop"
-                                                  :activeTab="active"
-                                                  :title="$tc('sw-settings.index.tabShop')">
-                                        {{ $tc('sw-settings.index.tabShop') }}
-                                    </sw-tabs-item>
-                                {% endblock %}
-
-                                {% block sw_settings_content_tab_system %}
-                                    <sw-tabs-item class="sw-settings__tab-system"
-                                                  v-if="settingsGroups['system']"
-                                                  name="system"
-                                                  :activeTab="active"
-                                                  :title="$tc('sw-settings.index.tabSystem')">
-                                        {{ $tc('sw-settings.index.tabSystem') }}
-                                    </sw-tabs-item>
-                                {% endblock %}
-
-                                {% block sw_settings_content_tab_plugins %}
-                                    <sw-tabs-item class="sw-settings__tab-plugins"
-                                                  v-if="hasPluginConfig()"
-                                                  name="plugins"
-                                                  :activeTab="active"
-                                                  :title="$tc('sw-settings.index.tabPlugins')">
-                                        {{ $tc('sw-settings.index.tabPlugins') }}
-                                    </sw-tabs-item>
-                                {% endblock %}
-                            </template>
-
-                            <template #content="{ active }">
-                                {% block sw_settings_content_card %}
-                                    {% block sw_settings_content_header %}
-                                        <h1 class="sw-settings__content-header">{{ $tc('sw-settings.index.title') }}</h1>
-                                    {% endblock %}
-
-                                    <sw-card class="sw-settings__card">
-                                        {% block sw_settings_content_card_content %}
-                                            <slot v-for="(settingsItems, settingsGroup) in settingsGroups"
-                                                  :name="settingsGroup">
-                                                <div v-show="active === settingsGroup"
-                                                     class="sw-settings__content-grid"
-                                                     :id="`sw-settings__content-grid-${settingsGroup}`"
-                                                >
-                                                    <sw-settings-item v-for="settingsItem in settingsItems"
-                                                                      :key="settingsItem.name"
-                                                                      :label="$tc(settingsItem.label)"
-                                                                      :to="{ name: settingsItem.to }"
-                                                                      :id="settingsItem.id"
-                                                                      :backgroundEnabled="settingsItem.backgroundEnabled">
-                                                        <template #icon>
-                                                            <component v-if="settingsItem.iconComponent" :is="settingsItem.iconComponent"></component>
-                                                            <sw-icon v-else :name="settingsItem.icon"></sw-icon>
-                                                        </template>
-                                                    </sw-settings-item>
-                                                </div>
-                                            </slot>
-                                        {% endblock %}
-                                    </sw-card>
-                                {% endblock %}
-                            </template>
-                        </sw-tabs>
+    {% block sw_settings_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_settings_content_tabs %}
+            <sw-tabs
+                class="sw-settings__tabs"
+                :is-vertical="true"
+                :small="false"
+                default-item="shop"
+            >
+                <template #default="{ active }">
+                    {% block sw_settings_content_tab_shop %}
+                    <sw-tabs-item
+                        v-if="settingsGroups['shop']"
+                        class="sw-settings__tab-shop"
+                        name="shop"
+                        :active-tab="active"
+                        :title="$tc('sw-settings.index.tabShop')"
+                    >
+                        {{ $tc('sw-settings.index.tabShop') }}
+                    </sw-tabs-item>
                     {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+
+                    {% block sw_settings_content_tab_system %}
+                    <sw-tabs-item
+                        v-if="settingsGroups['system']"
+                        class="sw-settings__tab-system"
+                        name="system"
+                        :active-tab="active"
+                        :title="$tc('sw-settings.index.tabSystem')"
+                    >
+                        {{ $tc('sw-settings.index.tabSystem') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_settings_content_tab_plugins %}
+                    <sw-tabs-item
+                        v-if="hasPluginConfig()"
+                        class="sw-settings__tab-plugins"
+                        name="plugins"
+                        :active-tab="active"
+                        :title="$tc('sw-settings.index.tabPlugins')"
+                    >
+                        {{ $tc('sw-settings.index.tabPlugins') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+                </template>
+
+                <template #content="{ active }">
+                    {% block sw_settings_content_card %}
+                    {% block sw_settings_content_header %}
+                    <h1 class="sw-settings__content-header">
+                        {{ $tc('sw-settings.index.title') }}
+                    </h1>
+                    {% endblock %}
+
+                    <sw-card class="sw-settings__card">
+                        {% block sw_settings_content_card_content %}
+                        <slot
+                            v-for="(settingsItems, settingsGroup) in settingsGroups"
+                            :name="settingsGroup"
+                        >
+                            <div
+                                v-show="active === settingsGroup"
+                                :id="`sw-settings__content-grid-${settingsGroup}`"
+                                :key="settingsGroup"
+                                class="sw-settings__content-grid"
+                            >
+                                <sw-settings-item
+                                    v-for="settingsItem in settingsItems"
+                                    :id="settingsItem.id"
+                                    :key="settingsItem.name"
+                                    :label="$tc(settingsItem.label)"
+                                    :to="{ name: settingsItem.to }"
+                                    :background-enabled="settingsItem.backgroundEnabled"
+                                >
+                                    <template #icon>
+                                        <component
+                                            :is="settingsItem.iconComponent"
+                                            v-if="settingsItem.iconComponent"
+                                        />
+                                        <sw-icon
+                                            v-else
+                                            :name="settingsItem.icon"
+                                        />
+                                    </template>
+                                </sw-settings-item>
+                            </div>
+                        </slot>
+                        {% endblock %}
+                    </sw-card>
+                    {% endblock %}
+                </template>
+            </sw-tabs>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

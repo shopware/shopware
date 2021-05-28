@@ -1,91 +1,118 @@
 {% block sw_cms_element_product_description_reviews_config %}
-    <div class="sw-cms-el-config-product-description-reviews-rating">
-        {% block sw_cms_element_product_description_reviews_config_tabs %}
-            <sw-tabs class="sw-cms-el-config-product-description-reviews__tabs" defaultItem="content">
-                <template #default="{ active }" >
-                    {% block sw_cms_element_product_description_reviews_config_tab_content %}
-                        <sw-tabs-item name="content"
-                                      :title="$tc('sw-cms.elements.general.config.tab.content')"
-                                      :activeTab="active">
-                            {{ $tc('sw-cms.elements.general.config.tab.content') }}
-                        </sw-tabs-item>
+<div class="sw-cms-el-config-product-description-reviews-rating">
+    {% block sw_cms_element_product_description_reviews_config_tabs %}
+    <sw-tabs
+        class="sw-cms-el-config-product-description-reviews__tabs"
+        default-item="content"
+    >
+        <template #default="{ active }">
+            {% block sw_cms_element_product_description_reviews_config_tab_content %}
+            <sw-tabs-item
+                name="content"
+                :title="$tc('sw-cms.elements.general.config.tab.content')"
+                :active-tab="active"
+            >
+                {{ $tc('sw-cms.elements.general.config.tab.content') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_cms_element_product_description_reviews_config_tab_options %}
+            <sw-tabs-item
+                name="options"
+                :title="$tc('sw-cms.elements.general.config.tab.options')"
+                :active-tab="active"
+            >
+                {{ $tc('sw-cms.elements.general.config.tab.options') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
+
+        <template #content="{ active }">
+            {% block sw_cms_element_product_description_reviews_config_content %}
+            <sw-container
+                v-if="active === 'content'"
+                class="sw-cms-el-config-product-description-reviews-config__tab-content"
+                :columns="'minmax(300px, 1fr)'"
+            >
+                {% block sw_cms_element_product_description_reviews_warning %}
+                <sw-alert
+                    v-if="isProductPage"
+                    class="sw-cms-el-config-buy-box__warning"
+                    variant="info"
+                >
+                    {{ $tc('sw-cms.elements.productDescriptionReviews.infoText.descriptionAndReviewsElement') }}
+                </sw-alert>
+                {% endblock %}
+
+                {% block sw_cms_element_product_description_reviews_config_product_select %}
+                <sw-entity-single-select
+                    v-if="!isProductPage"
+                    ref="cmsProductSelection"
+                    v-model="element.config.product.value"
+                    entity="product"
+                    :label="$tc('sw-cms.elements.productBox.config.label.selection')"
+                    :placeholder="$tc('sw-cms.elements.productBox.config.placeholder.selection')"
+                    :criteria="productCriteria"
+                    :context="productSelectContext"
+                    @change="onProductChange"
+                >
+                    {% block sw_entity_single_select_variant_selected_item %}
+                    <template #selection-label-property="{ item }">
+                        <sw-product-variant-info
+                            :variations="item.variation"
+                        >
+                            {{ item.translated.name || item.name }}
+                        </sw-product-variant-info>
+                    </template>
                     {% endblock %}
 
-                    {% block sw_cms_element_product_description_reviews_config_tab_options %}
-                        <sw-tabs-item name="options"
-                                      :title="$tc('sw-cms.elements.general.config.tab.options')"
-                                      :activeTab="active">
-                            {{ $tc('sw-cms.elements.general.config.tab.options') }}
-                        </sw-tabs-item>
-                    {% endblock %}
-                </template>
-
-                <template #content="{ active }">
-                    {% block sw_cms_element_product_description_reviews_config_content %}
-                        <sw-container v-if="active === 'content'"
-                                      class="sw-cms-el-config-product-description-reviews-config__tab-content"
-                                      :columns="'minmax(300px, 1fr)'">
-                            {% block sw_cms_element_product_description_reviews_warning %}
-                                <sw-alert
-                                    v-if="isProductPage"
-                                    class="sw-cms-el-config-buy-box__warning" variant="info">
-                                    {{ $tc('sw-cms.elements.productDescriptionReviews.infoText.descriptionAndReviewsElement') }}
-                                </sw-alert>
+                    {% block sw_entity_single_select_variant_result_item %}
+                    <template #result-item="{ item, index }">
+                        <li
+                            is="sw-select-result"
+                            v-bind="{ item, index }"
+                        >
+                            {% block sw_entity_single_select_base_results_list_result_label %}
+                            <span class="sw-select-result__result-item-text">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </span>
                             {% endblock %}
-
-                            {% block sw_cms_element_product_description_reviews_config_product_select %}
-                                <sw-entity-single-select
-                                    v-if="!isProductPage"
-                                    v-model="element.config.product.value"
-                                    ref="cmsProductSelection"
-                                    entity="product"
-                                    :label="$tc('sw-cms.elements.productBox.config.label.selection')"
-                                    :placeholder="$tc('sw-cms.elements.productBox.config.placeholder.selection')"
-                                    :criteria="productCriteria"
-                                    :context="productSelectContext"
-                                    @change="onProductChange">
-                                    {% block sw_entity_single_select_variant_selected_item %}
-                                        <template #selection-label-property="{ item }">
-                                            <sw-product-variant-info
-                                                :variations="item.variation">
-                                                {{ item.translated.name || item.name }}
-                                            </sw-product-variant-info>
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_entity_single_select_variant_result_item %}
-                                        <template #result-item="{ item, index }">
-                                            <li is="sw-select-result" v-bind="{ item, index }">
-                                                {% block sw_entity_single_select_base_results_list_result_label %}
-                                                    <span class="sw-select-result__result-item-text">
-                                                        <sw-product-variant-info :variations="item.variation">
-                                                            {{ item.translated.name || item.name }}
-                                                        </sw-product-variant-info>
-                                                    </span>
-                                                {% endblock %}
-                                            </li>
-                                        </template>
-                                    {% endblock %}
-                                </sw-entity-single-select>
-                            {% endblock %}
-                        </sw-container>
+                        </li>
+                    </template>
                     {% endblock %}
+                </sw-entity-single-select>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
 
-                    {% block sw_cms_el_product_description_rating_config_options %}
-                        <sw-container v-if="active === 'options'" class="sw-cms-el-config-text__tab-options">
-                            {% block sw_cms_el_product_description_rating_config_options_alignment %}
-                                <sw-select-field v-model="element.config.alignment.value"
-                                                 :label="$tc('sw-cms.elements.general.config.label.alignment')"
-                                                 :placeholder="$tc('sw-cms.elements.general.config.label.alignment')">
-                                    <option value="flex-start">{{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}</option>
-                                    <option value="center">{{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}</option>
-                                    <option value="flex-end">{{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}</option>
-                                </sw-select-field>
-                            {% endblock %}
-                        </sw-container>
-                    {% endblock %}
-                </template>
-            </sw-tabs>
-        {% endblock %}
-    </div>
+            {% block sw_cms_el_product_description_rating_config_options %}
+            <sw-container
+                v-if="active === 'options'"
+                class="sw-cms-el-config-text__tab-options"
+            >
+                {% block sw_cms_el_product_description_rating_config_options_alignment %}
+                <sw-select-field
+                    v-model="element.config.alignment.value"
+                    :label="$tc('sw-cms.elements.general.config.label.alignment')"
+                    :placeholder="$tc('sw-cms.elements.general.config.label.alignment')"
+                >
+                    <option value="flex-start">
+                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
+                    </option>
+                    <option value="center">
+                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
+                    </option>
+                    <option value="flex-end">
+                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
+                    </option>
+                </sw-select-field>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+        </template>
+    </sw-tabs>
+    {% endblock %}
+</div>
 {% endblock %}

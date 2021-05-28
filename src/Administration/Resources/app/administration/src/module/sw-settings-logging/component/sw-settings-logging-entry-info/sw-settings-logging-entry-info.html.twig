@@ -1,38 +1,47 @@
 {% block sw_settings_logging_entry_info %}
-    <sw-modal @modal-close="onClose"
-              :title="$tc('sw-settings-logging.entryInfo.title')">
+<sw-modal
+    :title="$tc('sw-settings-logging.entryInfo.title')"
+    @modal-close="onClose"
+>
 
-        {% block sw_settings_logging_entry_info_tabs %}
-            <sw-tabs>
+    {% block sw_settings_logging_entry_info_tabs %}
+    <sw-tabs>
 
-                {% block sw_settings_logging_entry_info_tab_items %}
-                    <sw-tabs-item :active="activeTab === 'raw'" @click="activeTab = 'raw'">
-                        {{ $tc('sw-settings-logging.entryInfo.tabRaw') }}
-                    </sw-tabs-item>
-                {% endblock %}
-
-                <template slot="content">
-                    {% block sw_settings_logging_entry_info_content %}
-                        {% block sw_settings_logging_entry_info_raw_content %}
-                            <sw-textarea-field v-if="activeTab === 'raw'"
-                                               :value="displayString">
-                            </sw-textarea-field>
-                        {% endblock %}
-                    {% endblock %}
-                </template>
-
-            </sw-tabs>
+        {% block sw_settings_logging_entry_info_tab_items %}
+        <sw-tabs-item
+            :active="activeTab === 'raw'"
+            @click="activeTab = 'raw'"
+        >
+            {{ $tc('sw-settings-logging.entryInfo.tabRaw') }}
+        </sw-tabs-item>
         {% endblock %}
 
-        {% block sw_settings_logging_entry_info_footer %}
-            <template slot="modal-footer">
-                {% block sw_settings_logging_entry_info_close_button %}
-                    <sw-button size="small" @click="onClose">
-                        {{ $tc('sw-settings-logging.entryInfo.actionClose') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        {% endblock %}
+        <template slot="content">
+            {% block sw_settings_logging_entry_info_content %}
+            {% block sw_settings_logging_entry_info_raw_content %}
+            <sw-textarea-field
+                v-if="activeTab === 'raw'"
+                :value="displayString"
+            />
+            {% endblock %}
+            {% endblock %}
+        </template>
 
-    </sw-modal>
+    </sw-tabs>
+    {% endblock %}
+
+    {% block sw_settings_logging_entry_info_footer %}
+    <template slot="modal-footer">
+        {% block sw_settings_logging_entry_info_close_button %}
+        <sw-button
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('sw-settings-logging.entryInfo.actionClose') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+</sw-modal>
 {% endblock %}

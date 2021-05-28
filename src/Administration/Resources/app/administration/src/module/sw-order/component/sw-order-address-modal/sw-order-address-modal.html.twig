@@ -1,68 +1,91 @@
 {% block sw_order_address_modal %}
-    <sw-modal :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
-              :isLoading="isLoading"
-              @modal-close="onClose">
-        {% block sw_order_address_modal_content %}
-            <sw-tabs class="sw-order-address-modal" defaultItem="edit" @new-item-active="onNewActiveItem">
-                <template #default="{ active }">
-                {% block sw_order_address_modal_tabs %}
-                    {% block sw_order_address_modal_tab_edit_address %}
-                        <sw-tabs-item name="edit" :activeTab="active">
-                            {{ $tc('sw-order.addressSelection.headlineTabEditAddress') }}
-                        </sw-tabs-item>
-                    {%  endblock %}
-                    {% block sw_order_address_modal_tab_select_address %}
-                        <sw-tabs-item name="addresses" :activeTab="active">
-                            {{ $tc('sw-order.addressSelection.headlineTabSelectAddress') }}
-                        </sw-tabs-item>
-                    {% endblock %}
-                {% endblock %}
-                </template>
+<sw-modal
+    :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
+    :is-loading="isLoading"
+    @modal-close="onClose"
+>
+    {% block sw_order_address_modal_content %}
+    <sw-tabs
+        class="sw-order-address-modal"
+        default-item="edit"
+        @new-item-active="onNewActiveItem"
+    >
+        <template #default="{ active }">
+            {% block sw_order_address_modal_tabs %}
+            {% block sw_order_address_modal_tab_edit_address %}
+            <sw-tabs-item
+                name="edit"
+                :active-tab="active"
+            >
+                {{ $tc('sw-order.addressSelection.headlineTabEditAddress') }}
+            </sw-tabs-item>
+            {%  endblock %}
+            {% block sw_order_address_modal_tab_select_address %}
+            <sw-tabs-item
+                name="addresses"
+                :active-tab="active"
+            >
+                {{ $tc('sw-order.addressSelection.headlineTabSelectAddress') }}
+            </sw-tabs-item>
+            {% endblock %}
+            {% endblock %}
+        </template>
 
-                <template #content="{ active }">
-                    {% block sw_order_address_modal_tabs_content %}
-                        <div v-if="active==='edit'">
-                            {% block sw_order_address_modal_tabs_content_edit_address %}
-                                <sw-customer-address-form :address="address"
-                                                          :customer="orderCustomer"
-                                                          :countries="countries">
-                                </sw-customer-address-form>
-                            {% endblock %}
-                        </div>
-                        <div v-if="active==='addresses'">
-                            {% block sw_order_address_modal_tabs_content_select_address %}
-                                <sw-button v-for="(address, index) in availableAddresses" :key="address.id"
-                                        block
-                                        :class="addressButtonClasses(address.id)"
-                                        @click="onExistingAddressSelected(address)">
-                                    {{ address.company }} <br>
-                                    {{ address | salutation }}<br>
-                                    {{ address.street }} <br>
-                                    {{ address.zipcode }} {{ address.city }}<br>
-                                    {{ placeholder(address.country, 'name') }}<br>
-                                </sw-button>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </template>
-            </sw-tabs>
+        <template #content="{ active }">
+            {% block sw_order_address_modal_tabs_content %}
+            <div v-if="active==='edit'">
+                {% block sw_order_address_modal_tabs_content_edit_address %}
+                <sw-customer-address-form
+                    :address="address"
+                    :customer="orderCustomer"
+                    :countries="countries"
+                />
+                {% endblock %}
+            </div>
+            <div v-if="active==='addresses'">
+                {% block sw_order_address_modal_tabs_content_select_address %}
+                <sw-button
+                    v-for="address in availableAddresses"
+                    :key="address.id"
+                    block
+                    :class="addressButtonClasses(address.id)"
+                    @click="onExistingAddressSelected(address)"
+                >
+                    {{ address.company }} <br>
+                    {{ address | salutation }}<br>
+                    {{ address.street }} <br>
+                    {{ address.zipcode }} {{ address.city }}<br>
+                    {{ placeholder(address.country, 'name') }}<br>
+                </sw-button>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </template>
+    </sw-tabs>
+    {% endblock %}
+
+    {% block sw_order_address_modal_actions %}
+    <template #modal-footer>
+        {% block sw_order_address_modal_action_close %}
+        <sw-button
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_order_address_modal_actions %}
-            <template #modal-footer>
-                {% block sw_order_address_modal_action_close %}
-                    <sw-button size="small" @click="onClose">
-                        {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_order_address_modal_actions_apply %}
-                    <sw-button variant="primary" size="small" @click="onSave">
-                        {{ $tc('sw-customer.detailAddresses.buttonApply') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+        {% block sw_order_address_modal_actions_apply %}
+        <sw-button
+            variant="primary"
+            size="small"
+            @click="onSave"
+        >
+            {{ $tc('sw-customer.detailAddresses.buttonApply') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}
 

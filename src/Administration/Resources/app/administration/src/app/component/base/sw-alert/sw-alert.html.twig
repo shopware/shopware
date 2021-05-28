@@ -1,46 +1,64 @@
 {% block sw_alert %}
-    <div class="sw-alert" :class="alertClasses" role="alert">
-        {% block sw_alert_inner %}
-            {% block sw_alert_icon %}
-                <slot name="customIcon">
-                    <sw-icon v-if="showIcon"
-                             size="20px"
-                             class="sw-alert__icon"
-                             :name="alertIcon"
-                             decorative>
-                    </sw-icon>
-                </slot>
-            {% endblock %}
+<div
+    class="sw-alert"
+    :class="alertClasses"
+    role="alert"
+>
+    {% block sw_alert_inner %}
+    {% block sw_alert_icon %}
+    <slot name="customIcon">
+        <sw-icon
+            v-if="showIcon"
+            size="20px"
+            class="sw-alert__icon"
+            :name="alertIcon"
+            decorative
+        />
+    </slot>
+    {% endblock %}
 
-            {% block sw_alert_body %}
-                <div class="sw-alert__body">
-                    {% block sw_alert_title %}
-                        <div v-if="title" class="sw-alert__title">{{ title }}</div>
-                    {% endblock %}
+    {% block sw_alert_body %}
+    <div class="sw-alert__body">
+        {% block sw_alert_title %}
+        <div
+            v-if="title"
+            class="sw-alert__title"
+        >
+            {{ title }}
+        </div>
+        {% endblock %}
 
-                    {% block sw_alert_message %}
-                        <div class="sw-alert__message">
-                            <slot>{% block sw_alert_slot_default %}{% endblock %}</slot>
-                        </div>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-
-            {% block sw_alert_actions %}
-                <div v-if="hasActionSlot" class="sw-alert__actions">
-                    <slot name="actions"></slot>
-                </div>
-            {% endblock %}
-
-            {% block sw_alert_close %}
-                <button v-if="closable"
-                        class="sw-alert__close"
-                        @click.prevent="$emit('close', notificationIndex)"
-                        aria-label="Schließen"
-                        title="Schließen">
-                    <sw-icon name="small-default-x-line-medium" small></sw-icon>
-                </button>
-            {% endblock %}
+        {% block sw_alert_message %}
+        <div class="sw-alert__message">
+            <slot>{% block sw_alert_slot_default %}{% endblock %}</slot>
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_alert_actions %}
+    <div
+        v-if="hasActionSlot"
+        class="sw-alert__actions"
+    >
+        <slot name="actions" />
+    </div>
+    {% endblock %}
+
+    {% block sw_alert_close %}
+    <button
+        v-if="closable"
+        class="sw-alert__close"
+        aria-label="Schließen"
+        title="Schließen"
+        @click.prevent="$emit('close', notificationIndex)"
+    >
+        <sw-icon
+            name="small-default-x-line-medium"
+            small
+        />
+    </button>
+    {% endblock %}
+    {% endblock %}
+</div>
 {% endblock %}

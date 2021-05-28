@@ -1,14 +1,21 @@
 {% block sw_sidebar_navigation_item %}
-    <button
-        class="sw-sidebar-navigation-item"
-        :class="sidebarItem.sidebarItemClasses"
-        :title="sidebarItem.title"
-        :disabled="sidebarItem.disabled"
-        @click="emitButtonClicked">
+<button
+    class="sw-sidebar-navigation-item"
+    :class="sidebarItem.sidebarItemClasses"
+    :title="sidebarItem.title"
+    :disabled="sidebarItem.disabled"
+    @click="emitButtonClicked"
+>
 
-        {% block sw_sidebar_navigation_item_content %}
-            <sw-icon :name="sidebarItem.icon" size="20px"></sw-icon>
-            <i class="notification-badge" v-if="sidebarItem.badge">{{ sidebarItem.badge }}</i>
-        {% endblock %}
-    </button>
+    {% block sw_sidebar_navigation_item_content %}
+    <sw-icon
+        :name="sidebarItem.icon"
+        size="20px"
+    />
+    <i
+        v-if="sidebarItem.badge"
+        class="notification-badge"
+    >{{ sidebarItem.badge }}</i>
+    {% endblock %}
+</button>
 {% endblock %}

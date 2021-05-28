@@ -1,47 +1,65 @@
 {% block sw_context_menu_item %}
-    {% block sw_context_menu_item_router_link %}
-        <router-link v-if="routerLink"
-                     :to="routerLink"
-                     class="sw-context-menu-item"
-                     :class="contextMenuItemStyles"
-                     :disabled="disabled"
-                     :event="disabled ? null : 'click'"
-                     :target="disabled ? null : target"
-                     v-on="contextListeners">
-            {% block sw_context_menu_item_icon %}
-                <slot name="icon">
-                    {% block sw_context_menu_item_slot_icon %}
-                        <sw-icon :name="icon" small v-if="icon"></sw-icon>
-                    {% endblock %}
-                </slot>
-            {% endblock %}
-
-            {% block sw_context_menu_item_text %}
-                <span class="sw-context-menu-item__text" :class="{ 'is--disabled': disabled }">
-                    <slot>{% block sw_context_menu_item_slot_default %}{% endblock %}</slot>
-                </span>
-            {% endblock %}
-        </router-link>
+{% block sw_context_menu_item_router_link %}
+<router-link
+    v-if="routerLink"
+    :to="routerLink"
+    class="sw-context-menu-item"
+    :class="contextMenuItemStyles"
+    :disabled="disabled"
+    :event="disabled ? null : 'click'"
+    :target="disabled ? null : target"
+    v-on="contextListeners"
+>
+    {% block sw_context_menu_item_icon %}
+    <slot name="icon">
+        {% block sw_context_menu_item_slot_icon %}
+        <sw-icon
+            v-if="icon"
+            :name="icon"
+            small
+        />
+        {% endblock %}
+    </slot>
     {% endblock %}
 
-    {% block sw_context_menu_item_entry %}
-        <div v-else
-             class="sw-context-menu-item"
-             :class="contextMenuItemStyles"
-             v-on="contextListeners">
-            {% block sw_context_menu_item_icon %}
-                <slot name="icon">
-                    {% block sw_context_menu_item_slot_icon %}
-                        <sw-icon :name="icon" small v-if="icon"></sw-icon>
-                    {% endblock %}
-                </slot>
-            {% endblock %}
-
-            {% block sw_context_menu_item_text %}
-                <span class="sw-context-menu-item__text" :class="{ 'is--disabled': disabled }">
-                    <slot>{% block sw_context_menu_item_slot_default %}{% endblock %}</slot>
-                </span>
-            {% endblock %}
-        </div>
+    {% block sw_context_menu_item_text %}
+    <span
+        class="sw-context-menu-item__text"
+        :class="{ 'is--disabled': disabled }"
+    >
+        <slot>{% block sw_context_menu_item_slot_default %}{% endblock %}</slot>
+    </span>
     {% endblock %}
+</router-link>
+{% endblock %}
+
+{% block sw_context_menu_item_entry %}
+<div
+    v-else
+    class="sw-context-menu-item"
+    :class="contextMenuItemStyles"
+    v-on="contextListeners"
+>
+    {% block sw_context_menu_item_icon %}
+    <slot name="icon">
+        {% block sw_context_menu_item_slot_icon %}
+        <sw-icon
+            v-if="icon"
+            :name="icon"
+            small
+        />
+        {% endblock %}
+    </slot>
+    {% endblock %}
+
+    {% block sw_context_menu_item_text %}
+    <span
+        class="sw-context-menu-item__text"
+        :class="{ 'is--disabled': disabled }"
+    >
+        <slot>{% block sw_context_menu_item_slot_default %}{% endblock %}</slot>
+    </span>
+    {% endblock %}
+</div>
+{% endblock %}
 {% endblock %}

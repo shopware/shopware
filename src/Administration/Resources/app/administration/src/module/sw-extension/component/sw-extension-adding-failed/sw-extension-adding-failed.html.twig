@@ -1,52 +1,59 @@
 {% block sw_extension_adding_failed %}
-    <div class="sw-extension-adding-failed">
-        {% block sw_extension_adding_failed_icon %}
-            <sw-circle-icon
-                :size="72"
-                iconName="small-default-x-circle"
-                variant="danger">
-            </sw-circle-icon>
-        {% endblock %}
+<div class="sw-extension-adding-failed">
+    {% block sw_extension_adding_failed_icon %}
+    <sw-circle-icon
+        :size="72"
+        icon-name="small-default-x-circle"
+        variant="danger"
+    />
+    {% endblock %}
 
-        {% block sw_extension_adding_failed_headline %}
-            <h3>{{ title || headline }}</h3>
-        {% endblock %}
+    {% block sw_extension_adding_failed_headline %}
+    <h3>{{ title || headline }}</h3>
+    {% endblock %}
 
-        {% block sw_extension_adding_failed_notification %}
-            <p>{{ detail || text }}</p>
-            <p v-if="documentationLink">
-                <a :href="documentationLink">
-                    {{ documentationLink }}
+    {% block sw_extension_adding_failed_notification %}
+    <p>{{ detail || text }}</p>
+    <p v-if="documentationLink">
+        <a :href="documentationLink">
+            {{ documentationLink }}
+        </a>
+    </p>
+    {% endblock %}
+
+    {% block sw_extension_adding_failed_licence_cancellation %}
+    <template v-if="isRent">
+        <p class="sw-extension-adding-failed__text-licence-cancellation">
+            {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense') }}
+        </p>
+
+        <i18n
+            tag="p"
+            path="sw-extension-store.component.sw-extension-adding-failed.installationFailed.textSupport"
+        >
+            <template #mail>
+                <a :href="`mailto:${$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail')}`">
+                    {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail') }}
                 </a>
-            </p>
-        {% endblock %}
-
-        {% block sw_extension_adding_failed_licence_cancellation %}
-            <template v-if="isRent">
-                <p class="sw-extension-adding-failed__text-licence-cancellation">
-                    {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense') }}
-                </p>
-
-                <i18n tag="p" path="sw-extension-store.component.sw-extension-adding-failed.installationFailed.textSupport">
-                    <template #mail>
-                        <a :href="`mailto:${$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail')}`">
-                            {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail') }}
-                        </a>
-                    </template>
-
-                    <template #phone>
-                        <a :href="`tel:${$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone')}`">
-                            {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone') }}
-                        </a>
-                    </template>
-                </i18n>
             </template>
-        {% endblock %}
 
-        {% block sw_extension_adding_failed_button_close %}
-            <sw-button variant="primary" block @click="$emit('close')">
-                {{ $tc('global.default.close') }}
-            </sw-button>
-        {% endblock %}
-    </div>
+            <template #phone>
+                <a :href="`tel:${$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone')}`">
+                    {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone') }}
+                </a>
+            </template>
+        </i18n>
+    </template>
+    {% endblock %}
+
+    {% block sw_extension_adding_failed_button_close %}
+    <sw-button
+        variant="primary"
+        block
+        @click="$emit('close')"
+    >
+        {{ $tc('global.default.close') }}
+    </sw-button>
+    {% endblock %}
+</div>
 {% endblock %}

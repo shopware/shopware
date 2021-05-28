@@ -1,39 +1,41 @@
 {% block sw_settings_shipping_tax_cost %}
-    <sw-card class="sw-settings-shipping-tax-cost"
-             :title="$tc('sw-settings-shipping.detail.tax.fieldName')">
+<sw-card
+    class="sw-settings-shipping-tax-cost"
+    :title="$tc('sw-settings-shipping.detail.tax.fieldName')"
+>
 
-        {% block sw_settings_shipping_detail_shipping_cost_tax_select %}
-            <sw-single-select
-                v-model="shippingMethod.taxType"
-                class="sw-settings-shipping__tax-type-selection"
-                required
-                :disabled="disabled"
-                :label="$tc('sw-settings-shipping.detail.tax.labelTaxType')"
-                :placeholder="$tc('sw-settings-shipping.detail.tax.placeholderTaxType')"
-                :helpText="$tc('sw-settings-shipping.detail.tax.helpText')"
-                :options="shippingCostTaxOptions"
-                :error="shippingMethodTaxTypeError">
-            </sw-single-select>
-        {% endblock %}
+    {% block sw_settings_shipping_detail_shipping_cost_tax_select %}
+    <sw-single-select
+        v-model="shippingMethod.taxType"
+        class="sw-settings-shipping__tax-type-selection"
+        required
+        :disabled="disabled"
+        :label="$tc('sw-settings-shipping.detail.tax.labelTaxType')"
+        :placeholder="$tc('sw-settings-shipping.detail.tax.placeholderTaxType')"
+        :help-text="$tc('sw-settings-shipping.detail.tax.helpText')"
+        :options="shippingCostTaxOptions"
+        :error="shippingMethodTaxTypeError"
+    />
+    {% endblock %}
 
-        {% block sw_settings_shipping_detail_shipping_cost_tax_rate_select %}
-            <sw-entity-single-select
-                v-if="shippingMethod.taxType === 'fixed'"
-                v-model="shippingMethod.taxId"
-                class="sw-settings-shipping__tax-rate"
-                validation="required"
-                required
-                entity="tax"
-                :criteria="taxCriteria"
-                :highlightSearchTerm="false"
-                ref="taxIdSelection"
-                :disabled="disabled"
-                :label="$tc('sw-settings-shipping.detail.tax.labelTaxRate')"
-                :placeholder="$tc('sw-settings-shipping.detail.tax.placeholderTaxRate')"
-                :labelCallback="getTaxLabel"
-                :error="shippingMethodTaxIdError">
-            </sw-entity-single-select>
-        {% endblock %}
+    {% block sw_settings_shipping_detail_shipping_cost_tax_rate_select %}
+    <sw-entity-single-select
+        v-if="shippingMethod.taxType === 'fixed'"
+        ref="taxIdSelection"
+        v-model="shippingMethod.taxId"
+        class="sw-settings-shipping__tax-rate"
+        validation="required"
+        required
+        entity="tax"
+        :criteria="taxCriteria"
+        :highlight-search-term="false"
+        :disabled="disabled"
+        :label="$tc('sw-settings-shipping.detail.tax.labelTaxRate')"
+        :placeholder="$tc('sw-settings-shipping.detail.tax.placeholderTaxRate')"
+        :label-callback="getTaxLabel"
+        :error="shippingMethodTaxIdError"
+    />
+    {% endblock %}
 
-    </sw-card>
+</sw-card>
 {% endblock %}

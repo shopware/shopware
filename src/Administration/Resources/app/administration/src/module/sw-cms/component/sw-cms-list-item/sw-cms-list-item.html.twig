@@ -1,28 +1,50 @@
 {% block sw_cms_list_item %}
-    <div class="sw-cms-list-item" :class="componentClasses">
+<div
+    class="sw-cms-list-item"
+    :class="componentClasses"
+>
 
-        {% block sw_cms_list_item_options %}
-            <slot name="contextMenu"></slot>
-        {% endblock %}
+    {% block sw_cms_list_item_options %}
+    <slot name="contextMenu" />
+    {% endblock %}
 
-        {% block sw_cms_list_item_image %}
-            <div class="sw-cms-list-item__image"
-                 v-if="page"
-                 :style="previewMedia"
-                 @click="onItemClick(page)">
-            </div>
+    {% block sw_cms_list_item_image %}
+    <div
+        v-if="page"
+        class="sw-cms-list-item__image"
+        :style="previewMedia"
+        @click="onItemClick(page)"
+    />
 
-            <div class="sw-cms-list-item__image is--empty" v-else>
-                {{ $tc('sw-cms.components.cmsListItem.emptyText') }}
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_list_item_info %}
-            <div class="sw-cms-list-item__info">
-                <div v-if="page" class="sw-cms-list-item__status" :class="statusClasses"></div>
-                <div class="sw-cms-list-item__title" v-if="page" @click="onElementClick">{{ page.translated.name }}</div>
-                <sw-icon v-if="page && page.locked" class="sw-cms-list-item__locked" name="small-lock-closed" small></sw-icon>
-            </div>
-        {% endblock %}
+    <div
+        v-else
+        class="sw-cms-list-item__image is--empty"
+    >
+        {{ $tc('sw-cms.components.cmsListItem.emptyText') }}
     </div>
+    {% endblock %}
+
+    {% block sw_cms_list_item_info %}
+    <div class="sw-cms-list-item__info">
+        <div
+            v-if="page"
+            class="sw-cms-list-item__status"
+            :class="statusClasses"
+        />
+        <div
+            v-if="page"
+            class="sw-cms-list-item__title"
+            @click="onElementClick"
+        >
+            {{ page.translated.name }}
+        </div>
+        <sw-icon
+            v-if="page && page.locked"
+            class="sw-cms-list-item__locked"
+            name="small-lock-closed"
+            small
+        />
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,13 +1,15 @@
 {% block sw_search_more_results %}
-    <router-link v-if="searchTypeRoute"
-                 :to="{ name: searchTypeRoute, query: { term: term }}"
-                 class="sw-search-more-results__link">
-        {% block sw_search_more_results_content %}
-            <slot name="content">
-                {% block sw_search_more_results_slot_content %}
-                    {{ $tc('global.sw-search-more-results.labelShowResultsInModule', 0, { count: result.total }) }}
-                {% endblock %}
-            </slot>
+<router-link
+    v-if="searchTypeRoute"
+    :to="{ name: searchTypeRoute, query: { term: term }}"
+    class="sw-search-more-results__link"
+>
+    {% block sw_search_more_results_content %}
+    <slot name="content">
+        {% block sw_search_more_results_slot_content %}
+        {{ $tc('global.sw-search-more-results.labelShowResultsInModule', 0, { count: result.total }) }}
         {% endblock %}
-    </router-link>
+    </slot>
+    {% endblock %}
+</router-link>
 {% endblock %}

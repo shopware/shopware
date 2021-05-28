@@ -1,10 +1,19 @@
 {% block sw_cms_section_actions %}
-    <div class="sw-cms-section__actions" :class="componentClasses">
+<div
+    class="sw-cms-section__actions"
+    :class="componentClasses"
+>
 
-        {% block sw_cms_section_action_select %}
-            <div class="sw-cms-section__action sw-cms-section-select" @click="selectSection">
-                <sw-icon name="default-web-layout" size="20"></sw-icon>
-            </div>
-        {% endblock %}
+    {% block sw_cms_section_action_select %}
+    <div
+        class="sw-cms-section__action sw-cms-section-select"
+        @click="selectSection"
+    >
+        <sw-icon
+            name="default-web-layout"
+            size="20"
+        />
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

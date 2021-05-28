@@ -1,129 +1,140 @@
 {% block sw_settings_search_view_live_search_card %}
-    <sw-card
-        class="sw-settings-search-live-search"
-        :title="$tc('sw-settings-search.liveSearchTab.titleCard')">
+<sw-card
+    class="sw-settings-search-live-search"
+    :title="$tc('sw-settings-search.liveSearchTab.titleCard')"
+>
 
-        {% block sw_settings_search_view_live_search_rebuild_index_row %}
-            <div class="sw-settings-search-live-search__rebuild-index-row">
+    {% block sw_settings_search_view_live_search_rebuild_index_row %}
+    <div class="sw-settings-search-live-search__rebuild-index-row">
 
-                {% block sw_settings_search_view_live_search_description %}
-                   <div class="sw-settings-search-live-search__description">
-                        {{ $tc('sw-settings-search.liveSearchTab.textDescription') }}
-                    </div>
-                {% endblock %}
-
-                {% block sw_settings_search_view_live_search_show_example_link %}
-                    <sw-container columns="1fr" justify="end">
-                        <a
-                            class="sw-settings-search-live-search__show-example-link"
-                            @click="onShowExampleModal">
-                            {{ $tc('sw-settings-search.generalTab.linkExample') }}
-                            <sw-icon
-                                name="default-arrow-simple-right"
-                                small>
-                            </sw-icon>
-                        </a>
-                    </sw-container>
-                {% endblock %}
-
-                {% block sw_settings_search_searchable_show_example_modal %}
-                    <sw-settings-search-example-modal
-                        v-if="showExampleModal"
-                        @modal-close="onCloseExampleModal">
-                    </sw-settings-search-example-modal>
-                {% endblock %}
-            </div>
+        {% block sw_settings_search_view_live_search_description %}
+        <div class="sw-settings-search-live-search__description">
+            {{ $tc('sw-settings-search.liveSearchTab.textDescription') }}
+        </div>
         {% endblock %}
 
-        {% block sw_settings_search_view_live_search_sales_channel %}
-            <sw-single-select
-                class="sw-settings-search-live-search__sales-channel-select"
-                valueProperty="id"
-                labelProperty="translated.name"
-                :placeholder="$tc('sw-settings-search.liveSearchTab.textPlaceholderSalesChannel')"
-                :label="$tc('sw-settings-search.liveSearchTab.labelSalesChannelSelect')"
-                :value="salesChannelId"
-                :options="salesChannels"
-                @change="changeSalesChannel"
+        {% block sw_settings_search_view_live_search_show_example_link %}
+        <sw-container
+            columns="1fr"
+            justify="end"
+        >
+            <a
+                class="sw-settings-search-live-search__show-example-link"
+                @click="onShowExampleModal"
             >
-            </sw-single-select>
+                {{ $tc('sw-settings-search.generalTab.linkExample') }}
+                <sw-icon
+                    name="default-arrow-simple-right"
+                    small
+                />
+            </a>
+        </sw-container>
         {% endblock %}
 
-        {% block sw_settings_search_view_live_search_input %}
-            <sw-simple-search-field
-                v-model="liveSearchTerm"
-                class="sw-settings-search-live-search__search_box"
-                variant="form"
-                :delay=1000
-                :disabled="!isSearchEnable"
-                @search-term-change="searchOnStorefront">
+        {% block sw_settings_search_searchable_show_example_modal %}
+        <sw-settings-search-example-modal
+            v-if="showExampleModal"
+            @modal-close="onCloseExampleModal"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
 
-                {% block sw_settings_search_view_live_search_search_icon_wrapper %}
-                    <template #sw-simple-search-field-icon>
-                        {% block sw_settings_search_view_live_search_search_icon %}
-                            <sw-icon
-                                class="sw-settings-search-live-search__search-icon"
-                                name="small-search"
-                                small
-                                @click="searchOnStorefront"
-                            ></sw-icon>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
+    {% block sw_settings_search_view_live_search_sales_channel %}
+    <sw-single-select
+        class="sw-settings-search-live-search__sales-channel-select"
+        value-property="id"
+        label-property="translated.name"
+        :placeholder="$tc('sw-settings-search.liveSearchTab.textPlaceholderSalesChannel')"
+        :label="$tc('sw-settings-search.liveSearchTab.labelSalesChannelSelect')"
+        :value="salesChannelId"
+        :options="salesChannels"
+        @change="changeSalesChannel"
+    />
+    {% endblock %}
 
-            </sw-simple-search-field>
+    {% block sw_settings_search_view_live_search_input %}
+    <sw-simple-search-field
+        v-model="liveSearchTerm"
+        class="sw-settings-search-live-search__search_box"
+        variant="form"
+        :delay="1000"
+        :disabled="!isSearchEnable"
+        @search-term-change="searchOnStorefront"
+    >
+
+        {% block sw_settings_search_view_live_search_search_icon_wrapper %}
+        <template #sw-simple-search-field-icon>
+            {% block sw_settings_search_view_live_search_search_icon %}
+            <sw-icon
+                class="sw-settings-search-live-search__search-icon"
+                name="small-search"
+                small
+                @click="searchOnStorefront"
+            />
+            {% endblock %}
+        </template>
         {% endblock %}
 
-        {% block sw_settings_search_view_live_search_results %}
-            <div class="sw-settings-search-live-search__search-results">
+    </sw-simple-search-field>
+    {% endblock %}
 
-                {% block sw_search_bar_results_empty_state %}
-                    <sw-loader v-if="searchInProgress"></sw-loader>
-                {% endblock %}
+    {% block sw_settings_search_view_live_search_results %}
+    <div class="sw-settings-search-live-search__search-results">
 
-                {% block sw_settings_search_view_live_search_results_no_result %}
-                    <div v-if="products && products.length === 0"
-                        class="sw-settings-search-live-search__no-result">
-                        {{ $tc('sw-settings-search.liveSearchTab.textNoResult') }}
-                    </div>
-                {% endblock %}
-
-                {% block sw_settings_search_view_live_search_results_search_grid %}
-                    <sw-data-grid
-                        v-if="products && products.length > 0"
-                        class="sw-settings-search-live-search__grid-result"
-                        :plainAppearance="true"
-                        :showSelection="false"
-                        :showActions="false"
-                        :dataSource="products"
-                        :isLoading="searchInProgress"
-                        :columns="searchColumns">
-
-                        {% block sw_settings_search_view_live_search_results_search_grid_columns %}
-                             {% block sw_settings_search_view_live_search_results_search_grid_name %}
-                                <template #column-name="{ item }">
-                                    <sw-product-variant-info :variations="item.variation" :showTooltip="false">
-                                        <sw-settings-search-live-search-keyword
-                                            :text="(item.name || item.translated.name)"
-                                            :searchTerm="liveSearchTerm">
-                                        </sw-settings-search-live-search-keyword>
-                                    </sw-product-variant-info>
-                                </template>
-                            {% endblock %}
-
-                            {% block sw_settings_search_view_live_search_results_search_grid_score %}
-                                <template #column-score="{ item }">
-                                    <span class="sw-settings-search-live-search__grid-result__score">
-                                        {{ Math.round(parseFloat(item.extensions.search._score)) }}
-                                    </span>
-                                </template>
-                            {% endblock %}
-                        {% endblock %}
-
-                    </sw-data-grid>
-                {% endblock %}
-
-            </div>
+        {% block sw_search_bar_results_empty_state %}
+        <sw-loader v-if="searchInProgress" />
         {% endblock %}
-    </sw-card>
+
+        {% block sw_settings_search_view_live_search_results_no_result %}
+        <div
+            v-if="products && products.length === 0"
+            class="sw-settings-search-live-search__no-result"
+        >
+            {{ $tc('sw-settings-search.liveSearchTab.textNoResult') }}
+        </div>
+        {% endblock %}
+
+        {% block sw_settings_search_view_live_search_results_search_grid %}
+        <sw-data-grid
+            v-if="products && products.length > 0"
+            class="sw-settings-search-live-search__grid-result"
+            :plain-appearance="true"
+            :show-selection="false"
+            :show-actions="false"
+            :data-source="products"
+            :is-loading="searchInProgress"
+            :columns="searchColumns"
+        >
+
+            {% block sw_settings_search_view_live_search_results_search_grid_columns %}
+            {% block sw_settings_search_view_live_search_results_search_grid_name %}
+            <template #column-name="{ item }">
+                <sw-product-variant-info
+                    :variations="item.variation"
+                    :show-tooltip="false"
+                >
+                    <sw-settings-search-live-search-keyword
+                        :text="(item.name || item.translated.name)"
+                        :search-term="liveSearchTerm"
+                    />
+                </sw-product-variant-info>
+            </template>
+            {% endblock %}
+
+            {% block sw_settings_search_view_live_search_results_search_grid_score %}
+            <template #column-score="{ item }">
+                <span class="sw-settings-search-live-search__grid-result__score">
+                    {{ Math.round(parseFloat(item.extensions.search._score)) }}
+                </span>
+            </template>
+            {% endblock %}
+            {% endblock %}
+
+        </sw-data-grid>
+        {% endblock %}
+
+    </div>
+    {% endblock %}
+</sw-card>
 {% endblock %}

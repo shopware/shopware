@@ -1,10 +1,11 @@
 {% block sw_condtion_tree_node %}
-    <component :is="conditionNodeComponent"
-               class="condition-tree-node"
-               v-bind="{ condition, parentCondition, level }"
-               :disabled="disabled"
-               @create-before="insertNewNodeBefore"
-               @create-after="insertNewNodeAfter"
-               @condition-delete="deleteNode">
-    </component>
+<component
+    :is="conditionNodeComponent"
+    class="condition-tree-node"
+    v-bind="{ condition, parentCondition, level }"
+    :disabled="disabled"
+    @create-before="insertNewNodeBefore"
+    @create-after="insertNewNodeAfter"
+    @condition-delete="deleteNode"
+/>
 {% endblock %}

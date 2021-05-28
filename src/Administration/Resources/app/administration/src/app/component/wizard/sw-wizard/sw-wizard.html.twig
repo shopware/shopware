@@ -1,82 +1,87 @@
 {% block sw_wizard %}
-    <sw-modal
-        class="sw-wizard"
-        v-bind="$attrs"
-        :title="title"
-        @modal-close="onClose"
-        @page-add="addPage"
-        @page-remove="removePage">
-        <slot>
-            {% block sw_wizard_slot_default %}{% endblock %}
+<sw-modal
+    class="sw-wizard"
+    v-bind="$attrs"
+    :title="title"
+    @modal-close="onClose"
+    @page-add="addPage"
+    @page-remove="removePage"
+>
+    <slot>
+        {% block sw_wizard_slot_default %}{% endblock %}
+    </slot>
+
+    {% block sw_wizard_slot_footer %}
+    <template #modal-footer>
+        <slot name="footer-left-button">
+            {% block sw_wizard_slot_footer_left_buttons %}
+            {% block sw_wizard_slot_footer_left_buttons_close %}
+            <sw-button
+                v-if="currentlyActivePage === 0"
+                size="small"
+                :disabled="leftButtonDisabled"
+                @click="onClose"
+            >
+                {{ $tc('sw-wizard.closeButton') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_wizard_slot_footer_left_buttons_back %}
+            <sw-button
+                v-else
+                size="small"
+                :disabled="leftButtonDisabled"
+                @click="previousPage"
+            >
+                {{ $tc('sw-wizard.backButton') }}
+            </sw-button>
+            {% endblock %}
+
+            {% endblock %}
+
         </slot>
 
-        {% block sw_wizard_slot_footer %}
-            <template #modal-footer>
-                <slot name="footer-left-button">
-                    {% block sw_wizard_slot_footer_left_buttons %}
-                        {% block sw_wizard_slot_footer_left_buttons_close %}
-                            <sw-button
-                                v-if="currentlyActivePage === 0"
-                                size="small"
-                                :disabled="leftButtonDisabled"
-                                @click="onClose">
-                                {{ $tc('sw-wizard.closeButton') }}
-                            </sw-button>
-                        {% endblock %}
+        <slot name="footer-dot-navigation">
+            {% block sw_wizard_slot_footer_dot_navigation %}
+            <sw-wizard-dot-navigation
+                v-if="showNavigationDots"
+                :pages="pages"
+                :active-page="currentlyActivePage"
+            />
+            {% endblock %}
 
-                        {% block sw_wizard_slot_footer_left_buttons_back %}
-                            <sw-button
-                                v-else
-                                size="small"
-                                :disabled="leftButtonDisabled"
-                                @click="previousPage">
-                                {{ $tc('sw-wizard.backButton') }}
-                            </sw-button>
-                        {% endblock %}
+        </slot>
 
-                    {% endblock %}
+        <slot name="footer-right-button">
+            {% block sw_wizard_slot_footer_right_button %}
+            {% block sw_wizard_slot_footer_right_button_finish %}
+            <sw-button
+                v-if="currentlyActivePage >= pagesCount - 1"
+                size="small"
+                variant="primary"
+                :disabled="rightButtonDisabled"
+                @click="$emit('finish')"
+            >
+                {{ $tc('sw-wizard.finishButton') }}
+            </sw-button>
+            {% endblock %}
 
-                </slot>
+            {% block sw_wizard_slot_footer_right_button_next %}
+            <sw-button
+                v-else
+                size="small"
+                variant="primary"
+                :disabled="rightButtonDisabled"
+                @click="nextPage"
+            >
+                {{ $tc('sw-wizard.nextButton') }}
+            </sw-button>
+            {% endblock %}
+            {% endblock %}
 
-                <slot name="footer-dot-navigation">
-                    {% block sw_wizard_slot_footer_dot_navigation %}
-                        <sw-wizard-dot-navigation
-                            v-if="showNavigationDots"
-                            :pages="pages"
-                            :activePage="currentlyActivePage">
-                        </sw-wizard-dot-navigation>
-                    {% endblock %}
+        </slot>
+    </template>
+    {% endblock %}
 
-                </slot>
-
-                <slot name="footer-right-button">
-                    {% block sw_wizard_slot_footer_right_button %}
-                        {% block sw_wizard_slot_footer_right_button_finish %}
-                            <sw-button
-                                v-if="currentlyActivePage >= pagesCount - 1"
-                                size="small"
-                                variant="primary"
-                                :disabled="rightButtonDisabled"
-                                @click="$emit('finish')">
-                                {{ $tc('sw-wizard.finishButton') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_wizard_slot_footer_right_button_next %}
-                            <sw-button
-                                v-else
-                                size="small"
-                                variant="primary"
-                                :disabled="rightButtonDisabled"
-                                @click="nextPage">
-                                {{ $tc('sw-wizard.nextButton') }}
-                            </sw-button>
-                        {% endblock %}
-                    {% endblock %}
-
-                </slot>
-            </template>
-        {% endblock %}
-
-    </sw-modal>
+</sw-modal>
 {% endblock %}

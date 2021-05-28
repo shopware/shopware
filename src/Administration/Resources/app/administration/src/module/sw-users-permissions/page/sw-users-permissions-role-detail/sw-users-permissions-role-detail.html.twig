@@ -1,74 +1,89 @@
 {% block sw_users_permissions_role_detail %}
-    <sw-page class="sw-users-permissions-role-detail">
+<sw-page class="sw-users-permissions-role-detail">
 
-        {% block sw_users_permissions_role_detail_smart_bar_header %}
-            <template #smart-bar-header>
-                {% block sw_users_permissions_role_detail_smart_bar_header_title %}
-                    <h2 v-if="role && role.isNew() && role.name.length <= 0">
-                        {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
-                    </h2>
-                    <h2 v-else-if="role">{{ role.name }}</h2>
-                    <h2 v-else>{{ $tc('sw-users-permissions.roles.detail.role') }}</h2>
-                {% endblock %}
-            </template>
+    {% block sw_users_permissions_role_detail_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_users_permissions_role_detail_smart_bar_header_title %}
+        <h2 v-if="role && role.isNew() && role.name.length <= 0">
+            {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
+        </h2>
+        <h2 v-else-if="role">
+            {{ role.name }}
+        </h2>
+        <h2 v-else>
+            {{ $tc('sw-users-permissions.roles.detail.role') }}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_users_permissions_role_detail_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_users_permissions_role_detail_smart_bar_actions_button_cancel %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_users_permissions_role_detail_smart_bar_actions %}
-            <template #smart-bar-actions>
-                {% block sw_users_permissions_role_detail_smart_bar_actions_button_cancel %}
-                    <sw-button v-tooltip.bottom="tooltipCancel"
-                               @click="onCancel">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
+        {% block sw_users_permissions_role_detail_smart_bar_actions_button_save %}
+        <sw-button-process
+            v-tooltip.bottom="tooltipSave"
+            class="sw-users-permissions-role-detail__button-save"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading || !acl.can('users_and_permissions.editor')"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
 
-                {% block sw_users_permissions_role_detail_smart_bar_actions_button_save %}
-                    <sw-button-process
-                        class="sw-users-permissions-role-detail__button-save"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || !acl.can('users_and_permissions.editor')"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        v-tooltip.bottom="tooltipSave"
-                        @click.prevent="onSave">
-                        {{ $tc('global.default.save') }}
-                    </sw-button-process>
-                {% endblock %}
-            </template>
+    {% block sw_users_permissions_role_detail_content %}
+    <template #content>
+        {% block sw_users_permissions_role_detail_content_card_view %}
+        <sw-card-view v-if="!isLoading">
+            {% block sw_users_permissions_role_detail_content_card_view_tabs %}
+            <sw-tabs default-item="general">
+                <template slot-scope="{ active }">
+                    <sw-tabs-item
+                        :route="{ name: 'sw.users.permissions.role.detail.general', params: { id: $route.params.id } }"
+                        :title="$tc('sw-users-permissions.roles.tabs.general')"
+                    >
+                        {{ $tc('sw-users-permissions.roles.tabs.general') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item
+                        :route="{ name: 'sw.users.permissions.role.detail.detailed-privileges', params: { id: $route.params.id } }"
+                        :title="$tc('sw-users-permissions.roles.tabs.detailed')"
+                    >
+                        {{ $tc('sw-users-permissions.roles.tabs.detailed') }}
+                    </sw-tabs-item>
+                </template>
+            </sw-tabs>
+            {% endblock %}
+
+            <router-view
+                :role="role"
+                :detailed-privileges="detailedPrivileges"
+            />
+        </sw-card-view>
         {% endblock %}
 
-        {% block sw_users_permissions_role_detail_content %}
-            <template #content>
-                {% block sw_users_permissions_role_detail_content_card_view %}
-                    <sw-card-view v-if="!isLoading">
-                        {% block sw_users_permissions_role_detail_content_card_view_tabs %}
-                            <sw-tabs defaultItem="general">
-                                <template slot-scope="{ active }">
-                                    <sw-tabs-item :route="{ name: 'sw.users.permissions.role.detail.general', params: { id: $route.params.id } }"
-                                                  :title="$tc('sw-users-permissions.roles.tabs.general')">
-                                        {{ $tc('sw-users-permissions.roles.tabs.general') }}
-                                    </sw-tabs-item>
-
-                                    <sw-tabs-item :route="{ name: 'sw.users.permissions.role.detail.detailed-privileges', params: { id: $route.params.id } }"
-                                                  :title="$tc('sw-users-permissions.roles.tabs.detailed')">
-                                        {{ $tc('sw-users-permissions.roles.tabs.detailed') }}
-                                    </sw-tabs-item>
-                                </template>
-                            </sw-tabs>
-                        {% endblock %}
-
-                        <router-view :role="role"
-                                     :detailedPrivileges="detailedPrivileges">
-                        </router-view>
-                    </sw-card-view>
-                {% endblock %}
-
-                {% block sw_users_permissions_role_detail_content_verify_modal %}
-                    <sw-verify-user-modal v-if="confirmPasswordModal" @verified="saveRole" @close="onCloseConfirmPasswordModal">
-                    </sw-verify-user-modal>
-                {% endblock %}
-            </template>
+        {% block sw_users_permissions_role_detail_content_verify_modal %}
+        <sw-verify-user-modal
+            v-if="confirmPasswordModal"
+            @verified="saveRole"
+            @close="onCloseConfirmPasswordModal"
+        />
         {% endblock %}
-    </sw-page>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

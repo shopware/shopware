@@ -1,15 +1,24 @@
 {% block sw_settings_item %}
-    <router-link :to="to" class="sw-settings-item" :class="classes">
-        {% block sw_settings_item_icon %}
-            <div class="sw-settings-item__icon" :class="{ 'background--enabled': backgroundEnabled === true }">
-                <slot name="icon"></slot>
-            </div>
-        {% endblock %}
+<router-link
+    :to="to"
+    class="sw-settings-item"
+    :class="classes"
+>
+    {% block sw_settings_item_icon %}
+    <div
+        class="sw-settings-item__icon"
+        :class="{ 'background--enabled': backgroundEnabled === true }"
+    >
+        <slot name="icon" />
+    </div>
+    {% endblock %}
 
-        {% block sw_settings_item_label %}
-            <div class="sw-settings-item__label">
-                <slot name="label">{{ label }}</slot>
-            </div>
-        {% endblock %}
-    </router-link>
+    {% block sw_settings_item_label %}
+    <div class="sw-settings-item__label">
+        <slot name="label">
+            {{ label }}
+        </slot>
+    </div>
+    {% endblock %}
+</router-link>
 {% endblock %}

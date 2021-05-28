@@ -1,50 +1,56 @@
 {% block sw_extension_uninstall_modal %}
-    <sw-modal
-        class="sw-extension-uninstall-modal"
-        :title="title"
-        variant="small"
-        @modal-close="emitClose">
-        {% block sw_extension_uninstall_modal_content %}
-            <template #default>
-                {% block sw_installed_extension_card_removal_content_modal_body %}
-                    <p>
-                        {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.description') }}
-                    </p>
+<sw-modal
+    class="sw-extension-uninstall-modal"
+    :title="title"
+    variant="small"
+    @modal-close="emitClose"
+>
+    {% block sw_extension_uninstall_modal_content %}
+    <template #default>
+        {% block sw_installed_extension_card_removal_content_modal_body %}
+        <p>
+            {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.description') }}
+        </p>
 
-                    <p class="sw-extension-uninstall-modal__bold-paragraph">
-                        {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.alert') }}
-                    </p>
+        <p class="sw-extension-uninstall-modal__bold-paragraph">
+            {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.alert') }}
+        </p>
 
-                    <p>
-                        <sw-switch-field
-                            v-model="removePluginData"
-                            :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
-                            :helpText="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')">
-                        </sw-switch-field>
-                    </p>
+        <p>
+            <sw-switch-field
+                v-model="removePluginData"
+                :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
+                :help-text="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
+            />
+        </p>
 
-                {% endblock %}
-            </template>
-
-            <template #modal-footer>
-                {% block sw_extension_uninstall_modal_footer %}
-                    {% block sw_extension_uninstall_modal_footer_cancel %}
-                        <sw-button size="small" @click="emitClose" :disabled="isLoading">
-                            {{ $tc('global.default.cancel') }}
-                        </sw-button>
-                    {% endblock %}
-
-                    {% block sw_extension_uninstall_modal_footer_uninstall %}
-                        <sw-button
-                            variant="danger"
-                            size="small"
-                            :isLoading="isLoading"
-                            @click="emitUninstall">
-                            {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.buttonLabel') }}
-                        </sw-button>
-                    {% endblock %}
-                {% endblock %}
-            </template>
         {% endblock %}
-    </sw-modal>
+    </template>
+
+    <template #modal-footer>
+        {% block sw_extension_uninstall_modal_footer %}
+        {% block sw_extension_uninstall_modal_footer_cancel %}
+        <sw-button
+            size="small"
+            :disabled="isLoading"
+            @click="emitClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_extension_uninstall_modal_footer_uninstall %}
+        <sw-button
+            variant="danger"
+            size="small"
+            :is-loading="isLoading"
+            @click="emitUninstall"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.buttonLabel') }}
+        </sw-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

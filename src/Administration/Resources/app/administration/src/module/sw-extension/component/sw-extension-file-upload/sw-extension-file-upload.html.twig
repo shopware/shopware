@@ -1,25 +1,32 @@
 {% block sw_extension_file_upload %}
-    <div class="sw-extension-file-upload">
-        {% block sw_extension_file_upload_content %}
-            <div class="sw-extension-file-upload__content">
-                {% block sw_extension_file_upload_button %}
-                    <sw-button class="sw-extension-file-upload__button"
-                               :isLoading="isLoading"
-                               variant="primary"
-                               @click="onClickUpload">
-                        {{ $tc('sw-extension.my-extensions.fileUpload.buttonFileUpload') }}
-                    </sw-button>
-                {% endblock %}
-                {% block sw_extension_file_upload_form %}
-                    <form class="sw-extension-file-upload__form" ref="fileForm">
-                        <input class="sw-extension-file-upload__file-input"
-                               type="file"
-                               id="files"
-                               ref="fileInput"
-                               @change="onFileInputChange"/>
-                    </form>
-                {% endblock %}
-            </div>
+<div class="sw-extension-file-upload">
+    {% block sw_extension_file_upload_content %}
+    <div class="sw-extension-file-upload__content">
+        {% block sw_extension_file_upload_button %}
+        <sw-button
+            class="sw-extension-file-upload__button"
+            :is-loading="isLoading"
+            variant="primary"
+            @click="onClickUpload"
+        >
+            {{ $tc('sw-extension.my-extensions.fileUpload.buttonFileUpload') }}
+        </sw-button>
+        {% endblock %}
+        {% block sw_extension_file_upload_form %}
+        <form
+            ref="fileForm"
+            class="sw-extension-file-upload__form"
+        >
+            <input
+                id="files"
+                ref="fileInput"
+                class="sw-extension-file-upload__file-input"
+                type="file"
+                @change="onFileInputChange"
+            >
+        </form>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

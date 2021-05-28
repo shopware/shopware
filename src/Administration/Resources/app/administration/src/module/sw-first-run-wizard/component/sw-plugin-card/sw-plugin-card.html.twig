@@ -1,31 +1,55 @@
 {% block sw_plugin_card %}
-    <div class="sw-plugin-card">
-        <sw-container justify="left" align="start">
-            <img :src="plugin.iconPath" class="sw-plugin-card__icon"/>
-            <div class="sw-plugin-card__info">
-                <div class="sw-plugin-card__label">{{ plugin.label }}</div>
-                <div class="sw-plugin-card__manufacturer">{{ plugin.manufacturer }}</div>
-                <div v-if="showDescription" class="sw-plugin-card__short-description">{{ plugin.shortDescription | truncate(140) }}</div>
-
-                <div v-if="pluginIsNotActive"
-                     class="bottom">
-                    <sw-button-process
-                        variant="primary"
-                        :isLoading="pluginIsLoading"
-                        :disabled="pluginIsLoading"
-                        :processSuccess="pluginIsSaveSuccessful"
-                        class="button-plugin-install"
-                        @click="onInstall">
-                        {{ $tc('sw-first-run-wizard.general.buttonInstall') }}
-                    </sw-button-process>
-                </div>
-                <div v-else class="plugin-status">
-                    <span class="plugin-installed">
-                        <sw-icon name="small-default-checkmark-circle" size="16"></sw-icon>
-                        {{ $tc('sw-first-run-wizard.general.pluginInstalled') }}
-                    </span>
-                </div>
+<div class="sw-plugin-card">
+    <sw-container
+        justify="left"
+        align="start"
+    >
+        <img
+            :src="plugin.iconPath"
+            class="sw-plugin-card__icon"
+        >
+        <div class="sw-plugin-card__info">
+            <div class="sw-plugin-card__label">
+                {{ plugin.label }}
             </div>
-        </sw-container>
-    </div>
+            <div class="sw-plugin-card__manufacturer">
+                {{ plugin.manufacturer }}
+            </div>
+            <div
+                v-if="showDescription"
+                class="sw-plugin-card__short-description"
+            >
+                {{ plugin.shortDescription | truncate(140) }}
+            </div>
+
+            <div
+                v-if="pluginIsNotActive"
+                class="bottom"
+            >
+                <sw-button-process
+                    variant="primary"
+                    :is-loading="pluginIsLoading"
+                    :disabled="pluginIsLoading"
+                    :process-success="pluginIsSaveSuccessful"
+                    class="button-plugin-install"
+                    @click="onInstall"
+                >
+                    {{ $tc('sw-first-run-wizard.general.buttonInstall') }}
+                </sw-button-process>
+            </div>
+            <div
+                v-else
+                class="plugin-status"
+            >
+                <span class="plugin-installed">
+                    <sw-icon
+                        name="small-default-checkmark-circle"
+                        size="16"
+                    />
+                    {{ $tc('sw-first-run-wizard.general.pluginInstalled') }}
+                </span>
+            </div>
+        </div>
+    </sw-container>
+</div>
 {% endblock %}

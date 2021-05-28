@@ -58,7 +58,7 @@ describe('src/module/sw-media/page/sw-media-index', () => {
     it('should contain the default accept value', async () => {
         const wrapper = createWrapper();
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
-        expect(fileInput.attributes().fileaccept).toBe('*/*');
+        expect(fileInput.attributes()['file-accept']).toBe('*/*');
     });
 
     it('should contain "application/pdf" value', async () => {
@@ -67,7 +67,7 @@ describe('src/module/sw-media/page/sw-media-index', () => {
             fileAccept: 'application/pdf'
         });
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
-        expect(fileInput.attributes().fileaccept).toBe('application/pdf');
+        expect(fileInput.attributes()['file-accept']).toBe('application/pdf');
     });
 
     it('should not be able to upload a new medium', async () => {

@@ -1,13 +1,14 @@
 {% block sw_newsletter_recipient_filter_switch %}
-    <div class="sw-newsletter-recipient-filter-switch">
-        {% block sw_newsletter_recipient_filter_switch_field %}
-            <slot name="field">
-                <sw-field type="switch"
-                          :name="id"
-                          @change="onChange"
-                          :label="label">
-                </sw-field>
-            </slot>
-        {% endblock %}
-    </div>
+<div class="sw-newsletter-recipient-filter-switch">
+    {% block sw_newsletter_recipient_filter_switch_field %}
+    <slot name="field">
+        <sw-field
+            type="switch"
+            :name="id"
+            :label="label"
+            @change="onChange"
+        />
+    </slot>
+    {% endblock %}
+</div>
 {% endblock %}

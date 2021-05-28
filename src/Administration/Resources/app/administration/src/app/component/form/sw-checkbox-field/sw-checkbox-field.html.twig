@@ -1,32 +1,42 @@
 {% block sw_checkbox_field %}
-    <div class="sw-field--checkbox" :class="swCheckboxFieldClasses">
-        <div class="sw-field--checkbox__content">
-            <div class="sw-field__checkbox">
-                <input type="checkbox"
-                    :id="identification"
-                    :name="identification"
-                    :checked="inputState"
-                    :disabled="disabled"
-                    @change="onChange">
-                <div class="sw-field__checkbox-state">
-                    <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
-                </div>
+<div
+    class="sw-field--checkbox"
+    :class="swCheckboxFieldClasses"
+>
+    <div class="sw-field--checkbox__content">
+        <div class="sw-field__checkbox">
+            <input
+                :id="identification"
+                type="checkbox"
+                :name="identification"
+                :checked="inputState"
+                :disabled="disabled"
+                @change="onChange"
+            >
+            <div class="sw-field__checkbox-state">
+                <sw-icon
+                    name="small-default-checkmark-line-small"
+                    size="16"
+                />
             </div>
-
-            <sw-base-field v-bind="$attrs"
-                        :disabled="disabled"
-                        :isInheritanceField="isInheritanceField"
-                        :isInherited="isInherited"
-                        :name="identification"
-                        @inheritance-restore="$emit('inheritance-restore', $event)"
-                        @inheritance-remove="$emit('inheritance-remove', $event)">
-
-                <template #label>
-                    <slot name="label"></slot>
-                </template>
-            </sw-base-field>
         </div>
 
-        <sw-field-error :error="error"></sw-field-error>
+        <sw-base-field
+            v-bind="$attrs"
+            :disabled="disabled"
+            :is-inheritance-field="isInheritanceField"
+            :is-inherited="isInherited"
+            :name="identification"
+            @inheritance-restore="$emit('inheritance-restore', $event)"
+            @inheritance-remove="$emit('inheritance-remove', $event)"
+        >
+
+            <template #label>
+                <slot name="label" />
+            </template>
+        </sw-base-field>
     </div>
+
+    <sw-field-error :error="error" />
+</div>
 {% endblock %}

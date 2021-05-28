@@ -1,182 +1,200 @@
 {% block sw_product_modal_variant_generation %}
+<sw-modal
+    :title="$tc('sw-product.variations.configuratorModal.title')"
+    class="sw-product-modal-variant-generation"
+    @modal-close="$emit('modal-close')"
+>
+
+    {% block sw_product_modal_variant_generation_sidebar %}
+    <div class="sw-product-modal-variant-generation__sidebar">
+        {% block sw_product_modal_variant_generation_sidebar_tabs %}
+        <sw-tabs is-vertical>
+            {% block sw_product_modal_variant_generation_sidebar_tabs_items %}
+
+            {% block sw_product_modal_variant_generation_sidebar_tabs_item_options %}
+            <sw-tabs-item
+                class="sw-variant-modal__option-selection"
+                :active="activeTab == 'options'"
+                @click="activeTab = 'options'"
+            >
+                {{ $tc('sw-product.variations.configuratorModal.selectOptions') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_product_modal_variant_generation_sidebar_tabs_item_prices %}
+            <sw-tabs-item
+                v-show="variantsNumber"
+                class="sw-variant-modal__surcharge-configuration"
+                :active="activeTab == 'prices'"
+                @click="activeTab = 'prices'"
+            >
+                {{ $tc('sw-product.variations.configuratorModal.priceSurcharges') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_product_modal_variant_generation_sidebar_tabs_item_restrictions %}
+            <sw-tabs-item
+                v-show="variantsNumber"
+                class="sw-variant-modal__restriction-configuration"
+                :active="activeTab == 'restrictions'"
+                @click="activeTab = 'restrictions'"
+            >
+                {{ $tc('sw-product.variations.configuratorModal.defineRestrictions') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% endblock %}
+        </sw-tabs>
+        {% endblock %}
+
+        {% block sw_product_modal_variant_generation_sidebar_descriptions %}
+        {% block sw_product_modal_variant_generation_sidebar_descriptions_options %}
+        <p v-if="activeTab == 'options'">
+            {{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}
+        </p>
+        {% endblock %}
+
+        {% block sw_product_modal_variant_generation_sidebar_descriptions_restrictions %}
+        <p v-else-if="activeTab == 'restrictions'">
+            {{ $tc('sw-product.variations.configuratorModal.selectRestrictionsExplanation') }}
+        </p>
+        {% endblock %}
+
+        {% block sw_product_modal_variant_generation_sidebar_descriptions_prices %}
+        <p v-else-if="activeTab == 'prices'">
+            {{ $tc('sw-product.variations.configuratorModal.selectPricesExplanation') }}
+        </p>
+        {% endblock %}
+        {% endblock %}
+
+    </div>
+    {% endblock %}
+
+    {% block sw_product_modal_variant_generation_main %}
+    <div class="sw-product-modal-variant-generation__main">
+        {% block sw_product_modal_variant_generation_main_configurator_selection %}
+        <sw-product-variants-configurator-selection
+            v-show="activeTab == 'options'"
+            :product="product"
+            :options="product.configuratorSettings"
+            :overlay="false"
+            :collapsible="false"
+            @variations-finish-generate="$emit('variations-finish-generate')"
+            @option-select="calcVariantsNumber()"
+        />
+        {% endblock %}
+
+        {% block sw_product_modal_variant_generation_main_configurator_prices %}
+        <sw-product-variants-configurator-prices
+            v-if="activeTab == 'prices'"
+            :product="product"
+            :selected-groups="selectedGroups"
+        />
+        {% endblock %}
+
+        {% block sw_product_modal_variant_generation_main_configurator_restrictions %}
+        <sw-product-variants-configurator-restrictions
+            v-if="activeTab == 'restrictions'"
+            :product="product"
+            :selected-groups="selectedGroups"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_product_modal_variant_generation_notification_modal %}
     <sw-modal
-            :title="$tc('sw-product.variations.configuratorModal.title')"
-            @modal-close="$emit('modal-close')"
-            class="sw-product-modal-variant-generation">
+        v-if="notificationModal"
+        class="sw-product-modal-variant-generation__notification-modal"
+        :title="$tc('sw-product.variations.generationNotificationTitle')"
+        variant="small"
+        @modal-close="onCloseNotificationModal"
+    >
 
-        {% block sw_product_modal_variant_generation_sidebar %}
-            <div class="sw-product-modal-variant-generation__sidebar">
-                {% block sw_product_modal_variant_generation_sidebar_tabs %}
-                    <sw-tabs isVertical>
-                        {% block sw_product_modal_variant_generation_sidebar_tabs_items %}
+        <p>{{ $tc('sw-product.variations.generationNotificationMessage') }}</p>
+        <p>{{ $tc('sw-product.variations.generationNotificationCountAdding', notificationInfos.numberOfCreation) }}</p>
+        <p>{{ $tc('sw-product.variations.generationNotificationCountDeletion', notificationInfos.numberOfDeletions) }}</p>
 
-                            {% block sw_product_modal_variant_generation_sidebar_tabs_item_options %}
-                                <sw-tabs-item
-                                        class="sw-variant-modal__option-selection"
-                                        :active="activeTab == 'options'"
-                                        @click="activeTab = 'options'">
-                                    {{ $tc('sw-product.variations.configuratorModal.selectOptions') }}
-                                </sw-tabs-item>
-                            {% endblock %}
+        {% block sw_product_modal_variant_generation_notification_modal_footer %}
+        <template slot="modal-footer">
+            {% block sw_product_modal_variant_generation_notification_modal_footer_cancel %}
+            <sw-button
+                size="small"
+                @click="onCloseNotificationModal"
+            >
+                {{ $tc('sw-product.variations.generationNotificationButtonCancel') }}
+            </sw-button>
+            {% endblock %}
 
-                            {% block sw_product_modal_variant_generation_sidebar_tabs_item_prices %}
-                                <sw-tabs-item
-                                        class="sw-variant-modal__surcharge-configuration"
-                                        :active="activeTab == 'prices'"
-                                        @click="activeTab = 'prices'"
-                                        v-show="variantsNumber">
-                                    {{ $tc('sw-product.variations.configuratorModal.priceSurcharges') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                            {% block sw_product_modal_variant_generation_sidebar_tabs_item_restrictions %}
-                                <sw-tabs-item
-                                        class="sw-variant-modal__restriction-configuration"
-                                        :active="activeTab == 'restrictions'"
-                                        @click="activeTab = 'restrictions'"
-                                        v-show="variantsNumber">
-                                    {{ $tc('sw-product.variations.configuratorModal.defineRestrictions') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                        {% endblock %}
-                    </sw-tabs>
-                {% endblock %}
-
-                {% block sw_product_modal_variant_generation_sidebar_descriptions %}
-                    {% block sw_product_modal_variant_generation_sidebar_descriptions_options %}
-                        <p v-if="activeTab == 'options'">
-                            {{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}
-                        </p>
-                    {% endblock %}
-
-                    {% block sw_product_modal_variant_generation_sidebar_descriptions_restrictions %}
-                        <p v-else-if="activeTab == 'restrictions'">
-                            {{ $tc('sw-product.variations.configuratorModal.selectRestrictionsExplanation') }}
-                        </p>
-                    {% endblock %}
-
-                    {% block sw_product_modal_variant_generation_sidebar_descriptions_prices %}
-                        <p v-else-if="activeTab == 'prices'">
-                            {{ $tc('sw-product.variations.configuratorModal.selectPricesExplanation') }}
-                        </p>
-                    {% endblock %}
-                {% endblock %}
-
-            </div>
+            {% block sw_product_modal_variant_generation_notification_modal_footer_continue %}
+            <sw-button
+                variant="primary"
+                size="small"
+                @click="onConfirmNotificationModal"
+            >
+                {{ $tc('sw-product.variations.generationNotificationButtonContinue') }}
+            </sw-button>
+            {% endblock %}
+        </template>
         {% endblock %}
-
-        {% block sw_product_modal_variant_generation_main %}
-            <div class="sw-product-modal-variant-generation__main">
-                {% block sw_product_modal_variant_generation_main_configurator_selection %}
-                    <sw-product-variants-configurator-selection
-                            :product="product"
-                            :options="product.configuratorSettings"
-                            :overlay="false"
-                            :collapsible="false"
-                            @variations-finish-generate="$emit('variations-finish-generate')"
-                            @option-select="calcVariantsNumber()"
-                            v-show="activeTab == 'options'"
-                    ></sw-product-variants-configurator-selection>
-                {% endblock %}
-
-                {% block sw_product_modal_variant_generation_main_configurator_prices %}
-                    <sw-product-variants-configurator-prices
-                            v-if="activeTab == 'prices'"
-                            :product="product"
-                            :selectedGroups="selectedGroups"
-                    ></sw-product-variants-configurator-prices>
-                {% endblock %}
-
-                {% block sw_product_modal_variant_generation_main_configurator_restrictions %}
-                    <sw-product-variants-configurator-restrictions
-                            v-if="activeTab == 'restrictions'"
-                            :product="product"
-                            :selectedGroups="selectedGroups"
-                    ></sw-product-variants-configurator-restrictions>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-
-        {% block sw_product_modal_variant_generation_notification_modal %}
-            <sw-modal v-if="notificationModal"
-                      class="sw-product-modal-variant-generation__notification-modal"
-                      @modal-close="onCloseNotificationModal"
-                      :title="$tc('sw-product.variations.generationNotificationTitle')"
-                      variant="small">
-
-                <p>{{ $tc('sw-product.variations.generationNotificationMessage') }}</p>
-                <p>{{ $tc('sw-product.variations.generationNotificationCountAdding', notificationInfos.numberOfCreation) }}</p>
-                <p>{{ $tc('sw-product.variations.generationNotificationCountDeletion', notificationInfos.numberOfDeletions) }}</p>
-
-                {% block sw_product_modal_variant_generation_notification_modal_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_product_modal_variant_generation_notification_modal_footer_cancel %}
-                            <sw-button @click="onCloseNotificationModal"
-                                       size="small">
-                                {{ $tc('sw-product.variations.generationNotificationButtonCancel') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_product_modal_variant_generation_notification_modal_footer_continue %}
-                            <sw-button @click="onConfirmNotificationModal"
-                                       variant="primary"
-                                       size="small">
-                                {{ $tc('sw-product.variations.generationNotificationButtonContinue') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
-        {% endblock %}
-
-        {% block sw_product_modal_variant_generation_modal_loader %}
-            <template slot="modal-loader">
-                {% block sw_product_modal_variant_generation_modal_loader_transition %}
-                    <transition name="generate-variant-progress-bar-transition">
-                        {% block sw_product_modal_variant_generation_modal_loader_progress_bar_wrapper %}
-                            <div class="generate-variant-progress-bar__wrapper" v-if="isLoading">
-                                {% block sw_product_modal_variant_generation_modal_loader_progress_bar %}
-                                    <sw-progress-bar class="generate-variant-progress-bar" :value="progressInPercentage"></sw-progress-bar>
-                                {% endblock %}
-
-                                {% block sw_product_modal_variant_generation_modal_loader_progress_bar_description %}
-                                    <span class="generate-variant-progress-bar__description">
-                                        {{ actualProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ maxProgress }} {{ $tc('sw-product.variations.progressTypeVariation') }} {{ progressMessage }}
-                                    </span>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </transition>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-
-        {% block sw_product_modal_variant_generation_footer %}
-            <template slot="modal-footer">
-                {% block sw_product_modal_variant_generation_footer_cancel %}
-                    <sw-button @click="$emit('modal-close')"
-                               size="small">
-                        {{ $tc('sw-product.variations.cancelVariationsButton') }}
-                    </sw-button>
-                {% endblock %}
-                {% block sw_product_modal_variant_generation_footer_generate %}
-                    <sw-button class="sw-product-variant-generation__generate-action"
-                            @click="generateVariants(false)"
-                            variant="primary"
-                            size="small">
-                            <template v-if="variantsNumber <= 0">
-                                {{ $tc('sw-product.variations.deleteVariationsButton') }}
-                            </template>
-                            <template v-else>
-                                {{ $tc('sw-product.variations.generateVariationsButton') }}
-                            </template>
-                    </sw-button>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
     </sw-modal>
+    {% endblock %}
+
+    {% block sw_product_modal_variant_generation_modal_loader %}
+    <template slot="modal-loader">
+        {% block sw_product_modal_variant_generation_modal_loader_transition %}
+        <transition name="generate-variant-progress-bar-transition">
+            {% block sw_product_modal_variant_generation_modal_loader_progress_bar_wrapper %}
+            <div
+                v-if="isLoading"
+                class="generate-variant-progress-bar__wrapper"
+            >
+                {% block sw_product_modal_variant_generation_modal_loader_progress_bar %}
+                <sw-progress-bar
+                    class="generate-variant-progress-bar"
+                    :value="progressInPercentage"
+                />
+                {% endblock %}
+
+                {% block sw_product_modal_variant_generation_modal_loader_progress_bar_description %}
+                <span class="generate-variant-progress-bar__description">
+                    {{ actualProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ maxProgress }} {{ $tc('sw-product.variations.progressTypeVariation') }} {{ progressMessage }}
+                </span>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </transition>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_product_modal_variant_generation_footer %}
+    <template slot="modal-footer">
+        {% block sw_product_modal_variant_generation_footer_cancel %}
+        <sw-button
+            size="small"
+            @click="$emit('modal-close')"
+        >
+            {{ $tc('sw-product.variations.cancelVariationsButton') }}
+        </sw-button>
+        {% endblock %}
+        {% block sw_product_modal_variant_generation_footer_generate %}
+        <sw-button
+            class="sw-product-variant-generation__generate-action"
+            variant="primary"
+            size="small"
+            @click="generateVariants(false)"
+        >
+            <template v-if="variantsNumber <= 0">
+                {{ $tc('sw-product.variations.deleteVariationsButton') }}
+            </template>
+            <template v-else>
+                {{ $tc('sw-product.variations.generateVariationsButton') }}
+            </template>
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+</sw-modal>
 {% endblock %}

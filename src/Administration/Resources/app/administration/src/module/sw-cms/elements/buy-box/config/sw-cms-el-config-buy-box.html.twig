@@ -1,104 +1,125 @@
 {% block sw_cms_element_buy_box_config %}
-    <div class="sw-cms-el-config-buy-box">
+<div class="sw-cms-el-config-buy-box">
 
-        {% block sw_cms_element_buy_box_config_tabs %}
-            <sw-tabs class="sw-cms-el-config-buy-box__tabs" defaultItem="content">
-                <template #default="{ active }">
+    {% block sw_cms_element_buy_box_config_tabs %}
+    <sw-tabs
+        class="sw-cms-el-config-buy-box__tabs"
+        default-item="content"
+    >
+        <template #default="{ active }">
 
-                    {% block sw_cms_element_buy_box_config_tab_content %}
-                        <sw-tabs-item name="content"
-                                      :title="$tc('sw-cms.elements.general.config.tab.content')"
-                                      :activeTab="active">
-                            {{ $tc('sw-cms.elements.general.config.tab.content') }}
-                        </sw-tabs-item>
+            {% block sw_cms_element_buy_box_config_tab_content %}
+            <sw-tabs-item
+                name="content"
+                :title="$tc('sw-cms.elements.general.config.tab.content')"
+                :active-tab="active"
+            >
+                {{ $tc('sw-cms.elements.general.config.tab.content') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_cms_element_buy_box_config_tab_option %}
+            <sw-tabs-item
+                name="options"
+                :title="$tc('sw-cms.elements.general.config.tab.options')"
+                :active-tab="active"
+            >
+                {{ $tc('sw-cms.elements.general.config.tab.options') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
+
+        <template #content="{ active }">
+            <div
+                v-if="active === 'content'"
+                class="sw-cms-el-config-buy-box__tab-content"
+            >
+                {% block sw_cms_element_buy_box_config_content_warning %}
+                <sw-alert
+                    v-if="isProductPage"
+                    class="sw-cms-el-config-buy-box__warning"
+                    variant="info"
+                >
+                    {{ $tc('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
+                </sw-alert>
+                {% endblock %}
+
+                {% block sw_cms_element_buy_box_config_product_select %}
+                <sw-entity-single-select
+                    v-if="!isProductPage"
+                    ref="cmsProductSelection"
+                    v-model="element.config.product.value"
+                    entity="product"
+                    :label="$tc('sw-cms.elements.buyBox.config.label.selection')"
+                    :placeholder="$tc('sw-cms.elements.buyBox.config.placeholder.selection')"
+                    :criteria="productCriteria"
+                    :context="productSelectContext"
+                    @change="onProductChange"
+                >
+
+                    {% block sw_cms_element_buy_box_config_product_variant_label %}
+                    <template #selection-label-property="{ item }">
+                        <sw-product-variant-info :variations="item.variation">
+                            {{ item.translated.name || item.name }}
+                        </sw-product-variant-info>
+                    </template>
                     {% endblock %}
 
-                    {% block sw_cms_element_buy_box_config_tab_option %}
-                        <sw-tabs-item name="options"
-                                      :title="$tc('sw-cms.elements.general.config.tab.options')"
-                                      :activeTab="active">
-                            {{ $tc('sw-cms.elements.general.config.tab.options') }}
-                        </sw-tabs-item>
+                    {% block sw_cms_element_buy_box_config_product_select_result_item %}
+                    <template #result-item="{ item, index }">
+                        <li
+                            is="sw-select-result"
+                            v-bind="{ item, index }"
+                        >
+
+                            {% block sw_entity_single_select_base_results_list_result_label %}
+                            <span class="sw-select-result__result-item-text">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </span>
+                            {% endblock %}
+
+                        </li>
+                    </template>
                     {% endblock %}
-                </template>
 
-                <template #content="{ active }">
-                    <div v-if="active === 'content'" class="sw-cms-el-config-buy-box__tab-content">
-                        {% block sw_cms_element_buy_box_config_content_warning %}
-                            <sw-alert
-                                v-if="isProductPage"
-                                class="sw-cms-el-config-buy-box__warning" variant="info">
-                                {{ $tc('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
-                            </sw-alert>
-                        {% endblock %}
+                </sw-entity-single-select>
+                {% endblock %}
+            </div>
 
-                        {% block sw_cms_element_buy_box_config_product_select %}
-                            <sw-entity-single-select
-                                v-if="!isProductPage"
-                                v-model="element.config.product.value"
-                                ref="cmsProductSelection"
-                                entity="product"
-                                :label="$tc('sw-cms.elements.buyBox.config.label.selection')"
-                                :placeholder="$tc('sw-cms.elements.buyBox.config.placeholder.selection')"
-                                :criteria="productCriteria"
-                                :context="productSelectContext"
-                                @change="onProductChange">
+            <div
+                v-if="active === 'options'"
+                class="sw-cms-el-config-buy-box__tab-options"
+            >
 
-                                {% block sw_cms_element_buy_box_config_product_variant_label %}
-                                    <template #selection-label-property="{ item }">
-                                        <sw-product-variant-info :variations="item.variation">
-                                            {{ item.translated.name || item.name }}
-                                        </sw-product-variant-info>
-                                    </template>
-                                {% endblock %}
+                {% block sw_cms_element_buy_box_config_options %}
+                <sw-select-field
+                    v-model="element.config.alignment.value"
+                    class="sw-cms-el-config-buy-box__alignment"
+                    :label="$tc('sw-cms.elements.general.config.label.alignment')"
+                    :placeholder="$tc('sw-cms.elements.general.config.label.alignment')"
+                >
 
-                                {% block sw_cms_element_buy_box_config_product_select_result_item %}
-                                    <template #result-item="{ item, index }">
-                                        <li is="sw-select-result" v-bind="{ item, index }">
+                    {% block sw_cms_element_product_box_config_alignment_options %}
+                    <option value="flex-start">
+                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
+                    </option>
+                    <option value="center">
+                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
+                    </option>
+                    <option value="flex-end">
+                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
+                    </option>
+                    {% endblock %}
 
-                                            {% block sw_entity_single_select_base_results_list_result_label %}
-                                                <span class="sw-select-result__result-item-text">
-                                                    <sw-product-variant-info :variations="item.variation">
-                                                        {{ item.translated.name || item.name }}
-                                                    </sw-product-variant-info>
-                                                </span>
-                                            {% endblock %}
+                </sw-select-field>
+                {% endblock %}
 
-                                        </li>
-                                    </template>
-                                {% endblock %}
+            </div>
+        </template>
+    </sw-tabs>
+    {% endblock %}
 
-                            </sw-entity-single-select>
-                        {% endblock %}
-                    </div>
-
-                    <div v-if="active === 'options'" class="sw-cms-el-config-buy-box__tab-options">
-
-                        {% block sw_cms_element_buy_box_config_options %}
-                            <sw-select-field v-model="element.config.alignment.value"
-                                             class="sw-cms-el-config-buy-box__alignment"
-                                             :label="$tc('sw-cms.elements.general.config.label.alignment')"
-                                             :placeholder="$tc('sw-cms.elements.general.config.label.alignment')">
-
-                                {% block sw_cms_element_product_box_config_alignment_options %}
-                                    <option value="flex-start">
-                                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
-                                    </option>
-                                    <option value="center">
-                                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
-                                    </option>
-                                    <option value="flex-end">
-                                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
-                                    </option>
-                                {% endblock %}
-
-                            </sw-select-field>
-                        {% endblock %}
-
-                    </div>
-                </template>
-            </sw-tabs>
-        {% endblock %}
-
-    </div>
+</div>
 {% endblock %}

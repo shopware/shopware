@@ -7,8 +7,10 @@
         <h2>
             {% block sw_settings_showare_updates_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon name="small-arrow-medium-right" small>
-            </sw-icon>
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
             {{ $tc('sw-settings-shopware-updates.general.emptyTitle') }}
             {% endblock %}
         </h2>
@@ -21,12 +23,13 @@
         {% block sw_settings_showare_updates_actions_save %}
         <sw-button-process
             class="sw-store-detail__save-action"
-            :isLoading="isLoading"
-            :processSuccess="isSaveSuccessful"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
             :disabled="isLoading"
             variant="primary"
             @process-finish="saveFinish"
-            @click="onSave()">
+            @click="onSave()"
+        >
             {{ $tc('sw-settings-store.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
@@ -38,10 +41,15 @@
         <sw-card-view>
             <sw-system-config
                 ref="systemConfig"
-                domain="core.update">
+                domain="core.update"
+            >
                 <template slot="card-element-last">
                     <div class="sw-settings-shopware-updates-index__check-for-updates-btn">
-                        <sw-button variant="ghost" @click="searchForUpdates" :isLoading="isSearchingForUpdates">
+                        <sw-button
+                            variant="ghost"
+                            :is-loading="isSearchingForUpdates"
+                            @click="searchForUpdates"
+                        >
                             {{ $t('sw-settings-shopware-updates.general.checkForUpdates') }}
                         </sw-button>
                         <span class="sw-settings-shopware-updates-index__current-version">
@@ -53,22 +61,26 @@
         </sw-card-view>
 
         <sw-modal
-            :title="$t('sw-settings-shopware-updates.general.emptyTitle')"
             v-if="updateModalShown"
+            :title="$t('sw-settings-shopware-updates.general.emptyTitle')"
             variant="small"
             @modal-close="updateModalShown = false"
         >
             {{ $t('sw-settings-shopware-updates.updateModal.messageUpdateCheck', {version: updateInfo.version}) }}
 
             <template slot="modal-footer">
-                <sw-button @click="updateModalShown = false"
-                           size="small">
+                <sw-button
+                    size="small"
+                    @click="updateModalShown = false"
+                >
                     {{ $tc('sw-settings-shopware-updates.updateModal.actions.cancel') }}
                 </sw-button>
 
-                <sw-button @click="openUpdateWizard()"
-                           variant="primary"
-                           size="small">
+                <sw-button
+                    variant="primary"
+                    size="small"
+                    @click="openUpdateWizard()"
+                >
                     {{ $tc('sw-settings-shopware-updates.updateModal.actions.goToUpdate') }}
                 </sw-button>
             </template>

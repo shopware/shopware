@@ -1,21 +1,24 @@
 {% block sw_category_detail_seo %}
-    <div class="sw-category-detail-seo">
+<div class="sw-category-detail-seo">
 
-        {% block sw_category_detail_seo_config %}
-            <sw-card :title="$tc('sw-category.base.seo.title')"
-                     :isLoading="isLoading">
-                <sw-category-seo-form :category="category"></sw-category-seo-form>
-            </sw-card>
-        {% endblock %}
+    {% block sw_category_detail_seo_config %}
+    <sw-card
+        :title="$tc('sw-category.base.seo.title')"
+        :is-loading="isLoading"
+    >
+        <sw-category-seo-form :category="category" />
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_category_detail_seo_list %}
-            <sw-seo-url v-if="category.seoUrls"
-                        :isLoading="isLoading"
-                        :hasDefaultTemplate="false"
-                        :disabled="!acl.can('category.editor')"
-                        :urls="category.seoUrls">
-            </sw-seo-url>
-        {% endblock %}
+    {% block sw_category_detail_seo_list %}
+    <sw-seo-url
+        v-if="category.seoUrls"
+        :is-loading="isLoading"
+        :has-default-template="false"
+        :disabled="!acl.can('category.editor')"
+        :urls="category.seoUrls"
+    />
+    {% endblock %}
 
-    </div>
+</div>
 {% endblock %}

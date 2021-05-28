@@ -1,26 +1,30 @@
 {% block sw_extension_review_reply %}
-    <div class="sw-extension-review-reply">
-        {% block sw_extension_review_reply_head %}
-            <div class="sw-extension-review-reply__head">
-                {% block sw_extension_review_reply_head_producer_name %}
-                    <span class="sw-extension-review-reply__producer-name">{{ producerName }}</span>
-                {% endblock %}
-
-                {% block sw_extension_review_reply_head_reply_date %}
-                    <span v-if="creationDate"
-                          class="sw-extension-review-reply__date">
-                            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-reply.labelCreationDate',
-                            0, { creationDate: creationDate }) }}
-                    </span>
-                {% endblock %}
-            </div>
+<div class="sw-extension-review-reply">
+    {% block sw_extension_review_reply_head %}
+    <div class="sw-extension-review-reply__head">
+        {% block sw_extension_review_reply_head_producer_name %}
+        <span class="sw-extension-review-reply__producer-name">{{ producerName }}</span>
         {% endblock %}
 
-        {% block sw_extension_review_reply_text %}
-            <p v-if="reply.text"
-               class="sw-extension-review-reply__text">
-                {{ reply.text }}
-            </p>
+        {% block sw_extension_review_reply_head_reply_date %}
+        <span
+            v-if="creationDate"
+            class="sw-extension-review-reply__date"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-reply.labelCreationDate',
+                   0, { creationDate: creationDate }) }}
+        </span>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_extension_review_reply_text %}
+    <p
+        v-if="reply.text"
+        class="sw-extension-review-reply__text"
+    >
+        {{ reply.text }}
+    </p>
+    {% endblock %}
+</div>
 {% endblock %}

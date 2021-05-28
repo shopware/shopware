@@ -1,39 +1,53 @@
 {% block sw_promotion_v2_empty_state_hero %}
-    <div v-bind="$attrs" class="sw-promotion-v2-empty-state-hero">
+<div
+    v-bind="$attrs"
+    class="sw-promotion-v2-empty-state-hero"
+>
 
-        {% block sw_promotion_v2_empty_state_hero_content %}
-            <div class="sw-promotion-v2-empty-state-hero__column-content">
+    {% block sw_promotion_v2_empty_state_hero_content %}
+    <div class="sw-promotion-v2-empty-state-hero__column-content">
 
-                {% block sw_promotion_v2_empty_state_hero_content_title %}
-                    <h1 class="sw-promotion-v2-empty-state-hero__title">{{ title }}</h1>
-                {% endblock %}
-
-                {% block sw_promotion_v2_empty_state_hero_content_description %}
-                    <div v-if="showDescription" class="sw-promotion-v2-empty-state-hero__description">
-                        {{ description }}
-                    </div>
-                {% endblock %}
-
-                {% block sw_promotion_v2_empty_state_hero_content_actions %}
-                    <div v-if="!!$slots.actions || !!$scopedSlots.actions" class="sw-promotion-v2-empty-state-hero__actions">
-                        <slot name="actions">
-                            {% block sw_promotion_v2_empty_state_hero_slot_actions %}{% endblock %}
-                        </slot>
-                    </div>
-                {% endblock %}
-
-            </div>
+        {% block sw_promotion_v2_empty_state_hero_content_title %}
+        <h1 class="sw-promotion-v2-empty-state-hero__title">
+            {{ title }}
+        </h1>
         {% endblock %}
 
-        {% block sw_promotion_v2_empty_state_hero_image %}
-            <div class="sw-promotion-v2-empty-state-hero__column-image">
+        {% block sw_promotion_v2_empty_state_hero_content_description %}
+        <div
+            v-if="showDescription"
+            class="sw-promotion-v2-empty-state-hero__description"
+        >
+            {{ description }}
+        </div>
+        {% endblock %}
 
-                {% block sw_promotion_v2_empty_state_hero_image_asset %}
-                    <img class="sw-promotion-v2-empty-state-hero__asset" :src="imagePath | asset">
-                {% endblock %}
-
-            </div>
+        {% block sw_promotion_v2_empty_state_hero_content_actions %}
+        <div
+            v-if="!!$slots.actions || !!$scopedSlots.actions"
+            class="sw-promotion-v2-empty-state-hero__actions"
+        >
+            <slot name="actions">
+                {% block sw_promotion_v2_empty_state_hero_slot_actions %}{% endblock %}
+            </slot>
+        </div>
         {% endblock %}
 
     </div>
+    {% endblock %}
+
+    {% block sw_promotion_v2_empty_state_hero_image %}
+    <div class="sw-promotion-v2-empty-state-hero__column-image">
+
+        {% block sw_promotion_v2_empty_state_hero_image_asset %}
+        <img
+            class="sw-promotion-v2-empty-state-hero__asset"
+            :src="imagePath | asset"
+        >
+        {% endblock %}
+
+    </div>
+    {% endblock %}
+
+</div>
 {% endblock %}

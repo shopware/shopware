@@ -1,77 +1,97 @@
 {% block sw_maintain_currencies_modal %}
-    <sw-modal class="sw-maintain-currencies-modal"
-              :title="$tc('sw-maintain-currencies-modal.title')"
-              @modal-close="onCancel">
+<sw-modal
+    class="sw-maintain-currencies-modal"
+    :title="$tc('sw-maintain-currencies-modal.title')"
+    @modal-close="onCancel"
+>
 
-        {% block sw_maintain_currencies_modal_grid %}
-            <sw-data-grid :dataSource="currencies"
-                          :columns="maintainCurrencyColumns"
-                          :showSelection="false"
-                          :compactMode="false"
-                          :showActions="false">
+    {% block sw_maintain_currencies_modal_grid %}
+    <sw-data-grid
+        :data-source="currencies"
+        :columns="maintainCurrencyColumns"
+        :show-selection="false"
+        :compact-mode="false"
+        :show-actions="false"
+    >
 
+        {% block sw_maintain_currencies_modal_grid_column_name %}
+        <template
+            slot="column-name"
+            slot-scope="{ item }"
+        >
 
-                {% block sw_maintain_currencies_modal_grid_column_name %}
-                    <template slot="column-name" slot-scope="{ item }">
+            {% block sw_maintain_currencies_modal_grid_column_name_inherit_field %}
+            <sw-inheritance-switch
+                v-if="!item.isSystemDefault"
+                class="sw-price-form__inherited-icon"
+                :is-inherited="isCurrencyInherited(item)"
+                @inheritance-restore="onInheritanceRestore(item.id)"
+                @inheritance-remove="onInheritanceRemove(item)"
+            />
+            {% endblock %}
 
-                        {% block sw_maintain_currencies_modal_grid_column_name_inherit_field %}
-                            <sw-inheritance-switch v-if="!item.isSystemDefault"
-                                                   class="sw-price-form__inherited-icon"
-                                                   :isInherited="isCurrencyInherited(item)"
-                                                   @inheritance-restore="onInheritanceRestore(item.id)"
-                                                   @inheritance-remove="onInheritanceRemove(item)">
-                            </sw-inheritance-switch>
-                        {% endblock %}
-
-                        {% block sw_maintain_currencies_modal_grid_column_name_item_name %}
-                            <p>{{ item.translated.name || item.name }}</p>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
-                {% block sw_maintain_currencies_modal_grid_column_price %}
-                    <template slot="column-label-price">
-                        {% block sw_maintain_currencies_modal_grid_column_price_field_label %}
-                            <div class="sw-maintain-currencies-modal__price-label-wrapper">
-                                <div>{{ $tc('sw-maintain-currencies-modal.columnPrice') }}</div>
-                                <div v-if="!hideListPrices">{{ $tc('sw-maintain-currencies-modal.columnListPriceHeader') }}</div>
-                            </div>
-                        {% endblock %}
-                    </template>
-
-                    <template slot="column-price" slot-scope="{ item }">
-                        {% block sw_maintain_currencies_modal_grid_column_price_field %}
-                            <sw-list-price-field :price="prices"
-                                            :defaultPrice="defaultPrice"
-                                            :taxRate="taxRate"
-                                            :label="false"
-                                            :disableSuffix="true"
-                                            :hideListPrices="hideListPrices"
-                                            :disabled="disabled"
-                                            enableInheritance
-                                            :currency="item">
-                            </sw-list-price-field>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-data-grid>
+            {% block sw_maintain_currencies_modal_grid_column_name_item_name %}
+            <p>{{ item.translated.name || item.name }}</p>
+            {% endblock %}
+        </template>
         {% endblock %}
 
-        {% block sw_maintain_currencies_modal_footer %}
-            <template slot="modal-footer">
+        {% block sw_maintain_currencies_modal_grid_column_price %}
+        <template slot="column-label-price">
+            {% block sw_maintain_currencies_modal_grid_column_price_field_label %}
+            <div class="sw-maintain-currencies-modal__price-label-wrapper">
+                <div>{{ $tc('sw-maintain-currencies-modal.columnPrice') }}</div>
+                <div v-if="!hideListPrices">
+                    {{ $tc('sw-maintain-currencies-modal.columnListPriceHeader') }}
+                </div>
+            </div>
+            {% endblock %}
+        </template>
 
-                {% block sw_maintain_currencies_modal_footer_button_cancel %}
-                    <sw-button size="small" @click="onCancel">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_maintain_currencies_modal_footer_button_apply %}
-                    <sw-button variant="primary" size="small" @click="onApply">
-                        {{ $tc('global.default.apply') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+        <template
+            slot="column-price"
+            slot-scope="{ item }"
+        >
+            {% block sw_maintain_currencies_modal_grid_column_price_field %}
+            <sw-list-price-field
+                :price="prices"
+                :default-price="defaultPrice"
+                :tax-rate="taxRate"
+                :label="false"
+                :disable-suffix="true"
+                :hide-list-prices="hideListPrices"
+                :disabled="disabled"
+                enable-inheritance
+                :currency="item"
+            />
+            {% endblock %}
+        </template>
         {% endblock %}
-    </sw-modal>
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_maintain_currencies_modal_footer %}
+    <template slot="modal-footer">
+
+        {% block sw_maintain_currencies_modal_footer_button_cancel %}
+        <sw-button
+            size="small"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_maintain_currencies_modal_footer_button_apply %}
+        <sw-button
+            variant="primary"
+            size="small"
+            @click="onApply"
+        >
+            {{ $tc('global.default.apply') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

@@ -1,10 +1,10 @@
 {% block sw_icon %}
-    <component
-        class="sw-icon"
-        v-on="$listeners"
-        :class="classes"
-        :is="iconName"
-        :style="styles"
-        :aria-hidden="decorative">
-    </component>
+<component
+    :is="iconName"
+    class="sw-icon"
+    :class="classes"
+    :style="styles"
+    :aria-hidden="decorative"
+    v-on="$listeners"
+/>
 {% endblock %}

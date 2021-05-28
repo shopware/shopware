@@ -1,12 +1,12 @@
 {% block sw_sales_channel_detail_base_options_delete %}{% endblock %}
 
 {% block sw_sales_channel_detail_base_general_input_active %}
-    <sw-field
-        type="switch"
-        bordered
-        disabled
-        v-tooltip="{ message: $tc('sw-sales-channel.detail.activateDisable') }"
-        :label="$tc('sw-sales-channel.detail.labelInputActive')"
-        v-model="salesChannel.active">
-    </sw-field>
+<sw-field
+    v-model="salesChannel.active"
+    v-tooltip="{ message: $tc('sw-sales-channel.detail.activateDisable') }"
+    type="switch"
+    bordered
+    disabled
+    :label="$tc('sw-sales-channel.detail.labelInputActive')"
+/>
 {% endblock %}

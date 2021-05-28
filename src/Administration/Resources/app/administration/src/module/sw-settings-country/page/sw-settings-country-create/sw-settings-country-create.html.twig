@@ -1,12 +1,13 @@
 {% block sw_settings_country_detail_language_switch %}
-    <sw-language-switch slot="language-switch"
-                        disabled>
-    </sw-language-switch>
+<sw-language-switch
+    slot="language-switch"
+    disabled
+/>
 {% endblock %}
 
 {% block sw_settings_country_detail_content_language_info %}
-    <sw-language-info
-            :entityDescription="placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline'))"
-            isNewEntity>
-    </sw-language-info>
+<sw-language-info
+    :entity-description="placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline'))"
+    is-new-entity
+/>
 {% endblock %}

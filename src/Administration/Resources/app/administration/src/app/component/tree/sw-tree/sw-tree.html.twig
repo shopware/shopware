@@ -1,120 +1,160 @@
 {% block sw_tree %}
-    <div class="sw-tree">
-        {% block sw_tree_search %}
-            <slot name="search">
-                <div class="sw-tree__search" v-if="searchable">
-                    <sw-field name="treeSearch" :placeholder="$tc('sw-tree.general.placeholderSearch')" v-model="currentTreeSearch" @input="searchItems" size="small">
-                        <template #prefix>
-                            <sw-icon name="default-action-search"></sw-icon>
-                        </template>
-                    </sw-field>
-                </div>
-            </slot>
-        {% endblock %}
+<div class="sw-tree">
+    {% block sw_tree_search %}
+    <slot name="search">
+        <div
+            v-if="searchable"
+            class="sw-tree__search"
+        >
+            <sw-field
+                v-model="currentTreeSearch"
+                name="treeSearch"
+                :placeholder="$tc('sw-tree.general.placeholderSearch')"
+                size="small"
+                @input="searchItems"
+            >
+                <template #prefix>
+                    <sw-icon name="default-action-search" />
+                </template>
+            </sw-field>
+        </div>
+    </slot>
+    {% endblock %}
 
-        {% block sw_tree_actions_headline %}
-            <slot name="headline">
-                <div v-if="checkedElementsCount > 0" class="sw-tree-actions__headline">
-                    <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
-                    <sw-button class="sw-tree-actions__delete_categories"
-                               @click="onDeleteElements(null)"
-                               :disabled="!allowDeleteCategories"
-                               variant="danger"
-                               size="small">
-                        {{ $tc('global.default.delete') }}
-                    </sw-button>
-                </div>
+    {% block sw_tree_actions_headline %}
+    <slot name="headline">
+        <div
+            v-if="checkedElementsCount > 0"
+            class="sw-tree-actions__headline"
+        >
+            <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
+            <sw-button
+                class="sw-tree-actions__delete_categories"
+                :disabled="!allowDeleteCategories"
+                variant="danger"
+                size="small"
+                @click="onDeleteElements(null)"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-button>
+        </div>
 
-                <div v-else class="sw-tree-actions__headline">
-                    <span>{{ $tc(`${translationContext}.general.treeHeadline`) }}</span>
-                </div>
-            </slot>
-        {% endblock %}
+        <div
+            v-else
+            class="sw-tree-actions__headline"
+        >
+            <span>{{ $tc(`${translationContext}.general.treeHeadline`) }}</span>
+        </div>
+    </slot>
+    {% endblock %}
 
-        {% block sw_tree_content %}
-            <div class="sw-tree__content">
-                <div class="tree-items">
+    {% block sw_tree_content %}
+    <div class="sw-tree__content">
+        <div class="tree-items">
 
-                    {% block sw_tree_items %}
-                        <sw-tree-input-field v-if="hasNoItems && allowCreateCategories" :disabled="disableContextMenu" @new-item-create="onCreateNewItem"></sw-tree-input-field>
-                        <slot
-                            v-else
-                            name="items"
-                            :treeItems="treeItems"
-                            :draggedItem="draggedItem"
-                            :newElementId="newElementId"
-                            :checkItem="checkItem"
-                            :translationContext="translationContext"
-                            :onChangeRoute="onChangeRoute"
-                            :sortable="sortable"
-                            :disableContextMenu="disableContextMenu">
+            {% block sw_tree_items %}
+            <sw-tree-input-field
+                v-if="hasNoItems && allowCreateCategories"
+                :disabled="disableContextMenu"
+                @new-item-create="onCreateNewItem"
+            />
+            <slot
+                v-else
+                name="items"
+                :treeItems="treeItems"
+                :draggedItem="draggedItem"
+                :newElementId="newElementId"
+                :checkItem="checkItem"
+                :translationContext="translationContext"
+                :onChangeRoute="onChangeRoute"
+                :sortable="sortable"
+                :disableContextMenu="disableContextMenu"
+            >
 
-                            {% block sw_tree_slot_items %}
-                                <sw-tree-item
-                                    v-for="item in treeItems"
-                                    :key="item.id"
-                                    :item="item"
-                                    :translationContext="translationContext"
-                                    :draggedItem="draggedItem">
-                                </sw-tree-item>
-                            {% endblock %}
-
-                        </slot>
-                    {% endblock %}
-
-                    {% block sw_tree_loader %}
-                        <sw-loader v-if="isLoading"></sw-loader>
-                    {% endblock %}
-
-                </div>
-            </div>
-        {% endblock %}
-
-        {% block sw_tree_delete_modal %}
-            <sw-modal v-if="showDeleteModal"
-                      @modal-close="onCloseDeleteModal"
-                      :title="$tc('global.default.warning')"
-                      variant="small">
-                {% block sw_tree_delete_modal_confirm_delete_text %}
-                    <div v-if="toDeleteItem">
-                        <p v-if="toDeleteItem.childCount > 0" class="sw_tree__confirm-delete-text">
-                            {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}<br>
-                            <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
-                        </p>
-                        <p v-else class="sw_tree__confirm-delete-text">
-                            {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}
-                        </p>
-                    </div>
-                    <div v-else>
-                        <p v-if="checkedElementsChildCount > 0" class="sw_tree__confirm-delete-text">
-                            {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}<br>
-                            <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
-                        </p>
-                        <p v-else class="sw_tree__confirm-delete-text">
-                            {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}
-                        </p>
-                    </div>
+                {% block sw_tree_slot_items %}
+                <sw-tree-item
+                    v-for="item in treeItems"
+                    :key="item.id"
+                    :item="item"
+                    :translation-context="translationContext"
+                    :dragged-item="draggedItem"
+                />
                 {% endblock %}
 
-                {% block sw_tree_delete_modal_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_tree_delete_modal_cancel %}
-                            <sw-button @click="onCloseDeleteModal"
-                                       size="small">
-                                {{ $tc('global.default.cancel') }}
-                            </sw-button>
-                        {% endblock %}
+            </slot>
+            {% endblock %}
 
-                        {% block sw_tree_delete_modal_confirm %}
-                            <sw-button @click="onConfirmDelete()"
-                                       variant="danger"
-                                       size="small">
-                                {{ $tc('global.default.delete') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
-        {% endblock %}
+            {% block sw_tree_loader %}
+            <sw-loader v-if="isLoading" />
+            {% endblock %}
+
+        </div>
     </div>
+    {% endblock %}
+
+    {% block sw_tree_delete_modal %}
+    <sw-modal
+        v-if="showDeleteModal"
+        :title="$tc('global.default.warning')"
+        variant="small"
+        @modal-close="onCloseDeleteModal"
+    >
+        {% block sw_tree_delete_modal_confirm_delete_text %}
+        <div v-if="toDeleteItem">
+            <p
+                v-if="toDeleteItem.childCount > 0"
+                class="sw_tree__confirm-delete-text"
+            >
+                {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}<br>
+                <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
+            </p>
+            <p
+                v-else
+                class="sw_tree__confirm-delete-text"
+            >
+                {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}
+            </p>
+        </div>
+        <div v-else>
+            <p
+                v-if="checkedElementsChildCount > 0"
+                class="sw_tree__confirm-delete-text"
+            >
+                {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}<br>
+                <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
+            </p>
+            <p
+                v-else
+                class="sw_tree__confirm-delete-text"
+            >
+                {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}
+            </p>
+        </div>
+        {% endblock %}
+
+        {% block sw_tree_delete_modal_footer %}
+        <template slot="modal-footer">
+            {% block sw_tree_delete_modal_cancel %}
+            <sw-button
+                size="small"
+                @click="onCloseDeleteModal"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_tree_delete_modal_confirm %}
+            <sw-button
+                variant="danger"
+                size="small"
+                @click="onConfirmDelete()"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</div>
 {% endblock %}

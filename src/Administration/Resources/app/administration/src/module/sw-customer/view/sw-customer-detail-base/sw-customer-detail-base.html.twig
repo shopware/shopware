@@ -1,48 +1,57 @@
 {% block sw_customer_detail_base %}
-    <div class="sw-customer-detail-base">
-        {% block sw_customer_detail_base_info_holder %}
-            <div class="sw-customer-detail-base__info-holder">
+<div class="sw-customer-detail-base">
+    {% block sw_customer_detail_base_info_holder %}
+    <div class="sw-customer-detail-base__info-holder">
 
-                {% block sw_customer_detail_base_info_card %}
-                    <sw-customer-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
-                                      :customer="customer"
-                                      :editMode="customerEditMode"
-                                      :isLoading="isLoading">
-                        {% block sw_customer_detail_base_info_metadata %}
-                            <sw-customer-base-info
-                                :customer="customer"
-                                :isLoading="isLoading"
-                                :customerEditMode="customerEditMode">
-                            </sw-customer-base-info>
-                        {% endblock %}
-                    </sw-customer-card>
-                {% endblock %}
+        {% block sw_customer_detail_base_info_card %}
+        <sw-customer-card
+            :title="$tc('sw-customer.detailBase.labelAccountCard')"
+            :customer="customer"
+            :edit-mode="customerEditMode"
+            :is-loading="isLoading"
+        >
+            {% block sw_customer_detail_base_info_metadata %}
+            <sw-customer-base-info
+                :customer="customer"
+                :is-loading="isLoading"
+                :customer-edit-mode="customerEditMode"
+            />
+            {% endblock %}
+        </sw-customer-card>
+        {% endblock %}
 
-                {% block sw_customer_detail_base_default_addresses_card %}
-                    <sw-card :title="$tc('sw-customer.detailBase.labelAddressesCard')"
-                             v-if="customer.defaultShippingAddress || customer.defaultBillingAddress"
-                             class="sw-customer-detail-base__default-addresses"
-                             :isLoading="customer.isLoading">
-                        {% block sw_customer_detail_base_default_addresses %}
-                            <template #grid>
-                                <sw-customer-default-addresses :customerEditMode="customerEditMode" :customer="customer"></sw-customer-default-addresses>
-                            </template>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
+        {% block sw_customer_detail_base_default_addresses_card %}
+        <sw-card
+            v-if="customer.defaultShippingAddress || customer.defaultBillingAddress"
+            :title="$tc('sw-customer.detailBase.labelAddressesCard')"
+            class="sw-customer-detail-base__default-addresses"
+            :is-loading="customer.isLoading"
+        >
+            {% block sw_customer_detail_base_default_addresses %}
+            <template #grid>
+                <sw-customer-default-addresses
+                    :customer-edit-mode="customerEditMode"
+                    :customer="customer"
+                />
+            </template>
+            {% endblock %}
+        </sw-card>
+        {% endblock %}
 
-                {% block sw_customer_detail_custom_field_sets %}
-                    <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                             v-if="!!customerCustomFieldSets && customerCustomFieldSets.length > 0"
-                             :isLoading="customer.isLoading">
-                        <sw-custom-field-set-renderer
-                            :entity="customer"
-                            :disabled="!customerEditMode"
-                            :sets="customerCustomFieldSets">
-                        </sw-custom-field-set-renderer>
-                    </sw-card>
-                {% endblock %}
-            </div>
+        {% block sw_customer_detail_custom_field_sets %}
+        <sw-card
+            v-if="!!customerCustomFieldSets && customerCustomFieldSets.length > 0"
+            :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+            :is-loading="customer.isLoading"
+        >
+            <sw-custom-field-set-renderer
+                :entity="customer"
+                :disabled="!customerEditMode"
+                :sets="customerCustomFieldSets"
+            />
+        </sw-card>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,14 +1,16 @@
 {% block sw_help_text %}
-    <span class="sw-help-text"
-          v-tooltip="{
-            message: text,
-            width: width,
-            position: tooltipPosition,
-            showDelay: showDelay,
-            hideDelay: hideDelay
-          }">
-        {% block sw_help_text_icon %}
-            <sw-icon name="small-questionmark"></sw-icon>
-        {% endblock %}
-    </span>
+<span
+    v-tooltip="{
+        message: text,
+        width: width,
+        position: tooltipPosition,
+        showDelay: showDelay,
+        hideDelay: hideDelay
+    }"
+    class="sw-help-text"
+>
+    {% block sw_help_text_icon %}
+    <sw-icon name="small-questionmark" />
+    {% endblock %}
+</span>
 {% endblock %}

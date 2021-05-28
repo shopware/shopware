@@ -1,219 +1,263 @@
 {% block sw_media_modal_folder_settings %}
-    <sw-modal class="sw-media-modal-folder-settings"
-              :class="modalClass"
-              @modal-close="closeModal"
-              :title="folder.name"
-              variant="large">
+<sw-modal
+    class="sw-media-modal-folder-settings"
+    :class="modalClass"
+    :title="folder.name"
+    variant="large"
+    @modal-close="closeModal"
+>
 
-        {% block sw_media_modal_folder_settings_tabs %}
-            <sw-tabs :isSmall="false" defaultItem="settings">
-                <template slot-scope="{ active }" >
-                    {% block sw_media_modal_folder_settings_tab_item_settings %}
-                        <sw-tabs-item class="sw-media-folder-settings__settings-tab" name="settings" :activeTab="active" :native="true">
-                            {{ $tc('global.sw-media-modal-folder-settings.labelSettings') }}
-                        </sw-tabs-item>
+    {% block sw_media_modal_folder_settings_tabs %}
+    <sw-tabs
+        :is-small="false"
+        default-item="settings"
+    >
+        <template slot-scope="{ active }">
+            {% block sw_media_modal_folder_settings_tab_item_settings %}
+            <sw-tabs-item
+                class="sw-media-folder-settings__settings-tab"
+                name="settings"
+                :active-tab="active"
+                :native="true"
+            >
+                {{ $tc('global.sw-media-modal-folder-settings.labelSettings') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_media_modal_folder_settings_tab_item_thumbnails %}
+            <sw-tabs-item
+                class="sw-media-folder-settings__thumbnails-tab"
+                name="thumbnails"
+                :active-tab="active"
+                :native="true"
+            >
+                {{ $tc('global.sw-media-modal-folder-settings.labelThumbnails') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
+
+        <template
+            slot="content"
+            slot-scope="{ active }"
+        >
+            {% block sw_media_modal_folder_settings_tab_content_settings %}
+            <sw-container
+                v-if="active === 'settings'"
+                columns="1fr 1fr"
+                gap="32px"
+            >
+                {% block sw_media_modal_folder_settings_name_field %}
+                <sw-field
+                    v-model="folder.name"
+                    type="text"
+                    :disabled="disabled"
+                    :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
+                />
+                {% endblock %}
+
+                {% block sw_media_modal_folder_settings_default_folder %}
+                <sw-entity-single-select
+                    id="defaultFolder"
+                    :disabled="disabled"
+                    entity="media_default_folder"
+                    :placeholder="$tc('global.sw-media-modal-folder-settings.placeholderDefaultFolder')"
+                    :value="folder.defaultFolderId ? folder.defaultFolderId : ''"
+                    :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
+                    @change="onInputDefaultFolder"
+                >
+
+                    <template #selection-label-property="{ item: item }">
+                        {{ getItemName(item) }}
+                    </template>
+
+                    <template #result-item="{ isSelected, setValue, item, index, searchTerm, highlightSearchTerm }">
+                        <li
+                            is="sw-select-result"
+                            :selected="isSelected(item)"
+                            v-bind="{ item, index }"
+                            @item-select="setValue"
+                        >
+                            <sw-highlight-text
+                                v-if="highlightSearchTerm"
+                                :text="getItemName(item)"
+                                :search-term="searchTerm"
+                            />
+                            <template v-else>
+                                {{ getItemName(item) }}
+                            </template>
+                        </li>
+                    </template>
+                </sw-entity-single-select>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+
+            {% block sw_media_modal_folder_settings_tab_content_thumbnails %}
+            <sw-container
+                v-if="active === 'thumbnails'"
+                class="sw-media-modal-folder-settings__thumbnails-container"
+                columns="1fr 1fr"
+                gap="32px"
+            >
+
+                {% block sw_media_modal_folder_settings_tab_content_thumbnails_left_container %}
+                <div class="sw-media-modal-folder-settings__thumbnails-left-container">
+                    {% block sw_media_modal_folder_settings_inherit_settings_field %}
+                    <sw-field
+                        v-model="folder.useParentConfiguration"
+                        type="switch"
+                        :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
+                        :disabled="folder.parentId === null"
+                        @change="onChangeInheritance"
+                    />
                     {% endblock %}
 
-                    {% block sw_media_modal_folder_settings_tab_item_thumbnails %}
-                        <sw-tabs-item class="sw-media-folder-settings__thumbnails-tab" name="thumbnails" :activeTab="active" :native="true">
-                            {{ $tc('global.sw-media-modal-folder-settings.labelThumbnails') }}
-                        </sw-tabs-item>
-                    {% endblock %}
-                </template>
-
-                <template slot="content" slot-scope="{ active }">
-                    {% block sw_media_modal_folder_settings_tab_content_settings %}
-                        <sw-container
-                                v-if="active === 'settings'"
-                                columns="1fr 1fr" gap="32px">
-                            {% block sw_media_modal_folder_settings_name_field %}
-                                <sw-field type="text"
-                                    :disabled="disabled"
-                                    :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
-                                    v-model="folder.name">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_media_modal_folder_settings_default_folder %}
-                                <sw-entity-single-select
-                                    :disabled="disabled"
-                                    id="defaultFolder"
-                                    entity="media_default_folder"
-                                    :placeholder="$tc('global.sw-media-modal-folder-settings.placeholderDefaultFolder')"
-                                    :value="folder.defaultFolderId ? folder.defaultFolderId : ''"
-                                    :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
-                                    @change="onInputDefaultFolder">
-
-                                    <template #selection-label-property="{ item: item }">
-                                        {{ getItemName(item) }}
-                                    </template>
-
-                                    <template #result-item="{ isSelected, setValue, item, index, searchTerm, highlightSearchTerm }">
-                                        <li is="sw-select-result"
-                                            :selected="isSelected(item)"
-                                            @item-select="setValue"
-                                            v-bind="{ item, index }">
-                                            <sw-highlight-text
-                                                v-if="highlightSearchTerm"
-                                                :text="getItemName(item)"
-                                                :searchTerm="searchTerm">
-                                            </sw-highlight-text>
-                                            <template v-else>
-                                                {{ getItemName(item) }}
-                                            </template>
-                                        </li>
-                                    </template>
-                                </sw-entity-single-select>
-                            {% endblock %}
-                        </sw-container>
+                    {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
+                    <sw-field
+                        v-model="configuration.createThumbnails"
+                        type="switch"
+                        :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
+                        :disabled="folder.useParentConfiguration || disabled"
+                    />
                     {% endblock %}
 
-                    {% block sw_media_modal_folder_settings_tab_content_thumbnails %}
-                        <sw-container
-                            class="sw-media-modal-folder-settings__thumbnails-container"
-                            v-if="active === 'thumbnails'"
-                            columns="1fr 1fr"
-                            gap="32px">
+                    {% block sw_media_modal_folder_settings_keep_proportions_field %}
+                    <sw-field
+                        v-model="configuration.keepAspectRatio"
+                        type="switch"
+                        :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
+                        :disabled="notEditable"
+                    />
+                    {% endblock %}
 
-                            {% block sw_media_modal_folder_settings_tab_content_thumbnails_left_container %}
-                                <div class="sw-media-modal-folder-settings__thumbnails-left-container">
-                                    {% block sw_media_modal_folder_settings_inherit_settings_field %}
-                                        <sw-field type="switch"
-                                            :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
-                                            v-model="folder.useParentConfiguration"
-                                            :disabled="folder.parentId === null"
-                                            @change="onChangeInheritance">
-                                        </sw-field>
-                                    {% endblock %}
-
-                                    {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
-                                        <sw-field
-                                            type="switch"
-                                            :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
-                                            v-model="configuration.createThumbnails"
-                                            :disabled="folder.useParentConfiguration || disabled">
-                                        </sw-field>
-                                    {% endblock %}
-
-                                    {% block sw_media_modal_folder_settings_keep_proportions_field %}
-                                        <sw-field
-                                            type="switch"
-                                            :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
-                                            v-model="configuration.keepAspectRatio"
-                                            :disabled="notEditable">
-                                        </sw-field>
-                                    {% endblock %}
-
-                                    {% block sw_media_modal_folder_settings_thumbnails_quality_field %}
-                                        <sw-field
-                                            type="number"
-                                            numberType="int"
-                                            :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
-                                            v-model="configuration.thumbnailQuality"
-                                            :min="0"
-                                            :max="100"
-                                            :step="1"
-                                            :disabled="notEditable"
-                                            autocomplete="off">
-                                        </sw-field>
-                                    {% endblock %}
-                                </div>
-                            {% endblock%}
+                    {% block sw_media_modal_folder_settings_thumbnails_quality_field %}
+                    <sw-field
+                        v-model="configuration.thumbnailQuality"
+                        type="number"
+                        number-type="int"
+                        :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
+                        :min="0"
+                        :max="100"
+                        :step="1"
+                        :disabled="notEditable"
+                        autocomplete="off"
+                    />
+                    {% endblock %}
+                </div>
+                {% endblock%}
 
                             {% block sw_media_modal_folder_settings_tab_content_thumbnails_right_container %}
-                                <div class="sw-media-modal-folder-settings__thumbnails-right-container">
-                                    {% block sw_media_modal_folder_settings_thumbnail_list_caption %}
-                                        <div class="sw-media-modal-folder-settings__thumbnails-list-caption">
-                                            <label>{{ $tc('global.sw-media-modal-folder-settings.labelThumbnailSize') }}</label>
+                <div class="sw-media-modal-folder-settings__thumbnails-right-container">
+                    {% block sw_media_modal_folder_settings_thumbnail_list_caption %}
+                    <div class="sw-media-modal-folder-settings__thumbnails-list-caption">
+                        <label>{{ $tc('global.sw-media-modal-folder-settings.labelThumbnailSize') }}</label>
 
-                                            {% block sw_media_modal_folder_settings_edit_thumbnail_list_button %}
-                                                <sw-button class="sw-media-modal-folder-settings__switch-mode"
-                                                           :disabled="notEditable"
-                                                           @click="toggleEditThumbnails">
-                                                    {{ labelToggleButton }}
-                                                </sw-button>
-                                            {% endblock %}
-                                        </div>
-                                    {% endblock %}
-
-                                    {% block sw_media_modal_folder_settings_thumbnail_list_container %}
-                                        <div class="sw-media-modal-folder-settings__thumbnails-list-container">
-                                            {% block sw_media_modal_folder_settings_thumbnail_list %}
-                                                <ul class="sw-media-modal-folder-settings__thumbnails-list" :class="thumbnailListClass">
-
-                                                    {% block sw_media_modal_folder_settings_thumbnail_size %}
-                                                        <li v-for="(size, index) in thumbnailSizes"
-                                                            class="sw-media-modal-folder-settings__thumbnail-size-entry"
-                                                            :class="'sw-media-modal-folder-settings__entry--' + index">
-
-                                                            {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
-                                                                <sw-field type="switch"
-                                                                          :value="isThumbnailSizeActive(size)"
-                                                                          :name="thumbnailSizeCheckboxName(size)"
-                                                                          :label="size | thumbnailSize"
-                                                                          :disabled="notEditable"
-                                                                          @change="onChangeThumbnailSize($event, size)">
-                                                                </sw-field>
-                                                            {% endblock %}
-
-                                                            {% block sw_media_modal_folder_settings_thumbnail_size_delete_button %}
-                                                                <button class="sw-media-modal-folder-settings__delete-thumbnail"
-                                                                        :title="$tc('global.default.delete')"
-                                                                        :aria-label="$tc('global.default.delete')"
-                                                                        v-if="isEditThumbnails"
-                                                                        @click="deleteThumbnail(size)">
-                                                                    <sw-icon name="small-default-x-line-medium" small></sw-icon>
-                                                                </button>
-                                                            {% endblock %}
-                                                        </li>
-                                                    {% endblock %}
-                                                </ul>
-                                            {% endblock %}
-
-                                            {% block sw_media_modal_folder_settings_add_thumbnail_size_form %}
-                                                <sw-media-add-thumbnail-form
-                                                    v-if="!notEditable && isEditThumbnails"
-                                                    :disabled="disabled"
-                                                    @on-input="checkIfThumbnailExists"
-                                                    @thumbnail-form-size-add="addThumbnail"
-                                                ></sw-media-add-thumbnail-form>
-                                            {% endblock %}
-                                        </div>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </sw-container>
+                        {% block sw_media_modal_folder_settings_edit_thumbnail_list_button %}
+                        <sw-button
+                            class="sw-media-modal-folder-settings__switch-mode"
+                            :disabled="notEditable"
+                            @click="toggleEditThumbnails"
+                        >
+                            {{ labelToggleButton }}
+                        </sw-button>
+                        {% endblock %}
+                    </div>
                     {% endblock %}
-                </template>
-            </sw-tabs>
+
+                    {% block sw_media_modal_folder_settings_thumbnail_list_container %}
+                    <div class="sw-media-modal-folder-settings__thumbnails-list-container">
+                        {% block sw_media_modal_folder_settings_thumbnail_list %}
+                        <ul
+                            class="sw-media-modal-folder-settings__thumbnails-list"
+                            :class="thumbnailListClass"
+                        >
+
+                            {% block sw_media_modal_folder_settings_thumbnail_size %}
+                            <li
+                                v-for="(size, index) in thumbnailSizes"
+                                :key="`thumbnail-size-${index}`"
+                                class="sw-media-modal-folder-settings__thumbnail-size-entry"
+                                :class="'sw-media-modal-folder-settings__entry--' + index"
+                            >
+
+                                {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
+                                <sw-field
+                                    type="switch"
+                                    :value="isThumbnailSizeActive(size)"
+                                    :name="thumbnailSizeCheckboxName(size)"
+                                    :label="size | thumbnailSize"
+                                    :disabled="notEditable"
+                                    @change="onChangeThumbnailSize($event, size)"
+                                />
+                                {% endblock %}
+
+                                {% block sw_media_modal_folder_settings_thumbnail_size_delete_button %}
+                                <button
+                                    v-if="isEditThumbnails"
+                                    class="sw-media-modal-folder-settings__delete-thumbnail"
+                                    :title="$tc('global.default.delete')"
+                                    :aria-label="$tc('global.default.delete')"
+                                    @click="deleteThumbnail(size)"
+                                >
+                                    <sw-icon
+                                        name="small-default-x-line-medium"
+                                        small
+                                    />
+                                </button>
+                                {% endblock %}
+                            </li>
+                            {% endblock %}
+                        </ul>
+                        {% endblock %}
+
+                        {% block sw_media_modal_folder_settings_add_thumbnail_size_form %}
+                        <sw-media-add-thumbnail-form
+                            v-if="!notEditable && isEditThumbnails"
+                            :disabled="disabled"
+                            @on-input="checkIfThumbnailExists"
+                            @thumbnail-form-size-add="addThumbnail"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+        </template>
+    </sw-tabs>
+    {% endblock %}
+
+    {% block sw_media_modal_folder_settings_footer %}
+    <template slot="modal-footer">
+
+        {% block sw_media_modal_folder_settings_cancel_button %}
+        <sw-button
+            size="small"
+            @click="onClickCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_media_modal_folder_settings_footer %}
-            <template slot="modal-footer">
-
-                {% block sw_media_modal_folder_settings_cancel_button %}
-                    <sw-button @click="onClickCancel" size="small">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_media_modal_folder_settings_confirm_button %}
-                    <sw-button
-                        class="sw-media-modal-folder-settings__confirm"
-                        @click="onClickSave"
-                        size="small"
-                        :disabled="disabled || isEditThumbnails"
-                        variant="primary"
-                            v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: !disabled,
-                            showOnDisabledElements: true
-                        }">
-                        {{ $tc('global.default.save') }}
-                    </sw-button>
-                {% endblock %}
-
-            </template>
+        {% block sw_media_modal_folder_settings_confirm_button %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: !disabled,
+                showOnDisabledElements: true
+            }"
+            class="sw-media-modal-folder-settings__confirm"
+            size="small"
+            :disabled="disabled || isEditThumbnails"
+            variant="primary"
+            @click="onClickSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

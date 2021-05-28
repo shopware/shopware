@@ -1,85 +1,98 @@
 {% block sw_first_run_wizard_modal %}
-    <sw-modal :title="title"
-        :variant="variant"
-        class="sw-first-run-wizard-modal">
-        {% block sw_first_run_wizard_modal_content %}
-            <div class="sw-first-run-wizard-modal-content">
-                <sw-container v-bind:class="{'one': !showSteps, 'two': showSteps}"
-                              class="sw-first-run-wizard-modal-content__columns">
-                    {% block sw_first_run_wizard_modal_content_steps %}
-                        <div v-if="showSteps"
-                             class="sw-first-run-wizard-modal-content__steps">
-                            <sw-step-display :itemIndex="stepIndex"
-                             :itemVariant="stepVariant"
-                             :initialItemVariants="stepInitialItemVariants">
-                                <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.dataImport') }}
-                                </sw-step-item>
-                                <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.mailer') }}
-                                </sw-step-item>
-                                <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.setupPaypal') }}
-                                </sw-step-item>
-                                <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.markets') }}
-                                </sw-step-item>
-                                <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.plugins') }}
-                                </sw-step-item>
-                                <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.shopware') }}
-                                </sw-step-item>
-                                <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.store') }}
-                                </sw-step-item>
-                            </sw-step-display>
-                        </div>
-                    {% endblock %}
-
-                    {% block sw_first_run_wizard_modal_content_page %}
-                        <div class="sw-first-run-wizard-modal-content__page">
-                            <router-view @buttons-update="updateButtons"
-                                         @frw-redirect="redirect"
-                                         @frw-set-title="setTitle"
-                                         @frw-finish="finishFRW">
-                            </router-view>
-                        </div>
-                    {% endblock %}
-                </sw-container>
+<sw-modal
+    :title="title"
+    :variant="variant"
+    class="sw-first-run-wizard-modal"
+>
+    {% block sw_first_run_wizard_modal_content %}
+    <div class="sw-first-run-wizard-modal-content">
+        <sw-container
+            :class="{'one': !showSteps, 'two': showSteps}"
+            class="sw-first-run-wizard-modal-content__columns"
+        >
+            {% block sw_first_run_wizard_modal_content_steps %}
+            <div
+                v-if="showSteps"
+                class="sw-first-run-wizard-modal-content__steps"
+            >
+                <sw-step-display
+                    :item-index="stepIndex"
+                    :item-variant="stepVariant"
+                    :initial-item-variants="stepInitialItemVariants"
+                >
+                    <sw-step-item>
+                        {{ $tc('sw-first-run-wizard.stepItemTitle.dataImport') }}
+                    </sw-step-item>
+                    <sw-step-item>
+                        {{ $tc('sw-first-run-wizard.stepItemTitle.mailer') }}
+                    </sw-step-item>
+                    <sw-step-item>
+                        {{ $tc('sw-first-run-wizard.stepItemTitle.setupPaypal') }}
+                    </sw-step-item>
+                    <sw-step-item>
+                        {{ $tc('sw-first-run-wizard.stepItemTitle.markets') }}
+                    </sw-step-item>
+                    <sw-step-item>
+                        {{ $tc('sw-first-run-wizard.stepItemTitle.plugins') }}
+                    </sw-step-item>
+                    <sw-step-item>
+                        {{ $tc('sw-first-run-wizard.stepItemTitle.shopware') }}
+                    </sw-step-item>
+                    <sw-step-item>
+                        {{ $tc('sw-first-run-wizard.stepItemTitle.store') }}
+                    </sw-step-item>
+                </sw-step-display>
             </div>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_first_run_wizard_modal_footer %}
-            <template #modal-footer>
-                <div class="sw-first-run-wizard-modal__footer">
-                    {% block sw_first_run_wizard_modal_footer_left %}
-                        <div class="footer-left">
-                            <sw-button v-for="button in buttons.left"
-                                        :key="button.key"
-                                        @click="onButtonClick(button.action)"
-                                        :variant="button.variant"
-                                        :disabled="button.disabled"
-                                        size="small">
-                                        {{ button.label }}
-                            </sw-button>
-                        </div>
-                    {% endblock %}
+            {% block sw_first_run_wizard_modal_content_page %}
+            <div class="sw-first-run-wizard-modal-content__page">
+                <router-view
+                    @buttons-update="updateButtons"
+                    @frw-redirect="redirect"
+                    @frw-set-title="setTitle"
+                    @frw-finish="finishFRW"
+                />
+            </div>
+            {% endblock %}
+        </sw-container>
+    </div>
+    {% endblock %}
 
-                    {% block sw_first_run_wizard_modal_footer_right %}
-                        <div class="footer-right">
-                            <sw-button v-for="button in buttons.right"
-                                       :key="button.key"
-                                       @click="onButtonClick(button.action)"
-                                       :variant="button.variant"
-                                       :disabled="button.disabled"
-                                       size="small">
-                                {{ button.label }}
-                            </sw-button>
-                        </div>
-                    {% endblock %}
-                </div>
-            </template>
-        {% endblock %}
-    </sw-modal>
+    {% block sw_first_run_wizard_modal_footer %}
+    <template #modal-footer>
+        <div class="sw-first-run-wizard-modal__footer">
+            {% block sw_first_run_wizard_modal_footer_left %}
+            <div class="footer-left">
+                <sw-button
+                    v-for="button in buttons.left"
+                    :key="button.key"
+                    :variant="button.variant"
+                    :disabled="button.disabled"
+                    size="small"
+                    @click="onButtonClick(button.action)"
+                >
+                    {{ button.label }}
+                </sw-button>
+            </div>
+            {% endblock %}
+
+            {% block sw_first_run_wizard_modal_footer_right %}
+            <div class="footer-right">
+                <sw-button
+                    v-for="button in buttons.right"
+                    :key="button.key"
+                    :variant="button.variant"
+                    :disabled="button.disabled"
+                    size="small"
+                    @click="onButtonClick(button.action)"
+                >
+                    {{ button.label }}
+                </sw-button>
+            </div>
+            {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

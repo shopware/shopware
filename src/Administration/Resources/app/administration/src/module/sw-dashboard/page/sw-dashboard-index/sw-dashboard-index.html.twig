@@ -1,265 +1,305 @@
 {% block sw_dashboard_index %}
-    <sw-page class="sw-dashboard-index" :showSmartBar="false">
+<sw-page
+    class="sw-dashboard-index"
+    :show-smart-bar="false"
+>
 
-        {% block sw_dashboard_index_content %}
-            <sw-card-view slot="content" class="sw-dashboard-index__content">
+    {% block sw_dashboard_index_content %}
+    <sw-card-view
+        slot="content"
+        class="sw-dashboard-index__content"
+    >
 
-                {% block sw_dashboard_index_content_intro_card %}
-                    {% block sw_dashboard_index_content_intro_content %}
-                        <div class="sw-dashboard-index__welcome-text">
-                            {% block sw_dashboard_index_content_intro %}
-                                {% block sw_dashboard_index_content_intro_content_headline %}
-                                    <h1 class="sw-dashboard-index__welcome-title">
-                                        {{ welcomeMessage }}
-                                    </h1>
-                                {% endblock %}
+        {% block sw_dashboard_index_content_intro_card %}
+        {% block sw_dashboard_index_content_intro_content %}
+        <div class="sw-dashboard-index__welcome-text">
+            {% block sw_dashboard_index_content_intro %}
+            {% block sw_dashboard_index_content_intro_content_headline %}
+            <h1 class="sw-dashboard-index__welcome-title">
+                {{ welcomeMessage }}
+            </h1>
+            {% endblock %}
 
-                                {% block sw_dashboard_index_content_intro_welcome_message %}
-                                    <p class="sw-dashboard-index__welcome-message">
-                                        {{ welcomeSubline }}
-                                    </p>
-                                {% endblock %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+            {% block sw_dashboard_index_content_intro_welcome_message %}
+            <p class="sw-dashboard-index__welcome-message">
+                {{ welcomeSubline }}
+            </p>
+            {% endblock %}
+            {% endblock %}
+        </div>
+        {% endblock %}
+        {% endblock %}
+
+        {% block sw_dashboard_index_content_info_grid %}
+        <div class="sw-dashboard-index__card-grid">
+            {% block sw_dashboard_index_content_info_grid_inner %}
+
+            {% block sw_dashboard_index_content_info__grid_inner_welcome_card %}
+            <div class="sw-dashboard-index__card sw-dashboard-index__card--bg-checklist">
+                {% block sw_dashboard_index_content_info_grid_welcome_card_content %}
+
+                {% block sw_dashboard_index_content_info_grid_welcome_headline %}
+                <h2 class="sw-dashboard-index__card-title">
+                    {{ $tc('sw-dashboard.helpcard.headline') }}
+                </h2>
                 {% endblock %}
 
-                {% block sw_dashboard_index_content_info_grid %}
-                <div class="sw-dashboard-index__card-grid">
-                    {% block sw_dashboard_index_content_info_grid_inner %}
+                {% block sw_dashboard_index_content_info_grid_welcome_link_list %}
+                <ul class="sw-dashboard-index__card-list">
+                    <li
+                        v-for="(key, index) in ['helpcenter','takeOffTip','getToKnowSales']"
+                        :key="`helpcardContent-${index}`"
+                        class="sw-dashboard-index__card-list-item"
+                    >
+                        <sw-external-link :href="$tc(`sw-dashboard.helpcard.${key}Link`)">
+                            {{ $tc(`sw-dashboard.helpcard.${key}`) }}
+                        </sw-external-link>
+                    </li>
+                </ul>
+                {% endblock %}
+                {% endblock %}
+            </div>
+            {% endblock %}
 
-                        {% block sw_dashboard_index_content_info__grid_inner_welcome_card %}
-                            <div class="sw-dashboard-index__card sw-dashboard-index__card--bg-checklist">
-                                {% block sw_dashboard_index_content_info_grid_welcome_card_content %}
+            {% block sw_dashboard_index_content_grid_info_inner_feedback_card %}
+            <div class="sw-dashboard-index__card sw-dashboard-index__card--dimmed">
+                {% block sw_dashboard_index_content_info_grid_feedback_card_content %}
 
-                                    {% block sw_dashboard_index_content_info_grid_welcome_headline %}
-                                        <h2 class="sw-dashboard-index__card-title">
-                                            {{ $tc('sw-dashboard.helpcard.headline') }}
-                                        </h2>
-                                    {% endblock %}
+                {% block sw_dashboard_index_content_feedback_headline %}
+                <h2 class="sw-dashboard-index__card-title">
+                    {{ $tc('sw-dashboard.feedbackCard.headline') }}
+                </h2>
+                {% endblock %}
 
-                                    {% block sw_dashboard_index_content_info_grid_welcome_link_list %}
-                                        <ul class="sw-dashboard-index__card-list">
-                                            <li class="sw-dashboard-index__card-list-item"
-                                                :key="`helpcardContent-${index}`"
-                                                v-for="(key, index) in ['helpcenter','takeOffTip','getToKnowSales']">
-                                                <sw-external-link :href="$tc(`sw-dashboard.helpcard.${key}Link`)">
-                                                    {{ $tc(`sw-dashboard.helpcard.${key}`) }}
-                                                </sw-external-link>
-                                            </li>
-                                        </ul>
-                                    {% endblock %}
-                                {% endblock %}
-                            </div>
+                {% block sw_dashboard_index_content_feedback_text %}
+                <p class="sw-dashboard-index__card-text">
+                    {{ $tc('sw-dashboard.feedbackCard.text') }}
+                </p>
+                {% endblock %}
+
+                {% block sw_dashboard_index_content_feedback_link %}
+                <sw-external-link
+                    class="sw-dashboard-index__card-button"
+                    :href="$tc('sw-dashboard.feedbackCard.feedbackLink')"
+                >
+                    {{ $tc('sw-dashboard.feedbackCard.feedback') }}
+                </sw-external-link>
+                {% endblock %}
+                {% endblock %}
+            </div>
+            {% endblock %}
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {% block sw_dashboard_index_content_intro_content_external_link_doc_enduser %}
+        {% endblock %}
+
+        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {% block sw_dashboard_index_content_intro_content_external_link_doc_developer %}
+        {% endblock %}
+
+        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {% block sw_dashboard_index_content_intro_content_external_link_doc_migration %}
+        {% endblock %}
+
+        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons %}
+
+        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_roadmap %}
+        {% endblock %}
+
+        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_feedback %}
+        {% endblock %}
+        {% endblock %}
+        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {% block sw_dashboard_index_content_intro_image %}
+        {% endblock %}
+
+        <template v-if="hasOrderToday && acl.can('order.viewer')">
+            {% block sw_dashboard_index_content_intro_stats_headline %}
+            <div class="sw-dashboard-index__card-headline">
+                {% block sw_dashboard_index_content_intro_stats_headline_title %}
+                <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
+                {% endblock %}
+
+                {% block sw_dashboard_index_content_intro_stats_headline_date %}
+                <span class="sw-dashboard-index__card-headline-timerange">
+                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                </span>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            <sw-card>
+                {% block sw_dashboard_index_content_intro_stats_today %}
+                <div class="sw-dashboard-index__intro-stats-today">
+
+                    {% block sw_dashboard_index_content_intro_stats_today_stats %}
+                    <div
+                        v-if="hasOrderToday"
+                        class="sw-dashboard-index__intro-stats-today-stats"
+                    >
+
+                        {% block sw_dashboard_index_content_intro_stats_today_stats_single_count %}
+                        <div class="sw-dashboard-index__intro-stats-today-single-stat">
+                            <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
+                            <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
+                        </div>
                         {% endblock %}
 
-                        {% block sw_dashboard_index_content_grid_info_inner_feedback_card %}
-                            <div class="sw-dashboard-index__card sw-dashboard-index__card--dimmed">
-                                {% block sw_dashboard_index_content_info_grid_feedback_card_content %}
-
-                                    {% block sw_dashboard_index_content_feedback_headline %}
-                                        <h2 class="sw-dashboard-index__card-title">
-                                            {{ $tc('sw-dashboard.feedbackCard.headline') }}
-                                        </h2>
-                                    {% endblock %}
-
-                                    {% block sw_dashboard_index_content_feedback_text %}
-                                        <p class="sw-dashboard-index__card-text">
-                                            {{ $tc('sw-dashboard.feedbackCard.text') }}
-                                        </p>
-                                    {% endblock %}
-
-                                    {% block sw_dashboard_index_content_feedback_link %}
-                                        <sw-external-link class="sw-dashboard-index__card-button"
-                                            :href="$tc('sw-dashboard.feedbackCard.feedbackLink')">
-                                            {{ $tc('sw-dashboard.feedbackCard.feedback') }}
-                                        </sw-external-link>
-                                    {% endblock %}
-                                {% endblock %}
-                            </div>
+                        {% block sw_dashboard_index_content_intro_stats_today_stats_single_sum %}
+                        <div class="sw-dashboard-index__intro-stats-today-single-stat">
+                            <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
+                            {# price aggregations do not support currencies yet, see NEXT-5069 #}
+                            <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency }}</span>
+                        </div>
                         {% endblock %}
+                    </div>
                     {% endblock %}
                 </div>
                 {% endblock %}
 
-                {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
-                {% block sw_dashboard_index_content_intro_content_external_link_doc_enduser %}
-                {% endblock %}
+                {% block sw_dashboard_index_content_grid %}
+                <template slot="grid">
+                    <sw-entity-listing
+                        v-if="todayOrderDataLoaded"
+                        :repository="orderRepository"
+                        :items="todayOrderData"
+                        :columns="orderGridColumns()"
+                        :show-selection="false"
+                        :allow-column-edit="false"
+                        :full-page="false"
+                    >
 
-                {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
-                {% block sw_dashboard_index_content_intro_content_external_link_doc_developer %}
-                {% endblock %}
-
-                {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
-                {% block sw_dashboard_index_content_intro_content_external_link_doc_migration %}
-                {% endblock %}
-
-                {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
-                {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons %}
-
-                    {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
-                    {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_roadmap %}
-                    {% endblock %}
-
-                    {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
-                    {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_feedback %}
-                    {% endblock %}
-                {% endblock %}
-                {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
-                {% block sw_dashboard_index_content_intro_image %}
-                {% endblock %}
-
-                <template v-if="hasOrderToday && acl.can('order.viewer')">
-                    {% block sw_dashboard_index_content_intro_stats_headline %}
-                        <div class="sw-dashboard-index__card-headline">
-                            {% block sw_dashboard_index_content_intro_stats_headline_title %}
-                                <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
-                            {% endblock %}
-
-                            {% block sw_dashboard_index_content_intro_stats_headline_date %}
-                                <span class="sw-dashboard-index__card-headline-timerange">
-                                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
-                                </span>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    <sw-card>
-                        {% block sw_dashboard_index_content_intro_stats_today %}
-                            <div class="sw-dashboard-index__intro-stats-today">
-
-                                {% block sw_dashboard_index_content_intro_stats_today_stats %}
-                                    <div class="sw-dashboard-index__intro-stats-today-stats"
-                                         v-if="hasOrderToday">
-
-                                        {% block sw_dashboard_index_content_intro_stats_today_stats_single_count %}
-                                            <div class="sw-dashboard-index__intro-stats-today-single-stat">
-                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
-                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block sw_dashboard_index_content_intro_stats_today_stats_single_sum %}
-                                            <div class="sw-dashboard-index__intro-stats-today-single-stat">
-                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
-                                                {# price aggregations do not support currencies yet, see NEXT-5069 #}
-                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency }}</span>
-                                            </div>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_dashboard_index_content_grid %}
-                        <template slot="grid">
-                            <sw-entity-listing v-if="todayOrderDataLoaded"
-                                               :repository="orderRepository"
-                                               :items="todayOrderData"
-                                               :columns="orderGridColumns()"
-                                               :showSelection="false"
-                                               :allowColumnEdit="false"
-                                               :fullPage="false">
-
-                                {% block sw_dashboard_index_content_grid_created_at %}
-                                    <template slot="column-orderDateTime" slot-scope="{ item }">
-                                        {{ item.orderDateTime | date({
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            year: undefined,
-                                            month: undefined,
-                                            day: undefined
-                                        }) }}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_dashboard_index_content_grid_first_name %}
-                                    <template slot="column-orderCustomer.firstName" slot-scope="{ item }">
-                                        <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }" class="sw-data-grid__cell-value">
-                                            {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
-                                        </router-link>
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_dashboard_index_content_grid_short_name %}
-                                    <template slot="column-amountTotal" slot-scope="{ item }">
-                                        {{ item.amountTotal | currency(item.currency.shortName) }}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_dashboard_index_content_grid_state %}
-                                    <template slot="column-stateMachineState.name" slot-scope="{ item }">
-                                        <sw-label :variant="getVariantFromOrderState(item)" appearance="pill">
-                                            {{ item.stateMachineState.translated.name }}
-                                        </sw-label>
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_dashboard_index_content_grid_actions %}
-                                <template slot="actions" slot-scope="{ item }">
-
-                                    {% block sw_dashboard_index_content_grid_actions_view %}
-                                        <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
-                                            {{ $tc('sw-order.list.contextMenuView') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-
-                                </template>
-                                {% endblock %}
-
-                            </sw-entity-listing>
-
-                            <sw-loader v-else-if="!todayOrderDataLoaded"></sw-loader>
+                        {% block sw_dashboard_index_content_grid_created_at %}
+                        <template
+                            slot="column-orderDateTime"
+                            slot-scope="{ item }"
+                        >
+                            {{ item.orderDateTime | date({
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                year: undefined,
+                                month: undefined,
+                                day: undefined
+                            }) }}
                         </template>
                         {% endblock %}
 
-                    </sw-card>
+                        {% block sw_dashboard_index_content_grid_first_name %}
+                        <template
+                            slot="column-orderCustomer.firstName"
+                            slot-scope="{ item }"
+                        >
+                            <router-link
+                                :to="{ name: 'sw.order.detail', params: { id: item.id } }"
+                                class="sw-data-grid__cell-value"
+                            >
+                                {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                            </router-link>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_dashboard_index_content_grid_short_name %}
+                        <template
+                            slot="column-amountTotal"
+                            slot-scope="{ item }"
+                        >
+                            {{ item.amountTotal | currency(item.currency.shortName) }}
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_dashboard_index_content_grid_state %}
+                        <template
+                            slot="column-stateMachineState.name"
+                            slot-scope="{ item }"
+                        >
+                            <sw-label
+                                :variant="getVariantFromOrderState(item)"
+                                appearance="pill"
+                            >
+                                {{ item.stateMachineState.translated.name }}
+                            </sw-label>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_dashboard_index_content_grid_actions %}
+                        <template
+                            slot="actions"
+                            slot-scope="{ item }"
+                        >
+
+                            {% block sw_dashboard_index_content_grid_actions_view %}
+                            <sw-context-menu-item
+                                class="sw-order-list__order-view-action"
+                                :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
+                            >
+                                {{ $tc('sw-order.list.contextMenuView') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                        </template>
+                        {% endblock %}
+
+                    </sw-entity-listing>
+
+                    <sw-loader v-else-if="!todayOrderDataLoaded" />
                 </template>
+                {% endblock %}
 
-                <template v-if="hasOrderInMonth && acl.can('order.viewer')">
-                    {% block sw_dashboard_index_content_statistics_headline %}
-                        <div class="sw-dashboard-index__card-headline">
-                            {% block sw_dashboard_index_content_statistics_headline_title %}
-                                <h1>{{ $tc('sw-dashboard.monthStats.headline') }}</h1>
-                            {% endblock %}
+            </sw-card>
+        </template>
 
-                            {% block sw_dashboard_index_content_statistics_headline_date %}
-                                <span class="sw-dashboard-index__card-headline-timerange">
-                                    {{ dateAgo.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
-                                    -
-                                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
-                                </span>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+        <template v-if="hasOrderInMonth && acl.can('order.viewer')">
+            {% block sw_dashboard_index_content_statistics_headline %}
+            <div class="sw-dashboard-index__card-headline">
+                {% block sw_dashboard_index_content_statistics_headline_title %}
+                <h1>{{ $tc('sw-dashboard.monthStats.headline') }}</h1>
+                {% endblock %}
 
-                    {% block sw_dashboard_index_content_statistics_count %}
-                        <sw-card class="sw-dashboard-index__statistics-count">
-                            {% block sw_dashboard_index_content_statistics_count_chart_count %}
-                                <sw-chart type="line"
-                                          :series="orderCountMonthSeries"
-                                          :options="chartOptionsOrderCount"
-                                          fillEmptyDates
-                                          sort>
-                                </sw-chart>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
+                {% block sw_dashboard_index_content_statistics_headline_date %}
+                <span class="sw-dashboard-index__card-headline-timerange">
+                    {{ dateAgo.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                    -
+                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                </span>
+                {% endblock %}
+            </div>
+            {% endblock %}
 
-                    {% block sw_dashboard_index_content_statistics_sum %}
-                        <sw-card class="sw-dashboard-index__statistics-sum">
-                            {% block sw_dashboard_index_content_statistics_count_chart_sum %}
-                                <sw-chart type="line"
-                                          :series="orderSumMonthSeries"
-                                          :options="chartOptionsOrderSum"
-                                          fillEmptyDates
-                                          sort>
-                                </sw-chart>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-                </template>
-            </sw-card-view>
-        {% endblock %}
-    </sw-page>
+            {% block sw_dashboard_index_content_statistics_count %}
+            <sw-card class="sw-dashboard-index__statistics-count">
+                {% block sw_dashboard_index_content_statistics_count_chart_count %}
+                <sw-chart
+                    type="line"
+                    :series="orderCountMonthSeries"
+                    :options="chartOptionsOrderCount"
+                    fill-empty-dates
+                    sort
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_dashboard_index_content_statistics_sum %}
+            <sw-card class="sw-dashboard-index__statistics-sum">
+                {% block sw_dashboard_index_content_statistics_count_chart_sum %}
+                <sw-chart
+                    type="line"
+                    :series="orderSumMonthSeries"
+                    :options="chartOptionsOrderSum"
+                    fill-empty-dates
+                    sort
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+        </template>
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
 {% endblock %}

@@ -2,10 +2,9 @@
 <sw-page class="sw-settings-sitemap">
 
     {% block sw_settings_sitemap_search_bar %}
-        <template slot="search-bar">
-            <sw-search-bar>
-            </sw-search-bar>
-        </template>
+    <template slot="search-bar">
+        <sw-search-bar />
+    </template>
     {% endblock %}
 
     {% block sw_settings_sitemap_smart_bar_header %}
@@ -14,8 +13,10 @@
         <h2>
             {% block sw_settings_sitemap_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon name="small-arrow-medium-right" small>
-            </sw-icon>
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
             {{ $tc('sw-settings-sitemap.general.textHeadline') }}
             {% endblock %}
         </h2>
@@ -27,13 +28,14 @@
     <template slot="smart-bar-actions">
         {% block sw_settings_sitemap_actions_save %}
         <sw-button-process
-                class="sw-settings-sitemap__save-action"
-                :isLoading="isLoading"
-                :processSuccess="isSaveSuccessful"
-                :disabled="isLoading"
-                variant="primary"
-                @process-finish="saveFinish"
-                @click="onSave">
+            class="sw-settings-sitemap__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click="onSave"
+        >
             {{ $tc('sw-settings-sitemap.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
@@ -44,10 +46,10 @@
     <template slot="content">
         <sw-card-view>
             <sw-system-config
-                    ref="systemConfig"
-                    salesChannelSwitchable
-                    domain="core.sitemap">
-            </sw-system-config>
+                ref="systemConfig"
+                sales-channel-switchable
+                domain="core.sitemap"
+            />
         </sw-card-view>
     </template>
     {% endblock %}

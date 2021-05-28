@@ -1,39 +1,50 @@
 {% block sw_login_recovery %}
-    <div class="sw-login-recovery">
-        {% block sw_login_recovery_headline %}
-            <h2 class="sw-login__form-headline">
-                <router-link class="sw-login__back" :to="{ name: 'sw.login.index.login' }">
-                    <sw-icon class="sw-login__back-arrow"
-                             name="default-arrow-simple-left"
-                             small>
-                    </sw-icon>
-                </router-link>
-                {{ $tc('sw-login.recovery.headline') }}
-            </h2>
+<div class="sw-login-recovery">
+    {% block sw_login_recovery_headline %}
+    <h2 class="sw-login__form-headline">
+        <router-link
+            class="sw-login__back"
+            :to="{ name: 'sw.login.index.login' }"
+        >
+            <sw-icon
+                class="sw-login__back-arrow"
+                name="default-arrow-simple-left"
+                small
+            />
+        </router-link>
+        {{ $tc('sw-login.recovery.headline') }}
+    </h2>
+    {% endblock %}
+
+    {% block sw_login_recovery_text %}
+    <p>{{ $tc('sw-login.recovery.text') }}</p>
+    {% endblock %}
+
+    {% block sw_login_recovery_form %}
+    <form
+        class="sw-login__recovery-form"
+        @submit.prevent="sendRecoveryMail"
+    >
+        {% block sw_login_recovery_form_email_field %}
+        <sw-text-field
+            ref="swLoginRecoveryEmailField"
+            v-model="email"
+            :label="$tc('sw-login.recovery.email.label')"
+            :placeholder="$tc('sw-login.recovery.email.placeholder')"
+        />
         {% endblock %}
 
-        {% block sw_login_recovery_text %}
-            <p>{{ $tc('sw-login.recovery.text') }}</p>
+        {% block sw_login_recovery_form_submit %}
+        <div class="sw-login__submit">
+            <sw-button
+                variant="primary"
+                :disabled="!isEmailValid()"
+            >
+                {{ $tc('sw-login.recovery.submit') }}
+            </sw-button>
+        </div>
         {% endblock %}
-
-        {% block sw_login_recovery_form %}
-            <form class="sw-login__recovery-form" @submit.prevent="sendRecoveryMail">
-                {% block sw_login_recovery_form_email_field %}
-                    <sw-text-field :label="$tc('sw-login.recovery.email.label')"
-                                   :placeholder="$tc('sw-login.recovery.email.placeholder')"
-                                   v-model="email"
-                                   ref="swLoginRecoveryEmailField">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_login_recovery_form_submit %}
-                    <div class="sw-login__submit">
-                        <sw-button variant="primary" :disabled="!isEmailValid()">
-                            {{ $tc('sw-login.recovery.submit') }}
-                        </sw-button>
-                    </div>
-                {% endblock %}
-            </form>
-        {% endblock %}
-    </div>
+    </form>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,11 +1,12 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-cart-has-delivery-free-item">
-        {% block sw_condition_cart_has_delivery_free_item_field_allowed %}
-            <sw-single-select size="medium"
-                              :options="options"
-                              v-model="allowed"
-                              :disabled="disabled">
-            </sw-single-select>
-        {% endblock %}
-    </div>
+<div class="sw-condition-cart-has-delivery-free-item">
+    {% block sw_condition_cart_has_delivery_free_item_field_allowed %}
+    <sw-single-select
+        v-model="allowed"
+        size="medium"
+        :options="options"
+        :disabled="disabled"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

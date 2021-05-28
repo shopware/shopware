@@ -1,59 +1,62 @@
 {% block sw_promotion_v2_settings_trigger %}
-    <div class="sw-promotion-v2-settings-trigger-settings">
+<div class="sw-promotion-v2-settings-trigger-settings">
 
-        {% block sw_promotion_v2_settings_trigger_description %}
-            <sw-promotion-v2-wizard-description
-                class="sw-promotion-v2-settings-trigger-settings__description">
-                {{ $tc('sw-promotion-v2.detail.discounts.wizard.shipping-discount.description') }}
-            </sw-promotion-v2-wizard-description>
+    {% block sw_promotion_v2_settings_trigger_description %}
+    <sw-promotion-v2-wizard-description
+        class="sw-promotion-v2-settings-trigger-settings__description"
+    >
+        {{ $tc('sw-promotion-v2.detail.discounts.wizard.shipping-discount.description') }}
+    </sw-promotion-v2-wizard-description>
+    {% endblock %}
+
+    {% block sw_promotion_v2_settings_trigger_radio_switch %}
+    <sw-switch-field
+        v-model="useTrigger"
+        class="sw-promotion-v2-settings-trigger-settings__use-trigger"
+        :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelUseTrigger')"
+    />
+    {% endblock %}
+
+    {% block sw_promotion_v2_settings_trigger_container %}
+    <sw-container v-if="useTrigger">
+
+        {% block sw_promotion_v2_settings_trigger_select_trigger_type %}
+        <sw-select-field
+            v-model="triggerType"
+            class="sw-promotion-v2-settings-trigger-settings__trigger-type"
+            :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelNumberOfTriggers')"
+            :disabled="!acl.can('promotion.editor')"
+        >
+
+            {% block sw_promotion_v2_settings_trigger_select_trigger_amount_options %}
+            <option
+                v-for="selection in getTriggerSelection()"
+                :key="selection.value"
+                :value="selection.value"
+                :disabled="selection.disabled"
+            >
+                {{ selection.display }}
+            </option>
+            {% endblock %}
+
+        </sw-select-field>
         {% endblock %}
 
-        {% block sw_promotion_v2_settings_trigger_radio_switch %}
-            <sw-switch-field
-                v-model="useTrigger"
-                class="sw-promotion-v2-settings-trigger-settings__use-trigger"
-                :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelUseTrigger')">
-            </sw-switch-field>
+        {% block sw_promotion_v2_settings_trigger_rule_selection_selection %}
+        <sw-promotion-v2-rule-select
+            v-model="discount.discountRules"
+            local-mode
+            class="sw-promotion-v2-settings-trigger-settings__rule-selection"
+            :criteria="ruleCriteria"
+            :rule-scope="['cart']"
+            :label="$tc('sw-promotion-v2.detail.discounts.settings.ruleSelection.labelSelection')"
+            :placeholder="$tc('sw-promotion-v2.detail.discounts.settings.ruleSelection.placeholderSelection')"
+            :disabled="!acl.can('promotion.editor')"
+        />
         {% endblock %}
 
-        {% block sw_promotion_v2_settings_trigger_container %}
-            <sw-container v-if="useTrigger">
+    </sw-container>
+    {% endblock %}
 
-                {% block sw_promotion_v2_settings_trigger_select_trigger_type %}
-                    <sw-select-field
-                        v-model="triggerType"
-                        class="sw-promotion-v2-settings-trigger-settings__trigger-type"
-                        :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelNumberOfTriggers')"
-                        :disabled="!acl.can('promotion.editor')">
-
-                        {% block sw_promotion_v2_settings_trigger_select_trigger_amount_options %}
-                            <option
-                                v-for="selection in getTriggerSelection()"
-                                :key="selection.value"
-                                :value="selection.value"
-                                :disabled="selection.disabled">
-                                {{ selection.display }}
-                            </option>
-                        {% endblock %}
-
-                    </sw-select-field>
-                {% endblock %}
-
-                {% block sw_promotion_v2_settings_trigger_rule_selection_selection %}
-                    <sw-promotion-v2-rule-select
-                        v-model="discount.discountRules"
-                        localMode
-                        class="sw-promotion-v2-settings-trigger-settings__rule-selection"
-                        :criteria="ruleCriteria"
-                        :ruleScope="['cart']"
-                        :label="$tc('sw-promotion-v2.detail.discounts.settings.ruleSelection.labelSelection')"
-                        :placeholder="$tc('sw-promotion-v2.detail.discounts.settings.ruleSelection.placeholderSelection')"
-                        :disabled="!acl.can('promotion.editor')">
-                    </sw-promotion-v2-rule-select>
-                {% endblock %}
-
-            </sw-container>
-        {% endblock %}
-
-    </div>
+</div>
 {% endblock %}

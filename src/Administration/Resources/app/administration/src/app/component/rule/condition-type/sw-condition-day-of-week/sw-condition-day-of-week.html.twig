@@ -1,18 +1,19 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-day-of-week sw-condition__condition-value">
-        {% block sw_condition_day_of_week_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-day-of-week sw-condition__condition-value">
+    {% block sw_condition_day_of_week_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_day_of_week_field_day_of_week %}
-            <sw-single-select
-                size="medium"
-                :options="weekdays"
-                :disabled="disabled"
-                v-model="dayOfWeek">
-            </sw-single-select>
-        {% endblock %}
-    </div>
+    {% block sw_condition_day_of_week_field_day_of_week %}
+    <sw-single-select
+        v-model="dayOfWeek"
+        size="medium"
+        :options="weekdays"
+        :disabled="disabled"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

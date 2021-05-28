@@ -1,16 +1,16 @@
 {% block sw_seo_main_category %}
-    <div class="sw-seo-main-category">
-        {% block sw_seo_main_category_select %}
-            <sw-single-select
-                :options="categories"
-                labelProperty="translated.name"
-                valueProperty="id"
-                :placeholder="$tc('sw-seo-url.placeholderMainCategory')"
-                :label="$tc('sw-seo-url.labelMainCategory')"
-                :value = "selectedCategory"
-                @change="onMainCategorySelected"
-                :disabled="currentSalesChannelId===null || !allowEdit">
-            </sw-single-select>
-        {% endblock %}
-    </div>
+<div class="sw-seo-main-category">
+    {% block sw_seo_main_category_select %}
+    <sw-single-select
+        :options="categories"
+        label-property="translated.name"
+        value-property="id"
+        :placeholder="$tc('sw-seo-url.placeholderMainCategory')"
+        :label="$tc('sw-seo-url.labelMainCategory')"
+        :value="selectedCategory"
+        :disabled="currentSalesChannelId===null || !allowEdit"
+        @change="onMainCategorySelected"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,19 +1,28 @@
 {% block sw_sales_channel_config %}
-    <div class="sw-sales-channel-config"
-         @salesChannelChanged="save">
-        <div class="sw-sales-channel-config__global-sales-channel-switch">
-            {% block sw_sales_channel_config_switch %}
-                <slot name="select" v-bind="{ onInput, selectedSalesChannelId, salesChannel }">
-                    <sw-single-select :options="salesChannel"
-                                      v-model="selectedSalesChannelId"
-                                      labelProperty="translated.name"
-                                      valueProperty="id"
-                                      @change="onInput">
-                    </sw-single-select>
-                </slot>
-            {% endblock %}
-        </div>
-
-        <slot name="content" v-bind="{ actualConfigData, allConfigs, selectedSalesChannelId }"></slot>
+<div
+    class="sw-sales-channel-config"
+    @salesChannelChanged="save"
+>
+    <div class="sw-sales-channel-config__global-sales-channel-switch">
+        {% block sw_sales_channel_config_switch %}
+        <slot
+            name="select"
+            v-bind="{ onInput, selectedSalesChannelId, salesChannel }"
+        >
+            <sw-single-select
+                v-model="selectedSalesChannelId"
+                :options="salesChannel"
+                label-property="translated.name"
+                value-property="id"
+                @change="onInput"
+            />
+        </slot>
+        {% endblock %}
     </div>
+
+    <slot
+        name="content"
+        v-bind="{ actualConfigData, allConfigs, selectedSalesChannelId }"
+    />
+</div>
 {% endblock %}

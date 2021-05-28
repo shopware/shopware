@@ -97,7 +97,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
         await wrapper.vm.$nextTick();
         const entityListing = wrapper.find('.sw-settings-number-range-list-grid');
         expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes().allowinlineedit).toBeFalsy();
+        expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should allow edit with edit permission', async () => {
@@ -107,7 +107,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
         await wrapper.vm.$nextTick();
         const entityListing = wrapper.find('.sw-settings-number-range-list-grid');
         expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes().allowinlineedit).toBeTruthy();
+        expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should not allow edit without edit permission', async () => {

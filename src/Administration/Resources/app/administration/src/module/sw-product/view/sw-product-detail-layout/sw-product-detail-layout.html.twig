@@ -1,52 +1,58 @@
 {% block sw_product_detail_layout %}
-    <div class="sw-product-detail-layout">
-        {% block sw_product_detail_layout_assignment %}
-            <sw-card
-                :isLoading="isLoading"
-                :title="$tc('sw-product.layout.title')"
-                :subtitle="$tc('sw-product.layout.subtitle')">
+<div class="sw-product-detail-layout">
+    {% block sw_product_detail_layout_assignment %}
+    <sw-card
+        :is-loading="isLoading"
+        :title="$tc('sw-product.layout.title')"
+        :subtitle="$tc('sw-product.layout.subtitle')"
+    >
 
-                {% block sw_product_detail_layout_content %}
-                    <sw-product-layout-assignment
-                        :cmsPage="currentPage"
-                        @modal-layout-open="onOpenLayoutModal"
-                        @button-edit-click="onOpenInPageBuilder"
-                        @button-delete-click="onResetLayout">
-                    </sw-product-layout-assignment>
-                {% endblock %}
-
-                {% block sw_product_detail_layout_modal %}
-                    <sw-cms-layout-modal
-                        v-if="showLayoutModal"
-                        :headline="$tc('sw-product.layoutAssignment.subtitle')"
-                        :cmsPageTypes="['product_detail']"
-                        @modal-layout-select="onSelectLayout"
-                        @modal-close="onCloseLayoutModal">
-                    </sw-cms-layout-modal>
-                {% endblock %}
-            </sw-card>
+        {% block sw_product_detail_layout_content %}
+        <sw-product-layout-assignment
+            :cms-page="currentPage"
+            @modal-layout-open="onOpenLayoutModal"
+            @button-edit-click="onOpenInPageBuilder"
+            @button-delete-click="onResetLayout"
+        />
         {% endblock %}
 
-        {% block sw_product_detail_layout_cms_config %}
-            <template v-if="acl.can('product.editor') && currentPage">
-                {% block sw_product_detail_layout_cms_config_form %}
-                    <sw-cms-page-form v-if="showCmsForm"
-                                      :page="currentPage">
-                    </sw-cms-page-form>
-
-                    <sw-card v-else class="sw-product-detail-layout__no-config" :isLoading="isConfigLoading">
-                        <p>{{ $tc('sw-product.layout.textNoConfig') }}</p>
-                    </sw-card>
-                {% endblock %}
-
-                {% block sw_product_detail_layout_cms_content_info %}
-                    <sw-card hero>
-                        <p class="sw-product-detail-layout__content-info">
-                            {{ $tc('sw-product.layout.textContentInfo') }}
-                        </p>
-                    </sw-card>
-                {% endblock %}
-            </template>
+        {% block sw_product_detail_layout_modal %}
+        <sw-cms-layout-modal
+            v-if="showLayoutModal"
+            :headline="$tc('sw-product.layoutAssignment.subtitle')"
+            :cms-page-types="['product_detail']"
+            @modal-layout-select="onSelectLayout"
+            @modal-close="onCloseLayoutModal"
+        />
         {% endblock %}
-    </div>
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_product_detail_layout_cms_config %}
+    <template v-if="acl.can('product.editor') && currentPage">
+        {% block sw_product_detail_layout_cms_config_form %}
+        <sw-cms-page-form
+            v-if="showCmsForm"
+            :page="currentPage"
+        />
+
+        <sw-card
+            v-else
+            class="sw-product-detail-layout__no-config"
+            :is-loading="isConfigLoading"
+        >
+            <p>{{ $tc('sw-product.layout.textNoConfig') }}</p>
+        </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_layout_cms_content_info %}
+        <sw-card hero>
+            <p class="sw-product-detail-layout__content-info">
+                {{ $tc('sw-product.layout.textContentInfo') }}
+            </p>
+        </sw-card>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</div>
 {% endblock %}

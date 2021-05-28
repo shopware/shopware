@@ -1,136 +1,147 @@
 {% block sw_settings_search_excluded_search_terms %}
-    <sw-card
-        :title="$tc('sw-settings-search.generalTab.labelExcludedSearchTerms')"
-        class="sw-settings-search-excluded-search-terms">
-        <template #grid>
-            {% block sw_settings_search_excluded_search_terms_empty_state %}
-                <sw-empty-state
-                    v-if="showEmptyState"
-                    :title="$tc('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
-                    :showDescription="false"
-                    :hasActionSlot="true"
-                    :absolute="false"
-                    class="sw-empty-state">
-                    <template #icon>
-                        {% block sw_settings_search_excluded_search_terms_empty_state_image %}
-                            <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
-                        {% endblock %}
-                    </template>
+<sw-card
+    :title="$tc('sw-settings-search.generalTab.labelExcludedSearchTerms')"
+    class="sw-settings-search-excluded-search-terms"
+>
+    <template #grid>
+        {% block sw_settings_search_excluded_search_terms_empty_state %}
+        <sw-empty-state
+            v-if="showEmptyState"
+            :title="$tc('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
+            :show-description="false"
+            :has-action-slot="true"
+            :absolute="false"
+            class="sw-empty-state"
+        >
+            <template #icon>
+                {% block sw_settings_search_excluded_search_terms_empty_state_image %}
+                <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                {% endblock %}
+            </template>
 
-                    <template #actions>
-                        {% block sw_settings_search_excluded_search_terms_empty_state_action %}
-                            <sw-button
-                                class="sw-settings-search-excluded-search-terms__action-add"
-                                variant="ghost"
-                                size="small"
-                                :disabled="!acl.can('product_search_config.creator')"
-                                @click="addExcludedSearchTerms">
-                                {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                </sw-empty-state>
-            {% endblock %}
+            <template #actions>
+                {% block sw_settings_search_excluded_search_terms_empty_state_action %}
+                <sw-button
+                    class="sw-settings-search-excluded-search-terms__action-add"
+                    variant="ghost"
+                    size="small"
+                    :disabled="!acl.can('product_search_config.creator')"
+                    @click="addExcludedSearchTerms"
+                >
+                    {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
+                </sw-button>
+                {% endblock %}
+            </template>
+        </sw-empty-state>
+        {% endblock %}
 
-            {% block sw_settings_search_excluded_search_terms_grid %}
-                <div v-if="!showEmptyState">
-                    {% block sw_settings_search_excluded_search_terms_header_bar %}
-                        <sw-container
-                            class="sw-settings-search-excluded-search-terms__header-bar"
-                            columns="1fr auto" gap="10px" align="center">
-                            {% block sw_settings_search_excluded_search_terms_filter %}
-                                <sw-card-filter
-                                    :placeholder="$tc('sw-settings-search.generalTab.textPlaceholderTermsFilter')"
-                                    @sw-card-filter-term-change="onSearchTermChange"
-                                    ref="itemFilter">
-                                </sw-card-filter>
-                            {% endblock %}
+        {% block sw_settings_search_excluded_search_terms_grid %}
+        <div v-if="!showEmptyState">
+            {% block sw_settings_search_excluded_search_terms_header_bar %}
+            <sw-container
+                class="sw-settings-search-excluded-search-terms__header-bar"
+                columns="1fr auto"
+                gap="10px"
+                align="center"
+            >
+                {% block sw_settings_search_excluded_search_terms_filter %}
+                <sw-card-filter
+                    ref="itemFilter"
+                    :placeholder="$tc('sw-settings-search.generalTab.textPlaceholderTermsFilter')"
+                    @sw-card-filter-term-change="onSearchTermChange"
+                />
+                {% endblock %}
 
-                            {% block sw_settings_search_excluded_search_terms_actions %}
-                                <div class="sw-settings-search-excluded-search-terms-group-actions">
-                                    {% block sw_settings_search_excluded_search_terms_add_button %}
-                                        <sw-button
-                                            class="sw-settings-search-excluded-search-terms__insert-button"
-                                            variant="ghost"
-                                            size="small"
-                                            :disabled="!acl.can('product_search_config.creator')"
-                                            @click="onInsertTerm">
-                                            {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
-                                        </sw-button>
-                                    {% endblock %}
-
-                                    {% block sw_settings_search_excluded_search_terms_reset_button %}
-                                        <sw-button
-                                            class="sw-settings-search-excluded-search-terms__reset-button"
-                                            size="small"
-                                            :disabled="!acl.can('product_search_config.creator')"
-                                            :isLoading="isLoading"
-                                            @click="onResetExcludedSearchTermDefault">
-                                            {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
-                                        </sw-button>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </sw-container>
+                {% block sw_settings_search_excluded_search_terms_actions %}
+                <div class="sw-settings-search-excluded-search-terms-group-actions">
+                    {% block sw_settings_search_excluded_search_terms_add_button %}
+                    <sw-button
+                        class="sw-settings-search-excluded-search-terms__insert-button"
+                        variant="ghost"
+                        size="small"
+                        :disabled="!acl.can('product_search_config.creator')"
+                        @click="onInsertTerm"
+                    >
+                        {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
+                    </sw-button>
                     {% endblock %}
 
-                    {% block sw_settings_search_excluded_search_terms_grid_list %}
-                        <sw-container>
-                            <sw-data-grid
-                                v-if="items.length !== 0"
-                                :dataSource="items"
-                                :allowInlineEdit="acl.can('product_search_config.editor')"
-                                :isLoading="isLoading || isExcludedTermsLoading"
-                                :columns="getSearchableGeneralColumns"
-                                @inline-edit-save="onSaveEdit"
-                                @inline-edit-cancel="onCancelEdit"
-                                @select-item="selectionChanged"
-                                class="sw-settings-search__grid sw-settings-search-excluded-search-terms_grid"
-                                ref="dataGrid">
-                                <template slot="bulk">
-                                    <sw-button
-                                        variant="danger"
-                                        size="small"
-                                        :disabled="!acl.can('product_search_config.deleter')"
-                                        @click="onBulkDeleteExcludedTerm()">
-                                        {{ $tc('global.default.delete') }}
-                                    </sw-button>
-                                </template>
-
-                                <template #actions="{ item }">
-                                    {% block sw_search_excluded_terms_column_actions %}
-                                        <sw-context-menu-item
-                                            variant="danger"
-                                            :disabled="!acl.can('product_search_config.deleter')"
-                                            @click="onDeleteExcludedTerm([item])">
-                                            {{ $tc('global.default.delete') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-                                </template>
-
-                                <template #pagination>
-                                    {% block sw_search_excluded_terms_list_pagination %}
-                                        <sw-pagination
-                                            :page="page"
-                                            :limit="limit"
-                                            :total="total"
-                                            :total-visible="7"
-                                            @page-change="onPagePagination">
-                                        </sw-pagination>
-                                    {% endblock %}
-                                </template>
-                            </sw-data-grid>
-                            {% block sw_search_excliuded_terms_no_results %}
-                                <div  v-if="items.length === 0">
-                                    <p class="sw-settings-search__no-data-results">
-                                        {{ $tc('sw-settings-search.generalTab.labelExcludedSearchTermsNoResults') }}
-                                    </p>
-                                </div>
-                            {% endblock %}
-                        </sw-container>
+                    {% block sw_settings_search_excluded_search_terms_reset_button %}
+                    <sw-button
+                        class="sw-settings-search-excluded-search-terms__reset-button"
+                        size="small"
+                        :disabled="!acl.can('product_search_config.creator')"
+                        :is-loading="isLoading"
+                        @click="onResetExcludedSearchTermDefault"
+                    >
+                        {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
+                    </sw-button>
                     {% endblock %}
                 </div>
+                {% endblock %}
+            </sw-container>
             {% endblock %}
-        </template>
-    </sw-card>
+
+            {% block sw_settings_search_excluded_search_terms_grid_list %}
+            <sw-container>
+                <sw-data-grid
+                    v-if="items.length !== 0"
+                    ref="dataGrid"
+                    :data-source="items"
+                    :allow-inline-edit="acl.can('product_search_config.editor')"
+                    :is-loading="isLoading || isExcludedTermsLoading"
+                    :columns="getSearchableGeneralColumns"
+                    class="sw-settings-search__grid sw-settings-search-excluded-search-terms_grid"
+                    @inline-edit-save="onSaveEdit"
+                    @inline-edit-cancel="onCancelEdit"
+                    @select-item="selectionChanged"
+                >
+                    <template slot="bulk">
+                        <sw-button
+                            variant="danger"
+                            size="small"
+                            :disabled="!acl.can('product_search_config.deleter')"
+                            @click="onBulkDeleteExcludedTerm()"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </sw-button>
+                    </template>
+
+                    <template #actions="{ item }">
+                        {% block sw_search_excluded_terms_column_actions %}
+                        <sw-context-menu-item
+                            variant="danger"
+                            :disabled="!acl.can('product_search_config.deleter')"
+                            @click="onDeleteExcludedTerm([item])"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
+
+                    <template #pagination>
+                        {% block sw_search_excluded_terms_list_pagination %}
+                        <sw-pagination
+                            :page="page"
+                            :limit="limit"
+                            :total="total"
+                            :total-visible="7"
+                            @page-change="onPagePagination"
+                        />
+                        {% endblock %}
+                    </template>
+                </sw-data-grid>
+                {% block sw_search_excliuded_terms_no_results %}
+                <div v-if="items.length === 0">
+                    <p class="sw-settings-search__no-data-results">
+                        {{ $tc('sw-settings-search.generalTab.labelExcludedSearchTermsNoResults') }}
+                    </p>
+                </div>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+</sw-card>
 {% endblock %}

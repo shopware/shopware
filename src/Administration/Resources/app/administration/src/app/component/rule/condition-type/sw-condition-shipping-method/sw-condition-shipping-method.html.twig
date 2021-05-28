@@ -1,19 +1,20 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-shipping-method sw-condition__condition-value">
-        {% block sw_condition_shipping_method_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-shipping-method sw-condition__condition-value">
+    {% block sw_condition_shipping_method_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_shipping_method_field_shipping_method_ids %}
-            <sw-entity-multi-select
-                size="medium"
-                entity="shipping_method"
-                :disabled="disabled"
-                :entityCollection="shippingMethods"
-                @change="setShippingMethodIds">
-            </sw-entity-multi-select>
-        {% endblock %}
-    </div>
+    {% block sw_condition_shipping_method_field_shipping_method_ids %}
+    <sw-entity-multi-select
+        size="medium"
+        entity="shipping_method"
+        :disabled="disabled"
+        :entity-collection="shippingMethods"
+        @change="setShippingMethodIds"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,221 +1,288 @@
 {% block sw_cms_detail %}
-    <sw-page class="sw-cms-detail" :showSearchBar="false" :showSmartBar="false">
-        {% block sw_cms_detail_content %}
-            <div class="sw-cms-detail__content" slot="content">
-                {% block sw_cms_detail_toolbar %}
-                    <sw-cms-toolbar>
-                        {% block sw_cms_detail_toolbar_language_switch %}
-                            <sw-language-switch slot="language-switch"
-                                                :disabled="isLoading || page.locked"
-                                                :allowEdit="acl.can('cms.editor')"
-                                                @on-change="onChangeLanguage"
-                                                :saveChangesFunction="saveOnLanguageChange"
-                                                :abortChangeFunction="abortOnLanguageChange">
-                            </sw-language-switch>
-                        {% endblock %}
+<sw-page
+    class="sw-cms-detail"
+    :show-search-bar="false"
+    :show-smart-bar="false"
+>
+    {% block sw_cms_detail_content %}
+    <div
+        slot="content"
+        class="sw-cms-detail__content"
+    >
+        {% block sw_cms_detail_toolbar %}
+        <sw-cms-toolbar>
+            {% block sw_cms_detail_toolbar_language_switch %}
+            <sw-language-switch
+                slot="language-switch"
+                :disabled="isLoading || page.locked"
+                :allow-edit="acl.can('cms.editor')"
+                :save-changes-function="saveOnLanguageChange"
+                :abort-change-function="abortOnLanguageChange"
+                @on-change="onChangeLanguage"
+            />
+            {% endblock %}
 
-                        {% block sw_cms_detail_toolbar_title %}
-                            <div class="sw-cms-detail__page-info" slot="title">
-                                {% block sw_cms_detail_toolbar_back_button %}
-                                    <router-link :to="{ name: 'sw.cms.index' }" class="sw-cms-detail__back-btn">
-                                        <sw-icon name="default-basic-x-line"></sw-icon>
-                                    </router-link>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_toolbar_page_name %}
-                                    <h2 class="sw-cms-detail__page-name">{{ placeholder(page, 'name') }}</h2>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_toolbar_page_type %}
-                                    <div class="sw-cms-detail__page-type" v-if="page.type">{{ cmsPageTypes[page.type] }}</div>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_cms_detail_toolbar_device_actions %}
-                            <div class="sw-cms-detail__device-actions" slot="tools" v-if="pageHasSections">
-                                {% block sw_cms_detail_toolbar_device_actions_mobile %}
-                                    <sw-icon name="default-device-mobile"
-                                             :class="{ 'is--active': currentDeviceView === 'mobile' }"
-                                             @click="onDeviceViewChange('mobile')">
-                                    </sw-icon>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
-                                    <sw-icon name="default-device-tablet"
-                                             :class="{ 'is--active': currentDeviceView === 'tablet-landscape' }"
-                                             @click="onDeviceViewChange('tablet-landscape')">
-                                    </sw-icon>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_toolbar_device_actions_desktop %}
-                                    <sw-icon name="default-device-desktop"
-                                             :class="{ 'is--active': currentDeviceView === 'desktop' }"
-                                             @click="onDeviceViewChange('desktop')">
-                                    </sw-icon>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_toolbar_device_actions_form %}
-                                    <sw-icon name="default-basic-stack-block"
-                                             :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"
-                                             @click="onDeviceViewChange('form')">
-                                    </sw-icon>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_cms_detail_toolbar_actions %}
-                            <div class="sw-cms-detail__actions" slot="actions">
-
-                                {% block sw_cms_detail_toolbar_actions_save %}
-                                    <sw-button-process
-                                            class="sw-cms-detail__save-action"
-                                            :isLoading="isLoading"
-                                            :processSuccess="isSaveSuccessful"
-                                            :disabled="isLoading || page.locked || !acl.can('cms.editor')"
-                                            variant="primary"
-                                            @process-finish="saveFinish"
-                                            v-tooltip.bottom="tooltipSave"
-                                            @click="onSave">
-                                            {{ $tc('sw-cms.detail.label.buttonSave') }}
-                                    </sw-button-process>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </sw-cms-toolbar>
+            {% block sw_cms_detail_toolbar_title %}
+            <div
+                slot="title"
+                class="sw-cms-detail__page-info"
+            >
+                {% block sw_cms_detail_toolbar_back_button %}
+                <router-link
+                    :to="{ name: 'sw.cms.index' }"
+                    class="sw-cms-detail__back-btn"
+                >
+                    <sw-icon name="default-basic-x-line" />
+                </router-link>
                 {% endblock %}
 
-                {% block sw_cms_detail_stage_container %}
-                    <div class="sw-cms-detail__stage-container">
-                        <sw-overlay v-if="page.locked"></sw-overlay>
-                        {% block sw_cms_detail_stage_form_view %}
-                            <div class="sw-cms-detail__page-form" v-if="currentDeviceView === 'form'">
-                                {% block sw_cms_detail_page_notification %}
-                                    <div class="sw-cms-detail__page-notification" v-if="page.locked">
-                                        <sw-alert class="sw-cms-detail__page-notification-alert" variant="info">
-                                            {{ $tc('sw-cms.detail.label.lockedNotification') }}
-                                        </sw-alert>
-                                    </div>
-                                {% endblock %}
+                {% block sw_cms_detail_toolbar_page_name %}
+                <h2 class="sw-cms-detail__page-name">
+                    {{ placeholder(page, 'name') }}
+                </h2>
+                {% endblock %}
 
-                                <sw-cms-page-form v-if="!isLoading" :page="page"></sw-cms-page-form>
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_cms_detail_stage_wrapper %}
-                            <div class="sw-cms-detail__stage" v-else>
-
-                                {% block sw_cms_detail_toolbar_notification %}
-                                    <div class="sw-cms-detail__page-notification" v-if="page.locked">
-                                        <sw-alert class="sw-cms-detail__page-notification-alert" variant="info">
-                                            {{ $tc('sw-cms.detail.label.lockedNotification') }}
-                                        </sw-alert>
-                                    </div>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_stage_empty_stage %}
-                                    <div class="sw-cms-detail__empty-stage"
-                                         v-if="!isLoading && !pageHasSections">
-
-                                        {% block sw_cms_detail_stage_empty_stade_content %}
-                                            <div class="sw-cms-detail__empty-stage-content">
-                                                <h2 class="sw-cms-detail__empty-stage-headline">{{ $tc('sw-cms.detail.label.headlineEmptyState') }}</h2>
-                                                <p class="sw-cms-detail__empty-stage-claim">{{ $tc('sw-cms.detail.label.claimEmptyState') }}</p>
-                                                <sw-cms-stage-add-section :key="0"
-                                                                          :disabled="!acl.can('cms.editor')"
-                                                                          :forceChoose="true"
-                                                                          @stage-section-add="onAddSection($event, 0)">
-                                                </sw-cms-stage-add-section>
-                                            </div>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_stage %}
-                                    <div class="sw-cms-stage"
-                                         :class="cmsStageClasses"
-                                         :id="`page-${page.id}`"
-                                         v-else>
-
-                                        {% block sw_cms_detail_stage_add_first_section %}
-                                            <sw-cms-stage-add-section :key="0"
-                                                                      :disabled="!acl.can('cms.editor')"
-                                                                      @stage-section-add="onAddSection($event, 0)">
-                                            </sw-cms-stage-add-section>
-                                        {% endblock %}
-
-                                        {% block sw_cms_detail_stage_content %}
-                                            <template v-if="!isLoading">
-                                                <template v-for="(section, index) in page.sections">
-
-                                                    {% block sw_cms_detail_stage_content_section %}
-                                                        <sw-cms-section class="sw-cms-stage-section"
-                                                                        :page="page"
-                                                                        :section="section"
-                                                                        :active="selectedSection !== null && selectedSection.id === section.id"
-                                                                        @page-config-open="pageConfigOpen"
-                                                                        @block-duplicate="onBlockDuplicate"
-                                                                        :disabled="!acl.can('cms.editor')"
-                                                                        :key="section.id">
-                                                        </sw-cms-section>
-                                                    {% endblock %}
-                                                </template>
-                                            </template>
-                                        {% endblock %}
-
-                                        {% block sw_cms_detail_stage_add_last_section %}
-                                            <sw-cms-stage-add-section :key="page.sections.length + 1"
-                                                                      :disabled="!acl.can('cms.editor')"
-                                                                      @stage-section-add="onAddSection($event, page.sections.length)">
-                                            </sw-cms-stage-add-section>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_cms_detail_sidebar %}
-                            <sw-cms-sidebar ref="cmsSidebar"
-                                            :page="page"
-                                            :demoEntity="currentMappingEntity"
-                                            :demoEntityIdProp="demoEntityId"
-                                            :disabled="!acl.can('cms.editor')"
-                                            @demo-entity-change="onDemoEntityChange"
-                                            @block-duplicate="onBlockDuplicate"
-                                            @section-duplicate="onSectionDuplicate"
-                                            @block-stage-drop="onPageUpdate"
-                                            @block-navigator-sort="onPageUpdate"
-                                            @page-type-change="onPageTypeChange"
-                                            @page-update="onPageUpdate"
-                                            @open-layout-assignment="onOpenLayoutAssignment">
-                            </sw-cms-sidebar>
-                        {% endblock %}
-
-                        {% block sw_cms_detail_layout_assignment_modal %}
-                            <sw-cms-layout-assignment-modal
-                                v-if="showLayoutAssignmentModal"
-                                @modal-close="closeLayoutAssignmentModal"
-                                {# @deprecated tag:v6.5.0 event subscriber "confirm" can be removed completely #}
-                                @confirm="onConfirmLayoutAssignment"
-                                :page="page">
-                            </sw-cms-layout-assignment-modal>
-                        {% endblock %}
-
-                        {% block sw_cms_detail_missing_element_modal %}
-                            <sw-cms-missing-element-modal
-                                v-if="showMissingElementModal"
-                                :missingElements="missingElements"
-                                @modal-close="onCloseMissingElementModal"
-                                @modal-save="onSaveMissingElementModal">
-                            </sw-cms-missing-element-modal>
-                        {% endblock %}
-
-                        {% block sw_cms_detail_loader %}
-                            <sw-loader v-if="isLoading"></sw-loader>
-                        {% endblock %}
-                    </div>
+                {% block sw_cms_detail_toolbar_page_type %}
+                <div
+                    v-if="page.type"
+                    class="sw-cms-detail__page-type"
+                >
+                    {{ cmsPageTypes[page.type] }}
+                </div>
                 {% endblock %}
             </div>
+            {% endblock %}
+
+            {% block sw_cms_detail_toolbar_device_actions %}
+            <div
+                v-if="pageHasSections"
+                slot="tools"
+                class="sw-cms-detail__device-actions"
+            >
+                {% block sw_cms_detail_toolbar_device_actions_mobile %}
+                <sw-icon
+                    name="default-device-mobile"
+                    :class="{ 'is--active': currentDeviceView === 'mobile' }"
+                    @click="onDeviceViewChange('mobile')"
+                />
+                {% endblock %}
+
+                {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
+                <sw-icon
+                    name="default-device-tablet"
+                    :class="{ 'is--active': currentDeviceView === 'tablet-landscape' }"
+                    @click="onDeviceViewChange('tablet-landscape')"
+                />
+                {% endblock %}
+
+                {% block sw_cms_detail_toolbar_device_actions_desktop %}
+                <sw-icon
+                    name="default-device-desktop"
+                    :class="{ 'is--active': currentDeviceView === 'desktop' }"
+                    @click="onDeviceViewChange('desktop')"
+                />
+                {% endblock %}
+
+                {% block sw_cms_detail_toolbar_device_actions_form %}
+                <sw-icon
+                    name="default-basic-stack-block"
+                    :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"
+                    @click="onDeviceViewChange('form')"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_cms_detail_toolbar_actions %}
+            <div
+                slot="actions"
+                class="sw-cms-detail__actions"
+            >
+
+                {% block sw_cms_detail_toolbar_actions_save %}
+                <sw-button-process
+                    v-tooltip.bottom="tooltipSave"
+                    class="sw-cms-detail__save-action"
+                    :is-loading="isLoading"
+                    :process-success="isSaveSuccessful"
+                    :disabled="isLoading || page.locked || !acl.can('cms.editor')"
+                    variant="primary"
+                    @process-finish="saveFinish"
+                    @click="onSave"
+                >
+                    {{ $tc('sw-cms.detail.label.buttonSave') }}
+                </sw-button-process>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </sw-cms-toolbar>
         {% endblock %}
-    </sw-page>
+
+        {% block sw_cms_detail_stage_container %}
+        <div class="sw-cms-detail__stage-container">
+            <sw-overlay v-if="page.locked" />
+            {% block sw_cms_detail_stage_form_view %}
+            <div
+                v-if="currentDeviceView === 'form'"
+                class="sw-cms-detail__page-form"
+            >
+                {% block sw_cms_detail_page_notification %}
+                <div
+                    v-if="page.locked"
+                    class="sw-cms-detail__page-notification"
+                >
+                    <sw-alert
+                        class="sw-cms-detail__page-notification-alert"
+                        variant="info"
+                    >
+                        {{ $tc('sw-cms.detail.label.lockedNotification') }}
+                    </sw-alert>
+                </div>
+                {% endblock %}
+
+                <sw-cms-page-form
+                    v-if="!isLoading"
+                    :page="page"
+                />
+            </div>
+            {% endblock %}
+
+            {% block sw_cms_detail_stage_wrapper %}
+            <div
+                v-else
+                class="sw-cms-detail__stage"
+            >
+
+                {% block sw_cms_detail_toolbar_notification %}
+                <div
+                    v-if="page.locked"
+                    class="sw-cms-detail__page-notification"
+                >
+                    <sw-alert
+                        class="sw-cms-detail__page-notification-alert"
+                        variant="info"
+                    >
+                        {{ $tc('sw-cms.detail.label.lockedNotification') }}
+                    </sw-alert>
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_detail_stage_empty_stage %}
+                <div
+                    v-if="!isLoading && !pageHasSections"
+                    class="sw-cms-detail__empty-stage"
+                >
+
+                    {% block sw_cms_detail_stage_empty_stade_content %}
+                    <div class="sw-cms-detail__empty-stage-content">
+                        <h2 class="sw-cms-detail__empty-stage-headline">
+                            {{ $tc('sw-cms.detail.label.headlineEmptyState') }}
+                        </h2>
+                        <p class="sw-cms-detail__empty-stage-claim">
+                            {{ $tc('sw-cms.detail.label.claimEmptyState') }}
+                        </p>
+                        <sw-cms-stage-add-section
+                            :key="0"
+                            :disabled="!acl.can('cms.editor')"
+                            :force-choose="true"
+                            @stage-section-add="onAddSection($event, 0)"
+                        />
+                    </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_detail_stage %}
+                <div
+                    v-else
+                    :id="`page-${page.id}`"
+                    class="sw-cms-stage"
+                    :class="cmsStageClasses"
+                >
+
+                    {% block sw_cms_detail_stage_add_first_section %}
+                    <sw-cms-stage-add-section
+                        :key="0"
+                        :disabled="!acl.can('cms.editor')"
+                        @stage-section-add="onAddSection($event, 0)"
+                    />
+                    {% endblock %}
+
+                    {% block sw_cms_detail_stage_content %}
+                    <template v-if="!isLoading">
+                        <template v-for="(section, index) in page.sections">
+
+                            {% block sw_cms_detail_stage_content_section %}
+                            <sw-cms-section
+                                :key="section.id"
+                                class="sw-cms-stage-section"
+                                :page="page"
+                                :section="section"
+                                :active="selectedSection !== null && selectedSection.id === section.id"
+                                :disabled="!acl.can('cms.editor')"
+                                @page-config-open="pageConfigOpen"
+                                @block-duplicate="onBlockDuplicate"
+                            />
+                            {% endblock %}
+                        </template>
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_cms_detail_stage_add_last_section %}
+                    <sw-cms-stage-add-section
+                        :key="page.sections.length + 1"
+                        :disabled="!acl.can('cms.editor')"
+                        @stage-section-add="onAddSection($event, page.sections.length)"
+                    />
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_cms_detail_sidebar %}
+            <sw-cms-sidebar
+                ref="cmsSidebar"
+                :page="page"
+                :demo-entity="currentMappingEntity"
+                :demo-entity-id-prop="demoEntityId"
+                :disabled="!acl.can('cms.editor')"
+                @demo-entity-change="onDemoEntityChange"
+                @block-duplicate="onBlockDuplicate"
+                @section-duplicate="onSectionDuplicate"
+                @block-stage-drop="onPageUpdate"
+                @block-navigator-sort="onPageUpdate"
+                @page-type-change="onPageTypeChange"
+                @page-update="onPageUpdate"
+                @open-layout-assignment="onOpenLayoutAssignment"
+            />
+            {% endblock %}
+
+            {% block sw_cms_detail_layout_assignment_modal %}
+            {# @deprecated tag:v6.5.0 event subscriber "confirm" can be removed completely #}
+            <sw-cms-layout-assignment-modal
+                v-if="showLayoutAssignmentModal"
+                :page="page"
+                @modal-close="closeLayoutAssignmentModal"
+                @confirm="onConfirmLayoutAssignment"
+            />
+            {% endblock %}
+
+            {% block sw_cms_detail_missing_element_modal %}
+            <sw-cms-missing-element-modal
+                v-if="showMissingElementModal"
+                :missing-elements="missingElements"
+                @modal-close="onCloseMissingElementModal"
+                @modal-save="onSaveMissingElementModal"
+            />
+            {% endblock %}
+
+            {% block sw_cms_detail_loader %}
+            <sw-loader v-if="isLoading" />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</sw-page>
 {% endblock %}

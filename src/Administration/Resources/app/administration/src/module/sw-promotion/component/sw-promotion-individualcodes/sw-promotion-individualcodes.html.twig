@@ -1,111 +1,152 @@
 {% block sw_promotion_individualcodes %}
 <div class="sw-promotion-individualcodes">
-    <sw-container columns="4fr 1fr 1fr" gap="0 10px" class="sw-promotion-individualcodes__top-bar">
+    <sw-container
+        columns="4fr 1fr 1fr"
+        gap="0 10px"
+        class="sw-promotion-individualcodes__top-bar"
+    >
         {% block sw_promotion_individualcodes_generate_pattern_field %}
-            <sw-field :label="$tc('sw-promotion.detail.main.general.codes.individual.labelPattern')"
-                      type="text"
-                      v-model="promotion.individualCodePattern"
-                      :helpText="codePatternHelpText"
-                      :disabled="isEditingDisabled">
-            </sw-field>
+        <sw-field
+            v-model="promotion.individualCodePattern"
+            :label="$tc('sw-promotion.detail.main.general.codes.individual.labelPattern')"
+            type="text"
+            :help-text="codePatternHelpText"
+            :disabled="isEditingDisabled"
+        />
         {% endblock %}
         {% block sw_promotion_individualcodes_generate_count_field %}
-            <sw-number-field :label="$tc('sw-promotion.detail.main.general.codes.individual.labelCount')"
-                             numberType="int"
-                             :min="0"
-                             :digits="2"
-                             :disabled="isEditingDisabled"
-                             v-model="generateCount">
-            </sw-number-field>
+        <sw-number-field
+            v-model="generateCount"
+            :label="$tc('sw-promotion.detail.main.general.codes.individual.labelCount')"
+            number-type="int"
+            :min="0"
+            :digits="2"
+            :disabled="isEditingDisabled"
+        />
         {% endblock %}
         {% block sw_promotion_individualcodes_generate_button %}
-            <sw-button variant="primary"
-                       :block="true"
-                       size="small"
-                       :key="isGeneratingCodes"
-                       :isLoading="isGeneratingCodes"
-                       @click="onGenerateClick"
-                       :disabled="isEditingDisabled">
-                {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonGenerate') }}
-            </sw-button>
+        <sw-button
+            :key="isGeneratingCodes"
+            variant="primary"
+            :block="true"
+            size="small"
+            :is-loading="isGeneratingCodes"
+            :disabled="isEditingDisabled"
+            @click="onGenerateClick"
+        >
+            {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonGenerate') }}
+        </sw-button>
         {% endblock %}
     </sw-container>
 
-    <sw-container columns="5fr 1fr" gap="10px 10px" class="sw-promotion-individualcodes__progress-bar">
-        <sw-progress-bar :value="progressValue" :maxValue="progressMax" />
-        <sw-label size="small" appearance="pill" :ghost="true" :caps="true">
+    <sw-container
+        columns="5fr 1fr"
+        gap="10px 10px"
+        class="sw-promotion-individualcodes__progress-bar"
+    >
+        <sw-progress-bar
+            :value="progressValue"
+            :max-value="progressMax"
+        />
+        <sw-label
+            size="small"
+            appearance="pill"
+            :ghost="true"
+            :caps="true"
+        >
             {{ progressValue }} / {{ progressMax }}
         </sw-label>
     </sw-container>
 
     <sw-container columns="1fr">
         {% block sw_promotion_individualcodes_empty_state %}
-            <sw-empty-state v-if="gridItemsTotal <= 0"
-                            :title="$tc('sw-promotion.detail.main.general.codes.individual.labelNoCodesExist')"
-                            subline=" ">
-            </sw-empty-state>
+        <sw-empty-state
+            v-if="gridItemsTotal <= 0"
+            :title="$tc('sw-promotion.detail.main.general.codes.individual.labelNoCodesExist')"
+            subline=" "
+        />
         {% endblock %}
         {% block sw_promotion_individualcodes_grid %}
-            <sw-data-grid ref="gridCodes"
-                          v-if="gridItemsTotal > 0"
-                          :dataSource="gridPageDataSource"
-                          :columns="gridColumns"
-                          :showSelection="true"
-                          @select-all-items="onGridSelectionChanged"
-                          @selection-change="onGridSelectionChanged">
-                <template slot="actions" slot-scope="{ item }">
-                    {% block sw_promotion_individualcodes_grid_actions_open_customer %}
-                        <sw-context-menu-item class="sw-promotion-individualcodes__view-action"
-                                              :disabled="!item.isRedeemed || isEditingDisabled"
-                                              @click="onOpenCustomer(item.customerId)">
-                            {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonOpenCustomer') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
-                    {% block sw_promotion_individualcodes_grid_actions_delete_code %}
-                        <sw-context-menu-item class="sw-promotion-individualcodes__delete-action"
-                                              variant="danger"
-                                              :disabled="item.isRedeemed || isEditingDisabled"
-                                              @click="onDeleteCode(item)">
-                            {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonDeleteCode') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
-                </template>
-                <template slot="column-isRedeemed" slot-scope="{ item, compact }">
-                    {% block sw_promotion_individualcodes_grid_redeemed_active %}
-                        <sw-icon name="small-default-checkmark-line-medium"
-                                 small
-                                 v-if="item.isRedeemed"
-                                 class="is--active">
-                        </sw-icon>
-                    {% endblock %}
-                    {% block sw_promotion_individualcodes_grid_redeemed_inactive %}
-                        <sw-icon name="small-default-x-line-medium"
-                                 small
-                                 v-else
-                                 class="is--inactive">
-                        </sw-icon>
-                    {% endblock %}
-                </template>
-                <template slot="pagination">
-                    <sw-pagination :total="gridItemsTotal"
-                                   :limit="gridPageLimit"
-                                   :page="gridCurrentPageNr"
-                                   :total-visible="gridPagesVisible"
-                                   :steps="gridSteps"
-                                   @page-change="onPageChange">
-                    </sw-pagination>
-                </template>
-            </sw-data-grid>
+        <sw-data-grid
+            v-if="gridItemsTotal > 0"
+            ref="gridCodes"
+            :data-source="gridPageDataSource"
+            :columns="gridColumns"
+            :show-selection="true"
+            @select-all-items="onGridSelectionChanged"
+            @selection-change="onGridSelectionChanged"
+        >
+            <template
+                slot="actions"
+                slot-scope="{ item }"
+            >
+                {% block sw_promotion_individualcodes_grid_actions_open_customer %}
+                <sw-context-menu-item
+                    class="sw-promotion-individualcodes__view-action"
+                    :disabled="!item.isRedeemed || isEditingDisabled"
+                    @click="onOpenCustomer(item.customerId)"
+                >
+                    {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonOpenCustomer') }}
+                </sw-context-menu-item>
+                {% endblock %}
+                {% block sw_promotion_individualcodes_grid_actions_delete_code %}
+                <sw-context-menu-item
+                    class="sw-promotion-individualcodes__delete-action"
+                    variant="danger"
+                    :disabled="item.isRedeemed || isEditingDisabled"
+                    @click="onDeleteCode(item)"
+                >
+                    {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonDeleteCode') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            <template
+                slot="column-isRedeemed"
+                slot-scope="{ item, compact }"
+            >
+                {% block sw_promotion_individualcodes_grid_redeemed_active %}
+                <sw-icon
+                    v-if="item.isRedeemed"
+                    name="small-default-checkmark-line-medium"
+                    small
+                    class="is--active"
+                />
+                {% endblock %}
+                {% block sw_promotion_individualcodes_grid_redeemed_inactive %}
+                <sw-icon
+                    v-else
+                    name="small-default-x-line-medium"
+                    small
+                    class="is--inactive"
+                />
+                {% endblock %}
+            </template>
+            <template slot="pagination">
+                <sw-pagination
+                    :total="gridItemsTotal"
+                    :limit="gridPageLimit"
+                    :page="gridCurrentPageNr"
+                    :total-visible="gridPagesVisible"
+                    :steps="gridSteps"
+                    @page-change="onPageChange"
+                />
+            </template>
+        </sw-data-grid>
         {% endblock %}
         {% block sw_promotion_individualcodes_delete_selected_button %}
-            <sw-button class="sw-promotion-individualcodes__selected-codes-delete"
-                       v-if="gridItemsTotal > 0"
-                       :disabled="isDeleteButtonDisabled || isEditingDisabled"
-                       @click="onDeleteSelectedCodes"
-                       size="small"
-                       square>
-                <sw-icon name="default-action-trash" small/>
-            </sw-button>
+        <sw-button
+            v-if="gridItemsTotal > 0"
+            class="sw-promotion-individualcodes__selected-codes-delete"
+            :disabled="isDeleteButtonDisabled || isEditingDisabled"
+            size="small"
+            square
+            @click="onDeleteSelectedCodes"
+        >
+            <sw-icon
+                name="default-action-trash"
+                small
+            />
+        </sw-button>
         {% endblock %}
     </sw-container>
 </div>

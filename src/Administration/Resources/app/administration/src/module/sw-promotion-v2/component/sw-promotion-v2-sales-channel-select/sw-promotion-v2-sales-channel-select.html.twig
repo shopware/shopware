@@ -1,20 +1,22 @@
 {% block sw_promotion_v2_sales_channel_selection %}
-    <sw-multi-select v-bind="$attrs"
-                     v-model="salesChannelIds"
-                     :options="salesChannels"
-                     valueProperty="id">
+<sw-multi-select
+    v-model="salesChannelIds"
+    v-bind="$attrs"
+    :options="salesChannels"
+    value-property="id"
+>
 
-        {% block sw_promotion_v2_sales_channel_selection_label %}
-            <template #selection-label-property="{ item }">
-                {{ item.name || item.translated.name }}
-            </template>
-        {% endblock %}
+    {% block sw_promotion_v2_sales_channel_selection_label %}
+    <template #selection-label-property="{ item }">
+        {{ item.name || item.translated.name }}
+    </template>
+    {% endblock %}
 
-        {% block sw_promotion_v2_sales_channel_selection_result_label %}
-            <template #result-label-property="{ item }">
-                {{ item.name || item.translated.name }}
-            </template>
-        {% endblock %}
+    {% block sw_promotion_v2_sales_channel_selection_result_label %}
+    <template #result-label-property="{ item }">
+        {{ item.name || item.translated.name }}
+    </template>
+    {% endblock %}
 
-    </sw-multi-select>
+</sw-multi-select>
 {% endblock %}

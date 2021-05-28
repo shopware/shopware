@@ -1,41 +1,47 @@
 {% block sw_extension_removal_modal %}
-    <sw-modal
-        class="sw-extension-removal-modal"
-        :title="title"
-        variant="small"
-        @modal-close="emitClose">
-        {% block sw_extension_removal_modal_content %}
-            <template #default>
-                {% block sw_installed_extension_card_removal_content_modal_body %}
-                    <p>
-                        {{ $tc('sw-extension-store.component.sw-extension-removal-modal.description') }}
-                    </p>
+<sw-modal
+    class="sw-extension-removal-modal"
+    :title="title"
+    variant="small"
+    @modal-close="emitClose"
+>
+    {% block sw_extension_removal_modal_content %}
+    <template #default>
+        {% block sw_installed_extension_card_removal_content_modal_body %}
+        <p>
+            {{ $tc('sw-extension-store.component.sw-extension-removal-modal.description') }}
+        </p>
 
-                    <p class="sw-extension-removal-modal__bold-paragraph">
-                        {{ alert }}
-                    </p>
-                {% endblock %}
-            </template>
-
-            <template #modal-footer>
-                {% block sw_extension_removal_modal_footer %}
-                    {% block sw_extension_removal_modal_footer_cancel %}
-                        <sw-button size="small" @click="emitClose" :disabled="isLoading">
-                            {{ $tc('global.default.cancel') }}
-                        </sw-button>
-                    {% endblock %}
-
-                    {% block sw_extension_removal_modal_footer_deactivate %}
-                        <sw-button
-                            variant="danger"
-                            size="small"
-                            :isLoading="isLoading"
-                            @click="emitRemoval">
-                            {{ btnLabel }}
-                        </sw-button>
-                    {% endblock %}
-                {% endblock %}
-            </template>
+        <p class="sw-extension-removal-modal__bold-paragraph">
+            {{ alert }}
+        </p>
         {% endblock %}
-    </sw-modal>
+    </template>
+
+    <template #modal-footer>
+        {% block sw_extension_removal_modal_footer %}
+        {% block sw_extension_removal_modal_footer_cancel %}
+        <sw-button
+            size="small"
+            :disabled="isLoading"
+            @click="emitClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_extension_removal_modal_footer_deactivate %}
+        <sw-button
+            variant="danger"
+            size="small"
+            :is-loading="isLoading"
+            @click="emitRemoval"
+        >
+            {{ btnLabel }}
+        </sw-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

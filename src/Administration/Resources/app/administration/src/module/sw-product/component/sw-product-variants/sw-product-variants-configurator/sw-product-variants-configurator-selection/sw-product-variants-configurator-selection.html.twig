@@ -1,22 +1,22 @@
 {% block sw_property_search_field %}
-    <div class="sw-property-search__toolbar sw-product-variants-configurator-selection__toolbar">
-        <slot name="toolbar">
-            <div class="sw-property-search__search-field-container">
-                <slot name="toolbar-search-field">
-                    {% block sw_product_variants_configurator_selection_search_field %}
-                        <sw-simple-search-field
-                            size="small"
-                            variant="form"
-                            class="sw-property-search__search-field sw-product-variants-configurator-selection-search__search-field"
-                            ref="searchField"
-                            v-model="searchTerm"
-                            @focus="onFocusSearch"
-                            @input="onSearchOptions"
-                            :placeholder="$tc('sw-property-search.placeholderSearch')">
-                        </sw-simple-search-field>
-                    {% endblock %}
-                </slot>
-            </div>
-        </slot>
-    </div>
+<div class="sw-property-search__toolbar sw-product-variants-configurator-selection__toolbar">
+    <slot name="toolbar">
+        <div class="sw-property-search__search-field-container">
+            <slot name="toolbar-search-field">
+                {% block sw_product_variants_configurator_selection_search_field %}
+                <sw-simple-search-field
+                    ref="searchField"
+                    v-model="searchTerm"
+                    size="small"
+                    variant="form"
+                    class="sw-property-search__search-field sw-product-variants-configurator-selection-search__search-field"
+                    :placeholder="$tc('sw-property-search.placeholderSearch')"
+                    @focus="onFocusSearch"
+                    @input="onSearchOptions"
+                />
+                {% endblock %}
+            </slot>
+        </div>
+    </slot>
+</div>
 {% endblock %}

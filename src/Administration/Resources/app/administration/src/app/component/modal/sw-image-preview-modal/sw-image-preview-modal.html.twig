@@ -1,90 +1,104 @@
 {% block sw_image_preview_modal %}
-    <transition name="sw-image-preview-modal-fade" appear>
-        {% block sw_image_preview_modal_element %}
-            <div class="sw-image-preview-modal">
+<transition
+    name="sw-image-preview-modal-fade"
+    appear
+>
+    {% block sw_image_preview_modal_element %}
+    <div class="sw-image-preview-modal">
 
-                {% block sw_image_preview_modal_action %}
-                    <div class="sw-image-preview-modal__action">
-                        {% block sw_image_preview_modal_button_zoom_out %}
-                            <button ref="btnZoomOut"
-                                    class="sw-image-preview-modal__button-action"
-                                    :class="buttonClass(isDisabledZoomOut)"
-                                    :disabled="isDisabledZoomOut"
-                                    @click="onClickZoomOut">
-                                <sw-icon name="default-basic-minus-circle"></sw-icon>
-                            </button>
-                        {% endblock %}
+        {% block sw_image_preview_modal_action %}
+        <div class="sw-image-preview-modal__action">
+            {% block sw_image_preview_modal_button_zoom_out %}
+            <button
+                ref="btnZoomOut"
+                class="sw-image-preview-modal__button-action"
+                :class="buttonClass(isDisabledZoomOut)"
+                :disabled="isDisabledZoomOut"
+                @click="onClickZoomOut"
+            >
+                <sw-icon name="default-basic-minus-circle" />
+            </button>
+            {% endblock %}
 
-                        {% block sw_image_preview_modal_button_zoom_reset %}
-                            <button ref="btnReset"
-                                    class="sw-image-preview-modal__button-action"
-                                    :class="buttonClass(isDisabledReset)"
-                                    :disabled="isDisabledReset"
-                                    @click="onClickReset">
-                                <sw-icon name="default-action-screen-minimize"></sw-icon>
-                            </button>
-                        {% endblock %}
+            {% block sw_image_preview_modal_button_zoom_reset %}
+            <button
+                ref="btnReset"
+                class="sw-image-preview-modal__button-action"
+                :class="buttonClass(isDisabledReset)"
+                :disabled="isDisabledReset"
+                @click="onClickReset"
+            >
+                <sw-icon name="default-action-screen-minimize" />
+            </button>
+            {% endblock %}
 
-                        {% block sw_image_preview_modal_button_zoom_in %}
-                            <button ref="btnZoomIn"
-                                    class="sw-image-preview-modal__button-action"
-                                    :class="buttonClass(isDisabledZoomIn)"
-                                    :disabled="isDisabledZoomIn"
-                                    @click="onClickZoomIn">
-                                <sw-icon name="default-basic-plus-circle"></sw-icon>
-                            </button>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
-                {% block sw_image_preview_modal_button_close %}
-                    <div class="sw-image-preview-modal__button-close"
-                         @click="onClickClose">
-                        <sw-icon name="default-basic-x-line"></sw-icon>
-                    </div>
-                {% endblock %}
-
-                {% block sw_image_preview_modal_image_slider %}
-                    <sw-image-slider
-                        class="sw-image-preview-modal__image-slider"
-                        overflow="hidden"
-                        navigationType="arrow"
-                        arrowStyle="outside"
-                        displayMode="contain"
-                        rewind
-                        :images="images"
-                        :bordered="false"
-                        :rounded="false"
-                        :initialIndex="activeItemIndex"
-                        @image-change="onImageSliderChange">
-                    </sw-image-slider>
-                {% endblock %}
-
-                {% block sw_image_preview_modal_divider %}
-                    <hr v-if="images.length > 1" class="sw-image-preview-modal__divider">
-                {% endblock %}
-
-                {% block sw_image_preview_modal_thumbnail_slider %}
-                    <sw-image-slider
-                        v-if="images.length > 1"
-                        class="sw-image-preview-modal__thumbnail-slider"
-                        overflow="hidden"
-                        navigationType="arrow"
-                        arrowStyle="outside"
-                        displayMode="contain"
-                        rewind
-                        :autoWidth="images.length < itemPerPage"
-                        :bordered="false"
-                        :rounded="false"
-                        :initialIndex="activeItemIndex"
-                        :images="images"
-                        :canvasHeight="100"
-                        :itemPerPage="itemPerPage"
-                        :elementPadding="6"
-                        @image-change="onThumbnailSliderChange">
-                    </sw-image-slider>
-                {% endblock %}
-            </div>
+            {% block sw_image_preview_modal_button_zoom_in %}
+            <button
+                ref="btnZoomIn"
+                class="sw-image-preview-modal__button-action"
+                :class="buttonClass(isDisabledZoomIn)"
+                :disabled="isDisabledZoomIn"
+                @click="onClickZoomIn"
+            >
+                <sw-icon name="default-basic-plus-circle" />
+            </button>
+            {% endblock %}
+        </div>
         {% endblock %}
-    </transition>
+
+        {% block sw_image_preview_modal_button_close %}
+        <div
+            class="sw-image-preview-modal__button-close"
+            @click="onClickClose"
+        >
+            <sw-icon name="default-basic-x-line" />
+        </div>
+        {% endblock %}
+
+        {% block sw_image_preview_modal_image_slider %}
+        <sw-image-slider
+            class="sw-image-preview-modal__image-slider"
+            overflow="hidden"
+            navigation-type="arrow"
+            arrow-style="outside"
+            display-mode="contain"
+            rewind
+            :images="images"
+            :bordered="false"
+            :rounded="false"
+            :initial-index="activeItemIndex"
+            @image-change="onImageSliderChange"
+        />
+        {% endblock %}
+
+        {% block sw_image_preview_modal_divider %}
+        <hr
+            v-if="images.length > 1"
+            class="sw-image-preview-modal__divider"
+        >
+        {% endblock %}
+
+        {% block sw_image_preview_modal_thumbnail_slider %}
+        <sw-image-slider
+            v-if="images.length > 1"
+            class="sw-image-preview-modal__thumbnail-slider"
+            overflow="hidden"
+            navigation-type="arrow"
+            arrow-style="outside"
+            display-mode="contain"
+            rewind
+            :auto-width="images.length < itemPerPage"
+            :bordered="false"
+            :rounded="false"
+            :initial-index="activeItemIndex"
+            :images="images"
+            :canvas-height="100"
+            :item-per-page="itemPerPage"
+            :element-padding="6"
+            @image-change="onThumbnailSliderChange"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+</transition>
 {% endblock %}

@@ -1,345 +1,392 @@
 {% block sw_settings_user_detail %}
-    <sw-page class="sw-settings-user-detail">
-        {% block sw_settings_user_detail_header %}
-            <template #smart-bar-header>
-                <h2 v-if="!isLoading">{{ fullName }}</h2>
-            </template>
+<sw-page class="sw-settings-user-detail">
+    {% block sw_settings_user_detail_header %}
+    <template #smart-bar-header>
+        <h2 v-if="!isLoading">
+            {{ fullName }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_user_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_user_detail_actions_cancel %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            @click="onCancel"
+        >
+            {{ $tc('sw-users-permissions.users.user-detail.labelButtonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_settings_user_detail_actions %}
-            <template #smart-bar-actions>
-                {% block sw_settings_user_detail_actions_cancel %}
-                    <sw-button v-tooltip.bottom="tooltipCancel" @click="onCancel">
-                        {{ $tc('sw-users-permissions.users.user-detail.labelButtonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_settings_user_detail_actions_save %}
-                    <sw-button-process
-                        class="sw-settings-user-detail__save-action"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || !acl.can('users_and_permissions.editor')"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        v-tooltip.bottom="tooltipSave"
-                        @click.prevent="onSave">
-                        {{ $tc('sw-users-permissions.users.user-detail.labelButtonSave') }}
-                    </sw-button-process>
-                {% endblock %}
-            </template>
+        {% block sw_settings_user_detail_actions_save %}
+        <sw-button-process
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-user-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading || !acl.can('users_and_permissions.editor')"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-users-permissions.users.user-detail.labelButtonSave') }}
+        </sw-button-process>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_user_detail_content %}
-            <template #content>
-                <sw-card-view>
-                    {% block sw_settings_user_detail_content_inner %}
-                        {%  block sw_setting_user_detail_card_basic_information %}
-                            <sw-card :title="$tc('sw-users-permissions.users.user-detail.labelCard')"
-                                     :isLoading="isLoading">
-                                {% block sw_settings_user_detail_content_grid %}
-                                    <div v-if="user" class="sw-settings-user-detail__grid">
-                                        {% block sw_settings_user_detail_content_first_name %}
-                                            <sw-text-field
-                                                class="sw-settings-user-detail__grid-firstName"
-                                                v-model="user.firstName"
-                                                :disabled="!acl.can('users_and_permissions.editor')"
-                                                :error="userFirstNameError"
-                                                required
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelFirstName')">
-                                            </sw-text-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_content_last_name %}
-                                            <sw-text-field
-                                                class="sw-settings-user-detail__grid-lastName"
-                                                v-model="user.lastName"
-                                                :disabled="!acl.can('users_and_permissions.editor')"
-                                                :error="userLastNameError"
-                                                required
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelLastName')">
-                                            </sw-text-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_content_email %}
-                                            <sw-text-field
-                                                class="sw-settings-user-detail__grid-eMail"
-                                                :errorMessage="isEmailUsed ? $tc('sw-users-permissions.users.user-detail.errorEmailUsed') : ''"
-                                                v-model.trim="user.email"
-                                                :error="userEmailError"
-                                                :disabled="!acl.can('users_and_permissions.editor')"
-                                                required
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelEmail')"
-                                                @change="checkEmail()">
-                                            </sw-text-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_content_username %}
-                                            <sw-text-field
-                                                class="sw-settings-user-detail__grid-username"
-                                                :errorMessage="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
-                                                v-model="user.username"
-                                                :error="userUsernameError"
-                                                :disabled="!acl.can('users_and_permissions.editor')"
-                                                required
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelUsername')"
-                                                @change="checkUsername">
-                                            </sw-text-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_content_media_upload %}
-                                            <sw-upload-listener
-                                                :uploadTag="user.id"
-                                                autoUpload
-                                                @media-upload-finish="setMediaItem">
-                                            </sw-upload-listener>
-                                            <sw-media-upload-v2
-                                                class="sw-settings-user-detail__grid-profile-picture"
-                                                :source="avatarMedia"
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelProfilePicture')"
-                                                :uploadTag="user.id"
-                                                :allowMultiSelect="false"
-                                                :sourceContext="user"
-                                                :disabled="!acl.can('users_and_permissions.editor')"
-                                                variant="regular"
-                                                defaultFolder="user"
-                                                @media-upload-remove-image="onUnlinkLogo">
-                                            </sw-media-upload-v2>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_content_password %}
-                                            <sw-password-field
-                                                class="sw-settings-user-detail__grid-password"
-                                                :value="user.password"
-                                                @change="setPassword"
-                                                :disabled="!acl.can('users_and_permissions.editor')"
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
-                                                :copyAble="false">
-                                            </sw-password-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_grid_content_language %}
-                                            <sw-select-field
-                                                    class="sw-settings-user-detail__grid-language"
-                                                    :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
-                                                    v-model="user.localeId"
-                                                    :disabled="!acl.can('users_and_permissions.editor')"
-                                                    :error="userLocaleIdError"
-                                                    required
-                                                    :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')">
-                                                <option v-for="language in languages"
-                                                        :value="language.locale.id"
-                                                        :selected="language.locale.id === user.localeId">
-                                                    {{ language.customLabel }}
-                                                </option>
-                                            </sw-select-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_grid_content_acl_is_admin %}
-                                            <sw-switch-field
-                                                class="sw-settings-user-detail__grid-is-admin"
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
-                                                :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
-                                                v-model="user.admin">
-                                            </sw-switch-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_grid_content_job_title %}
-                                            <sw-text-field
-                                                class="sw-settings-user-detail__grid-jobTitle"
-                                                :disabled="!acl.can('users_and_permissions.editor')"
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
-                                                v-model="user.title">
-                                            </sw-text-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_grid_content_acl_roles %}
-                                            <sw-entity-multi-select
-                                                class="sw-settings-user-detail__grid-aclRoles"
-                                                :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
-                                                v-model="user.aclRoles"
-                                                v-tooltip="{
-                                                    showDelay: 300,
-                                                    message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
-                                                    disabled: !user.admin || !acl.can('users_and_permissions.editor')
-                                                }"
-                                                :disabled="user.admin || !acl.can('users_and_permissions.editor')"
-                                                :criteria="aclRoleCriteria"
-                                                labelProperty="name">
-                                            </sw-entity-multi-select>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-
-                                {% block sw_settings_user_detail_content_confirm_password_modal %}
-                                    <sw-verify-user-modal v-if="confirmPasswordModal" @verified="saveUser" @close="onCloseConfirmPasswordModal">
-                                    </sw-verify-user-modal>
-                                {% endblock %}
-                            </sw-card>
-                        {% endblock %}
-
-                        {%  block sw_setting_user_detail_card_integrations %}
-                            <sw-card :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')">
-                                {% block sw_settings_user_detail_grid_toolbar %}
-                                    <template #toolbar>
-                                        {% block sw_settings_user_detail_grid_add_key %}
-                                            <sw-button @click="addAccessKey"
-                                                       variant="primary"
-                                                       size="small"
-                                                       :disabled="!$route.params.id || !acl.can('users_and_permissions.editor')">
-                                                {{ $tc('sw-users-permissions.users.user-detail.addAccessKey') }}
-                                            </sw-button>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_settings_user_detail_key_grid %}
-                                    <template #grid>
-                                        {% block sw_settings_user_detail_key_grid_content %}
-                                            <sw-data-grid
-                                                :isLoading="isLoading"
-                                                :dataSource="integrations"
-                                                :columns="integrationColumns"
-                                                identifier="user-grid"
-                                                :showSettings="true"
-                                                :skeletonItemAmount="skeletonItemAmount">
-
-                                                {% block sw_settings_user_detail_grid_columns_actions %}
-                                                    <template #actions="{ item }">
-                                                        {% block sw_settings_user_detail_grid_columns_actions_edit %}
-                                                            <sw-context-menu-item class="sw-settings-user-detail__grid-context-menu-edit sw-product-list__edit-action"
-                                                                                  :disabled="!acl.can('users_and_permissions.editor')"
-                                                                                  @click="onShowDetailModal(item.id)">
-                                                                {{ $tc('sw-users-permissions.users.user-detail.contextMenuEdit') }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_user_detail_grid_columns_actions_delete %}
-                                                            <sw-context-menu-item @click="showDeleteModal = item.id"
-                                                                                  class="sw-settings-user-detail__grid-context-menu-delete"
-                                                                                  :disabled="!acl.can('users_and_permissions.editor')"
-                                                                                  variant="danger">
-                                                                {{ $tc('sw-users-permissions.users.user-detail.contextMenuDelete') }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-                                                    </template>
-                                                {% endblock %}
-                                            </sw-data-grid>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                            </sw-card>
-                        {% endblock %}
+    {% block sw_settings_user_detail_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_settings_user_detail_content_inner %}
+            {%  block sw_setting_user_detail_card_basic_information %}
+            <sw-card
+                :title="$tc('sw-users-permissions.users.user-detail.labelCard')"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_user_detail_content_grid %}
+                <div
+                    v-if="user"
+                    class="sw-settings-user-detail__grid"
+                >
+                    {% block sw_settings_user_detail_content_first_name %}
+                    <sw-text-field
+                        v-model="user.firstName"
+                        class="sw-settings-user-detail__grid-firstName"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        :error="userFirstNameError"
+                        required
+                        :label="$tc('sw-users-permissions.users.user-detail.labelFirstName')"
+                    />
                     {% endblock %}
-                </sw-card-view>
 
-                {% block sw_settings_user_detail_grid_inner_slot_delete_modal %}
-                    <sw-modal v-if="showDeleteModal"
-                              :title="$tc('global.default.warning')"
-                              @modal-close="onCloseDeleteModal">
-                        {% block sw_settings_user_detail_grid_inner_slot_delete_modal_confirm_text %}
-                            <p>
-                                {{ $tc('sw-users-permissions.users.user-detail.modal.confirmDelete') }}
-                            </p>
-                        {% endblock %}
+                    {% block sw_settings_user_detail_content_last_name %}
+                    <sw-text-field
+                        v-model="user.lastName"
+                        class="sw-settings-user-detail__grid-lastName"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        :error="userLastNameError"
+                        required
+                        :label="$tc('sw-users-permissions.users.user-detail.labelLastName')"
+                    />
+                    {% endblock %}
 
-                        {% block sw_settings_user_detail_grid_inner_slot_delete_modal_footer %}
-                            <template #modal-footer>
-                                <sw-button size="small"
-                                           @click="onCloseDeleteModal">
-                                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
-                                </sw-button>
-                                <sw-button size="small"
-                                           variant="danger"
-                                           @click="onConfirmDelete(showDeleteModal)">
-                                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
-                                </sw-button>
-                            </template>
-                        {% endblock %}
-                    </sw-modal>
+                    {% block sw_settings_user_detail_content_email %}
+                    <sw-text-field
+                        v-model.trim="user.email"
+                        class="sw-settings-user-detail__grid-eMail"
+                        :error-message="isEmailUsed ? $tc('sw-users-permissions.users.user-detail.errorEmailUsed') : ''"
+                        :error="userEmailError"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        required
+                        :label="$tc('sw-users-permissions.users.user-detail.labelEmail')"
+                        @change="checkEmail()"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_user_detail_content_username %}
+                    <sw-text-field
+                        v-model="user.username"
+                        class="sw-settings-user-detail__grid-username"
+                        :error-message="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
+                        :error="userUsernameError"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        required
+                        :label="$tc('sw-users-permissions.users.user-detail.labelUsername')"
+                        @change="checkUsername"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_user_detail_content_media_upload %}
+                    <sw-upload-listener
+                        :upload-tag="user.id"
+                        auto-upload
+                        @media-upload-finish="setMediaItem"
+                    />
+                    <sw-media-upload-v2
+                        class="sw-settings-user-detail__grid-profile-picture"
+                        :source="avatarMedia"
+                        :label="$tc('sw-users-permissions.users.user-detail.labelProfilePicture')"
+                        :upload-tag="user.id"
+                        :allow-multi-select="false"
+                        :source-context="user"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        variant="regular"
+                        default-folder="user"
+                        @media-upload-remove-image="onUnlinkLogo"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_user_detail_content_password %}
+                    <sw-password-field
+                        class="sw-settings-user-detail__grid-password"
+                        :value="user.password"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
+                        :copy-able="false"
+                        @change="setPassword"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_user_detail_grid_content_language %}
+                    <sw-select-field
+                        v-model="user.localeId"
+                        class="sw-settings-user-detail__grid-language"
+                        :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        :error="userLocaleIdError"
+                        required
+                        :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
+                    >
+                        <option
+                            v-for="language in languages"
+                            :key="language.locale.id"
+                            :value="language.locale.id"
+                            :selected="language.locale.id === user.localeId"
+                        >
+                            {{ language.customLabel }}
+                        </option>
+                    </sw-select-field>
+                    {% endblock %}
+
+                    {% block sw_settings_user_detail_grid_content_acl_is_admin %}
+                    <sw-switch-field
+                        v-model="user.admin"
+                        class="sw-settings-user-detail__grid-is-admin"
+                        :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
+                        :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_user_detail_grid_content_job_title %}
+                    <sw-text-field
+                        v-model="user.title"
+                        class="sw-settings-user-detail__grid-jobTitle"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_user_detail_grid_content_acl_roles %}
+                    <sw-entity-multi-select
+                        v-model="user.aclRoles"
+                        v-tooltip="{
+                            showDelay: 300,
+                            message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
+                            disabled: !user.admin || !acl.can('users_and_permissions.editor')
+                        }"
+                        class="sw-settings-user-detail__grid-aclRoles"
+                        :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
+                        :disabled="user.admin || !acl.can('users_and_permissions.editor')"
+                        :criteria="aclRoleCriteria"
+                        label-property="name"
+                    />
+                    {% endblock %}
+                </div>
                 {% endblock %}
 
-                {% block sw_settings_user_detail_detail_modal %}
-                    <sw-modal v-if="currentIntegration"
-                              size="550px"
-                              class="sw-settings-user-detail__detail"
-                              :isLoading="isModalLoading"
-                              :title="showSecretAccessKey ? $tc('global.default.warning') : $tc('sw-users-permissions.users.user-detail.modal.detailModalTitleEdit')"
-                              @modal-close="onCloseDetailModal">
-                        {% block sw_settings_user_detail_detail_modal_inner %}
+                {% block sw_settings_user_detail_content_confirm_password_modal %}
+                <sw-verify-user-modal
+                    v-if="confirmPasswordModal"
+                    @verified="saveUser"
+                    @close="onCloseConfirmPasswordModal"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
 
-                            {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
-                                <sw-field :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
-                                          :disabled="true"
-                                          v-model="currentIntegration.accessKey"
-                                          :copyAble="true"
-                                          :copyAbleTooltip="true">
-                                </sw-field>
+            {%  block sw_setting_user_detail_card_integrations %}
+            <sw-card :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')">
+                {% block sw_settings_user_detail_grid_toolbar %}
+                <template #toolbar>
+                    {% block sw_settings_user_detail_grid_add_key %}
+                    <sw-button
+                        variant="primary"
+                        size="small"
+                        :disabled="!$route.params.id || !acl.can('users_and_permissions.editor')"
+                        @click="addAccessKey"
+                    >
+                        {{ $tc('sw-users-permissions.users.user-detail.addAccessKey') }}
+                    </sw-button>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_user_detail_key_grid %}
+                <template #grid>
+                    {% block sw_settings_user_detail_key_grid_content %}
+                    <sw-data-grid
+                        :is-loading="isLoading"
+                        :data-source="integrations"
+                        :columns="integrationColumns"
+                        identifier="user-grid"
+                        :show-settings="true"
+                        :skeleton-item-amount="skeletonItemAmount"
+                    >
+
+                        {% block sw_settings_user_detail_grid_columns_actions %}
+                        <template #actions="{ item }">
+                            {% block sw_settings_user_detail_grid_columns_actions_edit %}
+                            <sw-context-menu-item
+                                class="sw-settings-user-detail__grid-context-menu-edit sw-product-list__edit-action"
+                                :disabled="!acl.can('users_and_permissions.editor')"
+                                @click="onShowDetailModal(item.id)"
+                            >
+                                {{ $tc('sw-users-permissions.users.user-detail.contextMenuEdit') }}
+                            </sw-context-menu-item>
                             {% endblock %}
 
-                            {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
-                                {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
-                                    <sw-field v-if="showSecretAccessKey"
-                                              :type="secretAccessKeyFieldType"
-                                              :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
-                                              :disabled="true"
-                                              v-model="currentIntegration.secretAccessKey"
-                                              :passwordToggleAble="false"
-                                              :copyAble="showSecretAccessKey"
-                                              :copyAbleTooltip="true">
-                                    </sw-field>
-                                {% endblock %}
-
-                                {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button %}
-                                    <sw-button v-if="!showSecretAccessKey"
-                                               class="sw-settings-user-detail__secret-help-text-button sw-field"
-                                               @click="addAccessKey"
-                                               variant="danger"
-                                               :block="true">
-                                        {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
-                                    </sw-button>
-                                {% endblock %}
-
-                                {% block sw_settings_user_detail_detail_modal_inner_field_help_text %}
-                                    <sw-alert v-if="!showSecretAccessKey"
-                                              variant="warning"
-                                              class="sw-settings-user-detail__secret-help-text-alert">
-                                        {{ $tc('sw-users-permissions.users.user-detail.modal.hintCreateNewApiKeys') }}
-                                    </sw-alert>
-                                {% endblock %}
+                            {% block sw_settings_user_detail_grid_columns_actions_delete %}
+                            <sw-context-menu-item
+                                class="sw-settings-user-detail__grid-context-menu-delete"
+                                :disabled="!acl.can('users_and_permissions.editor')"
+                                variant="danger"
+                                @click="showDeleteModal = item.id"
+                            >
+                                {{ $tc('sw-users-permissions.users.user-detail.contextMenuDelete') }}
+                            </sw-context-menu-item>
                             {% endblock %}
-
-                            {% block sw_settings_user_detail_detail_modal_inner_help_text %}
-                                <sw-alert v-else
-                                          variant="warning"
-                                          class="sw-settings-user-detail__secret-help-text-alert">
-                                    {{ $tc('sw-users-permissions.users.user-detail.modal.secretHelpText') }}
-                                </sw-alert>
-                            {% endblock %}
-
-                            {% block sw_settings_user_detail_detail_modal_inner_footer %}
-                                <template #modal-footer>
-                                    {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
-                                        <sw-button size="small" @click="onCloseDetailModal" :disabled="isModalLoading">
-                                            {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
-                                        </sw-button>
-                                    {% endblock %}
-
-                                    {% block sw_settings_user_detail_detail_modal_inner_footer_apply %}
-                                        <sw-button size="small"
-                                                   class="sw-settings-user-detail__save-action"
-                                                   :disabled="isModalLoading && !!currentIntegration.label"
-                                                   variant="primary"
-                                                   @click="onSaveIntegration">
-                                            {{ showSecretAccessKey ? $tc('sw-users-permissions.users.user-detail.modal.buttonApply') : $tc('sw-users-permissions.users.user-detail.modal.buttonApplyEdit') }}
-                                        </sw-button>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
+                        </template>
                         {% endblock %}
-                    </sw-modal>
+                    </sw-data-grid>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+            {% endblock %}
+        </sw-card-view>
+
+        {% block sw_settings_user_detail_grid_inner_slot_delete_modal %}
+        <sw-modal
+            v-if="showDeleteModal"
+            :title="$tc('global.default.warning')"
+            @modal-close="onCloseDeleteModal"
+        >
+            {% block sw_settings_user_detail_grid_inner_slot_delete_modal_confirm_text %}
+            <p>
+                {{ $tc('sw-users-permissions.users.user-detail.modal.confirmDelete') }}
+            </p>
+            {% endblock %}
+
+            {% block sw_settings_user_detail_grid_inner_slot_delete_modal_footer %}
+            <template #modal-footer>
+                <sw-button
+                    size="small"
+                    @click="onCloseDeleteModal"
+                >
+                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
+                </sw-button>
+                <sw-button
+                    size="small"
+                    variant="danger"
+                    @click="onConfirmDelete(showDeleteModal)"
+                >
+                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
+                </sw-button>
+            </template>
+            {% endblock %}
+        </sw-modal>
+        {% endblock %}
+
+        {% block sw_settings_user_detail_detail_modal %}
+        <sw-modal
+            v-if="currentIntegration"
+            size="550px"
+            class="sw-settings-user-detail__detail"
+            :is-loading="isModalLoading"
+            :title="showSecretAccessKey ? $tc('global.default.warning') : $tc('sw-users-permissions.users.user-detail.modal.detailModalTitleEdit')"
+            @modal-close="onCloseDetailModal"
+        >
+            {% block sw_settings_user_detail_detail_modal_inner %}
+
+            {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
+            <sw-field
+                v-model="currentIntegration.accessKey"
+                :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
+                :disabled="true"
+                :copy-able="true"
+                :copy-able-tooltip="true"
+            />
+            {% endblock %}
+
+            {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
+            {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
+            <sw-field
+                v-if="showSecretAccessKey"
+                v-model="currentIntegration.secretAccessKey"
+                :type="secretAccessKeyFieldType"
+                :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
+                :disabled="true"
+                :password-toggle-able="false"
+                :copy-able="showSecretAccessKey"
+                :copy-able-tooltip="true"
+            />
+            {% endblock %}
+
+            {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button %}
+            <sw-button
+                v-if="!showSecretAccessKey"
+                class="sw-settings-user-detail__secret-help-text-button sw-field"
+                variant="danger"
+                :block="true"
+                @click="addAccessKey"
+            >
+                {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_settings_user_detail_detail_modal_inner_field_help_text %}
+            <sw-alert
+                v-if="!showSecretAccessKey"
+                variant="warning"
+                class="sw-settings-user-detail__secret-help-text-alert"
+            >
+                {{ $tc('sw-users-permissions.users.user-detail.modal.hintCreateNewApiKeys') }}
+            </sw-alert>
+            {% endblock %}
+            {% endblock %}
+
+            {% block sw_settings_user_detail_detail_modal_inner_help_text %}
+            <sw-alert
+                v-else
+                variant="warning"
+                class="sw-settings-user-detail__secret-help-text-alert"
+            >
+                {{ $tc('sw-users-permissions.users.user-detail.modal.secretHelpText') }}
+            </sw-alert>
+            {% endblock %}
+
+            {% block sw_settings_user_detail_detail_modal_inner_footer %}
+            <template #modal-footer>
+                {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
+                <sw-button
+                    size="small"
+                    :disabled="isModalLoading"
+                    @click="onCloseDetailModal"
+                >
+                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_user_detail_detail_modal_inner_footer_apply %}
+                <sw-button
+                    size="small"
+                    class="sw-settings-user-detail__save-action"
+                    :disabled="isModalLoading && !!currentIntegration.label"
+                    variant="primary"
+                    @click="onSaveIntegration"
+                >
+                    {{ showSecretAccessKey ? $tc('sw-users-permissions.users.user-detail.modal.buttonApply') : $tc('sw-users-permissions.users.user-detail.modal.buttonApplyEdit') }}
+                </sw-button>
                 {% endblock %}
             </template>
+            {% endblock %}
+            {% endblock %}
+        </sw-modal>
         {% endblock %}
-    </sw-page>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

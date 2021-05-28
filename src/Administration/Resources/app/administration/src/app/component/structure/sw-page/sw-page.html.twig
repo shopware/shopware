@@ -1,112 +1,150 @@
 {% block sw_page %}
-    <div class="sw-page" :class="pageClasses">
-        {% block sw_page_head_area %}
-            <div class="sw-page__head-area" :style="headerStyles" v-if="showHeadArea">
-                {% block sw_page_search_bar %}
-                    <div class="sw-page__search-bar" v-if="showSearchBar">
-                        <slot name="search-bar">
-                            {% block sw_page_slot_search_bar %}
-                                <sw-search-bar></sw-search-bar>
-                            {% endblock %}
-                        </slot>
-                    </div>
-                    {% block sw_page_top_bar_actions %}
-                        <div class="sw-page__top-bar-actions" :style="topBarActionStyles">
-                            {% block sw_page_notification_center %}
-                                <sw-notification-center></sw-notification-center>
-                            {% endblock %}
-                        </div>
+<div
+    class="sw-page"
+    :class="pageClasses"
+>
+    {% block sw_page_head_area %}
+    <div
+        v-if="showHeadArea"
+        class="sw-page__head-area"
+        :style="headerStyles"
+    >
+        {% block sw_page_search_bar %}
+        <div
+            v-if="showSearchBar"
+            class="sw-page__search-bar"
+        >
+            <slot name="search-bar">
+                {% block sw_page_slot_search_bar %}
+                <sw-search-bar />
+                {% endblock %}
+            </slot>
+        </div>
+        {% block sw_page_top_bar_actions %}
+        <div
+            class="sw-page__top-bar-actions"
+            :style="topBarActionStyles"
+        >
+            {% block sw_page_notification_center %}
+            <sw-notification-center />
+            {% endblock %}
+        </div>
+        {% endblock %}
+        {% endblock %}
+
+        {% block sw_page_smart_bar %}
+        <template v-if="showSmartBar">
+            {% block sw_page_smart_bar_divider %}
+            <div
+                v-if="showSmartBar && showSearchBar"
+                class="sw-page__smart-bar-divider"
+            />
+            {% endblock %}
+
+            {% block sw_page_smart_bar_back_btn %}
+            <div class="sw-page__back-btn-container">
+                <slot name="smart-bar-back">
+                    {% block sw_page_slot_smart_bar_back %}
+                    <router-link
+                        v-if="parentRoute"
+                        class="smart-bar__back-btn"
+                        :to="{ name: parentRoute }"
+                        :style="{ 'color': pageColor }"
+                    >
+                        <sw-icon
+                            name="default-arrow-head-left"
+                            small
+                        />
+                        <sw-icon
+                            v-if="module && module.icon"
+                            :name="module.icon"
+                            small
+                        />
+                    </router-link>
                     {% endblock %}
+                </slot>
+            </div>
+            {% endblock %}
+
+            {% block sw_page_smart_bar_content %}
+            <div class="smart-bar__content">
+                {% block sw_page_smart_bar_content_header %}
+                <div class="smart-bar__header">
+                    <slot name="smart-bar-header">
+                        {% block sw_page_slot_smart_bar_header %}
+                        <h2 v-if="module && module.title">
+                            {{ $t(module.title) }}
+                        </h2>
+                        {% endblock %}
+                    </slot>
+                </div>
                 {% endblock %}
 
-                {% block sw_page_smart_bar %}
-                    <template v-if="showSmartBar">
-                        {% block sw_page_smart_bar_divider %}
-                            <div class="sw-page__smart-bar-divider" v-if="showSmartBar && showSearchBar"></div>
-                        {% endblock %}
+                {% block sw_page_smart_bar_content_language_switch %}
+                <div class="smart-bar__language-switch">
+                    <slot name="language-switch">
+                        {% block sw_page_slot_language_switch%}{% endblock %}
+                    </slot>
+                </div>
+                {% endblock %}
 
-                        {% block sw_page_smart_bar_back_btn %}
-                            <div class="sw-page__back-btn-container">
-                                <slot name="smart-bar-back">
-                                    {% block sw_page_slot_smart_bar_back %}
-                                        <router-link v-if="parentRoute"
-                                                     class="smart-bar__back-btn"
-                                                     :to="{ name: parentRoute }"
-                                                     :style="{ 'color': pageColor }">
-                                            <sw-icon name="default-arrow-head-left" small></sw-icon>
-                                            <sw-icon :name="module.icon" v-if="module && module.icon" small></sw-icon>
-                                        </router-link>
-                                    {% endblock %}
-                                </slot>
-                            </div>
-                        {% endblock %}
+                {% block sw_page_smart_bar_content_app_actions %}
+                <sw-app-actions />
+                {% endblock %}
 
-                        {% block sw_page_smart_bar_content %}
-                            <div class="smart-bar__content">
-                                {% block sw_page_smart_bar_content_header %}
-                                    <div class="smart-bar__header">
-                                        <slot name="smart-bar-header">
-                                            {% block sw_page_slot_smart_bar_header %}
-                                                <h2 v-if="module && module.title">
-                                                    {{ $t(module.title) }}
-                                                </h2>
-                                            {% endblock %}
-                                        </slot>
-                                    </div>
-                                {% endblock %}
-
-                                {% block sw_page_smart_bar_content_language_switch %}
-                                    <div class="smart-bar__language-switch">
-                                        <slot name="language-switch">
-                                            {% block sw_page_slot_language_switch%}{% endblock %}
-                                        </slot>
-                                    </div>
-                                {% endblock %}
-
-                                {% block sw_page_smart_bar_content_app_actions %}
-                                    <sw-app-actions></sw-app-actions>
-                                {% endblock %}
-
-                                {% block sw_page_smart_bar_content_actions %}
-                                    <div class="smart-bar__actions">
-                                        <slot name="smart-bar-actions">
-                                            {% block sw_page_slot_smart_bar_actions %}{% endblock %}
-                                        </slot>
-                                    </div>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </template>
+                {% block sw_page_smart_bar_content_actions %}
+                <div class="smart-bar__actions">
+                    <slot name="smart-bar-actions">
+                        {% block sw_page_slot_smart_bar_actions %}{% endblock %}
+                    </slot>
+                </div>
                 {% endblock %}
             </div>
+            {% endblock %}
+        </template>
         {% endblock %}
-
-        {% block sw_page_content %}
-            <div class="sw-page__content" ref="swPageContent" :class="pageContentClasses">
-                <div v-if="hasSideContentSlot" class="sw-page__side-content">
-                    <div class="sw-page__side-content-inner">
-                        <slot name="side-content">
-                            {% block sw_page_slot_side_content %}{% endblock %}
-                        </slot>
-                    </div>
-                </div>
-                <div class="sw-page__main-content">
-                    <div class="sw-page__main-content-inner" v-on="additionalEventListeners">
-                        <slot name="content">
-                            {% block sw_page_slot_content %}{% endblock %}
-                        </slot>
-                    </div>
-                </div>
-
-                {% block sw_page_content_sidebar %}
-                    <div class="sw-page__sidebar" v-if="hasSidebarSlot">
-                        <slot name="sidebar">
-                            {% block sw_page_sidebar_slot %}{% endblock %}
-                        </slot>
-                    </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
     </div>
+    {% endblock %}
+
+    {% block sw_page_content %}
+    <div
+        ref="swPageContent"
+        class="sw-page__content"
+        :class="pageContentClasses"
+    >
+        <div
+            v-if="hasSideContentSlot"
+            class="sw-page__side-content"
+        >
+            <div class="sw-page__side-content-inner">
+                <slot name="side-content">
+                    {% block sw_page_slot_side_content %}{% endblock %}
+                </slot>
+            </div>
+        </div>
+        <div class="sw-page__main-content">
+            <div
+                class="sw-page__main-content-inner"
+                v-on="additionalEventListeners"
+            >
+                <slot name="content">
+                    {% block sw_page_slot_content %}{% endblock %}
+                </slot>
+            </div>
+        </div>
+
+        {% block sw_page_content_sidebar %}
+        <div
+            v-if="hasSidebarSlot"
+            class="sw-page__sidebar"
+        >
+            <slot name="sidebar">
+                {% block sw_page_sidebar_slot %}{% endblock %}
+            </slot>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+</div>
 {% endblock %}

@@ -1,52 +1,65 @@
 {% block sw_sales_channel_modal_detail %}
-    <div class="sw-sales-channel-modal-detail">
+<div class="sw-sales-channel-modal-detail">
 
-        {% block sw_sales_channel_modal_detail_header %}
-            <sw-container class="sw-sales-channel-modal-detail__header"
-                          columns="64px 1fr"
-                          gap="24px">
+    {% block sw_sales_channel_modal_detail_header %}
+    <sw-container
+        class="sw-sales-channel-modal-detail__header"
+        columns="64px 1fr"
+        gap="24px"
+    >
 
-                {% block sw_sales_channel_modal_detail_header_icon %}
-                    <span class="sw-sales-channel-modal-detail__header-icon">
-                        <sw-icon v-if="detailType.iconName" :name="detailType.iconName"></sw-icon>
-                    </span>
-                {% endblock %}
-
-                {% block sw_sales_channel_modal_detail_header_meta %}
-                    <div class="sw-sales-channel-modal-detail__header-meta">
-                        <h4 class="sw-sales-channel-modal-detail__header-name">{{ detailType.translated.name }}</h4>
-                        <div class="sw-sales-channel-modal-detail__header-manufacturer">{{ detailType.translated.manufacturer }}</div>
-                    </div>
-                {% endblock %}
-            </sw-container>
+        {% block sw_sales_channel_modal_detail_header_icon %}
+        <span class="sw-sales-channel-modal-detail__header-icon">
+            <sw-icon
+                v-if="detailType.iconName"
+                :name="detailType.iconName"
+            />
+        </span>
         {% endblock %}
 
-        {% block sw_sales_channel_modal_detail_description %}
-            <h4 class="sw-sales-channel-modal-detail__description-long-title">
-                {{ $tc('sw-sales-channel.modal.titleDescription') }}
+        {% block sw_sales_channel_modal_detail_header_meta %}
+        <div class="sw-sales-channel-modal-detail__header-meta">
+            <h4 class="sw-sales-channel-modal-detail__header-name">
+                {{ detailType.translated.name }}
             </h4>
-            <div v-if="detailType.translated.descriptionLong"
-                 class="sw-sales-channel-modal-detail__description-long-text">
-                {{ detailType.translated.descriptionLong }}
+            <div class="sw-sales-channel-modal-detail__header-manufacturer">
+                {{ detailType.translated.manufacturer }}
             </div>
-            <div v-else
-                 class="sw-sales-channel-modal-detail__description-long-text">
-                {{ detailType.translated.description }}
-            </div>
+        </div>
         {% endblock %}
+    </sw-container>
+    {% endblock %}
 
-        {% block sw_sales_channel_modal_detail_screenshots %}
-            <div class="sw-sales-channel-modal-detail__screenshots">
-                <sw-image-slider
-                        class="sw-sales-channel-modal-detail__screenshot"
-                        :images="detailType.screenshotUrls || []"
-                        :canvasWidth="580"
-                        :canvasHeight="272"
-                        overflow="visible"
-                        navigationType="arrow"
-                        enableDescriptions>
-                </sw-image-slider>
-            </div>
-        {% endblock %}
+    {% block sw_sales_channel_modal_detail_description %}
+    <h4 class="sw-sales-channel-modal-detail__description-long-title">
+        {{ $tc('sw-sales-channel.modal.titleDescription') }}
+    </h4>
+    <div
+        v-if="detailType.translated.descriptionLong"
+        class="sw-sales-channel-modal-detail__description-long-text"
+    >
+        {{ detailType.translated.descriptionLong }}
     </div>
+    <div
+        v-else
+        class="sw-sales-channel-modal-detail__description-long-text"
+    >
+        {{ detailType.translated.description }}
+    </div>
+    {% endblock %}
+
+    {% block sw_sales_channel_modal_detail_screenshots %}
+    <div class="sw-sales-channel-modal-detail__screenshots">
+        <sw-image-slider
+            class="sw-sales-channel-modal-detail__screenshot"
+            :images="detailType.screenshotUrls || []"
+            :canvas-width="580"
+            :canvas-height="272"
+            overflow="visible"
+            navigation-type="arrow"
+            enable-descriptions
+        />
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

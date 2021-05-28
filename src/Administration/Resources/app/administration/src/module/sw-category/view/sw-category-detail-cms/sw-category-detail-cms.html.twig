@@ -1,16 +1,19 @@
 {% block sw_category_detail_cms %}
-    <div class="sw-category-detail__cms">
+<div class="sw-category-detail__cms">
 
-        {% block sw_category_detail_cms_layout %}
-            <sw-category-layout-card
-                v-if="category.type === 'page'"
-                v-bind="{ category, cmsPage, isLoading }">
-            </sw-category-layout-card>
-        {% endblock %}
+    {% block sw_category_detail_cms_layout %}
+    <sw-category-layout-card
+        v-if="category.type === 'page'"
+        v-bind="{ category, cmsPage, isLoading }"
+    />
+    {% endblock %}
 
-        {% block sw_category_detail_cms_form %}
-            <sw-cms-page-form v-if="cmsPage && acl.can('category.editor')" :page="cmsPage"></sw-cms-page-form>
-        {% endblock %}
+    {% block sw_category_detail_cms_form %}
+    <sw-cms-page-form
+        v-if="cmsPage && acl.can('category.editor')"
+        :page="cmsPage"
+    />
+    {% endblock %}
 
-    </div>
+</div>
 {% endblock %}

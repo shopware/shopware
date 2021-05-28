@@ -1,42 +1,55 @@
 {% block sw_condition_and_container %}
-    <div class="sw-condition-and-container" :class="containerRowClass">
-        {% block sw_condition_and_container_children %}
-            <template v-for="(child, index) in condition[childAssociationField]">
-                <div v-if="index > 0" class="condition-content__spacer--and">
-                    {{ $tc('global.sw-condition.condition.and') }}
-                </div>
+<div
+    class="sw-condition-and-container"
+    :class="containerRowClass"
+>
+    {% block sw_condition_and_container_children %}
+    <template v-for="(child, index) in condition[childAssociationField]">
+        <div
+            v-if="index > 0"
+            :key="index"
+            class="condition-content__spacer--and"
+        >
+            {{ $tc('global.sw-condition.condition.and') }}
+        </div>
 
-                <sw-condition-tree-node
-                        :key="`sw-condition-container__or-child--${index}`"
-                        :parentCondition="condition"
-                        :condition="child"
-                        :disabled="disabled"
-                        :level="level + 1">
-                </sw-condition-tree-node>
-            </template>
-        {% endblock %}
+        <sw-condition-tree-node
+            :key="`sw-condition-container__or-child--${index}`"
+            :parent-condition="condition"
+            :condition="child"
+            :disabled="disabled"
+            :level="level + 1"
+        />
+    </template>
+    {% endblock %}
 
-        {% block sw_condition_and_container_actions %}
-            <div class="sw-condition-and-container__actions">
-                <sw-button class="sw-condition-and-container__actions--and"
-                           @click="onAddPlaceholder"
-                           :disabled="disabled"
-                           v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')">
-                    {{ $tc('global.sw-condition.condition.and') }}
-                </sw-button>
-                <sw-button class="sw-condition-and-container__actions--sub"
-                           @click="onAddOrContainer"
-                           :disabled="disabled"
-                           v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')">
-                    {{ $tc('global.sw-condition.condition.subCondition') }}
-                </sw-button>
-                <sw-button class="sw-condition-and-container__actions--delete"
-                           :disabled="disabled"
-                           @click="onDeleteAll"
-                           v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')">
-                    {{ $tc('global.sw-condition.condition.deleteConditions') }}
-                </sw-button>
-            </div>
-        {% endblock %}
+    {% block sw_condition_and_container_actions %}
+    <div class="sw-condition-and-container__actions">
+        <sw-button
+            v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+            class="sw-condition-and-container__actions--and"
+            :disabled="disabled"
+            @click="onAddPlaceholder"
+        >
+            {{ $tc('global.sw-condition.condition.and') }}
+        </sw-button>
+        <sw-button
+            v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+            class="sw-condition-and-container__actions--sub"
+            :disabled="disabled"
+            @click="onAddOrContainer"
+        >
+            {{ $tc('global.sw-condition.condition.subCondition') }}
+        </sw-button>
+        <sw-button
+            v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+            class="sw-condition-and-container__actions--delete"
+            :disabled="disabled"
+            @click="onDeleteAll"
+        >
+            {{ $tc('global.sw-condition.condition.deleteConditions') }}
+        </sw-button>
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

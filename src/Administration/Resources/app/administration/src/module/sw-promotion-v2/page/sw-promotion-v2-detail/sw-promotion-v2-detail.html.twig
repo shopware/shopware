@@ -1,149 +1,158 @@
 {% block sw_promotion_v2_detail %}
-    <sw-page class="sw-promotion-v2-detail">
+<sw-page class="sw-promotion-v2-detail">
 
-        {% block sw_promotion_v2_detail_header %}
-            <template #smart-bar-header>
-                <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleEdit')) }}</h2>
-            </template>
+    {% block sw_promotion_v2_detail_header %}
+    <template #smart-bar-header>
+        <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleEdit')) }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_promotion_v2_detail_actions %}
+    <template #smart-bar-actions>
+
+        {% block sw_promotion_v2_detail_actions_abort %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            class="sw-promotion-v2-detail__cancel-action"
+            :disabled="promotion !== null && promotion.isLoading"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_promotion_v2_detail_actions %}
-            <template #smart-bar-actions>
+        {% block sw_promotion_v2_detail_actions_save %}
+        <sw-button-process
+            v-model="isSaveSuccessful"
+            v-tooltip.bottom="tooltipSave"
+            class="sw-promotion-v2-detail__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :disabled="isLoading || !acl.can('promotion.editor')"
+            :process-success="isSaveSuccessful"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+        {% endblock %}
 
-                {% block sw_promotion_v2_detail_actions_abort %}
+    </template>
+    {% endblock %}
+
+    {% block sw_promotion_v2_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="!promotionId"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_promotion_v2_detail_content %}
+    <template #content>
+        <sw-card-view>
+
+            {% block sw_promotion_v2_detail_content_language_info %}
+            <sw-language-info
+                :entity-description="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleCreate'))"
+                :is-new-entity="!promotionId"
+            />
+            {% endblock %}
+
+            {% block sw_promotion_v2_detail_content_tabs %}
+            <sw-tabs
+                v-if="!isCreateMode"
+                class="sw-promotion-v2-detail-page__tabs"
+            >
+
+                {% block sw_promotion_v2_detail_content_tabs_general %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
+                    :title="$tc('sw-promotion-v2.detail.tabs.tabGeneral')"
+                    :disabled="!promotionId"
+                >
+                    {{ $tc('sw-promotion-v2.detail.tabs.tabGeneral') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_content_tabs_conditions %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.promotion.v2.detail.conditions', params: { id: $route.params.id } }"
+                    :title="$tc('sw-promotion-v2.detail.tabs.tabConditions')"
+                    :disabled="!promotionId"
+                >
+                    {{ $tc('sw-promotion-v2.detail.tabs.tabConditions') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_content_tabs_discounts %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
+                    :title="$tc('sw-promotion-v2.detail.tabs.tabDiscounts')"
+                    :disabled="!promotionId"
+                >
+                    {{ $tc('sw-promotion-v2.detail.tabs.tabDiscounts') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+            </sw-tabs>
+            {% endblock %}
+
+            {% block sw_product_detail_content_view %}
+            <router-view
+                v-if="promotion"
+                :promotion="promotion"
+                :is-loading="isLoading"
+                :is-create-mode="isCreateMode"
+                @clean-up-codes="onCleanUpCodes"
+                @generate-individual-codes-finish="onGenerateIndividualCodesFinish"
+            />
+            {% endblock %}
+
+            {% block sw_promotion_v2_detail_change_code_type_modal %}
+            <sw-modal
+                v-if="!!showCodeTypeChangeModal"
+                class="sw-promotion-v2-detail__change-modal"
+                :title="$tc('sw-promotion-v2.detail.codeChangeModal.title')"
+                @modal-close="onCloseCodeTypeChangeModal"
+            >
+
+                {{ $tc('sw-promotion-v2.detail.codeChangeModal.text') }}
+
+                {% block sw_promotion_v2_detail_change_code_type_modal_footer %}
+                <template #modal-footer>
+
+                    {% block sw_promotion_v2_detail_change_code_type_modal_footer_cancel_action %}
                     <sw-button
-                        v-tooltip.bottom="tooltipCancel"
-                        class="sw-promotion-v2-detail__cancel-action"
-                        :disabled="promotion !== null && promotion.isLoading"
-                        @click="onCancel">
+                        class="sw-promotion-v2-detail__change-modal-cancel-action"
+                        size="small"
+                        @click="onCloseCodeTypeChangeModal"
+                    >
                         {{ $tc('global.default.cancel') }}
                     </sw-button>
-                {% endblock %}
+                    {% endblock %}
 
-                {% block sw_promotion_v2_detail_actions_save %}
-                    <sw-button-process
-                        v-model="isSaveSuccessful"
-                        v-tooltip.bottom="tooltipSave"
-                        class="sw-promotion-v2-detail__save-action"
+                    {% block sw_promotion_v2_detail_change_code_type_modal_footer_confirm_action %}
+                    <sw-button
+                        class="sw-promotion-v2-detail__change-modal-confirm-action"
+                        size="small"
                         variant="primary"
-                        :isLoading="isLoading"
-                        :disabled="isLoading || !acl.can('promotion.editor')"
-                        :processSuccess="isSaveSuccessful"
-                        @process-finish="saveFinish"
-                        @click.prevent="onSave">
-                        {{ $tc('global.default.save') }}
-                    </sw-button-process>
+                        @click="onConfirmSave"
+                    >
+                        {{ $tc('global.default.confirm') }}
+                    </sw-button>
+                    {% endblock %}
+
+                </template>
                 {% endblock %}
 
-            </template>
-        {% endblock %}
+            </sw-modal>
+            {% endblock %}
 
-        {% block sw_promotion_v2_detail_language_switch %}
-            <template #language-switch>
-                <sw-language-switch
-                    :disabled="!promotionId"
-                    @on-change="onChangeLanguage">
-                </sw-language-switch>
-            </template>
-        {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
 
-        {% block sw_promotion_v2_detail_content %}
-            <template #content>
-                <sw-card-view>
-
-                    {% block sw_promotion_v2_detail_content_language_info %}
-                        <sw-language-info
-                            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleCreate'))"
-                            :isNewEntity="!promotionId">
-                        </sw-language-info>
-                    {% endblock %}
-
-                    {% block sw_promotion_v2_detail_content_tabs %}
-                        <sw-tabs
-                            v-if="!isCreateMode"
-                            class="sw-promotion-v2-detail-page__tabs">
-
-                            {% block sw_promotion_v2_detail_content_tabs_general %}
-                                <sw-tabs-item
-                                    :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
-                                    :title="$tc('sw-promotion-v2.detail.tabs.tabGeneral')"
-                                    :disabled="!promotionId">
-                                    {{ $tc('sw-promotion-v2.detail.tabs.tabGeneral') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                            {% block sw_promotion_v2_detail_content_tabs_conditions %}
-                                <sw-tabs-item
-                                    :route="{ name: 'sw.promotion.v2.detail.conditions', params: { id: $route.params.id } }"
-                                    :title="$tc('sw-promotion-v2.detail.tabs.tabConditions')"
-                                    :disabled="!promotionId">
-                                    {{ $tc('sw-promotion-v2.detail.tabs.tabConditions') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                            {% block sw_promotion_v2_detail_content_tabs_discounts %}
-                                <sw-tabs-item
-                                    :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
-                                    :title="$tc('sw-promotion-v2.detail.tabs.tabDiscounts')"
-                                    :disabled="!promotionId">
-                                    {{ $tc('sw-promotion-v2.detail.tabs.tabDiscounts') }}
-                                </sw-tabs-item>
-                            {% endblock %}
-
-                        </sw-tabs>
-                    {% endblock %}
-
-                    {% block sw_product_detail_content_view %}
-                        <router-view
-                            v-if="promotion"
-                            :promotion="promotion"
-                            :isLoading="isLoading"
-                            :isCreateMode="isCreateMode"
-                            @clean-up-codes="onCleanUpCodes"
-                            @generate-individual-codes-finish="onGenerateIndividualCodesFinish">
-                        </router-view>
-                    {% endblock %}
-
-                    {% block sw_promotion_v2_detail_change_code_type_modal %}
-                        <sw-modal
-                            v-if="!!showCodeTypeChangeModal"
-                            class="sw-promotion-v2-detail__change-modal"
-                            :title="$tc('sw-promotion-v2.detail.codeChangeModal.title')"
-                            @modal-close="onCloseCodeTypeChangeModal">
-
-                            {{ $tc('sw-promotion-v2.detail.codeChangeModal.text') }}
-
-                            {% block sw_promotion_v2_detail_change_code_type_modal_footer %}
-                                <template #modal-footer>
-
-                                    {% block sw_promotion_v2_detail_change_code_type_modal_footer_cancel_action %}
-                                        <sw-button
-                                            class="sw-promotion-v2-detail__change-modal-cancel-action"
-                                            size="small"
-                                            @click="onCloseCodeTypeChangeModal">
-                                            {{ $tc('global.default.cancel') }}
-                                        </sw-button>
-                                    {% endblock %}
-
-                                    {% block sw_promotion_v2_detail_change_code_type_modal_footer_confirm_action %}
-                                        <sw-button
-                                            class="sw-promotion-v2-detail__change-modal-confirm-action"
-                                            size="small"
-                                            variant="primary"
-                                            @click="onConfirmSave">
-                                            {{ $tc('global.default.confirm') }}
-                                        </sw-button>
-                                    {% endblock %}
-
-                                </template>
-                            {% endblock %}
-
-                        </sw-modal>
-                    {% endblock %}
-
-                </sw-card-view>
-            </template>
-        {% endblock %}
-
-    </sw-page>
+</sw-page>
 {% endblock %}

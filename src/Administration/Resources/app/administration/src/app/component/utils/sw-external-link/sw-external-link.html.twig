@@ -1,8 +1,27 @@
-<a v-if="$attrs.hasOwnProperty('href')" v-bind="$attrs" target="_blank" class="sw-external-link" :class="classes">
-    <slot/>
-    <sw-icon class="sw-external-link__icon" :size="iconSize" :name="icon"></sw-icon>
+<a
+    v-if="$attrs.hasOwnProperty('href')"
+    v-bind="$attrs"
+    target="_blank"
+    class="sw-external-link"
+    :class="classes"
+>
+    <slot />
+    <sw-icon
+        class="sw-external-link__icon"
+        :size="iconSize"
+        :name="icon"
+    />
 </a>
-<span v-else class="sw-external-link" :class="classes" @click="onClick">
-    <slot/>
-    <sw-icon class="sw-external-link__icon" :size="iconSize" :name="icon"></sw-icon>
+<span
+    v-else
+    class="sw-external-link"
+    :class="classes"
+    @click="onClick"
+>
+    <slot />
+    <sw-icon
+        class="sw-external-link__icon"
+        :size="iconSize"
+        :name="icon"
+    />
 </span>

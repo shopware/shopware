@@ -1,40 +1,49 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-line-item-property sw-condition__condition-value">
-        {% block sw_condition_line_item_properties_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"
-                                          :disabled="disabled">
-            </sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-line-item-property sw-condition__condition-value">
+    {% block sw_condition_line_item_properties_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_line_item_properties_field_identifiers %}
-            <sw-entity-multi-select
-                size="medium"
-                entity="property_group_option"
-                :disabled="disabled"
-                :entityCollection="options"
-                :criteria="optionCriteria"
-                @change="setOptions"
-                @select-collapsed="onSelectCollapsed"
-                @search-term-change="setSearchTerm">
+    {% block sw_condition_line_item_properties_field_identifiers %}
+    <sw-entity-multi-select
+        size="medium"
+        entity="property_group_option"
+        :disabled="disabled"
+        :entity-collection="options"
+        :criteria="optionCriteria"
+        @change="setOptions"
+        @select-collapsed="onSelectCollapsed"
+        @search-term-change="setSearchTerm"
+    >
 
-                <template #selection-label-property="{ item }">
-                    <slot name="selection-label-property" v-bind="{ item }">
-                        {{ item.group.translated.name || item.group.name }}: {{ item.translated.name || item.name }}
-                    </slot>
+        <template #selection-label-property="{ item }">
+            <slot
+                name="selection-label-property"
+                v-bind="{ item }"
+            >
+                {{ item.group.translated.name || item.group.name }}: {{ item.translated.name || item.name }}
+            </slot>
+        </template>
+
+        <template #result-label-property="{ item, searchTerm, highlightSearchTerm }">
+            <slot
+                name="result-label-property"
+                v-bind="{ item, searchTerm, highlightSearchTerm }"
+            >
+                <sw-highlight-text
+                    v-if="highlightSearchTerm"
+                    :text="`${item.group.translated.name || item.group.name}: ${item.translated.name || item.name}`"
+                    :search-term="searchTerm"
+                />
+                <template v-else>
+                    {{ item.group.translated.name || item.group.name }}: {{ item.translated.name || item.name }}
                 </template>
-
-                <template #result-label-property="{ item, searchTerm, highlightSearchTerm }">
-                    <slot name="result-label-property" v-bind="{ item, searchTerm, highlightSearchTerm }">
-                        <sw-highlight-text v-if="highlightSearchTerm"
-                                           :text="`${item.group.translated.name || item.group.name}: ${item.translated.name || item.name}`"
-                                           :searchTerm="searchTerm">
-                        </sw-highlight-text>
-                        <template v-else>
-                            {{ item.group.translated.name || item.group.name }}: {{ item.translated.name || item.name }}
-                        </template>
-                    </slot>
-                </template>
-            </sw-entity-multi-select>
-        {% endblock %}
-    </div>
+            </slot>
+        </template>
+    </sw-entity-multi-select>
+    {% endblock %}
+</div>
 {% endblock %}

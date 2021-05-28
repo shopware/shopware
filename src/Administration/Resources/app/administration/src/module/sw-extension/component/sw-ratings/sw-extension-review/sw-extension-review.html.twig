@@ -1,45 +1,50 @@
 {% block sw_extension_review %}
-    <div class="sw-extension-review">
-        {% block sw_extension_review_headline %}
-            <h4 class="sw-extension-review__headline">{{ review.headline }}</h4>
+<div class="sw-extension-review">
+    {% block sw_extension_review_headline %}
+    <h4 class="sw-extension-review__headline">
+        {{ review.headline }}
+    </h4>
+    {% endblock %}
+
+    {% block sw_extension_review_stars %}
+    <sw-extension-rating-stars :rating="review.rating" />
+    {% endblock %}
+
+    {% block sw_extension_review_text %}
+    <p v-if="review.text">
+        {{ review.text }}
+    </p>
+    {% endblock %}
+
+    {% block sw_extension_review_meta_data %}
+    <p class="sw-extension-review__meta-data">
+        {% block sw_extension_review_meta_data_date %}
+        <span class="sw-extension-review__comma">
+            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelLastChangeDate',
+                   0, { lastChangeDate: lastChangeDate, author: review.authorName }) }}
+        </span>
         {% endblock %}
 
-        {% block sw_extension_review_stars %}
-            <sw-extension-rating-stars :rating="review.rating" />
+        {% block sw_extension_review_meta_data_version %}
+        <span v-if="review.version">
+            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelExtensionVersion',
+                   0, { extensionVersion: review.version }) }}
+        </span>
         {% endblock %}
+    </p>
+    {% endblock %}
 
-        {% block sw_extension_review_text %}
-            <p v-if="review.text">{{ review.text }}</p>
+    {% block sw_extension_review_replies %}
+    <template v-if="reviewHasReplies">
+        {% block sw_extension_review_replies_loop %}
+        <sw-extension-review-reply
+            v-for="(reply, index) in review.replies"
+            :key="`sw-extension-review__reply-${index}`"
+            :producer-name="producerName"
+            :reply="reply"
+        />
         {% endblock %}
-
-        {% block sw_extension_review_meta_data %}
-            <p class="sw-extension-review__meta-data">
-                {% block sw_extension_review_meta_data_date %}
-                    <span class="sw-extension-review__comma">
-                        {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelLastChangeDate',
-                        0, { lastChangeDate: lastChangeDate, author: review.authorName }) }}
-                    </span>
-                {% endblock %}
-
-                {% block sw_extension_review_meta_data_version %}
-                    <span v-if="review.version">
-                        {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelExtensionVersion',
-                        0, { extensionVersion: review.version }) }}
-                    </span>
-                {% endblock %}
-            </p>
-        {% endblock %}
-
-        {% block sw_extension_review_replies %}
-            <template v-if="reviewHasReplies">
-                {% block sw_extension_review_replies_loop %}
-                    <sw-extension-review-reply v-for="(reply, index) in review.replies"
-                                               :key="`sw-extension-review__reply-${index}`"
-                                               :producerName="producerName"
-                                               :reply="reply">
-                    </sw-extension-review-reply>
-                {% endblock %}
-            </template>
-        {% endblock %}
-    </div>
+    </template>
+    {% endblock %}
+</div>
 {% endblock %}

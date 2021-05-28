@@ -1,15 +1,17 @@
 {% block sw_select_selection_item_text %}
-    <sw-multi-select class="sw-promotion-sales-channel-select"
-                     v-bind="$attrs"
-                     :options="salesChannels"
-                     valueProperty="id"
-                     v-model="salesChannelIds">
+<sw-multi-select
+    v-model="salesChannelIds"
+    class="sw-promotion-sales-channel-select"
+    v-bind="$attrs"
+    :options="salesChannels"
+    value-property="id"
+>
 
-        <template #selection-label-property="{ item }">
-            {{ item.name || item.translated.name }}
-        </template>
-        <template #result-label-property="{ item }">
-            {{ item.name || item.translated.name }}
-        </template>
-    </sw-multi-select>
+    <template #selection-label-property="{ item }">
+        {{ item.name || item.translated.name }}
+    </template>
+    <template #result-label-property="{ item }">
+        {{ item.name || item.translated.name }}
+    </template>
+</sw-multi-select>
 {% endblock %}

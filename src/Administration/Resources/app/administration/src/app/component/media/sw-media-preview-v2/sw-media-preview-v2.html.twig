@@ -1,88 +1,153 @@
 {% block sw_media_preview_v2 %}
-    <div class="sw-media-preview-v2"
-         :class="mediaPreviewClasses"
-         v-tooltip.bottom="{ message: mediaName, disabled: hideTooltip }">
+<div
+    v-tooltip.bottom="{ message: mediaName, disabled: hideTooltip }"
+    class="sw-media-preview-v2"
+    :class="mediaPreviewClasses"
+>
 
-        {% block sw_media_preview_v2_no_media %}
-            <template v-if="!source">
-                {% block sw_media_preview_v2_no_media_icon %}
-                    <sw-icon name="default-object-image" size="16px"></sw-icon>
-                {% endblock %}
-            </template>
+    {% block sw_media_preview_v2_no_media %}
+    <template v-if="!source">
+        {% block sw_media_preview_v2_no_media_icon %}
+        <sw-icon
+            name="default-object-image"
+            size="16px"
+        />
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_media_preview_v2_file_types %}
-            <template v-else>
-                {% block sw_media_preview_v2_file_type_check %}
-                    <template v-if="mimeTypeGroup === 'image'">
-                        {% block sw_media_preview_v2_file_type_image %}
-                            <img v-if="!imagePreviewFailed"
-                                 class="sw-media-preview-v2__item"
-                                 :class="transparencyClass"
-                                 :src="previewUrl"
-                                 :alt="alt"
-                                 :srcset="sourceSet"
-                                 :sizes="`${width}px`"
-                                 draggable="false"
-                                 @click="$emit('click')"
-                                 @error="showEvent">
-                            <sw-icon v-else class="sw-media-preview-v2__item" name="multicolor-file-thumbnail-broken" multicolor></sw-icon>
-                            <sw-icon v-if="mediaIsPrivate" class="sw-media-preview-v2__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
-                        {% endblock %}
-                    </template>
+    {% block sw_media_preview_v2_file_types %}
+    <template v-else>
+        {% block sw_media_preview_v2_file_type_check %}
+        <template v-if="mimeTypeGroup === 'image'">
+            {% block sw_media_preview_v2_file_type_image %}
+            <img
+                v-if="!imagePreviewFailed"
+                class="sw-media-preview-v2__item"
+                :class="transparencyClass"
+                :src="previewUrl"
+                :alt="alt"
+                :srcset="sourceSet"
+                :sizes="`${width}px`"
+                draggable="false"
+                @click="$emit('click')"
+                @error="showEvent"
+            >
+            <sw-icon
+                v-else
+                class="sw-media-preview-v2__item"
+                name="multicolor-file-thumbnail-broken"
+                multicolor
+            />
+            <sw-icon
+                v-if="mediaIsPrivate"
+                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                name="default-lock-closed"
+                multicolor
+            />
+            {% endblock %}
+        </template>
 
-                    <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
-                        {% block sw_media_preview_v2_file_type_video %}
-                            <video :controls="showControls"
-                                   :autoplay="autoplay"
-                                   controlsList="nodownload"
-                                   class="sw-media-preview-v2__item">
-                                <source :src="previewUrl" :type="mimeType">
-                                {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
-                            </video>
-                            <button class="sw-media-preview-v2__play-button" v-if="!showControls" @click="onPlayClick">
-                                <sw-icon class="sw-media-preview-v2__play-icon" name="multicolor-action-play" multicolor></sw-icon>
-                            </button>
-                            <sw-icon v-if="mediaIsPrivate" class="sw-media-preview-v2__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
-                        {% endblock %}
-                    </template>
+        <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
+            {% block sw_media_preview_v2_file_type_video %}
+            <video
+                :controls="showControls"
+                :autoplay="autoplay"
+                controlsList="nodownload"
+                class="sw-media-preview-v2__item"
+            >
+                <source
+                    :src="previewUrl"
+                    :type="mimeType"
+                >
+                {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
+            </video>
+            <button
+                v-if="!showControls"
+                class="sw-media-preview-v2__play-button"
+                @click="onPlayClick"
+            >
+                <sw-icon
+                    class="sw-media-preview-v2__play-icon"
+                    name="multicolor-action-play"
+                    multicolor
+                />
+            </button>
+            <sw-icon
+                v-if="mediaIsPrivate"
+                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                name="default-lock-closed"
+                multicolor
+            />
+            {% endblock %}
+        </template>
 
-                    <template v-else-if="isPlayable && mimeTypeGroup === 'audio'">
-                        {% block sw_media_preview_v2_file_type_audio %}
-                            <sw-icon name="multicolor-file-thumbnail-mp3"
-                                     class="sw-media-preview-v2__item"
-                                     size="80%"
-                                     multicolor>
-                            </sw-icon>
-                            <audio :controls="showControls"
-                                   :autoplay="autoplay"
-                                   controlsList="nodownload"
-                                   class="sw-media-preview-v2__item sw-media-preview-v2__item--audio">
-                                <source :src="previewUrl" :type="mimeType">
-                                {{ $tc('global.sw-media-preview-v2.fallbackAudioTagSupport') }}
-                            </audio>
-                            <button class="sw-media-preview-v2__play-button" v-if="!showControls" @click="onPlayClick">
-                                <sw-icon class="sw-media-preview-v2__play-icon" name="multicolor-action-play" multicolor></sw-icon>
-                            </button>
-                            <sw-icon v-if="mediaIsPrivate" class="sw-media-preview-v2__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
-                        {% endblock %}
-                    </template>
+        <template v-else-if="isPlayable && mimeTypeGroup === 'audio'">
+            {% block sw_media_preview_v2_file_type_audio %}
+            <sw-icon
+                name="multicolor-file-thumbnail-mp3"
+                class="sw-media-preview-v2__item"
+                size="80%"
+                multicolor
+            />
+            <audio
+                :controls="showControls"
+                :autoplay="autoplay"
+                controlsList="nodownload"
+                class="sw-media-preview-v2__item sw-media-preview-v2__item--audio"
+            >
+                <source
+                    :src="previewUrl"
+                    :type="mimeType"
+                >
+                {{ $tc('global.sw-media-preview-v2.fallbackAudioTagSupport') }}
+            </audio>
+            <button
+                v-if="!showControls"
+                class="sw-media-preview-v2__play-button"
+                @click="onPlayClick"
+            >
+                <sw-icon
+                    class="sw-media-preview-v2__play-icon"
+                    name="multicolor-action-play"
+                    multicolor
+                />
+            </button>
+            <sw-icon
+                v-if="mediaIsPrivate"
+                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                name="default-lock-closed"
+                multicolor
+            />
+            {% endblock %}
+        </template>
 
-                    <template v-else-if="isUrl && !urlPreviewFailed">
-                        <img :src="previewUrl" @error="removeUrlPreview" class="sw-media-preview-v2__item" draggable="false">
-                    </template>
+        <template v-else-if="isUrl && !urlPreviewFailed">
+            <img
+                :src="previewUrl"
+                class="sw-media-preview-v2__item"
+                draggable="false"
+                @error="removeUrlPreview"
+            >
+        </template>
 
-                    <template v-else>
-                        {% block sw_media_preview_v2_file_type_placeholder %}
-                            <sw-icon class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
-                                     :name="placeholderIcon"
-                                     multicolor>
-                            </sw-icon>
-                        {% endblock %}
-                        <sw-icon v-if="mediaIsPrivate" class="sw-media-preview-v2__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
-                    </template>
-                {% endblock %}
-            </template>
+        <template v-else>
+            {% block sw_media_preview_v2_file_type_placeholder %}
+            <sw-icon
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :name="placeholderIcon"
+                multicolor
+            />
+            {% endblock %}
+            <sw-icon
+                v-if="mediaIsPrivate"
+                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                name="default-lock-closed"
+                multicolor
+            />
+        </template>
         {% endblock %}
-    </div>
+    </template>
+    {% endblock %}
+</div>
 {% endblock %}

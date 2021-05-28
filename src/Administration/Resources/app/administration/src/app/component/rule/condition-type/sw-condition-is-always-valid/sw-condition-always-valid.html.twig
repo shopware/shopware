@@ -1,12 +1,12 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-is-always-valid">
-        {% block sw_condition_is_always_valid %}
-            <sw-single-select
-                size="medium"
-                :options="selectValues"
-                :disabled="disabled"
-                v-model="isAlwaysValid">
-            </sw-single-select>
-        {% endblock %}
-    </div>
+<div class="sw-condition-is-always-valid">
+    {% block sw_condition_is_always_valid %}
+    <sw-single-select
+        v-model="isAlwaysValid"
+        size="medium"
+        :options="selectValues"
+        :disabled="disabled"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

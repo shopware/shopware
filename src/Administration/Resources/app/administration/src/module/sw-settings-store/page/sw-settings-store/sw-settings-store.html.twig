@@ -1,54 +1,56 @@
 {% block sw_settings_store_index %}
-    <sw-page class="sw-settings-store">
+<sw-page class="sw-settings-store">
 
-        {% block sw_settings_store_search_bar %}
-            <template #search-bar>
-                <sw-search-bar>
-                </sw-search-bar>
-            </template>
-        {% endblock %}
+    {% block sw_settings_store_search_bar %}
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_store_smart_bar_header %}
-            <template #smart-bar-header>
-                {% block sw_settings_store_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_store_smart_bar_header_title_text %}
-                                {{ $tc('sw-settings.index.title') }}
-                                <sw-icon name="small-arrow-medium-right" small>
-                                </sw-icon>
-                                {{ $tc('sw-settings-store.general.textHeadline') }}
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
+    {% block sw_settings_store_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_store_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_store_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-store.general.textHeadline') }}
+            {% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_store_smart_bar_actions %}
-            <template #smart-bar-actions>
-                {% block sw_settings_store_actions_save %}
-                    <sw-button-process
-                        class="sw-store-detail__save-action"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        @click="onSave()">
-                        {{ $tc('sw-settings-store.general.buttonSave') }}
-                    </sw-button-process>
-                {% endblock %}
-            </template>
+    {% block sw_settings_store_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_store_actions_save %}
+        <sw-button-process
+            class="sw-store-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click="onSave()"
+        >
+            {{ $tc('sw-settings-store.general.buttonSave') }}
+        </sw-button-process>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_store_content %}
-            <template #content>
-                <sw-card-view>
-                    <sw-system-config
-                            ref="systemConfig"
-                            domain="core.store">
-                    </sw-system-config>
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+    {% block sw_settings_store_content %}
+    <template #content>
+        <sw-card-view>
+            <sw-system-config
+                ref="systemConfig"
+                domain="core.store"
+            />
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

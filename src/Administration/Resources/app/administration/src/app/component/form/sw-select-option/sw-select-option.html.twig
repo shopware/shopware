@@ -1,26 +1,28 @@
 {% block sw_single_select_option %}
-    <li
-        class="sw-select-option"
-        :class="componentClasses"
-        @mouseenter="onMouseEnter($event)"
-        @click.stop="onClicked($event)">
-        {% block sw_single_select_option_item_text_holder %}
-            <span class="sw-select-option__result-item-text">
-                 {% block sw_single_select_option_item_text %}
-                     <slot></slot>
-                 {% endblock %}
-             </span>
+<li
+    class="sw-select-option"
+    :class="componentClasses"
+    @mouseenter="onMouseEnter($event)"
+    @click.stop="onClicked($event)"
+>
+    {% block sw_single_select_option_item_text_holder %}
+    <span class="sw-select-option__result-item-text">
+        {% block sw_single_select_option_item_text %}
+        <slot />
         {% endblock %}
+    </span>
+    {% endblock %}
 
-        {% block sw_single_select_option_item_icon_transition %}
-            <transition name="sw-select-appear">
-                {% block sw_single_select_option_item_icon %}
-                    <sw-icon v-if="isInSelections(item) && !selected || selected"
-                             name="small-default-checkmark-line-medium"
-                             size="16px">
-                    </sw-icon>
-                {% endblock %}
-            </transition>
+    {% block sw_single_select_option_item_icon_transition %}
+    <transition name="sw-select-appear">
+        {% block sw_single_select_option_item_icon %}
+        <sw-icon
+            v-if="isInSelections(item) && !selected || selected"
+            name="small-default-checkmark-line-medium"
+            size="16px"
+        />
         {% endblock %}
-    </li>
+    </transition>
+    {% endblock %}
+</li>
 {% endblock %}

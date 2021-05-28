@@ -1,13 +1,13 @@
 {% block sw_settings_user_detail_content_password %}
-    <sw-password-field
-            :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
-            class="sw-settings-user-detail__grid-password"
-            v-model="user.password"
-            :error="userPasswordError"
-            required
-            :passwordToggleAble="true"
-            :copyAble="false">
-    </sw-password-field>
+<sw-password-field
+    v-model="user.password"
+    :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
+    class="sw-settings-user-detail__grid-password"
+    :error="userPasswordError"
+    required
+    :password-toggle-able="true"
+    :copy-able="false"
+/>
 {% endblock %}
 
 {% block sw_settings_user_detail_grid_change_password %}{% endblock %}

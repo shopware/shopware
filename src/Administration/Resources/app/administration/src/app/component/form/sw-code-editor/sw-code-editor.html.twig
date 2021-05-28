@@ -1,19 +1,22 @@
 {% block sw_code_editor %}
-    <div class="sw-code-editor">
+<div class="sw-code-editor">
 
-        {% block sw_text_editor_label %}
-            <div class="sw-code-editor__label"
-                 v-if="label.length">{{ label }}
-            </div>
-        {% endblock %}
-
-        {% block sw_code_editor_editor %}
-            <div class="sw-code-editor__editor"
-                 :ref="`editor${editorId}`"
-                 :content="value"
-                 tabindex="1">
-            </div>
-        {% endblock %}
-
+    {% block sw_text_editor_label %}
+    <div
+        v-if="label.length"
+        class="sw-code-editor__label"
+    >{{ label }}
     </div>
+    {% endblock %}
+
+    {% block sw_code_editor_editor %}
+    <div
+        :ref="`editor${editorId}`"
+        class="sw-code-editor__editor"
+        :content="value"
+        tabindex="1"
+    />
+    {% endblock %}
+
+</div>
 {% endblock %}

@@ -1,136 +1,149 @@
 {% block sw_settings_list %}
-    {% block sw_settings_rule_index %}
-        <sw-page class="sw-settings-rule-list">
+{% block sw_settings_rule_index %}
+<sw-page class="sw-settings-rule-list">
 
-            {% block sw_settings_rule_list_search_bar %}
-                <template slot="search-bar">
-                    <sw-search-bar initialSearchType="rule"
-                                   :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
-                                   :initialSearch="term"
-                                   @search="onSearch">
-                    </sw-search-bar>
-                </template>
+    {% block sw_settings_rule_list_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar
+            initial-search-type="rule"
+            :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_rule_list_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_rule_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_rule_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }} <sw-icon
+                name="small-arrow-medium-right"
+                small
+            /> {{ $tc('sw-settings-rule.list.textHeadline') }}
             {% endblock %}
 
-            {% block sw_settings_rule_list_smart_bar_header %}
-                <template slot="smart-bar-header">
-                    {% block sw_settings_rule_list_smart_bar_header_title %}
-                        <h2>
-                            {% block sw_settings_rule_list_smart_bar_header_title_text %}
-                                {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-rule.list.textHeadline') }}
-                            {% endblock %}
-
-                            {% block sw_settings_rule_list_smart_bar_header_title_amount %}
-                                <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                                    ({{ total }})
-                                </span>
-                            {% endblock %}
-                        </h2>
-                    {% endblock %}
-                </template>
+            {% block sw_settings_rule_list_smart_bar_header_title_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
             {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
 
-            {% block sw_settings_rule_list_smart_bar_actions %}
-                <template slot="smart-bar-actions">
-                    {% block sw_settings_rule_list_smart_bar_actions_add %}
-                        <sw-button :routerLink="{ name: 'sw.settings.rule.create' }"
-                                   :disabled="!acl.can('rule.creator')"
-                                   v-tooltip="{
-                                        message: $tc('sw-privileges.tooltip.warning'),
-                                        disabled: acl.can('rule.creator'),
-                                        showOnDisabledElements: true
-                                    }"
-                                   variant="primary">
-                            {{ $tc('sw-settings-rule.list.buttonAddRule') }}
-                        </sw-button>
-                    {% endblock %}
-                </template>
-            {% endblock %}
+    {% block sw_settings_rule_list_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_rule_list_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('rule.creator'),
+                showOnDisabledElements: true
+            }"
+            :router-link="{ name: 'sw.settings.rule.create' }"
+            :disabled="!acl.can('rule.creator')"
+            variant="primary"
+        >
+            {{ $tc('sw-settings-rule.list.buttonAddRule') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
 
-            {% block sw_settings_rule_list_content %}
-                <template slot="content">
-                    {% block sw_settings_rule_list_content_card %}
-                        <div class="sw-settings-rule-list__content">
-                            {% block sw_settings_rule_list_grid %}
-                                <sw-entity-listing ref="swRuleGrid"
-                                    v-if="rules"
-                                    class="sw-rule-list-grid"
-                                    :items="rules"
-                                    :columns="getRuleColumns()"
-                                    :repository="ruleRepository"
-                                    :isLoading="isLoading"
-                                    :fullPage="true"
-                                    :showSelection="acl.can('rule.deleter')"
-                                    :allowEdit="acl.can('rule.editor')"
-                                    :allowDelete="acl.can('rule.deleter')"
-                                    detailRoute="sw.settings.rule.detail"
-                                    @column-sort="onSortColumn"
-                                    @page-change="onPageChange"
-                                    :disableDataFetching="true"
-                                    :sortBy="sortBy"
-                                    :sortDirection="sortDirection"
-                                    @inline-edit-save="onInlineEditSave"
-                                    @items-delete-finish="getList">
+    {% block sw_settings_rule_list_content %}
+    <template slot="content">
+        {% block sw_settings_rule_list_content_card %}
+        <div class="sw-settings-rule-list__content">
+            {% block sw_settings_rule_list_grid %}
+            <sw-entity-listing
+                v-if="rules"
+                ref="swRuleGrid"
+                class="sw-rule-list-grid"
+                :items="rules"
+                :columns="getRuleColumns()"
+                :repository="ruleRepository"
+                :is-loading="isLoading"
+                :full-page="true"
+                :show-selection="acl.can('rule.deleter')"
+                :allow-edit="acl.can('rule.editor')"
+                :allow-delete="acl.can('rule.deleter')"
+                detail-route="sw.settings.rule.detail"
+                :disable-data-fetching="true"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                @column-sort="onSortColumn"
+                @page-change="onPageChange"
+                @inline-edit-save="onInlineEditSave"
+                @items-delete-finish="getList"
+            >
 
-                                    <template #column-invalid="{item}">
-                                        <template v-if="item.invalid">
-                                            {{ $tc('sw-settings-rule.list.invalid') }}
-                                        </template>
-                                        <template v-else>
-                                            {{ $tc('sw-settings-rule.list.valid') }}
-                                        </template>
-                                    </template>
-
-                                    <template #column-updatedAt="{item}">
-                                        <template v-if="item.updatedAt">
-                                            {{ item.updatedAt|date }}
-                                        </template>
-                                        <template v-else>
-                                            {{ item.createdAt|date }}
-                                        </template>
-                                    </template>
-
-                                    {% block sw_settings_rule_list_grid_columns_actions %}
-                                        <template #more-actions="{ item }">
-                                            {% block sw_settings_rule_list_grid_columns_actions_duplicate %}
-                                                <sw-context-menu-item
-                                                    @click="onDuplicate(item)"
-                                                    :disabled="!acl.can('rule.creator')">
-                                                    {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
-                                                </sw-context-menu-item>
-                                            {% endblock %}
-                                        </template>
-                                    {% endblock %}
-                                </sw-entity-listing>
-                            {% endblock %}
-
-                            {% block sw_settings_rule_list_empty_message %}
-                                <sw-empty-state v-else-if="!isLoading && !total"
-                                                :title="$tc('sw-settings-rule.list.messageEmpty')">
-                                </sw-empty-state>
-                            {% endblock %}
-
-                            {% block sw_settings_rule_list_loader %}
-                                <sw-loader v-if="isLoading"></sw-loader>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </template>
-
-                {% block sw_settings_rule_list_sidebar %}
-                    <template #sidebar>
-                        <sw-sidebar>
-                            {% block sw_settings_rule_list_sidebar_refresh %}
-                                <sw-sidebar-item
-                                    icon="default-arrow-360-left"
-                                    :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
-                                    @click="onRefresh">
-                                </sw-sidebar-item>
-                            {% endblock %}
-                        </sw-sidebar>
+                <template #column-invalid="{item}">
+                    <template v-if="item.invalid">
+                        {{ $tc('sw-settings-rule.list.invalid') }}
                     </template>
+                    <template v-else>
+                        {{ $tc('sw-settings-rule.list.valid') }}
+                    </template>
+                </template>
+
+                <template #column-updatedAt="{item}">
+                    <template v-if="item.updatedAt">
+                        {{ item.updatedAt|date }}
+                    </template>
+                    <template v-else>
+                        {{ item.createdAt|date }}
+                    </template>
+                </template>
+
+                {% block sw_settings_rule_list_grid_columns_actions %}
+                <template #more-actions="{ item }">
+                    {% block sw_settings_rule_list_grid_columns_actions_duplicate %}
+                    <sw-context-menu-item
+                        :disabled="!acl.can('rule.creator')"
+                        @click="onDuplicate(item)"
+                    >
+                        {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
                 {% endblock %}
+            </sw-entity-listing>
             {% endblock %}
-        </sw-page>
+
+            {% block sw_settings_rule_list_empty_message %}
+            <sw-empty-state
+                v-else-if="!isLoading && !total"
+                :title="$tc('sw-settings-rule.list.messageEmpty')"
+            />
+            {% endblock %}
+
+            {% block sw_settings_rule_list_loader %}
+            <sw-loader v-if="isLoading" />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+
+    {% block sw_settings_rule_list_sidebar %}
+    <template #sidebar>
+        <sw-sidebar>
+            {% block sw_settings_rule_list_sidebar_refresh %}
+            <sw-sidebar-item
+                icon="default-arrow-360-left"
+                :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+        </sw-sidebar>
+    </template>
+    {% endblock %}
+    {% endblock %}
+</sw-page>
     {% endblock %}
 {% endblock %}

@@ -1,25 +1,34 @@
 {% block sw_side_navigation_item %}
-    <a class="sw-tabs-item" :class="tabsItemClasses" v-if="isNative" @click="clickEvent" v-bind="$attrs">
-        {% block sw_tabs_item_slot %}
-            <slot></slot>
-        {% endblock %}
-    </a>
+<a
+    v-if="isNative"
+    class="sw-tabs-item"
+    :class="tabsItemClasses"
+    v-bind="$attrs"
+    @click="clickEvent"
+>
+    {% block sw_tabs_item_slot %}
+    <slot />
+    {% endblock %}
+</a>
 
-    <router-link v-else
-                 :class="tabsItemClasses"
-                 ref="sw-tabs-item"
-                 v-bind="$attrs"
-                 class="sw-tabs-item"
-                 @click.native="clickEvent"
-                 :to="route">
-        {% block sw_tabs_item_slot_native %}
-            <slot></slot>
-            <sw-icon v-if="hasError"
-                     class="sw-tabs-item__error-badge"
-                     name="default-basic-shape-circle-filled"
-                     size="8px"
-                     v-tooltip="{ message: $tc('global.sw-tabs-item.tooltipTabHasErrors') }">
-            </sw-icon>
-        {% endblock %}
-    </router-link>
+<router-link
+    v-else
+    ref="sw-tabs-item"
+    :class="tabsItemClasses"
+    v-bind="$attrs"
+    class="sw-tabs-item"
+    :to="route"
+    @click.native="clickEvent"
+>
+    {% block sw_tabs_item_slot_native %}
+    <slot />
+    <sw-icon
+        v-if="hasError"
+        v-tooltip="{ message: $tc('global.sw-tabs-item.tooltipTabHasErrors') }"
+        class="sw-tabs-item__error-badge"
+        name="default-basic-shape-circle-filled"
+        size="8px"
+    />
+    {% endblock %}
+</router-link>
 {% endblock %}

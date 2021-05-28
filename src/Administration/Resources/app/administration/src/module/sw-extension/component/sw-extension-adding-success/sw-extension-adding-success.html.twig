@@ -1,31 +1,33 @@
 {% block sw_extension_adding_success %}
-    <div class="sw-extension-adding-success">
-        {% block sw_extension_adding_success_content %}
-            <div class="sw-extension-buy-modal__content-installed">
-                {% block sw_extension_adding_success_icon %}
-                    <sw-circle-icon
-                        :size="72"
-                        iconName="default-basic-checkmark-line"
-                        variant="success">
-                    </sw-circle-icon>
-                {% endblock %}
+<div class="sw-extension-adding-success">
+    {% block sw_extension_adding_success_content %}
+    <div class="sw-extension-buy-modal__content-installed">
+        {% block sw_extension_adding_success_icon %}
+        <sw-circle-icon
+            :size="72"
+            icon-name="default-basic-checkmark-line"
+            variant="success"
+        />
+        {% endblock %}
 
-                {% block sw_extension_adding_success_headline %}
-                    <h3>{{ $tc('sw-extension-store.component.sw-extension-adding-success.titleSuccess') }}</h3>
-                {% endblock %}
+        {% block sw_extension_adding_success_headline %}
+        <h3>{{ $tc('sw-extension-store.component.sw-extension-adding-success.titleSuccess') }}</h3>
+        {% endblock %}
 
-                {% block sw_extension_adding_success_sub_headline %}
-                    <p>{{ $tc('sw-extension-store.component.sw-extension-adding-success.subtitleSuccess') }}</p>
-                {% endblock %}
+        {% block sw_extension_adding_success_sub_headline %}
+        <p>{{ $tc('sw-extension-store.component.sw-extension-adding-success.subtitleSuccess') }}</p>
+        {% endblock %}
 
-                {% block sw_extension_adding_success_back_button %}
-                    <sw-button variant="primary"
-                               block
-                               @click="$emit('close')">
-                        {{ $tc('global.default.close') }}
-                    </sw-button>
-                {% endblock %}
-            </div>
+        {% block sw_extension_adding_success_back_button %}
+        <sw-button
+            variant="primary"
+            block
+            @click="$emit('close')"
+        >
+            {{ $tc('global.default.close') }}
+        </sw-button>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

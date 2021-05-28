@@ -1,19 +1,23 @@
 {% block sw_my_apps_error_page %}
-    <div class="sw-my-apps-error-page">
-        {% block sw_my_apps_error_page_content %}
-            <img :src="'administration/static/img/error-pages/app-error.svg' | asset"
-                 class="sw-my-apps-error-page__illustration">
+<div class="sw-my-apps-error-page">
+    {% block sw_my_apps_error_page_content %}
+    <img
+        :src="'administration/static/img/error-pages/app-error.svg' | asset"
+        class="sw-my-apps-error-page__illustration"
+    >
 
-            <div class="sw-my-apps-error-page__text-content">
-                <h3>{{ $tc('sw-my-apps.sw-my-apps-page.error.heading') }}</h3>
-                <p>{{ $tc('sw-my-apps.sw-my-apps-page.error.phrase') }}</p>
-                <p>{{ $tc('sw-my-apps.sw-my-apps-page.error.info') }}</p>
+    <div class="sw-my-apps-error-page__text-content">
+        <h3>{{ $tc('sw-my-apps.sw-my-apps-page.error.heading') }}</h3>
+        <p>{{ $tc('sw-my-apps.sw-my-apps-page.error.phrase') }}</p>
+        <p>{{ $tc('sw-my-apps.sw-my-apps-page.error.info') }}</p>
 
-
-                <sw-button variant="primary" @click="goBack">
-                    {{ $tc('sw-my-apps.sw-my-apps-page.error.lblBackButton') }}
-                </sw-button>
-            </div>
-        {% endblock %}
+        <sw-button
+            variant="primary"
+            @click="goBack"
+        >
+            {{ $tc('sw-my-apps.sw-my-apps-page.error.lblBackButton') }}
+        </sw-button>
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

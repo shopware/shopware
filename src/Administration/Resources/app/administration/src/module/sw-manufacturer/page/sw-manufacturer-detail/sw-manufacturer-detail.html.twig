@@ -1,154 +1,173 @@
 {% block sw_manufacturer_detail %}
-    <sw-page class="sw-manufacturer-detail">
+<sw-page class="sw-manufacturer-detail">
 
-        {% block sw_manufacturer_detail_header %}
-            <template #smart-bar-header>
-                <h2>{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
-            </template>
+    {% block sw_manufacturer_detail_header %}
+    <template #smart-bar-header>
+        <h2>{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_manufacturer_detail_actions %}
+    <template #smart-bar-actions>
+
+        {% block sw_manufacturer_detail_actions_abort %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            :disabled="manufacturerIsLoading"
+            @click="onCancel"
+        >
+            {{ $tc('sw-manufacturer.detail.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_manufacturer_detail_actions %}
-            <template #smart-bar-actions>
-
-                {% block sw_manufacturer_detail_actions_abort %}
-                    <sw-button :disabled="manufacturerIsLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
-                        {{ $tc('sw-manufacturer.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_manufacturer_detail_actions_save %}
-                <sw-button-process
-                        class="sw-manufacturer-detail__save-action"
-                        :isLoading="isLoading"
-                        v-model="isSaveSuccessful"
-                        :disabled="isLoading || !acl.can('product_manufacturer.editor')"
-                        variant="primary"
-                        v-tooltip.bottom="tooltipSave"
-                        @click.prevent="onSave">
-                    {{ $tc('sw-manufacturer.detail.buttonSave') }}
-                </sw-button-process>
-                {% endblock %}
-
-            </template>
+        {% block sw_manufacturer_detail_actions_save %}
+        <sw-button-process
+            v-model="isSaveSuccessful"
+            v-tooltip.bottom="tooltipSave"
+            class="sw-manufacturer-detail__save-action"
+            :is-loading="isLoading"
+            :disabled="isLoading || !acl.can('product_manufacturer.editor')"
+            variant="primary"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-manufacturer.detail.buttonSave') }}
+        </sw-button-process>
         {% endblock %}
 
-        {% block sw_manufacturer_detail_language_switch %}
-            <template #language-switch>
-                <sw-language-switch
-                    :disabled="manufacturerId == null"
-                    :saveChangesFunction="saveOnLanguageChange"
-                    :abortChangeFunction="abortOnLanguageChange"
-                    @on-change="onChangeLanguage">
-                </sw-language-switch>
-            </template>
+    </template>
+    {% endblock %}
+
+    {% block sw_manufacturer_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="manufacturerId == null"
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_manufacturer_detail_content %}
+    <sw-card-view slot="content">
+
+        {% block sw_manufacturer_detail_content_language_info %}
+        <sw-language-info
+            :entity-description="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
+        />
         {% endblock %}
 
-        {% block sw_manufacturer_detail_content %}
-            <sw-card-view slot="content">
+        {% block sw_manufacturer_detail_base_basic_info_card %}
+        <sw-card
+            :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
+            :is-loading="manufacturerIsLoading"
+        >
+            <template v-if="!manufacturerIsLoading">
+                <sw-container
+                    class="sw-manufacturer-detail__container"
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="0 30px"
+                >
+                    <div class="sw-manufacturer-detail__base-info-wrapper">
 
-            {% block sw_manufacturer_detail_content_language_info %}
-                <sw-language-info
-                    :entityDescription="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))">
-                </sw-language-info>
-            {% endblock %}
-
-            {% block sw_manufacturer_detail_base_basic_info_card %}
-                <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="manufacturerIsLoading">
-                    <template v-if="!manufacturerIsLoading">
-                        <sw-container class="sw-manufacturer-detail__container"
-                                      columns="repeat(auto-fit, minmax(250px, 1fr))"
-                                      gap="0 30px">
-                            <div class="sw-manufacturer-detail__base-info-wrapper">
-
-                                {% block sw_manufacturer_detail_base_info_field_name %}
-                                    <sw-field type="text"
-                                        :label="$tc('sw-manufacturer.detail.labelName')"
-                                        :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
-                                        name="name"
-                                        validation="required"
-                                        required
-                                        :error="manufacturerNameError"
-                                        v-model="manufacturer.name"
-                                        :disabled="!acl.can('product_manufacturer.editor')">
-                                    </sw-field>
-                                {% endblock %}
-
-                                {% block sw_manufacturer_detail_base_info_field_link %}
-                                <sw-field type="text"
-                                    :label="$tc('sw-manufacturer.detail.labelLink')"
-                                    :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
-                                    name="link"
-                                    v-model="manufacturer.link"
-                                    :disabled="!acl.can('product_manufacturer.editor')"
-                                >
-                                </sw-field>
-                                {% endblock %}
-                            </div>
-
-                            {% block sw_manufacturer_detail_logo_upload %}
-                                <sw-upload-listener
-                                    :uploadTag="mediaUploadTag"
-                                    autoUpload
-                                    @media-upload-finish="setMediaItem">
-                                </sw-upload-listener>
-                                <sw-media-upload-v2
-                                    class="sw-manufacturer-detail__logo-upload"
-                                    :source="manufacturer.mediaId"
-                                    :allowMultiSelect="false"
-                                    variant="regular"
-                                    :uploadTag="mediaUploadTag"
-                                    :label="$tc('sw-manufacturer.detail.labelLogo')"
-                                    :defaultFolder="manufacturerRepository.entityName"
-                                    @sw-media-upload-v2-media-upload-success="setMediaItem"
-                                    @media-drop="onDropMedia"
-                                    @media-upload-sidebar-open="openMediaSidebar"
-                                    @media-upload-remove-image="onUnlinkLogo"
-                                    :disabled="!acl.can('product_manufacturer.editor')">
-                                </sw-media-upload-v2>
-                            {% endblock %}
-                        </sw-container>
-
-                        {% block sw_manufacturer_detail_base_info_field_description %}
-                            <sw-text-editor
-                                :label="$tc('sw-manufacturer.detail.labelDescription')"
-                                :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
-                                name="description"
-                                v-model="manufacturer.description"
-                                :disabled="!acl.can('product_manufacturer.editor')">
-                            </sw-text-editor>
+                        {% block sw_manufacturer_detail_base_info_field_name %}
+                        <sw-field
+                            v-model="manufacturer.name"
+                            type="text"
+                            :label="$tc('sw-manufacturer.detail.labelName')"
+                            :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
+                            name="name"
+                            validation="required"
+                            required
+                            :error="manufacturerNameError"
+                            :disabled="!acl.can('product_manufacturer.editor')"
+                        />
                         {% endblock %}
-                    </template>
-                </sw-card>
-            {% endblock %}
 
-            {% block sw_manufacturer_detail_custom_field_sets %}
-                <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                         v-if="customFieldSets.length > 0"
-                         :isLoading="manufacturerIsLoading">
-                    <sw-custom-field-set-renderer
-                            v-if="manufacturer"
-                            :entity="manufacturer"
-                            :sets="customFieldSets"
-                            :disabled="!acl.can('product_manufacturer.editor')">
-                    </sw-custom-field-set-renderer>
-                </sw-card>
-            {% endblock %}
-        </sw-card-view>
+                        {% block sw_manufacturer_detail_base_info_field_link %}
+                        <sw-field
+                            v-model="manufacturer.link"
+                            type="text"
+                            :label="$tc('sw-manufacturer.detail.labelLink')"
+                            :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
+                            name="link"
+                            :disabled="!acl.can('product_manufacturer.editor')"
+                        />
+                        {% endblock %}
+                    </div>
+
+                    {% block sw_manufacturer_detail_logo_upload %}
+                    <sw-upload-listener
+                        :upload-tag="mediaUploadTag"
+                        auto-upload
+                        @media-upload-finish="setMediaItem"
+                    />
+                    <sw-media-upload-v2
+                        class="sw-manufacturer-detail__logo-upload"
+                        :source="manufacturer.mediaId"
+                        :allow-multi-select="false"
+                        variant="regular"
+                        :upload-tag="mediaUploadTag"
+                        :label="$tc('sw-manufacturer.detail.labelLogo')"
+                        :default-folder="manufacturerRepository.entityName"
+                        :disabled="!acl.can('product_manufacturer.editor')"
+                        @sw-media-upload-v2-media-upload-success="setMediaItem"
+                        @media-drop="onDropMedia"
+                        @media-upload-sidebar-open="openMediaSidebar"
+                        @media-upload-remove-image="onUnlinkLogo"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_manufacturer_detail_base_info_field_description %}
+                <sw-text-editor
+                    v-model="manufacturer.description"
+                    :label="$tc('sw-manufacturer.detail.labelDescription')"
+                    :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
+                    name="description"
+                    :disabled="!acl.can('product_manufacturer.editor')"
+                />
+                {% endblock %}
+            </template>
+        </sw-card>
+        {% endblock %}
+
+        {% block sw_manufacturer_detail_custom_field_sets %}
+        <sw-card
+            v-if="customFieldSets.length > 0"
+            :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+            :is-loading="manufacturerIsLoading"
+        >
+            <sw-custom-field-set-renderer
+                v-if="manufacturer"
+                :entity="manufacturer"
+                :sets="customFieldSets"
+                :disabled="!acl.can('product_manufacturer.editor')"
+            />
+        </sw-card>
+        {% endblock %}
+    </sw-card-view>
     {% endblock %}
 
     {% block sw_manufacturer_detail_sidebar %}
-        <template slot="sidebar">
-            <sw-sidebar :propagateWidth="true">
-                <sw-sidebar-media-item :disabled="!acl.can('product_manufacturer.editor')" ref="mediaSidebarItem">
-                    <template slot="context-menu-items" slot-scope="media">
-                        <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
-                            {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}
-                        </sw-context-menu-item>
-                    </template>
-                </sw-sidebar-media-item>
-            </sw-sidebar>
-        </template>
-     {% endblock %}
+    <template slot="sidebar">
+        <sw-sidebar :propagate-width="true">
+            <sw-sidebar-media-item
+                ref="mediaSidebarItem"
+                :disabled="!acl.can('product_manufacturer.editor')"
+            >
+                <template
+                    slot="context-menu-items"
+                    slot-scope="media"
+                >
+                    <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
+                        {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-sidebar-media-item>
+        </sw-sidebar>
+    </template>
+    {% endblock %}
 
-    </sw-page>
+</sw-page>
 {% endblock %}

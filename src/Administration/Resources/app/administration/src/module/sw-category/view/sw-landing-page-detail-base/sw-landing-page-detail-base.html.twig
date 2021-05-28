@@ -1,121 +1,131 @@
 {% block sw_landing_page_detail_base %}
-    <div class="sw-landing-page-detail-base">
+<div class="sw-landing-page-detail-base">
 
-        {% block sw_landing_page_detail_base_information %}
-            <sw-card :title="$tc('sw-landing-page.base.general.headlineInformationCard')" :isLoading="isLoading">
-                <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
+    {% block sw_landing_page_detail_base_information %}
+    <sw-card
+        :title="$tc('sw-landing-page.base.general.headlineInformationCard')"
+        :is-loading="isLoading"
+    >
+        <sw-container
+            columns="repeat(auto-fit, minmax(150px, 1fr))"
+            gap="0px 30px"
+        >
 
-                    {% block sw_landing_page_detail_base_information_name %}
-                        <sw-text-field
-                            v-model="landingPage.name"
-                            required
-                            name="landingPageName"
-                            validation="required"
-                            :disabled="!acl.can('landing_page.editor')"
-                            :label="$tc('sw-landing-page.base.general.labelName')"
-                            :placeholder="placeholder(landingPage, 'name')"
-                            :error="landingPageNameError">
-                        </sw-text-field>
-                    {% endblock %}
+            {% block sw_landing_page_detail_base_information_name %}
+            <sw-text-field
+                v-model="landingPage.name"
+                required
+                name="landingPageName"
+                validation="required"
+                :disabled="!acl.can('landing_page.editor')"
+                :label="$tc('sw-landing-page.base.general.labelName')"
+                :placeholder="placeholder(landingPage, 'name')"
+                :error="landingPageNameError"
+            />
+            {% endblock %}
 
-                    {% block sw_landing_page_detail_base_information_active %}
-                        <sw-switch-field
-                            v-model="landingPage.active"
-                            class="sw-landing-page-detail-base__active"
-                            name="landingPageActive"
-                            :disabled="!acl.can('landing_page.editor')"
-                            :label="$tc('sw-landing-page.base.general.isActiveLabel')">
-                        </sw-switch-field>
-                    {% endblock %}
-                </sw-container>
+            {% block sw_landing_page_detail_base_information_active %}
+            <sw-switch-field
+                v-model="landingPage.active"
+                class="sw-landing-page-detail-base__active"
+                name="landingPageActive"
+                :disabled="!acl.can('landing_page.editor')"
+                :label="$tc('sw-landing-page.base.general.isActiveLabel')"
+            />
+            {% endblock %}
+        </sw-container>
 
-                {% block sw_landing_page_detail_base_seo_form_sales_channel %}
-                    <sw-entity-multi-select
-                        v-model="landingPage.salesChannels"
-                        required
-                        class="sw-landing-page-detail-base__sales_channel"
-                        entityName="sales_channel"
-                        :disabled="!acl.can('landing_page.editor')"
-                        :label="$tc('sw-landing-page.base.seo.labelSalesChannel')"
-                        :placeholder="$tc('sw-landing-page.base.seo.placeholderSalesChannel')"
-                        :error="landingPageSalesChannelsError">
-                    </sw-entity-multi-select>
-                {% endblock %}
-
-                {% block sw_landing_page_detail_base_information_tags %}
-                    <sw-entity-tag-select
-                        v-if="landingPage && !isLoading"
-                        v-model="landingPage.tags"
-                        class="sw-landing-page-detail-base__tags"
-                        :label="$tc('sw-landing-page.base.general.labelTags')"
-                        :placeholder="$tc('sw-landing-page.base.general.labelTagsPlaceholder')"
-                        :disabled="!acl.can('landing_page.editor')">
-                    </sw-entity-tag-select>
-                {% endblock %}
-
-            </sw-card>
+        {% block sw_landing_page_detail_base_seo_form_sales_channel %}
+        <sw-entity-multi-select
+            v-model="landingPage.salesChannels"
+            required
+            class="sw-landing-page-detail-base__sales_channel"
+            entity-name="sales_channel"
+            :disabled="!acl.can('landing_page.editor')"
+            :label="$tc('sw-landing-page.base.seo.labelSalesChannel')"
+            :placeholder="$tc('sw-landing-page.base.seo.placeholderSalesChannel')"
+            :error="landingPageSalesChannelsError"
+        />
         {% endblock %}
 
-        {% block sw_landing_page_detail_base_seo %}
-            <sw-card :title="$tc('sw-landing-page.base.seo.title')"
-                     :isLoading="isLoading">
-
-                {% block sw_landing_page_detail_base_seo_form %}
-                    <div class="sw-landing-page-detail-base__seo-form">
-
-                        {% block sw_landing_page_detail_base_seo_form_meta_title %}
-                            <sw-text-field
-                                      v-model="landingPage.metaTitle"
-                                      :disabled="!acl.can('landing_page.editor')"
-                                      :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
-                                      :placeholder="placeholder(landingPage, 'metaTitle', $tc('sw-landing-page.base.seo.placeholderMetaTitle'))">
-                            </sw-text-field>
-                        {% endblock %}
-
-                        {% block sw_landing_page_detail_base_seo_form_meta_description %}
-                            <sw-textarea-field
-                                      v-model="landingPage.metaDescription"
-                                      :disabled="!acl.can('landing_page.editor')"
-                                      :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
-                                      :placeholder="placeholder(landingPage, 'metaDescription', $tc('sw-landing-page.base.seo.placeholderMetaDescription'))">
-                            </sw-textarea-field>
-                        {% endblock %}
-
-                        {% block sw_landing_page_detail_base_seo_form_keywords %}
-                            <sw-text-field
-                                      v-model="landingPage.keywords"
-                                      :disabled="!acl.can('landing_page.editor')"
-                                      :label="$tc('sw-landing-page.base.seo.labelKeywords')"
-                                      :placeholder="placeholder(landingPage, 'keywords', $tc('sw-landing-page.base.seo.placeholderKeywords'))">
-                            </sw-text-field>
-                        {% endblock %}
-
-                        {% block sw_landing_page_detail_base_seo_form_url %}
-                            <sw-text-field
-                                      v-model="landingPage.url"
-                                      required
-                                      :disabled="!acl.can('landing_page.editor')"
-                                      :label="$tc('sw-landing-page.base.seo.labelUrl')"
-                                      :placeholder="placeholder(landingPage, 'url', $tc('sw-landing-page.base.seo.placeholderUrl'))"
-                                      :error="landingPageUrlError">
-                            </sw-text-field>
-                        {% endblock %}
-
-                    </div>
-                {% endblock %}
-
-            </sw-card>
+        {% block sw_landing_page_detail_base_information_tags %}
+        <sw-entity-tag-select
+            v-if="landingPage && !isLoading"
+            v-model="landingPage.tags"
+            class="sw-landing-page-detail-base__tags"
+            :label="$tc('sw-landing-page.base.general.labelTags')"
+            :placeholder="$tc('sw-landing-page.base.general.labelTagsPlaceholder')"
+            :disabled="!acl.can('landing_page.editor')"
+        />
         {% endblock %}
 
-        {% block sw_landing_page_detail_base_attribute_sets %}
-            <sw-card v-if="customFieldSetsArray.length > 0"
-                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                     :isLoading="isLoading">
-                <sw-custom-field-set-renderer
-                    :entity="landingPage"
-                    :sets="customFieldSetsArray">
-                </sw-custom-field-set-renderer>
-            </sw-card>
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_landing_page_detail_base_seo %}
+    <sw-card
+        :title="$tc('sw-landing-page.base.seo.title')"
+        :is-loading="isLoading"
+    >
+
+        {% block sw_landing_page_detail_base_seo_form %}
+        <div class="sw-landing-page-detail-base__seo-form">
+
+            {% block sw_landing_page_detail_base_seo_form_meta_title %}
+            <sw-text-field
+                v-model="landingPage.metaTitle"
+                :disabled="!acl.can('landing_page.editor')"
+                :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
+                :placeholder="placeholder(landingPage, 'metaTitle', $tc('sw-landing-page.base.seo.placeholderMetaTitle'))"
+            />
+            {% endblock %}
+
+            {% block sw_landing_page_detail_base_seo_form_meta_description %}
+            <sw-textarea-field
+                v-model="landingPage.metaDescription"
+                :disabled="!acl.can('landing_page.editor')"
+                :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
+                :placeholder="placeholder(landingPage, 'metaDescription', $tc('sw-landing-page.base.seo.placeholderMetaDescription'))"
+            />
+            {% endblock %}
+
+            {% block sw_landing_page_detail_base_seo_form_keywords %}
+            <sw-text-field
+                v-model="landingPage.keywords"
+                :disabled="!acl.can('landing_page.editor')"
+                :label="$tc('sw-landing-page.base.seo.labelKeywords')"
+                :placeholder="placeholder(landingPage, 'keywords', $tc('sw-landing-page.base.seo.placeholderKeywords'))"
+            />
+            {% endblock %}
+
+            {% block sw_landing_page_detail_base_seo_form_url %}
+            <sw-text-field
+                v-model="landingPage.url"
+                required
+                :disabled="!acl.can('landing_page.editor')"
+                :label="$tc('sw-landing-page.base.seo.labelUrl')"
+                :placeholder="placeholder(landingPage, 'url', $tc('sw-landing-page.base.seo.placeholderUrl'))"
+                :error="landingPageUrlError"
+            />
+            {% endblock %}
+
+        </div>
         {% endblock %}
-    </div>
+
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_landing_page_detail_base_attribute_sets %}
+    <sw-card
+        v-if="customFieldSetsArray.length > 0"
+        :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+        :is-loading="isLoading"
+    >
+        <sw-custom-field-set-renderer
+            :entity="landingPage"
+            :sets="customFieldSetsArray"
+        />
+    </sw-card>
+    {% endblock %}
+</div>
 {% endblock %}

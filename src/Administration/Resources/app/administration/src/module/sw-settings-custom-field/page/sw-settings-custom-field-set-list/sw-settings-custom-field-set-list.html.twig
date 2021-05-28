@@ -1,173 +1,201 @@
 {% block sw_settings_custom_field_set_list %}
-    <sw-page class="sw-settings-custom-field-set-list">
-        {% block sw_settings_custom_field_set_list_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar
-                    initialSearchType="custom_field"
-                    :placeholder="$tc('sw-settings-custom-field.general.placeholderSearchBar')"
-                    :initialSearch="term"
-                    @search="onSearch">
-                </sw-search-bar>
-            </template>
+<sw-page class="sw-settings-custom-field-set-list">
+    {% block sw_settings_custom_field_set_list_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar
+            initial-search-type="custom_field"
+            :placeholder="$tc('sw-settings-custom-field.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_list_header %}
+    <template slot="smart-bar-header">
+        <h2>
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-custom-field.set.list.textHeadline') }}
+
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ items.length }})
+            </span>
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_list_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_custom_field_set_list_actions_add %}
+        <sw-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('custom_field.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-custom-field-set-list__button-create"
+            :disabled="!acl.can('custom_field.creator')"
+            :router-link="{ name: 'sw.settings.custom.field.create' }"
+            variant="primary"
+        >
+            {{ $tc('sw-settings-custom-field.set.list.buttonAdd') }}
+        </sw-button>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_custom_field_set_list_header %}
-            <template slot="smart-bar-header">
-                <h2>
-                    {{ $tc('sw-settings.index.title') }}
-                    <sw-icon name="small-arrow-medium-right" small>
+    {% block sw_settings_custom_field_set_list_content %}
+    <sw-card-view slot="content">
+        {% block sw_settings_custom_field_set_list_content_inner %}
+        <sw-card
+            :is-loading="isLoading"
+            class="sw-settings-custom-field-set-list__card"
+        >
+            {% block sw_settings_custom_field_set_list_grid %}
+            <sw-grid
+                v-show="items.length > 0"
+                slot="grid"
+                class="sw-settings-custom-field-set-list-grid"
+                :selectable="false"
+                :items="items"
+                table
+            >
+                {% block sw_settings_custom_field_set_list_grid_columns %}
+                <template
+                    slot="columns"
+                    slot-scope="{ item }"
+                >
 
-                    </sw-icon>
-                    {{ $tc('sw-settings-custom-field.set.list.textHeadline') }}
+                    {% block sw_settings_custom_field_set_list_grid_column_label %}
+                    <sw-grid-column
+                        flex="minmax(180px, 2fr)"
+                        :label="$tc('sw-settings-custom-field.set.list.columnName')"
+                    >
+                        <template v-if="item.global">
+                            {{ getInlineSnippet(item.config.label) || item.name }}
+                            <sw-help-text
+                                class="sw-settings-custom-field-set-list__help-text-global-set"
+                                :text="$tc('sw-settings-custom-field.set.list.helpTextGlobalSet')"
+                            />
+                        </template>
+                        <template v-else>
+                            <router-link
+                                :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
+                                class="sw-custom-field-set-list__column-name"
+                                :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
+                            >
+                                {{ getInlineSnippet(item.config.label) || item.name }}
+                            </router-link>
+                        </template>
+                    </sw-grid-column>
+                    {% endblock %}
 
-                    <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                        ({{ items.length }})
-                    </span>
-                </h2>
-            </template>
-        {% endblock %}
+                    {% block sw_settings_custom_field_set_list_grid_column_actions %}
+                    <sw-grid-column
+                        flex="minmax(70px, 70px)"
+                        align="center"
+                        label=""
+                    >
+                        <sw-context-button>
+                            <sw-context-menu-item
+                                v-tooltip="{
+                                    message: $tc('sw-settings-custom-field.set.list.helpTextGlobalSet'),
+                                    showOnDisabledElements: true,
+                                    disabled: !item.global
+                                }"
+                                :disabled="item.global || !acl.can('custom_field.editor')"
+                                class="sw-custom-field-set-list__edit-action"
+                                :router-link="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
+                            >
+                                {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
+                            </sw-context-menu-item>
 
-        {% block sw_settings_custom_field_set_list_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_custom_field_set_list_actions_add %}
-                    <sw-button
-                        class="sw-settings-custom-field-set-list__button-create"
-                        :disabled="!acl.can('custom_field.creator')"
-                        :routerLink="{ name: 'sw.settings.custom.field.create' }"
-                        variant="primary"
-                        v-tooltip.bottom="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('custom_field.creator'),
-                            showOnDisabledElements: true
-                        }">
-                        {{ $tc('sw-settings-custom-field.set.list.buttonAdd') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        {% endblock %}
+                            <template v-if="!item.global">
+                                <sw-context-menu-item
+                                    class="sw-settings-custom-field-set-list__delete-action"
+                                    :disabled="!acl.can('custom_field.deleter')"
+                                    variant="danger"
+                                    @click="onDelete(item.id)"
+                                >
+                                    {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
+                                </sw-context-menu-item>
+                            </template>
+                        </sw-context-button>
+                    </sw-grid-column>
+                    {% endblock %}
 
-        {% block sw_settings_custom_field_set_list_content %}
-            <sw-card-view slot="content">
-                {% block sw_settings_custom_field_set_list_content_inner %}
-                    <sw-card :isLoading="isLoading" class="sw-settings-custom-field-set-list__card">
-                        {% block sw_settings_custom_field_set_list_grid %}
-                            <sw-grid slot="grid"
-                                     v-show="items.length > 0"
-                                     class="sw-settings-custom-field-set-list-grid"
-                                     :selectable="false"
-                                     :items="items"
-                                     table>
-                                {% block sw_settings_custom_field_set_list_grid_columns %}
-                                    <template slot="columns" slot-scope="{ item }">
+                    {% block sw_settings_custom_field_set_list_grid_delete_modal %}
+                    <sw-modal
+                        v-if="showDeleteModal === item.id"
+                        :title="$tc('global.default.warning')"
+                        variant="small"
+                        @modal-close="onCloseDeleteModal"
+                    >
 
-                                        {% block sw_settings_custom_field_set_list_grid_column_label %}
-                                            <sw-grid-column flex="minmax(180px, 2fr)"
-                                                            :label="$tc('sw-settings-custom-field.set.list.columnName')">
-                                                <template v-if="item.global">
-                                                    {{ getInlineSnippet(item.config.label) || item.name }}
-                                                    <sw-help-text
-                                                        class="sw-settings-custom-field-set-list__help-text-global-set"
-                                                        :text="$tc('sw-settings-custom-field.set.list.helpTextGlobalSet')">
-                                                    </sw-help-text>
-                                                </template>
-                                                <template v-else>
-                                                    <router-link
-                                                        :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
-                                                        class="sw-custom-field-set-list__column-name"
-                                                        :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
-                                                        {{ getInlineSnippet(item.config.label) || item.name }}
-                                                    </router-link>
-                                                </template>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_settings_custom_field_set_list_grid_column_actions %}
-                                            <sw-grid-column flex="minmax(70px, 70px)"
-                                                            align="center"
-                                                            label="">
-                                                    <sw-context-button>
-                                                        <sw-context-menu-item
-                                                                v-tooltip="{
-                                                                    message: $tc('sw-settings-custom-field.set.list.helpTextGlobalSet'),
-                                                                    showOnDisabledElements: true,
-                                                                    disabled: !item.global
-                                                                }"
-                                                                :disabled="item.global || !acl.can('custom_field.editor')"
-                                                                class="sw-custom-field-set-list__edit-action"
-                                                                :routerLink="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
-                                                            {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
-                                                        </sw-context-menu-item>
-
-                                                        <template v-if="!item.global">
-                                                            <sw-context-menu-item
-                                                                class="sw-settings-custom-field-set-list__delete-action"
-                                                                :disabled="!acl.can('custom_field.deleter')"
-                                                                variant="danger"
-                                                                @click="onDelete(item.id)">
-                                                                {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
-                                                            </sw-context-menu-item>
-                                                        </template>
-                                                    </sw-context-button>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_settings_custom_field_set_list_grid_delete_modal %}
-                                            <sw-modal v-if="showDeleteModal === item.id"
-                                                      @modal-close="onCloseDeleteModal"
-                                                      :title="$tc('global.default.warning')"
-                                                      variant="small">
-
-                                                {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
-                                                    <p>
-                                                        {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0,
-                                                            { name: getInlineSnippet(item.config.label) || item.name }) }}
-                                                    </p>
-                                                {% endblock %}
-
-                                                {% block sw_settings_custom_field_set_list_grid_delete_modal_footer %}
-                                                    <template slot="modal-footer">
-
-                                                        {% block sw_settings_custom_field_set_list_grid_delete_modal_cancel %}
-                                                            <sw-button @click="onCloseDeleteModal"
-                                                                       size="small">
-                                                                {{ $tc('sw-settings-custom-field.set.list.buttonCancel') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_custom_field_set_list_grid_delete_modal_delete %}
-                                                            <sw-button @click="onConfirmDelete(item.id)"
-                                                                       variant="danger"
-                                                                       size="small">
-                                                               {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-                                                    </template>
-                                                {% endblock %}
-                                            </sw-modal>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_settings_custom_field_set_list_content_columns_pagination %}
-                                    <sw-pagination slot="pagination"
-                                                   :page="page"
-                                                   :limit="limit"
-                                                   :total="total"
-                                                   :total-visible="7"
-                                                   @page-change="onPageChange">
-                                    </sw-pagination>
-                                {% endblock %}
-                            </sw-grid>
+                        {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
+                        <p>
+                            {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0,
+                                   { name: getInlineSnippet(item.config.label) || item.name }) }}
+                        </p>
                         {% endblock %}
-                        {% block sw_settings_custom_fields_set_list_empty_message %}
-                            <sw-empty-state v-if="!isLoading && items.length <= 0"
-                                            :absolute="false"
-                                            :title="$tc('sw-settings-custom-field.set.list.messageEmpty')">
-                            </sw-empty-state>
+
+                        {% block sw_settings_custom_field_set_list_grid_delete_modal_footer %}
+                        <template slot="modal-footer">
+
+                            {% block sw_settings_custom_field_set_list_grid_delete_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('sw-settings-custom-field.set.list.buttonCancel') }}
+                            </sw-button>
+                            {% endblock %}
+
+                            {% block sw_settings_custom_field_set_list_grid_delete_modal_delete %}
+                            <sw-button
+                                variant="danger"
+                                size="small"
+                                @click="onConfirmDelete(item.id)"
+                            >
+                                {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
                         {% endblock %}
-                    </sw-card>
+                    </sw-modal>
+                    {% endblock %}
+                </template>
                 {% endblock %}
-            </sw-card-view>
+
+                {% block sw_settings_custom_field_set_list_content_columns_pagination %}
+                <sw-pagination
+                    slot="pagination"
+                    :page="page"
+                    :limit="limit"
+                    :total="total"
+                    :total-visible="7"
+                    @page-change="onPageChange"
+                />
+                {% endblock %}
+            </sw-grid>
+            {% endblock %}
+            {% block sw_settings_custom_fields_set_list_empty_message %}
+            <sw-empty-state
+                v-if="!isLoading && items.length <= 0"
+                :absolute="false"
+                :title="$tc('sw-settings-custom-field.set.list.messageEmpty')"
+            />
+            {% endblock %}
+        </sw-card>
         {% endblock %}
-    </sw-page>
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
 {% endblock %}

@@ -1,8 +1,10 @@
 {% block sw_wizard_page %}
-    <div v-if="isCurrentlyActive"
-         class="sw-wizard-page">
-        <slot>
-            {% block sw_wizard_page_slot_default %}{% endblock %}
-        </slot>
-    </div>
+<div
+    v-if="isCurrentlyActive"
+    class="sw-wizard-page"
+>
+    <slot>
+        {% block sw_wizard_page_slot_default %}{% endblock %}
+    </slot>
+</div>
 {% endblock %}

@@ -1,32 +1,46 @@
 {% block sw_order_document_settings_modal_form_document_number %}
-    <sw-text-field :label="$tc('sw-order.documentModal.labelDocumentNumber')"
-              v-model="documentConfig.documentNumber">
-    </sw-text-field>
+<sw-text-field
+    v-model="documentConfig.documentNumber"
+    :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+/>
 {% endblock %}
 
 {% block sw_order_document_settings_modal_form_additional_content %}
-    <sw-select-field
-        v-model="documentConfig.custom.invoiceNumber"
-        required
-        :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
-        :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')">
-        <option v-for="number in invoiceNumbers" :value="number">
-            {{ number }}
-        </option>
-    </sw-select-field>
+<sw-select-field
+    v-model="documentConfig.custom.invoiceNumber"
+    required
+    :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
+    :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
+>
+    <option
+        v-for="number in invoiceNumbers"
+        :key="number"
+        :value="number"
+    >
+        {{ number }}
+    </option>
+</sw-select-field>
 
-    <sw-description-list
-        v-if="highlightedItems.length !== 0"
-        class="sw-order-document-settings-credit-note-modal__highlighted-items"
-        grid="1fr 1fr">
-            <dt>{{ $tc('sw-order.documentModal.labelHighlightedItemsHeader') }}</dt>
-            <dd>{{ $tc('sw-order.documentModal.labelHighlightedItemsEntry') }}</dd>
-            <template v-for="item in highlightedItems">
-                <dt>{{ item.label }}</dt>
-                <dd>{{ item.totalPrice | currency(order.currency.shortName) }}</dd>
-            </template>
-    </sw-description-list>
-    <div v-else class="sw-order-document-settings-credit-note-modal__no-items-text">
-        {{ $tc('sw-order.documentModal.labelNoItems') }}
-    </div>
+<sw-description-list
+    v-if="highlightedItems.length !== 0"
+    class="sw-order-document-settings-credit-note-modal__highlighted-items"
+    grid="1fr 1fr"
+>
+    <dt>{{ $tc('sw-order.documentModal.labelHighlightedItemsHeader') }}</dt>
+    <dd>{{ $tc('sw-order.documentModal.labelHighlightedItemsEntry') }}</dd>
+    <template v-for="(item, index) in highlightedItems">
+        <dt :key="`dt-${index}`">
+            {{ item.label }}
+        </dt>
+        <dd :key="`dd-${index}`">
+            {{ item.totalPrice | currency(order.currency.shortName) }}
+        </dd>
+    </template>
+</sw-description-list>
+<div
+    v-else
+    class="sw-order-document-settings-credit-note-modal__no-items-text"
+>
+    {{ $tc('sw-order.documentModal.labelNoItems') }}
+</div>
 {% endblock %}

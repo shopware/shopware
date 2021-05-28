@@ -1,39 +1,49 @@
 {% block sw_error %}
-    <div class="sw-error">
-        <div class="sw-error__container">
-            {% block sw_error_illustration %}
-                <div class="sw-error__illustration">
-                    <img :src="imagePath" alt="">
+<div class="sw-error">
+    <div class="sw-error__container">
+        {% block sw_error_illustration %}
+        <div class="sw-error__illustration">
+            <img
+                :src="imagePath"
+                alt=""
+            >
+        </div>
+        {% endblock %}
+
+        <div class="sw-error__content">
+            <slot>
+                {% block sw_error_contend %}
+                {% block sw_error_status_code %}
+                <div class="sw-error__status-code">
+                    {{ statusCode }}
                 </div>
-            {% endblock %}
+                {% endblock %}
 
-            <div class="sw-error__content">
-                <slot>
-                    {% block sw_error_contend %}
-                        {% block sw_error_status_code %}
-                            <div class="sw-error__status-code">
-                                {{ statusCode }}
-                            </div>
-                        {% endblock %}
+                {% block sw_error_message %}
+                <div class="sw-error__message">
+                    {{ message }}
+                </div>
+                {% endblock %}
 
-                        {% block sw_error_message %}
-                            <div class="sw-error__message">
-                                {{ message }}
-                            </div>
-                        {% endblock %}
+                {% block sw_error_stack %}
+                <code
+                    v-if="showStack"
+                    class="sw-error__stack"
+                >{{ error.stack }}</code>
+                {% endblock %}
 
-                        {% block sw_error_stack %}
-                            <code v-if="showStack" class="sw-error__stack">{{ error.stack }}</code>
-                        {% endblock %}
-
-                        {% block sw_error_link %}
-                            <sw-button v-if="showLink" variant="primary" :routerLink="routerLink">
-                                {{ linkText }}
-                            </sw-button>
-                        {% endblock %}
-                    {% endblock %}
-                </slot>
-            </div>
+                {% block sw_error_link %}
+                <sw-button
+                    v-if="showLink"
+                    variant="primary"
+                    :router-link="routerLink"
+                >
+                    {{ linkText }}
+                </sw-button>
+                {% endblock %}
+                {% endblock %}
+            </slot>
         </div>
     </div>
+</div>
 {% endblock %}

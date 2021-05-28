@@ -1,23 +1,28 @@
 {% block sw_property_detail_language_switch %}
-    <template slot="language-switch">
-        <sw-language-switch disabled></sw-language-switch>
-    </template>
+<template slot="language-switch">
+    <sw-language-switch disabled />
+</template>
 {% endblock %}
 
 {% block sw_property_detail_content_language_info %}
-    <sw-language-info :entityDescription="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))"
-                      isNewEntity>
-    </sw-language-info>
+<sw-language-info
+    :entity-description="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))"
+    is-new-entity
+/>
 {% endblock %}
 
 {% block sw_property_detail_content_option_list %}
-    <sw-card class="sw-property-create__option-list-empty-state" :title="$tc('sw-property.detail.cardTitle')">
-        <sw-empty-state
-            title=""
-            :subline="$tc('sw-property.detail.optionEmptyStateSubline')">
-            <template #icon>
-                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
-            </template>
-        </sw-empty-state>
-    </sw-card>
+<sw-card
+    class="sw-property-create__option-list-empty-state"
+    :title="$tc('sw-property.detail.cardTitle')"
+>
+    <sw-empty-state
+        title=""
+        :subline="$tc('sw-property.detail.optionEmptyStateSubline')"
+    >
+        <template #icon>
+            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+        </template>
+    </sw-empty-state>
+</sw-card>
 {% endblock %}

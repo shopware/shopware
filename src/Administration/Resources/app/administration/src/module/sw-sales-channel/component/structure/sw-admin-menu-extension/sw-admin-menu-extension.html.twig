@@ -1,5 +1,5 @@
 {% block sw_admin_menu_navigation_main %}
-    {% parent %}
+{% parent %}
 
-    <sw-sales-channel-menu v-if="canViewSalesChannels"></sw-sales-channel-menu>
+<sw-sales-channel-menu v-if="canViewSalesChannels" />
 {% endblock %}

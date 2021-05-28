@@ -1,10 +1,10 @@
 {% block sw_settings_tax_rule_type_individual_states %}
-    <sw-entity-multi-select
-        v-if="individualStates && taxRule.countryId"
-        :label="$tc('sw-settings-tax.taxRuleCard.labelStates')"
-        :placeholder="$tc('sw-settings-tax.taxRuleCard.placeholderStates')"
-        :criteria="exclusionCriteria"
-        :entityCollection="individualStates"
-        @change="onChange">
-    </sw-entity-multi-select>
+<sw-entity-multi-select
+    v-if="individualStates && taxRule.countryId"
+    :label="$tc('sw-settings-tax.taxRuleCard.labelStates')"
+    :placeholder="$tc('sw-settings-tax.taxRuleCard.placeholderStates')"
+    :criteria="exclusionCriteria"
+    :entity-collection="individualStates"
+    @change="onChange"
+/>
 {% endblock %}

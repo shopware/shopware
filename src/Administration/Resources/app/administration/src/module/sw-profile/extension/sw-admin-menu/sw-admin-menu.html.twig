@@ -1,11 +1,20 @@
 {% block sw_admin_menu_user_actions_items %}
-    <li v-if="acl.can('user.update_profile')" class="sw-admin-menu__navigation-list-item">
-        <router-link class="sw-admin-menu__navigation-link sw-admin-menu__profile-item"
-                     :to="{ name: 'sw.profile.index', params: { currentUser } }">
-            <sw-icon class="sw-admin-menu__navigation-link-icon" name="default-avatar-single" small></sw-icon>
-            {{ $tc('sw-profile.general.headlineProfile') }}
-        </router-link>
-    </li>
+<li
+    v-if="acl.can('user.update_profile')"
+    class="sw-admin-menu__navigation-list-item"
+>
+    <router-link
+        class="sw-admin-menu__navigation-link sw-admin-menu__profile-item"
+        :to="{ name: 'sw.profile.index', params: { currentUser } }"
+    >
+        <sw-icon
+            class="sw-admin-menu__navigation-link-icon"
+            name="default-avatar-single"
+            small
+        />
+        {{ $tc('sw-profile.general.headlineProfile') }}
+    </router-link>
+</li>
 
-    {% parent %}
+{% parent %}
 {% endblock %}

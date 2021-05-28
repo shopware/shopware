@@ -1,20 +1,25 @@
 {% block sw_avatar %}
-    <span class="sw-avatar"
-          :class="'sw-avatar__' + variant"
-          :style="[avatarImage, avatarColor, avatarSize, avatarInitialsSize]"
-          ref="swAvatar"
-          role="img">
-        <slot>
-            {% block sw_avatar_slot_imageUrl %}
-                <span v-if="showInitials" class="sw-avatar__initials">
-                    {{ avatarInitials }}
-                </span>
-            {% endblock %}
-            {% block sw_avatar_slot_placeholder %}
-                <span v-if="showPlaceholder">
-                    <sw-icon name="default-avatar-single"></sw-icon>
-                </span>
-            {% endblock %}
-        </slot>
-    </span>
+<span
+    ref="swAvatar"
+    class="sw-avatar"
+    :class="'sw-avatar__' + variant"
+    :style="[avatarImage, avatarColor, avatarSize, avatarInitialsSize]"
+    role="img"
+>
+    <slot>
+        {% block sw_avatar_slot_imageUrl %}
+        <span
+            v-if="showInitials"
+            class="sw-avatar__initials"
+        >
+            {{ avatarInitials }}
+        </span>
+        {% endblock %}
+        {% block sw_avatar_slot_placeholder %}
+        <span v-if="showPlaceholder">
+            <sw-icon name="default-avatar-single" />
+        </span>
+        {% endblock %}
+    </slot>
+</span>
 {% endblock %}

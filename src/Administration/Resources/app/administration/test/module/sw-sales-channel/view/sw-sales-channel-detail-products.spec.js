@@ -285,7 +285,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.setData({ products: productsMock });
 
         const entityListing = wrapper.find('.sw-sales-channel-detail-products__list');
-        expect(entityListing.attributes().allowdelete).toBe('true');
+        expect(entityListing.attributes()['allow-delete']).toBe('true');
     });
 
     it('should not be able to delete product', async () => {
@@ -295,7 +295,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.setData({ products: productsMock });
 
         const entityListing = wrapper.find('.sw-sales-channel-detail-products__list');
-        expect(entityListing.attributes().allowdelete).toBe(undefined);
+        expect(entityListing.attributes()['allow-delete']).toBe(undefined);
     });
 
     it('should be able to edit product', async () => {
@@ -307,7 +307,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.setData({ products: productsMock });
 
         const entityListing = wrapper.find('.sw-sales-channel-detail-products__list');
-        expect(entityListing.attributes().allowedit).toBe('true');
+        expect(entityListing.attributes()['allow-edit']).toBe('true');
     });
 
     it('should not be able to edit product', async () => {
@@ -317,6 +317,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.setData({ products: productsMock });
 
         const entityListing = wrapper.find('.sw-sales-channel-detail-products__list');
-        expect(entityListing.attributes().allowedit).toBe(undefined);
+        expect(entityListing.attributes()['allow-edit']).toBe(undefined);
     });
 });

@@ -1,61 +1,66 @@
 {% block sw_settings_address_index %}
-    <sw-page class="sw-settings-address">
+<sw-page class="sw-settings-address">
 
-        {% block sw_settings_address_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar>
-                </sw-search-bar>
-            </template>
+    {% block sw_settings_address_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_address_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_address_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_address_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-address.general.textHeadline') }}
+            {% endblock %}
+
+            {% block sw_settings_address_smart_bar_header_amount %}
+            <span
+                v-if="false"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_address_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_settings_address_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_address_smart_bar_header_title_text %}
-                                {{ $tc('sw-settings.index.title') }}
-                                <sw-icon name="small-arrow-medium-right" small>
-                                </sw-icon>
-                                {{ $tc('sw-settings-address.general.textHeadline') }}
-                        {% endblock %}
-
-                        {% block sw_settings_address_smart_bar_header_amount %}
-                            <span v-if="false" class="sw-page__smart-bar-amount">
-                                ({{ total }})
-                            </span>
-                        {% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
+    {% block sw_settings_address_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_address_actions_save %}
+        <sw-button-process
+            class="sw-settings-address__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-address.general.buttonSave') }}
+        </sw-button-process>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_address_smart_bar_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_address_actions_save %}
-                    <sw-button-process
-                                class="sw-settings-address__save-action"
-                                :isLoading="isLoading"
-                                :processSuccess="isSaveSuccessful"
-                                :disabled="isLoading"
-                                variant="primary"
-                                @process-finish="saveFinish"
-                                @click="onSave">
-                        {{ $tc('sw-settings-address.general.buttonSave') }}
-                    </sw-button-process>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-        {% block sw_settings_address_content %}
-            <template slot="content">
-                <sw-card-view>
-                    <sw-system-config
-                            ref="systemConfig"
-                            salesChannelSwitchable
-                            domain="core.address">
-                    </sw-system-config>
-                </sw-card-view>
-            </template>
-        {% endblock %}
-    </sw-page>
+    {% block sw_settings_address_content %}
+    <template slot="content">
+        <sw-card-view>
+            <sw-system-config
+                ref="systemConfig"
+                sales-channel-switchable
+                domain="core.address"
+            />
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

@@ -1,181 +1,190 @@
 {% block sw_customer_address_form %}
-    <div class="sw-customer-address-form">
-        {% block sw_customer_address_form_container %}
-            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
-                {% block sw_customer_address_form_company_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.addressForm.labelCompany')"
-                        :error="addressCompanyError"
-                        :disabled="disabled"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderCompany')"
-                        v-model="address.company">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_customer_address_form_department_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.addressForm.labelDepartment')"
-                        :error="addressDepartmentError"
-                        :disabled="disabled"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderDepartment')"
-                        v-model="address.department">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_customer_address_form_salutation_title_container %}
-                    <sw-container columns="1fr 1fr" gap="10px">
-                        {% block sw_customer_address_form_salutation_field %}
-                            <sw-entity-single-select
-                                class="sw-customer-address-form__salutation-select"
-                                entity="salutation"
-                                :label="$tc('sw-customer.addressForm.labelSalutation')"
-                                :placeholder="$tc('sw-customer.addressForm.placeholderSalutation')"
-                                v-model="address.salutationId"
-                                :error="addressSalutationIdError"
-                                :disabled="disabled"
-                                labelProperty="displayName"
-                                required>
-                            </sw-entity-single-select>
-                        {% endblock %}
-
-                        {% block sw_customer_address_form_title_field %}
-                            <sw-text-field
-                                :label="$tc('sw-customer.addressForm.labelTitle')"
-                                :placeholder="$tc('sw-customer.addressForm.placeholderTitle')"
-                                :error="addressTitleError"
-                                :disabled="disabled"
-                                v-model="address.title">
-                            </sw-text-field>
-                        {% endblock %}
-                    </sw-container>
-                {% endblock %}
-
-                {% block sw_customer_address_form_first_name_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.addressForm.labelFirstName')"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderFirstName')"
-                        validation="required"
-                        required
-                        :error="addressFirstNameError"
-                        :disabled="disabled"
-                        v-model="address.firstName">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_customer_address_form_last_name_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.addressForm.labelLastName')"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderLastName')"
-                        validation="required"
-                        required
-                        :error="addressLastNameError"
-                        :disabled="disabled"
-                        v-model="address.lastName">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_customer_address_form_street_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.addressForm.labelStreet')"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderStreet')"
-                        validation="required"
-                        required
-                        :error="addressStreetError"
-                        :disabled="disabled"
-                        v-model="address.street">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_customer_address_form_additional_address_line_1_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine1')"
-                        :error="addressAdditionalAddressLine1Error"
-                        :disabled="disabled"
-                        v-model="address.additionalAddressLine1">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_customer_address_form_additional_address_line_2_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine2')"
-                        :error="addressAdditionalAddressLine2Error"
-                        :disabled="disabled"
-                        v-model="address.additionalAddressLine2">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_customer_address_form_zipcode_city_container %}
-                    {% block sw_customer_address_form_zipcode_field %}
-                        <sw-text-field
-                            :label="$tc('sw-customer.addressForm.labelZipcode')"
-                            :placeholder="$tc('sw-customer.addressForm.placeholderZipcode')"
-                            validation="required"
-                            required
-                            :error="addressZipcodeError"
-                            :disabled="disabled"
-                            v-model="address.zipcode">
-                        </sw-text-field>
-                    {% endblock %}
-
-                    {% block sw_customer_address_form_city_field %}
-                        <sw-text-field
-                            :label="$tc('sw-customer.addressForm.labelCity')"
-                            :placeholder="$tc('sw-customer.addressForm.placeholderCity')"
-                            validation="required"
-                            required
-                            :error="addressCityError"
-                            :disabled="disabled"
-                            v-model="address.city">
-                        </sw-text-field>
-                    {% endblock %}
-                {% endblock %}
-
-                {% block sw_customer_address_form_country_field %}
-                    <sw-entity-single-select
-                        class="sw-customer-address-form__country-select"
-                        entity="country"
-                        :label="$tc('sw-customer.addressForm.labelCountry')"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderCountry')"
-                        validation="required"
-                        required
-                        :error="addressCountryIdError"
-                        :disabled="disabled"
-                        v-model="countryId">
-                    </sw-entity-single-select>
-                {% endblock %}
-
-                {% block sw_customer_address_form_state_field %}
-                    <div v-if="countryId" class="sw-customer-address-form__state-select-placeholder">
-                        <sw-entity-single-select
-                            v-model="address.countryStateId"
-                            class="sw-customer-address-form__state-select"
-                            entity="country_state"
-                            :criteria="stateCriteria"
-                            :label="$tc('sw-customer.addressForm.labelState')"
-                            :placeholder="$tc('sw-customer.addressForm.placeholderState')"
-                            :required="country && country.forceStateInRegistration"
-                            :error="addressCountryStateIdError"
-                            :disabled="disabled">
-                        </sw-entity-single-select>
-                    </div>
-                {% endblock %}
-
-                {% block sw_customer_address_form_phone_number_field %}
-                    <sw-text-field
-                        :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderPhoneNumber')"
-                        :error="addressPhoneNumberError"
-                        :disabled="disabled"
-                        v-model="address.phoneNumber">
-                    </sw-text-field>
-                {% endblock %}
-
-                <slot v-bind="{ disabled }">
-                    {% block sw_customer_address_form_extension_slot %} {% endblock %}
-                </slot>
-            </sw-container>
+<div class="sw-customer-address-form">
+    {% block sw_customer_address_form_container %}
+    <sw-container
+        columns="repeat(auto-fit, minmax(250px, 1fr))"
+        gap="0px 30px"
+    >
+        {% block sw_customer_address_form_company_field %}
+        <sw-text-field
+            v-model="address.company"
+            :label="$tc('sw-customer.addressForm.labelCompany')"
+            :error="addressCompanyError"
+            :disabled="disabled"
+            :placeholder="$tc('sw-customer.addressForm.placeholderCompany')"
+        />
         {% endblock %}
-    </div>
+
+        {% block sw_customer_address_form_department_field %}
+        <sw-text-field
+            v-model="address.department"
+            :label="$tc('sw-customer.addressForm.labelDepartment')"
+            :error="addressDepartmentError"
+            :disabled="disabled"
+            :placeholder="$tc('sw-customer.addressForm.placeholderDepartment')"
+        />
+        {% endblock %}
+
+        {% block sw_customer_address_form_salutation_title_container %}
+        <sw-container
+            columns="1fr 1fr"
+            gap="10px"
+        >
+            {% block sw_customer_address_form_salutation_field %}
+            <sw-entity-single-select
+                v-model="address.salutationId"
+                class="sw-customer-address-form__salutation-select"
+                entity="salutation"
+                :label="$tc('sw-customer.addressForm.labelSalutation')"
+                :placeholder="$tc('sw-customer.addressForm.placeholderSalutation')"
+                :error="addressSalutationIdError"
+                :disabled="disabled"
+                label-property="displayName"
+                required
+            />
+            {% endblock %}
+
+            {% block sw_customer_address_form_title_field %}
+            <sw-text-field
+                v-model="address.title"
+                :label="$tc('sw-customer.addressForm.labelTitle')"
+                :placeholder="$tc('sw-customer.addressForm.placeholderTitle')"
+                :error="addressTitleError"
+                :disabled="disabled"
+            />
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+
+        {% block sw_customer_address_form_first_name_field %}
+        <sw-text-field
+            v-model="address.firstName"
+            :label="$tc('sw-customer.addressForm.labelFirstName')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderFirstName')"
+            validation="required"
+            required
+            :error="addressFirstNameError"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        {% block sw_customer_address_form_last_name_field %}
+        <sw-text-field
+            v-model="address.lastName"
+            :label="$tc('sw-customer.addressForm.labelLastName')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderLastName')"
+            validation="required"
+            required
+            :error="addressLastNameError"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        {% block sw_customer_address_form_street_field %}
+        <sw-text-field
+            v-model="address.street"
+            :label="$tc('sw-customer.addressForm.labelStreet')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderStreet')"
+            validation="required"
+            required
+            :error="addressStreetError"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        {% block sw_customer_address_form_additional_address_line_1_field %}
+        <sw-text-field
+            v-model="address.additionalAddressLine1"
+            :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine1')"
+            :error="addressAdditionalAddressLine1Error"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        {% block sw_customer_address_form_additional_address_line_2_field %}
+        <sw-text-field
+            v-model="address.additionalAddressLine2"
+            :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine2')"
+            :error="addressAdditionalAddressLine2Error"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        {% block sw_customer_address_form_zipcode_city_container %}
+        {% block sw_customer_address_form_zipcode_field %}
+        <sw-text-field
+            v-model="address.zipcode"
+            :label="$tc('sw-customer.addressForm.labelZipcode')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderZipcode')"
+            validation="required"
+            required
+            :error="addressZipcodeError"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        {% block sw_customer_address_form_city_field %}
+        <sw-text-field
+            v-model="address.city"
+            :label="$tc('sw-customer.addressForm.labelCity')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderCity')"
+            validation="required"
+            required
+            :error="addressCityError"
+            :disabled="disabled"
+        />
+        {% endblock %}
+        {% endblock %}
+
+        {% block sw_customer_address_form_country_field %}
+        <sw-entity-single-select
+            v-model="countryId"
+            class="sw-customer-address-form__country-select"
+            entity="country"
+            :label="$tc('sw-customer.addressForm.labelCountry')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderCountry')"
+            validation="required"
+            required
+            :error="addressCountryIdError"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        {% block sw_customer_address_form_state_field %}
+        <div
+            v-if="countryId"
+            class="sw-customer-address-form__state-select-placeholder"
+        >
+            <sw-entity-single-select
+                v-model="address.countryStateId"
+                class="sw-customer-address-form__state-select"
+                entity="country_state"
+                :criteria="stateCriteria"
+                :label="$tc('sw-customer.addressForm.labelState')"
+                :placeholder="$tc('sw-customer.addressForm.placeholderState')"
+                :required="country && country.forceStateInRegistration"
+                :error="addressCountryStateIdError"
+                :disabled="disabled"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_customer_address_form_phone_number_field %}
+        <sw-text-field
+            v-model="address.phoneNumber"
+            :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderPhoneNumber')"
+            :error="addressPhoneNumberError"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        <slot v-bind="{ disabled }">
+            {% block sw_customer_address_form_extension_slot %} {% endblock %}
+        </slot>
+    </sw-container>
+    {% endblock %}
+</div>
 {% endblock %}

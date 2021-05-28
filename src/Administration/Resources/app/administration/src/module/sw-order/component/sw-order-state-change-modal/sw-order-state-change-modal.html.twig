@@ -1,14 +1,16 @@
 {% block sw_order_state_change_modal %}
-    <sw-modal :title="modalTitle"
-              @modal-close="onCancel"
-              class="sw-order-state-change-modal">
+<sw-modal
+    :title="modalTitle"
+    class="sw-order-state-change-modal"
+    @modal-close="onCancel"
+>
 
-        {% block sw_order_state_change_modal_attach_documents_component %}
-            <sw-order-state-change-modal-attach-documents
-                :order="order"
-                :isLoading="isLoading"
-                @on-confirm="onDocsConfirm">
-            </sw-order-state-change-modal-attach-documents>
-        {% endblock %}
-    </sw-modal>
+    {% block sw_order_state_change_modal_attach_documents_component %}
+    <sw-order-state-change-modal-attach-documents
+        :order="order"
+        :is-loading="isLoading"
+        @on-confirm="onDocsConfirm"
+    />
+    {% endblock %}
+</sw-modal>
 {% endblock %}

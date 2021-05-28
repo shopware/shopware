@@ -139,7 +139,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-delivery-time-list-grid');
-        expect(entityList.attributes().showselection).toBeFalsy();
+        expect(entityList.attributes()['show-selection']).toBeFalsy();
     });
 
     it('should show item selection if user has delete permission', async () => {
@@ -147,6 +147,6 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-delivery-time-list-grid');
-        expect(entityList.attributes().showselection).toBeTruthy();
+        expect(entityList.attributes()['show-selection']).toBeTruthy();
     });
 });

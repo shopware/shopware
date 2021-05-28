@@ -1,124 +1,150 @@
 {% block sw_product_feature_set_card %}
-    <sw-card :title="$tc('sw-settings-product-feature-sets.valuesCard.cardTitle')"
-             class="sw-settings-product-feature-sets-values-card"
-             :class="valuesCardClasses"
-             :isLoading="isLoading || valuesLoading || cardLoading">
+<sw-card
+    :title="$tc('sw-settings-product-feature-sets.valuesCard.cardTitle')"
+    class="sw-settings-product-feature-sets-values-card"
+    :class="valuesCardClasses"
+    :is-loading="isLoading || valuesLoading || cardLoading"
+>
 
-        <template #grid>
-            <div v-if="!valuesEmpty && !disabled">
-                {% block sw_product_feature_set_toolbar %}
-                    <div class="sw-product-feature-set__toolbar">
+    <template #grid>
+        <div v-if="!valuesEmpty && !disabled">
+            {% block sw_product_feature_set_toolbar %}
+            <div class="sw-product-feature-set__toolbar">
 
-                        {% block sw_product_feature_set_toolbar_container %}
-                            <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
+                {% block sw_product_feature_set_toolbar_container %}
+                <sw-container
+                    columns="1fr 32px minmax(100px, 200px)"
+                    gap="0 10px"
+                >
 
-                                {% block sw_product_feature_set_toolbar_search %}
-                                    <sw-simple-search-field size="small"
-                                                            variant="form"
-                                                            v-model="term"
-                                                            :disabled="!allowEdit"
-                                                            @search-term-change="onSearch">
-                                    </sw-simple-search-field>
-                                {% endblock %}
+                    {% block sw_product_feature_set_toolbar_search %}
+                    <sw-simple-search-field
+                        v-model="term"
+                        size="small"
+                        variant="form"
+                        :disabled="!allowEdit"
+                        @search-term-change="onSearch"
+                    />
+                    {% endblock %}
 
-                                {% block sw_product_feature_set_toolbar_delete %}
-                                    <sw-button :disabled="deleteButtonDisabled || !allowEdit"
-                                               @click="onDeleteFields"
-                                               square
-                                               size="small"
-                                               class="sw-product-feature-set__delete-button">
-                                        <sw-icon name="default-action-trash" small/>
-                                    </sw-button>
-                                {% endblock %}
+                    {% block sw_product_feature_set_toolbar_delete %}
+                    <sw-button
+                        :disabled="deleteButtonDisabled || !allowEdit"
+                        square
+                        size="small"
+                        class="sw-product-feature-set__delete-button"
+                        @click="onDeleteFields"
+                    >
+                        <sw-icon
+                            name="default-action-trash"
+                            small
+                        />
+                    </sw-button>
+                    {% endblock %}
 
-                                {% block sw_product_feature_set_toolbar_add %}
-                                    <sw-container>
-                                        <sw-button :disabled="isLoading || !allowEdit"
-                                                   @click="onAddField"
-                                                   variant="ghost"
-                                                   size="small"
-                                                   class="sw-product-feature-set__add-button">
-                                            {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
-                                        </sw-button>
-                                    </sw-container>
-                                {% endblock %}
+                    {% block sw_product_feature_set_toolbar_add %}
+                    <sw-container>
+                        <sw-button
+                            :disabled="isLoading || !allowEdit"
+                            variant="ghost"
+                            size="small"
+                            class="sw-product-feature-set__add-button"
+                            @click="onAddField"
+                        >
+                            {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
+                        </sw-button>
+                    </sw-container>
+                    {% endblock %}
 
-                            </sw-container>
-                        {% endblock %}
-
-                    </div>
-                {% endblock %}
-
-                {% block sw_product_feature_set_card_grid %}
-                    <sw-data-grid :dataSource="values"
-                                  :columns="getColumns()"
-                                  :showSelection="allowEdit"
-                                  :showActions="false"
-                                  :isLoading="isLoading"
-                                  identifier="sw-product-feature-set-grid"
-                                  @selection-change="onGridSelectionChanged">
-
-                        {% block sw_settings_product_feature_set_card_grid_column_name %}
-                            <template #column-name="{ item }">
-                                {{ featureGridTranslationService.getNameTranslation(item) }}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_settings_product_feature_set_card_grid_column_type %}
-                            <template #column-type="{ item }">
-                                {{ featureGridTranslationService.getTypeTranslation(item) }}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_settings_product_feature_set_card_grid_column_position %}
-                            <template #column-position="{ item }">
-                                <sw-data-grid-column-position ref="columnPosition"
-                                                              v-model="values"
-                                                              :showValue="false"
-                                                              :item="item"
-                                                              :disabled="!allowEdit"
-                                                              @position-changed="onPositionChange">
-                                </sw-data-grid-column-position>
-                            </template>
-                        {% endblock %}
-
-                    </sw-data-grid>
+                </sw-container>
                 {% endblock %}
 
             </div>
-        </template>
+            {% endblock %}
 
-        {% block sw_product_feature_set_card_empty_state %}
-            <template v-if="valuesEmpty || disabled">
+            {% block sw_product_feature_set_card_grid %}
+            <sw-data-grid
+                :data-source="values"
+                :columns="getColumns()"
+                :show-selection="allowEdit"
+                :show-actions="false"
+                :is-loading="isLoading"
+                identifier="sw-product-feature-set-grid"
+                @selection-change="onGridSelectionChanged"
+            >
 
-                <div class="sw-settings-product-feature-set-card__empty-state">
-                    {% block sw_product_feature_set_card_empty_state_image %}
-                        <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
-                    {% endblock %}
+                {% block sw_settings_product_feature_set_card_grid_column_name %}
+                <template #column-name="{ item }">
+                    {{ featureGridTranslationService.getNameTranslation(item) }}
+                </template>
+                {% endblock %}
 
-                    {% block sw_product_feature_set_card_empty_state_label %}
-                        <div class="sw-settings-product-feature-set-card__empty-state--label">
-                            <p v-if="disabled">{{ $tc('sw-settings-product-feature-sets.valuesCard.createStateDescription') }}</p>
-                            <p v-else>{{ $tc('sw-settings-product-feature-sets.valuesCard.emptyStateDescription') }}</p>
-                        </div>
-                    {% endblock %}
+                {% block sw_settings_product_feature_set_card_grid_column_type %}
+                <template #column-type="{ item }">
+                    {{ featureGridTranslationService.getTypeTranslation(item) }}
+                </template>
+                {% endblock %}
 
-                    {% block sw_product_feature_set_card_empty_state_button %}
-                        <sw-button variant="ghost" size="small" @click="showModal = true" :disabled="disabled">
-                            {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
-                        </sw-button>
-                    {% endblock %}
-                </div>
+                {% block sw_settings_product_feature_set_card_grid_column_position %}
+                <template #column-position="{ item }">
+                    <sw-data-grid-column-position
+                        ref="columnPosition"
+                        v-model="values"
+                        :show-value="false"
+                        :item="item"
+                        :disabled="!allowEdit"
+                        @position-changed="onPositionChange"
+                    />
+                </template>
+                {% endblock %}
 
-            </template>
-        {% endblock %}
+            </sw-data-grid>
+            {% endblock %}
 
-        {% block sw_product_feature_set_card_grid_column_modal %}
-            <sw-settings-product-feature-sets-modal v-if="showModal"
-                                                    :product-feature-set="productFeatureSet"
-                                                    @modal-close="onModalClose">
-            </sw-settings-product-feature-sets-modal>
-        {% endblock %}
+        </div>
+    </template>
 
-    </sw-card>
+    {% block sw_product_feature_set_card_empty_state %}
+    <template v-if="valuesEmpty || disabled">
+
+        <div class="sw-settings-product-feature-set-card__empty-state">
+            {% block sw_product_feature_set_card_empty_state_image %}
+            <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+            {% endblock %}
+
+            {% block sw_product_feature_set_card_empty_state_label %}
+            <div class="sw-settings-product-feature-set-card__empty-state--label">
+                <p v-if="disabled">
+                    {{ $tc('sw-settings-product-feature-sets.valuesCard.createStateDescription') }}
+                </p>
+                <p v-else>
+                    {{ $tc('sw-settings-product-feature-sets.valuesCard.emptyStateDescription') }}
+                </p>
+            </div>
+            {% endblock %}
+
+            {% block sw_product_feature_set_card_empty_state_button %}
+            <sw-button
+                variant="ghost"
+                size="small"
+                :disabled="disabled"
+                @click="showModal = true"
+            >
+                {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
+            </sw-button>
+            {% endblock %}
+        </div>
+
+    </template>
+    {% endblock %}
+
+    {% block sw_product_feature_set_card_grid_column_modal %}
+    <sw-settings-product-feature-sets-modal
+        v-if="showModal"
+        :product-feature-set="productFeatureSet"
+        @modal-close="onModalClose"
+    />
+    {% endblock %}
+
+</sw-card>
 {% endblock %}

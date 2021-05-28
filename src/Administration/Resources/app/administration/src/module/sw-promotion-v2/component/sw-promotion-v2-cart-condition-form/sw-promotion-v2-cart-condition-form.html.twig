@@ -1,141 +1,163 @@
 {% block sw_promotion_v2_cart_condition_form %}
-    <div class="sw-promotion-v2-cart-condition-form">
+<div class="sw-promotion-v2-cart-condition-form">
 
-        {% block sw_promotion_v2_cart_condition_form_rules_field %}
-            <sw-promotion-rule-select
-                v-if="promotion"
-                v-model="promotion.cartRules"
-                class="sw-promotion-v2-cart-condition-form__rule-select-cart"
-                :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
-                :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
-                :criteria="ruleFilter"
-                :ruleScope="['cart']"
-                :disabled="isEditingDisabled">
-            </sw-promotion-rule-select>
-        {% endblock %}
+    {% block sw_promotion_v2_cart_condition_form_rules_field %}
+    <sw-promotion-rule-select
+        v-if="promotion"
+        v-model="promotion.cartRules"
+        class="sw-promotion-v2-cart-condition-form__rule-select-cart"
+        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
+        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
+        :criteria="ruleFilter"
+        :rule-scope="['cart']"
+        :disabled="isEditingDisabled"
+    />
+    {% endblock %}
 
-        {% block sw_promotion_v2_cart_condition_form_use_setgroups_field %}
-            <sw-switch-field
-                v-model="promotion.useSetGroups"
-                class="sw-promotion-v2-cart-condition-form__use-setgroups"
-                :disabled="!acl.can('promotion.editor')"
-                :label="$tc('sw-promotion-v2.detail.conditions.setgroups.switchGroupsEnabled')">
-            </sw-switch-field>
-        {% endblock %}
+    {% block sw_promotion_v2_cart_condition_form_use_setgroups_field %}
+    <sw-switch-field
+        v-model="promotion.useSetGroups"
+        class="sw-promotion-v2-cart-condition-form__use-setgroups"
+        :disabled="!acl.can('promotion.editor')"
+        :label="$tc('sw-promotion-v2.detail.conditions.setgroups.switchGroupsEnabled')"
+    />
+    {% endblock %}
 
-        <template v-if="promotion.useSetGroups">
+    <template v-if="promotion.useSetGroups">
 
-            {% block sw_promotion_v2_cart_condition_setgroup_card %}
-                <sw-card
-                    v-for="(group, index) in promotion.setgroups"
-                    :key="group.id"
-                    :id="`sw-promotion-v2-cart-condition-form__setgroup-card-${index + 1}`"
-                    class="sw-promotion-v2-cart-condition-form__setgroup-card">
+        {% block sw_promotion_v2_cart_condition_setgroup_card %}
+        <sw-card
+            v-for="(group, index) in promotion.setgroups"
+            :id="`sw-promotion-v2-cart-condition-form__setgroup-card-${index + 1}`"
+            :key="group.id"
+            class="sw-promotion-v2-cart-condition-form__setgroup-card"
+        >
 
-                    {% block sw_promotion_v2_cart_condition_setgroup_card_context_action %}
-                        <template #context-actions>
+            {% block sw_promotion_v2_cart_condition_setgroup_card_context_action %}
+            <template #context-actions>
 
-                            {% block sw_promotion_v2_cart_condition_setgroup_card_context_action_duplicate %}
-                                <sw-context-menu-item
-                                    :disabled="isEditingDisabled"
-                                    @click="duplicateSetGroup(group)">
-                                    {{ $tc('global.default.duplicate') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
+                {% block sw_promotion_v2_cart_condition_setgroup_card_context_action_duplicate %}
+                <sw-context-menu-item
+                    :disabled="isEditingDisabled"
+                    @click="duplicateSetGroup(group)"
+                >
+                    {{ $tc('global.default.duplicate') }}
+                </sw-context-menu-item>
+                {% endblock %}
 
-                            {% block sw_promotion_v2_cart_condition_setgroup_card_context_action_delete %}
-                                <sw-context-menu-item
-                                    variant="danger"
-                                    :disabled="isEditingDisabled"
-                                    @click="deleteSetGroup(group)"
-                                    v-tooltip="{
-                                        message: $tc('sw-privileges.tooltip.warning'),
-                                        disabled: acl.can('promotion.editor'),
-                                        showOnDisabledElements: true
-                                      }">
-                                    {{ $tc('global.default.delete') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
+                {% block sw_promotion_v2_cart_condition_setgroup_card_context_action_delete %}
+                <sw-context-menu-item
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('promotion.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    variant="danger"
+                    :disabled="isEditingDisabled"
+                    @click="deleteSetGroup(group)"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
+                {% endblock %}
 
-                        </template>
-                    {% endblock %}
-
-                    {% block sw_promotion_v2_cart_condition_setgroup_card_title %}
-                        <div class="sw-promotion-v2-cart-condition-form__setgroup-card-title">
-                            {{ $tc('sw-promotion-v2.detail.conditions.setgroups.titleName') }} {{ index + 1 }}
-                        </div>
-                    {% endblock %}
-
-                    <sw-container columns="1fr 1fr" gap="0px 30px">
-
-                        {% block sw_promotion_v2_cart_condition_setgroup_mode_field %}
-                            <sw-select-field
-                                    v-model="group.packagerKey"
-                                    class="sw-promotion-v2-cart-condition-form__setgroup-mode"
-                                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelMode')"
-                                    :disabled="isEditingDisabled">
-                                <option v-for="packager in packagers"
-                                        :value="packager.key">
-                                    {{ packager.name }}
-                                </option>
-                            </sw-select-field>
-                        {% endblock %}
-
-                        {% block sw_promotion_v2_cart_condition_setgroup_value_field %}
-                            <sw-number-field
-                                v-model="group.value"
-                                class="sw-promotion-v2-cart-condition-form__setgroup-value"
-                                :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
-                                :disabled="isEditingDisabled">
-                            </sw-number-field>
-                        {% endblock %}
-
-                    </sw-container>
-
-                    <sw-container columns="1fr 1fr" gap="0px 30px">
-
-                        {% block sw_promotion_v2_cart_condition_setgroup_sorting_field %}
-                            <sw-select-field
-                                    v-model="group.sorterKey"
-                                    class="sw-promotion-v2-cart-condition-form__setgroup-sorting"
-                                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelSorting')"
-                                    :disabled="isEditingDisabled">
-                                <option v-for="sorter in sorters"
-                                        :value="sorter.key">
-                                    {{ sorter.name }}
-                                </option>
-                            </sw-select-field>
-                        {% endblock %}
-
-                    </sw-container>
-
-                    <sw-container columns="1fr" gap="0px 30px">
-
-                        {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
-                            <sw-promotion-rule-select
-                                    v-model="group.setGroupRules"
-                                    class="sw-promotion-v2-cart-condition-form__setgroup-rules"
-                                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
-                                    :criteria="ruleFilter"
-                                    :disabled="isEditingDisabled">
-                            </sw-promotion-rule-select>
-                        {% endblock %}
-
-                    </sw-container>
-                </sw-card>
+            </template>
             {% endblock %}
 
-            {% block sw_promotion_v2_cart_condition_add_group_button %}
-                <div class="sw-promotion-v2-cart-condition-form__add-group-button-container">
-                    <sw-button variant="ghost"
-                               class="sw-promotion-v2-cart-condition-form__add-group-button"
-                               :disabled="isEditingDisabled"
-                               @click="addSetGroup">
-                        {{ $tc('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}
-                    </sw-button>
-                </div>
+            {% block sw_promotion_v2_cart_condition_setgroup_card_title %}
+            <div class="sw-promotion-v2-cart-condition-form__setgroup-card-title">
+                {{ $tc('sw-promotion-v2.detail.conditions.setgroups.titleName') }} {{ index + 1 }}
+            </div>
             {% endblock %}
 
-        </template>
-    </div>
+            <sw-container
+                columns="1fr 1fr"
+                gap="0px 30px"
+            >
+
+                {% block sw_promotion_v2_cart_condition_setgroup_mode_field %}
+                <sw-select-field
+                    v-model="group.packagerKey"
+                    class="sw-promotion-v2-cart-condition-form__setgroup-mode"
+                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelMode')"
+                    :disabled="isEditingDisabled"
+                >
+                    <option
+                        v-for="packager in packagers"
+                        :key="packager.key"
+                        :value="packager.key"
+                    >
+                        {{ packager.name }}
+                    </option>
+                </sw-select-field>
+                {% endblock %}
+
+                {% block sw_promotion_v2_cart_condition_setgroup_value_field %}
+                <sw-number-field
+                    v-model="group.value"
+                    class="sw-promotion-v2-cart-condition-form__setgroup-value"
+                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
+                    :disabled="isEditingDisabled"
+                />
+                {% endblock %}
+
+            </sw-container>
+
+            <sw-container
+                columns="1fr 1fr"
+                gap="0px 30px"
+            >
+
+                {% block sw_promotion_v2_cart_condition_setgroup_sorting_field %}
+                <sw-select-field
+                    v-model="group.sorterKey"
+                    class="sw-promotion-v2-cart-condition-form__setgroup-sorting"
+                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelSorting')"
+                    :disabled="isEditingDisabled"
+                >
+                    <option
+                        v-for="sorter in sorters"
+                        :key="sorter.key"
+                        :value="sorter.key"
+                    >
+                        {{ sorter.name }}
+                    </option>
+                </sw-select-field>
+                {% endblock %}
+
+            </sw-container>
+
+            <sw-container
+                columns="1fr"
+                gap="0px 30px"
+            >
+
+                {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
+                <sw-promotion-rule-select
+                    v-model="group.setGroupRules"
+                    class="sw-promotion-v2-cart-condition-form__setgroup-rules"
+                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
+                    :criteria="ruleFilter"
+                    :disabled="isEditingDisabled"
+                />
+                {% endblock %}
+
+            </sw-container>
+        </sw-card>
+        {% endblock %}
+
+        {% block sw_promotion_v2_cart_condition_add_group_button %}
+        <div class="sw-promotion-v2-cart-condition-form__add-group-button-container">
+            <sw-button
+                variant="ghost"
+                class="sw-promotion-v2-cart-condition-form__add-group-button"
+                :disabled="isEditingDisabled"
+                @click="addSetGroup"
+            >
+                {{ $tc('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}
+            </sw-button>
+        </div>
+        {% endblock %}
+
+    </template>
+</div>
 {% endblock %}

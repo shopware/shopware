@@ -1,69 +1,94 @@
 {% block sw_text_editor %}
-    <div class="sw-text-editor" :class="classes" @click="onClick">
+<div
+    class="sw-text-editor"
+    :class="classes"
+    @click="onClick"
+>
 
-        {% block sw_text_editor_label %}
-            <div class="sw-text-editor__label" v-if="label.length">{{ label }}</div>
+    {% block sw_text_editor_label %}
+    <div
+        v-if="label.length"
+        class="sw-text-editor__label"
+    >
+        {{ label }}
+    </div>
+    {% endblock %}
+    {% block sw_text_editor_box %}
+    <div class="sw-text-editor__box">
+        {% block sw_text_editor_box_toolbar %}
+        <sw-text-editor-toolbar
+            v-if="hasSelection || !isInlineEdit"
+            :parent-is-active="isActive"
+            :is-inline-edit="isInlineEdit"
+            :selection="selection"
+            :button-config="buttonConfig"
+            :is-code-edit="isCodeEdit"
+            :is-table-edit="isTableEdit"
+            @created-el="onToolbarCreated"
+            @destroyed-el="onToolbarDestroyed"
+            @on-set-link="onSetLink"
+            @table-edit="onTableEdit"
+            @text-style-change="onTextStyleChange"
+        />
         {% endblock %}
-        {% block sw_text_editor_box %}
-            <div class="sw-text-editor__box">
-                {% block sw_text_editor_box_toolbar %}
-                    <sw-text-editor-toolbar v-if="hasSelection || !isInlineEdit"
-                                            :parentIsActive="isActive"
-                                            :isInlineEdit="isInlineEdit"
-                                            :selection="selection"
-                                            :buttonConfig="buttonConfig"
-                                            :isCodeEdit="isCodeEdit"
-                                            :isTableEdit="isTableEdit"
-                                            @created-el="onToolbarCreated"
-                                            @destroyed-el="onToolbarDestroyed"
-                                            @on-set-link="onSetLink"
-                                            @table-edit="onTableEdit"
-                                            @text-style-change="onTextStyleChange">
-                    </sw-text-editor-toolbar>
-                {% endblock %}
 
-                {% block sw_text_editor_box_table_toolbar %}
-                    <sw-text-editor-table-toolbar
-                        v-if="isTableEdit && !isInlineEdit && !isCodeEdit"
-                        :selection="selection"
-                        @table-delete="onTableDelete"
-                        @table-modify="onTableModify">
-                    </sw-text-editor-table-toolbar>
-                {% endblock %}
+        {% block sw_text_editor_box_table_toolbar %}
+        <sw-text-editor-table-toolbar
+            v-if="isTableEdit && !isInlineEdit && !isCodeEdit"
+            :selection="selection"
+            @table-delete="onTableDelete"
+            @table-modify="onTableModify"
+        />
+        {% endblock %}
 
-                {% block sw_text_editor_box_content %}
-                    <sw-code-editor v-if="isCodeEdit"
-                                    :value="value"
-                                    setFocus
-                                    @blur="emitHtmlContent"
-                                    ref="codeEditor">
-                    </sw-code-editor>
+        {% block sw_text_editor_box_content %}
+        <sw-code-editor
+            v-if="isCodeEdit"
+            ref="codeEditor"
+            :value="value"
+            set-focus
+            @blur="emitHtmlContent"
+        />
 
-                    <div class="sw-text-editor__content" v-else>
-                        <div class="sw-text-editor__content-editor"
-                             ref="textEditor"
-                             :contenteditable="!disabled"
-                             :style="verticalAlignStyle"
-                             spellcheck="true"
-                             @focus="onFocus"
-                             @paste="onPaste"
-                             @blur="emitContent"
-                             @input="onContentChange"
-                             tabindex="-1"
-                             v-html="$sanitize(content, { ADD_ATTR: ['target'] })">
-                        </div>
-                        <div v-if="placeholderVisible" class="sw-text-editor__content-placeholder" v-html="$sanitize(placeholder)"></div>
-                    </div>
-                {% endblock %}
+        <div
+            v-else
+            class="sw-text-editor__content"
+        >
+            <div
+                ref="textEditor"
+                class="sw-text-editor__content-editor"
+                :contenteditable="!disabled"
+                :style="verticalAlignStyle"
+                spellcheck="true"
+                tabindex="-1"
+                @focus="onFocus"
+                @paste="onPaste"
+                @blur="emitContent"
+                @input="onContentChange"
+                v-html="$sanitize(content, { ADD_ATTR: ['target'] })"
+            />
+            <div
+                v-if="placeholderVisible"
+                class="sw-text-editor__content-placeholder"
+                v-html="$sanitize(placeholder)"
+            />
+        </div>
+        {% endblock %}
 
-                {% block sw_text_editor_box_word_count %}
-                    <div v-if="!isInlineEdit && !isCodeEdit" class="sw-text-editor__word_count">
-                        <sw-container columns="1fr" justify="right">
-                            <span class="sw-text-editor__text-length">{{ $tc('global.sw-text-editor.labelTextLength', textLength, { count: textLength }) }}</span>
-                        </sw-container>
-                    </div>
-                {% endblock %}
-            </div>
+        {% block sw_text_editor_box_word_count %}
+        <div
+            v-if="!isInlineEdit && !isCodeEdit"
+            class="sw-text-editor__word_count"
+        >
+            <sw-container
+                columns="1fr"
+                justify="right"
+            >
+                <span class="sw-text-editor__text-length">{{ $tc('global.sw-text-editor.labelTextLength', textLength, { count: textLength }) }}</span>
+            </sw-container>
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

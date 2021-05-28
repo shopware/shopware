@@ -1,11 +1,18 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-billing-customer-number sw-condition__condition-value">
-        {% block sw_condition_billing_customer_number_field_operator %}
-            <sw-condition-operator-select v-bind="{ condition, operators }" :disabled="disabled"></sw-condition-operator-select>
-        {% endblock %}
+<div class="sw-condition-billing-customer-number sw-condition__condition-value">
+    {% block sw_condition_billing_customer_number_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ condition, operators }"
+        :disabled="disabled"
+    />
+    {% endblock %}
 
-        {% block sw_condition_billing_customer_number_field_numbers %}
-            <sw-tagged-field size="medium" v-model="customerNumbers" :disabled="disabled"></sw-tagged-field>
-        {% endblock %}
-    </div>
+    {% block sw_condition_billing_customer_number_field_numbers %}
+    <sw-tagged-field
+        v-model="customerNumbers"
+        size="medium"
+        :disabled="disabled"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

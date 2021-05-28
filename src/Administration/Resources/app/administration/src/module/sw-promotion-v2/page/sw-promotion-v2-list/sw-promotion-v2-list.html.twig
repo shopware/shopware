@@ -1,169 +1,177 @@
 {% block sw_promotion_v2_list %}
-    <sw-page class="sw-promotion-v2-list">
+<sw-page class="sw-promotion-v2-list">
 
-        {% block sw_promotion_v2_search_bar %}
-            <template #search-bar>
-                <sw-search-bar
-                    initialSearchType="promotion"
-                    :placeholder="$tc('sw-promotion-v2.list.placeholderSearchBar')"
-                    :initialSearch="term"
-                    @search="onSearch">
-                </sw-search-bar>
-            </template>
+    {% block sw_promotion_v2_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="promotion"
+            :placeholder="$tc('sw-promotion-v2.list.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_promotion_v2_list_smart_bar_header %}
+    <template #smart-bar-header>
+
+        {% block sw_promotion_v2_list_smart_bar_header_title %}
+        <h2>
+
+            {% block sw_promotion_v2_list_smart_bar_header_title_text %}
+            {{ $tc('sw-promotion-v2.list.textTitle') }}
+            {% endblock %}
+
+            {% block sw_promotion_v2_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+
+        </h2>
         {% endblock %}
 
-        {% block sw_promotion_v2_list_smart_bar_header %}
-            <template #smart-bar-header>
+    </template>
+    {% endblock %}
 
-                {% block sw_promotion_v2_list_smart_bar_header_title %}
-                    <h2>
+    {% block sw_promotion_v2_list_smart_bar_actions %}
+    <template #smart-bar-actions>
 
-                        {% block sw_promotion_v2_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-promotion-v2.list.textTitle') }}
-                        {% endblock %}
+        {% block sw_promotion_v2_list_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip="addButtonTooltip"
+            class="sw-promotion-v2-list__smart-bar-button-add"
+            variant="primary"
+            :router-link="{ name: 'sw.promotion.v2.create' }"
+            :disabled="!acl.can('promotion.creator')"
+        >
+            {{ $tc('sw-promotion-v2.list.buttonAddPromotion') }}
+        </sw-button>
+        {% endblock %}
 
-                        {% block sw_promotion_v2_list_smart_bar_header_amount %}
-                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                                ({{ total }})
-                            </span>
-                        {% endblock %}
+    </template>
+    {% endblock %}
 
-                    </h2>
+    {% block sw_promotion_v2_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    {% block sw_promotion_v2_list_content %}
+    <template #content>
+        <div class="sw-promotion-v2-list__content">
+
+            {% block sw_promotion_v2_list_grid %}
+            <sw-entity-listing
+                :repository="promotionRepository"
+                :columns="promotionColumns"
+                :items="promotions"
+                detail-route="sw.promotion.v2.detail"
+                :is-loading="isLoading"
+                :allow-inline-edit="acl.can('promotion.editor')"
+                :show-selection="acl.can('promotion.deleter')"
+                :allow-edit="acl.can('promotion.editor')"
+                :allow-view="acl.can('promotion.viewer')"
+                allow-column-edit
+                full-page
+                @update-records="updateTotal"
+            >
+
+                {% block sw_promotion_v2_list_grid_columns %}
+                {% block sw_promotion_v2_list_grid_columns_active %}
+                <template #column-active="{ item }">
+                    <sw-icon
+                        v-if="item.active"
+                        class="sw-promotion-v2-list__icon-activity is--active"
+                        name="small-default-checkmark-line-medium"
+                        small
+                    />
+                    <sw-icon
+                        v-else
+                        class="sw-promotion-v2-list__icon-activity is--inactive"
+                        name="small-default-x-line-medium"
+                        small
+                    />
+                </template>
                 {% endblock %}
 
-            </template>
-        {% endblock %}
+                {% block sw_promotion_v2_list_grid_columns_valid_from %}
+                <template #column-validFrom="{ item }">
+                    {{ item.validFrom | date({ hour: '2-digit', minute: '2-digit' }) }}
+                </template>
+                {% endblock %}
 
-        {% block sw_promotion_v2_list_smart_bar_actions %}
-            <template #smart-bar-actions>
+                {% block sw_promotion_v2_list_grid_columns_valid_until %}
+                <template #column-validUntil="{ item }">
+                    {{ item.validUntil | date({ hour: '2-digit', minute: '2-digit' }) }}
+                </template>
+                {% endblock %}
+                {% endblock %}
 
-                {% block sw_promotion_v2_list_smart_bar_actions_add %}
+                {% block sw_promotion_v2_list_grid_columns_actions %}
+                {% block sw_promotion_v2_list_grid_columns_actions_delete %}
+                <template #delete-action="{ item, showDelete }">
+                    <sw-context-menu-item
+                        variant="danger"
+                        :disabled="(item && item.orderCount > 0) || !acl.can('promotion.deleter')"
+                        @click="showDelete(item.id)"
+                    >
+                        {{ $tc('global.default.delete') }}
+                    </sw-context-menu-item>
+                </template>
+                {% endblock %}
+                {% endblock %}
+
+            </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_promotion_v2_list_empty_state %}
+            <sw-promotion-v2-empty-state-hero
+                v-if="!isLoading && !total"
+                :title="$tc('sw-promotion-v2.list.titleEmpty')"
+                :description="$tc('sw-promotion-v2.list.descriptionEmpty')"
+            >
+
+                {% block sw_promotion_v2_list_empty_state_actions %}
+                <template #actions>
                     <sw-button
                         v-tooltip="addButtonTooltip"
-                        class="sw-promotion-v2-list__smart-bar-button-add"
+                        class="sw-promotion-v2-list__empty-state-button-add"
                         variant="primary"
-                        :routerLink="{ name: 'sw.promotion.v2.create' }"
-                        :disabled="!acl.can('promotion.creator')">
+                        :router-link="{ name: 'sw.promotion.v2.create' }"
+                        :disabled="!acl.can('promotion.creator')"
+                    >
                         {{ $tc('sw-promotion-v2.list.buttonAddPromotion') }}
                     </sw-button>
+                </template>
                 {% endblock %}
 
-            </template>
-        {% endblock %}
+            </sw-promotion-v2-empty-state-hero>
+            {% endblock %}
 
-        {% block sw_promotion_v2_list_language_switch %}
-            <template #language-switch>
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-            </template>
-        {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
 
-        {% block sw_promotion_v2_list_content %}
-            <template #content>
-                <div class="sw-promotion-v2-list__content">
+    {% block sw_promotion_v2_list_sidebar %}
+    <template #sidebar>
+        <sw-sidebar>
 
-                    {% block sw_promotion_v2_list_grid %}
-                        <sw-entity-listing
-                            :repository="promotionRepository"
-                            :columns="promotionColumns"
-                            :items="promotions"
-                            detailRoute="sw.promotion.v2.detail"
-                            :isLoading="isLoading"
-                            :allowInlineEdit="acl.can('promotion.editor')"
-                            :showSelection="acl.can('promotion.deleter')"
-                            :allowEdit="acl.can('promotion.editor')"
-                            :allowView="acl.can('promotion.viewer')"
-                            allowColumnEdit
-                            fullPage
-                            @update-records="updateTotal">
+            {% block sw_promotion_v2_list_sidebar_refresh %}
+            <sw-sidebar-item
+                icon="default-arrow-360-left"
+                :title="$tc('sw-promotion-v2.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
 
-                            {% block sw_promotion_v2_list_grid_columns %}
-                                {% block sw_promotion_v2_list_grid_columns_active %}
-                                    <template #column-active="{ item }">
-                                        <sw-icon
-                                            v-if="item.active"
-                                            class="sw-promotion-v2-list__icon-activity is--active"
-                                            name="small-default-checkmark-line-medium"
-                                            small>
-                                        </sw-icon>
-                                        <sw-icon
-                                            v-else
-                                            class="sw-promotion-v2-list__icon-activity is--inactive"
-                                            name="small-default-x-line-medium"
-                                            small>
-                                        </sw-icon>
-                                    </template>
-                                {% endblock %}
+        </sw-sidebar>
+    </template>
+    {% endblock %}
 
-                                {% block sw_promotion_v2_list_grid_columns_valid_from %}
-                                    <template #column-validFrom="{ item }">
-                                        {{ item.validFrom | date({ hour: '2-digit', minute: '2-digit' }) }}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_promotion_v2_list_grid_columns_valid_until %}
-                                    <template #column-validUntil="{ item }">
-                                        {{ item.validUntil | date({ hour: '2-digit', minute: '2-digit' }) }}
-                                    </template>
-                                {% endblock %}
-                            {% endblock %}
-
-                            {% block sw_promotion_v2_list_grid_columns_actions %}
-                                {% block sw_promotion_v2_list_grid_columns_actions_delete %}
-                                    <template #delete-action="{ item, showDelete }">
-                                        <sw-context-menu-item
-                                            variant="danger"
-                                            :disabled="(item && item.orderCount > 0) || !acl.can('promotion.deleter')"
-                                            @click="showDelete(item.id)">
-                                            {{ $tc('global.default.delete') }}
-                                        </sw-context-menu-item>
-                                    </template>
-                                {% endblock %}
-                            {% endblock %}
-
-                        </sw-entity-listing>
-                    {% endblock %}
-
-                    {% block sw_promotion_v2_list_empty_state %}
-                        <sw-promotion-v2-empty-state-hero
-                            v-if="!isLoading && !total"
-                            :title="$tc('sw-promotion-v2.list.titleEmpty')"
-                            :description="$tc('sw-promotion-v2.list.descriptionEmpty')">
-
-                            {% block sw_promotion_v2_list_empty_state_actions %}
-                                <template #actions>
-                                    <sw-button
-                                        v-tooltip="addButtonTooltip"
-                                        class="sw-promotion-v2-list__empty-state-button-add"
-                                        variant="primary"
-                                        :routerLink="{ name: 'sw.promotion.v2.create' }"
-                                        :disabled="!acl.can('promotion.creator')">
-                                        {{ $tc('sw-promotion-v2.list.buttonAddPromotion') }}
-                                    </sw-button>
-                                </template>
-                            {% endblock %}
-
-                        </sw-promotion-v2-empty-state-hero>
-                    {% endblock %}
-
-                </div>
-            </template>
-        {% endblock %}
-
-        {% block sw_promotion_v2_list_sidebar %}
-            <template #sidebar>
-                <sw-sidebar>
-
-                    {% block sw_promotion_v2_list_sidebar_refresh %}
-                        <sw-sidebar-item
-                            icon="default-arrow-360-left"
-                            :title="$tc('sw-promotion-v2.list.titleSidebarItemRefresh')"
-                            @click="onRefresh">
-                        </sw-sidebar-item>
-                    {% endblock %}
-
-                </sw-sidebar>
-            </template>
-        {% endblock %}
-
-    </sw-page>
+</sw-page>
 {% endblock %}

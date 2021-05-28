@@ -1,95 +1,116 @@
 {% block sw_product_variants_delivery_listing %}
-    <div class="sw-product-variants-delivery-listing">
-        {% block sw_product_variants_delivery_listing_mode %}
-            <div class="sw-product-variants-delivery-listing-mode">
-                {% block sw_product_variants_delivery_listing_mode_selection %}
-                    <sw-radio-field
-                        :value="product.listingMode"
-                        :options="listingModeOptions"
-                        @change="updateListingMode">
-                    </sw-radio-field>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_product_variants_delivery_listing_config %}
-            <div class="sw-product-variants-delivery-listing-config">
-                {% block sw_product_variants_delivery_listing_config_single %}
-                    <div class="sw-product-variants-delivery-listing-config-options"
-                         :class="{ 'is--disabled': isDisabledListingMode('single') }">
-                        {% block sw_product_variants_delivery_listing_config_single_main_variant_label %}
-                            <p>{{ $tc('sw-product.variations.deliveryModal.listingLabelMainVariant') }}</p>
-                        {% endblock %}
-
-                        {% block sw_product_variants_delivery_listing_config_single_main_variant_select %}
-                            <sw-entity-single-select
-                                class="sw-product-variants-delivery-listing_entity-select"
-                                :value="mainVariant"
-                                entity="product"
-                                labelProperty="name"
-                                :criteria="variantCriteria"
-                                :context="context"
-                                id="mainVariant"
-                                :key="product.id"
-                                :disabled="isDisabledListingMode('single')"
-                                :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
-                                @change="updateMainVariant">
-                                    <template #selection-label-property="{ item }">
-                                        <slot name="selection-label-property" v-bind="{ item }">
-                                            <sw-product-variant-info
-                                                :variations="item.variation">
-                                                    {{ item.name || item.translated.name }}
-                                            </sw-product-variant-info>
-                                        </slot>
-                                    </template>
-
-                                    <template #result-item="{ item, index }">
-                                        <slot name="result-item" v-bind="{ item, index, isSelected }">
-                                            <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
-                                                {% block sw_product_variants_results_list_result_label %}
-                                                    <span class="sw-select-result__result-item-text">
-                                                        <sw-product-variant-info
-                                                            :variations="item.variation">
-                                                            {{ item.translated.name || item.name }}
-                                                        </sw-product-variant-info>
-                                                    </span>
-                                                {% endblock %}
-                                            </li>
-                                        </slot>
-                                    </template>
-                            </sw-entity-single-select>
-                        {% endblock %}
-
-                        {% block sw_product_variants_delivery_listing_config_single_main_variant_explanation %}
-                            <p>{{ $tc('sw-product.variations.deliveryModal.listingExplanationModeSingle') }}</p>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
-                {% block sw_product_variants_delivery_listing_config_expanded %}
-                    <div class="sw-product-variants-delivery-listing-config-options"
-                         :class="{ 'is--disabled': isDisabledListingMode('expanded') }">
-                        {% block sw_product_variants_delivery_listing_config_expanded_group_list %}
-                            <dl>
-                                {% block sw_product_variants_delivery_listing_config_expanded_group_list_items %}
-                                    <dd v-for="group in selectedGroupsSorted"
-                                        :key="group.id"
-                                        :disabled="isDisabledListingMode('expanded')"
-                                        class="sw-product-variants-delivery-listing__groupElement">
-                                        {% block sw_product_variants_delivery_listing_config_expanded_group_list_item %}
-                                            <sw-field type="checkbox"
-                                                      :value="isActiveGroupInListing(group.id)"
-                                                      :disabled="isDisabledListingMode('expanded')"
-                                                      :label="group.translated.name"
-                                                      @change="onChangeGroupListing($event, group.id)"></sw-field>
-                                        {% endblock %}
-                                    </dd>
-                                {% endblock %}
-                            </dl>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
+<div class="sw-product-variants-delivery-listing">
+    {% block sw_product_variants_delivery_listing_mode %}
+    <div class="sw-product-variants-delivery-listing-mode">
+        {% block sw_product_variants_delivery_listing_mode_selection %}
+        <sw-radio-field
+            :value="product.listingMode"
+            :options="listingModeOptions"
+            @change="updateListingMode"
+        />
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_product_variants_delivery_listing_config %}
+    <div class="sw-product-variants-delivery-listing-config">
+        {% block sw_product_variants_delivery_listing_config_single %}
+        <div
+            class="sw-product-variants-delivery-listing-config-options"
+            :class="{ 'is--disabled': isDisabledListingMode('single') }"
+        >
+            {% block sw_product_variants_delivery_listing_config_single_main_variant_label %}
+            <p>{{ $tc('sw-product.variations.deliveryModal.listingLabelMainVariant') }}</p>
+            {% endblock %}
+
+            {% block sw_product_variants_delivery_listing_config_single_main_variant_select %}
+            <sw-entity-single-select
+                id="mainVariant"
+                :key="product.id"
+                class="sw-product-variants-delivery-listing_entity-select"
+                :value="mainVariant"
+                entity="product"
+                label-property="name"
+                :criteria="variantCriteria"
+                :context="context"
+                :disabled="isDisabledListingMode('single')"
+                :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
+                @change="updateMainVariant"
+            >
+                <template #selection-label-property="{ item }">
+                    <slot
+                        name="selection-label-property"
+                        v-bind="{ item }"
+                    >
+                        <sw-product-variant-info
+                            :variations="item.variation"
+                        >
+                            {{ item.name || item.translated.name }}
+                        </sw-product-variant-info>
+                    </slot>
+                </template>
+
+                <template #result-item="{ item, index }">
+                    <slot
+                        name="result-item"
+                        v-bind="{ item, index, isSelected }"
+                    >
+                        <li
+                            is="sw-select-result"
+                            :selected="isSelected(item)"
+                            v-bind="{ item, index }"
+                        >
+                            {% block sw_product_variants_results_list_result_label %}
+                            <span class="sw-select-result__result-item-text">
+                                <sw-product-variant-info
+                                    :variations="item.variation"
+                                >
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </span>
+                            {% endblock %}
+                        </li>
+                    </slot>
+                </template>
+            </sw-entity-single-select>
+            {% endblock %}
+
+            {% block sw_product_variants_delivery_listing_config_single_main_variant_explanation %}
+            <p>{{ $tc('sw-product.variations.deliveryModal.listingExplanationModeSingle') }}</p>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_product_variants_delivery_listing_config_expanded %}
+        <div
+            class="sw-product-variants-delivery-listing-config-options"
+            :class="{ 'is--disabled': isDisabledListingMode('expanded') }"
+        >
+            {% block sw_product_variants_delivery_listing_config_expanded_group_list %}
+            <dl>
+                {% block sw_product_variants_delivery_listing_config_expanded_group_list_items %}
+                <dd
+                    v-for="group in selectedGroupsSorted"
+                    :key="group.id"
+                    :disabled="isDisabledListingMode('expanded')"
+                    class="sw-product-variants-delivery-listing__groupElement"
+                >
+                    {% block sw_product_variants_delivery_listing_config_expanded_group_list_item %}
+                    <sw-field
+                        type="checkbox"
+                        :value="isActiveGroupInListing(group.id)"
+                        :disabled="isDisabledListingMode('expanded')"
+                        :label="group.translated.name"
+                        @change="onChangeGroupListing($event, group.id)"
+                    />
+                    {% endblock %}
+                </dd>
+                {% endblock %}
+            </dl>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

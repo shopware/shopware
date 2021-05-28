@@ -1,66 +1,74 @@
 {% block sw_first_run_wizard_mailer_selection %}
-    <div class="sw-first-run-wizard-mailer-selection">
-        <sw-loader v-if="isLoading"></sw-loader>
+<div class="sw-first-run-wizard-mailer-selection">
+    <sw-loader v-if="isLoading" />
 
-        <img class="sw-first-run-wizard-mailer-selection__illustration"
-             :src="'/administration/static/img/first-run-wizard/mailer-selection.svg' | asset"
-        />
+    <img
+        class="sw-first-run-wizard-mailer-selection__illustration"
+        :src="'/administration/static/img/first-run-wizard/mailer-selection.svg' | asset"
+    >
 
-        <h4 class="sw-first-run-wizard-mailer-selection__headline">
-            <strong>
-                {{ $tc('sw-first-run-wizard.mailerSelection.headline') }}
-            </strong>
-        </h4>
-        <p>
-            {{ $tc('sw-first-run-wizard.mailerSelection.description') }}
-        </p>
+    <h4 class="sw-first-run-wizard-mailer-selection__headline">
+        <strong>
+            {{ $tc('sw-first-run-wizard.mailerSelection.headline') }}
+        </strong>
+    </h4>
+    <p>
+        {{ $tc('sw-first-run-wizard.mailerSelection.description') }}
+    </p>
 
-        <p  class="sw-first-run-wizard-mailer-selection__subline">
-            <strong>
-                {{ $tc('sw-first-run-wizard.mailerSelection.chooseSubline') }}
-            </strong>
-        </p>
+    <p class="sw-first-run-wizard-mailer-selection__subline">
+        <strong>
+            {{ $tc('sw-first-run-wizard.mailerSelection.chooseSubline') }}
+        </strong>
+    </p>
 
-        <div class="sw-first-run-wizard-mailer-selection__selections">
-            <div class="sw-first-run-wizard-mailer-selection__selection"
-                 :class="{ 'is--selected': mailAgent === 'local' }"
-                 @click="setMailAgent('local')">
+    <div class="sw-first-run-wizard-mailer-selection__selections">
+        <div
+            class="sw-first-run-wizard-mailer-selection__selection"
+            :class="{ 'is--selected': mailAgent === 'local' }"
+            @click="setMailAgent('local')"
+        >
 
-                <sw-help-text class="sw-first-run-wizard-mailer-selection__help-text"
-                              :text="$tc('sw-first-run-wizard.mailerSelection.localOptionHelptext')">
-                </sw-help-text>
+            <sw-help-text
+                class="sw-first-run-wizard-mailer-selection__help-text"
+                :text="$tc('sw-first-run-wizard.mailerSelection.localOptionHelptext')"
+            />
 
-                <sw-icon name="default-object-paperplane"
-                         class="sw-first-run-wizard-mailer-selection__selection-icon">
-                </sw-icon>
-                <p>
-                    {{ $tc('sw-first-run-wizard.mailerSelection.localOption') }}
-                    <br>
-                    <span class="sw-first-run-wizard-mailer-selection__text-light">
-                        {{ $tc('sw-first-run-wizard.mailerSelection.localOptionSubline') }}
-                    </span>
-                </p>
+            <sw-icon
+                name="default-object-paperplane"
+                class="sw-first-run-wizard-mailer-selection__selection-icon"
+            />
+            <p>
+                {{ $tc('sw-first-run-wizard.mailerSelection.localOption') }}
+                <br>
+                <span class="sw-first-run-wizard-mailer-selection__text-light">
+                    {{ $tc('sw-first-run-wizard.mailerSelection.localOptionSubline') }}
+                </span>
+            </p>
 
-            </div>
-
-            <div class="sw-first-run-wizard-mailer-selection__selection"
-                 :class="{ 'is--selected': mailAgent === 'smtp' }"
-                 @click="setMailAgent('smtp')">
-
-                <sw-icon name="default-device-server"
-                         class="sw-first-run-wizard-mailer-selection__selection-icon">
-                </sw-icon>
-                <p>
-                    {{ $tc('sw-first-run-wizard.mailerSelection.smtpOption') }}
-                </p>
-
-            </div>
         </div>
 
-        <p class="sw-first-run-wizard-mailer-selection__note">
-            <span class="sw-first-run-wizard-mailer-selection__text-light">
-                {{ $tc('sw-first-run-wizard.mailerSelection.configurationNote') }}
-            </span>
-        </p>
+        <div
+            class="sw-first-run-wizard-mailer-selection__selection"
+            :class="{ 'is--selected': mailAgent === 'smtp' }"
+            @click="setMailAgent('smtp')"
+        >
+
+            <sw-icon
+                name="default-device-server"
+                class="sw-first-run-wizard-mailer-selection__selection-icon"
+            />
+            <p>
+                {{ $tc('sw-first-run-wizard.mailerSelection.smtpOption') }}
+            </p>
+
+        </div>
     </div>
+
+    <p class="sw-first-run-wizard-mailer-selection__note">
+        <span class="sw-first-run-wizard-mailer-selection__text-light">
+            {{ $tc('sw-first-run-wizard.mailerSelection.configurationNote') }}
+        </span>
+    </p>
+</div>
 {% endblock %}

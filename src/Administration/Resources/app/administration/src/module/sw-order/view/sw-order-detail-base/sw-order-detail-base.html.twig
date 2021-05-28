@@ -1,255 +1,288 @@
 {% block sw_order_detail_base %}
-    <sw-card-view v-if="order && !isLoading" class="sw-order-detail-base">
+<sw-card-view
+    v-if="order && !isLoading"
+    class="sw-order-detail-base"
+>
 
-        {% block sw_order_detail_base_leave_page_modal %}
-            <sw-order-leave-page-modal
-                v-if="isDisplayingLeavePageWarning"
-                @page-leave-cancel="onLeaveModalClose"
-                @page-leave-confirm="onLeaveModalConfirm">
-            </sw-order-leave-page-modal>
+    {% block sw_order_detail_base_leave_page_modal %}
+    <sw-order-leave-page-modal
+        v-if="isDisplayingLeavePageWarning"
+        @page-leave-cancel="onLeaveModalClose"
+        @page-leave-confirm="onLeaveModalConfirm"
+    />
+    {% endblock %}
+
+    {% block sw_order_detail_base__user_card %}
+    <sw-order-user-card
+        :key="isEditing"
+        :current-order="order"
+        :version-context="versionContext"
+        :is-loading="isLoading"
+        :is-editing="isEditing"
+        @order-change="saveAndReload"
+        @order-reset="recalculateAndReload"
+        @error="$emit('error',$event)"
+    >
+
+        {% block  sw_order_detail_base_overview_status_change %}
+        <sw-container
+            v-if="!isEditing"
+            slot="additional-actions"
+            columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
+            gap="0 15px"
+        >
+
+            {% block sw_order_detail_base_status_change_transaction %}
+            <sw-order-state-select
+                v-if="!isLoading && transaction"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-order-state-select__payment-state"
+                rounded-style
+                :disabled="!acl.can('order.editor')"
+                :transition-options="transactionOptions"
+                :placeholder="transactionOptionPlaceholder"
+                :background-style="transactionOptionsBackground"
+                @state-select="onQuickTransactionStatusChange"
+            />
+            {% endblock %}
+
+            {% block sw_order_detail_base_status_change_delivery %}
+            <sw-order-state-select
+                v-if="!isLoading && delivery"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-order-state-select__delivery-state"
+                rounded-style
+                :transition-options="deliveryOptions"
+                :disabled="!acl.can('order.editor')"
+                :placeholder="deliveryOptionPlaceholder"
+                :background-style="deliveryOptionsBackground"
+                @state-select="onQuickDeliveryStatusChange"
+            />
+            {% endblock %}
+
+            {% block sw_order_detail_base_status_change_order %}
+            <sw-order-state-select
+                v-if="!isLoading"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-order-state-select__order-state"
+                rounded-style
+                :transition-options="orderOptions"
+                :disabled="!acl.can('order.editor')"
+                :placeholder="orderOptionPlaceholder"
+                :background-style="orderOptionsBackground"
+                @state-select="onQuickOrderStatusChange"
+            />
+            {% endblock %}
+
+        </sw-container>
         {% endblock %}
 
-        {% block sw_order_detail_base__user_card %}
-            <sw-order-user-card :key="isEditing"
-                                :currentOrder="order"
-                                :versionContext="versionContext"
-                                :isLoading="isLoading"
-                                :isEditing="isEditing"
-                                @order-change="saveAndReload"
-                                @order-reset="recalculateAndReload"
-                                @error="$emit('error',$event)">
+    </sw-order-user-card>
+    {% endblock %}
 
-                {% block  sw_order_detail_base_overview_status_change %}
-                    <sw-container v-if="!isEditing"
-                                  slot="additional-actions"
-                                  columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
-                                  gap="0 15px">
+    {% block sw_order_detail_customer_comment_card %}
+    <sw-order-customer-comment
+        v-if="order.customerComment"
+        class="sw-order-customer-comment"
+        :is-loading="isLoading"
+        :customer-comment="order.customerComment"
+    />
+    {% endblock %}
 
-                        {% block sw_order_detail_base_status_change_transaction %}
-                            <sw-order-state-select
-                                v-if="!isLoading && this.transaction"
-                                v-tooltip="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
-                                    disabled: acl.can('order.editor'),
-                                    showOnDisabledElements: true
-                                }"
-                                class="sw-order-state-select__payment-state"
-                                roundedStyle
-                                :disabled="!acl.can('order.editor')"
-                                :transitionOptions="transactionOptions"
-                                :placeholder="transactionOptionPlaceholder"
-                                :backgroundStyle="transactionOptionsBackground"
-                                @state-select="onQuickTransactionStatusChange">
-                            </sw-order-state-select>
-                        {% endblock %}
+    {% block sw_order_detail_base_line_items_card %}
+    <sw-card
+        class="sw-order-detail-base__line-item-grid-card"
+        :title="$tc('sw-order.detailBase.cardTitleLineItems')"
+        :is-loading="isLoading"
+    >
 
-                        {% block sw_order_detail_base_status_change_delivery %}
-                            <sw-order-state-select
-                                v-if="!isLoading && this.delivery"
-                                v-tooltip="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
-                                    disabled: acl.can('order.editor'),
-                                    showOnDisabledElements: true
-                                }"
-                                class="sw-order-state-select__delivery-state"
-                                roundedStyle
-                                :transitionOptions="deliveryOptions"
-                                :disabled="!acl.can('order.editor')"
-                                :placeholder="deliveryOptionPlaceholder"
-                                :backgroundStyle="deliveryOptionsBackground"
-                                @state-select="onQuickDeliveryStatusChange">
-                            </sw-order-state-select>
-                        {% endblock %}
+        {% block sw_order_detail_base_line_items_card_rows %}
+        <sw-container
+            slot="grid"
+            :is-loading="isLoading"
+            type="row"
+        >
 
-                        {% block sw_order_detail_base_status_change_order %}
-                            <sw-order-state-select
-                                v-if="!isLoading"
-                                v-tooltip="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
-                                    disabled: acl.can('order.editor'),
-                                    showOnDisabledElements: true
-                                }"
-                                class="sw-order-state-select__order-state"
-                                roundedStyle
-                                :transitionOptions="orderOptions"
-                                :disabled="!acl.can('order.editor')"
-                                :placeholder="orderOptionPlaceholder"
-                                :backgroundStyle="orderOptionsBackground"
-                                @state-select="onQuickOrderStatusChange">
-                            </sw-order-state-select>
-                        {% endblock %}
-
-                    </sw-container>
-                {% endblock %}
-
-            </sw-order-user-card>
-        {% endblock %}
-
-        {% block sw_order_detail_customer_comment_card %}
-            <sw-order-customer-comment
-                v-if="order.customerComment"
-                class="sw-order-customer-comment"
-                :isLoading="isLoading"
-                :customerComment="order.customerComment">
-            </sw-order-customer-comment>
-        {% endblock %}
-
-        {% block sw_order_detail_base_line_items_card %}
-            <sw-card class="sw-order-detail-base__line-item-grid-card"
-                     :title="$tc('sw-order.detailBase.cardTitleLineItems')"
-                     :isLoading="isLoading">
-
-                {% block sw_order_detail_base_line_items_card_rows %}
-                    <sw-container :isLoading="isLoading"
-                                  slot="grid"
-                                  type="row">
-
-                        {% block sw_order_detail_base_line_items_grid %}
-                            <sw-order-line-items-grid
-                                :order="order"
-                                :context="versionContext"
-                                :editable="isEditing"
-                                ref="sw-order-line-item-grid"
-                                @item-delete="saveAndRecalculate"
-                                @item-edit="recalculateAndReload"
-                                @existing-item-edit="saveAndRecalculate"
-                                @item-added="recalculateAndReload"
-                                @item-cancel="recalculateAndReload">
-                            </sw-order-line-items-grid>
-                        {% endblock %}
-
-                        {% block sw_order_detail_base_line_items_summary %}
-                            <sw-card-section divider="top" secondary slim>
-                                <sw-container class="sw-order-detail__summary"
-                                              columns="1fr 440px">
-                                    <sw-description-list
-                                        v-if="!isLoading"
-                                        class="sw-order-detail__summary-data"
-                                        grid="265px 1fr">
-
-                                        {% block sw_order_detail_base_line_items_summary_entries %}
-                                            {% block sw_order_detail_base_line_items_summary_amount %}
-                                                <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
-                                                <dd>{{ order.positionPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</dd>
-                                            {% endblock %}
-
-                                            {% block sw_order_detail_base_line_items_summary_shipping_cost %}
-                                                <template v-if="delivery">
-                                                    <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
-                                                    <dd>
-                                                        <sw-order-saveable-field
-                                                            v-tooltip="{
-                                                                showDelay: 300,
-                                                                message: shippingCostsDetail,
-                                                                disabled: taxStatus === 'tax-free'
-                                                            }"
-                                                            type="number"
-                                                            :editable="isEditing"
-                                                            :value="delivery.shippingCosts.totalPrice"
-                                                            @value-change="onShippingChargeEdited">
-                                                            {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
-                                                        </sw-order-saveable-field>
-                                                    </dd>
-                                                </template>
-                                                <template v-if="deliveryDiscounts" v-for="delivery in deliveryDiscounts">
-                                                    <dt>{{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}</dt>
-                                                    <dd>{{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}</dd>
-                                                </template>
-                                            {% endblock %}
-
-                                            {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
-                                                <template v-if="taxStatus !== 'tax-free'">
-                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                                                    <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</strong></dd>
-                                                </template>
-                                            {% endblock %}
-
-                                            {% block sw_order_detail_base_line_items_summary_taxes %}
-                                                <template v-if="taxStatus !== 'tax-free'">
-                                                    <template v-for="calculatedTax in sortedCalculatedTaxes">
-                                                        <dt>{{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}</dt>
-                                                        <dd>{{ calculatedTax.tax | currency(order.currency.translated.shortName) }}</dd>
-                                                    </template>
-                                                </template>
-                                            {% endblock %}
-
-                                            {% block sw_order_detail_base_line_items_summary_slot %}
-                                            {% endblock %}
-
-                                            {% block sw_order_detail_base_line_items_summary_amount_total %}
-                                                <template v-if="taxStatus !== 'tax-free'">
-                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                                                    <dd><strong>{{ orderTotal | currency(order.currency.shortName) }}</strong></dd>
-                                                    <template v-if="displayRounded">
-                                                        <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
-                                                        <dd><strong>{{ order.price.totalPrice | currency(order.currency.shortName) }}</strong></dd>
-                                                    </template>
-                                                </template>
-                                            {% endblock %}
-
-                                            {% block sw_order_detail_base_line_items_summary_amount_free_tax %}
-                                                <template v-if="taxStatus === 'tax-free'">
-                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                                                    <dd><strong>{{ order.price.totalPrice | currency(order.currency.translated.shortName) }}</strong></dd>
-                                                </template>
-                                            {% endblock %}
-                                        {% endblock %}
-
-                                    </sw-description-list>
-                                </sw-container>
-                            </sw-card-section>
-                        {% endblock %}
-
-                    </sw-container>
-                {% endblock %}
-
-            </sw-card>
-        {% endblock %}
-
-        {% block sw_order_detail_base_status_card %}
-            <sw-order-state-history-card
-                v-if="!isEditing"
-                ref="state-card"
-                :title="$tc('sw-order.stateCard.cardTitle')"
-                :isLoading="isLoading"
+            {% block sw_order_detail_base_line_items_grid %}
+            <sw-order-line-items-grid
+                ref="sw-order-line-item-grid"
                 :order="order"
-                @order-state-change="reloadEntityData"
-                @options-change="onStateTransitionOptionsChanged">
-            </sw-order-state-history-card>
+                :context="versionContext"
+                :editable="isEditing"
+                @item-delete="saveAndRecalculate"
+                @item-edit="recalculateAndReload"
+                @existing-item-edit="saveAndRecalculate"
+                @item-added="recalculateAndReload"
+                @item-cancel="recalculateAndReload"
+            />
+            {% endblock %}
+
+            {% block sw_order_detail_base_line_items_summary %}
+            <sw-card-section
+                divider="top"
+                secondary
+                slim
+            >
+                <sw-container
+                    class="sw-order-detail__summary"
+                    columns="1fr 440px"
+                >
+                    <sw-description-list
+                        v-if="!isLoading"
+                        class="sw-order-detail__summary-data"
+                        grid="265px 1fr"
+                    >
+
+                        {% block sw_order_detail_base_line_items_summary_entries %}
+                        {% block sw_order_detail_base_line_items_summary_amount %}
+                        <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
+                        <dd>{{ order.positionPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</dd>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_line_items_summary_shipping_cost %}
+                        <template v-if="delivery">
+                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                            <dd>
+                                <sw-order-saveable-field
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: shippingCostsDetail,
+                                        disabled: taxStatus === 'tax-free'
+                                    }"
+                                    type="number"
+                                    :editable="isEditing"
+                                    :value="delivery.shippingCosts.totalPrice"
+                                    @value-change="onShippingChargeEdited"
+                                >
+                                    {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
+                                </sw-order-saveable-field>
+                            </dd>
+                        </template>
+                        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                        <template
+                            v-for="(delivery, index) in deliveryDiscounts"
+                            v-if="deliveryDiscounts"
+                        >
+                            <dt :key="`delivery-discount-dt-${index}`">
+                                {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
+                            </dt>
+                            <dd :key="`delivery-discount-dd-${index}`">
+                                {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
+                            </dd>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
+                        <template v-if="taxStatus !== 'tax-free'">
+                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                            <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</strong></dd>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_line_items_summary_taxes %}
+                        <template v-if="taxStatus !== 'tax-free'">
+                            <template v-for="(calculatedTax, index) in sortedCalculatedTaxes">
+                                <dt :key="`sorted-calculated-taxes-dt-${index}`">
+                                    {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
+                                </dt>
+                                <dd :key="`sorted-calculated-taxes-dt-${index}`">
+                                    {{ calculatedTax.tax | currency(order.currency.translated.shortName) }}
+                                </dd>
+                            </template>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_line_items_summary_slot %}
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_line_items_summary_amount_total %}
+                        <template v-if="taxStatus !== 'tax-free'">
+                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
+                            <dd><strong>{{ orderTotal | currency(order.currency.shortName) }}</strong></dd>
+                            <template v-if="displayRounded">
+                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
+                                <dd><strong>{{ order.price.totalPrice | currency(order.currency.shortName) }}</strong></dd>
+                            </template>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_line_items_summary_amount_free_tax %}
+                        <template v-if="taxStatus === 'tax-free'">
+                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
+                            <dd><strong>{{ order.price.totalPrice | currency(order.currency.translated.shortName) }}</strong></dd>
+                        </template>
+                        {% endblock %}
+                        {% endblock %}
+
+                    </sw-description-list>
+                </sw-container>
+            </sw-card-section>
+            {% endblock %}
+
+        </sw-container>
         {% endblock %}
 
-        {% block sw_order_detail_delivery_metadata %}
-            <sw-order-delivery-metadata
-                v-if="delivery"
-                class="sw-order-delivery-metadata"
-                :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: ' '})"
-                :isLoading="isLoading"
-                :order="order"
-                :delivery="delivery">
-            </sw-order-delivery-metadata>
-        {% endblock %}
+    </sw-card>
+    {% endblock %}
 
-        {% block sw_order_detail_base_document_grid %}
-            <sw-order-document-card
-                v-if="!isEditing"
-                class="sw-order-detail-base__document-grid"
-                :order="order"
-                :isLoading="isLoading"
-                @document-save="saveAndReload">
-            </sw-order-document-card>
-        {% endblock %}
+    {% block sw_order_detail_base_status_card %}
+    <sw-order-state-history-card
+        v-if="!isEditing"
+        ref="state-card"
+        :title="$tc('sw-order.stateCard.cardTitle')"
+        :is-loading="isLoading"
+        :order="order"
+        @order-state-change="reloadEntityData"
+        @options-change="onStateTransitionOptionsChanged"
+    />
+    {% endblock %}
 
-        {% block sw_order_detail_base_custom_fields %}
-            <sw-card v-if="customFieldSets.length > 0"
-                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                     :isLoading="isLoading">
-                <sw-custom-field-set-renderer
-                    :entity="order"
-                    :disabled="!isEditing || !acl.can('order.editor')"
-                    :sets="customFieldSets">
-                </sw-custom-field-set-renderer>
-            </sw-card>
-        {% endblock %}
+    {% block sw_order_detail_delivery_metadata %}
+    <sw-order-delivery-metadata
+        v-if="delivery"
+        class="sw-order-delivery-metadata"
+        :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: ' '})"
+        :is-loading="isLoading"
+        :order="order"
+        :delivery="delivery"
+    />
+    {% endblock %}
 
-    </sw-card-view>
+    {% block sw_order_detail_base_document_grid %}
+    <sw-order-document-card
+        v-if="!isEditing"
+        class="sw-order-detail-base__document-grid"
+        :order="order"
+        :is-loading="isLoading"
+        @document-save="saveAndReload"
+    />
+    {% endblock %}
+
+    {% block sw_order_detail_base_custom_fields %}
+    <sw-card
+        v-if="customFieldSets.length > 0"
+        :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+        :is-loading="isLoading"
+    >
+        <sw-custom-field-set-renderer
+            :entity="order"
+            :disabled="!isEditing || !acl.can('order.editor')"
+            :sets="customFieldSets"
+        />
+    </sw-card>
+    {% endblock %}
+
+</sw-card-view>
 {% endblock %}

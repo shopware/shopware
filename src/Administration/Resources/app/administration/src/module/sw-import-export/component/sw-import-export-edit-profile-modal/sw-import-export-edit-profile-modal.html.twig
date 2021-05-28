@@ -1,183 +1,208 @@
 {% block sw_import_export_edit_profile_modal %}
-    <div class="sw-import-export-edit-profile-modal">
-        <sw-modal
-            v-if="profile"
-            class="sw-import-export-edit-profile-modal"
-            @modal-close="$emit('profile-close')"
-            :title="modalTitle">
+<div class="sw-import-export-edit-profile-modal">
+    <sw-modal
+        v-if="profile"
+        class="sw-import-export-edit-profile-modal"
+        :title="modalTitle"
+        @modal-close="$emit('profile-close')"
+    >
 
-            {% block sw_import_export_edit_profile_modal_alert %}
-                <sw-alert v-if="profile.systemDefault" variant="info">
-                {{ $tc('sw-import-export.profile.systemDefaultInfoText') }}
-                </sw-alert>
-            {% endblock %}
-
-            {% block sw_import_export_edit_profile_modal_tabs %}
-                <sw-tabs defaultItem="general">
-
-                    <template #default="{ active }" >
-
-                        {% block sw_import_export_edit_profile_modal_tabs_general %}
-                            <sw-tabs-item
-                                :title="$tc('sw-import-export.profile.generalTab')"
-                                name="general"
-                                :activeTab="active">
-                                {{ $tc('sw-import-export.profile.generalTab') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {% block sw_import_export_edit_profile_modal_tabs_field_indicators %}
-                            <sw-tabs-item
-                                :title="$tc('sw-import-export.profile.fieldIndicatorsTab')"
-                                name="fieldIndicators"
-                                :activeTab="active">
-                                {{ $tc('sw-import-export.profile.fieldIndicatorsTab') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                    </template>
-
-                    <template #content="{ active }">
-                        <template v-if="active === 'general'">
-
-                            <p class="sw-import-export-edit-profile-modal__text">
-                                {{ $tc('sw-import-export.profile.descriptionBlock') }}
-                            </p>
-
-                            <sw-container columns="1fr 1fr" gap="16px">
-                                {% block sw_import_export_edit_profile_modal_tabs_name_field %}
-                                    <sw-field
-                                        type="text"
-                                        :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
-                                        required
-                                        :disabled="profile.systemDefault"
-                                        :error="profileNameError"
-                                        :placeholder="profile.translated.label"
-                                        v-model="profile.label">
-                                    </sw-field>
-                                {% endblock %}
-
-                                {% block sw_import_export_edit_profile_modal_tabs_object_type_field %}
-                                    <span
-                                        class="sw-import-export-edit-profile-modal__object-type-field"
-                                        v-tooltip="{
-                                            message: $tc('sw-import-export.profile.objectTypeFieldTooltipText'),
-                                            disabled: mappingLength <= 0,
-                                            showOnDisabledElements: false
-                                        }">
-                                        <sw-single-select
-                                            class="sw-import-export-edit-profile-modal__object-type-select"
-                                            :label="$tc('sw-import-export.profile.objectTypeFieldLabel')"
-                                            ref="objectTypeSelect"
-                                            required
-                                            :options="supportedEntities"
-                                            :disabled="profile.systemDefault || mappingLength > 0"
-                                            :error="profileSourceEntityError"
-                                            v-model="profile.sourceEntity">
-                                        </sw-single-select>
-                                    </span>
-                                {% endblock %}
-                            </sw-container>
-
-                            <p class="sw-import-export-edit-profile-modal__text">
-                                {{ $tc('sw-import-export.profile.mappingDescriptionBlock') }}
-                            </p>
-
-                            {% block sw_import_export_edit_profile_modal_tabs_mapping %}
-                                <sw-import-export-edit-profile-modal-mapping
-                                    :profile="profile">
-                                </sw-import-export-edit-profile-modal-mapping>
-                            {% endblock %}
-
-                        </template>
-
-                        <template v-if="active === 'fieldIndicators'">
-                            <p class="sw-import-export-edit-profile-modal__text">
-                                {{ $tc('sw-import-export.profile.csvDescriptionBlock') }}
-                            </p>
-
-                            <sw-container columns="repeat(1fr, 1fr)">
-                                {% block sw_import_export_edit_profile_modal_tabs_seperator_field %}
-                                    <sw-single-select
-                                        v-model="profile.delimiter"
-                                        required
-                                        :label="$tc('sw-import-export.profile.separatorFieldLabel')"
-                                        :error="profileDelimiterError"
-                                        :disabled="profile.systemDefault"
-                                        :options="supportedDelimiter">
-                                    </sw-single-select>
-                                {% endblock %}
-
-                                {% block sw_import_export_edit_profile_modal_tabs_enclosure_field %}
-                                    <sw-single-select
-                                        v-model="profile.enclosure"
-                                        required
-                                        :label="$tc('sw-import-export.profile.enclosureFieldLabel')"
-                                        :error="profileEnclosureError"
-                                        :disabled="profile.systemDefault"
-                                        :options="supportedEnclosures">
-                                    </sw-single-select>
-                                {% endblock %}
-                            </sw-container>
-                        </template>
-                    </template>
-                </sw-tabs>
-            {% endblock %}
-
-            {% block sw_import_export_edit_profile_modal_footer %}
-                <template slot="modal-footer">
-                    <sw-button size="small" @click="$emit('profile-close')">
-                        {{ $tc('sw-import-export.profile.cancelLabel') }}
-                    </sw-button>
-                    <template v-if="profile.systemDefault">
-                        <sw-button
-                            class="sw-import-export-edit-profile-modal__save-action"
-                            size="small"
-                            @click="$emit('profile-close')"
-                            variant="primary">
-                            {{ $tc('sw-import-export.profile.closeProfileLabel')}}
-                        </sw-button>
-                    </template>
-                    <template v-else>
-                        <sw-button
-                        class="sw-import-export-edit-profile-modal__save-action"
-                        size="small"
-                        :disabled="!profile.sourceEntity || profile.sourceEntity.length <= 0"
-                        @click="saveProfile"
-                        variant="primary">
-                        {{ saveLabelSnippet }}
-                        </sw-button>
-                    </template>
-                </template>
-            {% endblock %}
-        </sw-modal>
-
-        {% block sw_import_export_edit_profile_violation_modal %}
-            <sw-modal v-if="showValidationError"
-                      :title="$tc('global.default.error')"
-                      @modal-close="resetViolations"
-                      class="sw-import-export-edit-profile-modal__violation-modal">
-
-                {% block sw_import_export_edit_profile_violation_modal_message %}
-                    <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
-                {% endblock %}
-
-                {% block sw_import_export_edit_profile_violation_modal_required_fields %}
-                    <ul>
-                        {% block sw_import_export_edit_profile_violation_modal_required_field %}
-                            <li v-for="requiredField in missingRequiredFields">{{ requiredField }}</li>
-                        {% endblock %}
-                    </ul>
-                {% endblock %}
-
-                {% block sw_import_export_edit_profile_violation_modal_footer %}
-                    <template slot="modal-footer">
-                        <sw-button size="small" @click="resetViolations">
-                            {{ $tc('sw-import-export.profile.closeViolation') }}
-                        </sw-button>
-                    </template>
-                {% endblock %}
-            </sw-modal>
+        {% block sw_import_export_edit_profile_modal_alert %}
+        <sw-alert
+            v-if="profile.systemDefault"
+            variant="info"
+        >
+            {{ $tc('sw-import-export.profile.systemDefaultInfoText') }}
+        </sw-alert>
         {% endblock %}
-    </div>
+
+        {% block sw_import_export_edit_profile_modal_tabs %}
+        <sw-tabs default-item="general">
+
+            <template #default="{ active }">
+
+                {% block sw_import_export_edit_profile_modal_tabs_general %}
+                <sw-tabs-item
+                    :title="$tc('sw-import-export.profile.generalTab')"
+                    name="general"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-import-export.profile.generalTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_import_export_edit_profile_modal_tabs_field_indicators %}
+                <sw-tabs-item
+                    :title="$tc('sw-import-export.profile.fieldIndicatorsTab')"
+                    name="fieldIndicators"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-import-export.profile.fieldIndicatorsTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+            </template>
+
+            <template #content="{ active }">
+                <template v-if="active === 'general'">
+
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.descriptionBlock') }}
+                    </p>
+
+                    <sw-container
+                        columns="1fr 1fr"
+                        gap="16px"
+                    >
+                        {% block sw_import_export_edit_profile_modal_tabs_name_field %}
+                        <sw-field
+                            v-model="profile.label"
+                            type="text"
+                            :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
+                            required
+                            :disabled="profile.systemDefault"
+                            :error="profileNameError"
+                            :placeholder="profile.translated.label"
+                        />
+                        {% endblock %}
+
+                        {% block sw_import_export_edit_profile_modal_tabs_object_type_field %}
+                        <span
+                            v-tooltip="{
+                                message: $tc('sw-import-export.profile.objectTypeFieldTooltipText'),
+                                disabled: mappingLength <= 0,
+                                showOnDisabledElements: false
+                            }"
+                            class="sw-import-export-edit-profile-modal__object-type-field"
+                        >
+                            <sw-single-select
+                                ref="objectTypeSelect"
+                                v-model="profile.sourceEntity"
+                                class="sw-import-export-edit-profile-modal__object-type-select"
+                                :label="$tc('sw-import-export.profile.objectTypeFieldLabel')"
+                                required
+                                :options="supportedEntities"
+                                :disabled="profile.systemDefault || mappingLength > 0"
+                                :error="profileSourceEntityError"
+                            />
+                        </span>
+                        {% endblock %}
+                    </sw-container>
+
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.mappingDescriptionBlock') }}
+                    </p>
+
+                    {% block sw_import_export_edit_profile_modal_tabs_mapping %}
+                    <sw-import-export-edit-profile-modal-mapping
+                        :profile="profile"
+                    />
+                    {% endblock %}
+
+                </template>
+
+                <template v-if="active === 'fieldIndicators'">
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.csvDescriptionBlock') }}
+                    </p>
+
+                    <sw-container columns="repeat(1fr, 1fr)">
+                        {% block sw_import_export_edit_profile_modal_tabs_seperator_field %}
+                        <sw-single-select
+                            v-model="profile.delimiter"
+                            required
+                            :label="$tc('sw-import-export.profile.separatorFieldLabel')"
+                            :error="profileDelimiterError"
+                            :disabled="profile.systemDefault"
+                            :options="supportedDelimiter"
+                        />
+                        {% endblock %}
+
+                        {% block sw_import_export_edit_profile_modal_tabs_enclosure_field %}
+                        <sw-single-select
+                            v-model="profile.enclosure"
+                            required
+                            :label="$tc('sw-import-export.profile.enclosureFieldLabel')"
+                            :error="profileEnclosureError"
+                            :disabled="profile.systemDefault"
+                            :options="supportedEnclosures"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                </template>
+            </template>
+        </sw-tabs>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_modal_footer %}
+        <template slot="modal-footer">
+            <sw-button
+                size="small"
+                @click="$emit('profile-close')"
+            >
+                {{ $tc('sw-import-export.profile.cancelLabel') }}
+            </sw-button>
+            <template v-if="profile.systemDefault">
+                <sw-button
+                    class="sw-import-export-edit-profile-modal__save-action"
+                    size="small"
+                    variant="primary"
+                    @click="$emit('profile-close')"
+                >
+                    {{ $tc('sw-import-export.profile.closeProfileLabel') }}
+                </sw-button>
+            </template>
+            <template v-else>
+                <sw-button
+                    class="sw-import-export-edit-profile-modal__save-action"
+                    size="small"
+                    :disabled="!profile.sourceEntity || profile.sourceEntity.length <= 0"
+                    variant="primary"
+                    @click="saveProfile"
+                >
+                    {{ saveLabelSnippet }}
+                </sw-button>
+            </template>
+        </template>
+        {% endblock %}
+    </sw-modal>
+
+    {% block sw_import_export_edit_profile_violation_modal %}
+    <sw-modal
+        v-if="showValidationError"
+        :title="$tc('global.default.error')"
+        class="sw-import-export-edit-profile-modal__violation-modal"
+        @modal-close="resetViolations"
+    >
+
+        {% block sw_import_export_edit_profile_violation_modal_message %}
+        <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_violation_modal_required_fields %}
+        <ul>
+            {% block sw_import_export_edit_profile_violation_modal_required_field %}
+            <li
+                v-for="requiredField in missingRequiredFields"
+                :key="requiredField"
+            >
+                {{ requiredField }}
+            </li>
+            {% endblock %}
+        </ul>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_violation_modal_footer %}
+        <template slot="modal-footer">
+            <sw-button
+                size="small"
+                @click="resetViolations"
+            >
+                {{ $tc('sw-import-export.profile.closeViolation') }}
+            </sw-button>
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</div>
 {% endblock %}

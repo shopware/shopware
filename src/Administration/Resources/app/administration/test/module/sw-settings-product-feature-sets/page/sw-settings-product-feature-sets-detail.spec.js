@@ -159,7 +159,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(saveButton.attributes().disabled).toBe('true');
         expect(fieldName.vm.$attrs.disabled).toBe(true);
         expect(fieldDescription.vm.$attrs.disabled).toBe(true);
-        expect(productFeatureSetsValuesCard.attributes().allowedit).toBeUndefined();
+        expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBeUndefined();
     });
 
     it('should have all fields enabled when user has acl rights', async () => {
@@ -186,6 +186,6 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(saveButton.attributes().disabled).toBeUndefined();
         expect(fieldName.vm.$attrs.disabled).toBe(false);
         expect(fieldDescription.vm.$attrs.disabled).toBe(false);
-        expect(productFeatureSetsValuesCard.attributes().allowedit).toBe('true');
+        expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBe('true');
     });
 });

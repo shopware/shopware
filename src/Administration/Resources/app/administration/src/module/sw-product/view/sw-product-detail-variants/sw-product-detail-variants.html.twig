@@ -1,76 +1,78 @@
 {% block sw_product_detail_variants %}
-    <div class="sw-product-detail-variants">
+<div class="sw-product-detail-variants">
 
-        {% block sw_product_detail_variants_sw_card_generated_variants %}
-            <sw-card
-                class="sw-product-detail-variants__generated-variants"
-                :class="{'is--loading': isLoading}"
-                :title="$tc('sw-product.variations.generatedVariationCardTitle')"
-                large>
+    {% block sw_product_detail_variants_sw_card_generated_variants %}
+    <sw-card
+        class="sw-product-detail-variants__generated-variants"
+        :class="{'is--loading': isLoading}"
+        :title="$tc('sw-product.variations.generatedVariationCardTitle')"
+        large
+    >
 
-                {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
-                    <sw-product-variants-overview
-                        v-if="productEntityLoaded"
-                        v-show="variantListHasContent && !isLoading"
-                        :groups="groups"
-                        :selectedGroups="selectedGroups"
-                        ref="generatedVariants"
-                        @variants-finish-update="updateVariantListHasContent"
-                        @generator-open="openModal('variantGeneration')"
-                        @delivery-open="openModal('deliveryModal')"
-                    ></sw-product-variants-overview>
-                {% endblock %}
-
-                {% block sw_product_detail_variants_sw_card_empty_state %}
-                    <template v-if="!variantListHasContent && !isLoading">
-                        <div class="sw-product-detail-variants__generated-variants__empty-state">
-                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
-
-                            <div class="sw-product-detail-variants__generated-variants__empty-state--label">
-                                <p>{{ $tc('sw-product.variations.emptyStateDescription') }}</p>
-                            </div>
-
-                            <sw-button
-                                variant="ghost"
-                                :disabled="!acl.can('product.creator')"
-                                v-tooltip="{
-                                    message: this.$tc('sw-privileges.tooltip.warning'),
-                                    disabled: this.acl.can('product.creator'),
-                                    showOnDisabledElements: true
-                                }"
-                                @click="openModal('variantGeneration')">
-                                {{ $tc('sw-product.variations.emptyStateButton') }}
-                            </sw-button>
-                        </div>
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_detail_variants_sw_card_loading_indicator %}
-                    <sw-loader v-if="isLoading"></sw-loader>
-                {% endblock %}
-
-            </sw-card>
+        {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
+        <sw-product-variants-overview
+            v-if="productEntityLoaded"
+            v-show="variantListHasContent && !isLoading"
+            ref="generatedVariants"
+            :groups="groups"
+            :selected-groups="selectedGroups"
+            @variants-finish-update="updateVariantListHasContent"
+            @generator-open="openModal('variantGeneration')"
+            @delivery-open="openModal('deliveryModal')"
+        />
         {% endblock %}
 
-        {% block sw_product_detail_variants_modal_variant_generation %}
-            <sw-product-modal-variant-generation
-                v-if="activeModal === 'variantGeneration'"
-                :product="productEntity"
-                :groups="groups"
-                :selectedGroups="selectedGroups"
-                @modal-close="activeModal = ''"
-                @variations-finish-generate="updateVariations"
-            ></sw-product-modal-variant-generation>
+        {% block sw_product_detail_variants_sw_card_empty_state %}
+        <template v-if="!variantListHasContent && !isLoading">
+            <div class="sw-product-detail-variants__generated-variants__empty-state">
+                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+
+                <div class="sw-product-detail-variants__generated-variants__empty-state--label">
+                    <p>{{ $tc('sw-product.variations.emptyStateDescription') }}</p>
+                </div>
+
+                <sw-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('product.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    variant="ghost"
+                    :disabled="!acl.can('product.creator')"
+                    @click="openModal('variantGeneration')"
+                >
+                    {{ $tc('sw-product.variations.emptyStateButton') }}
+                </sw-button>
+            </div>
+        </template>
         {% endblock %}
 
-        {% block sw_product_detail_variants_modal_delivery %}
-            <sw-product-modal-delivery
-                v-if="activeModal === 'deliveryModal'"
-                :product="productEntity"
-                :selectedGroups="selectedGroups"
-                @configuration-close="onConfigurationClosed"
-                @modal-close="activeModal = ''"
-            ></sw-product-modal-delivery>
+        {% block sw_product_detail_variants_sw_card_loading_indicator %}
+        <sw-loader v-if="isLoading" />
         {% endblock %}
-    </div>
+
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_product_detail_variants_modal_variant_generation %}
+    <sw-product-modal-variant-generation
+        v-if="activeModal === 'variantGeneration'"
+        :product="productEntity"
+        :groups="groups"
+        :selected-groups="selectedGroups"
+        @modal-close="activeModal = ''"
+        @variations-finish-generate="updateVariations"
+    />
+    {% endblock %}
+
+    {% block sw_product_detail_variants_modal_delivery %}
+    <sw-product-modal-delivery
+        v-if="activeModal === 'deliveryModal'"
+        :product="productEntity"
+        :selected-groups="selectedGroups"
+        @configuration-close="onConfigurationClosed"
+        @modal-close="activeModal = ''"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,142 +1,166 @@
 {% block sw_cms_element_vimeo_video_config %}
-    <div class="sw-cms-el-config-vimeo-video">
+<div class="sw-cms-el-config-vimeo-video">
 
-        {% block sw_cms_element_vimeo_video_config_video_id %}
-            <sw-field v-model="videoID"
-                      type="text"
-                      :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
-                      :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')">
-            </sw-field>
+    {% block sw_cms_element_vimeo_video_config_video_id %}
+    <sw-field
+        v-model="videoID"
+        type="text"
+        :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
+        :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')"
+    />
+    {% endblock %}
+
+    {% block sw_cms_element_vimeo_video_config_player_controls %}
+    <div class="sw-cms-el-config-vimeo-video__player-controls">
+
+        {% block sw_cms_element_vimeo_video_config_autoplay %}
+        <sw-field
+            v-model="element.config.autoplay.value"
+            type="switch"
+            :label="$tc('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
+            :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
+        />
         {% endblock %}
 
-        {% block sw_cms_element_vimeo_video_config_player_controls %}
-            <div class="sw-cms-el-config-vimeo-video__player-controls">
-
-                {% block sw_cms_element_vimeo_video_config_autoplay %}
-                    <sw-field v-model="element.config.autoplay.value"
-                              type="switch"
-                              :label="$tc('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
-                              :helpText="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_cms_element_vimeo_video_config_do_not_track %}
-                    <sw-field v-model="element.config.doNotTrack.value"
-                              type="switch"
-                              :label="$tc('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
-                              :helpText="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_cms_element_vimeo_video_config_loop %}
-                    <sw-field v-model="element.config.loop.value"
-                              type="switch"
-                              :label="$tc('sw-cms.elements.vimeoVideo.config.label.loop')">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_cms_element_vimeo_video_config_controls %}
-                    <sw-field v-model="element.config.controls.value"
-                              type="switch"
-                              :label="$tc('sw-cms.elements.vimeoVideo.config.label.showControls')">
-                    </sw-field>
-                {% endblock %}
-
-            </div>
+        {% block sw_cms_element_vimeo_video_config_do_not_track %}
+        <sw-field
+            v-model="element.config.doNotTrack.value"
+            type="switch"
+            :label="$tc('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
+            :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
+        />
         {% endblock %}
 
-        {% block sw_cms_element_vimeo_video_config_color %}
-            <sw-colorpicker :label="$tc('sw-cms.elements.vimeoVideo.config.label.controlsColor')"
-                            v-model="element.config.color.value"
-                            colorOutput="hex"
-                            :zIndex="1001"
-                            :alpha="false">
-            </sw-colorpicker>
+        {% block sw_cms_element_vimeo_video_config_loop %}
+        <sw-field
+            v-model="element.config.loop.value"
+            type="switch"
+            :label="$tc('sw-cms.elements.vimeoVideo.config.label.loop')"
+        />
         {% endblock %}
 
-        {% block sw_cms_element_vimeo_video_config_artist_information %}
-            <div class="sw-cms-el-config-vimeo-video__artist-information">
-
-                {% block sw_cms_element_vimeo_video_config_byline %}
-                    <sw-field v-model="element.config.byLine.value"
-                              type="switch"
-                              :label="$tc('sw-cms.elements.vimeoVideo.config.label.byLine')">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_cms_element_vimeo_video_config_portrait %}
-                    <sw-field v-model="element.config.portrait.value"
-                              type="switch"
-                              :label="$tc('sw-cms.elements.vimeoVideo.config.label.showPortrait')">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_cms_element_vimeo_video_config_title %}
-                    <sw-field v-model="element.config.title.value"
-                              type="switch"
-                              :label="$tc('sw-cms.elements.vimeoVideo.config.label.showTitle')">
-                    </sw-field>
-                {% endblock %}
-
-            </div>
+        {% block sw_cms_element_vimeo_video_config_controls %}
+        <sw-field
+            v-model="element.config.controls.value"
+            type="switch"
+            :label="$tc('sw-cms.elements.vimeoVideo.config.label.showControls')"
+        />
         {% endblock %}
 
-        {% block sw_cms_element_vimeo_video_config_needs_confirmation %}
-            <div class="sw-cms-el-config-vimeo-video__confirmation">
-                <sw-field v-model="element.config.needsConfirmation.value"
-                          type="switch"
-                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.needsConfirmation')">
-                </sw-field>
-            </div>
-        {% endblock %}
-
-        {% block sw_cms_element_vimeo_video_config_preview_media %}
-            <sw-cms-mapping-field :label="$tc('sw-cms.elements.vimeoVideo.config.label.previewImage')"
-                                  valueTypes="entity"
-                                  entity="media"
-                                  v-model="element.config.previewMedia"
-                                  v-if="element.config.needsConfirmation.value">
-                <sw-media-upload-v2 variant="regular"
-                                    :uploadTag="uploadTag"
-                                    :source="previewSource"
-                                    :allowMultiSelect="false"
-                                    :defaultFolder="cmsPageState.pageEntityName"
-                                    :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
-                                    @media-upload-sidebar-open="onOpenMediaModal"
-                                    @media-upload-remove-image="onImageRemove">
-                </sw-media-upload-v2>
-
-                {% block sw_cms_element_vimeo_video_config_preview_media_display %}
-                    <div class="sw-cms-el-config-image__mapping-preview" slot="preview" slot-scope="{ demoValue }">
-                        <img :src="demoValue.url" v-if="demoValue.url">
-                        <sw-alert class="sw-cms-el-config-image__preview-info" variant="info" v-else>
-                            {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
-                        </sw-alert>
-                    </div>
-                {% endblock %}
-            </sw-cms-mapping-field>
-
-            {% block sw_cms_element_vimeo_video_config_preview_media_upload_listener %}
-                <sw-upload-listener
-                    :uploadTag="uploadTag"
-                    autoUpload
-                    @media-upload-finish="onImageUpload">
-                </sw-upload-listener>
-            {% endblock %}
-
-            {% block sw_cms_element_vimeo_video_config_preview_media_modal %}
-                <sw-media-modal-v2
-                    variant="regular"
-                    v-if="mediaModalIsOpen"
-                    :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
-                    :entityContext="cmsPageState.entityName"
-                    :allowMultiSelect="false"
-                    :initialFolderId="cmsPageState.defaultMediaFolderId"
-                    @media-upload-remove-image="onImageRemove"
-                    @media-modal-selection-change="onSelectionChanges"
-                    @modal-close="onCloseModal">
-                </sw-media-modal-v2>
-            {% endblock %}
-        {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_cms_element_vimeo_video_config_color %}
+    <sw-colorpicker
+        v-model="element.config.color.value"
+        :label="$tc('sw-cms.elements.vimeoVideo.config.label.controlsColor')"
+        color-output="hex"
+        :z-index="1001"
+        :alpha="false"
+    />
+    {% endblock %}
+
+    {% block sw_cms_element_vimeo_video_config_artist_information %}
+    <div class="sw-cms-el-config-vimeo-video__artist-information">
+
+        {% block sw_cms_element_vimeo_video_config_byline %}
+        <sw-field
+            v-model="element.config.byLine.value"
+            type="switch"
+            :label="$tc('sw-cms.elements.vimeoVideo.config.label.byLine')"
+        />
+        {% endblock %}
+
+        {% block sw_cms_element_vimeo_video_config_portrait %}
+        <sw-field
+            v-model="element.config.portrait.value"
+            type="switch"
+            :label="$tc('sw-cms.elements.vimeoVideo.config.label.showPortrait')"
+        />
+        {% endblock %}
+
+        {% block sw_cms_element_vimeo_video_config_title %}
+        <sw-field
+            v-model="element.config.title.value"
+            type="switch"
+            :label="$tc('sw-cms.elements.vimeoVideo.config.label.showTitle')"
+        />
+        {% endblock %}
+
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_element_vimeo_video_config_needs_confirmation %}
+    <div class="sw-cms-el-config-vimeo-video__confirmation">
+        <sw-field
+            v-model="element.config.needsConfirmation.value"
+            type="switch"
+            :label="$tc('sw-cms.elements.vimeoVideo.config.label.needsConfirmation')"
+        />
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_element_vimeo_video_config_preview_media %}
+    <sw-cms-mapping-field
+        v-if="element.config.needsConfirmation.value"
+        v-model="element.config.previewMedia"
+        :label="$tc('sw-cms.elements.vimeoVideo.config.label.previewImage')"
+        value-types="entity"
+        entity="media"
+    >
+        <sw-media-upload-v2
+            variant="regular"
+            :upload-tag="uploadTag"
+            :source="previewSource"
+            :allow-multi-select="false"
+            :default-folder="cmsPageState.pageEntityName"
+            :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+            @media-upload-sidebar-open="onOpenMediaModal"
+            @media-upload-remove-image="onImageRemove"
+        />
+
+        {% block sw_cms_element_vimeo_video_config_preview_media_display %}
+        <div
+            slot="preview"
+            slot-scope="{ demoValue }"
+            class="sw-cms-el-config-image__mapping-preview"
+        >
+            <img
+                v-if="demoValue.url"
+                :src="demoValue.url"
+            >
+            <sw-alert
+                v-else
+                class="sw-cms-el-config-image__preview-info"
+                variant="info"
+            >
+                {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+            </sw-alert>
+        </div>
+        {% endblock %}
+    </sw-cms-mapping-field>
+
+    {% block sw_cms_element_vimeo_video_config_preview_media_upload_listener %}
+    <sw-upload-listener
+        :upload-tag="uploadTag"
+        auto-upload
+        @media-upload-finish="onImageUpload"
+    />
+    {% endblock %}
+
+    {% block sw_cms_element_vimeo_video_config_preview_media_modal %}
+    <sw-media-modal-v2
+        v-if="mediaModalIsOpen"
+        variant="regular"
+        :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+        :entity-context="cmsPageState.entityName"
+        :allow-multi-select="false"
+        :initial-folder-id="cmsPageState.defaultMediaFolderId"
+        @media-upload-remove-image="onImageRemove"
+        @media-modal-selection-change="onSelectionChanges"
+        @modal-close="onCloseModal"
+    />
+    {% endblock %}
+    {% endblock %}
+</div>
 {% endblock %}

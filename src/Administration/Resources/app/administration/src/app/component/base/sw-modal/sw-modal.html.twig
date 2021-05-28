@@ -1,64 +1,88 @@
 {% block sw_modal %}
-    <transition name="sw-modal-fade" appear>
-        {% block sw_modal_element %}
-            <div class="sw-modal" :class="modalClasses" @mousedown="closeModalOnClickOutside" @keyup.esc="closeModalOnEscapeKey">
-                {% block sw_modal_dialog %}
-                    <div class="sw-modal__dialog"
-                         :class="identifierClass"
-                         :style="{ maxWidth: size }"
-                         role="dialog"
-                         ref="dialog"
-                         aria-labelledby="modalTitleEl"
-                         tabindex="-1">
-                        {% block sw_modal_header %}
-                            <header v-if="showHeader" class="sw-modal__header">
-                                <slot name="modal-header">
-                                    {% block sw_modal_slot_header %}
-                                        {% block sw_modal_close %}
-                                            <h4 class="sw-modal__title" id="modalTitleEl">
-                                                {{ title }}
-                                            </h4>
-                                        {% endblock %}
+<transition
+    name="sw-modal-fade"
+    appear
+>
+    {% block sw_modal_element %}
+    <div
+        class="sw-modal"
+        :class="modalClasses"
+        @mousedown="closeModalOnClickOutside"
+        @keyup.esc="closeModalOnEscapeKey"
+    >
+        {% block sw_modal_dialog %}
+        <div
+            ref="dialog"
+            class="sw-modal__dialog"
+            :class="identifierClass"
+            :style="{ maxWidth: size }"
+            role="dialog"
+            aria-labelledby="modalTitleEl"
+            tabindex="-1"
+        >
+            {% block sw_modal_header %}
+            <header
+                v-if="showHeader"
+                class="sw-modal__header"
+            >
+                <slot name="modal-header">
+                    {% block sw_modal_slot_header %}
+                    {% block sw_modal_close %}
+                    <h4
+                        id="modalTitleEl"
+                        class="sw-modal__title"
+                    >
+                        {{ title }}
+                    </h4>
+                    {% endblock %}
 
-                                        {% block sw_modal_close_button %}
-                                            <button v-if="closable"
-                                                    class="sw-modal__close"
-                                                    :title="$tc('global.sw-modal.labelClose')"
-                                                    :aria-label="$tc('global.sw-modal.labelClose')"
-                                                    @click.prevent="closeModal">
-                                                {% block sw_modal_close_icon %}
-                                                    <sw-icon name="small-default-x-line-medium" small></sw-icon>
-                                                {% endblock %}
-                                            </button>
-                                        {% endblock %}
-                                    {% endblock %}
-                                </slot>
-                            </header>
+                    {% block sw_modal_close_button %}
+                    <button
+                        v-if="closable"
+                        class="sw-modal__close"
+                        :title="$tc('global.sw-modal.labelClose')"
+                        :aria-label="$tc('global.sw-modal.labelClose')"
+                        @click.prevent="closeModal"
+                    >
+                        {% block sw_modal_close_icon %}
+                        <sw-icon
+                            name="small-default-x-line-medium"
+                            small
+                        />
                         {% endblock %}
+                    </button>
+                    {% endblock %}
+                    {% endblock %}
+                </slot>
+            </header>
+            {% endblock %}
 
-                        {% block sw_modal_body %}
-                            <div class="sw-modal__body">
-                                {% block sw_modal_loader %}
-                                    <slot name="modal-loader">
-                                        <sw-loader v-if="isLoading"></sw-loader>
-                                    </slot>
-                                {% endblock %}
-                                <slot>
-                                    {% block sw_modal_slot_default %}{% endblock %}
-                                </slot>
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_modal_footer %}
-                            <footer v-if="hasFooterSlot" class="sw-modal__footer">
-                                <slot name="modal-footer">
-                                    {% block sw_modal_slot_footer %}{% endblock %}
-                                </slot>
-                            </footer>
-                        {% endblock %}
-                    </div>
+            {% block sw_modal_body %}
+            <div class="sw-modal__body">
+                {% block sw_modal_loader %}
+                <slot name="modal-loader">
+                    <sw-loader v-if="isLoading" />
+                </slot>
                 {% endblock %}
+                <slot>
+                    {% block sw_modal_slot_default %}{% endblock %}
+                </slot>
             </div>
+            {% endblock %}
+
+            {% block sw_modal_footer %}
+            <footer
+                v-if="hasFooterSlot"
+                class="sw-modal__footer"
+            >
+                <slot name="modal-footer">
+                    {% block sw_modal_slot_footer %}{% endblock %}
+                </slot>
+            </footer>
+            {% endblock %}
+        </div>
         {% endblock %}
-    </transition>
+    </div>
+    {% endblock %}
+</transition>
 {% endblock %}

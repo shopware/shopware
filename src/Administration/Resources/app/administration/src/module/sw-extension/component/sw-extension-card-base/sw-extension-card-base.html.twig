@@ -1,216 +1,265 @@
 {% block sw_extension_card_base %}
-    <sw-meteor-card class="sw-extension-card-base" :class="extensionCardClasses">
-        {% block sw_extension_card_base_loader %}
-            <sw-loader v-if="isLoading"></sw-loader>
+<sw-meteor-card
+    class="sw-extension-card-base"
+    :class="extensionCardClasses"
+>
+    {% block sw_extension_card_base_loader %}
+    <sw-loader v-if="isLoading" />
+    {% endblock %}
+
+    {% block sw_extension_card_base_activation_switch %}
+    <div class="sw-extension-card-base__switch">
+        {% block sw_extension_card_base_activation_switch_switch %}
+        <sw-switch-field
+            v-model="isActive"
+            :disabled="!isInstalled"
+        />
         {% endblock %}
+    </div>
+    {% endblock %}
 
-        {% block sw_extension_card_base_activation_switch %}
-            <div class="sw-extension-card-base__switch">
-                {% block sw_extension_card_base_activation_switch_switch %}
-                    <sw-switch-field
-                        :disabled="!isInstalled"
-                        v-model="isActive">
-                    </sw-switch-field>
-                {% endblock %}
-            </div>
-        {% endblock %}
+    {% block sw_extension_card_base_icon %}
+    <img
+        class="sw-extension-card-base__icon"
+        :src="image"
+    >
+    {% endblock %}
 
-        {% block sw_extension_card_base_icon %}
-            <img class="sw-extension-card-base__icon" :src="image">
-        {% endblock %}
-
-        {% block sw_extension_card_base_info %}
-            <div class="sw-extension-card-base__info">
-                {% block sw_extension_card_base_info_content %}
-                    {% block sw_extension_card_base_info_head %}
-                        <section>
-                            {% block sw_extension_card_base_info_name %}
-                                <span class="sw-extension-card-base__info-name">
-                                    {{ extension.label }}
-                                </span>
-                            {% endblock %}
-
-                            {% block sw_extension_card_base_info_inactive_label %}
-                                <span v-if="isInstalled && !extension.active" class="sw-extension-card-base__info-inactive">
-                                    {{ $tc('sw-extension-store.component.sw-extension-card-base.inactiveLabel') }}
-                                </span>
-                            {% endblock %}
-                        </section>
-                    {% endblock %}
-
-                    {% block sw_extension_card_base_info_description %}
-                        <section class="sw-extension-card-base__info-description">
-                            {{ description }}
-                        </section>
-                    {% endblock %}
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_extension_card_base_meta_info %}
-            <div class="sw-extension-card-base__meta-info">
-                {% block sw_extension_card_base_meta_info_content %}
-                    {% block sw_extension_card_base_meta_date %}
-                        <span v-if="isInstalled">
-                            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
-                            {{ dateFilter(extension.installedAt.date, { year: 'numeric' }) }}
-                        </span>
-
-                        <span v-else-if="extension.storeLicense">
-                            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
-                            {{ dateFilter(extension.storeLicense.creationDate, { year: 'numeric' }) }}
-                        </span>
-                    {% endblock %}
-
-                    {% block sw_extension_card_base_meta_info_version %}
-                        <section>
-                            {% block sw_extension_card_base_meta_info_version_label %}
-                                <span v-if="extension.version">
-                                    {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
-                                </span>
-                            {% endblock %}
-
-                            {% block sw_extension_card_base_meta_info_version_update %}
-                                <span v-if="isUpdateable">
-                                    <a href="" @click.prevent="updateExtension">
-                                        {{ $tc('sw-extension.my-extensions.listing.update') }}
-                                    </a>
-                                </span>
-                            {% endblock %}
-                        </section>
-                    {% endblock %}
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_extension_card_base_main_action %}
-            <div class="sw-extension-card-base__main-action">
-                {% block sw_extension_card_base_main_action_content %}
-                    <span v-if="!isInstalled" class="sw-extension-card-base__open-extension" @click="openPermissionsModalForInstall">
-                        {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
-                    </span>
-
-                    {# @deprecated tag:v6.5.0 - will be removed use `sw_extension_card_base_context_menu_theme_settings` as a replacement #}
-                    <span v-else-if="extensionCanBeOpened" class="sw-extension-card-base__open-extension" @click="openExtension" style="display: none;">
-                        {{ $tc(openLinkInformation.label || 'sw-extension-store.component.sw-extension-card-base.openExtensionLabel') }}
-                    </span>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_extension_card_base_context_menu %}
-            <sw-context-button class="sw-extension-card-base__context-menu" :menuWidth="180">
-                {% block sw_extension_card_base_context_menu_actions %}
-                    {% block sw_extension_card_base_context_menu_settings %}
-                        <sw-context-menu-item
-                            v-if="isInstalled && extension.configurable"
-                            :routerLink="{ name: 'sw.extension.config', params: { namespace: extension.name } }">
-                            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
-
-                    {% block sw_extension_card_base_context_menu_theme_settings %}
-                        <sw-context-menu-item
-                            v-if="extensionCanBeOpened && extension.active"
-                            :disabled="!openLinkExists"
-                            :routerLink="openLink">
-                            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
-
-                    {% block sw_extension_card_base_context_menu_privacy_safety %}
-                        <sw-context-menu-item v-if="privacyPolicyLink" @click="openPrivacyAndSafety">
-                            <span class="sw-extension-card-base__context-menu-privacy-link">
-                                {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.privacyAndSafetyLabel') }}
-                                <sw-icon name="small-arrow-small-external" size="10px"></sw-icon>
-                            </span>
-                        </sw-context-menu-item>
-                    {% endblock %}
-
-                    {% block sw_extension_card_base_context_menu_privacy_extensions %}
-                        <sw-context-menu-item
-                            v-if="isInstalled && extension.privacyPolicyExtension"
-                            @click="openPrivacyModal">
-
-                            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.policyExtensions') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
-
-                    {% block sw_extension_card_base_context_menu_permissions %}
-                        <sw-context-menu-item
-                            v-if="isInstalled && permissions"
-                            @click="openPermissionsModal">
-
-                            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.permissions') }}
-                        </sw-context-menu-item>
-                    {% endblock %}
-
-                    {% block sw_extension_card_base_context_menu_lifecycle_actions %}
-                        {% block sw_extension_card_base_context_menu_remove_extension %}
-                            <sw-context-menu-item v-if="isUpdateable" @click="updateExtension">
-                                {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
-                            </sw-context-menu-item>
-
-                            <sw-context-menu-item v-if="extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null" variant="danger" @click="openRemovalModal">
-                                {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') }}
-                            </sw-context-menu-item>
-
-                            <sw-context-menu-item v-else-if="isRemovable" variant="danger" @click="openRemovalModal">
-                                {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel') }}
-                            </sw-context-menu-item>
-
-                            <sw-context-menu-item v-if="isUninstallable" variant="danger" @click="openUninstallModal">
-                                {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.uninstallLabel') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-                    {% endblock %}
-                {% endblock %}
-            </sw-context-button>
-        {% endblock %}
-
-        {% block sw_extension_card_base_modals %}
-            {% block sw_extension_card_base_uninstall_modal %}
-                <sw-extension-uninstall-modal
-                    v-if="showUninstallModal"
-                    :extensionName="extension.label"
-                    :isLicensed="extension.storeLicense !== null"
-                    :isLoading="isLoading"
-                    @modal-close="closeUninstallModal"
-                    @uninstall-extension="closeModalAndUninstallExtension">
-                </sw-extension-uninstall-modal>
+    {% block sw_extension_card_base_info %}
+    <div class="sw-extension-card-base__info">
+        {% block sw_extension_card_base_info_content %}
+        {% block sw_extension_card_base_info_head %}
+        <section>
+            {% block sw_extension_card_base_info_name %}
+            <span class="sw-extension-card-base__info-name">
+                {{ extension.label }}
+            </span>
             {% endblock %}
 
-            {% block sw_extension_card_base_removal_modal %}
-                <sw-extension-removal-modal
-                    v-if="showRemovalModal"
-                    :extensionName="extension.label"
-                    :isLicensed="extension.storeLicense !== null && extension.storeLicense.variant === 'rent'"
-                    :isLoading="isLoading"
-                    @modal-close="closeRemovalModal"
-                    @remove-extension="closeModalAndRemoveExtension">
-                </sw-extension-removal-modal>
+            {% block sw_extension_card_base_info_inactive_label %}
+            <span
+                v-if="isInstalled && !extension.active"
+                class="sw-extension-card-base__info-inactive"
+            >
+                {{ $tc('sw-extension-store.component.sw-extension-card-base.inactiveLabel') }}
+            </span>
             {% endblock %}
-
-            {% block sw_extension_card_base_permissions_modal %}
-                <sw-extension-permissions-modal
-                    v-if="showPermissionsModal"
-                    :extensionLabel="extension.label"
-                    :permissions="permissions"
-                    :domains="extension.domains"
-                    :actionLabel="permissionModalActionLabel"
-                    @modal-close="closePermissionsModal"
-                    @close-with-action="closePermissionsModalAndInstallExtension">
-                </sw-extension-permissions-modal>
-            {% endblock %}
-
-            {% block sw_extension_card_base_privacy_modal %}
-                <sw-extension-privacy-policy-extensions-modal
-                    v-if="showPrivacyModal"
-                    :extensionName="extension.label"
-                    :privacyPolicyExtension="extension.privacyPolicyExtension"
-                    @modal-close="closePrivacyModal">
-                </sw-extension-privacy-policy-extensions-modal>
-            {% endblock %}
+        </section>
         {% endblock %}
-    </sw-meteor-card>
+
+        {% block sw_extension_card_base_info_description %}
+        <section class="sw-extension-card-base__info-description">
+            {{ description }}
+        </section>
+        {% endblock %}
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_extension_card_base_meta_info %}
+    <div class="sw-extension-card-base__meta-info">
+        {% block sw_extension_card_base_meta_info_content %}
+        {% block sw_extension_card_base_meta_date %}
+        <span v-if="isInstalled">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
+            {{ dateFilter(extension.installedAt.date, { year: 'numeric' }) }}
+        </span>
+
+        <span v-else-if="extension.storeLicense">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
+            {{ dateFilter(extension.storeLicense.creationDate, { year: 'numeric' }) }}
+        </span>
+        {% endblock %}
+
+        {% block sw_extension_card_base_meta_info_version %}
+        <section>
+            {% block sw_extension_card_base_meta_info_version_label %}
+            <span v-if="extension.version">
+                {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
+            </span>
+            {% endblock %}
+
+            {% block sw_extension_card_base_meta_info_version_update %}
+            <span v-if="isUpdateable">
+                <a
+                    href=""
+                    @click.prevent="updateExtension"
+                >
+                    {{ $tc('sw-extension.my-extensions.listing.update') }}
+                </a>
+            </span>
+            {% endblock %}
+        </section>
+        {% endblock %}
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_extension_card_base_main_action %}
+    <div class="sw-extension-card-base__main-action">
+        {% block sw_extension_card_base_main_action_content %}
+        <span
+            v-if="!isInstalled"
+            class="sw-extension-card-base__open-extension"
+            @click="openPermissionsModalForInstall"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
+        </span>
+
+        {# @deprecated tag:v6.5.0 - will be removed use `sw_extension_card_base_context_menu_theme_settings` as a replacement #}
+        <span
+            v-else-if="extensionCanBeOpened"
+            class="sw-extension-card-base__open-extension"
+            style="display: none;"
+            @click="openExtension"
+        >
+            {{ $tc(openLinkInformation.label || 'sw-extension-store.component.sw-extension-card-base.openExtensionLabel') }}
+        </span>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_extension_card_base_context_menu %}
+    <sw-context-button
+        class="sw-extension-card-base__context-menu"
+        :menu-width="180"
+    >
+        {% block sw_extension_card_base_context_menu_actions %}
+        {% block sw_extension_card_base_context_menu_settings %}
+        <sw-context-menu-item
+            v-if="isInstalled && extension.configurable"
+            :router-link="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_extension_card_base_context_menu_theme_settings %}
+        <sw-context-menu-item
+            v-if="extensionCanBeOpened && extension.active"
+            :disabled="!openLinkExists"
+            :router-link="openLink"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_extension_card_base_context_menu_privacy_safety %}
+        <sw-context-menu-item
+            v-if="privacyPolicyLink"
+            @click="openPrivacyAndSafety"
+        >
+            <span class="sw-extension-card-base__context-menu-privacy-link">
+                {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.privacyAndSafetyLabel') }}
+                <sw-icon
+                    name="small-arrow-small-external"
+                    size="10px"
+                />
+            </span>
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_extension_card_base_context_menu_privacy_extensions %}
+        <sw-context-menu-item
+            v-if="isInstalled && extension.privacyPolicyExtension"
+            @click="openPrivacyModal"
+        >
+
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.policyExtensions') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_extension_card_base_context_menu_permissions %}
+        <sw-context-menu-item
+            v-if="isInstalled && permissions"
+            @click="openPermissionsModal"
+        >
+
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.permissions') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_extension_card_base_context_menu_lifecycle_actions %}
+        {% block sw_extension_card_base_context_menu_remove_extension %}
+        <sw-context-menu-item
+            v-if="isUpdateable"
+            @click="updateExtension"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
+        </sw-context-menu-item>
+
+        <sw-context-menu-item
+            v-if="extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null"
+            variant="danger"
+            @click="openRemovalModal"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') }}
+        </sw-context-menu-item>
+
+        <sw-context-menu-item
+            v-else-if="isRemovable"
+            variant="danger"
+            @click="openRemovalModal"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel') }}
+        </sw-context-menu-item>
+
+        <sw-context-menu-item
+            v-if="isUninstallable"
+            variant="danger"
+            @click="openUninstallModal"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.uninstallLabel') }}
+        </sw-context-menu-item>
+        {% endblock %}
+        {% endblock %}
+        {% endblock %}
+    </sw-context-button>
+    {% endblock %}
+
+    {% block sw_extension_card_base_modals %}
+    {% block sw_extension_card_base_uninstall_modal %}
+    <sw-extension-uninstall-modal
+        v-if="showUninstallModal"
+        :extension-name="extension.label"
+        :is-licensed="extension.storeLicense !== null"
+        :is-loading="isLoading"
+        @modal-close="closeUninstallModal"
+        @uninstall-extension="closeModalAndUninstallExtension"
+    />
+    {% endblock %}
+
+    {% block sw_extension_card_base_removal_modal %}
+    <sw-extension-removal-modal
+        v-if="showRemovalModal"
+        :extension-name="extension.label"
+        :is-licensed="extension.storeLicense !== null && extension.storeLicense.variant === 'rent'"
+        :is-loading="isLoading"
+        @modal-close="closeRemovalModal"
+        @remove-extension="closeModalAndRemoveExtension"
+    />
+    {% endblock %}
+
+    {% block sw_extension_card_base_permissions_modal %}
+    <sw-extension-permissions-modal
+        v-if="showPermissionsModal"
+        :extension-label="extension.label"
+        :permissions="permissions"
+        :domains="extension.domains"
+        :action-label="permissionModalActionLabel"
+        @modal-close="closePermissionsModal"
+        @close-with-action="closePermissionsModalAndInstallExtension"
+    />
+    {% endblock %}
+
+    {% block sw_extension_card_base_privacy_modal %}
+    <sw-extension-privacy-policy-extensions-modal
+        v-if="showPrivacyModal"
+        :extension-name="extension.label"
+        :privacy-policy-extension="extension.privacyPolicyExtension"
+        @modal-close="closePrivacyModal"
+    />
+    {% endblock %}
+    {% endblock %}
+</sw-meteor-card>
 {% endblock %}

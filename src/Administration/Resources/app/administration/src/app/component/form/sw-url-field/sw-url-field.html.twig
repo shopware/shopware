@@ -1,44 +1,58 @@
 {% block sw_text_field %}
-    {% block sw_url_field %}
-        <sw-contextual-field class="sw-field--url"
-                             v-bind="$attrs"
-                             :error="combinedError"
-                             @inheritance-restore="$emit('inheritance-restore', $event)"
-                             @inheritance-remove="$emit('inheritance-remove', $event)"
-                             :name="formFieldName">
-            <template #sw-contextual-field-prefix="{ disabled }">
-                <span class="sw-field__url-input__prefix" :class="prefixClass" @click="changeMode(disabled)">
-                    <sw-icon name="default-lock-closed"
-                            :small="true"
-                            v-if="sslActive">
-                    </sw-icon>
-                    <sw-icon name="default-lock-open"
-                            :small="true"
-                            v-else>
-                    </sw-icon>
-                    {{ urlPrefix }}
-                </span>
-            </template>
+{% block sw_url_field %}
+<sw-contextual-field
+    class="sw-field--url"
+    v-bind="$attrs"
+    :error="combinedError"
+    :name="formFieldName"
+    @inheritance-restore="$emit('inheritance-restore', $event)"
+    @inheritance-remove="$emit('inheritance-remove', $event)"
+>
+    <template #sw-contextual-field-prefix="{ disabled }">
+        <span
+            class="sw-field__url-input__prefix"
+            :class="prefixClass"
+            @click="changeMode(disabled)"
+        >
+            <sw-icon
+                v-if="sslActive"
+                name="default-lock-closed"
+                :small="true"
+            />
+            <sw-icon
+                v-else
+                name="default-lock-open"
+                :small="true"
+            />
+            {{ urlPrefix }}
+        </span>
+    </template>
 
-            <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
-                <input class="sw-url-input-field__input"
-                    :name="identification"
-                    :id="identification"
-                    :value="currentValue|unicodeUri"
-                    :placeholder="placeholder"
-                    :disabled="disabled"
-                    @input="onInput"
-                    @focus="setFocusClass"
-                    @blur="removeFocusClass">
-            </template>
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <input
+            :id="identification"
+            class="sw-url-input-field__input"
+            :name="identification"
+            :value="currentValue|unicodeUri"
+            :placeholder="placeholder"
+            :disabled="disabled"
+            @input="onInput"
+            @focus="setFocusClass"
+            @blur="removeFocusClass"
+        >
+    </template>
 
-            <template v-if="copyable" #sw-contextual-field-suffix="{ identification }">
-                <sw-field-copyable v-if="copyable"
-                                   :displayName="identification"
-                                   :copyableText="currentValue"
-                                   :tooltip="copyableTooltip">
-                </sw-field-copyable>
-            </template>
-        </sw-contextual-field>
+    <template
+        v-if="copyable"
+        #sw-contextual-field-suffix="{ identification }"
+    >
+        <sw-field-copyable
+            v-if="copyable"
+            :display-name="identification"
+            :copyable-text="currentValue"
+            :tooltip="copyableTooltip"
+        />
+    </template>
+</sw-contextual-field>
     {% endblock %}
 {% endblock %}

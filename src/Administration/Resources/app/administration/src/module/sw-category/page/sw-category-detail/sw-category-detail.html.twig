@@ -1,254 +1,283 @@
 {% block sw_category %}
-    <sw-page class="sw-category" :class="pageClasses">
-        <template #search-bar>
-            {% block sw_category_search_bar %}
-                <sw-search-bar
-                    initialSearchType="category"
-                    :initialSearch="term"
-                    typeSearchAlwaysInContainer
-                    ref="searchBar"
-                    @search="onSearch">
-                </sw-search-bar>
+<sw-page
+    class="sw-category"
+    :class="pageClasses"
+>
+    <template #search-bar>
+        {% block sw_category_search_bar %}
+        <sw-search-bar
+            ref="searchBar"
+            initial-search-type="category"
+            :initial-search="term"
+            type-search-always-in-container
+            @search="onSearch"
+        />
+        {% endblock %}
+    </template>
+
+    <template #smart-bar-header>
+        {% block sw_category_smart_bar_header %}
+        <h2 v-if="category">
+            {{ placeholder(category, 'name') }}
+        </h2>
+        <h2 v-else>
+            {{ $tc('sw-category.general.headlineCategories') }}
+        </h2>
+        {% endblock %}
+    </template>
+
+    <template #language-switch>
+        {% block sw_category_language_switch %}
+        <sw-language-switch
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            :disabled="landingPageId === 'create'"
+            @on-change="onChangeLanguage"
+        />
+        {% endblock %}
+    </template>
+
+    <template #smart-bar-actions>
+        <template v-if="category || landingPage">
+            {% block sw_category_smart_bar_abort %}
+            <sw-button
+                v-tooltip.bottom="tooltipCancel"
+                :disabled="isLoading"
+                @click="cancelEdit"
+            >
+                {{ $tc('sw-product.detail.buttonCancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_category_smart_bar_save %}
+
+            {% block sw_category_smart_bar_save_category %}
+            <sw-button-process
+                v-if="category"
+                v-tooltip.bottom="tooltipSave"
+                class="sw-category-detail__save-action"
+                :is-loading="isLoading"
+                :process-success="isSaveSuccessful"
+                :disabled="isLoading || !acl.can('category.editor')"
+                variant="primary"
+                @process-finish="saveFinish"
+                @click.prevent="onSave"
+            >
+                {{ $tc('sw-category.general.buttonSafeCategory') }}
+            </sw-button-process>
+            {% endblock %}
+
+            {% block sw_category_smart_bar_save_landing_page %}
+            <sw-button-process
+                v-if="landingPage"
+                v-tooltip.bottom="landingPageTooltipSave"
+                class="sw-category-detail__save-landing-page-action"
+                :is-loading="isLoading"
+                :process-success="isSaveSuccessful"
+                :disabled="isLoading || !acl.can('landing_page.editor')"
+                variant="primary"
+                @process-finish="saveFinish"
+                @click.prevent="onSaveLandingPage"
+            >
+                {{ $tc('sw-category.general.buttonSafeCategory') }}
+            </sw-button-process>
+            {% endblock %}
             {% endblock %}
         </template>
+    </template>
 
-        <template #smart-bar-header>
-            {% block sw_category_smart_bar_header %}
-                <h2 v-if="category">{{ placeholder(category, 'name') }}</h2>
-                <h2 v-else>{{ $tc('sw-category.general.headlineCategories') }}</h2>
-            {% endblock %}
-        </template>
+    <template #side-content>
+        {% block sw_category_side_content %}
 
-        <template #language-switch>
-            {% block sw_category_language_switch %}
-                <sw-language-switch
-                    @on-change="onChangeLanguage"
-                    :saveChangesFunction="saveOnLanguageChange"
-                    :abortChangeFunction="abortOnLanguageChange"
-                    :disabled="landingPageId === 'create'">
-                </sw-language-switch>
-            {% endblock %}
-        </template>
+        {% block sw_category_collapse %}
+        <sw-sidebar-collapse
+            class="sw-category-detail__category-collapse"
+            :expand-on-loading="landingPageId === null"
+        >
+            <template slot="header">
 
-        <template #smart-bar-actions>
-            <template v-if="category || landingPage">
-                {% block sw_category_smart_bar_abort %}
-                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="cancelEdit">
-                        {{ $tc('sw-product.detail.buttonCancel') }}
+                {% block sw_category_collapse_header %}
+                <div
+                    v-if="categoryCheckedItem > 0"
+                    class="sw-category-detail__collapse-selected-count"
+                >
+                    {{ $tc(`sw-category.general.treeHeadSelected`, 0, { count: categoryCheckedItem }) }}:
+                </div>
+                <div
+                    v-else
+                    class="sw-category-detail__collapse-headline"
+                >
+                    {{ $tc(`sw-category.general.treeHeadline`) }}
+                </div>
+                {% endblock %}
+
+            </template>
+
+            <template slot="actions">
+
+                {% block sw_category_collapse_actions %}
+                <div v-if="categoryCheckedItem > 0">
+                    <sw-button
+                        class="sw-tree-actions__delete_categories"
+                        variant="danger"
+                        size="small"
+                        @click="onCategoryDelete"
+                    >
+                        {{ $tc('global.default.delete') }}
                     </sw-button>
+                </div>
                 {% endblock %}
 
-                {% block sw_category_smart_bar_save %}
-
-                    {% block sw_category_smart_bar_save_category %}
-                        <sw-button-process v-if="category"
-                                class="sw-category-detail__save-action"
-                                :isLoading="isLoading"
-                                :processSuccess="isSaveSuccessful"
-                                :disabled="isLoading || !acl.can('category.editor')"
-                                variant="primary"
-                                v-tooltip.bottom="tooltipSave"
-                                @process-finish="saveFinish"
-                                @click.prevent="onSave">
-                            {{ $tc('sw-category.general.buttonSafeCategory') }}
-                        </sw-button-process>
-                    {% endblock %}
-
-                    {% block sw_category_smart_bar_save_landing_page %}
-                        <sw-button-process v-if="landingPage"
-                                           class="sw-category-detail__save-landing-page-action"
-                                           :isLoading="isLoading"
-                                           :processSuccess="isSaveSuccessful"
-                                           :disabled="isLoading || !acl.can('landing_page.editor')"
-                                           variant="primary"
-                                           v-tooltip.bottom="landingPageTooltipSave"
-                                           @process-finish="saveFinish"
-                                           @click.prevent="onSaveLandingPage">
-                            {{ $tc('sw-category.general.buttonSafeCategory') }}
-                        </sw-button-process>
-                    {% endblock %}
-                {% endblock %}
-            </template>
-        </template>
-
-        <template #side-content>
-            {% block sw_category_side_content %}
-
-                {% block sw_category_collapse %}
-                    <sw-sidebar-collapse
-                        class="sw-category-detail__category-collapse"
-                        :expandOnLoading="landingPageId === null">
-                        <template slot="header">
-
-                            {% block sw_category_collapse_header %}
-                                <div
-                                    v-if="categoryCheckedItem > 0"
-                                    class="sw-category-detail__collapse-selected-count">
-                                    {{ $tc(`sw-category.general.treeHeadSelected`, 0, { count: categoryCheckedItem }) }}:
-                                </div>
-                                <div
-                                    v-else
-                                    class="sw-category-detail__collapse-headline">
-                                    {{ $tc(`sw-category.general.treeHeadline`) }}
-                                </div>
-                            {% endblock %}
-
-                        </template>
-
-                        <template slot="actions">
-
-                            {% block sw_category_collapse_actions %}
-                                <div v-if="categoryCheckedItem > 0">
-                                    <sw-button
-                                            class="sw-tree-actions__delete_categories"
-                                            variant="danger"
-                                            size="small"
-                                            @click="onCategoryDelete">
-                                        {{ $tc('global.default.delete') }}
-                                    </sw-button>
-                                </div>
-                            {% endblock %}
-
-                        </template>
-
-                        <template slot="content">
-
-                            {% block sw_category_tree %}
-                                <sw-category-tree
-                                    ref="categoryTree"
-                                    :categoryId="categoryId"
-                                    :currentLanguageId="currentLanguageId"
-                                    :allowEdit="acl.can('category.editor')"
-                                    :allowCreate="acl.can('category.creator')"
-                                    :allowDelete="acl.can('category.deleter')"
-                                    @unsaved-changes="openChangeModal"
-                                    @category-checked-elements-count="categoryCheckedElementsCount"
-                                ></sw-category-tree>
-                            {% endblock %}
-
-                        </template>
-                    </sw-sidebar-collapse>
-                {% endblock %}
-
-                {% block sw_landing_page_collapse %}
-                    <sw-sidebar-collapse
-                        class="sw-category-detail__landing-page-collapse"
-                        :expandOnLoading="landingPageId !== null">
-                        <template slot="header">
-
-                            {% block sw_landing_page_collapse_header %}
-                                <div
-                                    v-if="landingPageCheckedItem > 0"
-                                    class="sw-category-detail__collapse-selected-count">
-                                    {{ $tc(`sw-landing-page.general.treeHeadSelected`, 0, { count: landingPageCheckedItem }) }}:
-                                </div>
-                                <div
-                                    v-else
-                                    class="sw-category-detail__collapse-headline">
-                                    {{ $tc(`sw-landing-page.general.treeHeadline`) }}
-                                </div>
-                            {% endblock %}
-
-                        </template>
-
-                        <template slot="actions">
-
-                            {% block sw_landing_page_collapse_actions %}
-                                <div v-if="landingPageCheckedItem > 0">
-                                    <sw-button
-                                        class="sw-tree-actions__delete_categories"
-                                        variant="danger"
-                                        size="small"
-                                        @click="onLandingPageDelete">
-                                        {{ $tc('global.default.delete') }}
-                                    </sw-button>
-                                </div>
-                            {% endblock %}
-
-                        </template>
-
-                        <template slot="content">
-
-                            {% block sw_landing_page_tree %}
-                                <sw-landing-page-tree
-                                    ref="landingPageTree"
-                                    :landingPageId="landingPageId"
-                                    :currentLanguageId="currentLanguageId"
-                                    :allowEdit="acl.can('landing_page.editor')"
-                                    :allowCreate="acl.can('landing_page.creator')"
-                                    :allowDelete="acl.can('landing_page.deleter')"
-                                    @unsaved-changes="openChangeModal"
-                                    @landingPage-checked-elements-count="landingPageCheckedElementsCount"
-                                ></sw-landing-page-tree>
-                            {% endblock %}
-
-                        </template>
-                    </sw-sidebar-collapse>
-                {% endblock %}
-            {% endblock %}
-        </template>
-
-        {% block sw_category_content %}
-            <template #content>
-
-                {% block sw_category_content_view %}
-                    <sw-category-view
-                        v-if="category"
-                        ref="categoryView"
-                        :isLoading="isLoading"
-                        :type="category.type"
-                    ></sw-category-view>
-                {% endblock %}
-
-                {% block sw_category_content_entry_point_overwrite_modal %}
-                    <sw-category-entry-point-overwrite-modal
-                        v-if="showEntryPointOverwriteModal"
-                        :salesChannels="entryPointOverwriteSalesChannels"
-                        @cancel="cancelEntryPointOverwrite"
-                        @confirm="confirmEntryPointOverwrite">
-                    </sw-category-entry-point-overwrite-modal>
-                {% endblock %}
-
-                {% block sw_landing_page_content_view %}
-                    <sw-landing-page-view
-                        v-if="landingPage"
-                        ref="landingPageView"
-                        :isLoading="isLoading"
-                    ></sw-landing-page-view>
-                {% endblock %}
-
-                {% block sw_category_content_discard_changes_modal %}
-                    <sw-discard-changes-modal v-if="isDisplayingLeavePageWarning"
-                                              @keep-editing="onLeaveModalClose(nextRoute)"
-                                              @discard-changes="onLeaveModalConfirm(nextRoute)">
-                    </sw-discard-changes-modal>
-                {% endblock %}
-
-                {% block sw_category_content_loader %}
-                    <sw-loader v-if="isLoading"
-                               class="sw-category-detail__content-loader"></sw-loader>
-                {% endblock %}
-
-                {% block sw_category_content_empty %}
-                    <sw-empty-state v-if="showEmptyState" :title="$tc('sw-category.general.emptyStateHeadline')"></sw-empty-state>
-                {% endblock %}
             </template>
 
+            <template slot="content">
+
+                {% block sw_category_tree %}
+                <sw-category-tree
+                    ref="categoryTree"
+                    :category-id="categoryId"
+                    :current-language-id="currentLanguageId"
+                    :allow-edit="acl.can('category.editor')"
+                    :allow-create="acl.can('category.creator')"
+                    :allow-delete="acl.can('category.deleter')"
+                    @unsaved-changes="openChangeModal"
+                    @category-checked-elements-count="categoryCheckedElementsCount"
+                />
+                {% endblock %}
+
+            </template>
+        </sw-sidebar-collapse>
         {% endblock %}
 
-        {% block sw_category_sidebar %}
-            <template #sidebar>
-                <sw-sidebar>
-                    <sw-sidebar-media-item ref="mediaSidebarItem">
-                        <template #context-menu-items="media">
-                            <sw-context-menu-item @click="setMediaItemFromSidebar(media.mediaItem)">
-                                {{ $tc('sw-category.general.useAsLogo') }}
-                            </sw-context-menu-item>
-                        </template>
-                    </sw-sidebar-media-item>
-                </sw-sidebar>
+        {% block sw_landing_page_collapse %}
+        <sw-sidebar-collapse
+            class="sw-category-detail__landing-page-collapse"
+            :expand-on-loading="landingPageId !== null"
+        >
+            <template slot="header">
+
+                {% block sw_landing_page_collapse_header %}
+                <div
+                    v-if="landingPageCheckedItem > 0"
+                    class="sw-category-detail__collapse-selected-count"
+                >
+                    {{ $tc(`sw-landing-page.general.treeHeadSelected`, 0, { count: landingPageCheckedItem }) }}:
+                </div>
+                <div
+                    v-else
+                    class="sw-category-detail__collapse-headline"
+                >
+                    {{ $tc(`sw-landing-page.general.treeHeadline`) }}
+                </div>
+                {% endblock %}
+
             </template>
+
+            <template slot="actions">
+
+                {% block sw_landing_page_collapse_actions %}
+                <div v-if="landingPageCheckedItem > 0">
+                    <sw-button
+                        class="sw-tree-actions__delete_categories"
+                        variant="danger"
+                        size="small"
+                        @click="onLandingPageDelete"
+                    >
+                        {{ $tc('global.default.delete') }}
+                    </sw-button>
+                </div>
+                {% endblock %}
+
+            </template>
+
+            <template slot="content">
+
+                {% block sw_landing_page_tree %}
+                <sw-landing-page-tree
+                    ref="landingPageTree"
+                    :landing-page-id="landingPageId"
+                    :current-language-id="currentLanguageId"
+                    :allow-edit="acl.can('landing_page.editor')"
+                    :allow-create="acl.can('landing_page.creator')"
+                    :allow-delete="acl.can('landing_page.deleter')"
+                    @unsaved-changes="openChangeModal"
+                    @landingPage-checked-elements-count="landingPageCheckedElementsCount"
+                />
+                {% endblock %}
+
+            </template>
+        </sw-sidebar-collapse>
+        {% endblock %}
+        {% endblock %}
+    </template>
+
+    {% block sw_category_content %}
+    <template #content>
+
+        {% block sw_category_content_view %}
+        <sw-category-view
+            v-if="category"
+            ref="categoryView"
+            :is-loading="isLoading"
+            :type="category.type"
+        />
         {% endblock %}
 
-    </sw-page>
+        {% block sw_category_content_entry_point_overwrite_modal %}
+        <sw-category-entry-point-overwrite-modal
+            v-if="showEntryPointOverwriteModal"
+            :sales-channels="entryPointOverwriteSalesChannels"
+            @cancel="cancelEntryPointOverwrite"
+            @confirm="confirmEntryPointOverwrite"
+        />
+        {% endblock %}
+
+        {% block sw_landing_page_content_view %}
+        <sw-landing-page-view
+            v-if="landingPage"
+            ref="landingPageView"
+            :is-loading="isLoading"
+        />
+        {% endblock %}
+
+        {% block sw_category_content_discard_changes_modal %}
+        <sw-discard-changes-modal
+            v-if="isDisplayingLeavePageWarning"
+            @keep-editing="onLeaveModalClose(nextRoute)"
+            @discard-changes="onLeaveModalConfirm(nextRoute)"
+        />
+        {% endblock %}
+
+        {% block sw_category_content_loader %}
+        <sw-loader
+            v-if="isLoading"
+            class="sw-category-detail__content-loader"
+        />
+        {% endblock %}
+
+        {% block sw_category_content_empty %}
+        <sw-empty-state
+            v-if="showEmptyState"
+            :title="$tc('sw-category.general.emptyStateHeadline')"
+        />
+        {% endblock %}
+    </template>
+
+    {% endblock %}
+
+    {% block sw_category_sidebar %}
+    <template #sidebar>
+        <sw-sidebar>
+            <sw-sidebar-media-item ref="mediaSidebarItem">
+                <template #context-menu-items="media">
+                    <sw-context-menu-item @click="setMediaItemFromSidebar(media.mediaItem)">
+                        {{ $tc('sw-category.general.useAsLogo') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-sidebar-media-item>
+        </sw-sidebar>
+    </template>
+    {% endblock %}
+
+</sw-page>
 {% endblock %}

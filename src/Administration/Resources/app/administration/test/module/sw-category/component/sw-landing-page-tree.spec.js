@@ -107,7 +107,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const tree = wrapper.find('.sw-tree');
-        expect(tree.attributes().allowdeletecategories).toBeDefined();
+        expect(tree.attributes()['allow-delete-categories']).toBeDefined();
     });
 
     it('should not be able to delete the items in sw-tree', async () => {
@@ -124,7 +124,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const tree = wrapper.find('.sw-tree');
-        expect(tree.attributes().allowdeletecategories).toBeUndefined();
+        expect(tree.attributes()['allow-delete-categories']).toBeUndefined();
     });
 
     it('should be able to create new landing pages', async () => {
@@ -154,7 +154,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
-        expect(treeItem.attributes().allownewcategories).toBeUndefined();
+        expect(treeItem.attributes()['allow-new-categories']).toBeUndefined();
     });
 
     it('should be able to delete landing pages in sw-tree-item', async () => {
@@ -167,7 +167,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
-        expect(treeItem.attributes().allowdeletecategories).toBeDefined();
+        expect(treeItem.attributes()['allow-delete-categories']).toBeDefined();
     });
 
     it('should not be able to delete landing pages in sw-tree-item', async () => {
@@ -184,7 +184,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
-        expect(treeItem.attributes().allowdeletecategories).toBeUndefined();
+        expect(treeItem.attributes()['allow-delete-categories']).toBeUndefined();
     });
 
     it('should show the checkbox in sw-tree-item', async () => {
@@ -197,7 +197,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
-        expect(treeItem.attributes().displaycheckbox).toBeDefined();
+        expect(treeItem.attributes()['display-checkbox']).toBeDefined();
     });
 
     it('should not show the checkbox in sw-tree-item', async () => {
@@ -214,7 +214,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
-        expect(treeItem.attributes().displaycheckbox).toBeUndefined();
+        expect(treeItem.attributes()['display-checkbox']).toBeUndefined();
     });
 
     it('should show the custom tooltip text in sw-tree-item', async () => {
@@ -231,7 +231,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
-        expect(treeItem.attributes().contextmenutooltiptext).toBe('sw-privileges.tooltip.warning');
+        expect(treeItem.attributes()['context-menu-tooltip-text']).toBe('sw-privileges.tooltip.warning');
     });
 
     it('should not show the custom tooltip text in sw-tree-item', async () => {
@@ -244,7 +244,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
-        expect(treeItem.attributes().contextmenutooltiptext).toBeUndefined();
+        expect(treeItem.attributes()['context-menu-tooltip-text']).toBeUndefined();
     });
 
     it('should get right landing page url', async () => {

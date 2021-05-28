@@ -1,34 +1,36 @@
 {% block sw_privilege_error %}
-    <sw-page class="sw-privilege-error">
-        {% block sw_privilege_error_inner %}
-            <template slot="content">
-                {% block sw_privilege_error_inner_content %}
-                    <div class="sw-privilege-error__content">
-                        {% block sw_privilege_error_inner_content_image %}
-                            <img
-                                class="sw-privilege-error__access-denied-image"
-                                :src="'administration/static/img/privileges/access-denied.svg' | asset"
-                            />
-                        {% endblock %}
+<sw-page class="sw-privilege-error">
+    {% block sw_privilege_error_inner %}
+    <template slot="content">
+        {% block sw_privilege_error_inner_content %}
+        <div class="sw-privilege-error__content">
+            {% block sw_privilege_error_inner_content_image %}
+            <img
+                class="sw-privilege-error__access-denied-image"
+                :src="'administration/static/img/privileges/access-denied.svg' | asset"
+            >
+            {% endblock %}
 
-                        {% block sw_privilege_error_inner_content_headline %}
-                            <h1>{{ $tc('sw-privilege-error.general.mainMenuItemGeneral') }}</h1>
-                        {% endblock %}
+            {% block sw_privilege_error_inner_content_headline %}
+            <h1>{{ $tc('sw-privilege-error.general.mainMenuItemGeneral') }}</h1>
+            {% endblock %}
 
-                        {% block sw_privilege_error_inner_content_description %}
-                            <p>{{ $tc('sw-privilege-error.general.descriptionTextModule') }}</p>
-                        {% endblock %}
+            {% block sw_privilege_error_inner_content_description %}
+            <p>{{ $tc('sw-privilege-error.general.descriptionTextModule') }}</p>
+            {% endblock %}
 
-                        {% block sw_privilege_error_inner_content_back_button %}
-                            <sw-button variant="primary"
-                                       class="sw-privilege-error__back-button"
-                                       @click="routerGoBack">
-                                {{ $tc('sw-privilege-error.general.goBack') }}
-                            </sw-button>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </template>
+            {% block sw_privilege_error_inner_content_back_button %}
+            <sw-button
+                variant="primary"
+                class="sw-privilege-error__back-button"
+                @click="routerGoBack"
+            >
+                {{ $tc('sw-privilege-error.general.goBack') }}
+            </sw-button>
+            {% endblock %}
+        </div>
         {% endblock %}
-    </sw-page>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

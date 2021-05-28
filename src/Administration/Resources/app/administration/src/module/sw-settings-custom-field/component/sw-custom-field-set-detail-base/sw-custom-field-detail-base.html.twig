@@ -1,75 +1,77 @@
 {% block sw_settings_custom_field_set_detail_base %}
-    <sw-card
-            class="sw-settings-custom-field-set-detail-base"
-            :title="$tc('sw-settings-custom-field.set.detail.titleCardInformation')">
-        {% block sw_settings_custom_field_set_detail_base_technical_name %}
-            <sw-field
-                type="text"
-                class="sw-settings-custom-field-set-detail-base__technical-name"
-                :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
-                :helpText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
-                :disabled="!set._isNew || !acl.can('custom_field.editor')"
-                v-model="set.name">
-            </sw-field>
-        {% endblock %}
+<sw-card
+    class="sw-settings-custom-field-set-detail-base"
+    :title="$tc('sw-settings-custom-field.set.detail.titleCardInformation')"
+>
+    {% block sw_settings_custom_field_set_detail_base_technical_name %}
+    <sw-field
+        v-model="set.name"
+        type="text"
+        class="sw-settings-custom-field-set-detail-base__technical-name"
+        :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
+        :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+        :disabled="!set._isNew || !acl.can('custom_field.editor')"
+    />
+    {% endblock %}
 
-        {% block sw_settings_custom_field_set_detail_base_position %}
-            <sw-field
-                type="number"
-                class="sw-settings-custom-field-set-detail-base__base-postion"
-                :disabled="!acl.can('custom_field.editor')"
-                :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
-                v-model="set.position">
-            </sw-field>
-        {% endblock %}
+    {% block sw_settings_custom_field_set_detail_base_position %}
+    <sw-field
+        v-model="set.position"
+        type="number"
+        class="sw-settings-custom-field-set-detail-base__base-postion"
+        :disabled="!acl.can('custom_field.editor')"
+        :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
+    />
+    {% endblock %}
 
-        {% block sw_settings_custom_field_set_detail_base_translated %}
-            <sw-field
-                type="switch"
-                class="sw-settings-custom-field-set-detail-base__base-translation"
-                :disabled="!acl.can('custom_field.editor')"
-                :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
-                v-if="set.config"
-                v-model="set.config.translated">
-            </sw-field>
-        {% endblock %}
+    {% block sw_settings_custom_field_set_detail_base_translated %}
+    <sw-field
+        v-if="set.config"
+        v-model="set.config.translated"
+        type="switch"
+        class="sw-settings-custom-field-set-detail-base__base-translation"
+        :disabled="!acl.can('custom_field.editor')"
+        :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
+    />
+    {% endblock %}
 
-        {% block sw_settings_custom_field_set_detail_base_labels %}
-            <sw-custom-field-translated-labels
-                v-if="set.config"
-                v-model="set.config"
-                :disabled="!acl.can('custom_field.editor')"
-                :propertyNames="propertyNames"
-                :locales="locales">
-            </sw-custom-field-translated-labels>
-        {% endblock %}
+    {% block sw_settings_custom_field_set_detail_base_labels %}
+    <sw-custom-field-translated-labels
+        v-if="set.config"
+        v-model="set.config"
+        :disabled="!acl.can('custom_field.editor')"
+        :property-names="propertyNames"
+        :locales="locales"
+    />
+    {% endblock %}
 
-        {% block sw_settings_custom_field_set_detail_base_multi_select %}
-            <sw-multi-select
-                class="sw-settings-custom-field-set-detail-base__label-entities"
-                :disabled="!acl.can('custom_field.editor')"
-                :label="$tc('sw-settings-custom-field.set.detail.labelEntities')"
-                :options="relationEntityNames"
-                id="entities"
-                valueProperty="entityName"
-                labelProperty="entityName"
-                :value="selectedRelationEntityNames"
-                :searchFunction="searchRelationEntityNames"
-                @item-add="onAddRelation"
-                @item-remove="onRemoveRelation">
+    {% block sw_settings_custom_field_set_detail_base_multi_select %}
+    <sw-multi-select
+        id="entities"
+        class="sw-settings-custom-field-set-detail-base__label-entities"
+        :disabled="!acl.can('custom_field.editor')"
+        :label="$tc('sw-settings-custom-field.set.detail.labelEntities')"
+        :options="relationEntityNames"
+        value-property="entityName"
+        label-property="entityName"
+        :value="selectedRelationEntityNames"
+        :search-function="searchRelationEntityNames"
+        @item-add="onAddRelation"
+        @item-remove="onRemoveRelation"
+    >
 
-                <template #result-label-property="{ item }">
-                    {{ $tc(`global.entities.${item.entityName}`, 2) }}
-                </template>
+        <template #result-label-property="{ item }">
+            {{ $tc(`global.entities.${item.entityName}`, 2) }}
+        </template>
 
-                <template #selection-label-property="{ item }">
-                    {{ $tc(`global.entities.${item.entityName}`, 2) }}
-                </template>
+        <template #selection-label-property="{ item }">
+            {{ $tc(`global.entities.${item.entityName}`, 2) }}
+        </template>
 
-            </sw-multi-select>
-        {% endblock %}
+    </sw-multi-select>
+    {% endblock %}
 
-        {% block sw_settings_custom_field_set_detail_base_entities %}
-        {% endblock %}
-    </sw-card>
+    {% block sw_settings_custom_field_set_detail_base_entities %}
+    {% endblock %}
+</sw-card>
 {% endblock %}

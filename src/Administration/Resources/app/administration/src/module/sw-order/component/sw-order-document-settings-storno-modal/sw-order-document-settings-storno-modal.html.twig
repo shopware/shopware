@@ -1,27 +1,34 @@
 {% block sw_order_document_settings_modal_form_first_row %}
 
-        {% block sw_order_document_settings_modal_form_document_number %}
-            <sw-text-field
-                      :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
-                      v-model="documentConfig.documentNumber">
-            </sw-text-field>
-        {% endblock %}
+{% block sw_order_document_settings_modal_form_document_number %}
+<sw-text-field
+    v-model="documentConfig.documentNumber"
+    :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
+/>
+{% endblock %}
 
-    {% block sw_sales_channel_detail_base_general_input_type %}
-        <sw-select-field :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
-                         v-model="documentConfig.custom.invoiceNumber"
-                         :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
-                         @change="onSelectInvoice">
-            <option v-for="invoice in invoices" :value="invoice.config.custom.invoiceNumber">
-                {{ invoice.config.custom.invoiceNumber }}
-            </option>
-        </sw-select-field>
-    {% endblock %}
-        {% block sw_order_document_settings_modal_form_document_date %}
-            <sw-datepicker dateType="date"
-                           required
-                           :label="$tc('sw-order.documentModal.labelDocumentDate')"
-                           v-model="documentConfig.documentDate">
-            </sw-datepicker>
-        {% endblock %}
+{% block sw_sales_channel_detail_base_general_input_type %}
+<sw-select-field
+    v-model="documentConfig.custom.invoiceNumber"
+    :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
+    :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
+    @change="onSelectInvoice"
+>
+    <option
+        v-for="invoice in invoices"
+        :key="invoice.config.custom.invoiceNumber"
+        :value="invoice.config.custom.invoiceNumber"
+    >
+        {{ invoice.config.custom.invoiceNumber }}
+    </option>
+</sw-select-field>
+{% endblock %}
+{% block sw_order_document_settings_modal_form_document_date %}
+<sw-datepicker
+    v-model="documentConfig.documentDate"
+    date-type="date"
+    required
+    :label="$tc('sw-order.documentModal.labelDocumentDate')"
+/>
+{% endblock %}
 {% endblock %}

@@ -1,19 +1,29 @@
 {% block sw_cms_product_box_preview %}
-    <div class="sw-cms-product-box-preview"
-         :class="{ 'has--text': hasText }">
+<div
+    class="sw-cms-product-box-preview"
+    :class="{ 'has--text': hasText }"
+>
 
-        <div class="sw-cms-product-box-preview__image">
-            <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
-        </div>
-
-        <div v-if="hasText">
-            <div class="sw-cms-product-box-preview__name">Lorem Ipsum</div>
-
-            <div class="sw-cms-product-box-preview__description">Lorem ipsum dolor sit amet conset...</div>
-
-            <div class="sw-cms-product-box-preview__price">19,90 €</div>
-        </div>
-
-        <div class="sw-cms-product-box-preview__action">Add to cart</div>
+    <div class="sw-cms-product-box-preview__image">
+        <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
     </div>
+
+    <div v-if="hasText">
+        <div class="sw-cms-product-box-preview__name">
+            Lorem Ipsum
+        </div>
+
+        <div class="sw-cms-product-box-preview__description">
+            Lorem ipsum dolor sit amet conset...
+        </div>
+
+        <div class="sw-cms-product-box-preview__price">
+            19,90 €
+        </div>
+    </div>
+
+    <div class="sw-cms-product-box-preview__action">
+        Add to cart
+    </div>
+</div>
 {% endblock %}

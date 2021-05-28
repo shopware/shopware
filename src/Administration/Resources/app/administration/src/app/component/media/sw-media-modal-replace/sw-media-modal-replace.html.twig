@@ -1,42 +1,54 @@
 {% block sw_media_modal_replace %}
-    <sw-modal class="sw-media-modal-replace"
-              size="420px"
-              :title="$tc('global.sw-media-modal-replace.titleModal')"
-              @modal-close="emitCloseReplaceModal">
+<sw-modal
+    class="sw-media-modal-replace"
+    size="420px"
+    :title="$tc('global.sw-media-modal-replace.titleModal')"
+    @modal-close="emitCloseReplaceModal"
+>
 
-        <sw-upload-listener
-            :uploadTag="itemToReplace.id"
-            @media-upload-add="onNewUpload">
-        </sw-upload-listener>
+    <sw-upload-listener
+        :upload-tag="itemToReplace.id"
+        @media-upload-add="onNewUpload"
+    />
 
-        <sw-media-replace
-            class="sw-media-modal-replace__upload"
-            :itemToReplace="itemToReplace"
-            :uploadTag="itemToReplace.id"
-            variant="regular">
-        </sw-media-replace>
+    <sw-media-replace
+        class="sw-media-modal-replace__upload"
+        :item-to-replace="itemToReplace"
+        :upload-tag="itemToReplace.id"
+        variant="regular"
+    />
 
-        <sw-alert
-            v-if="newFileExtension"
-            class="sw-media-modal-replace__file-extension-warning"
-            variant="warning">
-            {{ $tc('global.sw-media-modal-replace.warningFileExtension', 0, { extension: newFileExtension }) }}
-        </sw-alert>
+    <sw-alert
+        v-if="newFileExtension"
+        class="sw-media-modal-replace__file-extension-warning"
+        variant="warning"
+    >
+        {{ $tc('global.sw-media-modal-replace.warningFileExtension', 0, { extension: newFileExtension }) }}
+    </sw-alert>
 
-        {% block sw_media_modal_replace_modal_footer %}
-            <template slot="modal-footer">
-                {% block sw_media_modal_replace_cancel_button %}
-                    <sw-button size="small" @click="emitCloseReplaceModal">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_media_modal_replace_replace_button %}
-                    <sw-button class="sw-media-replace__replace-media-action" size="small" variant="primary" @click="replaceMediaItem" :disabled="!isUploadDataSet">
-                        {{ $tc('global.sw-media-modal-replace.buttonReplace') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+    {% block sw_media_modal_replace_modal_footer %}
+    <template slot="modal-footer">
+        {% block sw_media_modal_replace_cancel_button %}
+        <sw-button
+            size="small"
+            @click="emitCloseReplaceModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+
+        {% block sw_media_modal_replace_replace_button %}
+        <sw-button
+            class="sw-media-replace__replace-media-action"
+            size="small"
+            variant="primary"
+            :disabled="!isUploadDataSet"
+            @click="replaceMediaItem"
+        >
+            {{ $tc('global.sw-media-modal-replace.buttonReplace') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

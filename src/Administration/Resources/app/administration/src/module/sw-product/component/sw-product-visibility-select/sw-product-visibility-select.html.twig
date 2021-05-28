@@ -1,11 +1,17 @@
 {% block sw_entity_multi_select_base_selection_list_label_inner %}
-    <slot name="selection-label-property" v-bind="{ item, index, labelProperty, valueProperty}">
-        {{ item.salesChannel.translated.name }}
-    </slot>
+<slot
+    name="selection-label-property"
+    v-bind="{ item, index, labelProperty, valueProperty}"
+>
+    {{ item.salesChannel.translated.name }}
+</slot>
 {% endblock %}
 
 {% block sw_entity_multi_select_base_results_list_result_label %}
-    <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty: 'id'}">
-        {{ item.translated.name }}
-    </slot>
+<slot
+    name="result-label-property"
+    v-bind="{ item, index, labelProperty, valueProperty: 'id'}"
+>
+    {{ item.translated.name }}
+</slot>
 {% endblock %}

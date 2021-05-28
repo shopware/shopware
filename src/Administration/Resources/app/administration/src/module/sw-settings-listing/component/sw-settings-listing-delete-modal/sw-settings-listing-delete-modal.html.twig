@@ -1,31 +1,37 @@
 {% block sw_settings_listing_delete_modal %}
-    <sw-modal @modal-close="emitCancel"
-        :title="title"
-        variant="small"
-        class="sw-settings-listing-delete-modal">
+<sw-modal
+    :title="title"
+    variant="small"
+    class="sw-settings-listing-delete-modal"
+    @modal-close="emitCancel"
+>
 
-        {% block sw_settings_listing_delete_modal_body_description %}
-            <p>{{ description }}</p>
+    {% block sw_settings_listing_delete_modal_body_description %}
+    <p>{{ description }}</p>
+    {% endblock %}
+
+    {% block sw_settings_listing_delete_modal_footer %}
+    <template #modal-footer>
+
+        {% block sw_settings_listing_delete_modal_footer_cancel_button %}
+        <sw-button
+            size="small"
+            @click="emitCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_settings_listing_delete_modal_footer %}
-            <template #modal-footer>
-
-                {% block sw_settings_listing_delete_modal_footer_cancel_button %}
-                    <sw-button @click="emitCancel"
-                        size="small">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_settings_listing_delete_modal_footer_delete_button %}
-                    <sw-button @click="emitDelete"
-                        variant="danger"
-                        size="small">
-                        {{ $tc('global.default.delete') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+        {% block sw_settings_listing_delete_modal_footer_delete_button %}
+        <sw-button
+            variant="danger"
+            size="small"
+            @click="emitDelete"
+        >
+            {{ $tc('global.default.delete') }}
+        </sw-button>
         {% endblock %}
-    </sw-modal>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

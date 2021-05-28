@@ -1,42 +1,50 @@
 {% block sw_extension_domains_modal %}
-    <sw-modal class="sw-extension-domains-modal"
-              v-on="$listeners"
-              :title="modalTitle"
-              variant="small">
+<sw-modal
+    class="sw-extension-domains-modal"
+    :title="modalTitle"
+    variant="small"
+    v-on="$listeners"
+>
 
-        {% block sw_extension_domains_modal_description %}
-            <p class="sw-extension-domains-modal__description">
-                {{ $tc('sw-extension-store.component.sw-extension-domains-modal.description') }}
-            </p>
+    {% block sw_extension_domains_modal_description %}
+    <p class="sw-extension-domains-modal__description">
+        {{ $tc('sw-extension-store.component.sw-extension-domains-modal.description') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_extension_domains_modal_list_title %}
+    <h3 class="sw-extension-domains-modal__list-title">
+        {{ $tc('sw-extension-store.component.sw-extension-domains-modal.listTitle') }}
+    </h3>
+    {% endblock %}
+
+    {% block sw_extension_domains_modal_list %}
+    <ul class="sw-extension-domains-modal__list">
+        {% block sw_extension_domains_modal_list_entry %}
+        <li
+            v-for="(domain, i) in domains"
+            :key="`domain-${i}`"
+            class="sw-extension-domains-modal__list-item"
+        >
+            {{ domain }}
+        </li>
         {% endblock %}
+    </ul>
+    {% endblock %}
 
-        {% block sw_extension_domains_modal_list_title %}
-            <h3 class="sw-extension-domains-modal__list-title">
-                {{ $tc('sw-extension-store.component.sw-extension-domains-modal.listTitle') }}
-            </h3>
+    {% block sw_extension_domains_modal_footer %}
+    <template #modal-footer>
+        {% block sw_extension_domains_modal_footer_inner %}
+        <sw-button
+            variant="primary"
+            size="small"
+            @click="close"
+        >
+            {{ $tc('global.sw-modal.labelClose') }}
+        </sw-button>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_extension_domains_modal_list %}
-            <ul class="sw-extension-domains-modal__list">
-                {% block sw_extension_domains_modal_list_entry %}
-                    <li v-for="(domain, i) in domains"
-                        :key="`domain-${i}`"
-                        class="sw-extension-domains-modal__list-item">
-                        {{ domain }}
-                    </li>
-                {% endblock %}
-            </ul>
-        {% endblock %}
-
-        {% block sw_extension_domains_modal_footer %}
-            <template #modal-footer>
-                {% block sw_extension_domains_modal_footer_inner %}
-                    <sw-button variant="primary" @click="close" size="small">
-                        {{ $tc('global.sw-modal.labelClose') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        {% endblock %}
-
-    </sw-modal>
+</sw-modal>
 {% endblock %}

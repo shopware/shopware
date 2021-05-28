@@ -1,21 +1,24 @@
 {% block sw_promotion_order_condition_form %}
-    <sw-card class="promotion-order-condition-form" :title="$tc('sw-promotion.detail.main.preconditions.order.card')">
-        <h4>{{ $tc('sw-promotion.detail.main.preconditions.order.title') }}</h4>
-        <p>
-            {{ $tc('sw-promotion.detail.main.preconditions.order.text') }}
-        </p>
+<sw-card
+    class="promotion-order-condition-form"
+    :title="$tc('sw-promotion.detail.main.preconditions.order.card')"
+>
+    <h4>{{ $tc('sw-promotion.detail.main.preconditions.order.title') }}</h4>
+    <p>
+        {{ $tc('sw-promotion.detail.main.preconditions.order.text') }}
+    </p>
 
-        {% block sw_promotion_order_condition_form_rules_field %}
-            <sw-promotion-rule-select
-                    v-if="promotion"
-                    class="sw-promotion-order-condition-form__order-rules"
-                    v-model="promotion.orderRules"
-                    :label="$tc('sw-promotion.detail.main.preconditions.order.rulesCaption')"
-                    :placeholder="$tc('sw-promotion.detail.main.preconditions.order.rulesPlaceholder')"
-                    :criteria="ruleFilter"
-                    :ruleScope="['checkout']"
-                    :disabled="isEditingDisabled">
-            </sw-promotion-rule-select>
-        {% endblock %}
-    </sw-card>
+    {% block sw_promotion_order_condition_form_rules_field %}
+    <sw-promotion-rule-select
+        v-if="promotion"
+        v-model="promotion.orderRules"
+        class="sw-promotion-order-condition-form__order-rules"
+        :label="$tc('sw-promotion.detail.main.preconditions.order.rulesCaption')"
+        :placeholder="$tc('sw-promotion.detail.main.preconditions.order.rulesPlaceholder')"
+        :criteria="ruleFilter"
+        :rule-scope="['checkout']"
+        :disabled="isEditingDisabled"
+    />
+    {% endblock %}
+</sw-card>
 {% endblock %}

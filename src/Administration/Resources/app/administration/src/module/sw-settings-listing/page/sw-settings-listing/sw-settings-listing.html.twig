@@ -1,265 +1,301 @@
 {% block sw_settings_listing_index %}
-    <sw-page class="sw-settings-listing-index">
+<sw-page class="sw-settings-listing-index">
 
-        {% block sw_settings_listing_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar>
-                </sw-search-bar>
-            </template>
+    {% block sw_settings_listing_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+
+    {% block sw_settings_listing_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_listing_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_listing_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-listing.general.textHeadline') }}
+            {% endblock %}
+
+            {% block sw_settings_listing_smart_bar_header_amount %}{% endblock %}
+        </h2>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        <template #language-switch>
-            <sw-language-switch @on-change="onChangeLanguage">
-            </sw-language-switch>
-        </template>
-
-        {% block sw_settings_listing_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_settings_listing_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_listing_smart_bar_header_title_text %}
-                                {{ $tc('sw-settings.index.title') }}
-                                <sw-icon name="small-arrow-medium-right" small>
-                                </sw-icon>
-                                {{ $tc('sw-settings-listing.general.textHeadline') }}
-                        {% endblock %}
-
-                        {% block sw_settings_listing_smart_bar_header_amount %}{% endblock %}
-                    </h2>
-                {% endblock %}
-            </template>
+    {% block sw_settings_listing_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_listing_actions_save %}
+        <sw-button-process
+            class="sw-settings-listing__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-listing.general.buttonSave') }}
+        </sw-button-process>
         {% endblock %}
+    </template>
+    {% endblock %}
 
-        {% block sw_settings_listing_smart_bar_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_listing_actions_save %}
-                    <sw-button-process
-                                class="sw-settings-listing__save-action"
-                                :isLoading="isLoading"
-                                :processSuccess="isSaveSuccessful"
-                                :disabled="isLoading"
-                                variant="primary"
-                                @process-finish="saveFinish"
-                                @click="onSave">
-                        {{ $tc('sw-settings-listing.general.buttonSave') }}
-                    </sw-button-process>
-                {% endblock %}
-            </template>
-        {% endblock %}
+    {% block sw_settings_listing_content %}
+    <template slot="content">
 
-        {% block sw_settings_listing_content %}
-            <template slot="content">
+        {% block sw_settings_listing_content_card_view %}
+        <sw-card-view>
+            {% block sw_settings_listing_content_card_view_default_sales_channel %}
+            <sw-card
+                v-if="feature.isActive('FEATURE_NEXT_12437')"
+                class="sw-settings-listing-index__default-sales-channel-card"
+                :title="$tc('sw-settings-listing.index.defaultSalesChannel.title')"
+                :is-loading="isDefaultSalesChannelLoading"
+            >
 
-                {% block sw_settings_listing_content_card_view %}
-                    <sw-card-view>
-                        {% block sw_settings_listing_content_card_view_default_sales_channel %}
-                            <sw-card
-                                v-if="feature.isActive('FEATURE_NEXT_12437')"
-                                class="sw-settings-listing-index__default-sales-channel-card"
-                                :title="$tc('sw-settings-listing.index.defaultSalesChannel.title')"
-                                :isLoading="isDefaultSalesChannelLoading">
-
-                                {% block sw_settings_listing_content_card_view_default_sales_channel_description %}
-                                    <p class="sw-settings-listing-index__default-sales-channel-description">
-                                        {{ $tc('sw-settings-listing.index.defaultSalesChannel.description') }}
-                                    </p>
-                                {% endblock %}
-
-                                {% block sw_settings_listing_content_card_view_default_sales_channel_select %}
-                                    <sw-entity-multi-id-select
-                                        v-model="configData[null]['core.defaultSalesChannel.salesChannel']"
-                                        :repository="salesChannelRepository"
-                                        :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
-                                        :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
-                                        @change="updateSalesChannel">
-                                    </sw-entity-multi-id-select>
-                                {% endblock %}
-
-                                {% block sw_settings_listing_content_card_view_default_sales_channel_setting %}
-                                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
-                                        {% block sw_settings_listing_content_card_view_default_sales_channel_setting_active %}
-                                            <sw-switch-field
-                                                v-model="configData[null]['core.defaultSalesChannel.active']"
-                                                :label="$tc('sw-product.settingsForm.labelActive')">
-                                            </sw-switch-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_listing_content_card_view_default_sales_channel_setting_visibility %}
-                                            <a v-if="salesChannel.length > 0"
-                                               class="sw-card__quick-link"
-                                               @click="displayAdvancedVisibility">
-                                                {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                                            </a>
-                                        {% endblock %}
-                                    </sw-container>
-                                {% endblock %}
-
-                                {% block sw_settings_listing_content_card_view_default_sales_channel_select_visibiliy_modal %}
-                                    <sw-modal
-                                        v-if="displayVisibilityDetail"
-                                        class="sw-settings-listing-index__visibility-modal"
-                                        :title="$tc('sw-product.visibility.textHeadline')"
-                                        @modal-close="closeAdvancedVisibility">
-                                        <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
-
-                                        <sw-settings-listing-visibility-detail
-                                            ref="visibilityConfig"
-                                            :config="visibilityConfig">
-                                        </sw-settings-listing-visibility-detail>
-
-                                        <template #modal-footer>
-                                            <sw-button variant="primary" size="small" @click="closeAdvancedVisibility">
-                                                {{ $tc('sw-product.visibility.closeModal') }}
-                                            </sw-button>
-                                        </template>
-                                    </sw-modal>
-                                {% endblock %}
-                            </sw-card>
-                        {% endblock %}
-
-                        {% block sw_settings_listing_content_card_view_system_config %}
-                            <sw-system-config
-                                    ref="systemConfig"
-                                    salesChannelSwitchable
-                                    domain="core.listing">
-
-                                <template #afterElements="{ config }">
-
-                                    {% block sw_settings_listing_content_card_view_system_config_default_sorting_select %}
-                                        <sw-single-select v-if="config"
-                                            v-model="config['core.listing.defaultSorting']"
-                                            :label="$tc('sw-settings-listing.general.labelDefaultSorting')"
-                                            :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSorting')"
-                                            :options="productSortingOptions"
-                                            labelProperty="label"
-                                            valueProperty="key">
-                                        </sw-single-select>
-                                    {% endblock %}
-                                </template>
-
-                            </sw-system-config>
-                        {% endblock %}
-
-                        {% block sw_settings_listing_content_card_view_options_card %}
-                            <sw-card class="sw-settings-listing-index__sorting-options-card"
-                                :title="$tc('sw-settings-listing.index.productSorting.title')"
-                                :isLoading="isProductSortingOptionsCardLoading">
-
-                                {% block sw_settings_listing_content_card_view_options_card_toolbar %}
-                                    <template #toolbar>
-
-                                        {% block sw_settings_listing_content_card_view_options_card_toolbar_container %}
-                                            <sw-container columns="1fr auto" gap="0 10px" align="start">
-
-                                                {% block sw_settings_listing_content_card_view_options_card_toolbar_search_field %}
-                                                    <sw-simple-search-field
-                                                        @search-term-change="onSearchProductSortingOptions"
-                                                        v-model="productSortingOptionsSearchTerm"
-                                                        variant="form"
-                                                        size="small"
-                                                        class="sw-settings-listing-index__sorting-options-search-field">
-                                                    </sw-simple-search-field>
-                                                {% endblock %}
-
-                                                {% block sw_settings_listing_content_card_view_options_card_toolbar_add_product_option %}
-                                                    <sw-button @click="onAddNewProductSortingOption"
-                                                        variant="ghost"
-                                                        size="small">
-                                                            {{ $tc('sw-settings-listing.index.productSorting.addButton') }}
-                                                    </sw-button>
-                                                {% endblock %}
-                                            </sw-container>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-
-                                {% block sw_settings_listing_content_card_view_options_card_grid %}
-                                    <sw-data-grid v-if="productSortingOptions.length > 0"
-                                        :compactMode="false"
-                                        :columns="productSortingOptionColumns"
-                                        :dataSource="productSortingOptions"
-                                        allowInlineEdit
-                                        plainAppearance
-                                        :showSelection="false"
-                                        @inline-edit-save="onSaveProductSortingOptionInlineEdit"
-                                        :isRecordEditable="item => !item.locked">
-
-                                        {% block sw_settings_listing_content_card_view_options_card_grid_column_criteria %}
-                                            <template #column-criteria="{item}">
-
-                                                {% block sw_settings_listing_content_card_view_options_card_grid_column_criteria_text %}
-                                                    <span class="is--truncate"
-                                                        :title="formatProductSortingOptionField(item.fields)">
-                                                        {{ formatProductSortingOptionField(item.fields) }}
-                                                    </span>
-                                                {% endblock %}
-                                            </template>
-                                        {% endblock %}
-
-                                        {% block sw_settings_listing_content_card_view_options_card_grid_column_actions %}
-                                            <template #actions="{item}">
-
-                                                {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_edit %}
-                                                    <sw-context-menu-item @click="onEditProductSortingOption(item.id)"
-                                                        :disabled="item.locked">
-                                                        {{ $tc('global.default.edit') }}
-                                                    </sw-context-menu-item>
-                                                {% endblock %}
-
-                                                {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_delete %}
-                                                    <sw-context-menu-item variant="danger"
-                                                        @click="toBeDeletedProductSortingOption = item"
-                                                        :disabled="item.locked || isItemDefaultSorting(item.key)">
-                                                        {{ $tc('global.default.delete') }}
-                                                    </sw-context-menu-item>
-                                                {% endblock %}
-                                            </template>
-                                        {% endblock %}
-
-                                        {% block sw_settings_listing_content_card_view_options_card_grid_pagination %}
-                                            <template #pagination>
-                                                <sw-pagination
-                                                    @page-change="onPageChange"
-                                                    :page="sortingOptionsGridPage"
-                                                    :total="sortingOptionsGridTotal"
-                                                    :limit="sortingOptionsGridLimit"
-                                                    :steps="[10]">
-                                                </sw-pagination>
-                                            </template>
-                                        {% endblock %}
-                                    </sw-data-grid>
-                                {% endblock %}
-
-                                {% block sw_settings_listing_content_card_view_options_card_empty_state %}
-                                    <sw-empty-state v-else
-                                        class="sw-settings-listing-index__sorting-options-empty-state"
-                                        :title="$tc('sw-settings-listing.index.productSorting.emptyState.title')"
-                                        :subline="$tc('sw-settings-listing.index.productSorting.emptyState.subline')"
-                                        :absolute="false">
-
-                                        {% block sw_settings_listing_content_card_view_options_card_empty_state_icon %}
-                                            <template #icon>
-                                                <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset" />
-                                            </template>
-                                        {% endblock %}
-                                    </sw-empty-state>
-                                {% endblock %}
-                            </sw-card>
-                        {% endblock %}
-                    </sw-card-view>
+                {% block sw_settings_listing_content_card_view_default_sales_channel_description %}
+                <p class="sw-settings-listing-index__default-sales-channel-description">
+                    {{ $tc('sw-settings-listing.index.defaultSalesChannel.description') }}
+                </p>
                 {% endblock %}
 
-                {% block sw_settings_listing_content_card_view_options_delete_modal %}
-                    <sw-settings-listing-delete-modal v-if="toBeDeletedProductSortingOption"
-                        :title="$tc('sw-settings-listing.index.deleteModal.title')"
-                        :description="$t('sw-settings-listing.index.deleteModal.description', {
-                            'sortingOptionName': toBeDeletedProductSortingOption.label
-                        })"
-                        @cancel="toBeDeletedProductSortingOption = null"
-                        @delete="onDeleteProductSorting(toBeDeletedProductSortingOption)">
-                    </sw-settings-listing-delete-modal>
+                {% block sw_settings_listing_content_card_view_default_sales_channel_select %}
+                <sw-entity-multi-id-select
+                    v-model="configData[null]['core.defaultSalesChannel.salesChannel']"
+                    :repository="salesChannelRepository"
+                    :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                    :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+                    @change="updateSalesChannel"
+                />
                 {% endblock %}
-            </template>
+
+                {% block sw_settings_listing_content_card_view_default_sales_channel_setting %}
+                <sw-container
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="0 30px"
+                >
+                    {% block sw_settings_listing_content_card_view_default_sales_channel_setting_active %}
+                    <sw-switch-field
+                        v-model="configData[null]['core.defaultSalesChannel.active']"
+                        :label="$tc('sw-product.settingsForm.labelActive')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_listing_content_card_view_default_sales_channel_setting_visibility %}
+                    <a
+                        v-if="salesChannel.length > 0"
+                        class="sw-card__quick-link"
+                        @click="displayAdvancedVisibility"
+                    >
+                        {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }} <sw-icon
+                            name="default-arrow-simple-right"
+                            small
+                        />
+                    </a>
+                    {% endblock %}
+                </sw-container>
+                {% endblock %}
+
+                {% block sw_settings_listing_content_card_view_default_sales_channel_select_visibiliy_modal %}
+                <sw-modal
+                    v-if="displayVisibilityDetail"
+                    class="sw-settings-listing-index__visibility-modal"
+                    :title="$tc('sw-product.visibility.textHeadline')"
+                    @modal-close="closeAdvancedVisibility"
+                >
+                    <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
+
+                    <sw-settings-listing-visibility-detail
+                        ref="visibilityConfig"
+                        :config="visibilityConfig"
+                    />
+
+                    <template #modal-footer>
+                        <sw-button
+                            variant="primary"
+                            size="small"
+                            @click="closeAdvancedVisibility"
+                        >
+                            {{ $tc('sw-product.visibility.closeModal') }}
+                        </sw-button>
+                    </template>
+                </sw-modal>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_listing_content_card_view_system_config %}
+            <sw-system-config
+                ref="systemConfig"
+                sales-channel-switchable
+                domain="core.listing"
+            >
+
+                <template #afterElements="{ config }">
+
+                    {% block sw_settings_listing_content_card_view_system_config_default_sorting_select %}
+                    <sw-single-select
+                        v-if="config"
+                        v-model="config['core.listing.defaultSorting']"
+                        :label="$tc('sw-settings-listing.general.labelDefaultSorting')"
+                        :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSorting')"
+                        :options="productSortingOptions"
+                        label-property="label"
+                        value-property="key"
+                    />
+                    {% endblock %}
+                </template>
+
+            </sw-system-config>
+            {% endblock %}
+
+            {% block sw_settings_listing_content_card_view_options_card %}
+            <sw-card
+                class="sw-settings-listing-index__sorting-options-card"
+                :title="$tc('sw-settings-listing.index.productSorting.title')"
+                :is-loading="isProductSortingOptionsCardLoading"
+            >
+
+                {% block sw_settings_listing_content_card_view_options_card_toolbar %}
+                <template #toolbar>
+
+                    {% block sw_settings_listing_content_card_view_options_card_toolbar_container %}
+                    <sw-container
+                        columns="1fr auto"
+                        gap="0 10px"
+                        align="start"
+                    >
+
+                        {% block sw_settings_listing_content_card_view_options_card_toolbar_search_field %}
+                        <sw-simple-search-field
+                            v-model="productSortingOptionsSearchTerm"
+                            variant="form"
+                            size="small"
+                            class="sw-settings-listing-index__sorting-options-search-field"
+                            @search-term-change="onSearchProductSortingOptions"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_listing_content_card_view_options_card_toolbar_add_product_option %}
+                        <sw-button
+                            variant="ghost"
+                            size="small"
+                            @click="onAddNewProductSortingOption"
+                        >
+                            {{ $tc('sw-settings-listing.index.productSorting.addButton') }}
+                        </sw-button>
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_listing_content_card_view_options_card_grid %}
+                <sw-data-grid
+                    v-if="productSortingOptions.length > 0"
+                    :compact-mode="false"
+                    :columns="productSortingOptionColumns"
+                    :data-source="productSortingOptions"
+                    allow-inline-edit
+                    plain-appearance
+                    :show-selection="false"
+                    :is-record-editable="item => !item.locked"
+                    @inline-edit-save="onSaveProductSortingOptionInlineEdit"
+                >
+
+                    {% block sw_settings_listing_content_card_view_options_card_grid_column_criteria %}
+                    <template #column-criteria="{item}">
+
+                        {% block sw_settings_listing_content_card_view_options_card_grid_column_criteria_text %}
+                        <span
+                            class="is--truncate"
+                            :title="formatProductSortingOptionField(item.fields)"
+                        >
+                            {{ formatProductSortingOptionField(item.fields) }}
+                        </span>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_listing_content_card_view_options_card_grid_column_actions %}
+                    <template #actions="{item}">
+
+                        {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_edit %}
+                        <sw-context-menu-item
+                            :disabled="item.locked"
+                            @click="onEditProductSortingOption(item.id)"
+                        >
+                            {{ $tc('global.default.edit') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_delete %}
+                        <sw-context-menu-item
+                            variant="danger"
+                            :disabled="item.locked || isItemDefaultSorting(item.key)"
+                            @click="toBeDeletedProductSortingOption = item"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_listing_content_card_view_options_card_grid_pagination %}
+                    <template #pagination>
+                        <sw-pagination
+                            :page="sortingOptionsGridPage"
+                            :total="sortingOptionsGridTotal"
+                            :limit="sortingOptionsGridLimit"
+                            :steps="[10]"
+                            @page-change="onPageChange"
+                        />
+                    </template>
+                    {% endblock %}
+                </sw-data-grid>
+                {% endblock %}
+
+                {% block sw_settings_listing_content_card_view_options_card_empty_state %}
+                <sw-empty-state
+                    v-else
+                    class="sw-settings-listing-index__sorting-options-empty-state"
+                    :title="$tc('sw-settings-listing.index.productSorting.emptyState.title')"
+                    :subline="$tc('sw-settings-listing.index.productSorting.emptyState.subline')"
+                    :absolute="false"
+                >
+
+                    {% block sw_settings_listing_content_card_view_options_card_empty_state_icon %}
+                    <template #icon>
+                        <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                    </template>
+                    {% endblock %}
+                </sw-empty-state>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
         {% endblock %}
-    </sw-page>
+
+        {% block sw_settings_listing_content_card_view_options_delete_modal %}
+        <sw-settings-listing-delete-modal
+            v-if="toBeDeletedProductSortingOption"
+            :title="$tc('sw-settings-listing.index.deleteModal.title')"
+            :description="$t('sw-settings-listing.index.deleteModal.description', {
+                'sortingOptionName': toBeDeletedProductSortingOption.label
+            })"
+            @cancel="toBeDeletedProductSortingOption = null"
+            @delete="onDeleteProductSorting(toBeDeletedProductSortingOption)"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

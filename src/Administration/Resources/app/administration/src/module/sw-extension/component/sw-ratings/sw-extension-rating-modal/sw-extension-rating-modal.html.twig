@@ -1,48 +1,55 @@
 {% block sw_extension_review_creation %}
-    <sw-modal class="sw-extension-rating-modal"
-        :title="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.title')"
-        variant="small"
-        @modal-close="emitClose">
-        {% block sw_extension_rating_modal_slot_default %}
-            <template #default>
-                {% block sw_extension_rating_modal_slot_default_creation_inputs %}
-                    <sw-extension-review-creation-inputs @changed="onChange"
-                        :errors="errors">
-                    </sw-extension-review-creation-inputs>
-                {% endblock %}
-            </template>
+<sw-modal
+    class="sw-extension-rating-modal"
+    :title="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.title')"
+    variant="small"
+    @modal-close="emitClose"
+>
+    {% block sw_extension_rating_modal_slot_default %}
+    <template #default>
+        {% block sw_extension_rating_modal_slot_default_creation_inputs %}
+        <sw-extension-review-creation-inputs
+            :errors="errors"
+            @changed="onChange"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_extension_rating_modal_slot_footer %}
+    <template #modal-footer>
+        {% block sw_extension_rating_modal_slot_footer_gtc_checkbox %}
+        <sw-gtc-checkbox v-model="tocAccepted" />
         {% endblock %}
 
-        {% block sw_extension_rating_modal_slot_footer %}
-            <template #modal-footer>
-                {% block sw_extension_rating_modal_slot_footer_gtc_checkbox %}
-                    <sw-gtc-checkbox v-model="tocAccepted" />
-                {% endblock %}
+        {% block sw_extension_rating_modal_slot_footer_buttons %}
+        <div class="sw-extension-rating-modal__buttons">
+            {% block sw_extension_rating_modal_slot_footer_buttons_cancel %}
+            <sw-button
+                size="small"
+                :disabled="isLoading"
+                @click="emitClose"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            {% endblock %}
 
-                {% block sw_extension_rating_modal_slot_footer_buttons %}
-                    <div class="sw-extension-rating-modal__buttons">
-                        {% block sw_extension_rating_modal_slot_footer_buttons_cancel %}
-                            <sw-button size="small"
-                                @click="emitClose"
-                                :disabled="isLoading">
-                                {{ $tc('global.default.cancel') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_extension_rating_modal_slot_footer_buttons_submit %}
-                            <sw-button-process variant="primary"
-                                size="small"
-                                :isLoading="isLoading"
-                                :processSuccess="isCreatedSuccessful"
-                                :disabled="disabled"
-                                @process-finish="emitClose"
-                                @click="handleCreateReview">
-                                    {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn') }}
-                            </sw-button-process>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </template>
+            {% block sw_extension_rating_modal_slot_footer_buttons_submit %}
+            <sw-button-process
+                variant="primary"
+                size="small"
+                :is-loading="isLoading"
+                :process-success="isCreatedSuccessful"
+                :disabled="disabled"
+                @process-finish="emitClose"
+                @click="handleCreateReview"
+            >
+                {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn') }}
+            </sw-button-process>
+            {% endblock %}
+        </div>
         {% endblock %}
-    </sw-modal>
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

@@ -1,247 +1,284 @@
 {% block sw_product_detail %}
-    <sw-page class="sw-product-detail">
+<sw-page class="sw-product-detail">
 
-        {% block sw_product_detail_header %}
-            <template slot="smart-bar-header">
-                <h2>
-                    <sw-product-variant-info
-                        :variations="product.variation"
-                        :titleTerm="productTitle">
-                        {{ productTitle }}
-                    </sw-product-variant-info>
-                </h2>
-            </template>
+    {% block sw_product_detail_header %}
+    <template slot="smart-bar-header">
+        <h2>
+            <sw-product-variant-info
+                :variations="product.variation"
+                :title-term="productTitle"
+            >
+                {{ productTitle }}
+            </sw-product-variant-info>
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_product_detail_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_product_detail_actions_abort %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            :disabled="isLoading"
+            @click="onCancel"
+        >
+            {{ $tc('sw-product.detail.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_product_detail_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_product_detail_actions_abort %}
-                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
-                        {{ $tc('sw-product.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                <sw-button-group
-                    class="sw-product-detail__save-button-group"
-                    :splitButton="true"
-                    v-tooltip.bottom="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('product.editor'),
-                        showOnDisabledElements: true
-                    }">
-                    {% block sw_product_detail_actions_save %}
-                        <sw-button-process
-                            class="sw-product-detail__save-action"
-                            :isLoading="isLoading"
-                            :processSuccess="isSaveSuccessful"
-                            variant="primary"
-                            @process-finish="saveFinish"
-                            v-tooltip.bottom="tooltipSave"
-                            :disabled="isLoading || !acl.can('product.editor')"
-                            @click.prevent="onSave">
-                            {{ $tc('sw-product.detail.buttonSave') }}
-                        </sw-button-process>
-                    {% endblock %}
-
-                    {% block sw_product_detail_actions_save_context_menu %}
-                        <sw-context-button>
-                            <template slot="button">
-                                <sw-button
-                                    class="sw-product-detail__button-context-menu"
-                                    square
-                                    variant="primary"
-                                    :disabled="isLoading || !acl.can('product.editor')">
-                                    <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
-                                </sw-button>
-                            </template>
-
-                        {% block sw_product_detail_actions_save_context_menu_actions %}
-                            {% block sw_product_detail_actions_duplicate %}
-                                <sw-context-menu-item
-                                    class="sw-product-detail__save-duplicate-action"
-                                    :disabled="!acl.can('product.creator') || !acl.can('product.editor') || product.parentId != null"
-                                    @click="onDuplicate">
-                                    {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
-                                </sw-context-menu-item>
-                            {% endblock %}
-                        {% endblock %}
-                    </sw-context-button>
-                    {% endblock %}
-                </sw-button-group>
-            </template>
-        {% endblock %}
-
-        {% block sw_product_detail_language_switch %}
-            <template slot="language-switch">
-                <sw-language-switch
-                    @on-change="onChangeLanguage"
-                    :saveChangesFunction="saveOnLanguageChange"
-                    :abortChangeFunction="abortOnLanguageChange"
-                    :disabled="!productId">
-                </sw-language-switch>
-            </template>
-        {% endblock %}
-
-        {% block sw_product_detail_content %}
-            <sw-card-view slot="content">
-
-                {% block sw_product_detail_content_top %}
-                    <template>
-                        <router-link
-                            v-if="!isLoading && isChild && !advanceModeEnabled"
-                            class="sw-card__back-link"
-                            :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }">
-                                <sw-icon name="default-arrow-simple-left" small></sw-icon>
-                                {{ $tc('sw-product.general.backToGeneralOverview') }}
-                        </router-link>
-
-                        <router-link
-                            v-if="!isLoading && isChild && advanceModeEnabled"
-                            class="sw-card__back-link"
-                            :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }">
-                                <sw-icon name="default-arrow-simple-left" small></sw-icon>
-                                {{ $tc('sw-product.general.backToParent') }}
-                        </router-link>
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_detail_content_language_info %}
-                    <sw-language-info
-                            :entityDescription="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))"
-                            :isNewEntity="!productId">
-                    </sw-language-info>
-                {% endblock %}
-
-                {% block sw_product_detail_inheritance_warning %}
-                    <sw-inheritance-warning v-if="isChild" :name="$tc('sw-product.general.inheritanceModuleName')"></sw-inheritance-warning>
-                {% endblock %}
-
-                {% block sw_product_detail_content_tabs %}
-                    <sw-tabs class="sw-product-detail-page__tabs" v-if="productId">
-                        {% block sw_product_detail_content_tabs_general %}
-                            <sw-tabs-item
-                                class="sw-product-detail__tab-general"
-                                :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
-                                :hasError="swProductDetailBaseError"
-                                :title="$tc('sw-product.detail.tabGeneral')">
-                                {{ $tc('sw-product.detail.tabGeneral') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {% block sw_product_detail_content_tabs_specifications %}
-                            <sw-tabs-item
-                                class="sw-product-detail__tab-specifications"
-                                :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
-                                :title="$tc('sw-product.detail.tabSpecifications')">
-                                {{ $tc('sw-product.detail.tabSpecifications') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {% block sw_product_detail_content_tabs_advanced_prices %}
-                            <sw-tabs-item
-                                v-show="showModeSetting"
-                                class="sw-product-detail__tab-advanced-prices"
-                                :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                                :title="$tc('sw-product.detail.tabAdvancedPrices')">
-                                {{ $tc('sw-product.detail.tabAdvancedPrices') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {# @deprecated tag:v6.5.0 - The tab content will be moved to "sw-product-detail-specifications" component, like following:
-                            {% block sw_product_detail_specifications %}
-                                <div>
-                                    ...
-                                    {% block sw_product_detail_specifications_properties %}
-                                        <sw-product-detail-properties>
-                                        </sw-product-detail-properties>
-                                    {% endblock %}
-                                    ...
-                                </div>
-                            {% endblock %}
-                        #}
-                        {% block sw_product_detail_content_tabs_advanced_properties %}
-                        {% endblock %}
-
-                        {% block sw_product_detail_content_tabs_advanced_variants %}
-                            <sw-tabs-item
-                                v-show="!isChild && showModeSetting"
-                                class="sw-product-detail__tab-variants"
-                                :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
-                                :title="$tc('sw-product.detail.tabVariation')">
-                                {{ $tc('sw-product.detail.tabVariation') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {% block sw_product_detail_content_tabs_layout %}
-                            <sw-tabs-item
-                                v-show="!isChild && showModeSetting"
-                                class="sw-product-detail__tab-layout"
-                                :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
-                                :title="$tc('sw-product.detail.tabLayout')">
-                                {{ $tc('sw-product.detail.tabLayout') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {% block sw_product_detail_content_tabs_seo %}
-                            <sw-tabs-item
-                                v-show="showModeSetting"
-                                class="sw-product-detail__tab-seo"
-                                :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
-                                :title="$tc('sw-product.detail.tabSeo')">
-                                {{ $tc('sw-product.detail.tabSeo') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {% block sw_product_detail_content_tabs_cross_selling %}
-                            <sw-tabs-item
-                                v-show="!isChild && showModeSetting"
-                                class="sw-product-detail__tab-cross-selling"
-                                :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
-                                :hasError="swProductDetailCrossSellingError"
-                                :title="$tc('sw-product.detail.tabCrossSelling')">
-                                {{ $tc('sw-product.detail.tabCrossSelling') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-
-                        {% block sw_product_detail_content_tabs_reviews %}
-                            <sw-tabs-item
-                                v-show="showModeSetting"
-                                class="sw-product-detail__tab-reviews"
-                                :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
-                                :title="$tc('sw-product.detail.tabReviews')">
-                                {{ $tc('sw-product.detail.tabReviews') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-                    </sw-tabs>
-                {% endblock %}
-
-                {% block sw_product_detail_content_view %}
-                    <router-view @media-drop="onAddItemToProduct" @cover-change="onCoverChange"></router-view>
-                {% endblock %}
-
-                {% block sw_product_detail_content_clone_modal %}
-                    <sw-product-clone-modal v-if="cloning"
-                        :product="product"
-                        @clone-finish="onDuplicateFinish">
-                    </sw-product-clone-modal>
-                {% endblock %}
-
-                {% block sw_product_settings_mode %}
-                    <sw-product-settings-mode
-                        v-if="showAdvanceModeSetting"
-                        :isLoading="isLoading"
-                        :modeSettings="advancedModeSetting"
-                        @settings-item-change="onChangeSettingItem"
-                        @settings-change="onChangeSetting">
-                    </sw-product-settings-mode>
-                {% endblock %}
-            </sw-card-view>
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - Will be replaced by a media modal like in Shopping experiences. #}
-        <template #sidebar>
-            {% block sw_product_detail_sidebar %}
+        <sw-button-group
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('product.editor'),
+                showOnDisabledElements: true
+            }"
+            class="sw-product-detail__save-button-group"
+            :split-button="true"
+        >
+            {% block sw_product_detail_actions_save %}
+            <sw-button-process
+                v-tooltip.bottom="tooltipSave"
+                class="sw-product-detail__save-action"
+                :is-loading="isLoading"
+                :process-success="isSaveSuccessful"
+                variant="primary"
+                :disabled="isLoading || !acl.can('product.editor')"
+                @process-finish="saveFinish"
+                @click.prevent="onSave"
+            >
+                {{ $tc('sw-product.detail.buttonSave') }}
+            </sw-button-process>
             {% endblock %}
+
+            {% block sw_product_detail_actions_save_context_menu %}
+            <sw-context-button>
+                <template slot="button">
+                    <sw-button
+                        class="sw-product-detail__button-context-menu"
+                        square
+                        variant="primary"
+                        :disabled="isLoading || !acl.can('product.editor')"
+                    >
+                        <sw-icon
+                            name="small-arrow-medium-down"
+                            size="16"
+                        />
+                    </sw-button>
+                </template>
+
+                {% block sw_product_detail_actions_save_context_menu_actions %}
+                {% block sw_product_detail_actions_duplicate %}
+                <sw-context-menu-item
+                    class="sw-product-detail__save-duplicate-action"
+                    :disabled="!acl.can('product.creator') || !acl.can('product.editor') || product.parentId != null"
+                    @click="onDuplicate"
+                >
+                    {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
+                </sw-context-menu-item>
+                {% endblock %}
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </sw-button-group>
+    </template>
+    {% endblock %}
+
+    {% block sw_product_detail_language_switch %}
+    <template slot="language-switch">
+        <sw-language-switch
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            :disabled="!productId"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_product_detail_content %}
+    <sw-card-view slot="content">
+
+        {% block sw_product_detail_content_top %}
+        <template>
+            <router-link
+                v-if="!isLoading && isChild && !advanceModeEnabled"
+                class="sw-card__back-link"
+                :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
+            >
+                <sw-icon
+                    name="default-arrow-simple-left"
+                    small
+                />
+                {{ $tc('sw-product.general.backToGeneralOverview') }}
+            </router-link>
+
+            <router-link
+                v-if="!isLoading && isChild && advanceModeEnabled"
+                class="sw-card__back-link"
+                :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
+            >
+                <sw-icon
+                    name="default-arrow-simple-left"
+                    small
+                />
+                {{ $tc('sw-product.general.backToParent') }}
+            </router-link>
         </template>
-    </sw-page>
+        {% endblock %}
+
+        {% block sw_product_detail_content_language_info %}
+        <sw-language-info
+            :entity-description="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))"
+            :is-new-entity="!productId"
+        />
+        {% endblock %}
+
+        {% block sw_product_detail_inheritance_warning %}
+        <sw-inheritance-warning
+            v-if="isChild"
+            :name="$tc('sw-product.general.inheritanceModuleName')"
+        />
+        {% endblock %}
+
+        {% block sw_product_detail_content_tabs %}
+        <sw-tabs
+            v-if="productId"
+            class="sw-product-detail-page__tabs"
+        >
+            {% block sw_product_detail_content_tabs_general %}
+            <sw-tabs-item
+                class="sw-product-detail__tab-general"
+                :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
+                :has-error="swProductDetailBaseError"
+                :title="$tc('sw-product.detail.tabGeneral')"
+            >
+                {{ $tc('sw-product.detail.tabGeneral') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_product_detail_content_tabs_specifications %}
+            <sw-tabs-item
+                class="sw-product-detail__tab-specifications"
+                :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
+                :title="$tc('sw-product.detail.tabSpecifications')"
+            >
+                {{ $tc('sw-product.detail.tabSpecifications') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_product_detail_content_tabs_advanced_prices %}
+            <sw-tabs-item
+                v-show="showModeSetting"
+                class="sw-product-detail__tab-advanced-prices"
+                :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                :title="$tc('sw-product.detail.tabAdvancedPrices')"
+            >
+                {{ $tc('sw-product.detail.tabAdvancedPrices') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - The tab content will be moved to "sw-product-detail-specifications" component, like following:
+            {% block sw_product_detail_specifications %}
+            <div>
+                ...
+                {% block sw_product_detail_specifications_properties %}
+                <sw-product-detail-properties />
+                {% endblock %}
+                ...
+            </div>
+            {% endblock %}
+            #}
+            {% block sw_product_detail_content_tabs_advanced_properties %}
+            {% endblock %}
+
+            {% block sw_product_detail_content_tabs_advanced_variants %}
+            <sw-tabs-item
+                v-show="!isChild && showModeSetting"
+                class="sw-product-detail__tab-variants"
+                :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
+                :title="$tc('sw-product.detail.tabVariation')"
+            >
+                {{ $tc('sw-product.detail.tabVariation') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_product_detail_content_tabs_layout %}
+            <sw-tabs-item
+                v-show="!isChild && showModeSetting"
+                class="sw-product-detail__tab-layout"
+                :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
+                :title="$tc('sw-product.detail.tabLayout')"
+            >
+                {{ $tc('sw-product.detail.tabLayout') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_product_detail_content_tabs_seo %}
+            <sw-tabs-item
+                v-show="showModeSetting"
+                class="sw-product-detail__tab-seo"
+                :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
+                :title="$tc('sw-product.detail.tabSeo')"
+            >
+                {{ $tc('sw-product.detail.tabSeo') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_product_detail_content_tabs_cross_selling %}
+            <sw-tabs-item
+                v-show="!isChild && showModeSetting"
+                class="sw-product-detail__tab-cross-selling"
+                :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
+                :has-error="swProductDetailCrossSellingError"
+                :title="$tc('sw-product.detail.tabCrossSelling')"
+            >
+                {{ $tc('sw-product.detail.tabCrossSelling') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_product_detail_content_tabs_reviews %}
+            <sw-tabs-item
+                v-show="showModeSetting"
+                class="sw-product-detail__tab-reviews"
+                :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
+                :title="$tc('sw-product.detail.tabReviews')"
+            >
+                {{ $tc('sw-product.detail.tabReviews') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </sw-tabs>
+        {% endblock %}
+
+        {% block sw_product_detail_content_view %}
+        <router-view
+            @media-drop="onAddItemToProduct"
+            @cover-change="onCoverChange"
+        />
+        {% endblock %}
+
+        {% block sw_product_detail_content_clone_modal %}
+        <sw-product-clone-modal
+            v-if="cloning"
+            :product="product"
+            @clone-finish="onDuplicateFinish"
+        />
+        {% endblock %}
+
+        {% block sw_product_settings_mode %}
+        <sw-product-settings-mode
+            v-if="showAdvanceModeSetting"
+            :is-loading="isLoading"
+            :mode-settings="advancedModeSetting"
+            @settings-item-change="onChangeSettingItem"
+            @settings-change="onChangeSetting"
+        />
+        {% endblock %}
+    </sw-card-view>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - Will be replaced by a media modal like in Shopping experiences. #}
+    <template #sidebar>
+        {% block sw_product_detail_sidebar %}
+        {% endblock %}
+    </template>
+</sw-page>
 {% endblock %}

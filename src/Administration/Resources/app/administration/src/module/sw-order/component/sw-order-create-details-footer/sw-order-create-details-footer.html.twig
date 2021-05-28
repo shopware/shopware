@@ -1,89 +1,90 @@
 {% block sw_order_create_details_footer %}
-    <sw-container
-        class="sw-order-create-details-footer"
-        columns="minmax(min-content, 1fr) minmax(min-content, 1fr)"
-        gap="0 32px">
-        <div>
-            {% block sw_order_create_details_footer_sales_channel %}
-                <sw-entity-single-select
-                    disabled
-                    size="small"
-                    entity="sales_channel"
-                    v-model="salesChannelId"
-                    class="sw-order-create-details-footer__item"
-                    :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderSalesChannel')">
-                </sw-entity-single-select>
-            {% endblock %}
+<sw-container
+    class="sw-order-create-details-footer"
+    columns="minmax(min-content, 1fr) minmax(min-content, 1fr)"
+    gap="0 32px"
+>
+    <div>
+        {% block sw_order_create_details_footer_sales_channel %}
+        <sw-entity-single-select
+            v-model="salesChannelId"
+            disabled
+            size="small"
+            entity="sales_channel"
+            class="sw-order-create-details-footer__item"
+            :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderSalesChannel')"
+        />
+        {% endblock %}
 
-            {% block sw_order_create_details_footer_payment_method %}
-                <sw-entity-single-select
-                    v-if="!feature.isActive('FEATURE_NEXT_15170')"
-                    size="small"
-                    entity="payment_method"
-                    labelProperty="name"
-                    v-model="context.paymentMethodId"
-                    class="sw-order-create-details-footer__item"
-                    :disabled="!isCustomerActive"
-                    :criteria="salesChannelCriteria"
-                    :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')">
-                </sw-entity-single-select>
+        {% block sw_order_create_details_footer_payment_method %}
+        <sw-entity-single-select
+            v-if="!feature.isActive('FEATURE_NEXT_15170')"
+            v-model="context.paymentMethodId"
+            size="small"
+            entity="payment_method"
+            label-property="name"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="salesChannelCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
+        />
 
-                <sw-entity-single-select
-                    v-if="feature.isActive('FEATURE_NEXT_15170')"
-                    size="small"
-                    entity="payment_method"
-                    labelProperty="distinguishableName"
-                    v-model="context.paymentMethodId"
-                    class="sw-order-create-details-footer__item"
-                    :disabled="!isCustomerActive"
-                    :criteria="salesChannelCriteria"
-                    :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')">
-                </sw-entity-single-select>
-            {% endblock %}
+        <sw-entity-single-select
+            v-if="feature.isActive('FEATURE_NEXT_15170')"
+            v-model="context.paymentMethodId"
+            size="small"
+            entity="payment_method"
+            label-property="distinguishableName"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="salesChannelCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
+        />
+        {% endblock %}
 
-            {% block sw_order_create_details_footer_shipping_method %}
-                <sw-entity-single-select
-                    size="small"
-                    entity="shipping_method"
-                    v-model="context.shippingMethodId"
-                    class="sw-order-create-details-footer__item"
-                    :disabled="!isCustomerActive"
-                    :criteria="salesChannelCriteria"
-                    :label="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderShippingMethod')">
-                </sw-entity-single-select>
-            {% endblock %}
-        </div>
+        {% block sw_order_create_details_footer_shipping_method %}
+        <sw-entity-single-select
+            v-model="context.shippingMethodId"
+            size="small"
+            entity="shipping_method"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="salesChannelCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderShippingMethod')"
+        />
+        {% endblock %}
+    </div>
 
-        <div>
-            {% block sw_order_create_details_footer_order_language %}
-                <sw-entity-single-select
-                    size="small"
-                    entity="language"
-                    v-model="context.languageId"
-                    class="sw-order-create-details-footer__item"
-                    :disabled="!isCustomerActive"
-                    :criteria="salesChannelCriteria"
-                    :label="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderOrderLanguage')">
-                </sw-entity-single-select>
-            {% endblock %}
+    <div>
+        {% block sw_order_create_details_footer_order_language %}
+        <sw-entity-single-select
+            v-model="context.languageId"
+            size="small"
+            entity="language"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="salesChannelCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderOrderLanguage')"
+        />
+        {% endblock %}
 
-            {% block sw_order_create_details_footer_currency %}
-                <sw-entity-single-select
-                    size="small"
-                    entity="currency"
-                    v-model="context.currencyId"
-                    class="sw-order-create-details-footer__item"
-                    :disabled="!isCustomerActive"
-                    :criteria="salesChannelCriteria"
-                    :label="$tc('sw-order.createBase.detailsFooter.labelCurrency')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderCurrency')">
-                </sw-entity-single-select>
-            {% endblock %}
-        </div>
-    </sw-container>
+        {% block sw_order_create_details_footer_currency %}
+        <sw-entity-single-select
+            v-model="context.currencyId"
+            size="small"
+            entity="currency"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="salesChannelCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelCurrency')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderCurrency')"
+        />
+        {% endblock %}
+    </div>
+</sw-container>
 {% endblock %}

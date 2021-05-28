@@ -1,92 +1,105 @@
 {% block sw_product_stream_modal_preview %}
-    <sw-modal class="sw-product-stream-modal-preview"
-              :title="`${$tc('sw-product-stream.previewModal.title')} (${total || 0})`"
-              :isLoading="isLoading"
-              variant="large"
-              @modal-close="closeModal">
-        {% block sw_product_stream_modal_preview_content %}
-            <div class="sw-product-stream-modal-preview__content">
-                {% block sw_product_stream_modal_preview_search_field_label %}
-                    <sw-label class="sw-product-stream-modal-preview__search-field-label">
-                        {% block sw_product_stream_modal_preview_search_field %}
-                            <sw-simple-search-field
-                                    size="small"
-                                    variant="form"
-                                    v-model="searchTerm"
-                                    :delay="750"
-                                    class="sw-product-stream-modal-preview__search-field">
-                            </sw-simple-search-field>
-                        {% endblock %}
-                    </sw-label>
-                {% endblock %}
-
-                {% block sw_product_stream_modal_preview_grid %}
-                    <sw-data-grid
-                        v-if="total"
-                        :dataSource="products"
-                        :columns="productColumns"
-                        :showSelection="false"
-                        :showActions="false"
-                        :showPreviews="true"
-                        :isLoading="isLoading"
-                        fullPage>
-
-                        <template #column-name="{ item, column }">
-                            {% block sw_product_stream_modal_preview_grid_column_name %}
-                                <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
-                                    <sw-product-variant-info :variations="item.variation">
-                                        {{ item.name || item.translated.name }}
-                                    </sw-product-variant-info>
-                                </router-link>
-                            {% endblock %}
-                        </template>
-
-                        <template #column-active="{ item }">
-                            {% block sw_product_stream_modal_preview_grid_column_active %}
-                                <sw-data-grid-column-boolean :value="item.active" :isInlineEdit="false"></sw-data-grid-column-boolean>
-                            {% endblock %}
-                        </template>
-
-                        <template #column-price="{ item }">
-                            {% block sw_product_stream_modal_preview_grid_column_price %}
-                                {{ getPriceForDefaultCurrency(item, systemCurrency).gross | currency('EUR') }}
-                            {% endblock %}
-                        </template>
-
-                        <template #column-stock="{ item }">
-                            {% block sw_product_stream_modal_preview_grid_column_stock %}
-                                {{ item.stock }}
-                                <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
-                            {% endblock %}
-                        </template>
-
-                        <template #pagination>
-                            {% block sw_product_stream_modal_preview_grid_pagination %}
-                                <sw-pagination
-                                    v-bind="{ total, page, limit }"
-                                    :totalVisible="7"
-                                    :autoHide="false"
-                                    @page-change="onPageChange">
-                                </sw-pagination>
-                            {% endblock %}
-                        </template>
-                    </sw-data-grid>
-                {% endblock %}
-
-                {% block sw_product_stream_modal_preview_empty_state %}
-                    <sw-empty-state v-if="!total && !isLoading" :title="$tc('sw-product-stream.previewModal.empty')"></sw-empty-state>
-                {% endblock %}
-            </div>
+<sw-modal
+    class="sw-product-stream-modal-preview"
+    :title="`${$tc('sw-product-stream.previewModal.title')} (${total || 0})`"
+    :is-loading="isLoading"
+    variant="large"
+    @modal-close="closeModal"
+>
+    {% block sw_product_stream_modal_preview_content %}
+    <div class="sw-product-stream-modal-preview__content">
+        {% block sw_product_stream_modal_preview_search_field_label %}
+        <sw-label class="sw-product-stream-modal-preview__search-field-label">
+            {% block sw_product_stream_modal_preview_search_field %}
+            <sw-simple-search-field
+                v-model="searchTerm"
+                size="small"
+                variant="form"
+                :delay="750"
+                class="sw-product-stream-modal-preview__search-field"
+            />
+            {% endblock %}
+        </sw-label>
         {% endblock %}
 
-        {% block sw_product_stream_modal_preview_footer %}
-            <template #modal-footer>
-                {% block sw_product_stream_modal_preview_close_button %}
-                    <sw-button class="sw-product-stream-modal-preview__close-action" variant="primary" @click.prevent="closeModal">
-                        {{ $tc('sw-product-stream.previewModal.close') }}
-                    </sw-button>
+        {% block sw_product_stream_modal_preview_grid %}
+        <sw-data-grid
+            v-if="total"
+            :data-source="products"
+            :columns="productColumns"
+            :show-selection="false"
+            :show-actions="false"
+            :show-previews="true"
+            :is-loading="isLoading"
+            full-page
+        >
+
+            <template #column-name="{ item, column }">
+                {% block sw_product_stream_modal_preview_grid_column_name %}
+                <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
+                    <sw-product-variant-info :variations="item.variation">
+                        {{ item.name || item.translated.name }}
+                    </sw-product-variant-info>
+                </router-link>
                 {% endblock %}
             </template>
+
+            <template #column-active="{ item }">
+                {% block sw_product_stream_modal_preview_grid_column_active %}
+                <sw-data-grid-column-boolean
+                    :value="item.active"
+                    :is-inline-edit="false"
+                />
+                {% endblock %}
+            </template>
+
+            <template #column-price="{ item }">
+                {% block sw_product_stream_modal_preview_grid_column_price %}
+                {{ getPriceForDefaultCurrency(item, systemCurrency).gross | currency('EUR') }}
+                {% endblock %}
+            </template>
+
+            <template #column-stock="{ item }">
+                {% block sw_product_stream_modal_preview_grid_column_stock %}
+                {{ item.stock }}
+                <sw-color-badge :variant="item.stock | stockColorVariant" />
+                {% endblock %}
+            </template>
+
+            <template #pagination>
+                {% block sw_product_stream_modal_preview_grid_pagination %}
+                <sw-pagination
+                    v-bind="{ total, page, limit }"
+                    :total-visible="7"
+                    :auto-hide="false"
+                    @page-change="onPageChange"
+                />
+                {% endblock %}
+            </template>
+        </sw-data-grid>
         {% endblock %}
-    </sw-modal>
+
+        {% block sw_product_stream_modal_preview_empty_state %}
+        <sw-empty-state
+            v-if="!total && !isLoading"
+            :title="$tc('sw-product-stream.previewModal.empty')"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_product_stream_modal_preview_footer %}
+    <template #modal-footer>
+        {% block sw_product_stream_modal_preview_close_button %}
+        <sw-button
+            class="sw-product-stream-modal-preview__close-action"
+            variant="primary"
+            @click.prevent="closeModal"
+        >
+            {{ $tc('sw-product-stream.previewModal.close') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
 {% endblock %}

@@ -1,242 +1,276 @@
 {% block sw_order_line_items_grid_sales_channel %}
-    <sw-container type="row" class="sw-order-line-items-grid-sales-channel">
+<sw-container
+    type="row"
+    class="sw-order-line-items-grid-sales-channel"
+>
 
-        {% block sw_order_line_items_grid_sales_channel_actions %}
-            <sw-container class="sw-order-line-items-grid-sales-channel__actions-container"
-                          columns="1fr auto" gap="16px">
+    {% block sw_order_line_items_grid_sales_channel_actions %}
+    <sw-container
+        class="sw-order-line-items-grid-sales-channel__actions-container"
+        columns="1fr auto"
+        gap="16px"
+    >
 
-                {% block sw_order_line_items_grid_sales_channel_header %}
+        {% block sw_order_line_items_grid_sales_channel_header %}
 
-                    {% block sw_order_line_items_grid_sales_channel_line_item_filter %}
-                        <div align="left">
-                            <sw-card-filter :placeholder="$tc('sw-order.createBase.placeholderSearchBarItem')"
-                                            @sw-card-filter-term-change="onSearchTermChange"
-                                            ref="itemFilter">
-                            </sw-card-filter>
-                        </div>
-                    {% endblock %}
-
-                    {% block sw_order_line_items_grid_sales_channel_create_actions_button_group %}
-                        <div align="right">
-                            <sw-button-group>
-
-                                {% block sw_order_line_items_grid_sales_channel_add_existing_product %}
-                                    <sw-button variant="ghost"
-                                               size="small"
-                                               @click="onInsertExistingItem"
-                                               :disabled="isAddNewItemButtonDisabled">
-                                        {{ $tc('sw-order.createBase.buttonAddProduct') }}
-                                    </sw-button>
-                                {% endblock %}
-
-                                {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown %}
-                                    <sw-context-button>
-                                        <template #button>
-                                            <sw-button variant="ghost"
-                                                       size="small"
-                                                       square
-                                                       :disabled="isAddNewItemButtonDisabled">
-                                                <sw-icon name="small-arrow-small-down" decorative></sw-icon>
-                                            </sw-button>
-                                        </template>
-
-                                        {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu %}
-                                            <sw-context-menu-item @click="onInsertBlankItem">
-                                                {{ $tc('sw-order.createBase.buttonAddBlankProduct') }}
-                                            </sw-context-menu-item>
-                                            <sw-context-menu-item @click="onInsertCreditItem">
-                                                {{ $tc('sw-order.createBase.buttonAddCredit') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-                                    </sw-context-button>
-                                {% endblock %}
-                            </sw-button-group>
-                        </div>
-                    {% endblock %}
-
-                {% endblock %}
-            </sw-container>
+        {% block sw_order_line_items_grid_sales_channel_line_item_filter %}
+        <div align="left">
+            <sw-card-filter
+                ref="itemFilter"
+                :placeholder="$tc('sw-order.createBase.placeholderSearchBarItem')"
+                @sw-card-filter-term-change="onSearchTermChange"
+            />
+        </div>
         {% endblock %}
 
-        {% block sw_order_line_items_grid_sales_channel_grid %}
-            {% block sw_order_line_items_grid_sales_channel_grid_no_items %}
-                <div v-if="cartLineItems.length === 0" class="sw-order-line-items-grid-sales-channel__empty-container">
-                    <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
-                    <p>{{ $tc('sw-order.createBase.messageEmptyItem') }}</p>
-                </div>
-            {% endblock %}
+        {% block sw_order_line_items_grid_sales_channel_create_actions_button_group %}
+        <div align="right">
+            <sw-button-group>
 
-            {% block sw_order_line_items_grid_sales_channel_grid_item_table %}
-                <sw-data-grid v-else
-                              :dataSource="cartLineItems"
-                              :columns="getLineItemColumns"
-                              :fullPage="false"
-                              :showSettings="false"
-                              :showSelection="isCustomerActive"
-                              showActions
-                              :allowColumnEdit="false"
-                              :allowInlineEdit="isCustomerActive"
-                              :isRecordEditable="(item) => !isPromotionItem(item)"
-                              :isRecordSelectable="(item) => !isAutoPromotionItem(item)"
-                              :compactMode="false"
-                              identifier="sw-order-line-item-grid-sales-channel"
-                              class="sw-order-line-items-grid-sales-channel__data-grid"
-                              @inline-edit-cancel="onInlineEditCancel"
-                              @inline-edit-save="onInlineEditSave"
-                              @selection-change="onSelectionChanged">
+                {% block sw_order_line_items_grid_sales_channel_add_existing_product %}
+                <sw-button
+                    variant="ghost"
+                    size="small"
+                    :disabled="isAddNewItemButtonDisabled"
+                    @click="onInsertExistingItem"
+                >
+                    {{ $tc('sw-order.createBase.buttonAddProduct') }}
+                </sw-button>
+                {% endblock %}
 
-                    {% block sw_order_line_items_grid_sales_channel_grid_columns %}
-                        {% block sw_order_line_items_grid_sales_channel_grid_columns_label %}
-                            <template #column-label="{ item, isInlineEdit}">
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_label_inline_edit %}
-                                    <sw-order-product-select v-if="isInlineEdit"
-                                                             :item="item"
-                                                             :taxStatus="taxStatus"
-                                                             :salesChannelId="salesChannelId">
-                                    </sw-order-product-select>
-                                {% endblock %}
+                {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown %}
+                <sw-context-button>
+                    <template #button>
+                        <sw-button
+                            variant="ghost"
+                            size="small"
+                            square
+                            :disabled="isAddNewItemButtonDisabled"
+                        >
+                            <sw-icon
+                                name="small-arrow-small-down"
+                                decorative
+                            />
+                        </sw-button>
+                    </template>
 
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_label_link %}
-                                    <router-link v-else-if="!isInlineEdit && isProductItem(item)"
-                                                 target="_blank"
-                                                 rel="noopener"
-                                                 :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                                                 :to="{ name: 'sw.product.detail', params: { id: item.identifier || item.id } }">
-
-                                        {% block sw_order_line_items_grid_column_payload_options %}
-                                        <div v-if="item.payload && item.payload.options"
-                                             class="sw-order-line-items-grid__item-payload-options">
-                                            <sw-product-variant-info :variations="item.payload.options">
-                                                {{ item.label }}
-                                            </sw-product-variant-info>
-                                        </div>
-                                        {% endblock %}
-                                    </router-link>
-                                {% endblock %}
-
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_label_content %}
-                                    <template v-else>
-                                        {{ item.label }}
-                                    </template>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price %}
-                            <template #column-unitPrice="{ item, isInlineEdit}">
-
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_inline_edit %}
-                                    <sw-number-field v-if="isInlineEdit && !itemCreatedFromProduct(item)"
-                                              placeholder="0"
-                                              size="small"
-                                              :min="getMinItemPrice(item)"
-                                              :value="item.priceDefinition.price"
-                                              @change="checkItemPrice($event, item)">
-                                    </sw-number-field>
-                                {% endblock %}
-
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_content %}
-                                    <template v-else>
-                                        {{ item.price.unitPrice | currency(currency.shortName) }}
-                                    </template>
-                                {% endblock %}
-
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price %}
-                            <template #column-totalPrice="{ item }">
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price_content %}
-                                    {{ item.price.totalPrice | currency(currency.shortName) }}
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity %}
-                            <template #column-quantity="{ item, isInlineEdit }">
-
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_inline_edit %}
-                                    <sw-number-field v-if="isInlineEdit && !isCreditItem(item)"
-                                              v-model="item.quantity"
-                                              numberType="int"
-                                              :min="1"
-                                              size="small"
-                                              placeholder="0">
-                                    </sw-number-field>
-                                {% endblock %}
-
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_content %}
-                                    <template v-else>
-                                        {{ item.quantity }}
-                                    </template>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_order_line_items_grid_sales_channel_grid_columns_tax %}
-                            <template #column-tax="{ item, isInlineEdit }">
-
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_inline_edit %}
-                                    <sw-number-field v-if="isInlineEdit &&
-                                                !itemCreatedFromProduct(item.id) &&
-                                                item.priceDefinition &&
-                                                item.priceDefinition.taxRules &&
-                                                !isCreditItem(item)"
-                                              v-model="item.priceDefinition.taxRules[0].taxRate"
-                                              key="order-line-item-tax-edit-default"
-                                              size="small"
-                                              placeholder="0"
-                                              :min="0">
-                                    </sw-number-field>
-                                {% endblock %}
-
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content_tooltip %}
-                                    <span v-else-if="hasMultipleTaxes(item)"
-                                          v-tooltip="tooltipTaxDetail(item)"
-                                          class="sw-order-line-items-grid-sales-channel__item-tax-tooltip">
-                                        {{ showTaxValue(item) }}
-                                    </span>
-                                {% endblock %}
-
-                                {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content %}
-                                    <template v-else-if="item.price && item.price.taxRules.length">
-                                        {{ showTaxValue(item) }}
-                                    </template>
-                                {% endblock %}
-                                
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_order_line_items_grid_sales_channel_grid_actions %}
-                            <template #actions="{ item }">
-                                {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
-                                    <sw-context-menu-item :disabled="!isProductItem(item)"
-                                                          icon="default-eye-open"
-                                                          :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }"
-                                                          target="_blank"
-                                                          rel="noopener">
-                                        {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
-                                            {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
-                                        {% endblock %}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_order_line_items_grid_sales_channel_bulk_actions %}
-                            <template #bulk>
-                                {% block sw_order_line_items_grid_sales_channel_bulk_actions_delete %}
-                                    <a class="link link-danger" @click="onDeleteSelectedItems">
-                                        {{ $tc('global.default.delete') }}
-                                    </a>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
+                    {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu %}
+                    <sw-context-menu-item @click="onInsertBlankItem">
+                        {{ $tc('sw-order.createBase.buttonAddBlankProduct') }}
+                    </sw-context-menu-item>
+                    <sw-context-menu-item @click="onInsertCreditItem">
+                        {{ $tc('sw-order.createBase.buttonAddCredit') }}
+                    </sw-context-menu-item>
                     {% endblock %}
-                </sw-data-grid>
-            {% endblock %}
+                </sw-context-button>
+                {% endblock %}
+            </sw-button-group>
+        </div>
+        {% endblock %}
 
         {% endblock %}
     </sw-container>
+    {% endblock %}
+
+    {% block sw_order_line_items_grid_sales_channel_grid %}
+    {% block sw_order_line_items_grid_sales_channel_grid_no_items %}
+    <div
+        v-if="cartLineItems.length === 0"
+        class="sw-order-line-items-grid-sales-channel__empty-container"
+    >
+        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+        <p>{{ $tc('sw-order.createBase.messageEmptyItem') }}</p>
+    </div>
+    {% endblock %}
+
+    {% block sw_order_line_items_grid_sales_channel_grid_item_table %}
+    <sw-data-grid
+        v-else
+        :data-source="cartLineItems"
+        :columns="getLineItemColumns"
+        :full-page="false"
+        :show-settings="false"
+        :show-selection="isCustomerActive"
+        show-actions
+        :allow-column-edit="false"
+        :allow-inline-edit="isCustomerActive"
+        :is-record-editable="(item) => !isPromotionItem(item)"
+        :is-record-selectable="(item) => !isAutoPromotionItem(item)"
+        :compact-mode="false"
+        identifier="sw-order-line-item-grid-sales-channel"
+        class="sw-order-line-items-grid-sales-channel__data-grid"
+        @inline-edit-cancel="onInlineEditCancel"
+        @inline-edit-save="onInlineEditSave"
+        @selection-change="onSelectionChanged"
+    >
+
+        {% block sw_order_line_items_grid_sales_channel_grid_columns %}
+        {% block sw_order_line_items_grid_sales_channel_grid_columns_label %}
+        <template #column-label="{ item, isInlineEdit}">
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_label_inline_edit %}
+            <sw-order-product-select
+                v-if="isInlineEdit"
+                :item="item"
+                :tax-status="taxStatus"
+                :sales-channel-id="salesChannelId"
+            />
+            {% endblock %}
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_label_link %}
+            <router-link
+                v-else-if="!isInlineEdit && isProductItem(item)"
+                target="_blank"
+                rel="noopener"
+                :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                :to="{ name: 'sw.product.detail', params: { id: item.identifier || item.id } }"
+            >
+
+                {% block sw_order_line_items_grid_column_payload_options %}
+                <div
+                    v-if="item.payload && item.payload.options"
+                    class="sw-order-line-items-grid__item-payload-options"
+                >
+                    <sw-product-variant-info :variations="item.payload.options">
+                        {{ item.label }}
+                    </sw-product-variant-info>
+                </div>
+                {% endblock %}
+            </router-link>
+            {% endblock %}
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_label_content %}
+            <template v-else>
+                {{ item.label }}
+            </template>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price %}
+        <template #column-unitPrice="{ item, isInlineEdit}">
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_inline_edit %}
+            <sw-number-field
+                v-if="isInlineEdit && !itemCreatedFromProduct(item)"
+                placeholder="0"
+                size="small"
+                :min="getMinItemPrice(item)"
+                :value="item.priceDefinition.price"
+                @change="checkItemPrice($event, item)"
+            />
+            {% endblock %}
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_content %}
+            <template v-else>
+                {{ item.price.unitPrice | currency(currency.shortName) }}
+            </template>
+            {% endblock %}
+
+        </template>
+        {% endblock %}
+
+        {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price %}
+        <template #column-totalPrice="{ item }">
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price_content %}
+            {{ item.price.totalPrice | currency(currency.shortName) }}
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity %}
+        <template #column-quantity="{ item, isInlineEdit }">
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_inline_edit %}
+            <sw-number-field
+                v-if="isInlineEdit && !isCreditItem(item)"
+                v-model="item.quantity"
+                number-type="int"
+                :min="1"
+                size="small"
+                placeholder="0"
+            />
+            {% endblock %}
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_content %}
+            <template v-else>
+                {{ item.quantity }}
+            </template>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_order_line_items_grid_sales_channel_grid_columns_tax %}
+        <template #column-tax="{ item, isInlineEdit }">
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_inline_edit %}
+            <sw-number-field
+                v-if="isInlineEdit &&
+                    !itemCreatedFromProduct(item.id) &&
+                    item.priceDefinition &&
+                    item.priceDefinition.taxRules &&
+                    !isCreditItem(item)"
+                key="order-line-item-tax-edit-default"
+                v-model="item.priceDefinition.taxRules[0].taxRate"
+                size="small"
+                placeholder="0"
+                :min="0"
+            />
+            {% endblock %}
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content_tooltip %}
+            <span
+                v-else-if="hasMultipleTaxes(item)"
+                v-tooltip="tooltipTaxDetail(item)"
+                class="sw-order-line-items-grid-sales-channel__item-tax-tooltip"
+            >
+                {{ showTaxValue(item) }}
+            </span>
+            {% endblock %}
+
+            {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content %}
+            <template v-else-if="item.price && item.price.taxRules.length">
+                {{ showTaxValue(item) }}
+            </template>
+            {% endblock %}
+
+        </template>
+        {% endblock %}
+
+        {% block sw_order_line_items_grid_sales_channel_grid_actions %}
+        <template #actions="{ item }">
+            {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
+            <sw-context-menu-item
+                :disabled="!isProductItem(item)"
+                icon="default-eye-open"
+                :router-link="{ name: 'sw.product.detail', params: { id: item.id } }"
+                target="_blank"
+                rel="noopener"
+            >
+                {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
+                {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
+                {% endblock %}
+            </sw-context-menu-item>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_order_line_items_grid_sales_channel_bulk_actions %}
+        <template #bulk>
+            {% block sw_order_line_items_grid_sales_channel_bulk_actions_delete %}
+            <a
+                class="link link-danger"
+                @click="onDeleteSelectedItems"
+            >
+                {{ $tc('global.default.delete') }}
+            </a>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% endblock %}
+    </sw-data-grid>
+    {% endblock %}
+
+    {% endblock %}
+</sw-container>
 {% endblock %}

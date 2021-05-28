@@ -1,17 +1,30 @@
 {% block sw_shopware_updates_plugins %}
 <sw-card
     :title="cardTitle"
-    :isLoading="isLoading">
+    :is-loading="isLoading"
+>
     <template #grid>
         <sw-data-grid
-            :showSelection="false"
-            :dataSource="plugins"
-            :columns="columns">
+            :show-selection="false"
+            :data-source="plugins"
+            :columns="columns"
+        >
 
             {% block sw_shopware_updates_plugins_column_icon %}
-            <template slot="column-icon" slot-scope="{ item, isInlineEdit }">
-                <sw-color-badge v-if="item.statusVariant" :variant="item.statusVariant" :rounded="true"></sw-color-badge>
-                <sw-color-badge v-else :color="item.statusColor" :rounded="true"></sw-color-badge>&nbsp;
+            <template
+                slot="column-icon"
+                slot-scope="{ item, isInlineEdit }"
+            >
+                <sw-color-badge
+                    v-if="item.statusVariant"
+                    :variant="item.statusVariant"
+                    :rounded="true"
+                />
+                <sw-color-badge
+                    v-else
+                    :color="item.statusColor"
+                    :rounded="true"
+                />&nbsp;
 
                 <template v-if="item.statusMessage === 'notCompatible'">
                     {{ item.statusMessage }} {{ $t('sw-settings-shopware-updates.plugins.pluginWillBeDeactivatedHint') }}
@@ -26,11 +39,20 @@
             {% endblock %}
 
             {% block sw_shopware_updates_plugins_column_action %}
-            <template slot="actions" slot-scope="{ item }">
-                <sw-context-menu-item v-if="feature.isActive('FEATURE_NEXT_12608')" @click="openMyExtensions()">
+            <template
+                slot="actions"
+                slot-scope="{ item }"
+            >
+                <sw-context-menu-item
+                    v-if="feature.isActive('FEATURE_NEXT_12608')"
+                    @click="openMyExtensions()"
+                >
                     {{ $t('sw-settings-shopware-updates.plugins.actions.openMyExtensions') }}
                 </sw-context-menu-item>
-                <sw-context-menu-item v-else @click="openPluginManager()">
+                <sw-context-menu-item
+                    v-else
+                    @click="openPluginManager()"
+                >
                     {{ $t('sw-settings-shopware-updates.plugins.actions.openPluginManager') }}
                 </sw-context-menu-item>
             </template>

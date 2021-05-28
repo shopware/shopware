@@ -1,21 +1,27 @@
 {% block sw_cms_block_gallery_buybox_preview %}
-    <div class="sw-cms-preview-gallery-buybox">
-        <div class="sw-cms-preview-gallery-buybox__gallery">
-            <div class="sw-cms-preview-gallery-buybox__images">
-                <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
-                <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
-                <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
-            </div>
-
-            <div class="sw-cms-preview-gallery-buybox__slider">
-                <sw-icon name="small-arrow-medium-left" size="12"></sw-icon>
-                <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
-                <sw-icon name="small-arrow-medium-right" size="12"></sw-icon>
-            </div>
+<div class="sw-cms-preview-gallery-buybox">
+    <div class="sw-cms-preview-gallery-buybox__gallery">
+        <div class="sw-cms-preview-gallery-buybox__images">
+            <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
+            <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
+            <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
         </div>
 
-        <div class="sw-cms-preview-gallery-buybox__buybox">
-            <sw-cms-el-preview-buy-box></sw-cms-el-preview-buy-box>
+        <div class="sw-cms-preview-gallery-buybox__slider">
+            <sw-icon
+                name="small-arrow-medium-left"
+                size="12"
+            />
+            <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
+            <sw-icon
+                name="small-arrow-medium-right"
+                size="12"
+            />
         </div>
     </div>
+
+    <div class="sw-cms-preview-gallery-buybox__buybox">
+        <sw-cms-el-preview-buy-box />
+    </div>
+</div>
 {% endblock %}

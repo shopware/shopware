@@ -1,353 +1,452 @@
 {% block sw_product_variants_overview %}
-    <div class="sw-product-variants-overview">
+<div class="sw-product-variants-overview">
 
-        {% block sw_product_variants_overview_option_list_toolbar %}
-            <div class="sw-configuration-option-list__toolbar">
-                {% block sw_product_variants_overview_option_list_toolbar_container %}
-                    <sw-container columns="1fr minmax(50px, max-content) minmax(100px, 180px) minmax(100px, 180px)" gap="0 10px">
+    {% block sw_product_variants_overview_option_list_toolbar %}
+    <div class="sw-configuration-option-list__toolbar">
+        {% block sw_product_variants_overview_option_list_toolbar_container %}
+        <sw-container
+            columns="1fr minmax(50px, max-content) minmax(100px, 180px) minmax(100px, 180px)"
+            gap="0 10px"
+        >
 
-                        {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
-                            <sw-simple-search-field
-                                variant="form"
-                                size="small"
-                                v-model="term"
-                                @search-term-change="onSearch">
-                            </sw-simple-search-field>
+            {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
+            <sw-simple-search-field
+                v-model="term"
+                variant="form"
+                size="small"
+                @search-term-change="onSearch"
+            />
+            {% endblock %}
+
+            {% block sw_product_variants_overview_option_list_toolbar_container_filter_list %}
+            <div class="sw-product-variants-overview__filter-list-button">
+
+                {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
+                <sw-button @click="filterWindowOpen = !filterWindowOpen">
+                    {{ $tc('sw-product.variations.generatedFilterList') }}
+                    <sw-icon name="default-action-filter" />
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_product_variants_overview_option_list_toolbar_container_filter_context_menu %}
+                <sw-context-menu v-show="filterWindowOpen">
+                    <sw-container
+                        columns="1fr"
+                        gap="5px"
+                    >
+
+                        <template v-if="!feature.isActive('FEATURE_NEXT_6544')">
+                            {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
+                            <sw-button @click="resetFilterOptions()">
+                                {{ $tc('sw-product.variations.overview.filterReset') }}
+                            </sw-button>
+                            {% endblock %}
+
+                            {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
+                            <sw-button
+                                variant="primary"
+                                @click="getList()"
+                            >
+                                {{ $tc('sw-product.variations.overview.filter') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+
+                        {% block sw_product_variants_overview_option_list_toolbar_container_filter_tree %}
+                        <sw-tree
+                            v-show="filterOptions.length"
+                            :sortable="false"
+                            :items="filterOptions"
+                            :searchable="false"
+                            :disable-context-menu="true"
+                            bind-items-to-folder
+                        >
+                            <template
+                                slot="items"
+                                slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem }"
+                            >
+                                <sw-tree-item
+                                    v-for="(item, index) in treeItems"
+                                    :key="item.id"
+                                    :sortable="false"
+                                    :item="item"
+                                    :disable-context-menu="true"
+                                    @check-item="filterOptionChecked"
+                                />
+                            </template>
+                        </sw-tree>
                         {% endblock %}
 
-                        {% block sw_product_variants_overview_option_list_toolbar_container_filter_list %}
-                            <div class="sw-product-variants-overview__filter-list-button">
-
-                                {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
-                                    <sw-button @click="filterWindowOpen = !filterWindowOpen">
-                                        {{ $tc('sw-product.variations.generatedFilterList') }}
-                                        <sw-icon name="default-action-filter"></sw-icon>
-                                    </sw-button>
-                                {% endblock %}
-
-                                {% block sw_product_variants_overview_option_list_toolbar_container_filter_context_menu %}
-                                    <sw-context-menu v-show="filterWindowOpen">
-                                        <sw-container columns="1fr" gap="5px">
-
-                                            <template v-if="!feature.isActive('FEATURE_NEXT_6544')">
-                                                {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
-                                                    <sw-button @click="resetFilterOptions()">
-                                                        {{ $tc('sw-product.variations.overview.filterReset') }}
-                                                    </sw-button>
-                                                {% endblock %}
-
-                                                {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
-                                                    <sw-button variant="primary" @click="getList()">
-                                                        {{ $tc('sw-product.variations.overview.filter') }}
-                                                    </sw-button>
-                                                {% endblock %}
-                                            </template>
-
-                                            {% block sw_product_variants_overview_option_list_toolbar_container_filter_tree %}
-                                                <sw-tree v-show="filterOptions.length"
-                                                         :sortable="false"
-                                                         :items="filterOptions"
-                                                         :searchable="false"
-                                                         :disableContextMenu="true"
-                                                         bindItemsToFolder>
-                                                    <template slot="items"
-                                                              slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem }">
-                                                        <sw-tree-item
-                                                                v-for="(item, index) in treeItems"
-                                                                :sortable="false"
-                                                                :key="item.id"
-                                                                :item="item"
-                                                                @check-item="filterOptionChecked"
-                                                                :disableContextMenu="true">
-                                                        </sw-tree-item>
-                                                    </template>
-                                                </sw-tree>
-                                            {% endblock %}
-
-                                            {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
-                                                <div v-if="feature.isActive('FEATURE_NEXT_6544')" class="sw-product-variants-overview__filter-buttons">
-                                                    {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
-                                                        <sw-button @click="resetFilterOptions()">
-                                                            {{ $tc('sw-product.variations.overview.filterReset') }}
-                                                        </sw-button>
-                                                    {% endblock %}
-
-                                                    {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
-                                                        <sw-button variant="primary" @click="getList()">
-                                                            {{ $tc('sw-product.variations.overview.filter') }}
-                                                        </sw-button>
-                                                    {% endblock %}
-                                                </div>
-                                            {% endblock %}
-
-                                        </sw-container>
-                                    </sw-context-menu>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_product_variants_overview_option_list_toolbar_buttons %}
-                            <sw-button variant="ghost"
-                                       :disabled="!acl.can('product.creator')"
-                                       v-tooltip="{
-                                            message: $tc('sw-privileges.tooltip.warning'),
-                                            disabled: acl.can('product.creator'),
-                                            showOnDisabledElements: true
-                                        }"
-                                       class="sw-product-variants__generate-action"
-                                       @click="$emit('generator-open')">
-                                {{ $tc('sw-product.variations.overview.generateVariants') }}
+                        {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
+                        <div
+                            v-if="feature.isActive('FEATURE_NEXT_6544')"
+                            class="sw-product-variants-overview__filter-buttons"
+                        >
+                            {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
+                            <sw-button @click="resetFilterOptions()">
+                                {{ $tc('sw-product.variations.overview.filterReset') }}
                             </sw-button>
+                            {% endblock %}
 
-                            <sw-button variant="ghost"
-                                       class="sw-product-variants__configure-storefront-action"
-                                       :disabled="!acl.can('product.editor')"
-                                       @click="$emit('delivery-open')">
-                                {{ $tc('sw-product.variations.overview.storefrontDelivery') }}
+                            {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
+                            <sw-button
+                                variant="primary"
+                                @click="getList()"
+                            >
+                                {{ $tc('sw-product.variations.overview.filter') }}
                             </sw-button>
+                            {% endblock %}
+                        </div>
                         {% endblock %}
 
                     </sw-container>
+                </sw-context-menu>
                 {% endblock %}
-
             </div>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_product_variants_overview_data_grid %}
-            <sw-data-grid
-                class="sw-product-variants-overview__data-grid"
-                :dataSource="variants"
-                :columns="variantColumns"
-                :showSettings="true"
-                :showSelection="false"
-                :sortBy="sortBy"
-                :sortDirection="sortDirection"
-                :isLoading="isLoading"
-                :skeletonItemAmount="limit"
-                :allowInlineEdit="acl.can('product.editor')"
-                identifier="product-variants-overview"
-                @column-sort="onSortColumn"
-                @inline-edit-save="onInlineEditSave"
-                @inline-edit-cancel="onInlineEditCancel">
+            {% block sw_product_variants_overview_option_list_toolbar_buttons %}
+            <sw-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('product.creator'),
+                    showOnDisabledElements: true
+                }"
+                variant="ghost"
+                :disabled="!acl.can('product.creator')"
+                class="sw-product-variants__generate-action"
+                @click="$emit('generator-open')"
+            >
+                {{ $tc('sw-product.variations.overview.generateVariants') }}
+            </sw-button>
 
-                {% block sw_product_variants_overview_data_grid_column_name %}
-                    <template slot="column-name" slot-scope="{ item }">
-                        <template v-if="item.options">
-                            <router-link
-                                @click="onOptionEdit(item)"
-                                :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
-                                class="sw-product-variants-overview__variation-link">
+            <sw-button
+                variant="ghost"
+                class="sw-product-variants__configure-storefront-action"
+                :disabled="!acl.can('product.editor')"
+                @click="$emit('delivery-open')"
+            >
+                {{ $tc('sw-product.variations.overview.storefrontDelivery') }}
+            </sw-button>
+            {% endblock %}
 
-                                <sw-icon name="default-text-editor-link"></sw-icon>
-
-                                <span v-for="singleVariation in item.options"
-                                      class="sw-product-variants-overview__single-variation">
-                                    {{ singleVariation.translated.name }}
-                                </span>
-                            </router-link>
-                        </template>
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_variants_overview_data_grid_column_price %}
-                    <template v-for="currency in currencies" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, compact, isInlineEdit }">
-
-                        {% block sw_product_variants_overview_data_grid_column_price_inline_edit %}
-                            <template v-if="isInlineEdit">
-                                {% block sw_product_variants_overview_data_grid_column_price_inline_edit_inherit %}
-                                    <sw-inheritance-switch :isInherited="isPriceFieldInherited(item, currency)"
-                                                      class="sw-product-detail-context-prices__inherited-icon"
-                                                      @inheritance-restore="onInheritanceRestore(item, currency)"
-                                                      @inheritance-remove="onInheritanceRemove(item, currency)">
-                                    </sw-inheritance-switch>
-                                {% endblock %}
-
-                                {% block sw_product_variants_overview_data_grid_column_price_inline_edit_price_field %}
-                                    <sw-price-field :price="item.price ? item.price : []"
-                                                    :defaultPrice="getDefaultPriceForVariant(item, currency)"
-                                                    :taxRate="productTaxRate"
-                                                    :label="false"
-                                                    :compact="compact"
-                                                    enableInheritance
-                                                    :currency="currency">
-                                    </sw-price-field>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_product_variants_overview_data_grid_column_price_preview %}
-                            <template v-else>
-                                {% block sw_product_variants_overview_data_grid_column_price_preview_inherit %}
-                                    <sw-inheritance-switch :isInherited="isPriceFieldInherited(item, currency)"
-                                                      class="sw-product-detail-context-prices__inherited-icon"
-                                                      :disabled="true">
-                                    </sw-inheritance-switch>
-                                {% endblock %}
-
-                                {% block sw_product_variants_overview_data_grid_column_price_preview_price_field %}
-                                    <sw-price-preview :price="item.price ? item.price : []"
-                                                      :defaultPrice="getDefaultPriceForVariant(item, currency)"
-                                                      :taxRate="productTaxRate"
-                                                      :currency="currency">
-                                    </sw-price-preview>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_variants_overview_data_grid_column_stock %}
-                    <template slot="column-stock" slot-scope="{ item, isInlineEdit, compact }">
-                        {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
-                            <sw-field v-if="isInlineEdit"
-                                      type="number"
-                                      :size="compact ? 'small' : 'default'"
-                                      v-model="item.stock">
-                            </sw-field>
-                        {% endblock %}
-
-                        {% block sw_product_variants_overview_data_grid_column_stock_preview %}
-                            <span v-else>
-                                {{ item.stock }}
-                            </span>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_variants_overview_data_grid_column_product_number %}
-                    <template slot="column-productNumber" slot-scope="{ item, isInlineEdit, compact }">
-                        {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
-                            <sw-field v-if="isInlineEdit"
-                                      type="text"
-                                      :size="compact ? 'small' : 'default'"
-                                      v-model="item.productNumber">
-                            </sw-field>
-                        {% endblock %}
-
-                        {% block sw_product_variants_overview_data_grid_column_product_number_preview %}
-                            <span class="sw-product-variants-overview_product-number" v-else>
-                                {{ item.productNumber }}
-                            </span>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_variants_overview_data_grid_column_media %}
-                    <template v-if="feature.isActive('FEATURE_NEXT_6544')" #column-media="{ item, isInlineEdit, compact }">
-                        {% block sw_product_variants_overview_data_grid_column_media_inline_edit %}
-                            {% block sw_product_variants_overview_data_grid_column_media_inherit %}
-                                <sw-inheritance-switch :isInherited="isMediaFieldInherited(item)"
-                                                       :disabled="!isInlineEdit"
-                                                       class="sw-product-variants-overview_media__inherited-icon"
-                                                       @inheritance-restore="onMediaInheritanceRestore(item, isInlineEdit)"
-                                                       @inheritance-remove="onMediaInheritanceRemove(item, isInlineEdit)">
-                                </sw-inheritance-switch>
-                            {% endblock %}
-
-                            {% block sw_product_variants_overview_data_grid_column_media_content %}
-                                <sw-product-variants-media-upload
-                                    :source="item"
-                                    :uploadTag="item.id"
-                                    :isInherited="isMediaFieldInherited(item)"
-                                    :disabled="isInlineEdit ? isMediaFieldInherited(item) : true"
-                                    :parentProduct="product">
-                                </sw-product-variants-media-upload>
-                            {% endblock %}
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_variants_overview_data_grid_column_active %}
-                    <template slot="column-active" slot-scope="{ item, isInlineEdit }">
-                        <template v-if="isInlineEdit">
-                            <sw-data-grid-column-boolean v-model="item.active" :isInlineEdit="isInlineEdit" :disabled="isActiveFieldInherited(item)" />
-
-                            <sw-inheritance-switch :isInherited="isActiveFieldInherited(item)"
-                                                   class="sw-product-variants-overview__active-inherited-icon"
-                                                   @inheritance-restore="onActiveInheritanceRestore(item)"
-                                                   @inheritance-remove="onActiveInheritanceRemove(item)">
-                            </sw-inheritance-switch>
-                        </template>
-
-                        <template v-else>
-                            <sw-icon v-if="item.active === true" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
-                            <sw-icon v-else-if="item.active === false" name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
-                            <sw-icon v-else key="inherit-icon" :multicolor="true" name="custom-inherited" size="16"></sw-icon>
-                        </template>
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_variants_overview_data_grid_action_modals %}
-                    <template slot="action-modals" slot-scope="{ item }">
-                        <sw-modal v-if="showDeleteModal === item.id"
-                                  @modal-close="onCloseDeleteModal"
-                                  :title="$tc('global.default.warning')"
-                                  variant="small">
-
-                            <p class="sw-product-variants-overview__modal--confirm-delete-text">
-                                {{ $tc('sw-product.variations.generatedListDeleteModalMessage') }}
-                            </p>
-
-                            <template slot="modal-footer">
-                                {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
-                                    <sw-button @click="onCloseDeleteModal"
-                                               size="small"
-                                               :disabled="modalLoading">
-                                        {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
-                                    </sw-button>
-                                    <sw-button @click="onConfirmDelete(item)"
-                                               variant="danger"
-                                               size="small"
-                                               :disabled="modalLoading">
-                                        {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
-                                    </sw-button>
-                                {% endblock %}
-                            </template>
-                        </sw-modal>
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_variants_overview_actions %}
-                    <template slot="actions" slot-scope="{ item }">
-                        {% block sw_product_variants_overview_actions_items %}
-                            <sw-context-menu-item @click="onOptionEdit(item)"
-                                                  :disabled="!acl.can('product.editor')"
-                                                  v-tooltip="{
-                                                        message: $tc('sw-privileges.tooltip.warning'),
-                                                        disabled: acl.can('product.editor'),
-                                                        showOnDisabledElements: true
-                                                  }">
-                                {{ $tc('sw-product.variations.generatedListContextMenuEdit') }}
-                            </sw-context-menu-item>
-
-                            <sw-context-menu-item variant="danger"
-                                                  @click="onVariationDelete(item)"
-                                                  :disabled="!acl.can('product.deleter')"
-                                                  v-tooltip="{
-                                                        message: $tc('sw-privileges.tooltip.warning'),
-                                                        disabled: acl.can('product.deleter'),
-                                                        showOnDisabledElements: true
-                                                  }">
-                            {{ $tc('sw-product.variations.generatedListContextMenuDelete') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
-                {% block sw_product_variants_overview_pagination %}
-                    <template slot="pagination">
-                        <sw-pagination :page="page"
-                                       :limit="limit"
-                                       :total="total"
-                                       :total-visible="7"
-                                       @page-change="onPageChange">
-                        </sw-pagination>
-                    </template>
-                {% endblock %}
-
-            </sw-data-grid>
+        </sw-container>
         {% endblock %}
 
     </div>
+    {% endblock %}
+
+    {% block sw_product_variants_overview_data_grid %}
+    <sw-data-grid
+        class="sw-product-variants-overview__data-grid"
+        :data-source="variants"
+        :columns="variantColumns"
+        :show-settings="true"
+        :show-selection="false"
+        :sort-by="sortBy"
+        :sort-direction="sortDirection"
+        :is-loading="isLoading"
+        :skeleton-item-amount="limit"
+        :allow-inline-edit="acl.can('product.editor')"
+        identifier="product-variants-overview"
+        @column-sort="onSortColumn"
+        @inline-edit-save="onInlineEditSave"
+        @inline-edit-cancel="onInlineEditCancel"
+    >
+
+        {% block sw_product_variants_overview_data_grid_column_name %}
+        <template
+            slot="column-name"
+            slot-scope="{ item }"
+        >
+            <template v-if="item.options">
+                <router-link
+                    :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
+                    class="sw-product-variants-overview__variation-link"
+                    @click="onOptionEdit(item)"
+                >
+
+                    <sw-icon name="default-text-editor-link" />
+
+                    <span
+                        v-for="(singleVariation, index) in item.options"
+                        :key="index"
+                        class="sw-product-variants-overview__single-variation"
+                    >
+                        {{ singleVariation.translated.name }}
+                    </span>
+                </router-link>
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_product_variants_overview_data_grid_column_price %}
+        <template
+            v-for="currency in currencies"
+            :slot="`column-price-${currency.isoCode}`"
+            slot-scope="{ item, compact, isInlineEdit }"
+        >
+
+            {% block sw_product_variants_overview_data_grid_column_price_inline_edit %}
+            <template v-if="isInlineEdit">
+                {% block sw_product_variants_overview_data_grid_column_price_inline_edit_inherit %}
+                <sw-inheritance-switch
+                    :key="`switch-${currency.isoCode}`"
+                    :is-inherited="isPriceFieldInherited(item, currency)"
+                    class="sw-product-detail-context-prices__inherited-icon"
+                    @inheritance-restore="onInheritanceRestore(item, currency)"
+                    @inheritance-remove="onInheritanceRemove(item, currency)"
+                />
+                {% endblock %}
+
+                {% block sw_product_variants_overview_data_grid_column_price_inline_edit_price_field %}
+                <sw-price-field
+                    :key="`price-field-${currency.isoCode}`"
+                    :price="item.price ? item.price : []"
+                    :default-price="getDefaultPriceForVariant(item, currency)"
+                    :tax-rate="productTaxRate"
+                    :label="false"
+                    :compact="compact"
+                    enable-inheritance
+                    :currency="currency"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_product_variants_overview_data_grid_column_price_preview %}
+            <template v-else>
+                {% block sw_product_variants_overview_data_grid_column_price_preview_inherit %}
+                <sw-inheritance-switch
+                    :key="`else-switch-${currency.isoCode}`"
+                    :is-inherited="isPriceFieldInherited(item, currency)"
+                    class="sw-product-detail-context-prices__inherited-icon"
+                    :disabled="true"
+                />
+                {% endblock %}
+
+                {% block sw_product_variants_overview_data_grid_column_price_preview_price_field %}
+                <sw-price-preview
+                    :key="`else-price-field-${currency.isoCode}`"
+                    :price="item.price ? item.price : []"
+                    :default-price="getDefaultPriceForVariant(item, currency)"
+                    :tax-rate="productTaxRate"
+                    :currency="currency"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+        </template>
+        {% endblock %}
+
+        {% block sw_product_variants_overview_data_grid_column_stock %}
+        <template
+            slot="column-stock"
+            slot-scope="{ item, isInlineEdit, compact }"
+        >
+            {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
+            <sw-field
+                v-if="isInlineEdit"
+                v-model="item.stock"
+                type="number"
+                :size="compact ? 'small' : 'default'"
+            />
+            {% endblock %}
+
+            {% block sw_product_variants_overview_data_grid_column_stock_preview %}
+            <span v-else>
+                {{ item.stock }}
+            </span>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_product_variants_overview_data_grid_column_product_number %}
+        <template
+            slot="column-productNumber"
+            slot-scope="{ item, isInlineEdit, compact }"
+        >
+            {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
+            <sw-field
+                v-if="isInlineEdit"
+                v-model="item.productNumber"
+                type="text"
+                :size="compact ? 'small' : 'default'"
+            />
+            {% endblock %}
+
+            {% block sw_product_variants_overview_data_grid_column_product_number_preview %}
+            <span
+                v-else
+                class="sw-product-variants-overview_product-number"
+            >
+                {{ item.productNumber }}
+            </span>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_product_variants_overview_data_grid_column_media %}
+        <template
+            v-if="feature.isActive('FEATURE_NEXT_6544')"
+            #column-media="{ item, isInlineEdit, compact }"
+        >
+            {% block sw_product_variants_overview_data_grid_column_media_inline_edit %}
+            {% block sw_product_variants_overview_data_grid_column_media_inherit %}
+            <sw-inheritance-switch
+                :is-inherited="isMediaFieldInherited(item)"
+                :disabled="!isInlineEdit"
+                class="sw-product-variants-overview_media__inherited-icon"
+                @inheritance-restore="onMediaInheritanceRestore(item, isInlineEdit)"
+                @inheritance-remove="onMediaInheritanceRemove(item, isInlineEdit)"
+            />
+            {% endblock %}
+
+            {% block sw_product_variants_overview_data_grid_column_media_content %}
+            <sw-product-variants-media-upload
+                :source="item"
+                :upload-tag="item.id"
+                :is-inherited="isMediaFieldInherited(item)"
+                :disabled="isInlineEdit ? isMediaFieldInherited(item) : true"
+                :parent-product="product"
+            />
+            {% endblock %}
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_product_variants_overview_data_grid_column_active %}
+        <template
+            slot="column-active"
+            slot-scope="{ item, isInlineEdit }"
+        >
+            <template v-if="isInlineEdit">
+                <sw-data-grid-column-boolean
+                    v-model="item.active"
+                    :is-inline-edit="isInlineEdit"
+                    :disabled="isActiveFieldInherited(item)"
+                />
+
+                <sw-inheritance-switch
+                    :is-inherited="isActiveFieldInherited(item)"
+                    class="sw-product-variants-overview__active-inherited-icon"
+                    @inheritance-restore="onActiveInheritanceRestore(item)"
+                    @inheritance-remove="onActiveInheritanceRemove(item)"
+                />
+            </template>
+
+            <template v-else>
+                <sw-icon
+                    v-if="item.active === true"
+                    name="small-default-checkmark-line-medium"
+                    small
+                    class="is--active"
+                />
+                <sw-icon
+                    v-else-if="item.active === false"
+                    name="small-default-x-line-medium"
+                    small
+                    class="is--inactive"
+                />
+                <sw-icon
+                    v-else
+                    key="inherit-icon"
+                    :multicolor="true"
+                    name="custom-inherited"
+                    size="16"
+                />
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_product_variants_overview_data_grid_action_modals %}
+        <template
+            slot="action-modals"
+            slot-scope="{ item }"
+        >
+            <sw-modal
+                v-if="showDeleteModal === item.id"
+                :title="$tc('global.default.warning')"
+                variant="small"
+                @modal-close="onCloseDeleteModal"
+            >
+
+                <p class="sw-product-variants-overview__modal--confirm-delete-text">
+                    {{ $tc('sw-product.variations.generatedListDeleteModalMessage') }}
+                </p>
+
+                <template slot="modal-footer">
+                    {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
+                    <sw-button
+                        size="small"
+                        :disabled="modalLoading"
+                        @click="onCloseDeleteModal"
+                    >
+                        {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
+                    </sw-button>
+                    <sw-button
+                        variant="danger"
+                        size="small"
+                        :disabled="modalLoading"
+                        @click="onConfirmDelete(item)"
+                    >
+                        {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
+                    </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        </template>
+        {% endblock %}
+
+        {% block sw_product_variants_overview_actions %}
+        <template
+            slot="actions"
+            slot-scope="{ item }"
+        >
+            {% block sw_product_variants_overview_actions_items %}
+            <sw-context-menu-item
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('product.editor'),
+                    showOnDisabledElements: true
+                }"
+                :disabled="!acl.can('product.editor')"
+                @click="onOptionEdit(item)"
+            >
+                {{ $tc('sw-product.variations.generatedListContextMenuEdit') }}
+            </sw-context-menu-item>
+
+            <sw-context-menu-item
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('product.deleter'),
+                    showOnDisabledElements: true
+                }"
+                variant="danger"
+                :disabled="!acl.can('product.deleter')"
+                @click="onVariationDelete(item)"
+            >
+                {{ $tc('sw-product.variations.generatedListContextMenuDelete') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_product_variants_overview_pagination %}
+        <template slot="pagination">
+            <sw-pagination
+                :page="page"
+                :limit="limit"
+                :total="total"
+                :total-visible="7"
+                @page-change="onPageChange"
+            />
+        </template>
+        {% endblock %}
+
+    </sw-data-grid>
+    {% endblock %}
+
+</div>
 {% endblock %}

@@ -1,50 +1,67 @@
 {% block sw_cms_element_image_gallery %}
-    <div class="sw-cms-el-image-gallery" :class="[galleryPositionClass, currentDeviceViewClass]" :style="verticalAlignStyle">
+<div
+    class="sw-cms-el-image-gallery"
+    :class="[galleryPositionClass, currentDeviceViewClass]"
+    :style="verticalAlignStyle"
+>
 
-        {% block sw_cms_element_image_gallery_grid %}
-            <div class="sw-cms-el-image-gallery__grid" ref="galleryItemHolder">
+    {% block sw_cms_element_image_gallery_grid %}
+    <div
+        ref="galleryItemHolder"
+        class="sw-cms-el-image-gallery__grid"
+    >
 
-                <template v-if="mediaUrls && mediaUrls.length">
-                    <div class="sw-cms-el-image-gallery__item-holder">
-                        {% block sw_cms_element_image_gallery_selection %}
-                            <sw-media-list-selection-item-v2
-                                v-for="(sliderItem, index) in mediaUrls"
-                                v-if="index < galleryLimit"
-                                :key="index"
-                                :item="sliderItem.media"
-                                :class="activeMediaClass(sliderItem.media)"
-                                @click="onChangeGalleryImage(sliderItem.media, index)"
-                                hideActions
-                                hideTooltip>
-                            </sw-media-list-selection-item-v2>
-                        {% endblock %}
-                    </div>
-                </template>
-
-                <template v-else>
-                    {% block sw_cms_element_image_gallery_empty %}
-                        <div class="sw-cms-el-image-gallery__item-holder">
-                            <img v-for="mediaItem in getPlaceholderItems()"
-                                 class="sw-cms-el-image-gallery__item-placeholder"
-                                 :src="mediaItem.url">
-                        </div>
-                    {% endblock %}
-                </template>
-
-                {% block sw_cms_element_image_gallery_nav_arrow %}
-                    <div v-if="element.config.sliderItems.value.length > galleryLimit"
-                         class="sw-cms-el-image-gallery__grid-arrow">
-                        <sw-icon name="default-arrow-head-down" size="20"></sw-icon>
-                    </div>
+        <template v-if="mediaUrls && mediaUrls.length">
+            <div class="sw-cms-el-image-gallery__item-holder">
+                {% block sw_cms_element_image_gallery_selection %}
+                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                <sw-media-list-selection-item-v2
+                    v-for="(sliderItem, index) in mediaUrls"
+                    v-if="index < galleryLimit"
+                    :key="index"
+                    :item="sliderItem.media"
+                    :class="activeMediaClass(sliderItem.media)"
+                    hide-actions
+                    hide-tooltip
+                    @click="onChangeGalleryImage(sliderItem.media, index)"
+                />
                 {% endblock %}
             </div>
-        {% endblock %}
+        </template>
 
-        {% block sw_cms_element_image_gallery_slider %}
-            <sw-cms-el-image-slider :element="element"
-                                    @active-image-change="onChangeGalleryImage"
-                                    :activeMedia="activeMedia">
-            </sw-cms-el-image-slider>
+        <template v-else>
+            {% block sw_cms_element_image_gallery_empty %}
+            <div class="sw-cms-el-image-gallery__item-holder">
+                <img
+                    v-for="mediaItem in getPlaceholderItems()"
+                    :key="mediaItem.url"
+                    class="sw-cms-el-image-gallery__item-placeholder"
+                    :src="mediaItem.url"
+                >
+            </div>
+            {% endblock %}
+        </template>
+
+        {% block sw_cms_element_image_gallery_nav_arrow %}
+        <div
+            v-if="element.config.sliderItems.value.length > galleryLimit"
+            class="sw-cms-el-image-gallery__grid-arrow"
+        >
+            <sw-icon
+                name="default-arrow-head-down"
+                size="20"
+            />
+        </div>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_cms_element_image_gallery_slider %}
+    <sw-cms-el-image-slider
+        :element="element"
+        :active-media="activeMedia"
+        @active-image-change="onChangeGalleryImage"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

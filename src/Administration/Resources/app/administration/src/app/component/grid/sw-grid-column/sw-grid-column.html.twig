@@ -1,15 +1,24 @@
 {% block sw_grid_column %}
-    <div class="sw-grid-column sw-grid__cell" :class="'sw-grid-column--' + align" v-on="$listeners">
-        {% block sw_grid_column_content %}
-            <div class="sw-grid__cell-content" :class="{ 'is--truncate': truncate }">
-                <slot>{% block sw_grid_column_slot_default %}{% endblock %}</slot>
-            </div>
-        {% endblock %}
-
-        {% block sw_grid_column_editing %}
-            <div class="sw-grid__cell-inline-editing">
-                <slot name="inline-edit">{% block sw_grid_column_slot_inline_edit %}{% endblock %}</slot>
-            </div>
-        {% endblock %}
+<div
+    class="sw-grid-column sw-grid__cell"
+    :class="'sw-grid-column--' + align"
+    v-on="$listeners"
+>
+    {% block sw_grid_column_content %}
+    <div
+        class="sw-grid__cell-content"
+        :class="{ 'is--truncate': truncate }"
+    >
+        <slot>{% block sw_grid_column_slot_default %}{% endblock %}</slot>
     </div>
+    {% endblock %}
+
+    {% block sw_grid_column_editing %}
+    <div class="sw-grid__cell-inline-editing">
+        <slot name="inline-edit">
+            {% block sw_grid_column_slot_inline_edit %}{% endblock %}
+        </slot>
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

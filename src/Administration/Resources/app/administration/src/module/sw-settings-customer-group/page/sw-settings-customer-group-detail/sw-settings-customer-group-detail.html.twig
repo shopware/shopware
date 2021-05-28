@@ -1,199 +1,224 @@
 {% block sw_settings_customer_group_detail %}
-    <sw-page class="sw-settings-customer-group-detail">
+<sw-page class="sw-settings-customer-group-detail">
 
-        {% block sw_settings_customer_group_detail_search_bar %}
-            <template slot="search-bar"></template>
+    {% block sw_settings_customer_group_detail_search_bar %}
+    <template slot="search-bar" />
+    {% endblock %}
+
+    {% block sw_settings_customer_group_detail_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_customer_group_detail_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_customer_group_detail_smart_bar_header_title_text %}
+            {{ placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup')) }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_detail_language_switch %}
+    <template slot="language-switch">
+        <sw-language-switch
+            :disabled="customerGroupId == null"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_detail_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_customer_group_detail_actions_cancel %}
+        <sw-button
+            v-tooltip.bottom="tooltipCancel"
+            class="sw-settings-customer-group-detail__cancel"
+            @click="onCancel"
+        >
+            {{ $tc('sw-settings-customer-group.general.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_settings_customer_group_detail_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_settings_customer_group_detail_smart_bar_header_title %}
-                    <h2>
-                        {% block sw_settings_customer_group_detail_smart_bar_header_title_text %}
-                            {{ placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup')) }}
+        {% block sw_settings_customer_group_detail_actions_save %}
+        <sw-button-process
+            v-model="isSaveSuccessful"
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-customer-group-detail__save"
+            variant="primary"
+            :is-loading="isLoading"
+            :disabled="!allowSave"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-customer-group.general.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_detail_cardview %}
+    <template slot="content">
+        <sw-card-view>
+            {% block sw_settings_customer_group_detail_content_language_info %}
+            <sw-language-info :entity-description="entityDescription" />
+            {% endblock %}
+
+            {% block sw_settings_customer_group_detail_content_card %}
+            <sw-card
+                :is-loading="isLoading"
+                :title="$tc('sw-settings-customer-group.detail.cardTitle')"
+            >
+                <template v-if="!isLoading">
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+                        {% block sw_settings_customer_group_detail_content_card_name %}
+                        <sw-field
+                            v-model="customerGroup.name"
+                            class="sw-settings-customer-group-detail__name"
+                            required
+                            validation="required"
+                            :label="$tc('sw-settings-customer-group.detail.fieldNameLabel')"
+                            :error="customerGroupNameError"
+                            :placeholder="placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderName'))"
+                            :disabled="!acl.can('customer_groups.editor')"
+                        />
                         {% endblock %}
-                    </h2>
+
+                        {% block sw_settings_customer_group_detail_content_card_display_gross %}
+                        <sw-boolean-radio-group
+                            v-model="customerGroup.displayGross"
+                            bordered
+                            :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
+                            :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', true)"
+                            :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', false)"
+                            :disabled="!acl.can('customer_groups.editor')"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_customer_group_detail_content_card_registration_form %}
+                        <sw-switch-field
+                            v-model="customerGroup.registrationActive"
+                            :label="$tc('sw-settings-customer-group.detail.registrationForm')"
+                            :disabled="!acl.can('customer_groups.editor')"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                </template>
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_customer_group_detail_content_registration_card %}
+            <sw-card
+                v-if="customerGroup && customerGroup.registrationActive"
+                :is-loading="isLoading"
+                :title="$tc('sw-settings-customer-group.registration.formTitle')"
+            >
+
+                {% block sw_settings_customer_group_detail_content_registration_card_title %}
+                <sw-field
+                    v-model="customerGroup.registrationTitle"
+                    required
+                    validation="required"
+                    :label="$tc('sw-settings-customer-group.registration.title')"
+                    :placeholder="placeholder(customerGroup, 'registrationTitle', $tc('sw-settings-customer-group.registration.placeholderTitle'))"
+                    :error="registrationTitleError"
+                    :disabled="!acl.can('customer_groups.editor')"
+                />
                 {% endblock %}
-            </template>
-        {% endblock %}
 
-        {% block sw_settings_customer_group_detail_language_switch %}
-            <template slot="language-switch">
-                <sw-language-switch @on-change="onChangeLanguage"
-                                    :disabled="customerGroupId == null">
-                </sw-language-switch>
-            </template>
-        {% endblock %}
-
-        {% block sw_settings_customer_group_detail_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_settings_customer_group_detail_actions_cancel %}
-                    <sw-button v-tooltip.bottom="tooltipCancel"
-                               class="sw-settings-customer-group-detail__cancel"
-                               @click="onCancel">
-                        {{ $tc('sw-settings-customer-group.general.buttonCancel') }}
-                    </sw-button>
+                {% block sw_settings_customer_group_detail_content_registration_card_introduction %}
+                <sw-text-editor
+                    v-model="customerGroup.registrationIntroduction"
+                    :label="$tc('sw-settings-customer-group.registration.introduction')"
+                    :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
+                    :disabled="!acl.can('customer_groups.editor')"
+                />
                 {% endblock %}
 
-                {% block sw_settings_customer_group_detail_actions_save %}
-                    <sw-button-process
-                            v-tooltip.bottom="tooltipSave"
-                            v-model="isSaveSuccessful"
-                            class="sw-settings-customer-group-detail__save"
-                            variant="primary"
-                            :isLoading="isLoading"
-                            :disabled="!allowSave"
-                            @click="onSave">
-                        {{ $tc('sw-settings-customer-group.general.buttonSave') }}
-                    </sw-button-process>
+                {% block sw_settings_customer_group_detail_content_registration_card_only_companies_can_register %}
+                <sw-switch-field
+                    v-model="customerGroup.registrationOnlyCompanyRegistration"
+                    :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')"
+                    :disabled="!acl.can('customer_groups.editor')"
+                />
                 {% endblock %}
-            </template>
-        {% endblock %}
 
-        {% block sw_settings_customer_group_detail_cardview %}
-            <template slot="content">
-                <sw-card-view>
-                    {% block sw_settings_customer_group_detail_content_language_info %}
-                        <sw-language-info :entityDescription="entityDescription"></sw-language-info>
+                {% block sw_settings_customer_group_detail_content_registration_card_seo_meta_description %}
+                <sw-field
+                    v-model="customerGroup.registrationSeoMetaDescription"
+                    type="textarea"
+                    :label="$tc('sw-settings-customer-group.registration.seoMetaDescription')"
+                    :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $tc('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
+                    :disabled="!acl.can('customer_groups.editor')"
+                />
+                {% endblock %}
+
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_customer_group_detail_content_registration_url_card %}
+            <sw-card
+                v-if="customerGroup && customerGroup.registrationActive"
+                :is-loading="isLoading"
+                :title="$tc('sw-settings-customer-group.registration.linkUrlsTitle')"
+            >
+
+                {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
+                <sw-entity-multi-select
+                    v-model="customerGroup.registrationSalesChannels"
+                    class="sw-settings-customer-group-detail__sales-channel"
+                    :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
+                    :disabled="!acl.can('customer_groups.editor')"
+                />
+                {% endblock %}
+
+                {% block sw_settings_customer_group_detail_content_registration_technical_urls %}
+                <sw-text-field
+                    v-if="customerGroupId"
+                    v-model="technicalUrl"
+                    :label="$tc('sw-settings-customer-group.registration.technicalUrl')"
+                    :copyable="true"
+                    :disabled="true"
+                    :help-text="$tc('sw-settings-customer-group.registration.technicalUrlHelpText')"
+                />
+                {% endblock %}
+
+                {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url %}
+                <div
+                    v-for="seoUrl in seoUrls"
+                    :key="seoUrl"
+                >
+                    {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
+                    <!-- eslint-disable vue/valid-v-model -->
+                    <sw-text-field
+                        :key="seoUrl.id"
+                        v-model="getSeoUrl(seoUrl)"
+                        :label="seoUrl.salesChannel.translated.name"
+                        :copyable="true"
+                        :disabled="true"
+                    />
                     {% endblock %}
+                </div>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
 
+            {% block sw_settings_customer_group_detail_custom_field_sets %}
+            <sw-card
+                v-if="showCustomFields"
+                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                :is-loading="isLoading"
+            >
+                <sw-custom-field-set-renderer
+                    :entity="customerGroup"
+                    :disabled="!acl.can('customer_groups.editor')"
+                    :sets="customFieldSets"
+                />
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
 
-                    {% block sw_settings_customer_group_detail_content_card %}
-                        <sw-card :isLoading="isLoading"
-                                 :title="$tc('sw-settings-customer-group.detail.cardTitle')">
-                            <template v-if="!isLoading">
-                                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
-                                    {% block sw_settings_customer_group_detail_content_card_name %}
-                                        <sw-field v-model="customerGroup.name"
-                                                  class="sw-settings-customer-group-detail__name"
-                                                  required
-                                                  validation="required"
-                                                  :label="$tc('sw-settings-customer-group.detail.fieldNameLabel')"
-                                                  :error="customerGroupNameError"
-                                                  :placeholder="placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderName'))"
-                                                  :disabled="!acl.can('customer_groups.editor')">
-                                        </sw-field>
-                                    {% endblock %}
-
-                                    {% block sw_settings_customer_group_detail_content_card_display_gross %}
-                                        <sw-boolean-radio-group v-model="customerGroup.displayGross"
-                                                                bordered
-                                                                :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                                                :labelOptionTrue="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', true)"
-                                                                :labelOptionFalse="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', false)"
-                                                                :disabled="!acl.can('customer_groups.editor')">
-                                        </sw-boolean-radio-group>
-                                    {% endblock %}
-
-                                    {% block sw_settings_customer_group_detail_content_card_registration_form %}
-                                        <sw-switch-field v-model="customerGroup.registrationActive"
-                                                         :label="$tc('sw-settings-customer-group.detail.registrationForm')"
-                                                         :disabled="!acl.can('customer_groups.editor')">
-                                        </sw-switch-field>
-                                    {% endblock %}
-                                </sw-container>
-                            </template>
-                        </sw-card>
-                    {% endblock %}
-
-                    {% block sw_settings_customer_group_detail_content_registration_card %}
-                        <sw-card v-if="customerGroup && customerGroup.registrationActive"
-                                :isLoading="isLoading"
-                                :title="$tc('sw-settings-customer-group.registration.formTitle')">
-
-                            {% block sw_settings_customer_group_detail_content_registration_card_title %}
-                                <sw-field v-model="customerGroup.registrationTitle"
-                                          required
-                                          validation="required"
-                                          :label="$tc('sw-settings-customer-group.registration.title')"
-                                          :placeholder="placeholder(customerGroup, 'registrationTitle', $tc('sw-settings-customer-group.registration.placeholderTitle'))"
-                                          :error="registrationTitleError"
-                                          :disabled="!acl.can('customer_groups.editor')">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_settings_customer_group_detail_content_registration_card_introduction %}
-                                <sw-text-editor v-model="customerGroup.registrationIntroduction"
-                                                :label="$tc('sw-settings-customer-group.registration.introduction')"
-                                                :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
-                                                :disabled="!acl.can('customer_groups.editor')">
-                                </sw-text-editor>
-                            {% endblock %}
-
-                            {% block sw_settings_customer_group_detail_content_registration_card_only_companies_can_register %}
-                                <sw-switch-field v-model="customerGroup.registrationOnlyCompanyRegistration"
-                                                 :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')"
-                                                 :disabled="!acl.can('customer_groups.editor')">
-                                </sw-switch-field>
-                            {% endblock %}
-
-                            {% block sw_settings_customer_group_detail_content_registration_card_seo_meta_description %}
-                                <sw-field v-model="customerGroup.registrationSeoMetaDescription"
-                                          type="textarea"
-                                          :label="$tc('sw-settings-customer-group.registration.seoMetaDescription')"
-                                          :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $tc('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
-                                          :disabled="!acl.can('customer_groups.editor')">
-                                </sw-field>
-                            {% endblock %}
-
-                        </sw-card>
-                    {% endblock %}
-
-                    {% block sw_settings_customer_group_detail_content_registration_url_card %}
-                        <sw-card v-if="customerGroup && customerGroup.registrationActive"
-                                 :isLoading="isLoading"
-                                 :title="$tc('sw-settings-customer-group.registration.linkUrlsTitle')">
-
-                            {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
-                                <sw-entity-multi-select
-                                    v-model="customerGroup.registrationSalesChannels"
-                                    class="sw-settings-customer-group-detail__sales-channel"
-                                    :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
-                                    :disabled="!acl.can('customer_groups.editor')">
-                                </sw-entity-multi-select>
-                            {% endblock %}
-
-                            {% block sw_settings_customer_group_detail_content_registration_technical_urls %}
-                                <sw-text-field
-                                    v-if="customerGroupId"
-                                    v-model="technicalUrl"
-                                    :label="$tc('sw-settings-customer-group.registration.technicalUrl')"
-                                    :copyable="true"
-                                    :disabled="true"
-                                    :helpText="$tc('sw-settings-customer-group.registration.technicalUrlHelpText')">
-                                </sw-text-field>
-                            {% endblock %}
-
-                            {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url %}
-                                <div v-for="seoUrl in seoUrls">
-                                    {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
-                                        <sw-text-field
-                                            v-model="getSeoUrl(seoUrl)"
-                                            :key="seoUrl.id"
-                                            :label="seoUrl.salesChannel.translated.name"
-                                            :copyable="true"
-                                            :disabled="true">
-                                        </sw-text-field>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-
-                    {% block sw_settings_customer_group_detail_custom_field_sets %}
-                        <sw-card v-if="showCustomFields"
-                                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                                 :isLoading="isLoading">
-                            <sw-custom-field-set-renderer
-                                :entity="customerGroup"
-                                :disabled="!acl.can('customer_groups.editor')"
-                                :sets="customFieldSets">
-                            </sw-custom-field-set-renderer>
-                        </sw-card>
-                    {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
-
-    </sw-page>
+</sw-page>
 {% endblock %}

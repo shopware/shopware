@@ -1,58 +1,74 @@
 {% block sw_notification_center_item %}
-    <div class="sw-notification-center-item">
-        {% block sw_notification_center_item_header %}
-            <div class="sw-notification-center-item__header"
-                 :class="itemHeaderClass">
-                {% block sw_notification_center_item_header_title %}
-                    <p class="sw-notification-center-item__title">
-                        {{ notification.title }}
-                    </p>
-                {% endblock %}
-                {% block sw_notification_center_item_header_timestamp %}
-                    <p class="sw-notification-center-item__timestamp">
-                        {{ dateFormatted }}
-                    </p>
-                {% endblock %}
-                {% block sw_notification_center_item_header_delete %}
-                    <sw-icon class="sw-notification-center-item__delete"
-                             name="small-default-x-line-small"
-                             size="16px"
-                             @click.stop="onDelete">
-                    </sw-icon>
-                {% endblock %}
-            </div>
+<div class="sw-notification-center-item">
+    {% block sw_notification_center_item_header %}
+    <div
+        class="sw-notification-center-item__header"
+        :class="itemHeaderClass"
+    >
+        {% block sw_notification_center_item_header_title %}
+        <p class="sw-notification-center-item__title">
+            {{ notification.title }}
+        </p>
         {% endblock %}
-        {% block sw_notification_center_item_content %}
-            <div class="sw-notification-center-item__content">
-                {% block sw_notification_center_item_content_message %}
-                    <p class="sw-notification-center-item__message" v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })">
-                    </p>
-                {% endblock %}
-                {% block sw_notification_center_item_loader %}
-                    <sw-loader v-if="notification.isLoading"
-                               class="sw-notification-center-item__loader"
-                               size="20px">
-                    </sw-loader>
-                {% endblock %}
-            </div>
+        {% block sw_notification_center_item_header_timestamp %}
+        <p class="sw-notification-center-item__timestamp">
+            {{ dateFormatted }}
+        </p>
         {% endblock %}
-
-        {% block sw_notification_center_item_actions %}
-            <div v-if="notification.actions" class="sw-notification-center-item__actions">
-                {% block sw_notification_center_item_actions_inner %}
-                    <template v-for="action in notificationActions">
-                        {% block sw_notification_center_item_actions_item_container %}
-                            <div class="sw-notification-center-item__actions-item-container">
-                                {% block sw_notification_center_item_actions_item %}
-                                    <sw-button block size="small" @click="handleAction(action)">
-                                        {{ action.label }}
-                                    </sw-button>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </div>
+        {% block sw_notification_center_item_header_delete %}
+        <sw-icon
+            class="sw-notification-center-item__delete"
+            name="small-default-x-line-small"
+            size="16px"
+            @click.stop="onDelete"
+        />
         {% endblock %}
     </div>
+    {% endblock %}
+    {% block sw_notification_center_item_content %}
+    <div class="sw-notification-center-item__content">
+        {% block sw_notification_center_item_content_message %}
+        <p
+            class="sw-notification-center-item__message"
+            v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+        />
+        {% endblock %}
+        {% block sw_notification_center_item_loader %}
+        <sw-loader
+            v-if="notification.isLoading"
+            class="sw-notification-center-item__loader"
+            size="20px"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_notification_center_item_actions %}
+    <div
+        v-if="notification.actions"
+        class="sw-notification-center-item__actions"
+    >
+        {% block sw_notification_center_item_actions_inner %}
+        <template v-for="action in notificationActions">
+            {% block sw_notification_center_item_actions_item_container %}
+            <div
+                :key="action.label"
+                class="sw-notification-center-item__actions-item-container"
+            >
+                {% block sw_notification_center_item_actions_item %}
+                <sw-button
+                    block
+                    size="small"
+                    @click="handleAction(action)"
+                >
+                    {{ action.label }}
+                </sw-button>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,39 +1,57 @@
 {% block sw_block_field %}
-    <sw-block-field class="sw-field--select"
-                    :class="swFieldSelectClasses"
-                    v-bind="$attrs"
-                    :name="formFieldName">
-        <template #sw-field-input="{ identification, helpText, error, disabled, size, setFocusClass, removeFocusClass }">
-            <select :name="identification"
-                    :id="identification"
-                    :class="{ 'is--placeholder': currentValue === null }"
-                    :disabled="disabled"
-                    :value="currentValue"
-                    @change="onChange"
-                    @focus="setFocusClass"
-                    @blur="removeFocusClass">
+<sw-block-field
+    class="sw-field--select"
+    :class="swFieldSelectClasses"
+    v-bind="$attrs"
+    :name="formFieldName"
+>
+    <template #sw-field-input="{ identification, helpText, error, disabled, size, setFocusClass, removeFocusClass }">
+        <select
+            :id="identification"
+            :name="identification"
+            :class="{ 'is--placeholder': currentValue === null }"
+            :disabled="disabled"
+            :value="currentValue"
+            @change="onChange"
+            @focus="setFocusClass"
+            @blur="removeFocusClass"
+        >
 
-                <option v-if="placeholder" class=sw-field--select__placeholder-option :value="null">{{ placeholder }}</option>
+            <option
+                v-if="placeholder"
+                class="sw-field--select__placeholder-option"
+                :value="null"
+            >
+                {{ placeholder }}
+            </option>
 
-                <slot>
-                    <template v-if="options && options.length">
-                        <option v-for="option in options"
-                                :value="option.id"
-                                :disabled="disabled || option.disabled">
-                            {{ getOptionName(option.name) }}
-                        </option>
-                    </template>
-                </slot>
-            </select>
+            <slot>
+                <template v-if="options && options.length">
+                    <option
+                        v-for="option in options"
+                        :key="option.id"
+                        :value="option.id"
+                        :disabled="disabled || option.disabled"
+                    >
+                        {{ getOptionName(option.name) }}
+                    </option>
+                </template>
+            </slot>
+        </select>
 
-            <sw-loader v-if="!$slots.default && !hasOptions"
-                    class="sw-field--select__loader"
-                    size="20px">
-            </sw-loader>
+        <sw-loader
+            v-if="!$slots.default && !hasOptions"
+            class="sw-field--select__loader"
+            size="20px"
+        />
 
-            <div class="sw-field--select__options">
-                <sw-icon name="small-arrow-medium-down" small decorative></sw-icon>
-            </div>
-        </template>
-    </sw-block-field>
+        <div class="sw-field--select__options">
+            <sw-icon
+                name="small-arrow-medium-down"
+                small
+                decorative
+            />
+        </div>
+    </template>
+</sw-block-field>
 {% endblock %}

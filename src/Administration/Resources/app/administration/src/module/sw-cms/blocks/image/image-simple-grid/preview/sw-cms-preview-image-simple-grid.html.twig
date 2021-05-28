@@ -1,13 +1,13 @@
 {% block sw_cms_block_image_simple_grid_preview %}
-    <div class="sw-cms-preview-image-simple-grid">
-        <div class="sw-cms-preview-image-simple-grid__side-images">
-            <div class="sw-cms-preview-image-simple-grid__image-top">
-                <img :src="'/administration/static/img/cms/preview_camera_small.jpg' | asset">
-            </div>
-            <div class="sw-cms-preview-image-simple-grid__image-bottom">
-                <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
-            </div>
+<div class="sw-cms-preview-image-simple-grid">
+    <div class="sw-cms-preview-image-simple-grid__side-images">
+        <div class="sw-cms-preview-image-simple-grid__image-top">
+            <img :src="'/administration/static/img/cms/preview_camera_small.jpg' | asset">
         </div>
-        <img :src="'/administration/static/img/cms/preview_plant_small.jpg' | asset">
+        <div class="sw-cms-preview-image-simple-grid__image-bottom">
+            <img :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset">
+        </div>
     </div>
+    <img :src="'/administration/static/img/cms/preview_plant_small.jpg' | asset">
+</div>
 {% endblock %}

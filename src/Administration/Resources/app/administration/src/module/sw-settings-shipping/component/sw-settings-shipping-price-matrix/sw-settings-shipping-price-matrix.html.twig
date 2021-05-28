@@ -1,305 +1,354 @@
 {% block sw_settings_shipping_price_matrix %}
-    <sw-card
-        :title="cardTitle"
-        :isLoading="isLoading"
-        class="sw-settings-shipping-price-matrix">
-        {% block sw_settings_shipping_price_matrix_topbar_alert %}
-            <sw-alert
-                class="sw-settings-shipping-price-matrix__new-matrix-alert"
-                v-if="priceGroup.isNew"
-                variant="warning"
-                :title="$tc('global.default.warning')"
-                :closable="false">
-                {{ $tc('sw-settings-shipping.priceMatrix.newMatrixAlertMessage') }}
-            </sw-alert>
-         {% endblock %}
-        {% block sw_settings_shipping_price_matrix_topbar %}
-            <sw-container columns="1fr 160px 35px"
-                          gap="0px 24px"
-                          class="sw-settings-shipping-price-matrix__top-container">
-                {% block sw_settings_shipping_price_matrix_topbar_rule_select %}
-                    <sw-select-rule-create
-                        class="sw-settings-shipping-price-matrix__top-container-rule-select"
-                        :ruleId="priceGroup.ruleId"
-                        :ruleFilter="ruleFilterCriteria"
-                        size="small"
-                        :disabled="disabled"
-                        :placeholder="mainRulePlaceholder"
-                        @save-rule="onSaveMainRule">
-                        <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                            <li is="sw-select-result"
-                                :disabled="usedRules.includes(item.id) && !isSelected(item)"
-                                v-tooltip="{
-                                    showDelay: 300,
-                                    message: $tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsed'),
-                                    disabled: !usedRules.includes(item.id) && !isSelected(item)
-                                }"
-                                :selected="isSelected(item)"
-                                @item-select="setValue"
-                                v-bind="{ item, index }">
-                                <sw-highlight-text v-if="highlightSearchTerm"
-                                                   :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                   :searchTerm="searchTerm">
-                                </sw-highlight-text>
-                                <template v-else>
-                                    {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                </template>
-                            </li>
-                        </template>
-                    </sw-select-rule-create>
-                {% endblock %}
+<sw-card
+    :title="cardTitle"
+    :is-loading="isLoading"
+    class="sw-settings-shipping-price-matrix"
+>
+    {% block sw_settings_shipping_price_matrix_topbar_alert %}
+    <sw-alert
+        v-if="priceGroup.isNew"
+        class="sw-settings-shipping-price-matrix__new-matrix-alert"
+        variant="warning"
+        :title="$tc('global.default.warning')"
+        :closable="false"
+    >
+        {{ $tc('sw-settings-shipping.priceMatrix.newMatrixAlertMessage') }}
+    </sw-alert>
+    {% endblock %}
+    {% block sw_settings_shipping_price_matrix_topbar %}
+    <sw-container
+        columns="1fr 160px 35px"
+        gap="0px 24px"
+        class="sw-settings-shipping-price-matrix__top-container"
+    >
+        {% block sw_settings_shipping_price_matrix_topbar_rule_select %}
+        <sw-select-rule-create
+            class="sw-settings-shipping-price-matrix__top-container-rule-select"
+            :rule-id="priceGroup.ruleId"
+            :rule-filter="ruleFilterCriteria"
+            size="small"
+            :disabled="disabled"
+            :placeholder="mainRulePlaceholder"
+            @save-rule="onSaveMainRule"
+        >
+            <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                <li
+                    is="sw-select-result"
+                    v-tooltip="{
+                        showDelay: 300,
+                        message: $tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsed'),
+                        disabled: !usedRules.includes(item.id) && !isSelected(item)
+                    }"
+                    :disabled="usedRules.includes(item.id) && !isSelected(item)"
+                    :selected="isSelected(item)"
+                    v-bind="{ item, index }"
+                    @item-select="setValue"
+                >
+                    <sw-highlight-text
+                        v-if="highlightSearchTerm"
+                        :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                        :search-term="searchTerm"
+                    />
+                    <template v-else>
+                        {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                    </template>
+                </li>
+            </template>
+        </sw-select-rule-create>
+        {% endblock %}
 
-                {% block sw_settings_shipping_price_matrix_topbar_new_price %}
-                    <sw-button
-                        size="x-small"
-                        class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
-                       :variant="!showDataGrid ? '': 'ghost'"
-                       :disabled="!showDataGrid || disabled"
-                       @click="onAddNewShippingPrice">
-                        <template v-if="isRuleMatrix">
-                            {{ $tc('sw-settings-shipping.priceMatrix.addNewRule') }}
-                        </template>
+        {% block sw_settings_shipping_price_matrix_topbar_new_price %}
+        <sw-button
+            size="x-small"
+            class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
+            :variant="!showDataGrid ? '': 'ghost'"
+            :disabled="!showDataGrid || disabled"
+            @click="onAddNewShippingPrice"
+        >
+            <template v-if="isRuleMatrix">
+                {{ $tc('sw-settings-shipping.priceMatrix.addNewRule') }}
+            </template>
+            <template v-else>
+                {{ $tc('sw-settings-shipping.priceMatrix.addNewShippingPrice') }}
+            </template>
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_settings_shipping_price_matrix_topbar_context_button %}
+        <sw-context-button
+            :disabled="!showDataGrid || disabled"
+            class="sw-settings-shipping-price-matrix__price-group-context"
+        >
+            {% block sw_settings_shipping_price_matrix_topbar_context_button_duplicate %}
+            <sw-context-menu-item
+                v-tooltip="{
+                    showDelay: 300,
+                    showOnDisabledElements: true,
+                    message: $tc('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
+                    disabled: !newPriceMatrixExists
+                }"
+                :disabled="newPriceMatrixExists"
+                class="sw-settings-shipping-price-matrix__action-duplicate"
+                @click="$emit('duplicate-price-matrix', priceGroup)"
+            >
+                {{ $tc('sw-settings-shipping.priceMatrix.duplicateMatrixContextLabel') }}
+            </sw-context-menu-item>
+            {% endblock %}
+            {% block sw_settings_shipping_price_matrix_topbar_context_button_delete %}
+            <sw-context-menu-item
+                class="sw-settings-shipping-price-matrix__action-delete"
+                variant="danger"
+                @click="onDeletePriceMatrix"
+            >
+                {{ $tc('sw-settings-shipping.priceMatrix.deleteMatrixContextLabel') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </sw-context-button>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_settings_shipping_price_matrix_price_grid %}
+    <sw-data-grid
+        v-if="showDataGrid"
+        :data-source="priceGroup.prices"
+        :columns="ruleColumns"
+        :show-settings="true"
+        :compact-mode="true"
+    >
+        {% block sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule %}
+        <template
+            slot="column-calculationRule"
+            slot-scope="{ item, itemIndex, compact }"
+        >
+            <sw-select-rule-create
+                class="sw-settings-shipping-price-matrix__column-calculation-rule-select"
+                size="small"
+                :disabled="disabled"
+                :rule-id="item.calculationRuleId"
+                :rule-filter="shippingRuleFilterCriteria"
+                :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
+                @save-rule="(ruleId) => onSaveCustomShippingRule(ruleId, item)"
+            >
+                <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
+                    <sw-price-rule-modal
+                        v-if="showRuleModal"
+                        :allowed-rule-scopes="['cart', 'checkout', 'global', 'lineItem']"
+                        @save="onSaveRule"
+                        @modal-close="onCloseRuleModal"
+                    />
+                </template>
+                <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                    <li
+                        is="sw-select-result"
+                        v-tooltip="{
+                            showDelay: 300,
+                            message: $tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix'),
+                            disabled: !usedCalculationRules.includes(item.id) && !isSelected(item)
+                        }"
+                        :disabled="usedCalculationRules.includes(item.id) && !isSelected(item)"
+                        :selected="isSelected(item)"
+                        v-bind="{ item, index }"
+                        @item-select="setValue"
+                    >
+                        <sw-highlight-text
+                            v-if="highlightSearchTerm"
+                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                            :search-term="searchTerm"
+                        />
                         <template v-else>
-                            {{ $tc('sw-settings-shipping.priceMatrix.addNewShippingPrice') }}
+                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                         </template>
-                    </sw-button>
-                {% endblock %}
+                    </li>
+                </template>
+            </sw-select-rule-create>
+        </template>
+        {% endblock %}
+        {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_start %}
+        <template
+            slot="column-quantityStart"
+            slot-scope="{ item, itemIndex, compact }"
+        >
+            <sw-number-field
+                v-model="item.quantityStart"
+                :disabled="disabled"
+                :name="`sw-field--${item.id}-quantity-start`"
+                :number-type="numberFieldType"
+                :size="compact ? 'small' : 'default'"
+                :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd : 0"
+                :max="item.quantityEnd ? item.quantityEnd : null"
+                :digits="3"
+            />
+        </template>
+        {% endblock %}
+        {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
+        <template
+            slot="column-quantityEnd"
+            slot-scope="{ item, itemIndex, compact }"
+        >
+            <sw-number-field
+                v-model="item.quantityEnd"
+                :disabled="disabled"
+                :name="`sw-field--${item.id}-quantity-end`"
+                :number-type="numberFieldType"
+                :size="compact ? 'small' : 'default'"
+                :placeholder="$tc('sw-settings-shipping.priceMatrix.any')"
+                :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
+                :min="item.quantityStart"
+                :digits="3"
+                @change="onQuantityEndChange(item)"
+            />
+        </template>
+        {% endblock %}
+        {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
+        <template
+            v-for="currency in currencies"
+            :slot="`column-price-${currency.isoCode}`"
+            slot-scope="{ item, column, compact }"
+        >
+            <sw-inherit-wrapper
+                :key="currency.isoCode"
+                class="sw-settings-shipping-price-matrix__price"
+                :value="getPrice(item, currency)"
+                :has-parent="!currency.isSystemDefault"
+                :inherited-value="currency.isSystemDefault ? null : convertDefaultPriceToCurrencyPrice(item, currency)"
+                @input="setPrice(item, currency, $event)"
+            >
+                <template #content="props">
 
-                {% block sw_settings_shipping_price_matrix_topbar_context_button %}
-                    <sw-context-button :disabled="!showDataGrid || disabled"
-                                       class="sw-settings-shipping-price-matrix__price-group-context">
-                        {% block sw_settings_shipping_price_matrix_topbar_context_button_duplicate %}
-                            <sw-context-menu-item
-                                :disabled="newPriceMatrixExists"
-                                v-tooltip="{
-                                    showDelay: 300,
-                                    showOnDisabledElements: true,
-                                    message: $tc('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
-                                    disabled: !newPriceMatrixExists
-                                }"
-                                @click="$emit('duplicate-price-matrix', priceGroup)"
-                                class="sw-settings-shipping-price-matrix__action-duplicate">
-                                {{ $tc('sw-settings-shipping.priceMatrix.duplicateMatrixContextLabel') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-                        {% block sw_settings_shipping_price_matrix_topbar_context_button_delete %}
-                            <sw-context-menu-item
-                                @click="onDeletePriceMatrix"
-                                class="sw-settings-shipping-price-matrix__action-delete"
-                                variant="danger">
-                                {{ $tc('sw-settings-shipping.priceMatrix.deleteMatrixContextLabel') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-                    </sw-context-button>
-                {% endblock %}
-            </sw-container>
+                    <sw-inheritance-switch
+                        v-if="!currency.isSystemDefault"
+                        class="sw-settings-shipping-price-matrix__price-inherit-icon"
+                        :is-inherited="props.isInherited"
+                        :disabled="disabled"
+                        @inheritance-restore="props.restoreInheritance"
+                        @inheritance-remove="props.removeInheritance"
+                    />
+
+                    <sw-number-field
+                        v-model="props.currentValue.gross"
+                        :name="`sw-field--${item.id}-${currency.id}-gross`"
+                        :size="compact ? 'small' : 'default'"
+                        class="sw-settings-shipping-price-matrix__price-input"
+                        :digits="50"
+                        :disabled="props.isInherited || disabled"
+                    />
+                    <sw-number-field
+                        v-model="props.currentValue.net"
+                        :name="`sw-field--${item.id}-${currency.id}-net`"
+                        :size="compact ? 'small' : 'default'"
+                        class="sw-settings-shipping-price-matrix__price-input"
+                        :digits="50"
+                        :disabled="props.isInherited || disabled"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+        </template>
         {% endblock %}
 
-        {% block sw_settings_shipping_price_matrix_price_grid %}
-            <sw-data-grid v-if="showDataGrid"
-                          :dataSource="priceGroup.prices"
-                          :columns="ruleColumns"
-                          :showSettings="true"
-                          :compactMode="true">
-                {% block sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule %}
-                    <template slot="column-calculationRule" slot-scope="{ item, itemIndex, compact }">
-                        <sw-select-rule-create
-                            class="sw-settings-shipping-price-matrix__column-calculation-rule-select"
-                            size="small"
-                            :disabled="disabled"
-                            :ruleId="item.calculationRuleId"
-                            :ruleFilter="shippingRuleFilterCriteria"
-                            :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
-                            @save-rule="(ruleId) => onSaveCustomShippingRule(ruleId, item)">
-                            <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
-                                <sw-price-rule-modal
-                                    v-if="showRuleModal"
-                                    @save="onSaveRule"
-                                    @modal-close="onCloseRuleModal"
-                                    :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
-                                </sw-price-rule-modal>
-                            </template>
-                            <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                                <li is="sw-select-result"
-                                    :disabled="usedCalculationRules.includes(item.id) && !isSelected(item)"
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: $tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix'),
-                                        disabled: !usedCalculationRules.includes(item.id) && !isSelected(item)
-                                    }"
-                                    :selected="isSelected(item)"
-                                    @item-select="setValue"
-                                    v-bind="{ item, index }">
-                                    <sw-highlight-text v-if="highlightSearchTerm"
-                                                       :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                       :searchTerm="searchTerm">
-                                    </sw-highlight-text>
-                                    <template v-else>
-                                        {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                    </template>
-                                </li>
-                            </template>
-                        </sw-select-rule-create>
-                    </template>
-                {% endblock %}
-                {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_start %}
-                    <template slot="column-quantityStart" slot-scope="{ item, itemIndex, compact }">
-                        <sw-number-field
-                            :disabled="disabled"
-                            :name="`sw-field--${item.id}-quantity-start`"
-                            :numberType="numberFieldType"
-                            :size="compact ? 'small' : 'default'"
-                            :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd : 0"
-                            :max="item.quantityEnd ? item.quantityEnd : null"
-                            :digits="3"
-                            v-model="item.quantityStart">
-                        </sw-number-field>
-                    </template>
-                {% endblock %}
-                {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
-                    <template slot="column-quantityEnd" slot-scope="{ item, itemIndex, compact }">
-                        <sw-number-field
-                            :disabled="disabled"
-                            :name="`sw-field--${item.id}-quantity-end`"
-                            :numberType="numberFieldType"
-                            :size="compact ? 'small' : 'default'"
-                            :placeholder="$tc('sw-settings-shipping.priceMatrix.any')"
-                            :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
-                            :min="item.quantityStart"
-                            :digits="3"
-                            @change="onQuantityEndChange(item)"
-                            v-model="item.quantityEnd">
-                        </sw-number-field>
-                    </template>
-                {% endblock %}
-                {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
-                    <template
-                        v-for="currency in currencies"
-                        :slot="`column-price-${currency.isoCode}`"
-                        slot-scope="{ item, column, compact }">
-                            <sw-inherit-wrapper
-                                class="sw-settings-shipping-price-matrix__price"
-                                :value="getPrice(item, currency)"
-                                @input="setPrice(item, currency, $event)"
-                                :hasParent="!currency.isSystemDefault"
-                                :inheritedValue="currency.isSystemDefault ? null : convertDefaultPriceToCurrencyPrice(item, currency)">
-                                <template #content="props">
+        {% block sw_settings_shipping_price_matrix_price_grid_actions %}
+        <template #actions="{ item }">
+            {% block sw_settings_shipping_price_matrix_price_grid_actions_delete %}
+            <sw-context-menu-item
+                :disabled="disableDeleteButton || disabled"
+                variant="danger"
+                @click="onDeleteShippingPrice(item)"
+            >
+                {{ $tc('sw-settings-shipping.priceMatrix.contextMenuDeletePrice') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-data-grid>
+    {% endblock %}
 
-                                    <sw-inheritance-switch
-                                        v-if="!currency.isSystemDefault"
-                                        class="sw-settings-shipping-price-matrix__price-inherit-icon"
-                                        :isInherited="props.isInherited"
-                                        :disabled="disabled"
-                                        @inheritance-restore="props.restoreInheritance"
-                                        @inheritance-remove="props.removeInheritance">
-                                    </sw-inheritance-switch>
+    {% block sw_settings_shipping_price_matrix_empty %}
+    <div
+        v-else
+        class="sw-settings-shipping-price-matrix__empty"
+    >
+        {% block sw_settings_shipping_price_matrix_empty_text %}
+        <p class="sw-settings-shipping-price-matrix__empty-text">
+            {{ $tc('sw-settings-shipping.priceMatrix.emptyText') }}
+        </p>
+        {% endblock %}
+        <sw-container
+            columns="1fr 10px 1fr"
+            gap="0px 24px"
+        >
+            {% block sw_settings_shipping_price_matrix_empty_property_store %}
+            <sw-single-select
+                class="sw-settings-shipping-price-matrix__empty--select-property"
+                :options="calculationTypes"
+                :value="priceGroup.calculation"
+                :disabled="disabled"
+                size="small"
+                :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')"
+                @change="onCalculationChange"
+            />
+            {% endblock %}
 
-                                    <sw-number-field
-                                        :name="`sw-field--${item.id}-${currency.id}-gross`"
-                                        :size="compact ? 'small' : 'default'"
-                                        class="sw-settings-shipping-price-matrix__price-input"
-                                        v-model="props.currentValue.gross"
-                                        :digits="50"
-                                        :disabled="props.isInherited || disabled">
-                                    </sw-number-field>
-                                    <sw-number-field
-                                        :name="`sw-field--${item.id}-${currency.id}-net`"
-                                        :size="compact ? 'small' : 'default'"
-                                        class="sw-settings-shipping-price-matrix__price-input"
-                                        v-model="props.currentValue.net"
-                                        :digits="50"
-                                        :disabled="props.isInherited || disabled">
-                                    </sw-number-field>
-                                </template>
-                            </sw-inherit-wrapper>
-                    </template>
-                {% endblock %}
+            <p class="sw-settings-shipping-price-matrix__empty-text-or">
+                {{ $tc('sw-settings-shipping.priceMatrix.textOr') }}
+            </p>
 
-                {% block sw_settings_shipping_price_matrix_price_grid_actions %}
-                    <template #actions="{ item }">
-                        {% block sw_settings_shipping_price_matrix_price_grid_actions_delete %}
-                            <sw-context-menu-item :disabled="disableDeleteButton || disabled"
-                                                  @click="onDeleteShippingPrice(item)"
-                                                  variant="danger">
-                                {{ $tc('sw-settings-shipping.priceMatrix.contextMenuDeletePrice') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-data-grid>
+            {% block sw_settings_shipping_price_matrix_empty_rule_select %}
+            <sw-select-rule-create
+                size="small"
+                :disabled="disabled"
+                :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
+                @save-rule="onSaveCustomShippingRule"
+            >
+                <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
+                    <sw-price-rule-modal
+                        v-if="showRuleModal"
+                        :allowed-rule-scopes="['cart', 'checkout', 'global', 'lineItem']"
+                        @save="onSaveRule"
+                        @modal-close="onCloseRuleModal"
+                    />
+                </template>
+            </sw-select-rule-create>
+            {% endblock %}
+        </sw-container>
+    </div>
+    {% endblock %}
+
+    {% block sw_settings_shipping_price_matrix_delete_modal %}
+    <sw-modal
+        v-if="showDeleteModal"
+        :title="$tc('global.default.warning')"
+        variant="small"
+        @modal-close="onCloseDeleteModal"
+    >
+        {% block sw_settings_shipping_price_matrix_delete_modal_confirm_delete_text %}
+        <p class="sw-settings-shipping-price-matrix__confirm-delete-text">
+            {{ confirmDeleteText }}
+        </p>
         {% endblock %}
 
-        {% block sw_settings_shipping_price_matrix_empty %}
-            <div v-else class="sw-settings-shipping-price-matrix__empty">
-                {% block sw_settings_shipping_price_matrix_empty_text %}
-                    <p class="sw-settings-shipping-price-matrix__empty-text">
-                        {{ $tc('sw-settings-shipping.priceMatrix.emptyText') }}
-                    </p>
-                {% endblock %}
-                <sw-container columns="1fr 10px 1fr" gap="0px 24px">
-                    {% block sw_settings_shipping_price_matrix_empty_property_store %}
-                        <sw-single-select
-                            class="sw-settings-shipping-price-matrix__empty--select-property"
-                            :options="calculationTypes"
-                            :value="priceGroup.calculation"
-                            @change="onCalculationChange"
-                            :disabled="disabled"
-                            size="small"
-                            :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')">
-                        </sw-single-select>
-                    {% endblock %}
+        {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
+        <template slot="modal-footer">
+            {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
+            <sw-button
+                size="small"
+                @click="onCloseDeleteModal"
+            >
+                {{ $tc('sw-settings-shipping.priceMatrix.buttonCancel') }}
+            </sw-button>
+            {% endblock %}
 
-                    <p class="sw-settings-shipping-price-matrix__empty-text-or">
-                        {{ $tc('sw-settings-shipping.priceMatrix.textOr') }}
-                    </p>
-
-                    {% block sw_settings_shipping_price_matrix_empty_rule_select %}
-                        <sw-select-rule-create
-                            size="small"
-                            :disabled="disabled"
-                            :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
-                            @save-rule="onSaveCustomShippingRule">
-                            <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
-                                <sw-price-rule-modal
-                                    v-if="showRuleModal"
-                                    @save="onSaveRule"
-                                    @modal-close="onCloseRuleModal"
-                                    :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
-                                </sw-price-rule-modal>
-                            </template>
-                        </sw-select-rule-create>
-                    {% endblock %}
-                </sw-container>
-            </div>
+            {% block sw_settings_shipping_price_matrix_delete_modal_confirm %}
+            <sw-button
+                variant="danger"
+                size="small"
+                @click="onConfirmDeleteShippingPrice"
+            >
+                {{ $tc('sw-settings-shipping.priceMatrix.buttonDelete') }}
+            </sw-button>
+            {% endblock %}
+        </template>
         {% endblock %}
-
-        {% block sw_settings_shipping_price_matrix_delete_modal %}
-            <sw-modal v-if="showDeleteModal"
-                      @modal-close="onCloseDeleteModal"
-                      :title="$tc('global.default.warning')"
-                      variant="small">
-                {% block sw_settings_shipping_price_matrix_delete_modal_confirm_delete_text %}
-                    <p class="sw-settings-shipping-price-matrix__confirm-delete-text">
-                        {{ confirmDeleteText }}
-                    </p>
-                {% endblock %}
-
-                {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
-                            <sw-button @click="onCloseDeleteModal" size="small">
-                                {{ $tc('sw-settings-shipping.priceMatrix.buttonCancel') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_settings_shipping_price_matrix_delete_modal_confirm %}
-                            <sw-button @click="onConfirmDeleteShippingPrice" variant="danger" size="small">
-                                {{ $tc('sw-settings-shipping.priceMatrix.buttonDelete') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
-        {% endblock %}
-    </sw-card>
+    </sw-modal>
+    {% endblock %}
+</sw-card>
 {% endblock %}

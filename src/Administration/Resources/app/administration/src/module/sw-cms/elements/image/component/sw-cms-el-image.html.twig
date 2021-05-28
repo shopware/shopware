@@ -1,7 +1,11 @@
 {% block sw_cms_element_image %}
-    <div class="sw-cms-el-image" :class="displayModeClass" :style="styles">
-        {% block sw_cms_element_image_content %}
-            <img :src="mediaUrl">
-        {% endblock %}
-    </div>
+<div
+    class="sw-cms-el-image"
+    :class="displayModeClass"
+    :style="styles"
+>
+    {% block sw_cms_element_image_content %}
+    <img :src="mediaUrl">
+    {% endblock %}
+</div>
 {% endblock %}

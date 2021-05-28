@@ -1,17 +1,18 @@
 {% block sw_settings_snippet_filter_switch %}
-    <div class="sw-settings-snippet-filter-switch">
-        <slot name="template">
-            <div :class="fieldClasses">
-                {% block sw_settings_snippet_filter_switch_field %}
-                    <slot name="field">
-                        <sw-field type="switch"
-                                  :name="name"
-                                  @change="onChange"
-                                  :label="label">
-                        </sw-field>
-                    </slot>
-                {% endblock %}
-            </div>
-        </slot>
-    </div>
+<div class="sw-settings-snippet-filter-switch">
+    <slot name="template">
+        <div :class="fieldClasses">
+            {% block sw_settings_snippet_filter_switch_field %}
+            <slot name="field">
+                <sw-field
+                    type="switch"
+                    :name="name"
+                    :label="label"
+                    @change="onChange"
+                />
+            </slot>
+            {% endblock %}
+        </div>
+    </slot>
+</div>
 {% endblock %}

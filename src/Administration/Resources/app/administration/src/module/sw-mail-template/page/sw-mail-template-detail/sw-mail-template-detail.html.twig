@@ -1,340 +1,387 @@
 {% block sw_mail_template_detail %}
-    <sw-page class="sw-mail-template-detail">
+<sw-page class="sw-mail-template-detail">
 
-        {% block sw_mail_template_detail_header %}
-            <template #smart-bar-header>
-                <h2 v-if="mailTemplate">{{ $tc('sw-mail-template.detail.textHeadlineEdit') }}</h2>
-                <h2 v-else class="sw-mail-template-detail__empty-title">{{ $tc('sw-mail-template.detail.textHeadline') }}</h2>
-            </template>
+    {% block sw_mail_template_detail_header %}
+    <template #smart-bar-header>
+        <h2 v-if="mailTemplate">
+            {{ $tc('sw-mail-template.detail.textHeadlineEdit') }}
+        </h2>
+        <h2
+            v-else
+            class="sw-mail-template-detail__empty-title"
+        >
+            {{ $tc('sw-mail-template.detail.textHeadline') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_mail_template_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_mail_template_detail_actions_abort %}
+        <sw-button
+            v-tooltip.bottom="{
+                message: 'ESC',
+                appearance: 'light'
+            }"
+            :disabled="isLoading"
+            @click="onCancel"
+        >
+            {{ $tc('sw-mail-template.detail.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_mail_template_detail_actions %}
-            <template #smart-bar-actions>
-                {% block sw_mail_template_detail_actions_abort %}
-                    <sw-button
-                        v-tooltip.bottom="{
-                        message: 'ESC',
-                        appearance: 'light'
-                        }"
-                        :disabled="isLoading"
-                        @click="onCancel">
-                        {{ $tc('sw-mail-template.detail.buttonCancel') }}
-                    </sw-button>
+        {% block sw_mail_template_detail_actions_save %}
+        <sw-button-process
+            v-tooltip.bottom="tooltipSave"
+            class="sw-mail-template-detail__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="!allowSave"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-mail-template.detail.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_mail_template_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_mail_template_detail_content %}
+    <template #content>
+        <sw-card-view sidebar>
+            {% block sw_mail_template_detail_content_language_info %}
+            <sw-language-info
+                :entity-description="placeholder(mailTemplate, 'description', $tc('sw-mail-template.detail.textHeadline'))"
+            />
+            {% endblock %}
+
+            {% block sw_mail_template_detail_basic_info %}
+            <sw-card :title="$tc('sw-mail-template.detail.basic.titleCard')">
+                {% block sw_mail_template_basic_form_mail_type_field %}
+                <sw-entity-single-select
+                    id="mailTemplateTypes"
+                    v-model="mailTemplate.mailTemplateTypeId"
+                    entity="mail_template_type"
+                    required
+                    :label="$tc('sw-mail-template.detail.basic.labelMailType')"
+                    :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
+                    :disabled="!acl.can('mail_templates.editor')"
+                    :error="mailTemplateMailTemplateTypeIdError"
+                    @change="onChangeType"
+                />
                 {% endblock %}
 
-                {% block sw_mail_template_detail_actions_save %}
-                    <sw-button-process
-                        v-tooltip.bottom="tooltipSave"
-                        class="sw-mail-template-detail__save-action"
-                        variant="primary"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="!allowSave"
-                        @process-finish="saveFinish"
-                        @click.prevent="onSave">
-                        {{ $tc('sw-mail-template.detail.buttonSave') }}
-                    </sw-button-process>
+                {% block sw_mail_template_basic_form_description_field %}
+                <sw-field
+                    v-model="mailTemplate.description"
+                    type="textarea"
+                    :label="$tc('sw-mail-template.detail.basic.labelDescription')"
+                    :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
+                    :disabled="!acl.can('mail_templates.editor')"
+                />
                 {% endblock %}
-            </template>
-        {% endblock %}
+            </sw-card>
+            {% endblock %}
 
-        {% block sw_mail_template_detail_language_switch %}
-            <template #language-switch>
-                <sw-language-switch @on-change="onChangeLanguage"
-                                    :saveChangesFunction="saveOnLanguageChange"
-                                    :abortChangeFunction="abortOnLanguageChange">
-                </sw-language-switch>
-            </template>
-        {% endblock %}
+            {% block sw_mail_template_detail_options_info %}
+            <sw-card :title="$tc('sw-mail-template.detail.options.titleCard')">
+                <sw-container
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="0 30px"
+                    class="sw-mail-template-detail-options__container"
+                >
+                    <div class="sw-mail-template-detail__options-info-wrapper">
 
-        {% block sw_mail_template_detail_content %}
-            <template #content>
-                <sw-card-view sidebar>
-                    {% block sw_mail_template_detail_content_language_info %}
-                        <sw-language-info
-                                :entityDescription="placeholder(mailTemplate, 'description', $tc('sw-mail-template.detail.textHeadline'))">
-                        </sw-language-info>
-                    {% endblock %}
-
-                    {% block sw_mail_template_detail_basic_info %}
-                        <sw-card :title="$tc('sw-mail-template.detail.basic.titleCard')">
-                            {% block sw_mail_template_basic_form_mail_type_field %}
-                                <sw-entity-single-select
-                                    v-model="mailTemplate.mailTemplateTypeId"
-                                    id="mailTemplateTypes"
-                                    entity="mail_template_type"
-                                    required
-                                    :label="$tc('sw-mail-template.detail.basic.labelMailType')"
-                                    :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
-                                    :disabled="!acl.can('mail_templates.editor')"
-                                    :error="mailTemplateMailTemplateTypeIdError"
-                                    @change="onChangeType">
-                                </sw-entity-single-select>
-                            {% endblock %}
-
-                            {% block sw_mail_template_basic_form_description_field %}
-                                <sw-field v-model="mailTemplate.description"
-                                          type="textarea"
-                                          :label="$tc('sw-mail-template.detail.basic.labelDescription')"
-                                          :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
-                                          :disabled="!acl.can('mail_templates.editor')">
-                                </sw-field>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-
-                    {% block sw_mail_template_detail_options_info %}
-                        <sw-card :title="$tc('sw-mail-template.detail.options.titleCard')">
-                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px" class="sw-mail-template-detail-options__container">
-                                <div class="sw-mail-template-detail__options-info-wrapper">
-
-                                    {% block sw_mail_template_options_form_subject_field %}
-                                        <sw-field v-model="mailTemplate.subject"
-                                                  type="text"
-                                                  required
-                                                  :label="$tc('sw-mail-template.detail.options.labelSubject')"
-                                                  :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
-                                                  :disabled="!acl.can('mail_templates.editor')"
-                                                  :error="mailTemplateSubjectError">
-                                        </sw-field>
-                                    {% endblock %}
-                                </div>
-
-                                {% block sw_mail_template_options_form_sender_name_field %}
-                                    <sw-field v-model="mailTemplate.senderName"
-                                              type="text"
-                                              :label="$tc('sw-mail-template.detail.options.labelSenderName')"
-                                              :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
-                                              :disabled="!acl.can('mail_templates.editor')">
-                                    </sw-field>
-                                {% endblock %}
-                            </sw-container>
-                        </sw-card>
-                    {% endblock %}
-
-                    {% block sw_mail_template_detail_attachments_info %}
-                        <sw-card :title="$tc('sw-mail-template.detail.media.titleCard')">
-                            {% block sw_mail_template_detail_attachments_info_upload %}
-                                <sw-upload-listener
-                                    v-if="mailTemplate.id"
-                                    autoUpload
-                                    :uploadTag="mailTemplate.id"
-                                    @media-upload-finish="successfulUpload">
-                                </sw-upload-listener>
-
-                                <sw-media-upload-v2
-                                    v-if="mailTemplate.id"
-                                    variant="regular"
-                                    defaultFolder="mail_template"
-                                    :uploadTag="mailTemplate.id"
-                                    :fileAccept="fileAccept"
-                                    :disabled="!acl.can('mail_templates.editor')"
-                                    @media-drop="onMediaDrop"
-                                    @media-upload-sidebar-open="openMediaSidebar">
-                                </sw-media-upload-v2>
-                            {% endblock %}
-
-                            {% block sw_mail_template_detail_attachments_info_grid %}
-                                <sw-data-grid v-if="mailTemplateMedia && mailTemplateMedia.length > 0"
-                                              class="sw-mail-template-detail__attachments-info-grid"
-                                              :dataSource="mailTemplateMedia"
-                                              :columns="mediaColumns"
-                                              :fullPage="false"
-                                              :showSettings="false"
-                                              :allowColumnEdit="false"
-                                              :allowInlineEdit="false"
-                                              :compactMode="false"
-                                              :showSelection="acl.can('mail_templates.editor')"
-                                              @selection-change="onSelectionChanged">
-                                    <template #preview-fileName="{ item }">
-                                        {% block sw_mail_template_detail_attachments_info_grid_preview %}
-                                            <sw-media-preview :source="item.id"></sw-media-preview>
-                                        {% endblock %}
-                                    </template>
-
-                                    <template #actions="{ item }">
-                                        {% block sw_mail_template_detail_attachments_info_grid_actions %}
-                                            <sw-context-menu-item
-                                                v-tooltip.bottom="{
-                                                    message: $tc('sw-privileges.tooltip.warning'),
-                                                    disabled: acl.can('mail_templates.editor'),
-                                                    showOnDisabledElements: true
-                                                }"
-                                                variant="danger"
-                                                :disabled="!acl.can('mail_templates.editor')"
-                                                @click="onDeleteMedia(item.id)">
-                                                {{ $tc('global.default.delete') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-                                    </template>
-
-                                    <template #bulk>
-                                        {% block sw_mail_template_detail_attachments_info_grid_bulk %}
-                                            <a class="link link-danger" @click="onDeleteSelectedMedia">
-                                                {{ $tc('global.default.delete') }}
-                                            </a>
-                                        {% endblock %}
-                                    </template>
-                                </sw-data-grid>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-
-                    {% block sw_mail_template_detail_mail_text_info %}
-                        <sw-card :title="$tc('sw-mail-template.detail.mailText.titleCard')">
-                            {% block sw_mail_template_mail_text_form_content_plain_field %}
-                                <sw-code-editor
-                                    v-model="mailTemplate.contentPlain"
-                                    name="content_plain"
-                                    completionMode="entity"
-                                    ref="plainEditor"
-                                    :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
-                                    :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
-                                    :completerFunction="outerCompleterFunction"
-                                    :editorConfig="editorConfig"
-                                    :key="`${mailTemplate.mailTemplateTypeId}plain`"
-                                    :disabled="!acl.can('mail_templates.editor')">
-                                </sw-code-editor>
-                            {% endblock %}
-
-                            {% block sw_mail_template_mail_text_form_content_html_field %}
-                                <sw-code-editor
-                                    v-model="mailTemplate.contentHtml"
-                                    name="content_html"
-                                    completionMode="entity"
-                                    ref="htmlEditor"
-                                    :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
-                                    :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
-                                    :completerFunction="outerCompleterFunction"
-                                    :editorConfig="editorConfig"
-                                    :key="`${mailTemplate.mailTemplateTypeId}html`"
-                                    :disabled="!acl.can('mail_templates.editor')">
-                                </sw-code-editor>
-                            {% endblock %}
-                        </sw-card>
-                        {% block sw_mail_template_detail_preview_modal %}
-                            <sw-modal class="sw-mail-template-preview-modal"
-                                      :title="$tc('sw-mail-template.detail.previewModalTitle')"
-                                      v-if="mailPreview"
-                                      @modal-close="onCancelShowPreview"
-                                      :isLoading="isLoading">
-                                <template v-if="!isLoading">
-                                    <span v-html="mailPreview"></span>
-                                </template>
-                                {% block sw_mail_template_detail_preview_modal_footer %}
-                                    <template slot="modal-footer">
-                                        {% block sw_mail_template_detail_preview_modal_footer_cancel %}
-                                            <sw-button size="small"
-                                                       @click="onCancelShowPreview">
-                                                {{ $tc('global.default.close') }}
-                                            </sw-button>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                            </sw-modal>
+                        {% block sw_mail_template_options_form_subject_field %}
+                        <sw-field
+                            v-model="mailTemplate.subject"
+                            type="text"
+                            required
+                            :label="$tc('sw-mail-template.detail.options.labelSubject')"
+                            :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
+                            :disabled="!acl.can('mail_templates.editor')"
+                            :error="mailTemplateSubjectError"
+                        />
                         {% endblock %}
+                    </div>
+
+                    {% block sw_mail_template_options_form_sender_name_field %}
+                    <sw-field
+                        v-model="mailTemplate.senderName"
+                        type="text"
+                        :label="$tc('sw-mail-template.detail.options.labelSenderName')"
+                        :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
+                        :disabled="!acl.can('mail_templates.editor')"
+                    />
                     {% endblock %}
-                </sw-card-view>
-            </template>
-        {% endblock %}
+                </sw-container>
+            </sw-card>
+            {% endblock %}
 
-        {% block sw_mail_template_detail_sidebar %}
-            <template #sidebar>
-                <sw-sidebar :propagateWidth="true">
-                    {% block sw_mail_template_detail_sidebar %}
-                        <sw-sidebar-item icon="default-object-paperplane"
-                                         :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
-                                         class="sw-mail-template-detail__test-mail-sidebar">
-                            <div class="sw-mail-template-detail__test-mail-sidebar-container">
-                                {% block sw_mail_template_mail_text_form_test_mail_field %}
-                                    <sw-text-field
-                                        v-model="testerMail"
-                                        :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
-                                        :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
-                                        :disabled="!acl.can('mail_templates.editor')">
-                                    </sw-text-field>
-                                {% endblock %}
+            {% block sw_mail_template_detail_attachments_info %}
+            <sw-card :title="$tc('sw-mail-template.detail.media.titleCard')">
+                {% block sw_mail_template_detail_attachments_info_upload %}
+                <sw-upload-listener
+                    v-if="mailTemplate.id"
+                    auto-upload
+                    :upload-tag="mailTemplate.id"
+                    @media-upload-finish="successfulUpload"
+                />
 
-                                {% block sw_mail_template_mail_text_form_test_sales_channel_field %}
-                                    <sw-entity-single-select
-                                        v-model="testMailSalesChannelId"
-                                        entity="sales_channel"
-                                        :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                                        :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')">
-                                    </sw-entity-single-select>
-                                {% endblock %}
+                <sw-media-upload-v2
+                    v-if="mailTemplate.id"
+                    variant="regular"
+                    default-folder="mail_template"
+                    :upload-tag="mailTemplate.id"
+                    :file-accept="fileAccept"
+                    :disabled="!acl.can('mail_templates.editor')"
+                    @media-drop="onMediaDrop"
+                    @media-upload-sidebar-open="openMediaSidebar"
+                />
+                {% endblock %}
 
-                                {% block sw_mail_template_mail_text_form_test_mail_button %}
-                                    <sw-button :disabled="isLoading || !testMailRequirementsMet"
-                                               class="sw-mail-template-detail__send-test-mail"
-                                               @click="onClickTestMailTemplate">
-                                        {{ $tc('sw-mail-template.detail.sidebar.buttonTestMail') }}
-                                    </sw-button>
-                                {% endblock %}
-                            </div>
-                        </sw-sidebar-item>
+                {% block sw_mail_template_detail_attachments_info_grid %}
+                <sw-data-grid
+                    v-if="mailTemplateMedia && mailTemplateMedia.length > 0"
+                    class="sw-mail-template-detail__attachments-info-grid"
+                    :data-source="mailTemplateMedia"
+                    :columns="mediaColumns"
+                    :full-page="false"
+                    :show-settings="false"
+                    :allow-column-edit="false"
+                    :allow-inline-edit="false"
+                    :compact-mode="false"
+                    :show-selection="acl.can('mail_templates.editor')"
+                    @selection-change="onSelectionChanged"
+                >
+                    <template #preview-fileName="{ item }">
+                        {% block sw_mail_template_detail_attachments_info_grid_preview %}
+                        <sw-media-preview :source="item.id" />
+                        {% endblock %}
+                    </template>
 
-                        <sw-sidebar-item icon="default-text-code"
-                                         :title="$tc('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
-                                         :disabled="mailTemplate.mailTemplateTypeId === undefined || mailTemplate.mailTemplateTypeId === null"
-                                         class="sw-mail-template-detail__show-available-variables">
-                            <div class="sw-mail-template-detail__available-variables-sidebar-container">
-                                {% block sw_mail_template_available_variables_tree %}
-                                    <sw-tree
-                                        class="sw-mail-template-detail__available-variables-sidebar-container__tree"
-                                        :searchable="false"
-                                        :disableContextMenu="true"
-                                        :onChangeRoute="() => { return false; }"
-                                        :items="loadedAvailableVariables"
-                                        :sortable="false"
-                                        @get-tree-items="onGetTreeItems">
-                                        <template slot="headline"><span></span></template>
-                                        <template slot="items" slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }">
-                                            <sw-tree-item
-                                                v-for="(item, index) in treeItems"
-                                                :key="item.id"
-                                                :item="item"
-                                                :disableContextMenu="disableContextMenu"
-                                                :onChangeRoute="onChangeRoute"
-                                                :sortable="false"
-                                                :displayCheckbox="false">
-                                                <template slot="grip"><span></span></template>
-                                                <template #actions="{ item }">
-                                                    <sw-icon name="small-copy"
-                                                             class="sw-mail-template-detail__copy_icon"
-                                                             v-tooltip="{message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
-                                                                         width: 150,
-                                                                         position: 'bottom'}"
-                                                             @click="onCopyVariable(item.id)"></sw-icon>
-                                                </template>
-                                            </sw-tree-item>
-                                        </template>
-                                    </sw-tree>
-                                {% endblock %}
-                            </div>
-                        </sw-sidebar-item>
+                    <template #actions="{ item }">
+                        {% block sw_mail_template_detail_attachments_info_grid_actions %}
+                        <sw-context-menu-item
+                            v-tooltip.bottom="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('mail_templates.editor'),
+                                showOnDisabledElements: true
+                            }"
+                            variant="danger"
+                            :disabled="!acl.can('mail_templates.editor')"
+                            @click="onDeleteMedia(item.id)"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
 
-                        <sw-sidebar-item icon="default-eye-open"
-                                         :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
-                                         :disabled="showPreview"
-                                         class="sw-mail-template-detail__show-preview-sidebar"
-                                         @click="onClickShowPreview">
-                        </sw-sidebar-item>
+                    <template #bulk>
+                        {% block sw_mail_template_detail_attachments_info_grid_bulk %}
+                        <a
+                            class="link link-danger"
+                            @click="onDeleteSelectedMedia"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </a>
+                        {% endblock %}
+                    </template>
+                </sw-data-grid>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
 
-                        <sw-sidebar-media-item ref="mediaSidebarItem">
-                            <template slot="context-menu-items" slot-scope="media">
-                                {% block sw_mail_template_detail_sidebar_add_attachment %}
-                                    <sw-context-menu-item
-                                        :disabled="!acl.can('mail_templates.editor')"
-                                        @click="onAddItemToAttachment(media.mediaItem)">
-                                        {{ $tc('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                            </template>
-                        </sw-sidebar-media-item>
+            {% block sw_mail_template_detail_mail_text_info %}
+            <sw-card :title="$tc('sw-mail-template.detail.mailText.titleCard')">
+                {% block sw_mail_template_mail_text_form_content_plain_field %}
+                <sw-code-editor
+                    ref="plainEditor"
+                    :key="`${mailTemplate.mailTemplateTypeId}plain`"
+                    v-model="mailTemplate.contentPlain"
+                    name="content_plain"
+                    completion-mode="entity"
+                    :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
+                    :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
+                    :completer-function="outerCompleterFunction"
+                    :editor-config="editorConfig"
+                    :disabled="!acl.can('mail_templates.editor')"
+                />
+                {% endblock %}
+
+                {% block sw_mail_template_mail_text_form_content_html_field %}
+                <sw-code-editor
+                    ref="htmlEditor"
+                    :key="`${mailTemplate.mailTemplateTypeId}html`"
+                    v-model="mailTemplate.contentHtml"
+                    name="content_html"
+                    completion-mode="entity"
+                    :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
+                    :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
+                    :completer-function="outerCompleterFunction"
+                    :editor-config="editorConfig"
+                    :disabled="!acl.can('mail_templates.editor')"
+                />
+                {% endblock %}
+            </sw-card>
+            {% block sw_mail_template_detail_preview_modal %}
+            <sw-modal
+                v-if="mailPreview"
+                class="sw-mail-template-preview-modal"
+                :title="$tc('sw-mail-template.detail.previewModalTitle')"
+                :is-loading="isLoading"
+                @modal-close="onCancelShowPreview"
+            >
+                <template v-if="!isLoading">
+                    <span v-html="mailPreview" />
+                </template>
+                {% block sw_mail_template_detail_preview_modal_footer %}
+                <template slot="modal-footer">
+                    {% block sw_mail_template_detail_preview_modal_footer_cancel %}
+                    <sw-button
+                        size="small"
+                        @click="onCancelShowPreview"
+                    >
+                        {{ $tc('global.default.close') }}
+                    </sw-button>
                     {% endblock %}
-                </sw-sidebar>
-            </template>
-        {% endblock %}
-    </sw-page>
+                </template>
+                {% endblock %}
+            </sw-modal>
+            {% endblock %}
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+
+    {% block sw_mail_template_detail_sidebar %}
+    <template #sidebar>
+        <sw-sidebar :propagate-width="true">
+            {% block sw_mail_template_detail_sidebar %}
+            <sw-sidebar-item
+                icon="default-object-paperplane"
+                :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
+                class="sw-mail-template-detail__test-mail-sidebar"
+            >
+                <div class="sw-mail-template-detail__test-mail-sidebar-container">
+                    {% block sw_mail_template_mail_text_form_test_mail_field %}
+                    <sw-text-field
+                        v-model="testerMail"
+                        :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
+                        :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
+                        :disabled="!acl.can('mail_templates.editor')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_mail_template_mail_text_form_test_sales_channel_field %}
+                    <sw-entity-single-select
+                        v-model="testMailSalesChannelId"
+                        entity="sales_channel"
+                        :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
+                        :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_mail_template_mail_text_form_test_mail_button %}
+                    <sw-button
+                        :disabled="isLoading || !testMailRequirementsMet"
+                        class="sw-mail-template-detail__send-test-mail"
+                        @click="onClickTestMailTemplate"
+                    >
+                        {{ $tc('sw-mail-template.detail.sidebar.buttonTestMail') }}
+                    </sw-button>
+                    {% endblock %}
+                </div>
+            </sw-sidebar-item>
+
+            <sw-sidebar-item
+                icon="default-text-code"
+                :title="$tc('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
+                :disabled="mailTemplate.mailTemplateTypeId === undefined || mailTemplate.mailTemplateTypeId === null"
+                class="sw-mail-template-detail__show-available-variables"
+            >
+                <div class="sw-mail-template-detail__available-variables-sidebar-container">
+                    {% block sw_mail_template_available_variables_tree %}
+                    <sw-tree
+                        class="sw-mail-template-detail__available-variables-sidebar-container__tree"
+                        :searchable="false"
+                        :disable-context-menu="true"
+                        :on-change-route="() => { return false; }"
+                        :items="loadedAvailableVariables"
+                        :sortable="false"
+                        @get-tree-items="onGetTreeItems"
+                    >
+                        <template slot="headline">
+                            <span /></template>
+                        <template
+                            slot="items"
+                            slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
+                        >
+                            <sw-tree-item
+                                v-for="(item, index) in treeItems"
+                                :key="item.id"
+                                :item="item"
+                                :disable-context-menu="disableContextMenu"
+                                :on-change-route="onChangeRoute"
+                                :sortable="false"
+                                :display-checkbox="false"
+                            >
+                                <template slot="grip">
+                                    <span /></template>
+                                <template #actions="{ item }">
+                                    <sw-icon
+                                        v-tooltip="{message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
+                                                    width: 150,
+                                                    position: 'bottom'}"
+                                        name="small-copy"
+                                        class="sw-mail-template-detail__copy_icon"
+                                        @click="onCopyVariable(item.id)"
+                                    />
+                                </template>
+                            </sw-tree-item>
+                        </template>
+                    </sw-tree>
+                    {% endblock %}
+                </div>
+            </sw-sidebar-item>
+
+            <sw-sidebar-item
+                icon="default-eye-open"
+                :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
+                :disabled="showPreview"
+                class="sw-mail-template-detail__show-preview-sidebar"
+                @click="onClickShowPreview"
+            />
+
+            <sw-sidebar-media-item ref="mediaSidebarItem">
+                <template
+                    slot="context-menu-items"
+                    slot-scope="media"
+                >
+                    {% block sw_mail_template_detail_sidebar_add_attachment %}
+                    <sw-context-menu-item
+                        :disabled="!acl.can('mail_templates.editor')"
+                        @click="onAddItemToAttachment(media.mediaItem)"
+                    >
+                        {{ $tc('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+            </sw-sidebar-media-item>
+            {% endblock %}
+        </sw-sidebar>
+    </template>
+    {% endblock %}
+</sw-page>
 {% endblock %}

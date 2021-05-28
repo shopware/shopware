@@ -1,39 +1,39 @@
 {% block sw_import_export %}
-    <sw-page class="sw-import-export">
+<sw-page class="sw-import-export">
 
-        <sw-card-view slot="content">
+    <sw-card-view slot="content">
 
-            {% block sw_import_export_tabs %}
-                <sw-tabs>
-                    {% block sw_import_export_tabs_import %}
-                        <sw-tabs-item :route="{ name: 'sw.import.export.index.import' }">
-                            {{  $tc('sw-import-export.page.importTab')  }}
-                        </sw-tabs-item>
-                    {% endblock %}
-
-                    {% block sw_import_export_tabs_export %}
-                        <sw-tabs-item :route="{ name: 'sw.import.export.index.export' }">
-                            {{  $tc('sw-import-export.page.exportTab')  }}
-                        </sw-tabs-item>
-                    {% endblock %}
-
-                    {% block sw_import_export_tabs_profiles %}
-                        <sw-tabs-item :route="{ name: 'sw.import.export.index.profiles' }">
-                            {{  $tc('sw-import-export.page.profileTab')  }}
-                        </sw-tabs-item>
-                    {% endblock %}
-                </sw-tabs>
+        {% block sw_import_export_tabs %}
+        <sw-tabs>
+            {% block sw_import_export_tabs_import %}
+            <sw-tabs-item :route="{ name: 'sw.import.export.index.import' }">
+                {{ $tc('sw-import-export.page.importTab') }}
+            </sw-tabs-item>
             {% endblock %}
 
-            <router-view ref="tabContent"></router-view>
+            {% block sw_import_export_tabs_export %}
+            <sw-tabs-item :route="{ name: 'sw.import.export.index.export' }">
+                {{ $tc('sw-import-export.page.exportTab') }}
+            </sw-tabs-item>
+            {% endblock %}
 
-        </sw-card-view>
-
-        {% block sw_import_export_language_switch %}
-            <template #language-switch>
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
-            </template>
+            {% block sw_import_export_tabs_profiles %}
+            <sw-tabs-item :route="{ name: 'sw.import.export.index.profiles' }">
+                {{ $tc('sw-import-export.page.profileTab') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </sw-tabs>
         {% endblock %}
 
-    </sw-page>
+        <router-view ref="tabContent" />
+
+    </sw-card-view>
+
+    {% block sw_import_export_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+</sw-page>
 {% endblock %}

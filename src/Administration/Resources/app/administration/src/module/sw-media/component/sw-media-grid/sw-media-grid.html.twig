@@ -1,11 +1,14 @@
 {% block sw_media_grid %}
-    <div class="sw-media-grid">
-        <slot name="content">
-            {% block sw_media_grid_slot_content %}
-                <div class="sw-media-grid__content" :class="presentationClass">
-                    <slot>{% block sw_media_grid_default_slot %}{% endblock %}</slot>
-                </div>
-            {% endblock %}
-        </slot>
-    </div>
+<div class="sw-media-grid">
+    <slot name="content">
+        {% block sw_media_grid_slot_content %}
+        <div
+            class="sw-media-grid__content"
+            :class="presentationClass"
+        >
+            <slot>{% block sw_media_grid_default_slot %}{% endblock %}</slot>
+        </div>
+        {% endblock %}
+    </slot>
+</div>
 {% endblock %}

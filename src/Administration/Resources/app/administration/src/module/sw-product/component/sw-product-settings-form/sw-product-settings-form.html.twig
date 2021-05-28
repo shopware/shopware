@@ -1,74 +1,80 @@
 {% block sw_product_settings_form %}
-    <div class="sw-product-settings-form">
-        {% block sw_product_settings_form_content %}
-            <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
-                {% block sw_product_settings_form_release_date_field %}
-                    <sw-inherit-wrapper
-                        v-model="product.releaseDate"
-                        :hasParent="!!parentProduct.id"
-                        :inheritedValue="parentProduct.releaseDate">
-                        <template #content="props">
+<div class="sw-product-settings-form">
+    {% block sw_product_settings_form_content %}
+    <sw-container
+        columns="1fr 1fr 1fr"
+        gap="0px 30px"
+    >
+        {% block sw_product_settings_form_release_date_field %}
+        <sw-inherit-wrapper
+            v-model="product.releaseDate"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.releaseDate"
+        >
+            <template #content="props">
 
-                            <sw-field
-                                type="date"
-                                :mapInheritance="props"
-                                dateType="datetime-local"
-                                :disabled="props.isInherited || !allowEdit"
-                                :error="productReleaseDateError"
-                                :label="$tc('sw-product.settingsForm.labelReleaseDate')"
-                                :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
-                                :value="props.currentValue"
-                                @input="props.updateCurrentValue">
-                            </sw-field>
+                <sw-field
+                    type="date"
+                    :map-inheritance="props"
+                    date-type="datetime-local"
+                    :disabled="props.isInherited || !allowEdit"
+                    :error="productReleaseDateError"
+                    :label="$tc('sw-product.settingsForm.labelReleaseDate')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
+                    :value="props.currentValue"
+                    @input="props.updateCurrentValue"
+                />
 
-                        </template>
-                    </sw-inherit-wrapper>
-                {% endblock %}
-
-                {% block sw_product_settings_form_ean_field %}
-                    <sw-inherit-wrapper
-                        v-model="product.ean"
-                        :hasParent="!!parentProduct.id"
-                        :inheritedValue="parentProduct.ean">
-                        <template #content="props">
-
-                            <sw-field
-                                type="text"
-                                :mapInheritance="props"
-                                :error="productEanError"
-                                :label="$tc('sw-product.settingsForm.labelEan')"
-                                :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
-                                :disabled="props.isInherited || !allowEdit"
-                                :value="props.currentValue"
-                                @change="props.updateCurrentValue">
-                            </sw-field>
-
-                        </template>
-                    </sw-inherit-wrapper>
-                {% endblock %}
-
-                {% block sw_product_settings_form_manufacturer_number_field %}
-                    <sw-inherit-wrapper
-                        v-model="product.manufacturerNumber"
-                        :hasParent="!!parentProduct.id"
-                        :inheritedValue="parentProduct.manufacturerNumber">
-                        <template #content="props">
-
-                            <sw-field
-                                type="text"
-                                :mapInheritance="props"
-                                :error="productManufacturerNumberError"
-                                :label="$tc('sw-product.settingsForm.labelManufacturerNumber')"
-                                :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
-                                :disabled="props.isInherited || !allowEdit"
-                                :value="props.currentValue"
-                                @input="props.updateCurrentValue">
-                            </sw-field>
-
-                        </template>
-                    </sw-inherit-wrapper>
-                {% endblock %}
-            </sw-container>
+            </template>
+        </sw-inherit-wrapper>
         {% endblock %}
-    </div>
+
+        {% block sw_product_settings_form_ean_field %}
+        <sw-inherit-wrapper
+            v-model="product.ean"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.ean"
+        >
+            <template #content="props">
+
+                <sw-field
+                    type="text"
+                    :map-inheritance="props"
+                    :error="productEanError"
+                    :label="$tc('sw-product.settingsForm.labelEan')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
+                    :disabled="props.isInherited || !allowEdit"
+                    :value="props.currentValue"
+                    @change="props.updateCurrentValue"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_settings_form_manufacturer_number_field %}
+        <sw-inherit-wrapper
+            v-model="product.manufacturerNumber"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.manufacturerNumber"
+        >
+            <template #content="props">
+
+                <sw-field
+                    type="text"
+                    :map-inheritance="props"
+                    :error="productManufacturerNumberError"
+                    :label="$tc('sw-product.settingsForm.labelManufacturerNumber')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
+                    :disabled="props.isInherited || !allowEdit"
+                    :value="props.currentValue"
+                    @input="props.updateCurrentValue"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</div>
 {% endblock %}

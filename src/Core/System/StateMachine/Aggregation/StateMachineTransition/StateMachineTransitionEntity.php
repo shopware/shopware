@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\StateMachineEntity;
 
 class StateMachineTransitionEntity extends Entity
 {
@@ -23,7 +24,7 @@ class StateMachineTransitionEntity extends Entity
     protected $stateMachineId;
 
     /**
-     * @var StateMachineStateEntity|null
+     * @var StateMachineEntity|null
      */
     protected $stateMachine;
 
@@ -57,12 +58,12 @@ class StateMachineTransitionEntity extends Entity
         $this->stateMachineId = $stateMachineId;
     }
 
-    public function getStateMachine(): ?StateMachineStateEntity
+    public function getStateMachine(): ?StateMachineEntity
     {
         return $this->stateMachine;
     }
 
-    public function setStateMachine(StateMachineStateEntity $stateMachine): void
+    public function setStateMachine(StateMachineEntity $stateMachine): void
     {
         $this->stateMachine = $stateMachine;
     }

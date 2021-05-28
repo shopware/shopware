@@ -6,8 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -39,7 +41,49 @@ class EditOrderPageTest extends TestCase
 
         static::assertInstanceOf(AccountEditOrderPage::class, $page);
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
+
         static::assertSame($orderId, $page->getOrder()->getId());
+    }
+
+    public function testEditOrderPageCorrectPayment(): void
+    {
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $orderId = $this->placeRandomOrder($context);
+
+        /** @var AccountEditOrderPageLoader $event */
+        $event = null;
+        $this->catchEvent(AccountEditOrderPageLoadedEvent::class, $event);
+
+        $request->request->set('orderId', $orderId);
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(AccountEditOrderPage::class, $page);
+        self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
+
+        static::assertCount(1, $page->getPaymentMethods());
+
+        // set Payment active to false and assert it will not be loaded
+        /** @var EntityRepositoryInterface $paymentMethodRepository */
+        $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        /** @var PaymentMethodEntity $paymentMethod */
+        $paymentMethod = $paymentMethodRepository->search($criteria, $context->getContext())->first();
+
+        $paymentMethodRepository->update(
+            [
+                ['id' => $paymentMethod->getId(), 'active' => false],
+            ],
+            $context->getContext()
+        );
+
+        $request->request->set('orderId', $orderId);
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(AccountEditOrderPage::class, $page);
+        self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
+
+        static::assertCount(0, $page->getPaymentMethods());
     }
 
     public function testEditPageNotAvailableOrderIsPaid(): void

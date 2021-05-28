@@ -76,6 +76,14 @@ describe('Media: Test crud operations of folders', () => {
             url: `${Cypress.env('apiPath')}/media-folder`,
             method: 'post'
         }).as('saveData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/media-folder-configuration`,
+            method: 'post'
+        }).as('postChildConfiguration');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/media-folder-configuration/**`,
+            method: 'delete'
+        }).as('deleteChildConfiguration');
 
         // navigate to subfolder
         cy.get(page.elements.loader).should('not.exist');
@@ -88,6 +96,51 @@ describe('Media: Test crud operations of folders', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
+
+        page.openChildConfiguration('new child');
+
+        // Uncheck use of inherited parent configuration
+        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('be.checked').click();
+        // Uncheck keep aspect ratio & check 800x800 thumbnails as test metric
+        cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('be.checked').click();
+        cy.get('[name="thumbnail-size-800-800-active"]').should('not.be.checked').click();
+        // save
+        cy.get('.sw-media-modal-folder-settings__confirm').click();
+
+        // Wait for new child configuration to be posted with new data
+        cy.wait('@postChildConfiguration').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        page.openCurrentFolderConfiguration();
+
+        // Test that parent configuration has not been altered and aspect ratio is still checked
+        cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('be.checked');
+        cy.get('[name="thumbnail-size-800-800-active"]').should('not.be.checked');
+        cy.get('.sw-modal__close').click();
+
+        page.openChildConfiguration('new child');
+
+        // Test that child configuration did persist with unchecked keep aspect ratio & checked 800x800 thumbnails
+        cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('not.be.checked');
+        cy.get('[name="thumbnail-size-800-800-active"]').should('be.checked').click();
+        // Test that use of parent configuration is disabled and enable it again
+        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('not.be.checked').click();
+        // save
+        cy.get('.sw-media-modal-folder-settings__confirm').click();
+
+        // Wait for unused child configuration to be deleted
+        cy.wait('@deleteChildConfiguration').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        page.openChildConfiguration('new child');
+
+        // Test that child configuration has been inherited again
+        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('be.checked');
+        // Test that keep aspect ratio is checked & 800x800 thumbnails unchecked again
+        cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('be.checked');
+        cy.get('[name="thumbnail-size-800-800-active"]').should('not.be.checked');
     });
 
     it('@base @media: delete folder', () => {

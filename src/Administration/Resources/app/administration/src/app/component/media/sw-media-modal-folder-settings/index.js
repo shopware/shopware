@@ -39,8 +39,7 @@ Component.register('sw-media-modal-folder-settings', {
             parent: null,
             configuration: null,
             mediaFolderConfigurationThumbnailSizeRepository: null,
-            originalConfiguration: null,
-            deselectedMediaThumbnailSizes: []
+            originalConfiguration: null
             // eslint-disable-next-line vue/no-dupe-keys
             // disabled: false
         };
@@ -182,7 +181,6 @@ Component.register('sw-media-modal-folder-settings', {
                 return;
             }
 
-            this.deselectedMediaThumbnailSizes.push(size);
             this.configuration.mediaThumbnailSizes.remove(size.id);
         },
 
@@ -190,22 +188,24 @@ Component.register('sw-media-modal-folder-settings', {
             if (value === true) {
                 this.originalConfiguration = this.configuration;
                 this.configuration = this.parent.configuration;
-                this.originalConfiguration.delete();
 
                 return;
             }
 
             if (this.originalConfiguration) {
                 this.configuration = this.originalConfiguration;
-                this.configuration.isDeleted = false;
 
                 return;
             }
 
-            this.configuration = {
-                id: this.configuration.id,
-                ...this.parent.configuration
-            };
+            const newConfiguration = this.mediaFolderConfigurationRepository.create();
+            Object.keys(this.configuration).forEach((key) => {
+                if (key === 'id') {
+                    return;
+                }
+                newConfiguration[key] = this.configuration[key];
+            });
+            this.configuration = newConfiguration;
         },
 
         async onClickSave() {
@@ -230,15 +230,13 @@ Component.register('sw-media-modal-folder-settings', {
             }
 
             try {
-                if (this.deselectedMediaThumbnailSizes) {
-                    await Promise.all(this.deselectedMediaThumbnailSizes.map((item) => {
-                        return this.mediaFolderConfigurationThumbnailSizeRepository.delete(item.id, Context.api);
-                    }));
-                }
-
-                if (this.configuration && this.configuration.getEntityName) {
-                    await this.mediaFolderConfigurationRepository.save(this.configuration, Context.api);
-                }
+                await this.mediaFolderConfigurationRepository.save(this.configuration)
+                    .then(() => {
+                        // Delete the original configuration if we inherit again
+                        if (this.originalConfiguration && this.configuration.id === this.parent.configuration.id) {
+                            this.mediaFolderConfigurationRepository.delete(this.originalConfiguration.id);
+                        }
+                    });
 
                 if (this.folder && this.folder.getEntityName) {
                     await this.mediaFolderRepository.save(this.folder, Context.api);

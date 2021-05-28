@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Checkout\Payment\Controller;
 
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
-use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -57,16 +58,9 @@ class PaymentController extends AbstractController
             $salesChannelContext
         );
 
-        $exception = $result->getException();
-
-        if ($exception !== null) {
-            $url = $result->getErrorUrl();
-
-            if ($url !== null && $exception instanceof PaymentProcessException) {
-                $url .= (parse_url($url, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $exception->getErrorCode();
-
-                return new RedirectResponse($url);
-            }
+        $response = $this->handleException($result);
+        if ($response !== null) {
+            return $response;
         }
 
         $finishUrl = $result->getFinishUrl();
@@ -75,5 +69,28 @@ class PaymentController extends AbstractController
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    private function handleException(TokenStruct $token): ?Response
+    {
+        if ($token->getException() === null) {
+            return null;
+        }
+
+        if ($token->getErrorUrl() === null) {
+            return null;
+        }
+
+        $url = $token->getErrorUrl();
+
+        $exception = $token->getException();
+
+        if ($exception instanceof ShopwareException) {
+            return new RedirectResponse(
+                (parse_url($url, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $exception->getErrorCode()
+            );
+        }
+
+        return new RedirectResponse($url);
     }
 }

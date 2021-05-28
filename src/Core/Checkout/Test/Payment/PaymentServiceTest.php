@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
+use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
@@ -155,6 +156,33 @@ class PaymentServiceTest extends TestCase
         );
     }
 
+    public function testDuplicateFinalizeCall(): void
+    {
+        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+
+        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+
+        $transaction = JWTFactoryV2Test::createTransaction();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId($paymentMethodId);
+        $transaction->setOrderId($orderId);
+
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
+
+        static::expectException(TokenInvalidatedException::class);
+
+        $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
+        $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
+    }
+
     public function testHandlePaymentByOrderDefaultPaymentV630(): void
     {
         $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
@@ -229,6 +257,7 @@ class PaymentServiceTest extends TestCase
         );
 
         //can fail again
+        $token = $this->tokenFactory->generateToken($tokenStruct);
         $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
 
         static::assertNotEmpty($response->getException());
@@ -245,6 +274,7 @@ class PaymentServiceTest extends TestCase
 
         //can success after cancelled
         $request->query->set('cancel', false);
+        $token = $this->tokenFactory->generateToken($tokenStruct);
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
 
         $criteria = new Criteria([$transactionId]);

@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
+use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\UnencryptedToken;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
+use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
@@ -14,9 +17,12 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
      */
     protected $configuration;
 
-    public function __construct(Configuration $configuration)
+    private Connection $connection;
+
+    public function __construct(Configuration $configuration, Connection $connection)
     {
         $this->configuration = $configuration;
+        $this->connection = $connection;
     }
 
     public function generateToken(TokenStruct $tokenStruct): string
@@ -35,6 +41,8 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             ->withClaim('ful', $tokenStruct->getFinishUrl())
             ->withClaim('eul', $tokenStruct->getErrorUrl())
             ->getToken($this->configuration->signer(), $this->configuration->signingKey());
+
+        $this->write($jwtToken->toString(), $expires);
 
         return $jwtToken->toString();
     }
@@ -55,6 +63,10 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             throw new InvalidTokenException($token);
         }
 
+        if (!$this->has($token)) {
+            throw new TokenInvalidatedException($token);
+        }
+
         $errorUrl = $jwtToken->claims()->get('eul');
 
         /** @var \DateTimeImmutable $expires */
@@ -73,6 +85,36 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
 
     public function invalidateToken(string $token): bool
     {
+        $this->delete($token);
+
         return false;
+    }
+
+    private function write(string $token, \DateTimeImmutable $expires): void
+    {
+        $this->connection->insert('payment_token', [
+            'token' => self::normalize($token),
+            'expires' => $expires->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function delete(string $token): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM payment_token WHERE token = :token',
+            ['token' => self::normalize($token)]
+        );
+    }
+
+    private function has(string $token): bool
+    {
+        $valid = $this->connection->fetchOne('SELECT token FROM payment_token WHERE token = :token', ['token' => self::normalize($token)]);
+
+        return $valid !== false;
+    }
+
+    private static function normalize(string $token): string
+    {
+        return substr(hash('sha256', $token), 0, 32);
     }
 }

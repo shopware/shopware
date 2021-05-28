@@ -37,6 +37,6 @@ describe('Product: Test crud operations', () => {
             expect(xhr).to.have.property('status', 400);
         });
 
-        cy.awaitAndCheckNotification('Please fill in all required fields.');
+        cy.awaitAndCheckNotification('This value should not be blank.');
     });
 });

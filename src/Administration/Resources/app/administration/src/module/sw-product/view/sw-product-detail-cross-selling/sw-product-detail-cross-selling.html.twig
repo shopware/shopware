@@ -16,13 +16,13 @@
         {% block sw_product_detail_cross_selling_add %}
         <sw-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
-                disabled: acl.can('product.editor'),
+                message: onAddCrossSellingTooltipMessage,
+                disabled: acl.can('product.editor') && isSystemDefaultLanguage,
                 showOnDisabledElements: true
             }"
             class="sw-product-detail-cross-selling__add-btn"
             variant="ghost"
-            :disabled="!acl.can('product.editor')"
+            :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
             @click="onAddCrossSelling"
         >
             {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
@@ -49,12 +49,12 @@
                     {% block sw_product_detail_empty_state_cross_selling_add %}
                     <sw-button
                         v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('product.editor'),
+                            message: onAddCrossSellingTooltipMessage,
+                            disabled: acl.can('product.editor') && isSystemDefaultLanguage,
                             showOnDisabledElements: true
                         }"
                         variant="ghost"
-                        :disabled="!acl.can('product.editor')"
+                        :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
                         @click="onAddCrossSelling"
                     >
                         {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}

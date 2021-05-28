@@ -33,8 +33,20 @@ Component.register('sw-product-detail-cross-selling', {
             'isLoading'
         ]),
 
+        ...mapGetters('context', [
+            'isSystemDefaultLanguage'
+        ]),
+
         showCrossSellingCard() {
             return !this.isLoading && this.product.crossSellings && this.product.crossSellings.length > 0;
+        },
+
+        onAddCrossSellingTooltipMessage() {
+            if (this.isSystemDefaultLanguage) {
+                return this.$tc('sw-privileges.tooltip.warning');
+            }
+
+            return this.$tc('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
         }
     },
 

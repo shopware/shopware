@@ -83,7 +83,7 @@ class AdministrationController extends AbstractController
     /**
      * @Since("6.3.3.0")
      * @RouteScope(scopes={"administration"})
-     * @Route("/admin", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
+     * @Route("/%shopware_administration.path_name%", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
     public function index(Request $request, Context $context): Response
     {

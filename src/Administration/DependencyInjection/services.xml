@@ -3,6 +3,12 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="env(SHOPWARE_ADMINISTRATION_PATH_NAME)">admin</parameter>
+        <parameter key="shopware_administration.path_name">%env(resolve:SHOPWARE_ADMINISTRATION_PATH_NAME)%</parameter>
+    </parameters>
+
     <services>
         <service id="Shopware\Administration\Controller\AdministrationController"
                  public="true">
@@ -23,6 +29,7 @@
         </service>
 
         <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">
+            <argument>%shopware_administration.path_name%</argument>
             <tag name="shopware.route_scope"/>
         </service>
 

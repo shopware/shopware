@@ -1,6 +1,6 @@
 describe('Account: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 return cy.createCustomerFixture();
             });

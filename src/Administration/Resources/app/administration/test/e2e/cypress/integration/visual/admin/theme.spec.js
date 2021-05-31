@@ -2,7 +2,7 @@
 
 describe('Theme: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
             })

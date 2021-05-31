@@ -2,7 +2,7 @@ let product = {};
 
 describe('Search - Storefront: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
             }).then(() => {

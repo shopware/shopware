@@ -6,7 +6,7 @@ import ProductStreamObject from '../../../support/pages/module/sw-product-stream
 describe('Product: Visual tests', () => {
     // eslint-disable-next-line no-undef
     before(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 return cy.createProductFixture();
             })

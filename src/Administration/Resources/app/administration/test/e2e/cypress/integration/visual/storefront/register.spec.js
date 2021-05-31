@@ -2,7 +2,7 @@ import AccountPageObject from '../../../support/pages/account.page-object';
 
 describe('Account - Register: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 return cy.createCustomerFixture();
             });

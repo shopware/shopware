@@ -2,7 +2,7 @@
 
 describe('Dashboard:  Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 // freezes the system time to Jan 1, 2018
                 const now = new Date(2018, 1, 1);

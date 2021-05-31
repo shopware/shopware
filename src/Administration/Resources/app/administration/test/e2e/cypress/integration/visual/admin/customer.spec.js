@@ -11,7 +11,7 @@ let customer = {
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
             })

@@ -1,6 +1,6 @@
 describe('Import/Export - Profiles:  Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual().then(() => {
+        cy.setToInitialState().then(() => {
             cy.loginViaApi();
         }).then(() => {
             return cy.createDefaultFixture('import-export-profile');

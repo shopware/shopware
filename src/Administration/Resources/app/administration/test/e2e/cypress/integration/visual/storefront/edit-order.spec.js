@@ -1,6 +1,6 @@
 describe('Account - Order: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual().then(() => {
+        cy.setToInitialState().then(() => {
             // freezes the system time to Jan 1, 2018
             const now = new Date(2018, 1, 1);
             cy.clock(now);

@@ -2,7 +2,7 @@
 
 describe('CMS: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
             })

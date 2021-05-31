@@ -4,7 +4,7 @@ import OrderPageObject from '../../../support/pages/module/sw-order.page-object'
 
 describe('Order: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual().then(() => {
+        cy.setToInitialState().then(() => {
             return cy.setShippingMethodInSalesChannel('Standard');
         }).then(() => {
             // freezes the system time to Jan 1, 2018

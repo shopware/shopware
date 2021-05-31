@@ -5,7 +5,7 @@ import CategoryPageObject from '../../../support/pages/module/sw-category.page-o
 describe('Category: Visual tests', () => {
     beforeEach(() => {
         // Clean previous state and prepare Administration
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
             })

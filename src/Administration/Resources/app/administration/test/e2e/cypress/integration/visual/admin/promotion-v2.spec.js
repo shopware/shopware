@@ -4,7 +4,7 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
 
 describe('Promotion v2: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
             })

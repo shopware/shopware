@@ -4,7 +4,7 @@ import PropertyPageObject from '../../../support/pages/module/sw-property.page-o
 
 describe('Property: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
             })

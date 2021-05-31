@@ -5,7 +5,7 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
 
 describe('Media: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual()
+        cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
             })

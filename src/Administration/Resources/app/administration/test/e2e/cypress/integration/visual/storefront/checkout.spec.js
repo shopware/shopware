@@ -5,7 +5,7 @@ let product = {};
 
 describe('Checkout: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialStateVisual().then(() => {
+        cy.setToInitialState().then(() => {
             return cy.setShippingMethodInSalesChannel('Standard');
         }).then(() => {
             return cy.createProductFixture();

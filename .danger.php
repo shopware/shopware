@@ -4,15 +4,15 @@ use Danger\Config;
 use Danger\Context;
 use Danger\Platform\Github\Github;
 use Danger\Platform\Gitlab\Gitlab;
-use Danger\Rule\CommitRegexRule;
-use Danger\Rule\ConditionRule;
-use Danger\Rule\DisallowRepeatedCommitsRule;
-use Danger\Rule\MaxCommitRule;
+use Danger\Rule\CommitRegex;
+use Danger\Rule\Condition;
+use Danger\Rule\DisallowRepeatedCommits;
+use Danger\Rule\MaxCommit;
 
 
 return (new Config())
     ->useThreadOnFails()
-    ->useRule(new DisallowRepeatedCommitsRule)
+    ->useRule(new DisallowRepeatedCommits)
     ->useRule(function (Context $context) {
         $files = $context->platform->pullRequest->getFiles();
 
@@ -30,7 +30,7 @@ return (new Config())
             $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
         }
     })
-    ->useRule(new ConditionRule(
+    ->useRule(new Condition(
         function (Context $context) {
             return $context->platform instanceof Gitlab;
         },
@@ -60,20 +60,12 @@ return (new Config())
             }
         ]
     ))
-    ->useRule(new ConditionRule(
-        function (Context $context) {
-            return $context->platform instanceof Github;
-        },
-        [
-            new MaxCommitRule()
-        ]
-    ))
-    ->useRule(new ConditionRule(
+    ->useRule(new Condition(
         function (Context $context) {
             return $context->platform instanceof Github && $context->platform->pullRequest->projectIdentifier === 'shopwareBoostDay/platform';
         },
         [
-            new CommitRegexRule(
+            new CommitRegex(
                 '/(?m)(?mi)^NEXT-\d*\s-\s[A-Z].*,\s*fixes\s*shopwareBoostday\/platform#\d*$/m',
                 "The commit title `###MESSAGE###` does not match our requirements. Example: \"NEXT-00000 - My Title, fixes shopwareBoostday/platform#1234\""
             )

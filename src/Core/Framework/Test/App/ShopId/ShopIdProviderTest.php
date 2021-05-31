@@ -82,4 +82,28 @@ class ShopIdProviderTest extends TestCase
             $this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)
         );
     }
+
+    public function testItRemovesTheAppUrlChangedMarkerIfOutdated(): void
+    {
+        $this->shopIdProvider->getShopId();
+
+        $this->setEnvVars([
+            'APP_URL' => 'http://test.com',
+        ]);
+
+        try {
+            $this->shopIdProvider->getShopId();
+            static::fail('expected AppUrlChangeDetectedException was not thrown.');
+        } catch (AppUrlChangeDetectedException $e) {
+            // exception is expected
+        }
+
+        $this->resetEnvVars();
+
+        $this->shopIdProvider->getShopId();
+
+        static::assertNull(
+            $this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)
+        );
+    }
 }

@@ -142,6 +142,5 @@ class AppUrlChangeControllerTest extends TestCase
 
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNull($systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY));
-        static::assertNull($systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
     }
 }

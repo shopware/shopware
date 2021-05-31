@@ -89,7 +89,6 @@ class AppUrlChangeController extends AbstractController
 
         if ($oldUrl === $newUrl) {
             $this->systemConfigService->delete(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY);
-            $this->systemConfigService->delete(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         }

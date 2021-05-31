@@ -13,6 +13,7 @@ describe('Number Range: Test acl privileges', () => {
             });
     });
 
+    // TODO: Unskip with NEXT-15489
     it.skip('@settings: read number range with ACL, but without rights', () => {
         cy.loginAsUserWithPermissions([]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
@@ -24,6 +25,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
+    // TODO: Unskip with NEXT-15489
     it.skip('@settings: read number range with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
@@ -114,6 +116,7 @@ describe('Number Range: Test acl privileges', () => {
             .contains('Name e2e');
     });
 
+    // TODO: Unskip with NEXT-15489
     it.skip('@settings: can edit number range with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
@@ -164,6 +167,7 @@ describe('Number Range: Test acl privileges', () => {
             .contains('Cancellations update');
     });
 
+    // TODO: Unskip with NEXT-15489
     it.skip('@settings: can delete number range with ACL', () => {
         cy.loginAsUserWithPermissions([
             {

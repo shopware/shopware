@@ -18,7 +18,7 @@ describe('Product: Search Keyword product', () => {
             });
     });
 
-    it.skip('@catalogue: edit a product\'s search keyword', () => {
+    it('@catalogue: edit a products search keyword', () => {
         cy.server();
         cy.route({
             url: '/api/product/*',
@@ -28,6 +28,12 @@ describe('Product: Search Keyword product', () => {
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('searchData');
+
+        // Data grid should be visible
+        cy.get('.sw-product-list-grid').should('be.visible');
+
+        // Ensure product from `createProductFixture` is at correct position
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -52,12 +58,16 @@ describe('Product: Search Keyword product', () => {
 
         cy.get(page.elements.smartBarBack).click();
 
-        cy.get('input.sw-search-bar__input').type('YTN');
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('YTN');
+
         cy.wait('@searchData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-product-list-grid').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
+
+        // Ensure the search found the correct product
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
     });
 });

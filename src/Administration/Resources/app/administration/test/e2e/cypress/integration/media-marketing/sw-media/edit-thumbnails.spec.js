@@ -16,8 +16,8 @@ import MediaPageObject from '../../../support/pages/module/sw-media.page-object'
                 });
         });
 
+    // TODO: NEXT-15470 - Divide this tests into smaller ones if running time is allowing that
     it.skip('@media: create and use thumbnail sizes', () => {
-        // TODO: Divide this tests into smaller ones if running time is allowing that
 
         const page = new MediaPageObject();
 

@@ -19,6 +19,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         page = null;
     });
 
+    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15480
     it.skip('@settings @base: Create and read profile', () => {
         cy.server();
         cy.route({
@@ -85,6 +86,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Basic');
     });
 
+    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15480
     it.skip('@settings: Update and read profile', () => {
         cy.server();
         cy.route({
@@ -128,6 +130,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Updated E2E');
     });
 
+    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15480
     it.skip('@settings: Delete profile', () => {
         cy.server();
         cy.route({

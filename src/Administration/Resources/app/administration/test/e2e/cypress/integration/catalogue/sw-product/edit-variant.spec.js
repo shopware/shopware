@@ -383,8 +383,7 @@ describe('Product: Test variants', () => {
         cy.get('.product-variant-characteristics').contains('Color: Green | Size: L');
     });
 
-    // TODO: Unskip as soon as NEXT-10173 is resolved
-
+    // TODO: Unskip with NEXT-15469, the restriction must be configured while creating the variants and not afterwards
     it.skip('@base @catalogue: test multidimensional variant with restrictions', () => {
         const page = new ProductPageObject();
 
@@ -421,7 +420,7 @@ describe('Product: Test variants', () => {
         cy.contains('.sw-button', 'Generate variants').click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
         cy.get('.sw-variant-modal__restriction-configuration').click();
-        cy.contains('.sw-button', 'Add restriction').click();
+        cy.contains('.sw-button', 'Exclude values').click();
         cy.get('.sw-product-variants-configurator-restrictions__modal-main').should('be.visible');
 
         cy.get('#sw-field--selectedGroup').select('Size');

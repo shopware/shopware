@@ -70,6 +70,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-data-grid__cell--name').contains('That\'s not my name');
     });
 
+    // TODO: Unskip with NEXT-15486
     it.skip('@catalogue: test the text editor\'s link functionality', () => {
         const page = new ProductPageObject();
         const productName = 'This is an example product with links';

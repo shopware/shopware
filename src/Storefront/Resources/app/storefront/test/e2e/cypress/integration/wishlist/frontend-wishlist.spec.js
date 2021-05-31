@@ -66,8 +66,8 @@ describe('Wishlist: for wishlist page', () => {
         })
     });
 
+    // TODO: Unskip with NEXT-15490 - handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
     it.skip('@wishlist does some simple testing of the wishlist', () => {
-        // todo handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
 
         cy.get('#loginMail').typeAndCheckStorefront(customer.email);
         cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
@@ -160,8 +160,8 @@ describe('Wishlist: for wishlist page', () => {
         });
     });
 
+    // TODO: Unskip with NEXT-15490 - handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
     it.skip('@wishlist remove product of wishlist', () => {
-        // todo handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
         cy.get('#loginMail').typeAndCheckStorefront(customer.email);
         cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();

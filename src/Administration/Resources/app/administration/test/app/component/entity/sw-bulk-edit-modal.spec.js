@@ -10,7 +10,6 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
 
     const classes = {
         componentRoot: 'sw-bulk-edit-modal',
-        componentChild: 'sw-product-bulk-edit-modal',
         bulkEditListHeader: 'sw-data-grid__header',
         bulkEditList: 'sw-data-grid',
         bulkEditListCellContent: 'sw-data-grid__cell-content'

@@ -31,3 +31,10 @@ $sw-order-list-color-success: $color-emerald-500;
         padding: 0;
     }
 }
+
+.sw-order-bulk-edit-modal {
+    .sw-order-bulk_edit__manual-order-label {
+        margin-left: 12px;
+        text-align: center;
+    }
+}

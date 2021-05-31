@@ -26,12 +26,12 @@ Component.register('sw-button', {
             type: String,
             required: false,
             default: '',
-            validValues: ['primary', 'ghost', 'danger', 'contrast', 'context'],
+            validValues: ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['primary', 'ghost', 'danger', 'contrast', 'context'].includes(value);
+                return ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'].includes(value);
             }
         },
         size: {

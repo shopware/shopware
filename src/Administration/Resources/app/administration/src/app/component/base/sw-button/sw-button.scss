@@ -210,6 +210,20 @@ $sw-button-transition: all 0.15s ease-out;
         }
     }
 
+    &.sw-button--ghost-danger {
+        background: transparent;
+        border-color: $color-crimson-500;
+        color: $color-crimson-500;
+
+        &:hover {
+            background: $color-crimson-50;
+        }
+
+        &:active {
+            background: $color-crimson-100;
+        }
+    }
+
     &.sw-button--context {
         border: none;
         background-color: transparent;

@@ -26,7 +26,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14213 - frontend Login-Registration not possible to add company for deviant delivery address](/changelog/release-6-4-1-0/2021-03-31-frontend-login-registration-not-possible-to-add-company-for-deviant-delivery-address.md)
 *  [NEXT-14561 - Show error for not supported language on sales channel in search module](/changelog/release-6-4-1-0/2021-03-31-show-error-for-not-supported-language-on-sales-channel-in-search-module.md)
 *  [NEXT-13894 - Status mail Canceled bug](/changelog/release-6-4-1-0/2021-03-31-status-mail-canceled-bug.md)
-*  [NEXT-14417 - Add reset to default for excluded search term.](/changelog/release-6-4-1-0/2021-04-01-add-reset-to-default-for-excluded-search-term.md)
 *  [NEXT-14479 - Additional recipients at business events are automatically removed after save and refresh](/changelog/release-6-4-1-0/2021-04-02-additional-recipients-at-business-events-are-automatically-removed-after-save-and-refresh.md)
 *  [NEXT-14550 - Parameter "editable" in theme.json does not work](/changelog/release-6-4-1-0/2021-04-03-parameter-editable-theme-not-working.md)
 *  [NEXT-14559 - Added new fading plugin for truncate nested line item descriptions](/changelog/release-6-4-1-0/2021-04-06-add-fading-truncate-for-nested-line-items.md)
@@ -445,6 +444,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14735 - Fix image slider navigation of CMS product detail page on mobile](/changelog/release-6-4-0-0/2021-04-12-fix-image-slider-navigation-of-cms-product-detail-page-on-mobile.md)
 *  [NEXT-14548 - Fix missing close button of offcanvas on cms product page](/changelog/release-6-4-0-0/2021-04-01-fix-missing-close-button-of-offcanvas-on-cms-product-page.md)
 *  [NEXT-14415 - Set local time configuration for date range rule builder](/changelog/release-6-4-0-0/2021-03-29-set-local-time-configuration-for-date-range-rule-builder.md)
+*  [NEXT-14417 - Add reset to default for excluded search term.](/changelog/release-6-4-0-0/2021-04-01-add-reset-to-default-for-excluded-search-term.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

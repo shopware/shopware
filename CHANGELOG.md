@@ -19,7 +19,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14520 - Fix logging of exceptions](/changelog/release-6-4-1-0/2021-03-29-fix-logging-of-exceptions.md)
 *  [NEXT-14312 - Reworked nested line item handling for account](/changelog/release-6-4-1-0/2021-03-29-nested-line-item-support-for-account.md)
 *  [NEXT-14003 - Removed formAjaxSubmitOptions in address-editor-modal-create-address](/changelog/release-6-4-1-0/2021-03-29-removed-formajaxsubmitoptions.md)
-*  [NEXT-14415 - Set local time configuration for date range rule builder](/changelog/release-6-4-1-0/2021-03-29-set-local-time-configuration-for-date-range-rule-builder.md)
 *  [NEXT-14540 - Add newsletter.unsubscribe Event](/changelog/release-6-4-1-0/2021-03-30-add-newsletter-unsubscribe-event.md)
 *  [NEXT-14507 - Reworked nested line item handling for offcanvas cart](/changelog/release-6-4-1-0/2021-03-30-nested-line-item-support-for-offcanvas-cart.md)
 *  [NEXT-14359 - Add the current sw version to all outgoing request to external apps](/changelog/release-6-4-1-0/2021-03-31-add-the-current-sw-version-to-all-outgoing-request-to-external-apps.md)
@@ -445,6 +444,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14342 - Fix change box size of wishlist items in storefront](/changelog/release-6-4-1-0/2021-04-12-fix-change-box-size-wishlist-in-storefront.md)
 *  [NEXT-14735 - Fix image slider navigation of CMS product detail page on mobile](/changelog/release-6-4-1-0/2021-04-12-fix-image-slider-navigation-of-cms-product-detail-page-on-mobile.md)
 *  [NEXT-14548 - Fix missing close button of offcanvas on cms product page](/changelog/release-6-4-1-0/2021-04-01-fix-missing-close-button-of-offcanvas-on-cms-product-page.md)
+*  [NEXT-14415 - Set local time configuration for date range rule builder](/changelog/release-6-4-1-0/2021-03-29-set-local-time-configuration-for-date-range-rule-builder.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

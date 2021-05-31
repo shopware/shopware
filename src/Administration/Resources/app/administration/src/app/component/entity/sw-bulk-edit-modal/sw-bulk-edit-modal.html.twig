@@ -4,6 +4,7 @@
     :title="$tc('global.default.bulkEditModalTitle', itemCount, { count: itemCount })"
     variant="full"
     @modal-close="$emit('modal-close')"
+    @edit-items="$emit('edit-items')"
 >
 
     {% block sw_bulk_edit_modal_grid %}

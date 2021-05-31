@@ -1,8 +1,5 @@
-import BulkEditApiService from '../service/bulk-edit.api.service';
+import BulkEditApiFactory from '../service/bulk-edit.api.factory';
 
-Shopware.Service().register('bulkEditService', () => {
-    return new BulkEditApiService(
-        Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
-    );
+Shopware.Service().register('bulkEditApiFactory', () => {
+    return new BulkEditApiFactory();
 });

@@ -1,0 +1,12 @@
+<!-- eslint-disable vue/no-multiple-template-root -->
+{% block sw_form_field_renderer_inner %}
+{% parent %}
+
+<!-- eslint-disable vue/valid-v-slot -->
+<template
+    v-if="suffixLabel"
+    #suffix
+>
+    <span>{{ suffixLabel }}</span>
+</template>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% block sw_bulk_edit_change_type_field_renderer %}
+<div class="sw-bulk-edit-change-field-renderer">
+    <template v-for="(formField, index) in formFields">
+        {% block sw_bulk_edit_change_type_field_renderer_container %}
+        <sw-container
+            v-if="formField && bulkEditData[formField.name]"
+            :key="`formField-${index}`"
+            columns="240px 1fr"
+            gap="32px"
+            :class="`sw-bulk-edit-change-field__container sw-bulk-edit-change-field-${formField.name}`"
+        >
+            {% block sw_bulk_edit_change_type_field_renderer_change_field %}
+            <sw-field
+                class="sw-bulk-edit-change-field__change"
+                v-model="bulkEditData[formField.name].isChanged"
+                type="checkbox"
+                :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
+            />
+            {% endblock %}
+
+            {% block sw_bulk_edit_change_type_field_renderer_change_form_value_field %}
+            <sw-bulk-edit-change-type
+                v-if="showSelectBoxType(formField)"
+                v-model="bulkEditData[formField.name].type"
+                :allow-overwrite="getConfigValue(formField, 'allowOverwrite')"
+                :allow-clear="getConfigValue(formField, 'allowClear')"
+                :allow-add="getConfigValue(formField, 'allowAdd')"
+                :allow-remove="getConfigValue(formField, 'allowRemove')"
+            >
+                <template #value-field="{ isDisplayingValue }">
+                    <sw-bulk-edit-form-field-renderer
+                        v-if="isDisplayingValue"
+                        v-model="bulkEditData[formField.name].value"
+                        v-bind="formField"
+                        :key="`formField-${index}`"
+                    />
+                </template>
+            </sw-bulk-edit-change-type>
+            {% endblock %}
+            {% block sw_bulk_edit_change_type_field_renderer_change_form_value_field_without_change_type %}
+            <sw-bulk-edit-form-field-renderer
+                v-else
+                v-model="bulkEditData[formField.name].value"
+                v-bind="formField"
+                :key="`formField-${index}`"
+            />
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </template>
+</div>
+{% endblock %}

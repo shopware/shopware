@@ -1,11 +1,8 @@
 import './page/sw-bulk-edit-product';
-import './component/sw-bulk-edit-product/sw-bulk-edit-product-general-information';
-import './component/sw-bulk-edit-product/sw-bulk-edit-product-deliverability';
-import './component/sw-bulk-edit-product/sw-bulk-edit-product-labelling';
-import './component/sw-bulk-edit-product/sw-bulk-edit-product-seo';
-import './component/sw-bulk-edit-product/sw-bulk-edit-product-measures-packaging';
 import './component/sw-bulk-edit-custom-fields';
-import './component/sw-bulk-edit-change-types';
+import './component/sw-bulk-edit-change-type';
+import './component/sw-bulk-edit-change-type-field-renderer';
+import './component/sw-bulk-edit-form-field-renderer';
 import './init/services.init';
 
 const { Module } = Shopware;
@@ -27,8 +24,8 @@ Module.register('sw-bulk-edit', {
             component: 'sw-bulk-edit-product',
             path: 'product',
             meta: {
-                parentPath: 'sw.product.index'
-            }
-        }
-    }
+                parentPath: 'sw.product.index',
+            },
+        },
+    },
 });

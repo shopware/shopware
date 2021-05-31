@@ -1,78 +1,66 @@
-import createLoginService from 'src/core/service/login.service';
-import createHTTPClient from 'src/core/factory/http.factory';
-import BulkEditApiService from 'src/module/sw-bulk-edit/service/bulk-edit.api.service';
+import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.factory';
+import BulkEditProductHandler from 'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler';
 
-function getBulkEditApiService(client = null) {
-    if (client === null) {
-        client = createHTTPClient();
-    }
+function getBulkEditApiFactory() {
+    const factory = new BulkEditApiFactory();
 
-    const loginService = createLoginService(client, Shopware.Context.api);
-    const bulkEditApiService = new BulkEditApiService(client, loginService);
+    return factory;
+}
 
-    bulkEditApiService.syncService = {
+function getBulkEditProductHandler() {
+    const factory = getBulkEditApiFactory();
+
+    const handler = factory.getHandler('product');
+
+    handler.syncService = {
         sync: () => {
+            return true;
         }
     };
 
-    return bulkEditApiService;
+    return handler;
 }
 
-describe('module/sw-bulk-edit/service/bulk-edit.api.service', () => {
+describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => {
     it('is registered correctly', () => {
-        expect(getBulkEditApiService()).toBeInstanceOf(BulkEditApiService);
+        const factory = getBulkEditApiFactory();
+
+        const handler = factory.getHandler('product');
+
+        expect(handler).toBeInstanceOf(BulkEditProductHandler);
+        expect(handler.name).toBe('bulkEditProductHandler');
     });
 
-    it('should find correct product handler', () => {
-        const bulkEditSyncApiService = getBulkEditApiService();
+    it('should call buildBulkSyncPayload when using bulkEdit', async () => {
+        const handler = getBulkEditProductHandler();
 
-        const handler = bulkEditSyncApiService._findBulkEditHandler('product');
+        const bulkEditProductHandler = jest.spyOn(handler, 'buildBulkSyncPayload').mockImplementation(() => Promise.resolve({}));
 
-        expect(typeof handler).toBe('function');
-        expect(handler.name).toBe('_bulkEditProductHandler');
-    });
-
-    it('should throw error when no handler found', async () => {
-        const bulkEditSyncApiService = getBulkEditApiService();
-
-        expect(() => bulkEditSyncApiService._findBulkEditHandler('custom-module')).toThrow(Error('Bulk Edit Handler not found for custom-module module'));
-    });
-
-    it('should call correct handler when using bulkEdit', async () => {
-        const bulkEditSyncApiService = getBulkEditApiService();
-
-        const bulkEditProductHandler = jest.spyOn(bulkEditSyncApiService, '_bulkEditProductHandler').mockImplementation(() => Promise.resolve(true));
-
-        bulkEditSyncApiService.handlers = {
-            product: bulkEditProductHandler
-        };
-
-        const result = await bulkEditSyncApiService.bulkEdit('product', ['abc', 'xyz'], []);
+        const result = await handler.bulkEdit(['abc', 'xyz'], []);
 
         expect(bulkEditProductHandler).toHaveBeenCalledTimes(1);
         expect(bulkEditProductHandler).toHaveBeenCalledWith([]);
-        expect(bulkEditSyncApiService.entityName).toEqual('product');
-        expect(bulkEditSyncApiService.entityIds).toEqual(['abc', 'xyz']);
+        expect(handler.entityName).toEqual('product');
+        expect(handler.entityIds).toEqual(['abc', 'xyz']);
         expect(result).toEqual(true);
     });
 
     it('should call syncService sync when using bulkEditProductHandler', async () => {
-        const bulkEditSyncApiService = getBulkEditApiService();
+        const handler = getBulkEditProductHandler();
         const payload = { product: { operation: 'upsert', entity: 'product', payload: [] } };
 
-
-        const buildBulkSyncPayloadMethod = jest.spyOn(bulkEditSyncApiService, 'buildBulkSyncPayload').mockImplementation(() => Promise.resolve(payload));
-        const syncMethod = jest.spyOn(bulkEditSyncApiService.syncService, 'sync').mockImplementation(() => Promise.resolve(true));
+        const buildBulkSyncPayloadMethod = jest.spyOn(handler, 'buildBulkSyncPayload').mockImplementation(() => Promise.resolve(payload));
+        const syncMethod = jest.spyOn(handler.syncService, 'sync').mockImplementation(() => Promise.resolve(true));
 
         const changes = [{ type: 'overwrite', field: 'description', value: 'test' }];
 
-        const result = await bulkEditSyncApiService._bulkEditProductHandler(changes);
+        const result = await handler.bulkEdit([], changes);
 
         expect(buildBulkSyncPayloadMethod).toHaveBeenCalledTimes(1);
         expect(buildBulkSyncPayloadMethod).toHaveBeenCalledWith(changes);
 
         expect(syncMethod).toHaveBeenCalledTimes(1);
-        expect(syncMethod).toHaveBeenCalledWith(payload);
+        expect(syncMethod).toHaveBeenCalledWith(payload, {}, { 'single-operation': 1 });
         expect(result).toEqual(true);
     });
 
@@ -619,21 +607,21 @@ describe('module/sw-bulk-edit/service/bulk-edit.api.service', () => {
             ]
         ];
 
-        const bulkEditSyncApiService = getBulkEditApiService();
-        bulkEditSyncApiService.entityName = 'product';
-        bulkEditSyncApiService.entityIds = ['product_1', 'product_2'];
+        const handler = getBulkEditProductHandler();
+        handler.entityName = 'product';
+        handler.entityIds = ['product_1', 'product_2'];
 
         it.each(cases)('%s', async (testName, input, output, existAssociations = {}) => {
             const spy = jest.spyOn(console, 'warn').mockImplementation();
 
-            const spyRepository = jest.spyOn(bulkEditSyncApiService.repositoryFactory, 'create').mockImplementation((entity) => {
+            const spyRepository = jest.spyOn(handler.repositoryFactory, 'create').mockImplementation((entity) => {
                 return {
                     search: async () => Promise.resolve(existAssociations[entity]),
                     searchIds: async () => Promise.resolve({ data: existAssociations[entity] })
                 };
             });
 
-            expect(await bulkEditSyncApiService.buildBulkSyncPayload(input)).toEqual(output);
+            expect(await handler.buildBulkSyncPayload(input)).toEqual(output);
             spy.mockRestore();
 
             spyRepository.mockRestore();

@@ -1,0 +1,133 @@
+{
+  "sw-bulk-edit": {
+    "general": {
+      "mainMenuTitle": "Bulk edit",
+      "descriptionTextModule": "Module to bulk edit data",
+      "defaultChangeLabel": "Change:"
+    },
+    "changeTypes": {
+      "overwrite": "Overwrite",
+      "clear": "Clear",
+      "add": "Add",
+      "remove": "Remove"
+    },
+    "product": {
+      "textTitle": "Bulk edit: {productTotal} products",
+      "messageEmptyTitle": "No products selected for bulk edit",
+      "messageEmptySubline": "Please go back and select some products",
+      "generalInformation": {
+        "cardTitle": "General information",
+        "description": {
+          "changeLabel": "Change: Description"
+        },
+        "manufacturer": {
+          "changeLabel": "Change: Manufacturer",
+          "placeholderManufacturer": "Choose manufacturer"
+        },
+        "active": {
+          "changeLabel": "Change: Active",
+          "switchLabel": "Active"
+        },
+        "productPromotion": {
+          "changeLabel": "Change: Product promotion",
+          "switchLabel": "Product promotion"
+        }
+      },
+      "deliverability": {
+        "cardTitle": "Deliverability",
+        "stock": {
+          "changeLabel": "Change: Stock"
+        },
+        "isCloseout": {
+          "changeLabel": "Change: Clearance sale",
+          "switchLabel": "Clearance sale"
+        },
+        "deliveryTime": {
+          "changeLabel": "Change: Delivery time",
+          "placeholderDeliveryTime": "Choose delivery time"
+        },
+        "restockTime": {
+          "changeLabel": "Change: Restock time"
+        },
+        "freeShipping": {
+          "changeLabel": "Change: Free shipping",
+          "switchLabel": "Free shipping"
+        },
+        "minOrderQuantity": {
+          "changeLabel": "Change: Min order quantity"
+        },
+        "purchaseSteps": {
+          "changeLabel": "Change: Purchase steps"
+        },
+        "maxOrderQuantity": {
+          "changeLabel": "Change: Max order quantity"
+        }
+      },
+      "labelling": {
+        "cardTitle": "Labelling",
+        "releaseDate": {
+          "changeLabel": "Change: Release date",
+          "placeholderReleaseDate": "Choose release date..."
+        }
+      },
+      "seo": {
+        "cardTitle": "SEO",
+        "metaTitle": {
+          "changeLabel": "Change: Meta title",
+          "placeholderMetaTitle": "Enter meta title..."
+        },
+        "metaDescription": {
+          "changeLabel": "Change: Meta description",
+          "placeholderMetaDescription": "Enter meta description..."
+        },
+        "seoKeywords": {
+          "changeLabel": "Change: SEO keywords",
+          "placeholderSeoKeywords": "Enter one or more keywords..."
+        }
+      },
+      "measuresAndPackaging": {
+        "cardTitle": "Measures & packaging",
+        "widthTitle": {
+          "changeLabel": "Change: Width",
+          "placeholder": "-"
+        },
+        "heightTitle": {
+          "changeLabel": "Change: Height",
+          "placeholder": "-"
+        },
+        "lengthTitle": {
+          "changeLabel": "Change: Length",
+          "placeholder": "-"
+        },
+        "weightTitle": {
+          "changeLabel": "Change: Weight",
+          "placeholder": "-"
+        },
+        "sellingUnitTitle": {
+          "changeLabel": "Change: Selling unit",
+          "placeholder": "Enter selling unit..."
+        },
+        "scaleUnitTitle": {
+          "changeLabel": "Change: Scale unit",
+          "placeholder": "Enter scale unit..."
+        },
+        "packUnitTitle": {
+          "changeLabel": "Change: Packaging unit",
+          "placeholder": "Enter packaging unit..."
+        },
+        "packUnitPluralTitle": {
+          "changeLabel": "Change: Packaging unit plural",
+          "placeholder": "Enter packaging unit plural..."
+        },
+        "basicUnitTitle": {
+          "changeLabel": "Change: Basic unit",
+          "placeholder": "Enter basic unit..."
+        }
+      },
+      "customFields": {
+        "cardTitle": "Custom fields",
+        "changeLabel": "Change: {name}"
+      }
+    }
+  }
+}

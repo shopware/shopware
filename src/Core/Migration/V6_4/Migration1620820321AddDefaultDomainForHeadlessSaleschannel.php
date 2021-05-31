@@ -17,13 +17,10 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends Migrati
 
     public function update(Connection $connection): void
     {
-        $defaultDomainExist = $connection->fetchOne('SELECT id from sales_channel_domain WHERE sales_channel_id = :headlessSalesChannelId', [
-            'headlessSalesChannelId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
-        ]);
-
-        if ($defaultDomainExist) {
-            return;
-        }
+        $headlessSalesChannels = $connection->fetchFirstColumn(
+            'SELECT `id` FROM `sales_channel` WHERE `type_id` = :headlessType',
+            ['headlessType' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API)]
+        );
 
         $snippetSetId = $connection->fetchOne('SELECT id from snippet_set WHERE iso = :iso UNION SELECT id FROM snippet_set LIMIT 1', [
             'iso' => 'en-GB',
@@ -33,15 +30,25 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends Migrati
             return;
         }
 
-        $connection->insert(SalesChannelDomainDefinition::ENTITY_NAME, [
-            'id' => Uuid::randomBytes(),
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
-            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-            'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
-            'snippet_set_id' => $snippetSetId,
-            'url' => 'default.headless',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        foreach ($headlessSalesChannels as $headlessSalesChannelId) {
+            $defaultDomainExist = $connection->fetchOne('SELECT id from sales_channel_domain WHERE sales_channel_id = :headlessSalesChannelId', [
+                'headlessSalesChannelId' => $headlessSalesChannelId,
+            ]);
+
+            if ($defaultDomainExist) {
+                continue;
+            }
+
+            $connection->insert(SalesChannelDomainDefinition::ENTITY_NAME, [
+                'id' => Uuid::randomBytes(),
+                'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
+                'snippet_set_id' => $snippetSetId,
+                'url' => 'default.headless',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
     }
 
     public function updateDestructive(Connection $connection): void

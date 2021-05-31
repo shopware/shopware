@@ -79,10 +79,11 @@ class RequestTransformer implements RequestTransformerInterface
     /**
      * @var string[]
      */
-    private $whitelist = [
+    private array $whitelist = [
         '/_wdt/',
         '/_profiler/',
         '/_error/',
+        '/payment/finalize-transaction',
     ];
 
     /**

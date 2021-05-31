@@ -79,15 +79,18 @@
                                         }
                                     } %}
 
-                                    {% sw_include "@Storefront/storefront/element/cms-element-product-slider.html.twig" with {
-                                        sliderConfig: config,
-                                        element: {
-                                            'data': {
-                                                'products': products
-                                            },
-                                            type: 'product-slider'
-                                        }
-                                    } only %}
+                                    {% block cms_element_cross_selling_tabs_content_container_slider %}
+                                        {% sw_include "@Storefront/storefront/element/cms-element-product-slider.html.twig" with {
+                                            sliderConfig: config,
+                                            element: {
+                                                'data': {
+                                                    'products': products
+                                                },
+                                                type: 'product-slider'
+                                            }
+                                        } %}
+                                    {% endblock %}
+
                                 </div>
                             {% endif %}
                         {% endfor %}

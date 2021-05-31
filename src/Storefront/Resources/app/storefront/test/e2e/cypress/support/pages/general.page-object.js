@@ -18,7 +18,7 @@ export default class GeneralPageObject {
             smartBarBack: 'a.smart-bar__back-btn',
 
             // Listing components
-            gridRow: '".sw-grid__row'",
+            gridRow: '.sw-grid__row',
             gridRowInlineEdit: '.sw-grid-row__inline-edit-action',
 
             dataGridRow: '.sw-data-grid__row',

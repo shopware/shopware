@@ -46,7 +46,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-13391 - Save changes modal at language switch is saving the data in the wrong language](/changelog/release-6-4-1-0/2021-04-10-fix-saving-data-wrong-language.md)
 *  [NEXT-13498 - Duplication of rules should open the new one instead of original rule for editing](/changelog/release-6-4-1-0/2021-04-11-duplication-of-rules-open-original-rule-for-editing.md)
 *  [NEXT-14725 - Add custom fields to apps](/changelog/release-6-4-1-0/2021-04-12-add-custom-fields-to-apps.md)
-*  [NEXT-14342 - Fix change box size of wishlist items in storefront](/changelog/release-6-4-1-0/2021-04-12-fix-change-box-size-wishlist-in-storefront.md)
 *  [NEXT-14735 - Fix image slider navigation of CMS product detail page on mobile](/changelog/release-6-4-1-0/2021-04-12-fix-image-slider-navigation-of-cms-product-detail-page-on-mobile.md)
 *  [NEXT-14368 - Make custom fields available for all entities in administration](/changelog/release-6-4-1-0/2021-04-12-make-custom-fields-available-for-all-entities-in-administration.md)
 *  [NEXT-9011 - Select outside the screen](/changelog/release-6-4-1-0/2021-04-12-select-outside-the-screen.md)
@@ -445,6 +444,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14958 - Normalize EntityDefinition::getDefaults data](/changelog/release-6-4-0-0/2021-04-26-normalize-entitydefinition-getdefaults-data.md)
 *  [NEXT-15049 - Add properties to product stream allowed list](/changelog/release-6-4-0-0/2021-04-30-add-properties-to-product-stream-allowed-list.md)
 *  [NEXT-14465 - Prevent duplicate cart alerts](/changelog/release-6-4-1-0/2021-04-12-prevent-duplicate-cart-alerts.md)
+*  [NEXT-14342 - Fix change box size of wishlist items in storefront](/changelog/release-6-4-1-0/2021-04-12-fix-change-box-size-wishlist-in-storefront.md)
 
 ## 6.3.5.2
 *  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)

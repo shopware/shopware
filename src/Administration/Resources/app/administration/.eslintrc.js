@@ -119,7 +119,10 @@ module.exports = {
                 'vue/no-parsing-error': ['error', {
                     'nested-comment': false
                 }],
-                'vue/valid-template-root': 'warn'
+                'vue/valid-template-root': 'warn',
+                'vue/valid-v-slot': ['error', {
+                    allowModifiers: true
+                }]
             }
         }
     ]

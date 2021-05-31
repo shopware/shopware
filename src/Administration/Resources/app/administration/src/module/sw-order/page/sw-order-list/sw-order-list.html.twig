@@ -109,7 +109,6 @@
                 {% endblock %}
 
                 {% block sw_order_list_grid_columns_customer_name %}
-                <!-- eslint-disable vue/valid-v-slot -->
                 <template #column-orderCustomer.firstName="{ item }">
                     <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
                         {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}

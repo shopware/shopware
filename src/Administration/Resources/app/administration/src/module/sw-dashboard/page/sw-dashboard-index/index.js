@@ -179,6 +179,10 @@ Component.register('sw-dashboard-index', {
                 return findDateStats;
             }
             return null;
+        },
+
+        systemCurrencyISOCode() {
+            return Shopware.Context.app.systemCurrencyISOCode;
         }
     },
 

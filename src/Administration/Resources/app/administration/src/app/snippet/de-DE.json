@@ -554,8 +554,8 @@
         "shippingZipCodeRule": "Lieferadresse-PLZ",
         "customerLoggedInRule": "Angemeldeter Kunde",
         "cartAmountRule": "Warenkorbwert",
-        "goodsCountRule": "Anzahl Warenkorbgüter",
-        "goodsPriceRule": "Preis Warenkorbgüter",
+        "goodsCountRule": "Unterschiedliche Produkte im Warenkorb",
+        "goodsPriceRule": "Gesamtpreis Produkte im Warenkorb",
         "lineItemOfTypeRule": {
           "label": "Position des Typs",
           "product": "Produkt",
@@ -611,6 +611,7 @@
         "lineItemListPriceRule": "Positionen mit Streichpreis",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart",
+        "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {

@@ -554,8 +554,8 @@
         "shippingZipCodeRule": "Shipping postal code",
         "customerLoggedInRule": "Customer logged in",
         "cartAmountRule": "Cart amount",
-        "goodsCountRule": "Goods count",
-        "goodsPriceRule": "Goods price",
+        "goodsCountRule": "Distinct products in cart",
+        "goodsPriceRule": "Total product price in cart",
         "lineItemOfTypeRule": {
           "label": "Line item of type",
           "product": "Product",
@@ -611,6 +611,7 @@
         "lineItemListPriceRule": "Line item list price",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method",
+        "lineItemGoodsTotalRule": "Total number of products in cart",
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {

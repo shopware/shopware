@@ -212,5 +212,9 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemGoodsTotalRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
     </services>
 </container>

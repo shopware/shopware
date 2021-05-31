@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\Test\Routing;
 use PHPUnit\Framework\TestCase;
 use Sensio\Bundle\FrameworkExtraBundle\EventListener\ControllerListener;
 use Shopware\Core\Framework\Api\Route\ApiRouteLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Routing\Router;
-use Symfony\Component\Config\Exception\LoaderLoadException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,20 +51,20 @@ class RoutesAclTest extends TestCase
             $annotClassLoader
         );
 
-        // Don't ask me why this is nessecary, but it is
+        // Don't ask me why the next 11 lines are nessecary, but they are
+        $this->getContainer()->set(
+            'routing.loader.api.test',
+            new ApiRouteLoader($this->getContainer()->get(DefinitionInstanceRegistry::class))
+        );
         new LoaderResolver([
             $this->getContainer()->get('routing.loader.yml'),
             $this->getContainer()->get('routing.loader.php'),
             $this->getContainer()->get('routing.loader.xml'),
-            $this->getContainer()->get(ApiRouteLoader::class),
+            $this->getContainer()->get('routing.loader.api.test'),
             $testRouteLoader,
         ]);
 
-        try {
-            $this->routes = $this->getKernel()->loadRoutes($testRouteLoader);
-        } catch (LoaderLoadException $e) {
-            //ignore twice loading exception
-        }
+        $this->routes = $this->getKernel()->loadRoutes($testRouteLoader);
     }
 
     public function testRoutesAcls(): void

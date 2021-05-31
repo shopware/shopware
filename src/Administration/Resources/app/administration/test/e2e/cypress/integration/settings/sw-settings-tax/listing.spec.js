@@ -1,6 +1,7 @@
 // / <reference types="Cypress" />
 
 describe('Tax: Test tax-rule listing operations', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         cy.setToInitialState()
             .then(() => {

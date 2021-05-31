@@ -1,8 +1,9 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 const uuid = require('uuid/v4');
 
 describe('Product: Test pagination and the corosponding URL parameters', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         let taxId, currencyId;
 

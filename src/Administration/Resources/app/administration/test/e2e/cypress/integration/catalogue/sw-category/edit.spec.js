@@ -3,6 +3,7 @@
 import CategoryPageObject from '../../../support/pages/module/sw-category.page-object';
 
 describe('Category: Edit categories', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         // Clean previous state and prepare Administration
         cy.setToInitialState();

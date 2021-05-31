@@ -7,6 +7,7 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 describe('Promotion: Test promotion with preconditional rules', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         cy.onlyOnFeature('FEATURE_NEXT_13810');
     });

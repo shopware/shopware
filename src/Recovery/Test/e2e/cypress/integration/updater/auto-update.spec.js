@@ -75,11 +75,13 @@ describe('Minimal auto update', () => {
         cy.get('.navigation--entry.is--complete').contains('Datenbank-Migration');
         cy.get('.content--main h2').contains('Aufräumen');
 
-        // Take snapshot for visual testing
+        // Change display of the element to ensure consistent snapshots
          cy.changeElementStyling(
              '[name="cleanupForm"] table',
              'display: none'
          );
+
+        // Take snapshot for visual testing
         cy.takeSnapshot('Cleanup');
         cy.get('.btn.btn-primary').contains('Weiter').click();
 

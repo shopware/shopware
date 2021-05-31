@@ -121,10 +121,13 @@ describe('Checkout: Visual tests', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         cy.login();
 
-        // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.prepareAdminForScreenshot();
+
+        // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color: #fff');
+
+        // Take snapshot for visual testing
         cy.takeSnapshot(`Order listing`, '.sw-order-list');
 
         cy.clickContextMenuItem(
@@ -134,25 +137,35 @@ describe('Checkout: Visual tests', () => {
         );
         cy.get('.sw-order-detail').should('be.visible');
 
-        // Take snapshot for visual testing
+        // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-order-user-card__metadata-item', 'color: #fff');
+
+        // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-order-state-history-card__payment-state .sw-order-state-card__date',
             'color: #fff'
         );
+
+        // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-order-state-history-card__delivery-state .sw-order-state-card__date',
             'color: #fff'
         );
+
+        // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-order-state-history-card__order-state .sw-order-state-card__date',
             'color: #fff'
         );
+
+        // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
             'color: rgb(240, 242, 245);'
         );
         cy.prepareAdminForScreenshot();
+
+        // Take snapshot for visual testing
         cy.takeSnapshot('Order detail', '.sw-order-detail');
 
     });

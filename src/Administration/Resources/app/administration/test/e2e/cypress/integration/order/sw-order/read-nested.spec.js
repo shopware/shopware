@@ -49,6 +49,7 @@ function getLineItem(id, children = []) {
 }
 
 describe('Order: Read order with nested line items', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         cy.onlyOnFeature('FEATURE_NEXT_12635');
     });

@@ -28,12 +28,14 @@ describe('Category: Visual tests', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        // Take snapshot for visual testing
+        // Change visibility of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-category-entry-point-card__navigation-list',
             'visibility: hidden'
         );
         cy.prepareAdminForScreenshot();
+
+        // Take snapshot for visual testing
         cy.takeSnapshot('Category - detail', '.sw-category-detail-base');
     });
 });

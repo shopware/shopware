@@ -48,6 +48,7 @@ class ShopIdProvider
 
             throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl);
         }
+        $this->systemConfigService->delete(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY);
 
         return $shopId['value'];
     }

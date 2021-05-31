@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -54,18 +55,45 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
         $lineItems = $order->getLineItems();
         $creditItems = new OrderLineItemCollection();
+
         if ($lineItems) {
             $creditItems = $lineItems->filterByType(LineItem::CREDIT_LINE_ITEM_TYPE);
         }
-        $order->setLineItems($creditItems);
 
-        $documentString = $this->documentTemplateRenderer->render(
+        foreach ($creditItems as $creditItem) {
+            $creditItem->setUnitPrice($creditItem->getUnitPrice() !== 0.0 ? -$creditItem->getUnitPrice() : 0.0);
+            $creditItem->setTotalPrice($creditItem->getTotalPrice() !== 0.0 ? -$creditItem->getTotalPrice() : 0.0);
+        }
+
+        $creditItemsCalculatedPrice = $creditItems->getPrices()->sum();
+        $totalPrice = $creditItemsCalculatedPrice->getTotalPrice();
+        $taxAmount = $creditItemsCalculatedPrice->getCalculatedTaxes()->getAmount();
+        $taxes = $creditItemsCalculatedPrice->getCalculatedTaxes();
+
+        foreach ($taxes as $tax) {
+            $tax->setTax($tax->getTax() !== 0.0 ? -$tax->getTax() : 0.0);
+        }
+
+        $price = new CartPrice(
+            -($totalPrice - $taxAmount),
+            -$totalPrice,
+            -$order->getPositionPrice(),
+            $taxes,
+            $creditItemsCalculatedPrice->getTaxRules(),
+            $order->getTaxStatus()
+        );
+
+        $order->setLineItems($creditItems);
+        $order->setPrice($price);
+        $order->setAmountNet($price->getNetPrice());
+
+        return $this->documentTemplateRenderer->render(
             $templatePath,
             [
                 'order' => $order,
                 'creditItems' => $creditItems,
-                'price' => $creditItems->getPrices()->sum(),
-                'amountTax' => $creditItems->getPrices()->sum()->getCalculatedTaxes()->getAmount(),
+                'price' => $totalPrice,
+                'amountTax' => $taxAmount,
                 'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
                 'rootDir' => $this->rootDir,
                 'context' => $context,
@@ -75,7 +103,5 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
             $order->getLanguageId(),
             $order->getLanguage()->getLocale()->getCode()
         );
-
-        return $documentString;
     }
 }

@@ -149,6 +149,11 @@ class CreditNoteGeneratorTest extends TestCase
             );
         }
 
+        static::assertStringContainsString(
+            sprintf('€%s', number_format((float) -array_sum($creditPrices), 2)),
+            $processedTemplate
+        );
+
         $generatedDocument = new GeneratedDocument();
         $generatedDocument->setHtml($processedTemplate);
 

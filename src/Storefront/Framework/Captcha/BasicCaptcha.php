@@ -62,7 +62,7 @@ class BasicCaptcha extends AbstractCaptcha
         }
 
         $captchaSession = $this->session->get($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
-        $this->session->remove(self::BASIC_CAPTCHA_SESSION);
+        $this->session->remove($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
 
         if ($captchaSession === null) {
             return false;

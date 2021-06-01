@@ -183,7 +183,7 @@
         {% block sw_product_variants_overview_data_grid_column_price %}
         <template
             v-for="currency in currencies"
-            :slot="`column-price-${currency.isoCode}`"
+            :slot="`column-price.${currency.id}.net`"
             slot-scope="{ item, compact, isInlineEdit }"
         >
 

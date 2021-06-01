@@ -143,7 +143,7 @@ Component.register('sw-price-field', {
         priceForCurrency: {
             get() {
                 const priceForCurrency = Object.values(this.price).find((price) => {
-                    return price.currencyId === this.currency.id;
+                    return price.currencyId === this.currency?.id;
                 });
 
                 // check if price exists

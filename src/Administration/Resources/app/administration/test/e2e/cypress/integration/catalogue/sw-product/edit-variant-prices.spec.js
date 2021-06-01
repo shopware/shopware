@@ -83,14 +83,18 @@ describe('Product: Test variants', () => {
 
             // Set surcharge
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
+            cy.get('.sw-data-grid__row--0 .sw-price-preview').should('be.visible');
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').dblclick({ force: true });
-            cy.get('.is--inline-edit .sw-data-grid__cell--price-EUR .sw-inheritance-switch').should('be.visible');
-            cy.get('.is--inline-edit .sw-data-grid__cell--price-EUR .sw-inheritance-switch').click();
-            cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-gross').should('be.visible');
-            cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-gross').should('be.enabled');
-            cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-gross').clearTypeAndCheck('100');
-            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .icon--default-lock-open').click();
-            cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-net')
+            cy.get('.sw-data-grid__row--0 .sw-price-preview').should('not.exist');
+
+            cy.get('.is--inline-edit .sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net .sw-inheritance-switch').should('exist');
+            cy.get('.is--inline-edit .sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net .sw-inheritance-switch').should('be.visible');
+            cy.get('.is--inline-edit .sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net .sw-inheritance-switch').click();
+            cy.get('.sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net #sw-price-field-gross').should('be.visible');
+            cy.get('.sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net #sw-price-field-gross').should('be.enabled');
+            cy.get('.sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net #sw-price-field-gross').clearTypeAndCheck('100');
+            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net .icon--default-lock-open').click();
+            cy.get('.sw-data-grid__cell--price-b7d2554b0ce847cd82f3ac9bd1c0dfca-net #sw-price-field-net')
                 .invoke('val')
                 .should('eq', '84.033613445378');
             cy.get('.icon--custom-uninherited').should('be.visible');

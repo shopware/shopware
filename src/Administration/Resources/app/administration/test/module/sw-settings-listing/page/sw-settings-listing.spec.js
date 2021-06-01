@@ -355,7 +355,20 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 'sw-page': {
                     template: '<div><slot name="content"></slot></div>'
                 },
-                'sw-system-config': true,
+                'sw-system-config': {
+                    data() {
+                        return {
+                            singleConfig: [true, true]
+                        };
+                    },
+                    template: `
+<div class="sw-system-config">
+  <div v-for="(config, index) in singleConfig">
+      <slot name="afterElements" v-bind="{ config, index }"></slot>
+  </div>
+</div>`
+                },
+                'sw-single-select': true,
                 'sw-card-view': {
                     template: '<div><slot></slot></div>'
                 },
@@ -536,5 +549,11 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-settings-listing-index__visibility-modal').exists()).toBeTruthy();
+    });
+
+    it('should render the default sorting selectbox only on first card', async () => {
+        const defaultSortingSelects = wrapper.findAll('.sw-settings-listing-index__default-sorting-select');
+
+        expect(defaultSortingSelects.length).toBe(1);
     });
 });

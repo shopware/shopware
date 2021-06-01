@@ -62,7 +62,7 @@
         </template>
         <slot
             name="afterElements"
-            v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"
+            v-bind="{ card, config: actualConfigData[currentSalesChannelId], index }"
         />
     </sw-card>
     {% endblock %}

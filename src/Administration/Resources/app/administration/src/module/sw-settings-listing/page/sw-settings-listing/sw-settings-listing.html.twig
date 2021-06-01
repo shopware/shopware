@@ -139,12 +139,12 @@
                 domain="core.listing"
             >
 
-                <template #afterElements="{ config }">
-
+                <template #afterElements="{ config, index }">
                     {% block sw_settings_listing_content_card_view_system_config_default_sorting_select %}
                     <sw-single-select
-                        v-if="config"
+                        v-if="config && index === 0"
                         v-model="config['core.listing.defaultSorting']"
+                        class="sw-settings-listing-index__default-sorting-select"
                         :label="$tc('sw-settings-listing.general.labelDefaultSorting')"
                         :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSorting')"
                         :options="productSortingOptions"

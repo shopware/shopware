@@ -339,7 +339,8 @@
                         {% if feature('FEATURE_NEXT_12455') %}
                             {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with {
                                 'captchas': config('core.basicInformation.activeCaptchasV2'),
-                                'formId': 'register-form'
+                                'formId': 'register-form',
+                                'preCheck': true
                                 }
                             %}
                         {% else %}

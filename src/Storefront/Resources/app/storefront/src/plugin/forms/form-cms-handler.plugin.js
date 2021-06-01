@@ -77,6 +77,7 @@ export default class FormCmsHandler extends Plugin {
 
     _handleResponse(res) {
         const response = JSON.parse(res);
+        this.$emitter.publish('onFormResponse', res);
 
         if(response.length > 0) {
             let changeContent = true;

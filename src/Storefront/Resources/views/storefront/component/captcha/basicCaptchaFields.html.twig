@@ -1,0 +1,23 @@
+{% block component_basic_captcha_fields_title_input %}
+    <div id="{{ formId }}-basic-captcha-field">
+        {% if formViolations.getViolations("/#{constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER')}") is not empty %}
+            {% set violationPath = "/#{constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER')}" %}
+        {% endif %}
+        <input id="{{ formId }}-basic-captcha-input"
+               type="text"
+               class="form-control{% if violationPath %} is-invalid{% endif %}"
+               name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER') }}"
+               required
+        >
+        <input type="text"
+               name="formId"
+               class="d-none"
+               value="{{ formId }}"
+        >
+        {% block component_basic_captcha_fields_error %}
+            {% if formViolations.getViolations("/#{constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER')}") is not empty %}
+                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

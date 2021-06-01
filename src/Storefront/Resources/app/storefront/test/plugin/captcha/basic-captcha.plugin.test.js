@@ -10,12 +10,15 @@ describe('BasicCaptchaPlugin tests', () => {
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
-        const mockElement = document.createElement('div');
-        mockElement.innerHTML += '<div>' +
+        const mockElement = document.createElement('form');
+        const mockDiv = document.createElement('div');
+        mockDiv.innerHTML += '<div>' +
             '<div id="basic-captcha-content-image"></div>' +
             '<a id="basic-captcha-content-refresh-icon">Icon</a>' +
+            '<input id="basic-captcha-input">' +
+            '<input id="-precheck">' +
             '</div>';
-
+        mockElement.appendChild(mockDiv);
         window.csrf = {
             enabled: false
         };
@@ -68,5 +71,15 @@ describe('BasicCaptchaPlugin tests', () => {
 
         expect(spyOnLoad).toHaveBeenCalled();
         expect(spyCallApi).toHaveBeenCalled();
+    });
+
+    test('onFormSubmit should get called', () => {
+        basicCaptchaPlugin._form.submit = jest.fn();
+
+        basicCaptchaPlugin._form.checkValidity = () => { return true };
+
+        basicCaptchaPlugin.onFormSubmit('kyln');
+
+        expect(basicCaptchaPlugin._form.submit).toHaveBeenCalled();
     });
 });

@@ -30,7 +30,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends Migrati
             return;
         }
 
-        foreach ($headlessSalesChannels as $headlessSalesChannelId) {
+        foreach ($headlessSalesChannels as $index => $headlessSalesChannelId) {
             $defaultDomainExist = $connection->fetchOne('SELECT id from sales_channel_domain WHERE sales_channel_id = :headlessSalesChannelId', [
                 'headlessSalesChannelId' => $headlessSalesChannelId,
             ]);
@@ -41,11 +41,11 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends Migrati
 
             $connection->insert(SalesChannelDomainDefinition::ENTITY_NAME, [
                 'id' => Uuid::randomBytes(),
-                'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+                'sales_channel_id' => $headlessSalesChannelId,
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
                 'snippet_set_id' => $snippetSetId,
-                'url' => 'default.headless',
+                'url' => 'default.headless' . $index,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }

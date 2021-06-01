@@ -40,7 +40,6 @@
             :skeleton-item-amount="skeletonItemAmount"
             @update-records="updateRecords"
         >
-            <!-- eslint-disable vue/valid-v-slot -->
             <template #column-salesChannels.name="{ item }">
                 {% block sw_mail_template_list_columns_sales_channels_label %}
                 {{ getSalesChannelsString(item) }}

@@ -14,7 +14,6 @@
         :full-page="true"
     >
         {% block sw_import_export_activity_listing_size %}
-        <!-- eslint-disable vue/valid-v-slot -->
         <template #column-file.size="{ item }">
             {{ calculateFileSize(item.file.size) }}
         </template>

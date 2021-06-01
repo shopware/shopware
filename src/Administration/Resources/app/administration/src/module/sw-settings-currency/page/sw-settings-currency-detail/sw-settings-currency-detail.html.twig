@@ -211,7 +211,6 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_interval_column %}
-                <!-- eslint-disable vue/valid-v-slot -->
                 <template #column-itemRounding.interval="{ item }">
                     <template v-if="item.itemRounding.interval === 0.01">
                         {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
@@ -223,7 +222,6 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_interval_column %}
-                <!-- eslint-disable vue/valid-v-slot -->
                 <template #column-totalRounding.interval="{ item }">
                     <template v-if="item.totalRounding.interval === 0.01">
                         {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}

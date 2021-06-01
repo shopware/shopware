@@ -33,7 +33,7 @@
                     v-model="crossSelling.name"
                     :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                     required
-                    :placeholder="$tc('sw-product.crossselling.inputCrossSellingTitlePlaceholder')"
+                    :placeholder="placeholder(crossSelling, 'name', $tc('sw-product.crossselling.inputCrossSellingTitlePlaceholder'))"
                     :error="crossSellingNameError"
                     :disabled="!allowEdit"
                 />

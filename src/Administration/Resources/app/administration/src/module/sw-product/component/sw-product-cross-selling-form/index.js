@@ -2,7 +2,7 @@ import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Context } = Shopware;
+const { Component, Context, Mixin } = Shopware;
 const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
@@ -15,6 +15,10 @@ Component.register('sw-product-cross-selling-form', {
             productCustomFields: {}
         };
     },
+
+    mixins: [
+        Mixin.getByName('placeholder')
+    ],
 
     props: {
         crossSelling: {

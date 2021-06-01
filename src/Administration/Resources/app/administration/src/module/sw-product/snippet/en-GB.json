@@ -393,6 +393,7 @@
     "crossselling": {
       "cardTitleCrossSelling": "Cross Selling",
       "buttonAddCrossSelling": "Add new Cross Selling",
+      "buttonAddCrossSellingLanguageWarning": "You can only create new cross sellings in your default language",
       "buttonDeleteCrossSelling": "Delete",
       "inputCrossSellingTitle": "Name",
       "inputCrossSellingActive": "Active",

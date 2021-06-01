@@ -762,8 +762,9 @@ Component.register('sw-product-detail', {
                             break;
                         }
 
+                        const errorDetail = response?.response?.data?.errors?.[0]?.detail;
                         const titleSaveError = this.$tc('global.default.error');
-                        const messageSaveError = this.$tc(
+                        const messageSaveError = errorDetail ?? this.$tc(
                             'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                         );
 

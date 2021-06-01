@@ -49,6 +49,6 @@ class DispatchSleepMessageCommand extends Command
             $this->messageBus->dispatch(new SleepMessage($sleepTime, $throwError));
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 }

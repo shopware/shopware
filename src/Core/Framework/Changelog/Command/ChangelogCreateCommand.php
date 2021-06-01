@@ -91,7 +91,7 @@ class ChangelogCreateCommand extends Command
         $IOHelper->success('The changelog was generated successfully');
         $IOHelper->note($target);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getDefaultData(): array

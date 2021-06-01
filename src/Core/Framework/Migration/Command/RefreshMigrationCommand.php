@@ -48,7 +48,7 @@ class RefreshMigrationCommand extends Command
 
         rename($path, $newPath);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getCurrentTimestamp(string $filename): string

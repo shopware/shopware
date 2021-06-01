@@ -62,6 +62,6 @@ class DumpSchemaCommand extends Command
         file_put_contents($outFile, json_encode($definitionContents, $jsonFlags));
         $output->writeln('Done!');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

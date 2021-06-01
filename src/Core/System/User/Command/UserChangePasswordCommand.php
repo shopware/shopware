@@ -48,7 +48,7 @@ class UserChangePasswordCommand extends Command
         if ($userId === null) {
             $io->error(sprintf('The user "%s" does not exist.', $username));
 
-            return 1;
+            return self::FAILURE;
         }
 
         if (empty($password)) {
@@ -68,7 +68,7 @@ class UserChangePasswordCommand extends Command
 
         $io->success(sprintf('The password of user "%s" has been changed successfully.', $username));
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getUserId(string $username, Context $context): ?string

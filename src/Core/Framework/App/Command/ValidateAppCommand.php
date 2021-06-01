@@ -52,7 +52,7 @@ class ValidateAppCommand extends Command
             $dir = $this->getAppFolderByName($name, $io);
 
             if ($dir === null) {
-                return 1;
+                return self::FAILURE;
             }
         }
 
@@ -63,12 +63,12 @@ class ValidateAppCommand extends Command
                 $io->error($invalid);
             }
 
-            return 1;
+            return self::FAILURE;
         }
 
         $io->success($successMessage);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     public function validate(string $appDir): array

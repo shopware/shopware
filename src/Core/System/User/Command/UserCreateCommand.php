@@ -77,6 +77,6 @@ class UserCreateCommand extends Command
 
         $io->success(sprintf('User "%s" successfully created.', $username));
 
-        return 0;
+        return self::SUCCESS;
     }
 }

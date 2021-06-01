@@ -42,7 +42,7 @@ class SystemUpdateFinishCommand extends Command
         if ($dsn === '' || $dsn === Kernel::PLACEHOLDER_DATABASE_URL) {
             $output->note("Environment variable 'DATABASE_URL' not defined. Skipping " . $this->getName() . '...');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $output->writeln('Run Post Update');
@@ -74,7 +74,7 @@ class SystemUpdateFinishCommand extends Command
 
         $output->writeln('');
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function runMigrations(OutputInterface $output): int

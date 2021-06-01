@@ -76,7 +76,7 @@ class CreateMigrationCommand extends Command
                 '%%namespace%%' => $namespace,
             ]);
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $pluginName = $input->getOption('plugin');
@@ -156,7 +156,7 @@ class CreateMigrationCommand extends Command
             $params
         );
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function createMigrationFile(OutputInterface $output, string $directory, string $templatePatch, array $params): void

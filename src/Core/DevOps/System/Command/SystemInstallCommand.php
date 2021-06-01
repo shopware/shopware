@@ -52,20 +52,20 @@ class SystemInstallCommand extends Command
         if ($dsn === '') {
             $output->error("Environment variable 'DATABASE_URL' not defined.");
 
-            return 1;
+            return self::FAILURE;
         }
 
         if (!$input->getOption('force') && file_exists($this->projectDir . '/install.lock')) {
             $output->comment('install.lock already exists. Delete it or pass --force to do it anyway.');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $params = parse_url($dsn);
         if ($params === false) {
             $output->error('dsn invalid');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $path = $params['path'] ?? '/';
@@ -73,7 +73,7 @@ class SystemInstallCommand extends Command
         if (!isset($params['scheme']) || !isset($params['host']) || trim($dbName) === '') {
             $output->error('dsn invalid');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $dsnWithoutDb = sprintf(
@@ -181,7 +181,7 @@ class SystemInstallCommand extends Command
 
         touch($this->projectDir . '/install.lock');
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**
@@ -213,7 +213,7 @@ class SystemInstallCommand extends Command
             }
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getBaseSchema(): string

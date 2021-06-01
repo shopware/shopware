@@ -125,7 +125,7 @@ class GenerateThumbnailsCommand extends Command
             $this->generateAsynchronous($mediaIterator, $context);
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function initializeCommand(InputInterface $input, Context $context): void

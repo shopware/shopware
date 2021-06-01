@@ -19,6 +19,6 @@ class SystemGenerateAppSecretCommand extends Command
 
         $output->writeln($key->saveToAsciiSafeString());
 
-        return 0;
+        return self::SUCCESS;
     }
 }

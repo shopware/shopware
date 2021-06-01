@@ -94,7 +94,7 @@ class ThemeChangeCommand extends Command
             $answer = $helper->ask($input, $output, $question);
             $parsedSalesChannel = $this->parseSalesChannelAnswer($answer, $salesChannels);
             if ($parsedSalesChannel === null) {
-                return 1;
+                return self::FAILURE;
             }
             $salesChannels = new SalesChannelCollection([$parsedSalesChannel]);
         }
@@ -117,7 +117,7 @@ class ThemeChangeCommand extends Command
             if ($themes->count() === 0) {
                 $this->io->error('Invalid theme name');
 
-                return 1;
+                return self::FAILURE;
             }
 
             /** @var ThemeEntity $theme */
@@ -132,7 +132,7 @@ class ThemeChangeCommand extends Command
             $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $this->context);
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     protected function getSalesChannelChoices(SalesChannelCollection $salesChannels): array

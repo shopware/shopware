@@ -45,7 +45,7 @@ class ElasticsearchResetCommand extends Command
         if ($answer !== 'yes') {
             $io->error('Canceled clearing indexing process');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $indices = $this->detector->getAllUsedIndices();
@@ -60,6 +60,6 @@ class ElasticsearchResetCommand extends Command
 
         $io->success('Elasticsearch indices deleted and queue cleared');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

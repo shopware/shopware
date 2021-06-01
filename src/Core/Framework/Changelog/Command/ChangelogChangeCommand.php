@@ -70,7 +70,7 @@ class ChangelogChangeCommand extends Command
         $IOHelper->newLine();
         $IOHelper->success('Done');
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function getRequestedSection(InputInterface $input): array

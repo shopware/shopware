@@ -32,6 +32,6 @@ class ElasticsearchCreateAliasCommand extends Command
     {
         $this->handler->run();
 
-        return 0;
+        return self::SUCCESS;
     }
 }

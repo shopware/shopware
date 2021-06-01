@@ -48,7 +48,7 @@ class DeleteNotUsedMediaCommand extends Command
         if ($count === 0) {
             $io->comment('No unused media files found.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $confirm = $io->confirm(sprintf('Are you sure that you want to delete %d media files?', $count), false);
@@ -56,12 +56,12 @@ class DeleteNotUsedMediaCommand extends Command
         if (!$confirm) {
             $io->caution('Aborting due to user input.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->deleteMediaService->deleteNotUsedMedia($context);
         $io->success(sprintf('Successfully deleted %d media files.', $count));
 
-        return 0;
+        return self::SUCCESS;
     }
 }

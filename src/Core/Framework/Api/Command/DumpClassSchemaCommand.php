@@ -57,7 +57,7 @@ class DumpClassSchemaCommand extends Command
             file_put_contents($this->getFilePath($name), json_encode($collection, \JSON_PRETTY_PRINT));
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**

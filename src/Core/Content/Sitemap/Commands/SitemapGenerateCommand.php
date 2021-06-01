@@ -108,7 +108,7 @@ class SitemapGenerateCommand extends Command
 
         $output->writeln('done!');
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function generateSitemap(SalesChannelContext $salesChannelContext, bool $force, ?string $lastProvider = null, ?int $offset = null): void

@@ -45,7 +45,7 @@ class ThemeCreateCommand extends Command
         if (preg_match('/^[A-Za-z]\w{3,}$/', $themeName) !== 1) {
             $io->error('Theme name is too short (min 4 characters), contains invalid characters');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $snakeCaseName = (new CamelCaseToSnakeCaseNameConverter())->normalize($themeName);
@@ -58,7 +58,7 @@ class ThemeCreateCommand extends Command
         if (file_exists($directory)) {
             $io->error(sprintf('Plugin directory %s already exists', $directory));
 
-            return 1;
+            return self::FAILURE;
         }
 
         $io->writeln('Creating theme structure under ' . $directory);
@@ -75,7 +75,7 @@ class ThemeCreateCommand extends Command
         } catch (\RuntimeException $e) {
             $io->error($e->getMessage());
 
-            return 1;
+            return self::FAILURE;
         }
 
         $composerFile = $directory . '/composer.json';
@@ -111,7 +111,7 @@ class ThemeCreateCommand extends Command
         touch($directory . '/src/Resources/app/storefront/src/main.js');
         touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '.js');
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**

@@ -62,7 +62,7 @@ class ElasticsearchStatusCommand extends Command
             $table->render();
             $output->writeln('');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         if ((int) $indexTask['doc_count'] > 0) {
@@ -87,6 +87,6 @@ class ElasticsearchStatusCommand extends Command
             $io->warning(sprintf('Alias will swap at the end of the indexing process from %s to %s', $usedIndices[0], $indexTask['index']));
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 }

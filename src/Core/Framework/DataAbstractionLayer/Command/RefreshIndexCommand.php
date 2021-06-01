@@ -44,6 +44,6 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
         $this->registry->index($input->getOption('use-queue'));
 
-        return 0;
+        return self::SUCCESS;
     }
 }

@@ -101,6 +101,6 @@ class StoreLoginCommand extends Command
             $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
         });
 
-        return 0;
+        return self::SUCCESS;
     }
 }

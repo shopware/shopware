@@ -42,7 +42,7 @@ class UpdateCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $this->container = $this->getApplication()->getContainer();
         $this->container->setParameter('update.config', []);
@@ -56,7 +56,7 @@ class UpdateCommand extends Command
         if (!is_dir(UPDATE_ASSET_PATH)) {
             $ioService->writeln('No update files found.');
 
-            return 1;
+            return self::FAILURE;
         }
 
         $version = $this->container->get('shopware.version');

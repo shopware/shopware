@@ -66,6 +66,6 @@ class ProductExportGenerateCommand extends Command
             $productExportId
         );
 
-        return 0;
+        return self::SUCCESS;
     }
 }

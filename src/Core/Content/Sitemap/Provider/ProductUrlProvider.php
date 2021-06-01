@@ -128,6 +128,7 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query->andWhere('`product`.available = 1');
         $query->andWhere('IFNULL(`product`.active, parent.active) = 1');
         $query->andWhere('(`product`.child_count = 0 OR `product`.parent_id IS NOT NULL)');
+        $query->andWhere('(`product`.parent_id IS NULL OR parent.canonical_product_id IS NULL OR parent.canonical_product_id = `product`.id)');
         $query->andWhere('visibilities.product_version_id = :versionId');
         $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
 

@@ -1,8 +1,5 @@
 /// <reference types="Cypress" />
 
-let product;
-let storefrontCustomer;
-
 describe('Dashboard:  Visual tests', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -28,21 +25,6 @@ describe('Dashboard:  Visual tests', () => {
             })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
-            })
-            .then((result) => {
-                return cy.createGuestOrder(result.id);
-            })
-            .then(() => {
-                return cy.fixture('product')
-            })
-            .then((result) => {
-                product = result;
-            })
-            .then(() => {
-                return cy.fixture('storefront-customer')
-            })
-            .then((result) => {
-                storefrontCustomer = result;
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}`);

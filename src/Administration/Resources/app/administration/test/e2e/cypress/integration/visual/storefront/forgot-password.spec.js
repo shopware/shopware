@@ -4,8 +4,8 @@ describe('Account - Password: Visual tests', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
-                return cy.createCustomerFixture()
-            })
+                return cy.createCustomerFixture();
+            });
     });
 
     it('@visual: check appearance of password recovery workflow', () => {

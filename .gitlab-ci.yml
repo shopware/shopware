@@ -15,6 +15,7 @@ stages:
     - security
     - build
     - deploy
+    - visual
 
 include:
     -   local: .gitlab/ci/split.yml
@@ -386,7 +387,6 @@ E2E:
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - CYPRESS_CMD="cypress run"
-        - if [[ $cypress_usePercy = "true" ]]; then export CYPRESS_CMD="npx percy exec -- cypress run"; npm install --save-dev @percy/cypress; fi
         - FULL_CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && $CYPRESS_CMD --browser chrome --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
         - echo $FULL_CYPRESS_CMD
         - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e cypress_grep -e cypress_usePercy -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:5.6.0 -c "$FULL_CYPRESS_CMD"
@@ -452,13 +452,6 @@ E2E:
                 BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
                 cypress_usePercy: 'false'
-                SKIP_ON_MR: 'true'
-            # Visual
-            -   SECTION: 'Administration'
-                TEST_DIRECTORY: "cypress/integration/visual/**/*"
-                BROWSER: 'chrome'
-                FEATURE_ALL: "false"
-                cypress_usePercy: $CYPRESS_PERCY_USAGE
                 SKIP_ON_MR: 'true'
 
 Symfony security check:
@@ -575,3 +568,52 @@ Upload Component Library:
         - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
         - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
     interruptible: false
+
+# Stage: visual
+
+Percy:
+    stage: visual
+    rules:
+        -   if: '$PERCY_TOKEN == null || $CYPRESS_PERCY_USAGE == null'
+            when: never
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/'
+            when: never
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::visual.*/'
+        -   if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline"'
+    services:
+        -   name: docker:18.09.7-dind
+            alias: docker
+        -   name: mariadb:10.3
+            alias: mysql
+    dependencies: []
+    variables:
+        PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+        PERCY_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+        PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+        PERCY_COMMIT: $CI_COMMIT_SHA
+        PERCY_ENABLE: $CYPRESS_PERCY_USAGE
+        PERCY_TOKEN: $PERCY_TOKEN
+        CYPRESS_localUsage: 'true'
+        CYPRESS_usePercy: $CYPRESS_PERCY_USAGE
+        CYPRESS_projectPath: 'vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e'
+        CYPRESS_projectRoot: '/builds/shopware/6/product/platform/development'
+        CYPRESS_baseUrl: 'http://docker.vm:8000'
+        CYPRESS_numTestsKeptInMemory: 0
+    script:
+        - ./psh.phar init --APP_ENV="prod"
+        - ./psh.phar administration:init --APP_ENV="prod"
+        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
+        - ./psh.phar e2e:dump-db --APP_ENV="prod"
+        - chown -R 1000:1000 .
+        - cd $CYPRESS_projectPath
+        - npm clean-install
+        - npx percy exec -- cypress run
+            --browser chrome --headless
+            --spec "cypress/integration/visual/**/*"
+    artifacts:
+        when: always
+        paths:
+            - development/build/artifacts/e2e/
+        reports:
+            junit: development/build/artifacts/e2e/*.xml

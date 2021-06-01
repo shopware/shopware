@@ -11,27 +11,27 @@ describe('Order: Visual tests', () => {
             const now = new Date(2018, 1, 1);
             cy.clock(now);
         })
-        .then(() => {
-            cy.loginViaApi();
-        })
-        .then(() => {
-            return cy.createProductFixture();
-        })
-        .then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name'
-                }
+            .then(() => {
+                cy.loginViaApi();
+            })
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            })
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
             });
-        })
-        .then((result) => {
-            return cy.createGuestOrder(result.id);
-        })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-        });
     });
 
     it('@visual: check appearance of basic order workflow', () => {

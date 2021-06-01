@@ -6,11 +6,11 @@ describe('Search - Storefront: Visual tests', () => {
             .then(() => {
                 cy.loginViaApi();
             }).then(() => {
-            cy.visit('');
-        });
+                cy.visit('');
+            });
 
         return cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('category')
+            return cy.createDefaultFixture('category');
         }).then(() => {
             return cy.fixture('product');
         }).then((result) => {
@@ -22,7 +22,7 @@ describe('Search - Storefront: Visual tests', () => {
         cy.visit('/');
         cy.get('input[name=search]').type(product.name).type('{enter}');
 
-        cy.get('.search-headline').contains('One product found for "' + product.name + '"');
+        cy.get('.search-headline').contains(`One product found for "${product.name}"`);
         cy.get('.cms-element-product-listing').contains(product.name);
 
         cy.get('input[name=search]').clear().type('Non existent stuff');

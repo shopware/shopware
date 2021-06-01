@@ -1,6 +1,5 @@
 describe('Account - Order: Visual tests', () => {
     beforeEach(() => {
-
         cy.setToInitialState().then(() => {
             // freezes the system time to Jan 1, 2018
             const now = new Date(2018, 1, 1);
@@ -8,23 +7,26 @@ describe('Account - Order: Visual tests', () => {
         }).then(() => {
             return cy.setShippingMethodInSalesChannel('Standard');
         }).then(() => {
-            return cy.createProductFixture()
-        }).then(() => {
-            return cy.createCustomerFixture()
-        }).then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name'
-                }
+            return cy.createProductFixture();
+        })
+            .then(() => {
+                return cy.createCustomerFixture();
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            })
+            .then((result) => {
+                return cy.createOrder(result.id, {
+                    username: 'test@example.com',
+                    password: 'shopware'
+                });
             });
-        }).then((result) => {
-            return cy.createOrder(result.id, {
-                username: 'test@example.com',
-                password: 'shopware'
-            });
-        });
     });
 
     it('@visual: check appearance of basic account order workflow', () => {

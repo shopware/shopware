@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
@@ -51,6 +51,7 @@ describe('Customer:  Visual test', () => {
         cy.get('a[href="#/sw/customer/create"]').click();
 
         // Take snapshot for visual testing
+        cy.get('.sw-select__selection').contains('English');
         cy.takeSnapshot('Customer create', '.sw-customer-create');
 
         cy.get('.sw-customer-base-form__salutation-select')
@@ -85,7 +86,8 @@ describe('Customer:  Visual test', () => {
         cy.takeSnapshot('Customer detail', '.sw-customer-card');
     });
 
-    it('@visual: check appearance of customer address workflow', () => {
+    // TODO: Optimise in NEXT-15222
+    it.skip('@visual: check appearance of customer address workflow', () => {
         const page = new CustomerPageObject();
 
         // Open customer

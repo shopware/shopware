@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -7,6 +7,7 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 describe('Promotion: Visual tests', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         cy.onlyOnFeature('FEATURE_NEXT_13810');
     });

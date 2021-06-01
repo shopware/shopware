@@ -1,7 +1,5 @@
 /// <reference types="Cypress" />
 
-import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
-
 describe('Sales Channel: Visual tests', () => {
     beforeEach(() => {
         cy.setToInitialState()

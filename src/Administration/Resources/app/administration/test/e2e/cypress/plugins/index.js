@@ -12,7 +12,6 @@
 // the project's config changing)
 
 require('@babel/register');
-const percyHealthCheck = require('@percy/cypress/task')
 const selectTestsWithGrep = require('cypress-select-tests/grep');
 
 // TODO Check incompatibility and reintegrate as soon as possible
@@ -22,9 +21,6 @@ module.exports = (on, config) => {
     // logToOutput.install(on);
 
     // `on` is used to hook into various events Cypress emits
-
-    // Start percy
-    on("task", percyHealthCheck);
 
     // TODO: Workaround to cypress issue #6540, remove as soon as it's fixed
     on('before:browser:launch', (browser, launchOptions) => {

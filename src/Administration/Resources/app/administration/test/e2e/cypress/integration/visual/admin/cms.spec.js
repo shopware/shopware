@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('CMS: Visual tests', () => {
     beforeEach(() => {

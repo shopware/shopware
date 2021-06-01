@@ -4,8 +4,8 @@ describe('Account - Register: Visual tests', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
-                return cy.createCustomerFixture()
-            })
+                return cy.createCustomerFixture();
+            });
     });
 
     it('@visual: check appearance of basic registration workflow', () => {

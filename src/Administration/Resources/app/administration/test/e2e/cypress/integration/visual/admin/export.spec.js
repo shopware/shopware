@@ -1,8 +1,4 @@
-import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
-
 describe('Import/Export - Export:  Visual tests', () => {
-    let page = null;
-
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             // freezes the system time to Jan 1, 2018
@@ -12,18 +8,13 @@ describe('Import/Export - Export:  Visual tests', () => {
             cy.loginViaApi();
         }).then(() => {
             return cy.createDefaultFixture('import-export-profile');
-        }).then(() => {
-            return cy.createProductFixture();
         })
+            .then(() => {
+                return cy.createProductFixture();
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
             });
-
-        page = new SettingsPageObject();
-    });
-
-    afterEach(() => {
-        page = null;
     });
 
     it('@visual: check appearance of basic export workflow', () => {
@@ -48,7 +39,7 @@ describe('Import/Export - Export:  Visual tests', () => {
         cy.takeSnapshot('Import export - Export overview', '.sw-import-export-view-export');
 
         // Select fixture profile for product entity
-        cy.get('.sw-import-export-exporter__profile-select').click()
+        cy.get('.sw-import-export-exporter__profile-select').click();
         cy.contains('Default product').click();
         cy.get('.sw-import-export-progress__start-process-action').click();
 

@@ -24,6 +24,7 @@
     "apiPath": "**/api",
     "locale": "en-GB",
     "projectRoot": "/app",
+    "projectPath": "/app",
     "localUsage": false,
     "usePercy": false
   },

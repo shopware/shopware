@@ -1,7 +1,7 @@
 /// <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
-import ProductPageObject from "../../../support/pages/module/sw-product.page-object";
+import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
 describe('Media: Visual tests', () => {
     beforeEach(() => {

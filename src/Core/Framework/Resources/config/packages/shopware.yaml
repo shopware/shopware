@@ -129,6 +129,10 @@ shopware:
               major: false
               description: "Flow builder"
               # issue: NEXT-8225
+            - name: FEATURE_NEXT_14699
+              default: false
+              major: true
+              description: "Refactoring of Storefront theme assets"
             - name: FEATURE_NEXT_6061
               default: false
               major: false

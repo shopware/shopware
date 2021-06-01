@@ -87,17 +87,15 @@ class ThemeConfigValueAccessor
             return $this->themeConfig[$key] = $this->flatten($themeConfig, null);
         }
 
-        $themePrefix = ThemeCompiler::getThemePrefix($context->getSalesChannelId(), $themeId);
-
         $themeConfig = array_merge(
             $themeConfig,
             [
                 'assets' => [
                     'css' => [
-                        'theme/' . $themePrefix . '/css/all.css',
+                        '/css/all.css',
                     ],
                     'js' => [
-                        'theme/' . $themePrefix . '/js/all.js',
+                        '/js/all.js',
                     ],
                 ],
             ],

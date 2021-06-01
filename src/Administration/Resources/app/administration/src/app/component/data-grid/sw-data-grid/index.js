@@ -324,11 +324,16 @@ Component.register('sw-data-grid', {
                 if (!response.length) {
                     return;
                 }
+
                 this.currentSetting = response[0];
-                const gridColumns = response[0].value;
-                this.currentColumns = gridColumns?.columns ?? gridColumns;
-                this.compact = gridColumns?.compact ?? this.compact;
-                this.previews = gridColumns?.previews ?? this.previews;
+                const userSetting = response[0].value;
+
+
+                this.applyUserSettings({
+                    columns: userSetting?.columns ?? userSetting,
+                    compact: userSetting?.compact,
+                    previews: userSetting?.previews
+                });
             });
         },
 
@@ -337,11 +342,54 @@ Component.register('sw-data-grid', {
                 if (!response) {
                     return;
                 }
+
                 this.currentSetting = response;
-                const gridColumns = response.value;
-                this.currentColumns = gridColumns?.columns ?? gridColumns;
-                this.compact = gridColumns?.compact ?? this.compact;
-                this.previews = gridColumns?.previews ?? this.previews;
+                const userSetting = response.value;
+
+                this.applyUserSettings({
+                    columns: userSetting?.columns ?? userSetting,
+                    compact: userSetting?.compact,
+                    previews: userSetting?.previews
+                });
+            });
+        },
+
+        applyUserSettings(userSettings) {
+            if (typeof userSettings.compact === 'boolean') this.compact = userSettings.compact;
+
+            if (typeof userSettings.previews === 'boolean') this.previews = userSettings.previews;
+
+            if (!userSettings.columns) {
+                return;
+            }
+
+            const userColumnSettings = userSettings.columns.reduce((obj, column) => {
+                return {
+                    ...obj,
+                    [column.dataIndex]: {
+                        width: column.width,
+                        allowResize: column.allowResize,
+                        sortable: column.sortable,
+                        visible: column.visible,
+                        align: column.visible,
+                        naturalSorting: column.naturalSorting
+                    }
+                };
+            }, {});
+
+            this.currentColumns = this.currentColumns.map(column => {
+                if (userColumnSettings[column.dataIndex] === undefined) {
+                    return column;
+                }
+
+                return utils.object.mergeWith({}, column, userColumnSettings[column.dataIndex],
+                    (localValue, serverValue) => {
+                        if (serverValue !== undefined && serverValue !== null) {
+                            return serverValue;
+                        }
+
+                        return localValue;
+                    });
             });
         },
 

@@ -3,9 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Payment\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentDistinguishableNameSubscriber;
+use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodIndexer;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator;
-use Shopware\Core\Checkout\Payment\PaymentEvents;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Defaults;
@@ -19,11 +18,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal (flag:FEATURE_NEXT_15170)
  */
-class PaymentDistinguishableNameSubscriberTest extends TestCase
+class PaymentMethodIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private PaymentDistinguishableNameSubscriber $subscriber;
+    private PaymentMethodIndexer $indexer;
 
     private Context $context;
 
@@ -31,21 +30,19 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_15170', $this);
 
-        $this->subscriber = new PaymentDistinguishableNameSubscriber($this->getContainer()->get('payment_method.repository'));
+        $this->indexer = $this->getContainer()->get(PaymentMethodIndexer::class);
         $this->context = Context::createDefaultContext();
     }
 
-    public function testSubscribedEvents(): void
+    public function testIndexerName(): void
     {
-        static::assertEquals(
-            [
-                PaymentEvents::PAYMENT_METHOD_LOADED_EVENT => 'addDistinguishablePaymentName',
-            ],
-            $this->subscriber::getSubscribedEvents()
+        static::assertSame(
+            'payment_method.indexer',
+            $this->indexer->getName()
         );
     }
 
-    public function testFallsBackToPaymentMethodNameIfDistinguishableNameIsNotSet(): void
+    public function testGeneratesDistinguishablePaymentNameIfPaymentIsProvidedByExtension(): void
     {
         /** @var PaymentMethodRepositoryDecorator $paymentRepository */
         $paymentRepository = $this->getContainer()->get('payment_method.repository');

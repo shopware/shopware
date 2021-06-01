@@ -19,8 +19,7 @@ class Migration1620733405DistinguishablePaymentMethodName extends MigrationStep
             ADD COLUMN `distinguishable_name` VARCHAR(255) NULL AFTER `name`
         ');
 
-        // Existing entities are not migrated or filled with a default value because payment_method_translation.name
-        // will be used in case payment_method_translation.distinguishableName is null
+        $this->registerIndexer($connection, 'payment_method.indexer');
     }
 
     public function updateDestructive(Connection $connection): void

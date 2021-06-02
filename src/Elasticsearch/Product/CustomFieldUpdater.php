@@ -114,15 +114,27 @@ class CustomFieldUpdater implements EventSubscriberInterface
         $indices = $this->indexDetector->getAllUsedIndices();
 
         foreach ($indices as $indexName) {
-            $this->client->indices()->putMapping([
-                'index' => $indexName,
-                'body' => [
-                    'properties' => [
-                        'customFields' => [
-                            'properties' => $newCreatedFields,
-                        ],
+            $body = [
+                'properties' => [
+                    'customFields' => [
+                        'properties' => $newCreatedFields,
                     ],
                 ],
+            ];
+
+            // For some reason, we need to include the includes to prevent merge conflicts.
+            // This error can happen for example after updating from version <6.4.
+            $current = $this->client->indices()->get(['index' => $indexName]);
+            $includes = $current[$indexName]['mappings']['_source']['includes'] ?? [];
+            if ($includes !== []) {
+                $body['_source'] = [
+                    'includes' => $includes,
+                ];
+            }
+
+            $this->client->indices()->putMapping([
+                'index' => $indexName,
+                'body' => $body,
             ]);
         }
     }

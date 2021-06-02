@@ -99,4 +99,15 @@ class CoreSubscriberTest extends TestCase
             'CSP should contain the nonce'
         );
     }
+
+    public function testOptionsRequestWorks(): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->request('OPTIONS', '/api/_info/swagger.html');
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertFalse($response->headers->has('Content-Security-Policy'));
+    }
 }

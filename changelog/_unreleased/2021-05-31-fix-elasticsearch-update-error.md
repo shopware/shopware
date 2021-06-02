@@ -5,5 +5,5 @@ author: Patrick Weyck
 author_email: p.weyck@shopware.com 
 author_github: Patrick Weyck
 ---
-# Elasticsearch
+# Core
 * Changed `\Shopware\Elasticsearch\Product\CustomFieldUpdater` to always include the current `_source/includes` data to prevent the `Can't merge because of conflicts: [Cannot update includes setting for [_source]]` error.

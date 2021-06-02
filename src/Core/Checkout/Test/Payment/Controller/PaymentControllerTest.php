@@ -1,0 +1,186 @@
+<?php
+declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Test\Payment\Controller;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
+use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
+use Shopware\Core\Checkout\Test\Payment\JWTFactoryV2Test;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+
+class PaymentControllerTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+    use OrderFixture;
+
+    private JWTFactoryV2 $tokenFactory;
+
+    private EntityRepositoryInterface $orderRepository;
+
+    private EntityRepositoryInterface $customerRepository;
+
+    private EntityRepositoryInterface $orderTransactionRepository;
+
+    private EntityRepositoryInterface $paymentMethodRepository;
+
+    private StateMachineRegistry $stateMachineRegistry;
+
+    private PaymentService $paymentService;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
+        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
+        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+        $this->paymentService = $this->getContainer()->get(PaymentService::class);
+    }
+
+    public function testCallWithoutToken(): void
+    {
+        $client = $this->getBrowser();
+
+        $client->request('GET', '/payment/finalize-transaction');
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+    }
+
+    public function testCallWithInvalidToken(): void
+    {
+        $client = $this->getBrowser();
+
+        $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=abc');
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame('CHECKOUT__INVALID_PAYMENT_TOKEN', $response['errors'][0]['code']);
+    }
+
+    public function testValidTokenWithInvalidOrder(): void
+    {
+        $client = $this->getBrowser();
+
+        $tokenStruct = new TokenStruct(null, null, Uuid::randomHex(), Uuid::randomHex(), 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
+
+        $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame('CHECKOUT__INVALID_PAYMENT_TOKEN', $response['errors'][0]['code']);
+    }
+
+    public function testValid(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $paymentMethodId = $this->createPaymentMethodV630($context);
+        $orderId = $this->createOrder($context);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $context);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+
+        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+
+        $transaction = JWTFactoryV2Test::createTransaction();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId($paymentMethodId);
+        $transaction->setOrderId($orderId);
+
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
+
+        $client = $this->getBrowser();
+
+        $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
+
+        static::assertTrue($client->getResponse()->isRedirection());
+    }
+
+    private function getBrowser(): KernelBrowser
+    {
+        return KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+    }
+
+    private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
+    {
+        return $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+            ]);
+    }
+
+    private function createTransaction(
+        string $orderId,
+        string $paymentMethodId,
+        Context $context
+    ): string {
+        $id = Uuid::randomHex();
+        $transaction = [
+            'id' => $id,
+            'orderId' => $orderId,
+            'paymentMethodId' => $paymentMethodId,
+            'stateId' => $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context)->getId(),
+            'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+            'payload' => '{}',
+        ];
+
+        $this->orderTransactionRepository->upsert([$transaction], $context);
+
+        return $id;
+    }
+
+    private function createOrder(Context $context): string
+    {
+        $orderId = Uuid::randomHex();
+
+        $order = $this->getOrderData($orderId, $context);
+        $this->orderRepository->upsert($order, $context);
+
+        return $orderId;
+    }
+
+    private function createPaymentMethodV630(
+        Context $context,
+        string $handlerIdentifier = AsyncTestPaymentHandlerV630::class
+    ): string {
+        $id = Uuid::randomHex();
+        $payment = [
+            'id' => $id,
+            'handlerIdentifier' => $handlerIdentifier,
+            'name' => 'Test Payment',
+            'description' => 'Test payment handler',
+            'active' => true,
+        ];
+
+        $this->paymentMethodRepository->upsert([$payment], $context);
+
+        return $id;
+    }
+}

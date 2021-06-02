@@ -111,10 +111,7 @@ Component.register('sw-sales-channel-defaults-select', {
         },
 
         labelProperty() {
-            if (
-                this.propertyEntityName === 'payment_method' &&
-                this.feature.isActive('FEATURE_NEXT_15170')
-            ) {
+            if (this.propertyEntityName === 'payment_method') {
                 return 'distinguishableName';
             }
 

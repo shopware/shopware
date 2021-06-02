@@ -88,10 +88,7 @@
             >
 
                 {% block sw_settings_payment_list_column_extension %}
-                <template
-                    v-if="feature.isActive('FEATURE_NEXT_15170')"
-                    #column-extension="{ item }"
-                >
+                <template #column-extension="{ item }">
                     {% block sw_settings_payment_list_column_extension_label %}
                     <span class="sw-data-grid__cell-value">
                         {{ getExtensionName(item) }}

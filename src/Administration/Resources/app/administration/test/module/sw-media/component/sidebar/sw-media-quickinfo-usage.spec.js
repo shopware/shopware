@@ -104,7 +104,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         const documentBaseConfigMock = { name: 'document test' };
 
         register('sw-settings-payment', moduleMock);
-        const paymentMock = { translated: { name: 'payment test' } };
+        const paymentMock = { translated: { distinguishableName: 'payment test' } };
 
         register('sw-settings-shipping', moduleMock);
         const shippingMock = { translated: { name: 'shipping test' } };
@@ -130,7 +130,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         expect(
             usages.some((usage) => usage.name === mailTemplateMediaMock.mailTemplate.translated.description)
         ).toBeTruthy();
-        expect(usages.some((usage) => usage.name === paymentMock.translated.name)).toBeTruthy();
+        expect(usages.some((usage) => usage.name === paymentMock.translated.distinguishableName)).toBeTruthy();
         expect(usages.some((usage) => usage.name === shippingMock.translated.name)).toBeTruthy();
     });
 });

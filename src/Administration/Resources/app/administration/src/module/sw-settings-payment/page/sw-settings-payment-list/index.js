@@ -52,11 +52,8 @@ Component.register('sw-settings-payment-list', {
 
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-
-            if (this.feature.isActive('FEATURE_NEXT_15170')) {
-                criteria.addAssociation('plugin');
-                criteria.addAssociation('appPaymentMethod.app');
-            }
+            criteria.addAssociation('plugin');
+            criteria.addAssociation('appPaymentMethod.app');
 
             this.paymentRepository.search(criteria).then((items) => {
                 this.total = items.total;
@@ -117,7 +114,7 @@ Component.register('sw-settings-payment-list', {
         }, 800),
 
         getPaymentColumns() {
-            const columns = [{
+            return [{
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
@@ -125,6 +122,9 @@ Component.register('sw-settings-payment-list', {
                 routerLink: 'sw.settings.payment.detail',
                 width: '250px',
                 primary: true
+            }, {
+                property: 'extension',
+                label: 'sw-settings-payment.list.columnExtension'
             }, {
                 property: 'active',
                 inlineEdit: 'string',
@@ -136,15 +136,6 @@ Component.register('sw-settings-payment-list', {
                 property: 'position',
                 label: 'sw-settings-payment.list.columnPosition'
             }];
-
-            if (this.feature.isActive('FEATURE_NEXT_15170')) {
-                columns.splice(1, 0, {
-                    property: 'extension',
-                    label: 'sw-settings-payment.list.columnExtension'
-                });
-            }
-
-            return columns;
         },
 
         getExtensionName(paymentMethod) {

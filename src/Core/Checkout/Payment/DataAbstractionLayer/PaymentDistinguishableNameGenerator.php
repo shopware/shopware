@@ -7,11 +7,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 
-/**
- * @internal (flag:FEATURE_NEXT_15170)
- */
 class PaymentDistinguishableNameGenerator
 {
     private EntityRepositoryInterface $paymentMethodRepository;
@@ -24,10 +20,6 @@ class PaymentDistinguishableNameGenerator
 
     public function generateDistinguishablePaymentNames(Context $context): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_15170')) {
-            return;
-        }
-
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context): void {
             $payments = $this->getInstalledPayments($context);
 

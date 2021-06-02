@@ -5,12 +5,8 @@ namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 use Shopware\Core\Checkout\Payment\PaymentEvents;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal (flag:FEATURE_NEXT_15170)
- */
 class PaymentDistinguishableNameSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -22,10 +18,6 @@ class PaymentDistinguishableNameSubscriber implements EventSubscriberInterface
 
     public function addDistinguishablePaymentName(EntityLoadedEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_15170')) {
-            return;
-        }
-
         /** @var PaymentMethodEntity $payment */
         foreach ($event->getEntities() as $payment) {
             if ($payment->getTranslation('distinguishableName') === null) {

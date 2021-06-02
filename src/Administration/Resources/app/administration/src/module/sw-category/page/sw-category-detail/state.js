@@ -9,7 +9,8 @@ export default {
             category: null,
             customFieldSets: [],
             landingPagesToDelete: undefined,
-            categoriesToDelete: undefined
+            categoriesToDelete: undefined,
+            defaultLayout: null
         };
     },
 
@@ -32,6 +33,10 @@ export default {
 
         setCategoriesToDelete(state, { categoriesToDelete }) {
             state.categoriesToDelete = categoriesToDelete;
+        },
+
+        setDefaultLayout(state, defaultLayout) {
+            state.defaultLayout = defaultLayout?.id;
         }
     },
 

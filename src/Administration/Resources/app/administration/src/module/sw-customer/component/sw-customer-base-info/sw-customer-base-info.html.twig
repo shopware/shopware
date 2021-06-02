@@ -48,14 +48,7 @@
 
             {% block sw_customer_base_metadata_default_payment_content %}
             <dd
-                v-if="!customerEditMode && !feature.isActive('FEATURE_NEXT_15170')"
-                class="sw-customer-base__label-default-payment-method"
-            >
-                {{ customer.defaultPaymentMethod.translated.name }}
-            </dd>
-
-            <dd
-                v-if="!customerEditMode && feature.isActive('FEATURE_NEXT_15170')"
+                v-if="!customerEditMode"
                 class="sw-customer-base__label-default-payment-method"
             >
                 {{ customer.defaultPaymentMethod.translated.distinguishableName }}
@@ -67,7 +60,7 @@
                 <sw-entity-single-select
                     v-model="customer.defaultPaymentMethodId"
                     entity="payment_method"
-                    :label-property="paymentMethodLabelProperty"
+                    :label-property="distinguishableName"
                     size="small"
                 />
             </dd>

@@ -19,20 +19,6 @@
 
         {% block sw_order_create_details_footer_payment_method %}
         <sw-entity-single-select
-            v-if="!feature.isActive('FEATURE_NEXT_15170')"
-            v-model="context.paymentMethodId"
-            size="small"
-            entity="payment_method"
-            label-property="name"
-            class="sw-order-create-details-footer__item"
-            :disabled="!isCustomerActive"
-            :criteria="salesChannelCriteria"
-            :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
-        />
-
-        <sw-entity-single-select
-            v-if="feature.isActive('FEATURE_NEXT_15170')"
             v-model="context.paymentMethodId"
             size="small"
             entity="payment_method"

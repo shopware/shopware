@@ -35,8 +35,6 @@ class PaymentMethodEntity extends Entity
     protected $name;
 
     /**
-     * @internal (flag:FEATURE_NEXT_15170)
-     *
      * @var string|null
      */
     protected $distinguishableName;
@@ -166,17 +164,11 @@ class PaymentMethodEntity extends Entity
         $this->name = $name;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15170)
-     */
     public function getDistinguishableName(): ?string
     {
         return $this->distinguishableName;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15170)
-     */
     public function setDistinguishableName(?string $distinguishableName): void
     {
         $this->distinguishableName = $distinguishableName;

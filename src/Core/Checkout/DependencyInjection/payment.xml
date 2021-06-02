@@ -102,7 +102,6 @@
 
         <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentDistinguishableNameSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_15170"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodIndexer">
@@ -112,12 +111,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentDistinguishableNameGenerator"/>
 
             <tag name="shopware.entity_indexer"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_15170"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentDistinguishableNameGenerator">
             <argument type="service" id="payment_method.repository"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_15170"/>
         </service>
 
         <!--Repository Decorators-->

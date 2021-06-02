@@ -11,9 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal (flag:FEATURE_NEXT_15170)
- */
 class PaymentMethodIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;

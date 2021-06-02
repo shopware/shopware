@@ -11,13 +11,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal (flag:FEATURE_NEXT_15170)
- */
 class PaymentMethodIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,8 +24,6 @@ class PaymentMethodIndexerTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15170', $this);
-
         $this->indexer = $this->getContainer()->get(PaymentMethodIndexer::class);
         $this->context = Context::createDefaultContext();
     }

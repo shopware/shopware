@@ -59,14 +59,6 @@ Component.register('sw-customer-base-info', {
             criteria.addFilter(Criteria.equals('salesChannels.id', this.customer.salesChannelId));
 
             return criteria;
-        },
-
-        paymentMethodLabelProperty() {
-            if (this.feature.isActive('FEATURE_NEXT_15170')) {
-                return 'distinguishableName';
-            }
-
-            return 'name';
         }
     },
 

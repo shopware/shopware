@@ -12,13 +12,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal (flag:FEATURE_NEXT_15170)
- */
 class PaymentDistinguishableNameSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,8 +25,6 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15170', $this);
-
         $this->subscriber = new PaymentDistinguishableNameSubscriber($this->getContainer()->get('payment_method.repository'));
         $this->context = Context::createDefaultContext();
     }

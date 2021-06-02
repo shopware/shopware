@@ -41,6 +41,20 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
         }
 
+        // enquote hyphenated json keys in path
+        if (strpos($jsonPath, '-') !== false) {
+            $jsonPathParts = explode('.', $jsonPath);
+            foreach ($jsonPathParts as $index => $jsonPathPart) {
+                if ($index === 0) {
+                    continue;
+                }
+                if (strpos($jsonPathPart, '-') !== false) {
+                    $jsonPathParts[$index] = sprintf('"%s"', $jsonPathPart);
+                }
+            }
+            $jsonPath = implode('.', $jsonPathParts);
+        }
+
         $jsonValueExpr = sprintf(
             'JSON_EXTRACT(`%s`.`%s`, %s)',
             $root,

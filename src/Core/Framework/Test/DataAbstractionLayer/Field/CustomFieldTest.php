@@ -262,6 +262,44 @@ class CustomFieldTest extends TestCase
         static::assertEquals([$dotId], array_values($result->getIds()));
     }
 
+    public function testSortingHyphenatedJson(): void
+    {
+        $this->addCustomFields(['hyphenated-property' => CustomFieldTypes::JSON]);
+
+        $entities = [
+            [
+                'id' => Uuid::randomHex(),
+                'name' => 'foo',
+                'custom' => [
+                    'hyphenated-property' => [
+                        'hyphenated-child' => 'bar',
+                    ],
+                ],
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'name' => 'bar',
+                'custom' => [
+                    'hyphenated-property' => [
+                        'hyphenated-child' => 'foo',
+                    ],
+                ],
+            ],
+        ];
+        $repo = $this->getTestRepository();
+        $repo->create($entities, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('custom.hyphenated-property.hyphenated-child', FieldSorting::DESCENDING));
+        $result = $repo->search($criteria, Context::createDefaultContext());
+        static::assertCount(2, $result);
+
+        $first = $result->first();
+        $last = $result->last();
+        static::assertEquals('foo', $first->get('custom')['hyphenated-property']['hyphenated-child']);
+        static::assertEquals('bar', $last->get('custom')['hyphenated-property']['hyphenated-child']);
+    }
+
     public function testSortingInt(): void
     {
         $this->addCustomFields(['int' => CustomFieldTypes::INT]);

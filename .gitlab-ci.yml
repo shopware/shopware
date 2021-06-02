@@ -166,6 +166,7 @@ PHP analysis:
             - easy-coding-standard.php
             - phpstan.neon.dist
             - psalm.xml
+            - 'changelog/**/*.md'
             - 'src/**/snippet/**/*.json'
             - '**/*.php'
     script:

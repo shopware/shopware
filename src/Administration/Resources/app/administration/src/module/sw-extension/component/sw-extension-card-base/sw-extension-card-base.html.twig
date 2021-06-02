@@ -190,6 +190,7 @@
 
         <sw-context-menu-item
             v-if="extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null"
+            class="sw-extension-card-base__cancel-and-remove-link"
             variant="danger"
             @click="openRemovalModal"
         >
@@ -198,6 +199,7 @@
 
         <sw-context-menu-item
             v-else-if="isRemovable"
+            class="sw-extension-card-base__remove-link"
             variant="danger"
             @click="openRemovalModal"
         >

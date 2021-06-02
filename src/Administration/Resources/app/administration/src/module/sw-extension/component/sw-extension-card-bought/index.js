@@ -156,14 +156,19 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
 
         async cancelAndRemoveExtension() {
             try {
+                this.closeRemovalModal();
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.cancelLicense(this.extension.storeLicense.id);
+                // Do not try to cancel the license if the extension was already canceled
+                // by e.g. the shopware account and the extension already has an expiration date
+                if (!this.extension.storeLicense.expirationDate) {
+                    await this.shopwareExtensionService.cancelLicense(this.extension.storeLicense.id);
+                }
+
                 await this.shopwareExtensionService.removeExtension(
                     this.extension.name,
                     this.extension.type
                 );
-                this.closeRemovalModal();
 
                 this.$nextTick(() => {
                     this.emitUpdateList();

@@ -1,0 +1,225 @@
+{% block sw_product_add_properties_modal %}
+<sw-modal
+    v-if="properties"
+    class="sw-product-add-properties-modal"
+    :title="$tc('sw-product.properties.addPropertiesModal.title')"
+    :is-loading="isPropertiesLoading"
+    @modal-close="onCancel"
+>
+    {% block sw_product_add_properties_modal_filled_state %}
+    <div v-if="properties.length > 0 || searchTerm">
+        {% block sw_product_add_properties_modal_filled_state_header %}
+        <sw-card-section
+            secondary
+            divider="bottom"
+        >
+            {% block sw_product_add_properties_modal_filled_state_search_field %}
+            <sw-simple-search-field
+                v-model="searchTerm"
+                variant="form"
+                size="small"
+                :placeholder="$tc('sw-product.properties.placeholderSearchProperties')"
+                @search-term-change="onChangeSearchTerm"
+            />
+            {% endblock %}
+        </sw-card-section>
+        {% endblock %}
+
+        {% block sw_product_add_properties_modal_filled_state_search_empty %}
+        <sw-empty-state
+            v-if="properties.length <= 0 && searchTerm"
+            :absolute="false"
+            :show-description="false"
+            :title="$tc('sw-product.properties.titleEmptyStateList')"
+        >
+            <template #icon>
+                {% block sw_product_add_properties_modal_filled_state_search_empty_image %}
+                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                {% endblock %}
+            </template>
+        </sw-empty-state>
+        {% endblock %}
+
+        {% block sw_product_add_properties_modal_filled_state_body %}
+        <sw-container
+            v-if="properties.length > 0"
+            class="sw-product-add-properties-modal__content"
+            columns="50% 50%"
+        >
+            {% block sw_product_add_properties_modal_filled_state_body_content %}
+            <sw-card-section divider="right">
+                {% block sw_product_add_properties_modal_properties %}
+                <sw-grid
+                    ref="propertiesListing"
+                    class="sw-product-add-properties-modal__properties"
+                    table
+                    :header="false"
+                    :selectable="false"
+                    :items="properties"
+                >
+                    <template #columns="{ item }">
+                        {% block sw_product_add_properties_modal_properties_name %}
+                        <sw-grid-column
+                            flex="auto"
+                            @click="onSelectProperty(item)"
+                        >
+                            <sw-icon
+                                multicolor
+                                name="multicolor-folder-breadcrumbs"
+                                size="16px"
+                            />
+                            <p class="sw-product-add-properties-modal__property-name">
+                                {{ item.translated.name }}
+                            </p>
+                        </sw-grid-column>
+                        {% endblock %}
+
+                        {% block sw_product_add_properties_modal_properties_assigned %}
+                        <sw-grid-column
+                            flex="1fr"
+                            align="right"
+                        >
+                            <p
+                                v-if="item.selectedPropertiesCount > 0"
+                                class="sw-product-add-properties-modal__property-selected"
+                            >
+                                {{ $tc('sw-product.properties.addPropertiesModal.selectedProperties', item.selectedPropertiesCount, {
+                                    count: item.selectedPropertiesCount
+                                }) }}
+                            </p>
+                        </sw-grid-column>
+                        {% endblock %}
+                    </template>
+
+                    <template #pagination>
+                        {% block sw_product_add_properties_modal_properties_pagination %}
+                        <sw-pagination
+                            :page="propertiesPage"
+                            :limit="propertiesLimit"
+                            :total="propertiesTotal"
+                            :total-visible="5"
+                            :auto-hide="false"
+                            :steps="[10]"
+                            @page-change="onChangePageProperties"
+                        />
+                        {% endblock %}
+                    </template>
+                </sw-grid>
+                {% endblock %}
+            </sw-card-section>
+
+            <sw-card-section>
+                {% block sw_product_add_properties_modal_values %}
+                <sw-grid
+                    v-if="selectedProperty && propertyValues.length > 0"
+                    ref="propertyValuesListing"
+                    class="sw-product-add-properties-modal__property-values"
+                    table
+                    :header="false"
+                    :items="propertyValues"
+                    @sw-grid-select-item="onSelectPropertyValue"
+                >
+                    <template #columns="{ item }">
+                        {% block sw_product_add_properties_modal_values_name %}
+                        <sw-grid-column flex="1fr">
+                            {{ item.translated.name }}
+                        </sw-grid-column>
+                        {% endblock %}
+                    </template>
+
+                    <template #pagination>
+                        {% block sw_product_add_properties_modal_values_pagination %}
+                        <sw-pagination
+                            :page="propertyValuesPage"
+                            :limit="propertyValuesLimit"
+                            :total="propertyValuesTotal"
+                            :total-visible="5"
+                            :auto-hide="false"
+                            :steps="[10]"
+                            @page-change="onChangePagePropertyValues"
+                        />
+                        {% endblock %}
+                    </template>
+                </sw-grid>
+                {% endblock %}
+
+                {% block sw_product_add_properties_modal_values_empty_primary %}
+                <sw-empty-state
+                    v-if="selectedProperty && propertyValues.length <= 0"
+                    :absolute="false"
+                    :show-description="false"
+                    :title="$tc('sw-product.properties.addPropertiesModal.titleEmptyPropertyValues')"
+                >
+                    <template #icon>
+                        {% block sw_product_add_properties_modal_values_empty_primary_image %}
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                        {% endblock %}
+                    </template>
+                </sw-empty-state>
+                {% endblock %}
+
+                {% block sw_product_add_properties_modal_values_empty_secondary %}
+                <sw-empty-state
+                    v-if="!selectedProperty"
+                    :absolute="false"
+                    :show-description="false"
+                    :title="$tc('sw-product.properties.addPropertiesModal.titleNoPropertySelected')"
+                >
+                    <template #icon>
+                        {% block sw_product_add_properties_modal_values_empty_secondary_image %}
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                        {% endblock %}
+                    </template>
+                </sw-empty-state>
+                {% endblock %}
+
+                {% block sw_product_add_properties_modal_values_loading %}
+                <sw-loader
+                    v-if="isPropertyValuesLoading"
+                />
+                {% endblock %}
+            </sw-card-section>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_product_add_properties_modal_empty_state %}
+    <sw-empty-state
+        v-if="properties.length <= 0 && !searchTerm"
+        :absolute="false"
+        :show-description="false"
+        :title="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
+    >
+        <template #icon>
+            {% block sw_product_add_properties_modal_empty_state_image %}
+            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+            {% endblock %}
+        </template>
+    </sw-empty-state>
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_product_add_properties_modal_button_cancel %}
+        <sw-button
+            size="small"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_product_add_properties_modal_button_save %}
+        <sw-button
+            class="sw-product-add-properties-modal__button-save"
+            variant="primary"
+            size="small"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

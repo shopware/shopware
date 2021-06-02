@@ -28,6 +28,7 @@ import './component/sw-product-cross-selling-assignment';
 import './component/sw-product-layout-assignment';
 import './component/sw-product-settings-mode';
 import './component/sw-product-properties';
+import './component/sw-product-add-properties-modal';
 import './view/sw-product-detail-base';
 import './view/sw-product-detail-specifications';
 import './view/sw-product-detail-context-prices';

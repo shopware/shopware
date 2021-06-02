@@ -306,7 +306,16 @@
       "titleEmptyState": "Diesem Produkt sind noch keine Eigenschaften zugewiesen worden.",
       "titleEmptyStateList": "Keine passenden Eigenschaften gefunden.",
       "columnProperty": "Eigenschaft",
-      "columnValue": "Eigenschaftswert"
+      "columnValue": "Eigenschaftsausprägung",
+      "placeholderSearchAddedProperties": "Hinzugefügte Eigenschaften durchsuchen ...",
+      "placeholderSearchProperties": "Eigenschaften durchsuchen ...",
+      "addPropertiesModal": {
+        "title": "Eigenschaften hinzufügen",
+        "titleEmptyState": "Du musst zuerst Eigenschaften und deren Ausprägungen erstellen, um diese hier zuordnen zu können.",
+        "selectedProperties": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",
+        "titleEmptyPropertyValues": "Keine Eigenschaftsausprägungen verfügbar.",
+        "titleNoPropertySelected": "Keine Eigenschaft ausgewählt."
+      }
     },
     "variations": {
       "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",

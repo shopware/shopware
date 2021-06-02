@@ -15,6 +15,14 @@ productPropertiesMock.remove = (id) => {
         return item.id !== id;
     });
 };
+productPropertiesMock.has = (id) => {
+    return productPropertiesMock.some((item) => {
+        return item.id === id;
+    });
+};
+productPropertiesMock.add = (item) => {
+    productPropertiesMock.push(item);
+};
 
 const propertiesMock = [
     {
@@ -71,29 +79,29 @@ function createWrapper(privileges = []) {
             'sw-inherit-wrapper': {
                 template: `
                     <div class="sw-inherit-wrapper">
-                        <slot name="content" />
+                        <slot name="content"></slot>
                     </div>
                 `
             },
             'sw-card': {
                 template: `
                     <div class="sw-card">
-                        <slot />
-                        <slot name="grid" />
+                        <slot></slot>
+                        <slot name="grid"></slot>
                     </div>
                 `
             },
             'sw-container': {
                 template: `
                     <div class="sw-container">
-                        <slot />
+                        <slot></slot>
                     </div>
                 `
             },
             'sw-card-section': {
                 template: `
                     <div class="sw-card-section">
-                        <slot />
+                        <slot></slot>
                     </div>
                 `
             },
@@ -102,7 +110,7 @@ function createWrapper(privileges = []) {
                 template: `
                     <div class="sw-entity-listing">
                         <template v-for="item in items">
-                            <slot name="actions" v-bind="{ item }" />
+                            <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>
                 `
@@ -110,11 +118,12 @@ function createWrapper(privileges = []) {
             'sw-empty-state': {
                 template: `
                     <div class="sw-empty-state">
-                        <slot />
-                        <slot name="actions" />
+                        <slot></slot>
+                        <slot name="actions"></slot>
                     </div>
                 `
             },
+            'sw-product-add-properties-modal': true,
             'sw-loader': true,
             'sw-simple-search-field': true,
             'sw-button': true,
@@ -325,6 +334,226 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.vm.propertyGroupCriteria.term).toBe('textile');
         expect(wrapper.vm.getProperties).toHaveBeenCalledTimes(1);
         wrapper.vm.getProperties.mockRestore();
+    });
+
+    it('should turn on add properties modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.updateNewProperties = jest.fn();
+
+        wrapper.vm.turnOnAddPropertiesModal();
+
+        expect(wrapper.vm.updateNewProperties).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showAddPropertiesModal).toBe(true);
+        wrapper.vm.updateNewProperties.mockRestore();
+    });
+
+    it('should turn off add properties modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.updateNewProperties = jest.fn();
+
+        wrapper.vm.turnOffAddPropertiesModal();
+
+        expect(wrapper.vm.showAddPropertiesModal).toBe(false);
+        expect(wrapper.vm.updateNewProperties).toHaveBeenCalledTimes(1);
+        wrapper.vm.updateNewProperties.mockRestore();
+    });
+
+    it('should update new properties correctly', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
+            return Promise.resolve(propertiesMock);
+        });
+
+        await State.commit('swProductDetail/setProduct', productMock);
+        await wrapper.vm.getGroupIds();
+        await wrapper.vm.getProperties();
+
+        wrapper.vm.updateNewProperties();
+
+        expect(wrapper.vm.newProperties).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    property: expect.objectContaining({
+                        id: '01',
+                        groupId: 'sizeId',
+                        name: '30'
+                    }),
+                    selected: true
+                }),
+                expect.objectContaining({
+                    property: expect.objectContaining({
+                        id: '02',
+                        groupId: 'sizeId',
+                        name: '32'
+                    }),
+                    selected: true
+                }),
+                expect.objectContaining({
+                    property: expect.objectContaining({
+                        id: '03',
+                        groupId: 'colorId',
+                        name: 'white'
+                    }),
+                    selected: true
+                }),
+                expect.objectContaining({
+                    property: expect.objectContaining({
+                        id: '04',
+                        groupId: 'colorId',
+                        name: 'black'
+                    }),
+                    selected: true
+                })
+            ])
+        );
+        wrapper.vm.propertyGroupRepository.search.mockRestore();
+    });
+
+    it('should update new properties item correctly', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
+            return Promise.resolve(propertiesMock);
+        });
+
+        await State.commit('swProductDetail/setProduct', productMock);
+        await wrapper.vm.getGroupIds();
+        await wrapper.vm.getProperties();
+
+        wrapper.vm.updateNewProperties();
+        wrapper.vm.updateNewPropertiesItem({
+            index: 0,
+            selected: false
+        });
+
+        expect(wrapper.vm.newProperties[0].selected).toBe(false);
+        wrapper.vm.propertyGroupRepository.search.mockRestore();
+    });
+
+    it('should add new properties item successful', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
+            return Promise.resolve(propertiesMock);
+        });
+
+        await State.commit('swProductDetail/setProduct', productMock);
+        await wrapper.vm.getGroupIds();
+        await wrapper.vm.getProperties();
+
+        wrapper.vm.updateNewProperties();
+        wrapper.vm.addNewPropertiesItem({
+            property: {
+                id: '05',
+                groupId: 'colorId',
+                name: 'blue'
+            },
+            selected: true
+        });
+
+        expect(wrapper.vm.newProperties).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    property: expect.objectContaining({
+                        id: '05',
+                        groupId: 'colorId',
+                        name: 'blue'
+                    }),
+                    selected: true
+                })
+            ])
+        );
+        wrapper.vm.propertyGroupRepository.search.mockRestore();
+    });
+
+    it('should call a turning off modal function when canceling properties modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.turnOffAddPropertiesModal = jest.fn();
+
+        wrapper.vm.onCancelAddPropertiesModal();
+
+        expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
+        wrapper.vm.turnOffAddPropertiesModal.mockRestore();
+    });
+
+    it('should call an adding function when saving properties modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
+            return Promise.resolve(propertiesMock);
+        });
+        wrapper.vm.productProperties.add = jest.fn();
+
+        await State.commit('swProductDetail/setProduct', productMock);
+        await wrapper.vm.getGroupIds();
+        await wrapper.vm.getProperties();
+
+        wrapper.vm.updateNewProperties();
+        wrapper.vm.onSaveAddPropertiesModal([
+            {
+                property: {
+                    id: '05',
+                    groupId: 'colorId',
+                    name: 'blue'
+                },
+                selected: true
+            }
+        ]);
+
+        expect(wrapper.vm.productProperties.add).toHaveBeenCalledWith({
+            id: '05',
+            groupId: 'colorId',
+            name: 'blue'
+        });
+        wrapper.vm.propertyGroupRepository.search.mockRestore();
+        wrapper.vm.productProperties.add.mockRestore();
+    });
+
+    it('should call a removing function when saving properties modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
+            return Promise.resolve(propertiesMock);
+        });
+        wrapper.vm.productProperties.remove = jest.fn();
+
+        await State.commit('swProductDetail/setProduct', productMock);
+        await wrapper.vm.getGroupIds();
+        await wrapper.vm.getProperties();
+
+        wrapper.vm.updateNewProperties();
+        wrapper.vm.onSaveAddPropertiesModal([
+            {
+                property: {
+                    id: '01',
+                    groupId: 'sizeId',
+                    name: '30'
+                },
+                selected: false
+            }
+        ]);
+
+        expect(wrapper.vm.productProperties.remove).toHaveBeenCalledWith('01');
+        wrapper.vm.propertyGroupRepository.search.mockRestore();
+        wrapper.vm.productProperties.remove.mockRestore();
+    });
+
+    it('should save add properties modal failed', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.turnOffAddPropertiesModal = jest.fn();
+
+        wrapper.vm.onSaveAddPropertiesModal([]);
+
+        expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.newProperties).toEqual(
+            expect.arrayContaining([])
+        );
+        wrapper.vm.turnOffAddPropertiesModal.mockRestore();
     });
 
     it('should be able to add properties in empty state', async () => {

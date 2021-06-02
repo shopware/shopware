@@ -58,6 +58,7 @@
                                 v-model="searchTerm"
                                 variant="form"
                                 size="small"
+                                :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"
                                 :disabled="isPropertiesLoading"
                                 @search-term-change="onChangeSearchTerm"
                             />
@@ -203,6 +204,17 @@
             </sw-empty-state>
             {% endblock %}
         </sw-card>
+        {% endblock %}
+
+        {% block sw_product_properties_add_properties_modal %}
+        <sw-product-add-properties-modal
+            v-if="showAddPropertiesModal"
+            :new-properties="newProperties"
+            @update-new-properties-item="updateNewPropertiesItem"
+            @add-new-properties-item="addNewPropertiesItem"
+            @modal-cancel="onCancelAddPropertiesModal"
+            @modal-save="onSaveAddPropertiesModal"
+        />
         {% endblock %}
     </template>
 </sw-inherit-wrapper>

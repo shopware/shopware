@@ -13,7 +13,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.4.0"
+            "php": "7.4.3"
         },
         "sort-packages": true
     },
@@ -24,6 +24,7 @@
         }
     },
     "require": {
+        "php": "^7.4.3 || ^8.0",
         "cocur/slugify": "4.0.0",
         "erusev/parsedown-extra": "0.8.1",
         "guzzlehttp/guzzle": "~7.2",

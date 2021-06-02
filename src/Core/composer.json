@@ -23,7 +23,7 @@
         }
     },
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^7.4.3 || ^8.0",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -141,7 +141,7 @@
     },
     "config": {
         "platform": {
-           "php": "7.4.0"
+           "php": "7.4.3"
         },
         "preferred-install": {
             "*": "dist"

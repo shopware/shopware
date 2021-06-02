@@ -212,6 +212,7 @@
 
     {% block sw_product_cross_selling_form_condition_tree_invisibly %}
     <sw-condition-tree
+        v-if="productStreamFilterRepository"
         v-show="false"
         association-field="productStreamId"
         child-association-field="queries"

@@ -13,7 +13,7 @@ class CoreSubscriber implements EventSubscriberInterface
     /**
      * @var string[]
      */
-    private $cspTemplates;
+    private array $cspTemplates;
 
     public function __construct($cspTemplates)
     {
@@ -59,9 +59,12 @@ class CoreSubscriber implements EventSubscriberInterface
         $cspTemplate = trim($cspTemplate);
         if ($cspTemplate !== '' && !$response->headers->has('Content-Security-Policy')) {
             $nonce = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-            $csp = str_replace('%nonce%', $nonce, $cspTemplate);
-            $csp = str_replace(["\n", "\r"], ' ', $csp);
-            $response->headers->set('Content-Security-Policy', $csp);
+
+            if (\is_string($nonce)) {
+                $csp = str_replace('%nonce%', $nonce, $cspTemplate);
+                $csp = str_replace(["\n", "\r"], ' ', $csp);
+                $response->headers->set('Content-Security-Policy', $csp);
+            }
         }
     }
 }

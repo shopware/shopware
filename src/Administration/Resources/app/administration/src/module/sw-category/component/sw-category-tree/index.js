@@ -287,7 +287,7 @@ Component.register('sw-category-tree', {
                 this.removeFromStore(category.id);
 
                 if (category.parentId !== null) {
-                    this.categoryRepository.get(category.parentId).then((updatedParent) => {
+                    this.categoryRepository.get(category.parentId, Shopware.Context.api, this.criteria).then((updatedParent) => {
                         this.addCategory(updatedParent);
                     });
                 }
@@ -378,7 +378,7 @@ Component.register('sw-category-tree', {
                 this.loadedParentIds = this.loadedParentIds.filter(id => id !== parentId);
                 return this.getChildrenFromParent(parentId);
             }).then(() => {
-                this.categoryRepository.get(parentId).then((parent) => {
+                this.categoryRepository.get(parentId, Shopware.Context.api, this.criteria).then((parent) => {
                     this.addCategory(parent);
                 });
             });

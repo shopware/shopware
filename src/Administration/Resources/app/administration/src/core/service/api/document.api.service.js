@@ -70,8 +70,9 @@ class DocumentApiService extends ApiService {
 
         return this.httpClient
             .get(
-                `/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`,
+                `/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview`,
                 {
+                    params: { config },
                     responseType: 'blob',
                     headers: this.getBasicHeaders()
                 }

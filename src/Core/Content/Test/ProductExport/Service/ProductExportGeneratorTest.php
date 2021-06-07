@@ -5,18 +5,30 @@ namespace Shopware\Core\Content\Test\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
+use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
+use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
+use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
+use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
+use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
+use Shopware\Core\Content\ProductExport\Service\ProductExportValidator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductExportGeneratorTest extends TestCase
@@ -66,6 +78,141 @@ class ProductExportGeneratorTest extends TestCase
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
         static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportResult->getContent());
+    }
+
+    public function testProductExportGenerationEvents(): void
+    {
+        $productExportId = $this->createTestEntity();
+
+        $criteria = new Criteria([$productExportId]);
+        $criteria->addAssociation('salesChannelDomain.language');
+        $criteria->addAssociation('salesChannel');
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        $exportBehavior = new ExportBehavior();
+
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $productExportProductCriteriaEventDispatched = false;
+        $productExportProductCriteriaCallback = function () use (
+            &$productExportProductCriteriaEventDispatched
+        ): void {
+            $productExportProductCriteriaEventDispatched = true;
+        };
+        $eventDispatcher->addListener(
+            ProductExportProductCriteriaEvent::class,
+            $productExportProductCriteriaCallback
+        );
+
+        $productExportRenderBodyContextEventDispatched = false;
+        $productExportRenderBodyContextCallback = function () use (
+            &$productExportRenderBodyContextEventDispatched
+        ): void {
+            $productExportRenderBodyContextEventDispatched = true;
+        };
+        $eventDispatcher->addListener(
+            ProductExportRenderBodyContextEvent::class,
+            $productExportRenderBodyContextCallback
+        );
+
+        $productExportChangeEncodingEventDispatched = false;
+        $productExportChangeEncodingCallback = function () use (
+            &$productExportChangeEncodingEventDispatched
+        ): void {
+            $productExportChangeEncodingEventDispatched = true;
+        };
+        $eventDispatcher->addListener(
+            ProductExportChangeEncodingEvent::class,
+            $productExportChangeEncodingCallback
+        );
+
+        $exportGenerator = new ProductExportGenerator(
+            $this->getContainer()->get(ProductStreamBuilder::class),
+            $this->getContainer()->get('sales_channel.product.repository'),
+            $this->getContainer()->get(ProductExportRenderer::class),
+            $eventDispatcher,
+            $this->getContainer()->get(ProductExportValidator::class),
+            $this->getContainer()->get(SalesChannelContextService::class),
+            $this->getContainer()->get(Translator::class),
+            $this->getContainer()->get(SalesChannelContextPersister::class),
+            $this->getContainer()->get(Connection::class),
+            100
+        );
+
+        $exportGenerator->generate($productExport, $exportBehavior);
+
+        static::assertTrue($productExportProductCriteriaEventDispatched, 'ProductExportProductCriteriaEvent was not dispatched');
+        static::assertTrue($productExportRenderBodyContextEventDispatched, 'ProductExportRenderBodyContextEvent was not dispatched');
+        static::assertTrue($productExportChangeEncodingEventDispatched, 'ProductExportChangeEncodingEvent was not dispatched');
+
+        $eventDispatcher->removeListener(ProductExportProductCriteriaEvent::class, $productExportProductCriteriaCallback);
+        $eventDispatcher->removeListener(ProductExportRenderBodyContextEvent::class, $productExportRenderBodyContextCallback);
+        $eventDispatcher->removeListener(ProductExportChangeEncodingEvent::class, $productExportChangeEncodingCallback);
+    }
+
+    public function testEmptyProductExportGenerationEvents(): void
+    {
+        $productExportId = $this->createTestEntity();
+
+        $criteria = new Criteria([$productExportId]);
+        $criteria->addAssociation('salesChannelDomain.language');
+        $criteria->addAssociation('salesChannel');
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        $exportBehavior = new ExportBehavior();
+
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $productExportProductCriteriaEventDispatched = false;
+        $productExportProductCriteriaCallback = function (ProductExportProductCriteriaEvent $event) use (
+            &$productExportProductCriteriaEventDispatched
+        ): void {
+            $productExportProductCriteriaEventDispatched = true;
+            // Change filters to guarantee empty export for this test
+            $event->getCriteria()->addFilter(new EqualsFilter('active', true));
+            $event->getCriteria()->addFilter(new EqualsFilter('active', false));
+        };
+        $eventDispatcher->addListener(
+            ProductExportProductCriteriaEvent::class,
+            $productExportProductCriteriaCallback
+        );
+
+        $productExportLoggingEventDispatched = false;
+        $productExportLoggingCallback = function () use (
+            &$productExportLoggingEventDispatched
+        ): void {
+            $productExportLoggingEventDispatched = true;
+        };
+        $eventDispatcher->addListener(
+            ProductExportLoggingEvent::class,
+            $productExportLoggingCallback
+        );
+
+        $exportGenerator = new ProductExportGenerator(
+            $this->getContainer()->get(ProductStreamBuilder::class),
+            $this->getContainer()->get('sales_channel.product.repository'),
+            $this->getContainer()->get(ProductExportRenderer::class),
+            $eventDispatcher,
+            $this->getContainer()->get(ProductExportValidator::class),
+            $this->getContainer()->get(SalesChannelContextService::class),
+            $this->getContainer()->get(Translator::class),
+            $this->getContainer()->get(SalesChannelContextPersister::class),
+            $this->getContainer()->get(Connection::class),
+            100
+        );
+
+        try {
+            $exportGenerator->generate($productExport, $exportBehavior);
+        } catch (EmptyExportException $emptyExportException) {
+        }
+
+        static::assertTrue($productExportProductCriteriaEventDispatched, 'ProductExportProductCriteriaEvent was not dispatched');
+        static::assertTrue($productExportLoggingEventDispatched, 'ProductExportLoggingEvent was not dispatched');
+
+        $eventDispatcher->removeListener(ProductExportLoggingEvent::class, $productExportLoggingCallback);
+        $eventDispatcher->removeListener(ProductExportProductCriteriaEvent::class, $productExportProductCriteriaCallback);
     }
 
     private function getSalesChannelId(): string

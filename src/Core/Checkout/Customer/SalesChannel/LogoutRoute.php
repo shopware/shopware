@@ -80,7 +80,7 @@ class LogoutRoute extends AbstractLogoutRoute
      *          @OA\JsonContent(ref="#/components/responses/403")
      *     )
      * )
-     * @LoginRequired()
+     * @LoginRequired(allowGuest=true)
      * @Route(path="/store-api/account/logout", name="store-api.account.logout", methods={"POST"})
      */
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse

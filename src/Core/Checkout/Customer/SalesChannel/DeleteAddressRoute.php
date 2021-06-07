@@ -66,7 +66,7 @@ An automatic fallback is not applied.",
      *          description="Response containing a list of errors, most likely due to the address being in use"
      *     )
      * )
-     * @LoginRequired()
+     * @LoginRequired(allowGuest=true)
      * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"})
      */
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse

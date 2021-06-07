@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -19,30 +19,18 @@ class DeleteCustomerRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
     /**
      * @var callable
      */
     private $callbackFn;
 
-    /**
-     * @var array
-     */
-    private $events;
+    private array $events;
 
     protected function setUp(): void
     {
@@ -122,9 +110,8 @@ class DeleteCustomerRouteTest extends TestCase
 
         static::assertSame(204, $this->browser->getResponse()->getStatusCode());
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $id));
-        $customer = $this->customerRepository->search($criteria, $this->ids->getContext())->first();
+        $criteria = new Criteria([$id]);
+        $customer = $this->customerRepository->searchIds($criteria, $this->ids->getContext())->firstId();
         static::assertNull($customer);
 
         static::assertArrayHasKey(CustomerDeletedEvent::class, $this->events);
@@ -133,5 +120,25 @@ class DeleteCustomerRouteTest extends TestCase
         static::assertInstanceOf(CustomerDeletedEvent::class, $customerDeletedEvent);
 
         $dispatcher->removeListener(CustomerDeletedEvent::class, $this->callbackFn);
+    }
+
+    public function testDeleteGuestUser(): void
+    {
+        $customerId = $this->createCustomer(null, null, true);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel')));
+
+        $this->browser
+            ->request(
+                'DELETE',
+                '/store-api/account/customer',
+                [
+                ]
+            );
+
+        static::assertSame(204, $this->browser->getResponse()->getStatusCode());
+
+        $criteria = new Criteria([$customerId]);
+        $customer = $this->customerRepository->searchIds($criteria, $this->ids->getContext())->firstId();
+        static::assertNull($customer);
     }
 }

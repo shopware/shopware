@@ -10,31 +10,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 class UpsertAddressRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $addressRepository;
+    private EntityRepositoryInterface $addressRepository;
 
     protected function setUp(): void
     {
@@ -44,7 +31,6 @@ class UpsertAddressRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->addressRepository = $this->getContainer()->get('customer_address.repository');
 
         $email = Uuid::randomHex() . '@example.com';
@@ -163,5 +149,45 @@ class UpsertAddressRouteTest extends TestCase
         unset($address['updatedAt'], $updatedAddress['updatedAt']);
 
         static::assertSame($address, $updatedAddress);
+    }
+
+    public function testCreateAddressForGuest(): void
+    {
+        $customerId = $this->createCustomer(null, null, true);
+        $contextToken = $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+
+        $data = [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'street' => 'Test',
+            'city' => 'Test',
+            'zipcode' => 'Test',
+            'countryId' => $this->getValidCountryId(),
+        ];
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/address',
+                $data
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('id', $response);
+
+        foreach ($data as $key => $val) {
+            static::assertSame($val, $response[$key]);
+        }
+
+        // Check existence
+        /** @var CustomerAddressEntity $address */
+        $address = $this->addressRepository->search(new Criteria([$response['id']]), $this->ids->getContext())->first();
+
+        foreach ($data as $key => $val) {
+            static::assertSame($val, $address->jsonSerialize()[$key]);
+        }
     }
 }

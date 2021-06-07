@@ -56,7 +56,7 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
      *          description="Returns a no content response indicating a successful removal of the customer profile",
      *     )
      * )
-     * @LoginRequired()
+     * @LoginRequired(allowGuest=true)
      * @Route("/store-api/account/customer", name="store-api.account.customer.delete", methods={"DELETE"})
      */
     public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse

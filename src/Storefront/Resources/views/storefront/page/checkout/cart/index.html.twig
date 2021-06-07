@@ -53,6 +53,7 @@
 
         {% block page_checkout_cart_hidden_line_items_information %}
             {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
+                cart: page.cart,
                 lineItems: page.cart.lineItems
             } %}
         {% endblock %}

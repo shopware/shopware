@@ -23,10 +23,10 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'purchase', {
+        gtag('event', 'purchase', { ...{
             'transaction_id': this.generateUuid(),
             'items':  LineItemHelper.getLineItems()
-        });
+        }, ...LineItemHelper.getAdditionalProperties() });
     }
 
     generateUuid() {

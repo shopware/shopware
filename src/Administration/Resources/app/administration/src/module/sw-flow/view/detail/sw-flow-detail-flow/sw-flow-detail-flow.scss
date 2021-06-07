@@ -1,0 +1,170 @@
+@import "~scss/variables";
+
+.sw-flow-detail-flow {
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+
+    &__trigger-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-gap: 48px;
+        align-items: start;
+    }
+
+    &__trigger-select {
+        min-width: 324px;
+        background: $color-white;
+        border-radius: 8px;
+        border: 1px solid $color-gray-300;
+        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.2);
+        padding: 24px 24px 17px;
+
+        h3 {
+            color: $color-darkgray-200;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 9px;
+        }
+    }
+
+    &__trigger-explains {
+        padding: 32px;
+        border: 2px dashed $color-gray-300;
+        border-radius: 8px;
+        color: $color-darkgray-200;
+
+        h3 {
+            font-size: $font-size-large;
+        }
+
+        p {
+            font-size: $font-size-small;
+            letter-spacing: 0.1px;
+            line-height: 22px;
+        }
+    }
+
+    &__oval {
+        position: absolute;
+        top: -6px;
+        left: -5px;
+        height: 12px;
+        width: 12px;
+        background: $color-white;
+        border: 1px solid $color-gray-400;
+        border-radius: 50%;
+    }
+
+    &__oval::before {
+        display: block;
+        content: "";
+        height: 88px;
+        margin-left: 4px;
+        margin-top: 10px;
+        border-left: 2px dashed $color-gray-300;
+    }
+
+    &__sequence-diagram {
+        position: relative;
+        margin-left: 29px;
+        padding: 25px 0 44px 0;
+    }
+
+    &__position {
+        position: relative;
+        display: flex;
+
+        &:not(:last-child) .sw-flow-detail-flow__sequences {
+            padding-bottom: 63px;
+            border-bottom: 2px solid $color-gray-400;
+            width: 100%;
+        }
+
+        &:not(:first-child) .sw-flow-detail-flow__sequences {
+            padding-top: 63px;
+        }
+
+        &:not(:last-child) .sw-flow-detail-flow__position-connection {
+            position: absolute;
+            left: 0;
+            top: 55px;
+            border-bottom: 2px dashed $color-gray-500;
+            border-bottom-left-radius: 32px 24px;
+            height: 19px;
+            width: 19px;
+        }
+
+        &:not(:first-child) .sw-flow-detail-flow__position-connection {
+            position: absolute;
+            left: 0;
+            top: 125px;
+            border-bottom: 2px dashed $color-gray-500;
+            border-bottom-left-radius: 32px 24px;
+            height: 19px;
+            width: 19px;
+        }
+
+        &:last-child .sw-flow-detail-flow__position-plus {
+            cursor: pointer;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: $color-darkgray-200;
+            top: 155px;
+            left: -11px;
+            background: $color-white;
+            border-radius: 16px;
+            border: 1px solid $color-gray-500;
+            height: 24px;
+            width: 24px;
+            z-index: 2;
+        }
+
+        &:first-child .sw-flow-detail-flow__position-plus {
+            top: 91px;
+        }
+
+        .icon--default-arrow-head-right {
+            position: absolute;
+            bottom: -8px;
+            right: -6px;
+            color: $color-gray-500;
+        }
+
+        &:not(:last-child) .icon--default-basic-plus-line {
+            display: none;
+        }
+
+        &::before {
+            display: block;
+            content: "";
+            border-left: 2px dashed $color-gray-300;
+            z-index: 1;
+        }
+
+        &:last-child::before {
+            display: block;
+            content: "";
+            height: 165px;
+            border-left: 2px dashed $color-gray-300;
+            z-index: 1;
+        }
+    }
+
+    &__sequences {
+        position: relative;
+        margin-left: 32px;
+        overflow-x: scroll;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    &__sequences::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+}

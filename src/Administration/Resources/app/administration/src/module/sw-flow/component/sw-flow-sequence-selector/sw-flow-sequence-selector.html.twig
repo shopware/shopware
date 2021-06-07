@@ -1,2 +1,57 @@
 {% block sw_flow_sequence_selector %}
+<div class="sw-flow-sequence-selector">
+    {% block sw_flow_sequence_selector_title %}
+    <div class="sw-flow-sequence-selector__title">
+        <slot name="title">
+            <h3>{{ $tc('sw-flow.detail.sequence.selectorTitle') }}</h3>
+        </slot>
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_selector_help_text %}
+    <div class="sw-flow-sequence-selector__help-text">
+        <slot name="helpText">
+            <p v-html="$tc('sw-flow.detail.sequence.selectorHelpText')" />
+        </slot>
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_selector_actions %}
+    <div class="sw-flow-sequence-selector__actions">
+        {% block sw_flow_sequence_selector_if_condition %}
+        <sw-button
+            class="sw-flow-sequence-selector__if-condition"
+            @click="addIfCondition"
+        >
+
+            {% block sw_flow_sequence_selector_then_action_icon_rule %}
+            <sw-icon
+                size="12"
+                name="small-default-rule"
+            />
+            {% endblock %}
+
+            {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_sequence_selector_then_action %}
+        <sw-button
+            class="sw-flow-sequence-selector__then-action"
+            @click="addThenAction"
+        >
+
+            {% block sw_flow_sequence_selector_then_action_icon_file %}
+            <sw-icon
+                size="12"
+                name="multicolor-file-thumbnail-normal"
+            />
+            {% endblock %}
+
+            {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+        </sw-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

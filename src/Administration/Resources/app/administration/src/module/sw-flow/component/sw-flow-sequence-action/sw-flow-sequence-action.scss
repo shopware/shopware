@@ -1,0 +1,102 @@
+@import "~scss/variables";
+
+.sw-flow-sequence-action {
+    &__card {
+        width: 322px;
+        background: $color-white;
+        border-radius: 8px;
+        border: 1px solid $color-gray-300;
+        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.2);
+    }
+
+    &__header {
+        display: flex;
+        padding: 16px 23px;
+        justify-content: space-between;
+        max-height: 55px;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    &__title {
+        font-size: $font-size-default;
+        font-weight: $font-weight-semi-bold;
+        text-transform: uppercase;
+    }
+
+    &__content {
+        min-height: 112px;
+    }
+
+    &__actions {
+        border-bottom: 1px solid $color-gray-300;
+        min-height: 52px;
+    }
+
+    &__actions-empty {
+        display: flex;
+        align-items: center;
+        padding: 16px 23px;
+    }
+
+    &__actions-empty .sw-icon {
+        color: $color-gray-500;
+    }
+
+    &__actions-empty span:last-child {
+        color: $color-gray-500;
+        font-size: 15px;
+        font-weight: $font-weight-semi-bold;
+        opacity: 75%;
+        margin-left: 8px;
+    }
+
+    &__select {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        padding: 12px 24px;
+        margin-bottom: 0;
+    }
+
+    &__selection-action {
+        margin-left: 9px;
+    }
+
+    &__popover {
+        .sw-select-result__result-item-text {
+            flex-direction: row !important;
+            align-items: center;
+            font-size: $font-size-small;
+        }
+
+        .sw-select-result .sw-icon-action {
+            margin-left: 0;
+            margin-right: 10px;
+        }
+
+        .sw-select-result-list__content {
+            padding: 8px 0 !important;
+        }
+
+        .sw-select-result {
+            margin: 0 5px;
+            padding: 5px 16px;
+        }
+
+        .sw-select-result:not(:last-child) .sw-select-result__result-item-text {
+            color: rgb(117, 140, 163);
+        }
+
+        .sw-select-result:not(:last-child) .sw-icon {
+            color: rgb(117, 140, 163);
+        }
+
+        .sw-select-result:last-child .sw-select-result__result-item-text {
+            color: $color-crimson-500;
+        }
+
+        .sw-select-result:last-child .sw-icon {
+            color: $color-crimson-500;
+        }
+    }
+}

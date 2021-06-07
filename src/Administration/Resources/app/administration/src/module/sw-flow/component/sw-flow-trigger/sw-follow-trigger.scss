@@ -1,0 +1,54 @@
+@import "~scss/variables";
+
+.sw-flow-trigger {
+    &__select-field .sw-block-field__block input {
+        text-transform: capitalize;
+    }
+
+    &__tree-selection {
+        width: 100%;
+
+        .sw-tree {
+            border: unset;
+            max-width: 274px;
+        }
+
+        .sw-tree-item .sw-tree-item__label {
+            text-transform: capitalize;
+        }
+
+        .sw-tree-item__children .sw-tree-item__content {
+            cursor: pointer;
+        }
+
+        .sw-tree-item__children .sw-tree-item__element {
+            display: flex;
+            justify-content: start;
+        }
+
+        .sw-tree-item__children .sw-tree-item__element .sw-tree-item__icon {
+            width: auto;
+        }
+    }
+
+    &.overlay {
+        position: relative;
+
+        .sw-flow-trigger__select-toolbar {
+            margin-bottom: 3px;
+        }
+    }
+
+    &.overlay .sw-flow-trigger__tree-selection {
+        position: absolute;
+        z-index: $z-index-flyout;
+        border-radius: $border-radius-default;
+        background-color: $color-white;
+        background-clip: padding-box;
+        box-shadow: 0 1px 6px 0 lighten($color-darkgray-200, 30%);
+    }
+
+    .sw-flow-trigger__select-field {
+        margin-bottom: 0;
+    }
+}

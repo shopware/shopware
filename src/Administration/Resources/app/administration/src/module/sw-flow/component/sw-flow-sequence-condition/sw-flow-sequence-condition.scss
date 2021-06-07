@@ -1,0 +1,140 @@
+@import "~scss/variables";
+
+.sw-flow-sequence-condition {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(322px, 1fr));
+    grid-auto-rows: min-content;
+    grid-auto-flow: dense;
+
+    &__card {
+        max-width: 322px;
+        background: $color-white;
+        border-radius: 8px;
+        border: 1px solid $color-gray-300;
+        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.2);
+        grid-row: span 1;
+    }
+
+    &__header {
+        display: flex;
+        background: $color-gray-100;
+        padding: 16px 23px;
+        justify-content: space-between;
+        max-height: 55px;
+    }
+
+    &__title {
+        font-size: $font-size-default;
+        font-weight: $font-weight-semi-bold;
+        text-transform: uppercase;
+    }
+
+    &__rule {
+        min-height: 52px;
+    }
+
+    &__rule-empty {
+        display: flex;
+        align-items: center;
+        padding: 16px 23px;
+    }
+
+    &__rule-empty .sw-icon {
+        color: $color-gray-500;
+    }
+
+    &__rule-empty span:last-child {
+        color: $color-gray-500;
+        font-size: 15px;
+        font-weight: 600;
+        opacity: 75%;
+        margin-left: 8px;
+    }
+
+    &__rule-info {
+        padding: 12px 24px;
+    }
+
+    &__rule-info p {
+        font-size: $font-size-small;
+        color: $color-darkgray-200;
+        margin-left: 20px;
+    }
+
+    &__rule-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 9px;
+    }
+
+    &__rule-name {
+        display: flex;
+        align-items: center;
+    }
+
+    &__rule-name h3 {
+        font-size: 15px;
+        font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
+        margin-bottom: 0;
+        margin-left: 8px;
+    }
+
+    &__select {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        padding: 12px 24px;
+        margin-bottom: 0;
+        border-top: 1px solid $color-gray-300;
+    }
+
+    &__selection-rule {
+        margin-left: 9px;
+    }
+
+    &__explains {
+        padding: 32px;
+        border: 2px dashed $color-gray-300;
+        border-radius: 8px;
+        color: $color-darkgray-200;
+        grid-row: span 2;
+    }
+
+    &__explains h3 {
+        font-size: $font-size-large;
+        font-weight: normal;
+        color: $color-darkgray-200;
+    }
+
+    &__explains p {
+        font-size: $font-size-small;
+        color: $color-darkgray-200;
+    }
+}
+
+.sw-select-result-list-popover-wrapper {
+    .sw-select-result__item-list {
+        border-bottom: 1px solid $color-gray-300;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
+
+    .sw-select-result:hover {
+        background-color: lighten($color-shopware-brand-500, 40%) !important;
+    }
+
+    .sw-select-result {
+        margin: 0 5px;
+        padding: 5px 16px;
+        color: $color-darkgray-200;
+    }
+
+    .sw-select-result-list__content {
+        padding: 8px 0 !important;
+    }
+
+    .is--active {
+        background: unset !important;
+    }
+}

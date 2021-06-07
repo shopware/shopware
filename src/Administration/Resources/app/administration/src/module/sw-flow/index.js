@@ -1,8 +1,14 @@
 import './page/sw-flow-list';
 import './page/sw-flow-detail';
-import './view/detail/sw-flow-detail-general';
 import './view/detail/sw-flow-detail-flow';
 import './component/sw-flow-sequence-modal';
+import './view/detail/sw-flow-detail-general';
+import './component/sw-flow-trigger';
+import './component/sw-flow-builder';
+import './component/sw-flow-sequence';
+import './component/sw-flow-sequence-action';
+import './component/sw-flow-sequence-condition';
+import './component/sw-flow-sequence-selector';
 
 import './acl';
 

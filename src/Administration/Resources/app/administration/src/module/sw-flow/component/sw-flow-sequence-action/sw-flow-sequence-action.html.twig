@@ -1,2 +1,102 @@
 {% block sw_flow_sequence_action %}
+<div class="sw-flow-sequence-action">
+    {% block sw_flow_sequence_action_card %}
+    <div class="sw-flow-sequence-action__card">
+        {% block sw_flow_sequence_action_header %}
+        <div class="sw-flow-sequence-action__header">
+            {% block sw_flow_sequence_action_title %}
+            <h3 class="sw-flow-sequence-action__title">
+                {{ $tc('sw-flow.detail.sequence.actionTitle') }}
+            </h3>
+            {% endblock %}
+
+            {% block sw_flow_sequence_action_context_menu %}
+            <sw-context-button class="sw-flow-sequence-action__context-button">
+                {% block sw_landing_page_tree_items_actions_edit %}
+                <sw-context-menu-item variant="danger">
+                    {{ $tc('sw-flow.detail.sequence.contextButton.deleteThenAction') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_flow_sequence_action_content %}
+        <div class="sw-flow-sequence-action__content">
+            {% block sw_flow_sequence_action_actions %}
+            <div class="sw-flow-sequence-action__actions">
+                {% block sw_flow_sequence_action_actions_empty %}
+                <div
+                    v-if="!sequence?.actionName"
+                    class="sw-flow-sequence-action__actions-empty"
+                >
+                    <sw-icon
+                        size="12px"
+                        name="small-default-minus-medium"
+                    />
+                    <span>{{ $tc('sw-flow.detail.sequence.noActions') }}</span>
+                </div>
+                {% endblock %}
+
+                {% block sw_flow_sequence_action_actions_info %}
+                <div
+                    v-else
+                    class="sw-flow-sequence-action__actions-info"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_flow_sequence_action_select %}
+            <div class="sw-flow-sequence-action__select">
+                <sw-icon
+                    size="12px"
+                    color="#758ca3"
+                    name="small-default-x-circle"
+                />
+
+                <sw-single-select
+                    class="sw-flow-sequence-action__selection-action"
+                    size="small"
+                    value=""
+                    :options="actionOptions"
+                    :popover-classes="['sw-flow-sequence-action__popover']"
+                    @change="openModalDynamic"
+                >
+
+                    <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
+                        <li
+                            is="sw-select-result"
+                            :selected="isSelected(item)"
+                            v-bind="{ item, index }"
+                            @item-select="setValue"
+                        >
+                            {% block sw_flow_sequence_action_select_results_list_result_label %}
+
+                            <sw-icon
+                                :name="`${item.icon}`"
+                                size="12px"
+                                class="sw-icon-action"
+                            />
+
+                            <sw-highlight-text
+                                v-if="highlightSearchTerm"
+                                :text="getKey(item, labelProperty)"
+                            />
+
+                            <template v-else>
+                                {{ getKey(item, labelProperty) }}
+                            </template>
+                            {% endblock %}
+                        </li>
+                    </template>
+                </sw-single-select>
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -1,2 +1,93 @@
 {% block sw_flow_detail_flow %}
+<div class="sw-flow-detail-flow">
+    {% block sw_flow_detail_trigger_card %}
+    <div class="sw-flow-detail-flow__trigger-card">
+        {% block sw_flow_detail_flow_trigger_select %}
+        <div class="sw-flow-detail-flow__trigger-select">
+            {% block sw_flow_detail_flow_single_select_name %}
+            <h3>{{ $tc('sw-flow.detail.trigger.name') }}</h3>
+            {% endblock %}
+
+            {% block sw_flow_detail_flow_single_select %}
+            <sw-flow-trigger
+                :collapsible="true"
+                :overlay="true"
+                :event-name="flow.eventName"
+                @option-select="onEventChange"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+        {% block sw_flow_detail_flow_trigger_explains %}
+        <div
+            v-if="!flow?.eventName"
+            class="sw-flow-detail-flow__trigger-explains"
+        >
+            {% block sw_flow_detail_flow_trigger_explains_title %}
+            <h3>{{ $tc('sw-flow.detail.trigger.title') }}</h3>
+            {% endblock %}
+
+            {% block sw_flow_detail_flow_trigger_explains_help_text %}
+            <p v-html="$tc('sw-flow.detail.trigger.helpText')" />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_detail_flow_sequence_diagram %}
+    <div
+        v-if="flow?.eventName"
+        class="sw-flow-detail-flow__sequence-diagram"
+    >
+        {% block sw_flow_detail_flow_start_line %}
+        <div class="sw-flow-detail-flow__oval" />
+        {% endblock %}
+
+        {% block sw_flow_detail_flow_position %}
+        <div
+            v-for="item in getParentSequences"
+            :key="item.position"
+            class="sw-flow-detail-flow__position"
+        >
+
+            {% block sw_flow_sequence_icon_plus %}
+            <div
+                class="sw-flow-detail-flow__position-plus"
+                @click="onChangeSequence"
+            >
+                <sw-icon
+                    small
+                    name="default-basic-plus-line"
+                />
+            </div>
+            {% endblock %}
+
+            {% block sw_flow_sequence_icon_connection %}
+            <div class="sw-flow-detail-flow__position-connection">
+                <sw-icon
+                    small
+                    name="default-arrow-head-right"
+                />
+            </div>
+            {% endblock %}
+
+            {% block sw_flow_detail_flow_sequences %}
+            <div
+                class="sw-flow-detail-flow__sequences"
+                :style="getStyleGrid(item.position)"
+            >
+                <sw-flow-sequence
+                    v-for="sequence in getSequenceByPosition(item.position)"
+                    :key="sequence.id"
+                    :sequence="sequence"
+                    @sequence-add="onChangeSequence"
+                />
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

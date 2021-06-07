@@ -31,7 +31,31 @@
       "labelLogTrigger": "Trigger",
       "labelLogTriggerValue": "Trigger value",
       "labelLogActions": "Actions",
-      "labelLogSuccess": "Success"
+      "labelLogSuccess": "Success",
+      "trigger": {
+        "name": "Trigger",
+        "placeholder": "Select a start trigger...",
+        "title": "Select a start trigger",
+        "helpText": "Triggers are used to start flows. After selecting a trigger you can either further define the trigger by adding an IF statement or directly add an action that should be executed then the trigger has been trigggerd."
+      },
+      "sequence": {
+        "selectorTitle": "Add IF condition or THEN action",
+        "selectorTitleTrueAction": "True action or condition",
+        "selectorTitleFalseAction": "False action or condition",
+        "selectorHelpText": "Conditions are used to filter down the flow. Conditions are made with the Rule Builder and will give out a true or false.<br/><br/>Actions can be used to send emails, create a documents or add tags. Actions can both be used when a condition is true or false.",
+        "selectorIfCondition": "Add IF condition",
+        "selectorThenAction": "Add THEN action",
+        "conditionTitle": "If",
+        "conditionExplainsTitle": "Select a rule or create a new one",
+        "conditionExplainsDescription": "Conditions are build with the Rule Builder. You can either select an existing rule or build your own rule that starts with one of the selectors that are defined by the Flow trigger.",
+        "actionTitle": "Then",
+        "contextButton": {
+          "deleteIfCondition": "Delete IF condition",
+          "deleteThenAction": "Delete THEN action"
+        },
+        "noActions": "No actions added yet",
+        "noRule": "No rule defined yet"
+      }
     },
     "page": {
       "generalTab": "Allgemein",
@@ -44,6 +68,26 @@
       "messageSaveError": "The flow konnte nicht gespeichert werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
       "messageRequiredEventName": "Please choose trigger event before save."
+    },
+    "actions": {
+      "addTag": "Add tag",
+      "callURL": "Call URL (Webhook)",
+      "generateDocument": "Generate document",
+      "removeTag": "Remove tag",
+      "sendEmail": "Send email",
+      "setStatus": "Set status",
+      "stopFlow": "Stop flow",
+      "contextButton": {
+        "editAction": "Edit action",
+        "deleteAction": "Delete action"
+      }
+    },
+    "rule": {
+      "createNewRule": "Create new rule",
+      "contextButton": {
+        "editRule": "Edit rule",
+        "deleteRule": "Delete rule"
+      }
     }
   },
   "sw-privileges": {

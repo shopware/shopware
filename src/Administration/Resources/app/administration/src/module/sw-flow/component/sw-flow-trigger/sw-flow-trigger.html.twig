@@ -1,2 +1,87 @@
 {% block sw_flow_trigger %}
+<div
+    class="sw-flow-trigger"
+    :class="swFlowTriggerClasses"
+>
+    {% block sw_flow_trigger_select_field %}
+    <div class="sw-flow-trigger__select-toolbar">
+        <div class="sw-flow-trigger__select-field-container">
+            <sw-field
+                v-model="getEventName"
+                class="sw-flow-trigger__select-field"
+                :placeholder="$tc('sw-flow.detail.trigger.placeholder')"
+                @focus="onFocusTrigger"
+            />
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_trigger_tree_selection %}
+    <div
+        v-if="displayTree"
+        class="sw-flow-trigger__tree-selection"
+    >
+
+        {% block sw_flow_trigger_container %}
+        <sw-container class="sw-flow-trigger__tree-selection-container">
+
+            {% block sw_flow_trigger_select_tree %}
+            <sw-tree
+                ref="flowTriggerTree"
+                :active-tree-item-id="eventName"
+                route-params-active-element-id="eventName"
+                :sortable="false"
+                :items="events"
+                :searchable="false"
+                :disable-context-menu="true"
+                :on-change-route="changeTrigger"
+                bind-items-to-folder
+            >
+
+                {% block sw_flow_builder_search_tree_headline %}
+                <template #headline>
+                    <span />
+                </template>
+                {% endblock %}
+
+                {% block sw_flow_builder_search_tree_search %}
+                <template #search>
+                    <span />
+                </template>
+                {% endblock %}
+
+                <template
+                    #items="{
+                        treeItems,
+                        sortable,
+                        disableContextMenu,
+                        onChangeRoute,
+                        newElementId,
+                        checkItem
+                    }"
+                >
+                    <sw-tree-item
+                        v-for="item in treeItems"
+                        :key="item.id"
+                        :sortable="sortable"
+                        :item="item"
+                        :on-change-route="onChangeRoute"
+                        :display-checkbox="false"
+                        @check-item="checkItem"
+                    >
+
+                        {% block sw_flow_builder_search_tree_item_actions %}
+                        <template #actions>
+                            <span />
+                        </template>
+                        {% endblock %}
+                    </sw-tree-item>
+                </template>
+            </sw-tree>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
 {% endblock %}

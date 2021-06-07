@@ -1,2 +1,26 @@
 {% block sw_flow_sequence %}
+<div class="sw-flow-sequence">
+    {% block sw_flow_sequence_selector %}
+    <sw-flow-sequence-selector
+        v-if="sequence.ruleId === null && sequence.actionName === null"
+        :sequence="sequence"
+        @add-if-condition="addIfCondition"
+        @add-then-action="addThenAction"
+    />
+    {% endblock %}
+
+    {% block sw_flow_sequence_condition %}
+    <sw-flow-sequence-condition
+        v-else-if="sequence.ruleId !== null"
+        :sequence="sequence"
+    />
+    {% endblock %}
+
+    {% block sw_flow_sequence_action %}
+    <sw-flow-sequence-action
+        v-else-if="sequence.actionName !== null"
+        :sequence="sequence"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

@@ -7,6 +7,7 @@ use Monolog\Logger;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
+use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -133,6 +134,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
 
         $criteria = new Criteria();
+        $criteria->setTitle('product-export::products');
+
         $criteria
             ->addFilter(...$filters)
             ->setOffset($exportBehavior->offset())
@@ -143,6 +146,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             ->addAssociation('media')
             ->addAssociation('prices')
             ->addAssociation('properties.group');
+
+        $this->eventDispatcher->dispatch(
+            new ProductExportProductCriteriaEvent($criteria, $productExport, $exportBehavior, $context)
+        );
 
         $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
 

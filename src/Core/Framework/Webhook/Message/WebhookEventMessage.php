@@ -6,7 +6,7 @@ class WebhookEventMessage
 {
     private array $payload;
 
-    private string $appId;
+    private ?string $appId;
 
     private string $webhookId;
 
@@ -14,8 +14,11 @@ class WebhookEventMessage
 
     private string $shopwareVersion;
 
-    public function __construct(array $payload, string $appId, string $webhookId, string $shopwareVersion, string $url)
+    private string $webhookEventId;
+
+    public function __construct(string $webhookEventId, array $payload, ?string $appId, string $webhookId, string $shopwareVersion, string $url)
     {
+        $this->webhookEventId = $webhookEventId;
         $this->payload = $payload;
         $this->appId = $appId;
         $this->webhookId = $webhookId;
@@ -28,7 +31,7 @@ class WebhookEventMessage
         return $this->payload;
     }
 
-    public function getAppId(): string
+    public function getAppId(): ?string
     {
         return $this->appId;
     }
@@ -46,5 +49,10 @@ class WebhookEventMessage
     public function getUrl(): string
     {
         return $this->url;
+    }
+
+    public function getWebhookEventId(): string
+    {
+        return $this->webhookEventId;
     }
 }

@@ -1056,6 +1056,8 @@ class WebhookDispatcherTest extends TestCase
             ],
         ];
 
+        $webhookEventId = Uuid::randomHex();
+
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
 
         $this->bus->expects(static::once())
@@ -1068,7 +1070,7 @@ class WebhookDispatcherTest extends TestCase
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($payload, $appId, $webhookId, $shopwareVersion, 'https://test.com')));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, $shopwareVersion, 'https://test.com')));
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),

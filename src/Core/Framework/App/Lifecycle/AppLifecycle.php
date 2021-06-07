@@ -208,7 +208,9 @@ class AppLifecycle extends AbstractAppLifecycle
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
             $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
-            $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($manifest, $id, $defaultLocale): void {
+                $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
+            });
             $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }

@@ -55,6 +55,7 @@
         <!--Middleware-->
         <service id="Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware">
             <argument type="service" id="dead_message.repository"/>
+            <argument type="service" id="event_dispatcher" />
         </service>
 
         <!--Service-->

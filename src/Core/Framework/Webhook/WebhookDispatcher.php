@@ -12,9 +12,12 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -188,10 +191,32 @@ class WebhookDispatcher implements EventDispatcherInterface
             }
 
             if (Feature::isActive('FEATURE_NEXT_14363')) {
-                if ($webhook->getApp() !== null) {
-                    $webhookEventMessage = new WebhookEventMessage($payload, $webhook->getApp()->getId(), $webhook->getId(), $this->shopwareVersion, $webhook->getUrl());
-                    $this->bus->dispatch($webhookEventMessage);
+                $webhookEventId = Uuid::randomHex();
+
+                $appId = $webhook->getApp() !== null ? $webhook->getApp()->getId() : null;
+                $webhookEventMessage = new WebhookEventMessage($webhookEventId, $payload, $appId, $webhook->getId(), $this->shopwareVersion, $webhook->getUrl());
+
+                if (!$this->container->has('webhook_event_log.repository')) {
+                    throw new ServiceNotFoundException('webhook_event_log.repository');
                 }
+
+                /** @var EntityRepositoryInterface $webhookEventLogRepository */
+                $webhookEventLogRepository = $this->container->get('webhook_event_log.repository');
+
+                $webhookEventLogRepository->create([
+                    [
+                        'id' => $webhookEventId,
+                        'appName' => $webhook->getApp() !== null ? $webhook->getApp()->getName() : null,
+                        'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+                        'webhookName' => $webhook->getName(),
+                        'eventName' => $webhook->getEventName(),
+                        'appVersion' => $webhook->getApp() !== null ? $webhook->getApp()->getVersion() : null,
+                        'url' => $webhook->getUrl(),
+                        'serializedWebhookMessage' => serialize($webhookEventMessage),
+                    ],
+                ], Context::createDefaultContext());
+
+                $this->bus->dispatch($webhookEventMessage);
             } else {
                 /** @var string $jsonPayload */
                 $jsonPayload = json_encode($payload);
@@ -230,6 +255,10 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
 
         $criteria = new Criteria();
+
+        if (Feature::isActive('FEATURE_NEXT_14363')) {
+            $criteria->addFilter(new EqualsFilter('active', true));
+        }
         $criteria->addAssociation('app');
 
         if (!$this->container->has('webhook.repository')) {

@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\MessageQueue\Middleware;
 
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler;
@@ -17,6 +21,9 @@ use Shopware\Core\Framework\Test\MessageQueue\fixtures\DummyHandler;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Event\RetryWebhookMessageFailedEvent;
+use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
+use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Test\Middleware\MiddlewareTestCase;
@@ -233,6 +240,57 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $newException, $message, 1);
         static::assertNotEquals($deadMessageId, $deadMessage->getId());
         static::assertFalse($deadMessage->isEncrypted());
+    }
+
+    public function testCanDispatchRetryWebhookMessageFailedEvent(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_14363', $this);
+
+        $deadMessageId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com');
+        $envelope = new Envelope($webhookEventMessage);
+
+        $response = new Response(404);
+        $request = new Request('POST', 'http://test.com');
+        $exception = new ClientException('Not Found', $request, $response);
+
+        $this->deadMessageRepository->create([[
+            'id' => $deadMessageId,
+            'originalMessageClass' => \get_class($envelope->getMessage()),
+            'serializedOriginalMessage' => serialize($envelope->getMessage()),
+            'handlerClass' => WebhookEventMessageHandler::class,
+            'encrypted' => false,
+            'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
+            'exception' => \get_class($exception),
+            'exceptionMessage' => $exception->getMessage(),
+            'exceptionFile' => $exception->getFile(),
+            'exceptionLine' => $exception->getLine(),
+            'errorCount' => 1,
+        ]], $this->context);
+
+        $message = new RetryMessage($deadMessageId);
+        $envelope2 = new Envelope($message);
+
+        $messageFailedException = $this->getMessageFailedException($envelope2, $message, $exception);
+        $stack = $this->getThrowingStackMock($messageFailedException);
+
+        $countEventDispatched = 0;
+        $retryWebhookMessageFailedEvent = function (RetryWebhookMessageFailedEvent $event) use (&$countEventDispatched): void {
+            ++$countEventDispatched;
+            static::assertEquals($event->getContext(), $this->context);
+        };
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher->addListener(RetryWebhookMessageFailedEvent::class, $retryWebhookMessageFailedEvent);
+
+        $this->retryMiddleware->handle($envelope2, $stack);
+
+        $eventDispatcher->removeListener(RetryWebhookMessageFailedEvent::class, $retryWebhookMessageFailedEvent);
+        static::assertSame(1, $countEventDispatched);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(1, $deadMessages);
     }
 
     private function assertDeadMessageCombinesExceptionAndMessage(

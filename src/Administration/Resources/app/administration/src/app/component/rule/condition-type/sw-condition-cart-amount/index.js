@@ -21,7 +21,7 @@ Component.extend('sw-condition-cart-amount', 'sw-condition-base', {
         amount: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.amount || null;
+                return this.condition.value.amount;
             },
             set(amount) {
                 this.ensureValueExist();

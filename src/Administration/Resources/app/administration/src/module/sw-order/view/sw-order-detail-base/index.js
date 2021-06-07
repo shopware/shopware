@@ -172,7 +172,7 @@ Component.register('sw-order-detail-base', {
 
             criteria
                 .getAssociation('lineItems')
-                .addSorting(Criteria.sort('label', 'ASC'));
+                .addSorting(Criteria.sort('position', 'ASC'));
 
             if (Shopware.Feature.isActive('FEATURE_NEXT_12635')) {
                 criteria

@@ -248,6 +248,114 @@
                     />
                     {% endblock %}
                 </template>
+
+                {% block sw_order_list_bulk_selected_actions_content %}
+                <template #bulk>
+                    <a
+                        v-if="feature.isActive('FEATURE_NEXT_6061') && acl.can('order.editor')"
+                        class="link link-primary"
+                        @click="showBulkEditModal = true"
+                    >
+                        {{ $tc('global.default.bulkEdit') }}
+                    </a>
+                </template>
+                {% endblock %}
+
+                {% block sw_order_list_bulk_edit_modal %}
+                <template #bulk-modals>
+                    <sw-bulk-edit-modal
+                        v-if="showBulkEditModal"
+                        class="sw-order-bulk-edit-modal"
+                        :selection="selection"
+                        :bulk-grid-edit-columns="orderColumns"
+                        @modal-close="showBulkEditModal = false"
+                    >
+                        {% block sw_order_list_bulk_edit_grid_columns_order_number %}
+                        <template #column-orderNumber="{ item }">
+                            {% block sw_order_list_bulk_edit_grid_order_number_link %}
+                            <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                                {{ item.orderNumber }}
+                            </router-link>
+                            {% endblock %}
+
+                            {% block sw_order_list_bulk_edit_grid_label_manual_order %}
+                            <sw-label
+                                v-if="item.createdById"
+                                appearance="pill"
+                                size="small"
+                                class="sw-order-bulk_edit__manual-order-label"
+                            >
+                                {{ $tc('sw-order.list.labelManualOrder') }}
+                            </sw-label>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_list_bulk_edit_grid_columns_customer_name %}
+                        <template #column-orderCustomer.firstName="{ item }">
+                            <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
+                                {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
+                            </router-link>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_list_bulk_edit_grid_columns_billing_address %}
+                        <template #column-billingAddressId="{ item }">
+                            {{ item.billingAddress.street }},
+                            {{ item.billingAddress.zipcode }}
+                            {{ item.billingAddress.city }}
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_list_bulk_edit_grid_columns_amount %}
+                        <template #column-amountTotal="{ item }">
+                            {{ item.amountTotal | currency(item.currency.translated.shortName) }}
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_list_bulk_edit_grid_columns_state %}
+                        <template #column-stateMachineState.name="{ item }">
+                            <sw-label
+                                :variant="getVariantFromOrderState(item)"
+                                appearance="pill"
+                            >
+                                {{ item.stateMachineState.translated.name }}
+                            </sw-label>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_list_bulk_edit_grid_columns_transaction_state %}
+                        <template #column-transactions.last().stateMachineState.name="{ item }">
+                            <sw-label
+                                v-if="item.transactions && item.transactions[0]"
+                                :variant="getVariantFromPaymentState(item)"
+                                appearance="pill"
+                            >
+                                {{ item.transactions.last().stateMachineState.translated.name }}
+                            </sw-label>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_list_bulk_edit_grid_columns_delivery_state %}
+                        <template #column-deliveries[0].stateMachineState.name="{ item }">
+                            <sw-label
+                                v-if="item.deliveries && item.deliveries[0]"
+                                :variant="getVariantFromDeliveryState(item)"
+                                appearance="pill"
+                            >
+                                {{ item.deliveries[0].stateMachineState.translated.name }}
+                            </sw-label>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_order_list_bulk_edit_grid_columns_order_date %}
+                        <template #column-orderDateTime="{ item }">
+                            {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
+                        </template>
+                        {% endblock %}
+                    </sw-bulk-edit-modal>
+                </template>
+                {% endblock %}
             </sw-data-grid>
             {% endblock %}
 

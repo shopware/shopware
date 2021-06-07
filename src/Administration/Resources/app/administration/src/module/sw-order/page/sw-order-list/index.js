@@ -11,7 +11,8 @@ Component.register('sw-order-list', {
         'repositoryFactory',
         'stateStyleDataProviderService',
         'acl',
-        'filterFactory'
+        'filterFactory',
+        'feature'
     ],
 
     mixins: [
@@ -55,7 +56,8 @@ Component.register('sw-order-list', {
                 'line-item-filter'
             ],
             storeKey: 'grid.filter.order',
-            activeFilterNumber: 0
+            activeFilterNumber: 0,
+            showBulkEditModal: false
         };
     },
 

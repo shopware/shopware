@@ -162,10 +162,10 @@ describe('Order: Read order', () => {
         });
 
         // Get correct quantity of both items
-        cy.get('.sw-data-grid__row--0')
+        cy.get('.sw-data-grid__row--1')
             .within(() => { cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('10'); });
 
-        cy.get('.sw-data-grid__row--1')
+        cy.get('.sw-data-grid__row--0')
             .within(() => { cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('1'); });
     });
 

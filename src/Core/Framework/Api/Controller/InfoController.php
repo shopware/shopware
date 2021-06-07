@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Adapter\Asset\LastModifiedVersionStrategy;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -85,9 +86,10 @@ class InfoController extends AbstractController
      *
      * @throws \Exception
      */
-    public function info(): JsonResponse
+    public function info(Request $request): JsonResponse
     {
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API);
+        $forDocumentation = (bool) $request->get('documentation', false);
+        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $forDocumentation);
 
         return $this->json($data);
     }
@@ -132,11 +134,13 @@ class InfoController extends AbstractController
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $forDocumentation = (bool) $request->get('documentation', false);
         $response = $this->render(
             '@Framework/swagger.html.twig',
             [
                 'schemaUrl' => 'api.info.openapi3',
                 'cspNonce' => $nonce,
+                'documentation' => $forDocumentation,
             ]
         );
 
@@ -153,6 +157,18 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @OA\Get(
+     *     path="/_info/config",
+     *     summary="Get API information",
+     *     description="Get information about the API",
+     *     operationId="config",
+     *     tags={"Admin API", "System Info & Healthcheck"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Returns information about the API.",
+     *         @OA\JsonContent(ref="#/components/schemas/infoConfigResponse")
+     *     )
+     * )
      * @Route("/api/_info/config", name="api.info.config", methods={"GET"})
      */
     public function config(): JsonResponse
@@ -173,6 +189,24 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.3.5.0")
+     * @OA\Get(
+     *     path="/_info/version",
+     *     summary="Get the Shopware version",
+     *     description="Get the version of the Shopware instance",
+     *     operationId="infoShopwareVersion",
+     *     tags={"Admin API", "System Info & Healthcheck"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Returns the version of the Shopware instance.",
+     *         @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="version",
+     *                  description="The Shopware version.",
+     *                  type="string"
+     *              )
+     *          )
+     *     )
+     * )
      * @Route("/api/_info/version", name="api.info.shopware.version", methods={"GET"})
      * @Route("/api/v1/_info/version", name="api.info.shopware.version_old_version", methods={"GET"})
      */

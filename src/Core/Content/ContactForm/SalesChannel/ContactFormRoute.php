@@ -89,7 +89,11 @@ class ContactFormRoute extends AbstractContactFormRoute
      *                  "subject",
      *                  "comment"
      *              },
-     *              @OA\Property(property="salutationId", description="Identifier of the salutation.", type="string"),
+     *              @OA\Property(
+     *                  property="salutationId",
+     *                  description="Identifier of the salutation. Use `api/salutation` endpoint to fetch possible values.",
+     *                  type="string"
+     *              ),
      *              @OA\Property(
      *                  property="firstName",
      *                  description="Firstname. This field may be required depending on the system settings.",
@@ -100,17 +104,39 @@ class ContactFormRoute extends AbstractContactFormRoute
      *                  description="Lastname. This field may be required depending on the system settings.",
      *                  type="string"
      *              ),
-     *              @OA\Property(property="email", description="Email", type="string"),
+     *              @OA\Property(property="email", description="Email address", type="string"),
      *              @OA\Property(
      *                  property="phone",
      *                  description="Phone. This field may be required depending on the system settings.",
      *                  type="string"
      *              ),
-     *              @OA\Property(property="subject", description="Title", type="string"),
-     *              @OA\Property(property="comment", description="Message", type="string"),
-     *              @OA\Property(property="navigationId", description="Navigation ID", type="string"),
-     *              @OA\Property(property="slotId", description="CMS element ID", type="string"),
-     *              @OA\Property(property="entityName", description="Entity name for slot config", type="string"),
+     *              @OA\Property(
+     *                  property="subject",
+     *                  description="The subject of the contact form.",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="comment",
+     *                  description="The message of the contact form",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="navigationId",
+     *                  description="Identifier of the navigation page. Can be used to override the configuration. Take a look at the
+settings of a category containing a concact form in the administration.",
+     *                  type="string
+     *              "),
+     *              @OA\Property(
+     *                  property="slotId",
+     *                  description="Identifier of the cms element",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="cmsPageType",
+     *                  description="Type of the content management page",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(property="entityName", description="Entity name for slot config",
      *          )
      *      ),
      *      @OA\Response(

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
+use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -40,16 +41,23 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
      */
     private $openApiLoader;
 
+    /**
+     * @var string
+     */
+    private $schemaPath;
+
     public function __construct(
         OpenApiSchemaBuilder $openApiBuilder,
         OpenApiPathBuilder $pathBuilder,
         OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
-        OpenApiLoader $openApiLoader
+        OpenApiLoader $openApiLoader,
+        array $bundles
     ) {
         $this->openApiBuilder = $openApiBuilder;
         $this->pathBuilder = $pathBuilder;
         $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->openApiLoader = $openApiLoader;
+        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi/';
     }
 
     public function supports(string $format, string $api): bool
@@ -57,7 +65,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, string $api): array
+    public function generate(array $definitions, string $api, bool $forDocumentation = false): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
@@ -71,7 +79,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
+            if (!$forDocumentation) {
+                $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
+            } else {
+                $onlyReference = true;
+            }
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
 
@@ -81,11 +93,24 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
-            $openApi->merge([$this->pathBuilder->getTag($definition)]);
+            if (!$forDocumentation) {
+                $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
+                $openApi->merge([$this->pathBuilder->getTag($definition)]);
+            }
         }
 
-        return json_decode($openApi->toJson(), true);
+        $data = json_decode($openApi->toJson(), true);
+
+        $finder = (new Finder())->in($this->schemaPath)->name('*.json');
+
+        foreach ($finder as $item) {
+            $name = str_replace('.json', '', $item->getFilename());
+
+            $readData = json_decode(file_get_contents($item->getPathname()), true);
+            $data['components']['schemas'][$name] = $readData;
+        }
+
+        return $data;
     }
 
     public function getSchema(array $definitions): array

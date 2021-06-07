@@ -56,7 +56,7 @@
     },
     "post-filter": {
       "type": "array",
-      "description": "Filters that applied wihout affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)",
+      "description": "Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)",
       "items": {
         "type": "object",
         "properties": {

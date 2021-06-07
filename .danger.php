@@ -2,12 +2,12 @@
 
 use Danger\Config;
 use Danger\Context;
+use Danger\Struct\File;
 use Danger\Platform\Github\Github;
 use Danger\Platform\Gitlab\Gitlab;
 use Danger\Rule\CommitRegex;
 use Danger\Rule\Condition;
 use Danger\Rule\DisallowRepeatedCommits;
-use Danger\Rule\MaxCommit;
 
 
 return (new Config())
@@ -46,7 +46,7 @@ return (new Config())
                 $files = $context->platform->pullRequest->getFiles();
                 $hasStoreApiModified = false;
 
-                /** @var Danger\Struct\File $file */
+                /** @var File $file */
                 foreach ($files->getElements() as $file) {
                     if (str_contains($file->name, 'SalesChannel') && str_contains($file->name, 'Route.php') && !str_contains($file->name, '/Test/')) {
                         $hasStoreApiModified = true;
@@ -71,6 +71,16 @@ return (new Config())
             )
         ]
     ))
+    ->useRule(function (Context $context) {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $migrationFiles = $files->filterStatus(File::STATUS_ADDED)->matches('src/Core/Migration/*/Migration*.php');
+        $migrationTestFiles = $files->filterStatus(File::STATUS_ADDED)->matches('src/Core/Migration/Test/*.php');
+
+        if ($migrationFiles->count() && !$migrationTestFiles->count()) {
+            $context->failure('Please add tests for your new Migration file');
+        }
+    })
     ->after(function (Context $context) {
         if ($context->platform instanceof Github && $context->hasFailures()) {
             $context->platform->addLabels('Incomplete');

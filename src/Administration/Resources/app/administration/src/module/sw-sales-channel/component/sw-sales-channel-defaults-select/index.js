@@ -55,6 +55,12 @@ Component.register('sw-sales-channel-defaults-select', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        criteria: {
+            type: Object,
+            required: false,
+            default: undefined
         }
     },
 

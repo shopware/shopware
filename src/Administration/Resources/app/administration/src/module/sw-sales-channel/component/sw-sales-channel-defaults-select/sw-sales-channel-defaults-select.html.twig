@@ -12,6 +12,7 @@
             :label="propertyLabel"
             :help-text="helpText"
             :entity-collection="propertyCollection"
+            :criteria="criteria"
             @change="updateCollection"
         />
 
@@ -25,6 +26,7 @@
             :entity="propertyEntityName"
             :value="defaultId"
             :error="defaultsValueError"
+            :criteria="criteria"
             @change="updateDefault"
         />
     </template>

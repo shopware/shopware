@@ -127,6 +127,14 @@ Component.register('sw-sales-channel-detail-base', {
             return criteria.addFilter(Criteria.equals('salesChannels.id', this.productExport.storefrontSalesChannelId));
         },
 
+        paymentMethodCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addSorting(Criteria.sort('position', 'ASC'));
+
+            return criteria;
+        },
+
         storefrontDomainsLoaded() {
             return this.storefrontDomains.length > 0;
         },

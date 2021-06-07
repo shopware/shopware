@@ -113,7 +113,7 @@
       "products": {
         "titleEmptyState": "Noch keine Produkte hinzugefügt",
         "titleEmptyStateTable": "Keine passenden Produkte gefunden",
-        "buttonAddProducts": "Produkte hinzufügen",
+        "buttonAddProducts": "Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
         "columnProductName": "Produktname",
         "columnActive": "Aktiv",
         "columnProductNumber": "Produktnummer"

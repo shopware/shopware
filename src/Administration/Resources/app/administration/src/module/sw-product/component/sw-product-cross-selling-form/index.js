@@ -2,7 +2,7 @@ import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Context, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
@@ -189,7 +189,7 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         loadStreamPreview() {
-            this.productStreamRepository.get(this.crossSelling.productStreamId, Context.api)
+            this.productStreamRepository.get(this.crossSelling.productStreamId)
                 .then((productStream) => {
                     this.productStream = productStream;
                     this.getProductStreamFilter();
@@ -197,7 +197,10 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         getProductStreamFilter() {
-            return this.productStreamFilterRepository.search(this.productStreamFilterCriteria, Context.api)
+            if (this.productStreamFilterRepository === null) {
+                return [];
+            }
+            return this.productStreamFilterRepository.search(this.productStreamFilterCriteria)
                 .then((productStreamFilter) => {
                     this.productStreamFilter = productStreamFilter;
                 });

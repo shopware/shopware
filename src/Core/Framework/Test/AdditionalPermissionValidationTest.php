@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Administration;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -18,11 +18,14 @@ class AdditionalPermissionValidationTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * blacklist file path segments for ignored paths
-     *
-     * @var array
+     * @var array<int, string>
      */
-    private $blacklist = [
+    private const ROOT_CLASSES = [Administration::class, Kernel::class];
+
+    /**
+     * blacklist file path segments for ignored paths
+     */
+    private array $blacklist = [
         'Test/',
         'node_modules/',
         'Common/vendor/',
@@ -32,11 +35,16 @@ class AdditionalPermissionValidationTest extends TestCase
         'public/static/js',
     ];
 
-    private string $rootDir;
+    /**
+     * @var array<int, string>
+     */
+    private array $rootDirs;
 
     public function setUp(): void
     {
-        $this->rootDir = $this->getPathForClass(Kernel::class);
+        $this->rootDirs = array_map(static function (string $class): string {
+            return \dirname((string) (new \ReflectionClass($class))->getFileName());
+        }, self::ROOT_CLASSES);
     }
 
     public function testSourceFilesForUnvalidatedPrivileges(): void
@@ -56,7 +64,7 @@ class AdditionalPermissionValidationTest extends TestCase
         $regex = sprintf('/%s/s', implode('|', $regexParts));
 
         $finder = new Finder();
-        $finder->in([$this->rootDir . '/Administration', $this->rootDir . '/Core'])
+        $finder->in($this->rootDirs)
             ->files()
             ->name('*.php')
             ->contains($regex);
@@ -99,7 +107,7 @@ class AdditionalPermissionValidationTest extends TestCase
 
         $regex = '/additional_permissions(.*?)(\'|\"|)privileges(\'|\"|):(.*?)\[(.*?)]/s';
         $finder = new Finder();
-        $finder->in([$this->rootDir . '/Administration', $this->rootDir . '/Core'])
+        $finder->in($this->rootDirs)
             ->files()
             ->path('/acl/')
             ->name('index.js')
@@ -138,16 +146,5 @@ class AdditionalPermissionValidationTest extends TestCase
         }
 
         return array_unique($additionalPermission);
-    }
-
-    private function getPathForClass(string $className): string
-    {
-        $path = realpath(\dirname(KernelLifecycleManager::getClassLoader()->findFile($className)) . '/../');
-
-        if ($path === false) {
-            throw new \LogicException("could not locate filepath for class {$className}");
-        }
-
-        return $path;
     }
 }

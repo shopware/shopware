@@ -74,7 +74,7 @@
     "product-out-of-stock": "%name% is not available at the moment.",
     "auto-promotion-not-found": "Promotion \"%name%\" is no longer valid!",
     "captcha" : {
-      "basic-captcha-invalid": "The captcha is invalid. Please check your entries."
+      "basic-captcha-invalid": "Incorrect input. Please try again."
     }
   },
   "account": {
@@ -579,7 +579,7 @@
     "groupRequiredSession": "Session",
     "groupRequiredCsrf": "CSRF protection",
     "groupRequiredTimezone": "Timezone",
-    "groupRequiredCaptcha": "Captcha Integration",
+    "groupRequiredCaptcha": "CAPTCHA integration",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",
     "groupStatisticalGoogleAnalytics": "Google Analytics",

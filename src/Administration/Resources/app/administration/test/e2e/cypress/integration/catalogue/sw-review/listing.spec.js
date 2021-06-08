@@ -3,6 +3,7 @@ const uuid = require('uuid/v4');
 
 
 describe('Review: Test pagination and the corosponding URL parameters', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         let authToken = undefined;
         let salesChannelId = undefined;

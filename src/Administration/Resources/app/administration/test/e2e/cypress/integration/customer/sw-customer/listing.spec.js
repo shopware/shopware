@@ -2,6 +2,7 @@
 const uuid = require('uuid/v4');
 
 describe('Customer: Test pagination and the corosponding URL parameters', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         let countryId, paymentMethodId, salesChannelId, groupId, salutationId;
         cy.setToInitialState().then(() => {

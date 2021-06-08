@@ -611,7 +611,7 @@ Percy:
         - npm clean-install
         - npx percy exec -- cypress run
             --browser chrome --headless
-            --spec "cypress/integration/visual/**/*"
+            --spec "cypress/**/visual.spec.js,cypress/**/percy-storefront-validation/*"
     artifacts:
         when: always
         paths:

@@ -39,7 +39,7 @@ describe('Dashboard: Test first sight of the Administration', () => {
                 storefrontCustomer = result;
             })
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}`);
+                cy.openInitialPage(Cypress.env('admin'));
             });
     });
 

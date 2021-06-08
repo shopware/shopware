@@ -3,6 +3,7 @@
 const uuid = require('uuid/v4');
 
 describe('Order: Testing filter and reset filter', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
         let currencyId; let countryId; let paymentMethodId; let salesChannelId; let groupId; let salutationId; let stateMachineId; let
             shippingMethodId; let userId;

@@ -46,11 +46,14 @@ describe('Sales Channel: Visual tests', () => {
             .contains(country);
         cy.get('.sw-sales-channel-detail__assign-languages .sw-entity-single-select__selection')
             .contains(language);
+
+        // Change display of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select-selection-list',
             'display: none'
         );
 
+        // Change background-color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select__selection',
             'background-color: #189EF'

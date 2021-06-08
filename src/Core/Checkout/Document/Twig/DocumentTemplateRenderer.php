@@ -3,10 +3,14 @@
 namespace Shopware\Core\Checkout\Document\Twig;
 
 use Shopware\Core\Checkout\Document\DocumentGenerator\Counter;
+use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -31,6 +35,11 @@ class DocumentTemplateRenderer
     private $translator;
 
     /**
+     * @var AbstractSalesChannelContextFactory
+     */
+    private $contextFactory;
+
+    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -39,11 +48,13 @@ class DocumentTemplateRenderer
         TemplateFinder $templateFinder,
         Environment $twig,
         Translator $translator,
+        AbstractSalesChannelContextFactory $contextFactory,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->templateFinder = $templateFinder;
         $this->twig = $twig;
         $this->translator = $translator;
+        $this->contextFactory = $contextFactory;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -70,6 +81,13 @@ class DocumentTemplateRenderer
                 $locale,
                 $context
             );
+            $salesChannelContext = $this->contextFactory->create(
+                Uuid::randomHex(),
+                $salesChannelId,
+                [SalesChannelContextService::LANGUAGE_ID => $languageId]
+            );
+            $salesChannelContext->addState(DocumentService::GENERATING_PDF_STATE);
+            $parameters['context'] = $salesChannelContext;
         }
 
         $documentTemplateRendererParameterEvent = new DocumentTemplateRendererParameterEvent($parameters);

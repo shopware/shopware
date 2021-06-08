@@ -89,7 +89,7 @@
 
             <div
                 v-else
-                :key="`else-${permission.value}`"
+                :key="`else-${permission.key}`"
                 :class="'sw-users-permissions-permissions-grid__entry_' + permission.key"
                 class="sw-users-permissions-permissions-grid__entry"
             >
@@ -104,7 +104,7 @@
                 {% block sw_users_permissions_permissions_grid_permissions_roles %}
                 <div
                     v-for="role in roles"
-                    :key="`else-${permission.value}${role}`"
+                    :key="`else-${permission.key}${role}`"
                     :class="'sw-users-permissions-permissions-grid__role_' + role"
                     class="sw-users-permissions-permissions-grid__checkbox-wrapper"
                 >

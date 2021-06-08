@@ -1,4 +1,4 @@
-import { shallowMount, Wrapper } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal';
 import 'src/app/component/base/sw-modal';
@@ -6,9 +6,12 @@ import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/form/sw-radio-field';
 
-describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal', () => {
-    let wrapper;
+// Turn off known errors
+import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
+global.allowedErrors = [unknownOptionError];
+
+describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal', () => {
     const classes = {
         componentRoot: 'sw-settings-product-feature-sets__modal',
         optionsContainer: 'sw-settings-product-feature-sets-modal__options',
@@ -48,7 +51,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         };
     }
 
-    const modal = (additionalOptions = {}) => {
+    function createWrapper(additionalOptions = {}) {
         return shallowMount(Shopware.Component.build('sw-settings-product-feature-sets-modal'), {
             stubs: {
                 'sw-modal': true,
@@ -97,46 +100,27 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
             },
             ...additionalOptions
         });
-    };
+    }
 
-    /*
-     * Workaround, since the current vue-test-utils version doesn't support get()
-     *
-     * @see https://vue-test-utils.vuejs.org/api/wrapper/#get
-     */
-    const findSecure = (wrapperEl, findArg) => {
-        const el = wrapperEl.find(findArg);
-
-        if (el instanceof Wrapper) {
-            return el;
-        }
-
-        throw new Error(`Could not find element ${findArg}.`);
-    };
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
 
     it('should be able to instantiate', async () => {
-        wrapper = modal();
+        const wrapper = createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('has the correct class', async () => {
-        wrapper = modal();
+        const wrapper = createWrapper();
 
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
     it('contains the options container', async () => {
-        wrapper = modal(getPageConfig({ showPageOne: true }));
+        const wrapper = createWrapper(getPageConfig({ showPageOne: true }));
 
-        const root = findSecure(wrapper, `.${classes.componentRoot}`);
-        const optionsContainer = findSecure(root, `.${classes.optionsContainer}`);
+        const root = wrapper.get(`.${classes.componentRoot}`);
+        const optionsContainer = root.get(`.${classes.optionsContainer}`);
 
-        expect(optionsContainer.exists()).toBeTruthy();
         expect(optionsContainer.props().options).toHaveLength(4);
 
         // Check wether all possible feature types are shown
@@ -148,9 +132,9 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the custom field list', async () => {
-        wrapper = modal(getPageConfig({ showCustomField: true }));
+        const wrapper = createWrapper(getPageConfig({ showCustomField: true }));
 
-        const root = findSecure(wrapper, `.${classes.componentRoot}`);
+        const root = wrapper.get(`.${classes.componentRoot}`);
 
         [
             classes.customFieldListToolbar,
@@ -158,10 +142,10 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
             classes.customFieldListHeader,
             classes.customFieldList
         ].forEach((className) => {
-            expect(findSecure(root, `.${className}`).exists()).toBeTruthy();
+            root.get(`.${className}`);
         });
 
-        const customFieldListHeader = findSecure(root, `.${classes.customFieldListHeader}`);
+        const customFieldListHeader = root.get(`.${classes.customFieldListHeader}`);
         const customFieldListHeaderContent = customFieldListHeader.findAll(`.${classes.customFieldListCellContent}`);
 
         expect(customFieldListHeaderContent.at(1).text()).toEqual(text.customFieldListNameHeader);
@@ -169,9 +153,9 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the property group list', async () => {
-        wrapper = modal(getPageConfig({ showPropertyGroups: true }));
+        const wrapper = createWrapper(getPageConfig({ showPropertyGroups: true }));
 
-        const root = findSecure(wrapper, `.${classes.componentRoot}`);
+        const root = wrapper.get(`.${classes.componentRoot}`);
 
         [
             classes.propertyListToolbar,
@@ -179,29 +163,29 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
             classes.propertyListHeader,
             classes.propertyList
         ].forEach((className) => {
-            expect(findSecure(root, `.${className}`).exists()).toBeTruthy();
+            root.get(`.${className}`);
         });
 
-        const propertyListHeader = findSecure(root, `.${classes.propertyListHeader}`);
+        const propertyListHeader = root.get(`.${classes.propertyListHeader}`);
         const propertyListHeaderContent = propertyListHeader.findAll(`.${classes.propertyListCellContent}`);
 
         expect(propertyListHeaderContent.at(1).text()).toEqual(text.propertyListNameHeader);
     });
 
     it('contains the product information list', async () => {
-        wrapper = modal(getPageConfig({ showCustomField: true }));
+        const wrapper = createWrapper(getPageConfig({ showCustomField: true }));
 
-        const root = findSecure(wrapper, `.${classes.componentRoot}`);
+        const root = wrapper.get(`.${classes.componentRoot}`);
 
         [
             classes.productInformationListHeader,
             classes.productInformationList,
             classes.productInformationListCellContent
         ].forEach((className) => {
-            expect(findSecure(root, `.${className}`).exists()).toBeTruthy();
+            root.get(`.${className}`);
         });
 
-        const propertyListHeader = findSecure(root, `.${classes.propertyListHeader}`);
+        const propertyListHeader = root.get(`.${classes.propertyListHeader}`);
         const propertyListHeaderContent = propertyListHeader.findAll(`.${classes.propertyListCellContent}`);
 
         expect(propertyListHeaderContent.at(1).text()).toEqual(text.productInformationListNameHeader);

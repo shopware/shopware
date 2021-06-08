@@ -105,13 +105,15 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 }
             },
             stubs: {
-                'sw-page': `
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <div class="smart-bar__actions">
                             <slot name="smart-bar-actions"></slot>
                         </div>
                         <slot name="content"></slot>
-                    </div>`,
+                    </div>`
+                },
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
                 'sw-pagination': true,
                 'sw-data-grid-skeleton': true,

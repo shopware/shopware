@@ -186,12 +186,11 @@
                 {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url %}
                 <div
                     v-for="seoUrl in seoUrls"
-                    :key="seoUrl"
+                    :key="seoUrl.id"
                 >
                     {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
                     <!-- eslint-disable vue/valid-v-model -->
                     <sw-text-field
-                        :key="seoUrl.id"
                         v-model="getSeoUrl(seoUrl)"
                         :label="seoUrl.salesChannel.translated.name"
                         :copyable="true"

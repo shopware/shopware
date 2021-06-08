@@ -1,11 +1,18 @@
 import { config } from '@vue/test-utils';
 import Vue from 'vue';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import '@testing-library/jest-dom';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import failOnConsole from 'jest-fail-on-console';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 
+
 // Setup Vue Test Utils configuration
-config.showDeprecationWarnings = false;
+config.showDeprecationWarnings = true;
 
 // Make common utils available globally as well
 global.Vue = Vue;
@@ -88,3 +95,24 @@ config.mocks = {
     },
     $store: Shopware.State._store,
 };
+
+global.allowedErrors = [];
+
+process.on('unhandledRejection', (err) => {
+    // eslint-disable-next-line no-undef
+    console.error(err);
+});
+
+failOnConsole({
+    silenceMessage: (errorMessage, method) => global.allowedErrors.some(allowedError => {
+        if (allowedError.method !== method) {
+            return false;
+        }
+
+        if (typeof allowedError.msg === 'string') {
+            return errorMessage.includes(allowedError.msg);
+        }
+
+        return allowedError.msg.test(errorMessage);
+    }),
+});

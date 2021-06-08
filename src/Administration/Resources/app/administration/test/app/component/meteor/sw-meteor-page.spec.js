@@ -40,8 +40,8 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         await import('src/app/component/base/sw-tabs-item');
     });
 
-    beforeEach(async () => {
-        wrapper = await createWrapper();
+    beforeEach(() => {
+        wrapper = createWrapper();
     });
 
     afterEach(async () => {
@@ -69,7 +69,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(iconComponent.exists()).toBe(false);
     });
 
-    it('should render the module icon when slot "smart-bar-icon" is not filled', async () => {
+    it('should render the module icon when slot "smart-bar-icon" is not filled', () => {
         const iconComponent = wrapper.find('sw-icon-stub');
         expect(iconComponent.exists()).toBe(true);
         expect(iconComponent.attributes()).toHaveProperty('name');
@@ -88,8 +88,8 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         'smart-bar-actions',
         'smart-bar-context-buttons'
     ].forEach(slotName => {
-        it(`should render the content of the slot "${slotName}"`, async () => {
-            wrapper = await createWrapper({
+        it(`should render the content of the slot "${slotName}"`, () => {
+            wrapper = createWrapper({
                 [slotName]: '<div id="test-slot">This slot works</div>'
             });
 
@@ -100,13 +100,13 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         });
     });
 
-    it('should render the meteor navigation component when the slot "smart-bar-back" is not used', async () => {
+    it('should render the meteor navigation component when the slot "smart-bar-back" is not used', () => {
         const navigationComponent = wrapper.find('sw-meteor-navigation-stub');
         expect(navigationComponent.exists()).toBe(true);
     });
 
-    it('should not render the meteor navigation component when the slot "smart-bar-back" is not used', async () => {
-        wrapper = await createWrapper({
+    it('should not render the meteor navigation component when the slot "smart-bar-back" is not used', () => {
+        wrapper = createWrapper({
             'smart-bar-back': '<div id="test-slot">This slot works</div>'
         });
 
@@ -114,15 +114,15 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(navigationComponent.exists()).toBe(false);
     });
 
-    it('should render the title of the page when slot "smart-bar-header" is not filled', async () => {
+    it('should render the title of the page when slot "smart-bar-header" is not filled', () => {
         const title = wrapper.find('.sw-meteor-page__smart-bar-title');
 
         expect(title.exists()).toBe(true);
         expect(title.text()).toEqual('sw.example.title');
     });
 
-    it('should render the tabs when slot is filled', async () => {
-        wrapper = await createWrapper({
+    it('should render the tabs when slot is filled', () => {
+        wrapper = createWrapper({
             'page-tabs': `
 <sw-tabs-item :route="{ name: 'tab.one' }">
     Tab 1
@@ -149,13 +149,13 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(routerLinksStubs.at(2).text()).toEqual('Tab 3');
     });
 
-    it('should not render the tabs when slot is empty', async () => {
+    it('should not render the tabs when slot is empty', () => {
         const tabsContent = wrapper.find('.sw-tabs__content');
         expect(tabsContent.exists()).toBe(false);
     });
 
-    it('should render the content', async () => {
-        wrapper = await createWrapper({
+    it('should render the content', () => {
+        wrapper = createWrapper({
             default: '<p>Lorem Ipsum</p>'
         });
 

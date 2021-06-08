@@ -41,9 +41,16 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
         []
     ].forEach(domains => {
         it(`should not show any domains: ${domains}`, async () => {
+            const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+
             wrapper = createWrapper({
                 domains
             });
+            if (Array.isArray(domains)) {
+                expect(errorSpy).not.toHaveBeenCalled();
+            } else {
+                expect(errorSpy).toHaveBeenCalled();
+            }
 
             expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(0);
         });

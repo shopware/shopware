@@ -73,7 +73,8 @@ const createWrapper = (privileges = []) => {
             'sw-language-info': true,
             'sw-entity-multi-select': true,
             'sw-field': true,
-            'sw-code-editor': true
+            'sw-code-editor': true,
+            'sw-button': true
         }
     });
 };

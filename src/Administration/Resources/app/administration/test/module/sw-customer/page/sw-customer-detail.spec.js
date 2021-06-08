@@ -41,6 +41,7 @@ function createWrapper(privileges = []) {
             accept: jest.fn().mockResolvedValue(true),
             decline: jest.fn().mockResolvedValue(true)
         },
+        customerValidationService: {},
         systemConfigApiService: {
             getValues: () => Promise.resolve([])
         } },

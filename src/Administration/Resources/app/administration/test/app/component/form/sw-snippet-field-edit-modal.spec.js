@@ -64,6 +64,7 @@ function createWrapper(roles = [], customOptions = {}) {
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-loader': true,
+            'icons-small-default-x-line-medium': true,
             'sw-icon': Shopware.Component.build('sw-icon'),
             'sw-modal': Shopware.Component.build('sw-modal'),
             'sw-button': Shopware.Component.build('sw-button')

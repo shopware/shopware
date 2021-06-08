@@ -93,7 +93,8 @@ function createWrapper(privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve([]) })
-            }
+            },
+            filterFactory: {}
         },
         mocks: {
             $route: { query: '' }

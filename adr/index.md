@@ -1,5 +1,6 @@
 # Architecture Decision Record
 
+*  [2021-06-14 - Introduce jest-fail-on-console for jest tests](2021-06-14-introduce-jest-fail-on-console.md)
 *  [2021-05-28 - Introduce eslint on vue admin](2021-05-28-introduce-eslint-on-vue-admin.md)
 *  [2021-05-14 - When to use plain SQL or DAL](2021-05-14-when-to-use-plain-sql-or-dal.md)
 *  [2021-03-24 - Processing of nested line items](2021-03-24-nested-line-items.md)

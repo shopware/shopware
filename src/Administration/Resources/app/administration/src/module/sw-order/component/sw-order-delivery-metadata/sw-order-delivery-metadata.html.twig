@@ -40,8 +40,12 @@
             />
             {% block sw_order_delivery_metadata_delivery_phone_number %}
             <dt>{{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
-            <dd v-if="delivery.shippingOrderAddress.phoneNumber">{{ delivery.shippingOrderAddress.phoneNumber }}</dd>
-            <dd v-else>{{ $tc('sw-order.detailBase.labelNoPhoneNumber') }}</dd>
+            <dd v-if="delivery.shippingOrderAddress.phoneNumber">
+                {{ delivery.shippingOrderAddress.phoneNumber }}
+            </dd>
+            <dd v-else>
+                {{ $tc('sw-order.detailBase.labelNoPhoneNumber') }}
+            </dd>
             {% endblock %}
         </sw-description-list>
         {% endblock %}

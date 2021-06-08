@@ -1,9 +1,13 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { config, createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-tree';
 import VueRouter from 'vue-router';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
 function createWrapper() {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
     localVue.use(VueRouter);
 

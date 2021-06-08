@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/module/sw-settings-search/page/sw-settings-search';
 import 'src/app/component/base/sw-tabs';
@@ -25,17 +25,23 @@ const mockData = [
     }
 ];
 
+function createWrapper() {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
 
-function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(VueRouter);
     localVue.directive('tooltip', {});
 
     const router = new VueRouter({
         routes: [{
-            name: 'sw.settings.search',
+            name: 'sw.settings.search.index.general',
             path: '/sw/settings/search/index/general',
             component: Shopware.Component.build('sw-settings-search')
+        }, {
+            name: 'sw.settings.search.index.liveSearch',
+            path: '/sw/settings/search/index/live-search/'
         }]
     });
 
@@ -44,44 +50,21 @@ function createWrapper(privileges = []) {
         router,
         provide: {
             repositoryFactory: {
-                // eslint-disable-next-line consistent-return
-                create: (repositoryName) => {
-                    if (repositoryName === 'product_search_config') {
-                        return {
-                            search: () => {
-                                return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData));
-                            },
-
-                            save: (productSearchConfigs) => {
-                                if (productSearchConfigs) {
-                                    return Promise.resolve();
-                                }
-                                return Promise.reject();
-                            },
-
-                            create: jest.fn(() => {
-                                return {};
-                            })
-                        };
-                    }
-
-                    if (repositoryName === 'product_search_config_field') {
-                        return {
-                            create: jest.fn(() => {
-                                return {};
-                            })
-                        };
-                    }
-                }
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                }
+                create: () => ({
+                    search: () => {
+                        return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData));
+                    },
+                    save: (productSearchConfigs) => {
+                        if (!productSearchConfigs) {
+                            // eslint-disable-next-line prefer-promise-reject-errors
+                            return Promise.reject({ error: 'Error' });
+                        }
+                        return Promise.resolve();
+                    },
+                    create: jest.fn(() => {
+                        return {};
+                    })
+                })
             }
         },
 
@@ -125,6 +108,10 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/page/sw-settings-search', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
@@ -133,9 +120,9 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('should not able to save product search config without editor privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.viewer'
-        ]);
+        global.activeAclRoles = ['product_search_config.viewer'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-search__button-save');
@@ -143,9 +130,9 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('should able to save product search config if having editor privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-search__button-save');
@@ -153,9 +140,9 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('onSaveSearchSettings: should call to save function when the save button was clicked', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -170,17 +157,16 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         wrapper.vm.productSearchRepository.save = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.$nextTick();
-        const saveButton = await wrapper.find('.sw-settings-search__button-save');
-        saveButton.trigger('click');
+        await wrapper.get('.sw-settings-search__button-save').trigger('click');
 
         expect(onSaveSearchSettingsSpy).toBeCalled();
         expect(wrapper.vm.productSearchRepository.save).toHaveBeenCalled();
     });
 
     it('should be show successful notification when save configuration is succeed', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -201,9 +187,9 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('should be show error notification when save configuration is failed', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = createWrapper();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
@@ -219,9 +205,9 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('should assign new value when the new language was switch', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.vm.getProductSearchConfigs();
 

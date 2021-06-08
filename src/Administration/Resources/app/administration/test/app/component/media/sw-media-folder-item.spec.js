@@ -85,7 +85,7 @@ function createWrapper(defaultFolderId, privileges = []) {
             'sw-media-base-item': {
                 template: `
                     <div class="sw-media-base-item">
-                        <slot name="context-menu"></slot>
+                        <slot name="context-menu" v-bind="{ startInlineEdit: () => {}}"></slot>
                         <slot></slot>
                     </div>`
             },

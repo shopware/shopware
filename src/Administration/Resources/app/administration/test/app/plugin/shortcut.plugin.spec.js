@@ -31,8 +31,13 @@ const createWrapper = (componentOverride) => {
         ...componentOverride
     };
 
+    const element = document.createElement('div');
+    if (document.body) {
+        document.body.appendChild(element);
+    }
+
     return mount(baseComponent, {
-        attachToDocument: true,
+        attachTo: element,
         localVue
     });
 };
@@ -332,9 +337,13 @@ describe('app/plugins/shortcut.plugin', () => {
                 }
             }
         });
+        const element = document.createElement('div');
+        if (document.body) {
+            document.body.appendChild(element);
+        }
 
         wrapper = await mount(Shopware.Component.build('base-component'), {
-            attachToDocument: true,
+            attachTo: element,
             localVue,
             stubs: {
                 'sw-text-editor': Shopware.Component.build('sw-text-editor'),

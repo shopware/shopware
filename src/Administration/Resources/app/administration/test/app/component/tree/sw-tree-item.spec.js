@@ -26,7 +26,8 @@ function createWrapper(customOptions = {}) {
             'sw-icon': true,
             'sw-field': true,
             'sw-context-button': true,
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
+            'sw-checkbox-field': true
         },
         propsData: {
             item: {
@@ -45,6 +46,10 @@ describe('src/app/component/tree/sw-tree-item', () => {
 
     beforeEach(() => {
         wrapper = createWrapper();
+    });
+
+    afterEach(() => {
+        if (wrapper) wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

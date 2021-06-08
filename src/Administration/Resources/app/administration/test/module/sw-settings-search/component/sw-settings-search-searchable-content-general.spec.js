@@ -5,7 +5,13 @@ import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-skeleton';
 
-function createWrapper(privileges = []) {
+// Turn off known errors
+import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+
+global.allowedErrors.push(missingGetListMethod);
+
+
+function createWrapper() {
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-settings-search-searchable-content-general'), {
@@ -27,15 +33,6 @@ function createWrapper(privileges = []) {
                         return Promise.resolve();
                     }
                 })
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                }
             }
 
         },
@@ -60,6 +57,10 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-general', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
@@ -68,9 +69,9 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('should render empty state when isEmpty variable is true', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.viewer'
-        ]);
+        global.activeAclRoles = ['product_search_config.viewer'];
+
+        const wrapper = createWrapper();
 
         await wrapper.setProps({
             isEmpty: true
@@ -80,26 +81,29 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('should call to reset ranking function when click to reset ranking action', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.onResetRanking = jest.fn();
 
+        const searchConfigs = [
+            {
+                apiAlias: null,
+                createdAt: '2021-01-29T02:18:11.171+00:00',
+                customFieldId: null,
+                field: 'categories.customFields',
+                id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                ranking: 0,
+                searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                searchable: false,
+                tokenize: false
+            }
+        ];
+        searchConfigs.criteria = { page: 1, limit: 25 };
+
         await wrapper.setProps({
-            searchConfigs: [
-                {
-                    apiAlias: null,
-                    createdAt: '2021-01-29T02:18:11.171+00:00',
-                    customFieldId: null,
-                    field: 'categories.customFields',
-                    id: '8bafeb17b2494781ac44dce2d3ecfae5',
-                    ranking: 0,
-                    searchConfigId: '61168b0c1f97454cbee670b12d045d32',
-                    searchable: false,
-                    tokenize: false
-                }
-            ],
+            searchConfigs,
             isLoading: false
         });
         const firstRow = wrapper.find(
@@ -114,25 +118,27 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('should emitted to save-config when call the reset ranking function', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
+        const searchConfigs = [
+            {
+                apiAlias: null,
+                createdAt: '2021-01-29T02:18:11.171+00:00',
+                customFieldId: null,
+                field: 'categories.customFields',
+                id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                ranking: 0,
+                searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                searchable: false,
+                tokenize: false
+            }
+        ];
+        searchConfigs.criteria = { page: 1, limit: 25 };
 
         await wrapper.setProps({
-            searchConfigs: [
-                {
-                    apiAlias: null,
-                    createdAt: '2021-01-29T02:18:11.171+00:00',
-                    customFieldId: null,
-                    field: 'categories.customFields',
-                    id: '8bafeb17b2494781ac44dce2d3ecfae5',
-                    ranking: 0,
-                    searchConfigId: '61168b0c1f97454cbee670b12d045d32',
-                    searchable: false,
-                    tokenize: false
-                }
-            ],
+            searchConfigs,
             isLoading: false
         });
 

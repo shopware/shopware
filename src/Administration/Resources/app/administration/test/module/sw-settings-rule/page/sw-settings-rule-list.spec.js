@@ -87,7 +87,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         expect(contextMenuItemDuplicate.attributes().disabled).toBeUndefined();
     });
 
-    it.only('should have enabled fields for editor', async () => {
+    it('only should have enabled fields for editor', async () => {
         const wrapper = createWrapper([
             'rule.editor'
         ]);

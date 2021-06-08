@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/module/sw-product/page/sw-product-list';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -215,6 +215,10 @@ function getCurrencyData() {
 }
 
 function createWrapper() {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
     localVue.use(VueRouter);
     localVue.filter('currency', (currency) => currency);
@@ -231,6 +235,8 @@ function createWrapper() {
             }
         }]
     });
+
+    router.push({ name: 'sw.product.list' });
 
     return {
         wrapper: shallowMount(Shopware.Component.build('sw-product-list'), {
@@ -390,20 +396,21 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         // sort grid after price ASC
         await currencyColumnHeader.trigger('click');
+
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         const euroCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
         const [firstEuroCell, secondEuroCell] = euroCells.wrappers;
 
-        expect(firstEuroCell.text()).toBe('600');
-        expect(secondEuroCell.text()).toBe('200');
+        expect(firstEuroCell.text()).toBe('200');
+        expect(secondEuroCell.text()).toBe('600');
 
         const poundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
         const [firstPoundCell, secondPoundCell] = poundCells.wrappers;
 
-        expect(firstPoundCell.text()).toBe('400');
-        expect(secondPoundCell.text()).toBe('22');
+        expect(firstPoundCell.text()).toBe('22');
+        expect(secondPoundCell.text()).toBe('400');
 
         const columnHeaders = wrapper.findAll('.sw-data-grid__cell.sw-data-grid__cell--header');
         const poundColumn = columnHeaders.at(6);
@@ -413,11 +420,22 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        const sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
-        const [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells.wrappers;
+        let sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
+        let [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells.wrappers;
 
         expect(firstSortedPoundCell.text()).toBe('22');
         expect(secondSortedPoundCell.text()).toBe('400');
+
+        await poundColumn.trigger('click');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
+        [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells.wrappers;
+
+        expect(firstSortedPoundCell.text()).toBe('400');
+        expect(secondSortedPoundCell.text()).toBe('22');
     });
 
     it('should sort products by name', async () => {

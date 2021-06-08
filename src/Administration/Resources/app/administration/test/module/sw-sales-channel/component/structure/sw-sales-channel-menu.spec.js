@@ -1,15 +1,14 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import flushPromises from 'flush-promises';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/structure/sw-admin-menu-item';
 
-const defaultAdminLanguageId = Shopware.Utils.createId();
+const defaultAdminLanguageId = '6a357734-afe4-4f17-a814-fb89ce9724fc';
 
 const headlessSalesChannel = {
-    id: Shopware.Utils.createId(),
+    id: '342112f7-ba2f-4c73-a63f-82918e67f953',
     active: true,
     domains: [],
     type: {
@@ -22,10 +21,10 @@ const headlessSalesChannel = {
 };
 
 const storeFrontWithStandardDomain = {
-    id: Shopware.Utils.createId(),
+    id: '8106c8da-4528-406e-8b47-dcae65965f6b',
     active: true,
     domains: [{
-        languageId: Shopware.Utils.createId(),
+        languageId: 'ab3e5a76-9e6a-493c-bc6c-117563976bcc',
         url: 'http://shop/custom-language'
     }, {
         languageId: Shopware.Defaults.systemLanguageId,
@@ -41,10 +40,10 @@ const storeFrontWithStandardDomain = {
 };
 
 const storefrontWithoutDefaultDomain = {
-    id: Shopware.Utils.createId(),
+    id: '0a660a4e-c1c8-4de7-a1cf-bd7a9c9886fa',
     active: true,
     domains: [{
-        languageId: Shopware.Utils.createId(),
+        languageId: 'f084d9e0-cba4-4c42-bf99-3994e8fce125',
         url: 'http://shop/custom-language'
     }, {
         languageId: defaultAdminLanguageId,
@@ -60,7 +59,7 @@ const storefrontWithoutDefaultDomain = {
 };
 
 const storefrontWithoutDomains = {
-    id: Shopware.Utils.createId(),
+    id: '613cc4f6-1ace-4fbf-867a-e4b2ade87203',
     active: true,
     domains: [],
     type: {
@@ -73,10 +72,10 @@ const storefrontWithoutDomains = {
 };
 
 const inactiveStorefront = {
-    id: Shopware.Utils.createId(),
+    id: 'a9237944-c347-4583-88b9-6d00719baff6',
     active: false,
     domains: [{
-        languageId: Shopware.Utils.createId(),
+        languageId: '14383ce0-d2b6-4c44-94a7-cf71b42fa35a',
         url: 'http://shop/custom-language'
     }, {
         languageId: defaultAdminLanguageId,
@@ -92,6 +91,10 @@ const inactiveStorefront = {
 };
 
 function createWrapper(salesChannels = [], privileges = []) {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
     localVue.use(VueRouter);
 
@@ -198,8 +201,10 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
             inactiveStorefront
         ];
 
-        const wrapper = await createWrapper(testSalesChannels);
-        await flushPromises();
+        const wrapper = createWrapper(testSalesChannels);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const salesChannelItems = wrapper.findAll('.sw-admin-menu__sales-channel-item');
 
@@ -207,8 +212,10 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
     });
 
     it('It does not add a link to sales channel for non storefront sales channel', async () => {
-        const wrapper = await createWrapper([headlessSalesChannel]);
-        await flushPromises();
+        const wrapper = createWrapper([headlessSalesChannel]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
@@ -219,8 +226,10 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
     it('should use link to default language if exists', async () => {
         window.open = jest.fn();
 
-        const wrapper = await createWrapper([storeFrontWithStandardDomain]);
-        await flushPromises();
+        const wrapper = createWrapper([storeFrontWithStandardDomain]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         const domainLinkButton = salesChannelMenuEntry.get('button.sw-sales-channel-menu-domain-link');
@@ -235,8 +244,10 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
     it('prefers link to domain with actual admin language over others', async () => {
         window.open = jest.fn();
 
-        const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
-        await flushPromises();
+        const wrapper = createWrapper([storefrontWithoutDefaultDomain]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         const domainLinkButton = salesChannelMenuEntry.get('button.sw-sales-channel-menu-domain-link');
@@ -252,8 +263,10 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
         window.open = jest.fn();
         Shopware.State.get('session').languageId = Shopware.Utils.createId();
 
-        const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
-        await flushPromises();
+        const wrapper = createWrapper([storefrontWithoutDefaultDomain]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         const domainLinkButton = salesChannelMenuEntry.get('button.sw-sales-channel-menu-domain-link');
@@ -266,8 +279,10 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
     });
 
     it('does not pick a storefront domain if there is none', async () => {
-        const wrapper = await createWrapper([storefrontWithoutDomains]);
-        await flushPromises();
+        const wrapper = createWrapper([storefrontWithoutDomains]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
@@ -276,8 +291,10 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
     });
 
     it('does not show a storefront domain if storefront is not active', async () => {
-        const wrapper = await createWrapper([inactiveStorefront]);
-        await flushPromises();
+        const wrapper = createWrapper([inactiveStorefront]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);

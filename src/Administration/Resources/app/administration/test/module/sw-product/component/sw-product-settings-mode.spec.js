@@ -30,7 +30,8 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
                 'sw-context-menu-divider': true,
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': true
+                'sw-field-error': true,
+                'sw-loader': true
             },
 
             propsData: {

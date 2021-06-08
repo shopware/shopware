@@ -182,6 +182,7 @@
             v-if="!isProductComparison"
             :sales-channel="salesChannel"
             property-name="paymentMethods"
+            :criteria="paymentMethodCriteria"
             :property-label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
             default-property-name="paymentMethodId"
             :disabled="!acl.can('sales_channel.editor')"

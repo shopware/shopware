@@ -59,7 +59,7 @@ class ListAddressRoute extends AbstractListAddressRoute
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/customer_address_flat"))
      *     )
      * )
-     * @LoginRequired()
+     * @LoginRequired(allowGuest=true)
      * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"})
      */
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse

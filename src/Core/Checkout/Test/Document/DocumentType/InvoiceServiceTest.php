@@ -150,6 +150,25 @@ class InvoiceServiceTest extends TestCase
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
         static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+
+        $deLanguageId = $this->getDeDeLanguageId();
+        $order->setLanguageId($deLanguageId);
+
+        $processedTemplate = $invoiceService->generate(
+            $order,
+            $documentConfiguration,
+            $context
+        );
+
+        static::assertStringContainsString(
+            preg_replace('/\xc2\xa0/', ' ', $this->currencyFormatter->formatCurrencyByLanguage(
+                $order->getAmountTotal(),
+                $order->getCurrency()->getIsoCode(),
+                $deLanguageId,
+                $context
+            )),
+            preg_replace('/\xc2\xa0/', ' ', $processedTemplate)
+        );
     }
 
     public function testGenerateWithShippingAddress(): void

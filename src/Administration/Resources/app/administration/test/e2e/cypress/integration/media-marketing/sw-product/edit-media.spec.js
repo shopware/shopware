@@ -27,6 +27,7 @@ describe('Product: Edit product media', () => {
             }).as('saveProduct');
 
         // Open product
+        cy.get('.sw-product-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
@@ -101,6 +102,7 @@ describe('Product: Edit product media', () => {
             }).as('saveProduct');
 
         // Open product
+        cy.get('.sw-product-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,

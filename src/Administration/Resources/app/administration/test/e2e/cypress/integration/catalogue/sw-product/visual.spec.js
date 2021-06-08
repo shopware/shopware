@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
@@ -36,6 +36,7 @@ describe('Product: Visual tests', () => {
             method: 'post'
         }).as('getData');
 
+        cy.get('.sw-product-list-grid').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/product/index',
             mainMenuId: 'sw-catalogue',
@@ -64,6 +65,7 @@ describe('Product: Visual tests', () => {
     it('@visual: check appearance of basic product pricing', () => {
         const page = new ProductPageObject();
 
+        cy.get('.sw-product-list-grid').should('be.visible');
         // Edit base data of product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -87,6 +89,8 @@ describe('Product: Visual tests', () => {
 
     it('@catalogue @percy: check product property appearance', () => {
         const page = new ProductPageObject();
+
+        cy.get('.sw-product-list-grid').should('be.visible');
 
         // Edit base data of product
         cy.clickContextMenuItem(
@@ -117,6 +121,9 @@ describe('Product: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
+
+
+        cy.get('.sw-product-list-grid').should('be.visible');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
@@ -185,7 +192,11 @@ describe('Product: Visual tests', () => {
         });
 
         // Open product and add cross selling
+
+
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-product-list-grid').should('be.visible');
+
         cy.contains('Original product').click();
 
         cy.get('.sw-product-detail__tab-cross-selling').click();

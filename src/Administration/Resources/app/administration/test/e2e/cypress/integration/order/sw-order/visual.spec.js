@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
 
@@ -8,7 +8,7 @@ describe('Order: Visual tests', () => {
         cy.setToInitialState().then(() => {
             return cy.setShippingMethodInSalesChannel('Standard');
         }).then(() => {
-                return cy.createProductFixture();
+            return cy.createProductFixture();
         }).then(() => {
             return cy.searchViaAdminApi({
                 endpoint: 'product',
@@ -17,9 +17,10 @@ describe('Order: Visual tests', () => {
                     value: 'Product name'
                 }
             });
-        }).then((result) => {
-            return cy.createGuestOrder(result.id);
-        });
+        })
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            });
     });
 
     beforeEach(() => {
@@ -28,7 +29,7 @@ describe('Order: Visual tests', () => {
             const now = new Date(2018, 1, 1);
             cy.clock(now);
         }).then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
         });
     });
 
@@ -41,6 +42,7 @@ describe('Order: Visual tests', () => {
             method: 'post'
         }).as('getData');
 
+        cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/order/index',
             mainMenuId: 'sw-order',
@@ -118,7 +120,7 @@ describe('Order: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');
-        cy.contains('.sw-button', 'Add order'). click();
+        cy.contains('.sw-button', 'Add order').click();
 
 
         cy.get('.sw-loader').should('not.exist');

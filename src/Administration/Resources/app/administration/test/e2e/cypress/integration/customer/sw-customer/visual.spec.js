@@ -56,6 +56,7 @@ describe('Customer:  Visual test', () => {
             method: 'post'
         }).as('getData');
 
+        cy.get('.sw-customer-list').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/customer/index',
             mainMenuId: 'sw-customer',

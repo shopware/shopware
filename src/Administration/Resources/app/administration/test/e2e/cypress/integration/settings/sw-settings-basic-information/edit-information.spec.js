@@ -159,5 +159,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2 .sw-settings-captcha-select-v2__google-recaptcha-v3')
             .should('be.visible');
+        cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3-description').should('be.visible');
+
     });
 });

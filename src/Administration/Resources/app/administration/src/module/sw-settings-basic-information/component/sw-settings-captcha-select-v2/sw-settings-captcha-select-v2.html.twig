@@ -18,6 +18,20 @@
         class="sw-settings-captcha-select-v2__google-recaptcha-v2"
     >
 
+        {% block sw_settings_captcha_select_v2_google_recaptcha_v2_description %}
+        <p class="sw-settings-captcha-select-v2__description
+                  sw-settings-captcha-select-v2__google-recaptcha-v2-description"
+        >
+            {{ $tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2CheckboxDescription') }}
+        </p>
+
+        <p class="sw-settings-captcha-select-v2__description
+                  sw-settings-captcha-select-v2__google-recaptcha-v2-description"
+        >
+            {{ $tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2InvisibleDescription') }}
+        </p>
+        {% endblock %}
+
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_site_key %}
         <sw-text-field
             v-model="currentValue.googleReCaptchaV2.config.siteKey"
@@ -52,7 +66,16 @@
         class="sw-settings-captcha-select-v2__google-recaptcha-v3"
     >
 
+        {% block sw_settings_captcha_select_v2_google_recaptcha_v3_description %}
+        <p class="sw-settings-captcha-select-v2__description
+                  sw-settings-captcha-select-v2__google-recaptcha-v3-description"
+        >
+            {{ $tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3Description') }}
+        </p>
+        {% endblock %}
+
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_site_key %}
+
         <sw-text-field
             v-model="currentValue.googleReCaptchaV3.config.siteKey"
             name="googleReCaptchaV3SiteKey"
@@ -73,6 +96,7 @@
             v-model="currentValue.googleReCaptchaV3.config.thresholdScore"
             name="googleReCaptchaV3ThresholdScore"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3ThresholdScore')"
+            :helpText="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3DescriptionThresholdScore')"
         />
         {% endblock %}
 

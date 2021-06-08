@@ -2,7 +2,7 @@ import template from './sw-flow-detail-general.html.twig';
 import './sw-flow-detail-general.scss';
 
 const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 Component.register('sw-flow-detail-general', {
     template,
@@ -10,10 +10,6 @@ Component.register('sw-flow-detail-general', {
     inject: ['acl'],
 
     props: {
-        flow: {
-            type: Object,
-            required: true,
-        },
         isLoading: {
             type: Boolean,
             required: false,
@@ -58,6 +54,7 @@ Component.register('sw-flow-detail-general', {
             ];
         },
 
+        ...mapState('swFlowState', ['flow']),
         ...mapPropertyErrors('flow', ['name']),
     },
 });

@@ -1,10 +1,8 @@
 @import "~scss/variables";
 
-.sw-flow-trigger {
-    &__select-field .sw-block-field__block input {
-        text-transform: capitalize;
-    }
+$sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
+.sw-flow-trigger {
     &__tree-selection {
         width: 100%;
 
@@ -13,17 +11,16 @@
             max-width: 274px;
         }
 
-        .sw-tree-item .sw-tree-item__label {
-            text-transform: capitalize;
-        }
+        .sw-tree-item {
+            &.is--no-children {
+                .sw-tree-item__element {
+                    cursor: pointer;
+                }
+            }
 
-        .sw-tree-item__children .sw-tree-item__content {
-            cursor: pointer;
-        }
-
-        .sw-tree-item__children .sw-tree-item__element {
-            display: flex;
-            justify-content: start;
+            .sw-tree-item__label {
+                text-transform: capitalize;
+            }
         }
 
         .sw-tree-item__children .sw-tree-item__element .sw-tree-item__icon {
@@ -48,7 +45,56 @@
         box-shadow: 0 1px 6px 0 lighten($color-darkgray-200, 30%);
     }
 
-    .sw-flow-trigger__select-field {
+    .sw-flow-trigger__search-field {
         margin-bottom: 0;
+    }
+
+    &__search-field .sw-block-field__block input {
+        text-transform: capitalize;
+    }
+
+    &__search-results {
+        padding: 12px;
+        max-height: 600px;
+        overflow: auto;
+
+        li.sw-flow-trigger__search-result {
+            transition: background-color 0.1s ease;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            padding: 0 12px 10px 12px;
+            border-radius: $border-radius-default;
+        }
+
+        li.sw-flow-trigger__search-result:hover {
+            background-color: lighten($color-shopware-brand-500, 40);
+        }
+
+        li .sw-flow-trigger__search-result-icon {
+            margin-right: 12px;
+        }
+
+        li .sw-flow-trigger__search-result-name {
+            font-size: $font-size-small;
+            padding-top: 3px;
+        }
+    }
+
+    &__empty {
+        padding: 12px;
+    }
+
+    // Vue.js transitions
+    .sw-flow-trigger__fade-down-enter-active,
+    .sw-flow-trigger__fade-down-leave-active {
+        transition: $sw-flow-trigger-transition-results;
+        transform: translateY(0);
+    }
+
+    .sw-flow-trigger__fade-down-enter,
+    .sw-flow-trigger__fade-down-leave-to {
+        transform: translateY(-8px);
+        opacity: 0;
     }
 }

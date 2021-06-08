@@ -35,24 +35,29 @@
       "trigger": {
         "name": "Trigger",
         "placeholder": "Select a start trigger...",
-        "title": "Select a start trigger",
-        "helpText": "Triggers are used to start flows. After selecting a trigger you can either further define the trigger by adding an IF statement or directly add an action that should be executed then the trigger has been trigggerd."
+        "title": "Trigger auswählen",
+        "helpText": "Triggers werden benutzt, um einen Ablauf zu beginnen. Nachdem Du einen Trigger ausgewählt hast, hast Du die Möglichkeit Bedingungen hinzuzufügen, um den Trigger zu verfeinern oder Aktionen hinzuzufügen, die mit diesem Trigger ausgelöst werden.",
+        "textNoEvent": "No events found"
       },
       "sequence": {
-        "selectorTitle": "Add IF condition or THEN action",
-        "selectorTitleTrueAction": "True action or condition",
-        "selectorTitleFalseAction": "False action or condition",
-        "selectorHelpText": "Conditions are used to filter down the flow. Conditions are made with the Rule Builder and will give out a true or false.<br/><br/>Actions can be used to send emails, create a documents or add tags. Actions can both be used when a condition is true or false.",
-        "selectorIfCondition": "Add IF condition",
-        "selectorThenAction": "Add THEN action",
-        "conditionTitle": "If",
-        "conditionExplainsTitle": "Select a rule or create a new one",
-        "conditionExplainsDescription": "Conditions are build with the Rule Builder. You can either select an existing rule or build your own rule that starts with one of the selectors that are defined by the Flow trigger.",
-        "actionTitle": "Then",
+        "selectorTitle": "Bedingung oder Aktion hinzufügen",
+        "selectorHelpTextTrueCondition": "Diese Aktion oder Bedingung wird angewendet, wenn der Ausdruck auf der linken Seite \"wahr\" ist.",
+        "selectorHelpTextFalseCondition": " Diese Aktion oder Bedingung wird angewendet, wenn der obere Ausdruck \"falsch\" ist.",
+        "selectorHelpText": "Bedingungen werden verwendet, um einen Ablauf zu verfeinern und können entweder \"wahr\" oder \"falsch\" werden. Aktionen können verwendet werden, um E-Mails zu versenden, Dokumente zu erstellen oder Tags hinzuzufügen. Sie können sowohl bei \"wahren\" als auch \"falschen\" Bedingungen ausgeführt werden.",
+        "selectorTitleAddSequence": "Neue Sequenz hinzufügen",
+        "selectorHelpTextAddSequence": "Abläufe werden durch einen einzigen Trigger ausgelöst, können aber aus mehreren Sequenzen bestehen.<br/><br/> Sequenzen werden nacheinander ausgeführt. Ein Ablauf kann jederzeit durch die Verwendung der \"Stop\" beendet werden.",
+        "selectorIfCondition": "Bedingung (FALLS) hinzufügen",
+        "selectorThenAction": "Aktion (DANN) hinzufügen",
+        "conditionTitle": "Bedingung (FALLS)",
+        "conditionExplainsTitle": "Bedingung erstellen",
+        "conditionExplainsDescription": "Bedingungen werden im Rule Builder erstellt. Du kannst entwender eine vorhandene Regel auswählen oder eine neue Regel erstellen, um die Bedingung für diesen Ablauf einzurichten",
+        "actionTitle": "Aktion (DANN)",
         "contextButton": {
-          "deleteIfCondition": "Delete IF condition",
-          "deleteThenAction": "Delete THEN action"
+          "deleteCondition": "Bedingung löschen",
+          "deleteActionContainer": "Aktions-Container löschen"
         },
+        "labelTrue": "Wahr",
+        "labelFalse": "Falsch",
         "noActions": "No actions added yet",
         "noRule": "No rule defined yet"
       }
@@ -67,7 +72,8 @@
       "messageSaveSuccess": "The flow wurde erfolgreich gespeichert.",
       "messageSaveError": "The flow konnte nicht gespeichert werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
-      "messageRequiredEventName": "Please choose trigger event before save."
+      "messageRequiredEventName": "Wähle bitte ein Trigger-Ereignis vor dem Speichern.",
+      "messageRequiredEmptyFields": "Wähle bitte eine Regel oder Aktion vor dem Speichern."
     },
     "actions": {
       "addTag": "Add tag",
@@ -77,12 +83,15 @@
       "sendEmail": "Send email",
       "setStatus": "Set status",
       "stopFlow": "Stop flow",
+      "textStopFlowDescription": "Nachfolgende Aktionen/Sequenzen werden nicht ausgeführt.",
       "contextButton": {
         "editAction": "Edit action",
         "deleteAction": "Delete action"
-      }
+      },
+      "addAction": "Aktion hinzufügen"
     },
     "rule": {
+      "addRule": "Regel hinzufügen",
       "createNewRule": "Create new rule",
       "contextButton": {
         "editRule": "Edit rule",

@@ -1,3 +1,13 @@
+@import "~scss/variables";
+
 .sw-flow-sequence {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: max-content;
+    width: min-content;
+
+    &__true-block {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+    }
 }

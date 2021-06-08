@@ -1,8 +1,15 @@
-import { shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import 'src/module/sw-flow/view/detail/sw-flow-detail-general';
 
+import Vuex from 'vuex';
+import flowState from 'src/module/sw-flow/state/flow.state';
+
 function createWrapper(privileges = []) {
+    const localVue = createLocalVue();
+    localVue.use(Vuex);
+
     return shallowMount(Shopware.Component.build('sw-flow-detail-general'), {
+        localVue,
         provide: { repositoryFactory: {
             create: () => ({
                 create: () => {
@@ -28,21 +35,22 @@ function createWrapper(privileges = []) {
             'sw-textarea-field': true,
             'sw-container': true,
             'sw-switch-field': true
-        },
-        propsData: {
-            flow: {
-                name: 'Flow create new Order'
-            }
         }
     });
 }
 
+enableAutoDestroy(afterEach);
+
 describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('swFlowState', flowState);
+    });
+
     it('should enabled element when have privilege', async () => {
         const wrapper = createWrapper([
             'flow.editor'
         ]);
-        await wrapper.vm.$nextTick();
+
         const elementClasses = [
             '.sw-flow-detail-general__general-name',
             '.sw-flow-detail-general__general-description',

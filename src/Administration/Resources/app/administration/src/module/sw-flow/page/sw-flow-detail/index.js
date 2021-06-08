@@ -1,6 +1,11 @@
 import template from './sw-flow-detail.html.twig';
+import './sw-flow-detail.scss';
+import flowState from '../../state/flow.state';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Mixin, Context, State } = Shopware;
+const { Criteria } = Shopware.Data;
+const { ShopwareError } = Shopware.Classes;
+const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-flow-detail', {
     template,
@@ -27,7 +32,6 @@ Component.register('sw-flow-detail', {
         return {
             isLoading: false,
             isSaveSuccessful: false,
-            flow: {},
         };
     },
 
@@ -39,6 +43,20 @@ Component.register('sw-flow-detail', {
         isNewFlow() {
             return !this.flowId;
         },
+
+        flowCriteria() {
+            const criteria = new Criteria();
+            criteria.getAssociation('sequences')
+                .addSorting(Criteria.sort('parentId', 'ASC'))
+                .addSorting(Criteria.sort('trueCase', 'ASC'))
+                .addSorting(Criteria.sort('position', 'ASC'))
+                .addSorting(Criteria.sort('displayGroup', 'ASC'));
+
+            return criteria;
+        },
+
+        ...mapState('swFlowState', ['flow']),
+        ...mapGetters('swFlowState', ['sequences']),
     },
 
     watch: {
@@ -47,12 +65,24 @@ Component.register('sw-flow-detail', {
         },
     },
 
+    beforeCreate() {
+        State.registerModule('swFlowState', flowState);
+    },
+
     created() {
-        this.createComponent();
+        this.createdComponent();
+    },
+
+    beforeDestroy() {
+        this.beforeDestroyComponent();
     },
 
     methods: {
-        createComponent() {
+        beforeDestroyComponent() {
+            State.unregisterModule('swFlowState', flowState);
+        },
+
+        createdComponent() {
             if (this.flowId) {
                 this.getDetailFlow();
                 return;
@@ -72,15 +102,17 @@ Component.register('sw-flow-detail', {
         },
 
         createNewFlow() {
-            this.flow = this.flowRepository.create(Context.api);
-            this.flow.priority = 0;
+            const flow = this.flowRepository.create(Context.api);
+            flow.priority = 0;
+
+            State.commit('swFlowState/setFlow', flow);
         },
 
         getDetailFlow() {
             this.isLoading = true;
-            this.flowRepository.get(this.flowId)
+            return this.flowRepository.get(this.flowId, Context.api, this.flowCriteria)
                 .then((data) => {
-                    this.flow = data;
+                    State.commit('swFlowState/setFlow', data);
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -94,21 +126,54 @@ Component.register('sw-flow-detail', {
 
         onSave() {
             if (!this.flow.eventName) {
+                Shopware.State.dispatch('error/addApiError',
+                    {
+                        expression: `flow.${this.flow.id}.eventName`,
+                        error: new ShopwareError({
+                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        }),
+                    });
+
                 this.createNotificationWarning({
                     message: this.$tc('sw-flow.flowNotification.messageRequiredEventName'),
                 });
 
-                return;
+                return null;
+            }
+
+            // Remove selector sequence type before saving
+            this.removeAllSelectors();
+
+            // Validate condition sequence which has empty rule or action sequence has empty action name
+            const invalidSequences = this.validateEmptySequence();
+
+            if (invalidSequences.length) {
+                this.createNotificationWarning({
+                    message: this.$tc('sw-flow.flowNotification.messageRequiredEmptyFields'),
+                });
+
+                return null;
             }
 
             this.isSaveSuccessful = false;
             this.isLoading = true;
-            this.flowRepository.save(this.flow)
+
+            return this.flowRepository.save(this.flow)
                 .then(() => {
-                    this.isSaveSuccessful = true;
+                    if (typeof this.flow.isNew === 'function' && this.flow.isNew()) {
+                        this.$router.push({
+                            name: 'sw.flow.detail',
+                            params: { id: this.flow.id },
+                        });
+                    } else {
+                        this.getDetailFlow();
+                    }
+
                     this.createNotificationSuccess({
                         message: this.$tc('sw-flow.flowNotification.messageSaveSuccess'),
                     });
+
+                    this.isSaveSuccessful = true;
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -123,11 +188,28 @@ Component.register('sw-flow-detail', {
         saveFinish() {
             this.isLoading = false;
             this.isSaveSuccessful = false;
+        },
 
-            this.$router.push({
-                name: 'sw.flow.detail',
-                params: { id: this.flow.id },
+        removeAllSelectors() {
+            const newSequences = this.sequences.filter(sequence => {
+                return sequence.ruleId !== null || sequence.actionName !== null;
             });
+
+            State.commit('swFlowState/setSequences', newSequences);
+        },
+
+        validateEmptySequence() {
+            const invalidSequences = this.sequences.reduce((result, sequence) => {
+                if (sequence.ruleId === '' || sequence.actionName === '') {
+                    result.push(sequence.id);
+                }
+
+                return result;
+            }, []);
+
+            State.commit('swFlowState/setInvalidSequences', invalidSequences);
+
+            return invalidSequences;
         },
     },
 });

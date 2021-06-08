@@ -35,24 +35,29 @@
       "trigger": {
         "name": "Trigger",
         "placeholder": "Select a start trigger...",
-        "title": "Select a start trigger",
-        "helpText": "Triggers are used to start flows. After selecting a trigger you can either further define the trigger by adding an IF statement or directly add an action that should be executed then the trigger has been trigggerd."
+        "title": "Select a trigger",
+        "helpText": "Triggers are used to begin a flow. After selecting a trigger you will be given the chance to add conditions to refine the trigger or add actions to be executed with the trigger.",
+        "textNoEvent": "No events found"
       },
       "sequence": {
-        "selectorTitle": "Add IF condition or THEN action",
-        "selectorTitleTrueAction": "True action or condition",
-        "selectorTitleFalseAction": "False action or condition",
-        "selectorHelpText": "Conditions are used to filter down the flow. Conditions are made with the Rule Builder and will give out a true or false.<br/><br/>Actions can be used to send emails, create a documents or add tags. Actions can both be used when a condition is true or false.",
-        "selectorIfCondition": "Add IF condition",
-        "selectorThenAction": "Add THEN action",
-        "conditionTitle": "If",
-        "conditionExplainsTitle": "Select a rule or create a new one",
-        "conditionExplainsDescription": "Conditions are build with the Rule Builder. You can either select an existing rule or build your own rule that starts with one of the selectors that are defined by the Flow trigger.",
-        "actionTitle": "Then",
+        "selectorTitle": "Add condition or action",
+        "selectorHelpTextTrueCondition": "This action or condition is applied if the expression on the left is \"true\".",
+        "selectorHelpTextFalseCondition": "This action or condition is applied if the expression above is \"false\".",
+        "selectorHelpText": "Conditions are used to refine a flow and can either become \"true\" or \"false\".<br/><br/>Actions can be used to send emails, create documents or add tags. They can be executed on \"true\" as well as \"false\" conditions.",
+        "selectorTitleAddSequence": "Add new sequence",
+        "selectorHelpTextAddSequence": "Flows are started by a single trigger, but can consist of multiple sequences.<br/><br/>Sequences will be executed one after the other. You can end a flow at any stage by adding a \"stop\" action.",
+        "selectorIfCondition": "Add condition (IF)",
+        "selectorThenAction": "Add action (THEN)",
+        "conditionTitle": "Condition (IF)",
+        "conditionExplainsTitle": "Create conditions",
+        "conditionExplainsDescription": "Conditions are made using the Rule Builder. You can either select an existing rule or create a new one to set up this flow's condition.",
+        "actionTitle": "Action (THEN)",
         "contextButton": {
-          "deleteIfCondition": "Delete IF condition",
-          "deleteThenAction": "Delete THEN action"
+          "deleteCondition": "Delete condition",
+          "deleteActionContainer": "Delete action container"
         },
+        "labelTrue": "True",
+        "labelFalse": "False",
         "noActions": "No actions added yet",
         "noRule": "No rule defined yet"
       }
@@ -67,7 +72,8 @@
       "messageSaveSuccess": "The flow has been saved.",
       "messageSaveError": "The flow could not be saved.",
       "messageError": "An error occurred.",
-      "messageRequiredEventName": "Please choose trigger event before save."
+      "messageRequiredEventName": "Please choose trigger event before save.",
+      "messageRequiredEmptyFields": "Please select a rule or action name before save."
     },
     "actions": {
       "addTag": "Add tag",
@@ -77,12 +83,15 @@
       "sendEmail": "Send email",
       "setStatus": "Set status",
       "stopFlow": "Stop flow",
+      "textStopFlowDescription": "Subsequent actions/ sequences will not be executed.",
       "contextButton": {
         "editAction": "Edit action",
         "deleteAction": "Delete action"
-      }
+      },
+      "addAction": "Add action"
     },
     "rule": {
+      "addRule": "Add rule",
       "createNewRule": "Create new rule",
       "contextButton": {
         "editRule": "Edit rule",

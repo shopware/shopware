@@ -10,19 +10,32 @@ Component.register('sw-flow-sequence', {
         sequence: {
             type: Object,
             required: true,
-            default() {
-                return {};
-            },
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
-    methods: {
-        addIfCondition() {
-            this.sequence.ruleId = '';
+    computed: {
+        sequenceData() {
+            const values = Object.values(this.sequence);
+
+            // Check if the current sequence is a root sequence or an action list sequence
+            if (this.sequence.id || values.length > 1) {
+                return this.sequence;
+            }
+
+            return values[0];
         },
 
-        addThenAction() {
-            this.sequence.actionName = '';
+        isSelectorSequence() {
+            return this.sequenceData.actionName === null && this.sequenceData.ruleId === null;
+        },
+
+        isConditionSequence() {
+            return this.sequenceData.ruleId || this.sequenceData.ruleId === '';
         },
     },
 });

@@ -3,7 +3,7 @@
     {% block sw_flow_sequence_selector_title %}
     <div class="sw-flow-sequence-selector__title">
         <slot name="title">
-            <h3>{{ $tc('sw-flow.detail.sequence.selectorTitle') }}</h3>
+            <h3>{{ title }}</h3>
         </slot>
     </div>
     {% endblock %}
@@ -11,7 +11,7 @@
     {% block sw_flow_sequence_selector_help_text %}
     <div class="sw-flow-sequence-selector__help-text">
         <slot name="helpText">
-            <p v-html="$tc('sw-flow.detail.sequence.selectorHelpText')"></p>
+            <p v-html="helpText"></p>
         </slot>
     </div>
     {% endblock %}
@@ -20,7 +20,8 @@
     <div class="sw-flow-sequence-selector__actions">
         {% block sw_flow_sequence_selector_if_condition %}
         <sw-button
-            class="sw-flow-sequence-selector__if-condition"
+            class="sw-flow-sequence-selector__add-condition"
+            :disabled="disabled"
             @click="addIfCondition"
         >
 
@@ -37,7 +38,8 @@
 
         {% block sw_flow_sequence_selector_then_action %}
         <sw-button
-            class="sw-flow-sequence-selector__then-action"
+            class="sw-flow-sequence-selector__add-action"
+            :disabled="disabled"
             @click="addThenAction"
         >
 

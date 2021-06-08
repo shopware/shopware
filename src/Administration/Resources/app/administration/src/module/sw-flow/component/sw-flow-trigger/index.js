@@ -2,6 +2,7 @@ import template from './sw-flow-trigger.html.twig';
 import './sw-follow-trigger.scss';
 
 const { Component } = Shopware;
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 Component.register('sw-flow-trigger', {
     template,
@@ -36,7 +37,9 @@ Component.register('sw-flow-trigger', {
     data() {
         return {
             events: [],
-            displayTree: false,
+            isExpanded: false,
+            searchTerm: '',
+            searchResult: [],
         };
     },
 
@@ -45,28 +48,50 @@ Component.register('sw-flow-trigger', {
             return { overlay: this.overlay };
         },
 
-        getEventName: {
-            get() {
-                if (!this.eventName) {
-                    return this.eventName;
-                }
+        formatEventName() {
+            if (!this.eventName) {
+                return this.eventName;
+            }
 
-                return this.eventName.replace(/\./g, ' / ').replace(/-|_|\./g, ' ');
-            },
-
-            set(newValue) {
-                return newValue;
-            },
+            return this.getEventName(this.eventName);
         },
+
+        showTreeView() {
+            return this.eventTree.length >= 0
+                && (this.searchTerm.length <= 0 || this.searchTerm === this.formatEventName);
+        },
+
+        eventTree() {
+            return this.getEventsTree(this.events);
+        },
+
+        ...mapState('swFlowState', ['flow']),
+        ...mapPropertyErrors('flow', ['eventName']),
     },
 
     watch: {
-        eventName(value) {
-            if (!value) {
+        eventName: {
+            immediate: true,
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.$route.params.eventName = value;
+                this.searchTerm = this.getEventName(value);
+            },
+        },
+
+        searchTerm(value) {
+            if (!value || value === this.formatEventName) {
                 return;
             }
 
-            this.$route.params.eventName = value;
+            const keyWords = value.split(/[\W_]+/ig);
+
+            this.searchResult = this.events.filter(event => {
+                return keyWords.every(key => event.name.includes(key.toLowerCase()));
+            });
         },
     },
 
@@ -84,11 +109,6 @@ Component.register('sw-flow-trigger', {
             document.addEventListener('keyup', this.closeOnClickOutside);
 
             this.openInitialTree();
-
-            if (this.eventName) {
-                // open tree
-                this.$route.params.eventName = this.eventName;
-            }
         },
 
         destroyedComponent() {
@@ -103,8 +123,13 @@ Component.register('sw-flow-trigger', {
 
             const target = event.target;
 
-            if (target.closest('.sw-tree-item__children')) {
-                this.displayTree = false;
+            if (target.closest('.sw-tree-item .is--no-children .sw-tree-item__content')) {
+                this.isExpanded = false;
+                return;
+            }
+
+            if (target.closest('.sw-flow-trigger__search-result')) {
+                this.isExpanded = false;
                 return;
             }
 
@@ -113,16 +138,16 @@ Component.register('sw-flow-trigger', {
                     return;
                 }
 
-                this.displayTree = false;
+                this.isExpanded = false;
+
+                if (this.searchTerm !== this.formatEventName) {
+                    this.searchTerm = this.formatEventName;
+                }
             }
         },
 
         onFocusTrigger() {
-            this.showTree();
-        },
-
-        showTree() {
-            this.displayTree = true;
+            this.isExpanded = true;
         },
 
         changeTrigger(item) {
@@ -137,7 +162,7 @@ Component.register('sw-flow-trigger', {
 
         openInitialTree() {
             this.getBusinessEvents().then(events => {
-                this.events = this.getEventsTree(events);
+                this.events = events;
             });
         },
 
@@ -214,6 +239,28 @@ Component.register('sw-flow-trigger', {
             };
 
             return treeToArray(Object.values(mappedObj));
+        },
+
+        getBreadcrumb(item) {
+            const keyWords = item.name.split('.');
+
+            return keyWords.map(key => {
+                return key.charAt(0).toUpperCase() + key.slice(1);
+            }).join(' / ').replace(/-|_|\./g, ' ');
+        },
+
+        onClickSearchItem(item) {
+            this.$emit('option-select', item.name);
+            this.searchTerm = this.formatEventName;
+            this.searchResult = [];
+        },
+
+        getEventName(eventName) {
+            if (!eventName) {
+                return eventName;
+            }
+
+            return eventName.replace(/\./g, ' / ').replace(/-|_|\./g, ' ');
         },
     },
 });

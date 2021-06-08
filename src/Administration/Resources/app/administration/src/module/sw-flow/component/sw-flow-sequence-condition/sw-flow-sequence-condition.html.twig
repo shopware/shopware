@@ -1,152 +1,316 @@
 {% block sw_flow_sequence_condition %}
 <div class="sw-flow-sequence-condition">
-    {% block sw_flow_sequence_condition_card %}
-    <div class="sw-flow-sequence-condition__card">
-        {% block sw_flow_sequence_condition_header %}
-        <div class="sw-flow-sequence-condition__header">
-            {% block sw_flow_sequence_condition_title %}
-            <h3 class="sw-flow-sequence-condition__title">
-                {{ $tc('sw-flow.detail.sequence.conditionTitle') }}
-            </h3>
-            {% endblock %}
+    {% block sw_flow_sequence_condition_true_arrow %}
+    <div
+        v-if="!showHelpElement"
+        class="sw-flow-sequence-condition__true-arrow"
+        :class="arrowClasses(true)"
+    >
 
-            {% block sw_flow_sequence_condition_context_button %}
-            <sw-context-button class="sw-flow-sequence-condition__context-button">
-
-                {% block sw_flow_sequence_condition_context_button_edit %}
-                <sw-context-menu-item variant="danger">
-                    {{ $tc('sw-flow.detail.sequence.contextButton.deleteIfCondition') }}
-                </sw-context-menu-item>
-                {% endblock %}
-            </sw-context-button>
-            {% endblock %}
-        </div>
+        {% block sw_flow_sequence_condition_true_arrow_oval %}
+        <div class="sw-flow-sequence-condition__oval"></div>
         {% endblock %}
 
-        {% block sw_flow_sequence_condition_content %}
-        <div class="sw-flow-sequence-condition__content">
+        {% block sw_flow_sequence_condition_true_arrow_icon %}
+        <sw-icon
+            v-if="showArrowIcon(true)"
+            name="small-arrow-large-right"
+            small
+        />
 
-            {% block sw_flow_sequence_condition_rule %}
-            <div class="sw-flow-sequence-condition__rule">
-                {% block sw_flow_sequence_condition_rule_empty %}
-                <div
-                    v-if="!sequence?.ruleId"
-                    class="sw-flow-sequence-condition__rule-empty"
-                >
-                    <sw-icon
-                        size="12px"
-                        name="small-default-rule"
-                    />
-                    <span>{{ $tc('sw-flow.detail.sequence.noRule') }}</span>
-                </div>
-                {% endblock %}
-
-                {% block sw_flow_sequence_condition_rule_info %}
-                <div
-                    v-else
-                    class="sw-flow-sequence-condition__rule-info"
-                >
-                    {% block sw_flow_sequence_condition_rule_header %}
-                    <div class="sw-flow-sequence-condition__rule-header">
-
-                        {% block sw_flow_sequence_condition_rule_left %}
-                        <div class="sw-flow-sequence-condition__rule-name">
-                            <sw-icon
-                                size="12px"
-                                name="small-default-rule"
-                            />
-                            <h3>{{ sequence?.rule?.name }}</h3>
-                        </div>
-                        {% endblock %}
-
-                        {% block sw_flow_sequence_condition_rule_context_button %}
-                        <sw-context-button class="sw-flow-sequence-condition__rule-context-button">
-
-                            {% block sw_flow_sequence_condition_rule_context_button_edit %}
-                            <sw-context-menu-item @click="showRuleSelection = true">
-                                {{ $tc('sw-flow.rule.contextButton.editRule') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
-
-                            {% block sw_flow_sequence_condition_rule_context_button_delete %}
-                            <sw-context-menu-item
-                                variant="danger"
-                                @click="deleteRule"
-                            >
-                                {{ $tc('sw-flow.rule.contextButton.deleteRule') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
-                        </sw-context-button>
-                        {% endblock %}
-                    </div>
-
-                    <p>{{ sequence.description }}</p>
-                    {% endblock %}
-
-                    {% block sw_flow_sequence_condition_rule_description %}
-                    <p>{{ sequence.rule.description }}</p>
-                    {% endblock %}
-                </div>
-                {% endblock %}
-            </div>
-            {% endblock %}
-
-            {% block sw_flow_sequence_condition_select %}
-            <div
-                v-if="showRuleSelection || !sequence?.ruleId"
-                class="sw-flow-sequence-condition__select"
+        <sw-context-button
+            v-else
+            class="arrow-action sw-flow-sequence-condition__true-action"
+            icon="small-default-plus-line-medium"
+            :disabled="disabledAddSequence(true)"
+        >
+            <sw-context-menu-item
+                class="sw-flow-sequence-condition__add-true-condition"
+                :disabled="disabled"
+                @click="addIfCondition(true)"
             >
-                <sw-icon
-                    size="12px"
-                    color="#758ca3"
-                    name="small-default-x-circle"
-                />
+                {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+            </sw-context-menu-item>
 
-                <sw-entity-single-select
-                    class="sw-flow-sequence-condition__selection-rule"
-                    size="small"
-                    value=""
-                    entity="rule"
-                    :criteria="ruleCriteria"
-                    @change="(id, rule) => onRuleChange(rule)"
-                >
-                    <template #before-item-list>
+            <sw-context-menu-item
+                class="sw-flow-sequence-condition__add-true-action"
+                :disabled="disabled"
+                @click="addThenAction(true)"
+            >
+                {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+            </sw-context-menu-item>
+        </sw-context-button>
+        {% endblock %}
 
-                        {% block sw_flow_sequence_condition_select_selection_before_list %}
-                        <ul class="sw-select-result__item-list">
-                            <li
-                                class="sw-select-result sw-select-result__create-new-rule"
-                                @click="showRuleModal = true"
-                            >
-                                {{ $tc('sw-flow.rule.createNewRule') }}
-                            </li>
-                        </ul>
-                        {% endblock %}
-                    </template>
-
-                    <template #result-label-property="{ item, labelProperty, getKey }">
-                        {{ getKey(item, labelProperty) }}
-                    </template>
-
-                </sw-entity-single-select>
-            </div>
-            {% endblock %}
-        </div>
+        {% block sw_flow_sequence_condition_true_arrow_label %}
+        <sw-label
+            appearance="pill"
+            size="medium"
+            class="sw-flow-sequence-condition__true-label"
+        >
+            {{ $tc('sw-flow.detail.sequence.labelTrue') }}
+        </sw-label>
         {% endblock %}
     </div>
     {% endblock %}
 
-    {% block sw_flow_sequence_condition_help_text %}
+    {% block sw_flow_sequence_condition_false_arrow %}
     <div
-        v-if="!sequence?.ruleId"
-        class="sw-flow-sequence-condition__explains"
+        v-if="!showHelpElement"
+        class="sw-flow-sequence-condition__false-arrow"
+        :class="arrowClasses(false)"
     >
-        {% block sw_flow_sequence_selector_title %}
-        <h3>{{ $tc('sw-flow.detail.sequence.conditionExplainsTitle') }}</h3>
+
+        {% block sw_flow_sequence_condition_false_arrow_oval %}
+        <div class="sw-flow-sequence-condition__oval"></div>
         {% endblock %}
 
-        {% block sw_flow_sequence_selector_help_text %}
-        <p v-html="$tc('sw-flow.detail.sequence.conditionExplainsDescription')"></p>
+        {% block sw_flow_sequence_condition_false_arrow_label %}
+        <sw-label
+            appearance="pill"
+            size="medium"
+            class="sw-flow-sequence-condition__false-label"
+        >
+            {{ $tc('sw-flow.detail.sequence.labelFalse') }}
+        </sw-label>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_false_arrow_icon %}
+        <sw-icon
+            v-if="showArrowIcon(false)"
+            name="small-arrow-large-down"
+            small
+        />
+
+        <sw-context-button
+            v-else
+            class="arrow-action sw-flow-sequence-condition__false-action"
+            icon="small-default-plus-line-medium"
+            :disabled="disabledAddSequence(false)"
+        >
+            <sw-context-menu-item
+                class="sw-flow-sequence-condition__add-false-condition"
+                :disabled="disabled"
+                @click="addIfCondition(false)"
+            >
+                {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+            </sw-context-menu-item>
+
+            <sw-context-menu-item
+                class="sw-flow-sequence-condition__add-false-action"
+                :disabled="disabled"
+                @click="addThenAction(false)"
+            >
+                {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+            </sw-context-menu-item>
+        </sw-context-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_condition_container %}
+    <div class="sw-flow-sequence-condition__container">
+        {% block sw_flow_sequence_condition_card %}
+        <div class="sw-flow-sequence-condition__card">
+            {% block sw_flow_sequence_condition_header %}
+            <div class="sw-flow-sequence-condition__header">
+                {% block sw_flow_sequence_condition_title %}
+                <h3 class="sw-flow-sequence-condition__title">
+                    {{ $tc('sw-flow.detail.sequence.conditionTitle') }}
+                </h3>
+                {% endblock %}
+
+                {% block sw_flow_sequence_condition_context_button %}
+                <sw-context-button
+                    class="sw-flow-sequence-condition__context-button"
+                    :disabled="disabled"
+                >
+
+                    {% block sw_flow_sequence_condition_context_button_delete %}
+                    <sw-context-menu-item
+                        class="sw-flow-sequence-condition__delete-condition"
+                        variant="danger"
+                        @click="removeCondition"
+                    >
+                        {{ $tc('sw-flow.detail.sequence.contextButton.deleteCondition') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </sw-context-button>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_flow_sequence_condition_content %}
+            <div class="sw-flow-sequence-condition__content">
+
+                {% block sw_flow_sequence_condition_rule %}
+                <div class="sw-flow-sequence-condition__rule">
+                    {% block sw_flow_sequence_condition_rule_loader %}
+                    <sw-loader
+                        v-if="isRuleLoading"
+                        class="sw-flow-sequence-condition__loader"
+                        size="16px"
+                    />
+                    {% endblock %}
+
+                    {% block sw_flow_sequence_condition_rule_empty %}
+                    <div
+                        v-else-if="!sequence.rule"
+                        class="sw-flow-sequence-condition__rule-empty"
+                    >
+                        <sw-icon
+                            size="12px"
+                            name="small-default-rule"
+                        />
+                        <span>{{ $tc('sw-flow.detail.sequence.noRule') }}</span>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_flow_sequence_condition_rule_info %}
+                    <div
+                        v-else
+                        class="sw-flow-sequence-condition__rule-info"
+                    >
+                        {% block sw_flow_sequence_condition_rule_header %}
+                        <div class="sw-flow-sequence-condition__rule-header">
+
+                            {% block sw_flow_sequence_condition_rule_left %}
+                            <div class="sw-flow-sequence-condition__rule-name">
+                                <sw-icon
+                                    size="12px"
+                                    name="small-default-rule"
+                                />
+                                <h3>{{ sequence.rule.name }}</h3>
+                            </div>
+                            {% endblock %}
+
+                            {% block sw_flow_sequence_condition_rule_context_button %}
+                            <sw-context-button
+                                class="sw-flow-sequence-condition__rule-context-button"
+                                :disabled="disabled"
+                            >
+
+                                {% block sw_flow_sequence_condition_rule_context_button_edit %}
+                                <sw-context-menu-item
+                                    class="sw-flow-sequence-condition__rule-edit"
+                                    @click="showRuleSelection = true"
+                                >
+                                    {{ $tc('sw-flow.rule.contextButton.editRule') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_flow_sequence_condition_rule_context_button_delete %}
+                                <sw-context-menu-item
+                                    class="sw-flow-sequence-condition__rule-delete"
+                                    variant="danger"
+                                    @click="deleteRule"
+                                >
+                                    {{ $tc('sw-flow.rule.contextButton.deleteRule') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+                            </sw-context-button>
+                            {% endblock %}
+                        </div>
+
+                        <p>{{ sequence.description }}</p>
+                        {% endblock %}
+
+                        {% block sw_flow_sequence_condition_rule_description %}
+                        <p>{{ sequence.rule.description }}</p>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                {% block sw_flow_sequence_condition_add_rule %}
+                <div
+                    v-if="showRuleSelection || !sequence.ruleId"
+                    class="sw-flow-sequence-condition__add-rule"
+                >
+                    {% block sw_flow_sequence_condition_add_button %}
+                    <a
+                        v-if="showAddButton"
+                        class="sw-flow-sequence-condition__add-button"
+                        @click="toggleAddButton"
+                    >
+                        {% block sw_flow_sequence_condition_add_icon %}
+                        <div class="sw-flow-sequence-condition__add-icon">
+                            <sw-icon
+                                size="10px"
+                                color="#fff"
+                                name="small-default-plus-line-small"
+                            />
+                        </div>
+                        {% endblock %}
+
+                        <p>{{ $tc('sw-flow.rule.addRule') }}</p>
+                    </a>
+                    {% endblock %}
+
+                    {% block sw_flow_sequence_condition_rule_selection %}
+                    <div
+                        v-if="!showAddButton"
+                        class="sw-flow-sequence-condition__select"
+                    >
+                        <sw-icon
+                            size="12px"
+                            color="#758ca3"
+                            name="small-default-x-circle"
+                            @click="toggleAddButton"
+                        />
+
+                        <sw-entity-single-select
+                            class="sw-flow-sequence-condition__selection-rule"
+                            size="small"
+                            value=""
+                            entity="rule"
+                            :criteria="ruleCriteria"
+                            :disabled="disabled"
+                            :error="fieldError"
+                            @change="(id, rule) => onRuleChange(rule)"
+                        >
+                            <template #before-item-list>
+
+                                {% block sw_flow_sequence_condition_select_selection_before_list %}
+                                <ul class="sw-select-result__item-list">
+                                    <li
+                                        class="sw-select-result sw-select-result__create-new-rule"
+                                        @click="showRuleModal = true"
+                                    >
+                                        {{ $tc('sw-flow.rule.createNewRule') }}
+                                    </li>
+                                </ul>
+                                {% endblock %}
+                            </template>
+
+                            <template #result-label-property="{ item, labelProperty, getKey }">
+                                {{ getKey(item, labelProperty) }}
+                            </template>
+
+                        </sw-entity-single-select>
+                    </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_help_text %}
+        <div
+            v-if="showHelpElement"
+            class="sw-flow-sequence-condition__explains"
+        >
+            {% block sw_flow_sequence_selector_title %}
+            <h3>{{ $tc('sw-flow.detail.sequence.conditionExplainsTitle') }}</h3>
+            {% endblock %}
+
+            {% block sw_flow_sequence_selector_help_text %}
+            <p v-html="$tc('sw-flow.detail.sequence.conditionExplainsDescription')"></p>
+            {% endblock %}
+        </div>
         {% endblock %}
     </div>
     {% endblock %}

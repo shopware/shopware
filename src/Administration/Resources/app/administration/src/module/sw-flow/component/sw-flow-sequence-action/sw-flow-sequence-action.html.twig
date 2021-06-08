@@ -1,5 +1,8 @@
 {% block sw_flow_sequence_action %}
-<div class="sw-flow-sequence-action">
+<div
+    class="sw-flow-sequence-action"
+    :class="actionClasses"
+>
     {% block sw_flow_sequence_action_card %}
     <div class="sw-flow-sequence-action__card">
         {% block sw_flow_sequence_action_header %}
@@ -11,10 +14,18 @@
             {% endblock %}
 
             {% block sw_flow_sequence_action_context_menu %}
-            <sw-context-button class="sw-flow-sequence-action__context-button">
-                {% block sw_landing_page_tree_items_actions_edit %}
-                <sw-context-menu-item variant="danger">
-                    {{ $tc('sw-flow.detail.sequence.contextButton.deleteThenAction') }}
+            <sw-context-button
+                class="sw-flow-sequence-action__context-button"
+                :class="actionClasses"
+                :disabled="disabled"
+            >
+                {% block sw_flow_sequence_action_remove_action_container %}
+                <sw-context-menu-item
+                    variant="danger"
+                    class="sw-flow-sequence-action__delete-action-container"
+                    @click="removeActionContainer"
+                >
+                    {{ $tc('sw-flow.detail.sequence.contextButton.deleteActionContainer') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </sw-context-button>
@@ -28,7 +39,7 @@
             <div class="sw-flow-sequence-action__actions">
                 {% block sw_flow_sequence_action_actions_empty %}
                 <div
-                    v-if="!sequence?.actionName"
+                    v-if="sequenceData.length === 1 && !sequence.actionName"
                     class="sw-flow-sequence-action__actions-empty"
                 >
                     <sw-icon
@@ -39,59 +50,144 @@
                 </div>
                 {% endblock %}
 
-                {% block sw_flow_sequence_action_actions_info %}
-                <div
+                {% block sw_flow_sequence_action_actions_list %}
+                <ul
                     v-else
-                    class="sw-flow-sequence-action__actions-info"
-                ></div>
+                    class="sw-flow-sequence-action__action-list"
+                >
+                    {% block sw_flow_sequence_action_actions_item %}
+                    <li
+                        v-for="item in sequenceData"
+                        :key="item.id"
+                        class="sw-flow-sequence-action__action-item"
+                    >
+
+                        {% block sw_flow_sequence_action_actions_header %}
+                        <div class="sw-flow-sequence-action__action-header">
+                            <div class="sw-flow-sequence-action__action-name">
+                                <sw-icon
+                                    :name="`${item.icon}`"
+                                    size="12px"
+                                    class="sw-icon-action"
+                                />
+
+                                <h3>{{ item.label }}</h3>
+                            </div>
+
+                            {% block sw_flow_sequence_action_context_button %}
+                            <sw-context-button
+                                class="sw-flow-sequence-action__context-button"
+                                :disabled="disabled"
+                            >
+                                {% block sw_flow_sequence_action_context_button_edit %}
+                                <sw-context-menu-item
+                                    v-if="isNotStopFlow(item)"
+                                    class="sw-flow-sequence-action__edit-action"
+                                >
+                                    {{ $tc('sw-flow.actions.contextButton.editAction') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_flow_sequence_action_context_button_delete %}
+                                <sw-context-menu-item
+                                    variant="danger"
+                                    class="sw-flow-sequence-action__delete-action"
+                                    @click="removeAction(item.id)"
+                                >
+                                    {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+                            </sw-context-button>
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+
+                        <div class="sw-flow-sequence-action__action-description">
+                            {{ getActionDescription(item) }}
+                        </div>
+                    </li>
+                    {% endblock %}
+                </ul>
                 {% endblock %}
             </div>
             {% endblock %}
 
-            {% block sw_flow_sequence_action_select %}
-            <div class="sw-flow-sequence-action__select">
-                <sw-icon
-                    size="12px"
-                    color="#758ca3"
-                    name="small-default-x-circle"
-                />
-
-                <sw-single-select
-                    class="sw-flow-sequence-action__selection-action"
-                    size="small"
-                    value=""
-                    :options="actionOptions"
-                    :popover-classes="['sw-flow-sequence-action__popover']"
-                    @change="openModalDynamic"
+            {% block sw_flow_sequence_action_add_action %}
+            <div
+                v-if="showAddAction && !disabled"
+                class="sw-flow-sequence-action__add-action"
+            >
+                {% block sw_flow_sequence_action_add_button %}
+                <a
+                    v-if="showAddButton"
+                    class="sw-flow-sequence-action__add-button"
+                    @click.prevent="toggleAddButton"
                 >
+                    {% block sw_flow_sequence_action_add_icon %}
+                    <div class="sw-flow-sequence-action__add-icon">
+                        <sw-icon
+                            size="10px"
+                            color="#fff"
+                            name="small-default-plus-line-small"
+                        />
+                    </div>
+                    {% endblock %}
 
-                    <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
-                        <li
-                            is="sw-select-result"
-                            :selected="isSelected(item)"
-                            v-bind="{ item, index }"
-                            @item-select="setValue"
-                        >
-                            {% block sw_flow_sequence_action_select_results_list_result_label %}
+                    <p>{{ $tc('sw-flow.actions.addAction') }}</p>
+                </a>
+                {% endblock %}
 
-                            <sw-icon
-                                :name="`${item.icon}`"
-                                size="12px"
-                                class="sw-icon-action"
-                            />
+                {% block sw_flow_sequence_action_add_select %}
+                <div
+                    v-else
+                    class="sw-flow-sequence-action__select"
+                >
+                    <sw-icon
+                        size="12px"
+                        color="#758ca3"
+                        name="small-default-x-circle"
+                        @click="toggleAddButton"
+                    />
 
-                            <sw-highlight-text
-                                v-if="highlightSearchTerm"
-                                :text="getKey(item, labelProperty)"
-                            />
+                    <sw-single-select
+                        class="sw-flow-sequence-action__selection-action"
+                        size="small"
+                        value=""
+                        :options="actionOptions"
+                        :popover-classes="['sw-flow-sequence-action__popover']"
+                        :error="fieldError"
+                        @change="openModal"
+                    >
 
-                            <template v-else>
-                                {{ getKey(item, labelProperty) }}
-                            </template>
-                            {% endblock %}
-                        </li>
-                    </template>
-                </sw-single-select>
+                        <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
+                            <li
+                                is="sw-select-result"
+                                :selected="isSelected(item)"
+                                v-bind="{ item, index }"
+                                :class="stopFlowStyle(item.value)"
+                                @item-select="setValue"
+                            >
+                                {% block sw_flow_sequence_action_select_results_list_result_label %}
+                                <sw-icon
+                                    :name="`${item.icon}`"
+                                    size="12px"
+                                    class="sw-icon-action"
+                                />
+
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="getKey(item, labelProperty)"
+                                />
+
+                                <template v-else>
+                                    {{ getKey(item, labelProperty) }}
+                                </template>
+                                {% endblock %}
+                            </li>
+                        </template>
+                    </sw-single-select>
+                </div>
+                {% endblock %}
             </div>
             {% endblock %}
         </div>

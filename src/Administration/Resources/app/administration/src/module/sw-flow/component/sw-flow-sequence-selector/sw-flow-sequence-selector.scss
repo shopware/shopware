@@ -5,10 +5,15 @@
     border: 2px dashed $color-gray-300;
     border-radius: 8px;
     color: $color-darkgray-200;
-    max-width: 324px;
+    width: 322px;
+    margin-right: 32px;
 
     &__title {
         font-size: $font-size-large;
+
+        h3 {
+            font-weight: normal;
+        }
     }
 
     &__help-text {

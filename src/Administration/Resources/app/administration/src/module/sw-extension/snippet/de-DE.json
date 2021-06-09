@@ -118,8 +118,11 @@
     },
     "detail": {
       "labelButtonAddExtension": "Erweiterung hinzufügen",
+      "labelButtonAddTheme": "Theme hinzufügen",
       "labelButtonOpenExtension": "Erweiterung öffnen",
+      "labelButtonOpenTheme": "Theme öffnen",
       "labelButtonInstallExtension": "Erweiterung installieren",
+      "labelButtonInstallTheme": "Theme installieren",
       "labelBy": "von",
       "numberOfRatings": "{count} Bewertung | {count} Bewertungen",
       "noRatings": "Noch keine Bewertungen",
@@ -171,8 +174,7 @@
           "labelButtonBack": "Zurück zur Detailseite"
         },
         "alertCanNotBuy": {
-          "text": "Du musst eingeloggt sein, um diese Aktion auszuführen",
-          "linkChoosePLan": "Wähle einen Plan aus"
+          "text": "Du musst eingeloggt sein, um diese Aktion auszuführen"
         }
       },
       "sw-extension-adding-failed": {
@@ -313,82 +315,6 @@
       },
       "sw-extension-config": {
         "messageSaveSuccess": "Konfiguration gespeichert."
-      }
-    },
-    "errors": {
-      "FRAMEWORK__TOC_NOT_ACCEPTED": {
-        "message": "Du musst unsere Allgemeinen Geschäftsbedingungen akzeptieren, um fortzufahren."
-      },
-      "FRAMEWORK__EXTENSION_THEME_STILL_IN_USE": {
-        "message": "Das Theme wird aktuell noch in einem oder mehreren Verkaufskanälen genutzt."
-      },
-      "FRAMEWORK__INVALID_EXTENSION_ID": {
-        "message": "Die Identifikationsnummer der Erweiterung ist ungültig."
-      },
-      "FRAMEWORK__INVALID_VARIANT_ID": {
-        "message": "Die Identifikationsnummer des Preismodells der Erweiterung ist ungültig."
-      },
-      "FRAMEWORK__EXTENSION_PERMISSIONS_NOT_ACCEPTED": {
-        "message": "Du musst die Berechtigungen der Erweiterung akzeptieren, um fortzufahren."
-      },
-      "FRAMEWORK__INVALID_EXTENSION_RATING_VALUE": {
-        "message": "Die Bewertungsangabe ist ungültig."
-      },
-      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__EXTENSION": {
-        "message": "Die Erweiterung konnte nicht gefunden werden."
-      },
-      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__LICENSE": {
-        "message": "Die Lizenz für die Erweiterung konnte nicht gefunden werden."
-      },
-      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__BINARY": {
-        "message": "Die Dateien der Erweiterung konnten nicht gefunden werden."
-      },
-      "SAAS_EXTENSION_CANCELLATION__NOT_POSSIBLE": {
-        "message": "Die Erweiterung kann nicht gekündigt werden."
-      },
-      "SAAS_EXTENSION_CANCELLATION__STILL_IN_USE": {
-        "message": "Die Erweiterung kann nicht gekündigt werden, da sie noch verwendet wird."
-      },
-      "SAAS_EXTENSION_RATING__ALREADY_RATED": {
-        "message": "Die Erweiterung wurde bereits bewertet."
-      },
-      "SAAS_EXTENSION_LICENSE__NOT_ALLOWED_TO_REACTIVATE": {
-        "message": "Die Lizenz der Erweiterung darf nicht reaktiviert werden."
-      },
-      "SAAS_EXTENSION_DOWNLOAD__NOT_ALLOWED": {
-        "message": "Dein Shop darf die Erweiterung nicht herunterladen."
-      },
-      "SAAS_EXTENSION_ORDER__NOT_ALLOWED_PRICE_MODEL": {
-        "message": "Das gewählte Preismodell der Erweiterung ist nicht erlaubt."
-      },
-      "SAAS_EXTENSION_ORDER__NO_DEFAULT_PAYMENT_MEAN": {
-        "message": "Es ist keine Standardzahlungsart verfügbar.",
-        "labelLink": "Standardzahlungsart einrichten"
-      },
-      "SAAS_EXTENSION_ORDER__INSUFFICIENT_BALANCE": {
-        "message": "Es ist nicht ausreichend Guthaben vorhanden."
-      },
-      "SAAS_EXTENSION_REQUEST__INVALID_CONTENT": {
-        "message": "Benötigte Request-Angaben fehlen oder sind ungültig."
-      },
-      "SAAS_EXTENSION_INVALID_BASKET__MULTIPLE_LICENSES_OR_LICENSE_ALREADY_OWNED": {
-        "message": "Der Warenkorb ist ungültig, da er mehrere oder bereits erworbene Lizenzen enthält."
-      },
-      "SAAS_EXTENSION_INVALID_BASKET__INVALID_ORDER_POSITION": {
-        "message": "Der Warenkorb enthält eine unzulässige Bestellposition."
-      },
-      "SAAS_EXTENSION_INVALID_BASKET__GENERAL": {
-        "message": "Der Warenkorb ist ungültig."
-      },
-      "SAAS_EXTENSION_INVALID_BASKET__INVALID_COMPANY": {
-        "message": "Der Warenkorb ist ungültig, da Deine Firma kein Land hinterlegt hat."
-      },
-      "SAAS_EXTENSION_RATING__INVALID_EXTENSION": {
-        "message": "Deine Bewertung konnte nicht gespeichert werden, da die betreffende Erweiterung unzulässig ist."
-      },
-      "SAAS_COMPANY__MISSING": {
-        "message": "Es ist keine Firma hinterlegt.",
-        "labelLink": "Firma zuweisen"
       }
     }
   },

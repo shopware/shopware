@@ -75,10 +75,7 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         ));
 
         $criteria->addAssociation('type');
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_API)]
-        ));
+        $criteria->addFilter(new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
         $context = Context::createDefaultContext();
 

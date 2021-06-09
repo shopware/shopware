@@ -22,6 +22,8 @@ class ProductPage extends Page
      */
     protected $cmsPage;
 
+    protected ?string $navigationId;
+
     /**
      * @var PropertyGroupCollection
      */
@@ -60,6 +62,16 @@ class ProductPage extends Page
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
+    }
+
+    public function getNavigationId(): ?string
+    {
+        return $this->navigationId;
+    }
+
+    public function setNavigationId(?string $navigationId): void
+    {
+        $this->navigationId = $navigationId;
     }
 
     public function getConfiguratorSettings(): PropertyGroupCollection

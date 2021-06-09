@@ -12,6 +12,8 @@ class LandingPage extends Page
      */
     protected $cmsPage;
 
+    protected ?string $navigationId;
+
     public function getCmsPage(): ?CmsPageEntity
     {
         return $this->cmsPage;
@@ -20,5 +22,15 @@ class LandingPage extends Page
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
+    }
+
+    public function getNavigationId(): ?string
+    {
+        return $this->navigationId;
+    }
+
+    public function setNavigationId(?string $navigationId): void
+    {
+        $this->navigationId = $navigationId;
     }
 }

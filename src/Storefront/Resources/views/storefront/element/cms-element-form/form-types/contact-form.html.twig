@@ -132,7 +132,12 @@
                     {{ sw_csrf(action) }}
                 {% endblock %}
 
-                <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}"/>
+                {% if page.navigationId and page.cmsPage %}
+                    <input type="hidden" name="navigationId" value="{{ page.navigationId }}"/>
+                    <input type="hidden" name="cmsPageType" value="{{ page.cmsPage.type }}"/>
+                {% else %}
+                    <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}"/>
+                {% endif %}
 
                 <input type="hidden" name="slotId" value="{{ element.id }}"/>
 

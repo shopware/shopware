@@ -69,6 +69,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             $this->loadMetaData($category, $page, $context->getSalesChannel());
 
             $page->setCmsPage($category->getCmsPage());
+            $page->setNavigationId($category->getId());
         }
 
         $this->eventDispatcher->dispatch(

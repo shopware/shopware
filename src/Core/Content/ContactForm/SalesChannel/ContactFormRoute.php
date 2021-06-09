@@ -39,6 +39,10 @@ class ContactFormRoute extends AbstractContactFormRoute
 
     private EntityRepositoryInterface $categoryRepository;
 
+    private EntityRepositoryInterface $landingPageRepository;
+
+    private EntityRepositoryInterface $productRepository;
+
     public function __construct(
         DataValidationFactoryInterface $contactFormValidationFactory,
         DataValidator $validator,
@@ -46,7 +50,9 @@ class ContactFormRoute extends AbstractContactFormRoute
         SystemConfigService $systemConfigService,
         EntityRepositoryInterface $cmsSlotRepository,
         EntityRepositoryInterface $salutationRepository,
-        EntityRepositoryInterface $categoryRepository
+        EntityRepositoryInterface $categoryRepository,
+        EntityRepositoryInterface $landingPageRepository,
+        EntityRepositoryInterface $productRepository
     ) {
         $this->contactFormValidationFactory = $contactFormValidationFactory;
         $this->validator = $validator;
@@ -55,6 +61,8 @@ class ContactFormRoute extends AbstractContactFormRoute
         $this->cmsSlotRepository = $cmsSlotRepository;
         $this->salutationRepository = $salutationRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->landingPageRepository = $landingPageRepository;
+        $this->productRepository = $productRepository;
     }
 
     public function getDecorated(): AbstractContactFormRoute
@@ -99,6 +107,8 @@ class ContactFormRoute extends AbstractContactFormRoute
      *              @OA\Property(property="subject", description="Title", type="string"),
      *              @OA\Property(property="comment", description="Message", type="string"),
      *              @OA\Property(property="navigationId", description="Navigation ID", type="string"),
+     *              @OA\Property(property="slotId", description="CMS element ID", type="string"),
+     *              @OA\Property(property="cmsPageType", description="CMS page type", type="string"),
      *          )
      *      ),
      *      @OA\Response(
@@ -111,7 +121,7 @@ class ContactFormRoute extends AbstractContactFormRoute
     public function load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
     {
         $this->validateContactForm($data, $context);
-        $mailConfigs = $this->getMailConfigs($context, $data->get('slotId'), $data->get('navigationId'));
+        $mailConfigs = $this->getMailConfigs($context, $data->get('slotId'), $data->get('navigationId'), $data->get('cmsPageType'));
 
         $salutationCriteria = new Criteria([$data->get('salutationId')]);
         $salutationSearchResult = $this->salutationRepository->search($salutationCriteria, $context->getContext());
@@ -159,28 +169,41 @@ class ContactFormRoute extends AbstractContactFormRoute
         }
     }
 
-    private function getCategoryConfig(string $slotId, string $navigationId, SalesChannelContext $context): array
+    private function getSlotConfig(string $slotId, string $navigationId, SalesChannelContext $context, ?string $cmsPageType = null): array
     {
         $mailConfigs['receivers'] = [];
         $mailConfigs['message'] = '';
 
         $criteria = new Criteria([$navigationId]);
-        $category = $this->categoryRepository->search($criteria, $context->getContext())->first();
-        if (!$category) {
+
+        switch ($cmsPageType) {
+            case 'product_detail':
+                $entity = $this->productRepository->search($criteria, $context->getContext())->first();
+
+                break;
+            case 'landingpage':
+                $entity = $this->landingPageRepository->search($criteria, $context->getContext())->first();
+
+                break;
+            default:
+                $entity = $this->categoryRepository->search($criteria, $context->getContext())->first();
+        }
+
+        if (!$entity) {
             return $mailConfigs;
         }
 
-        if (empty($category->getSlotConfig()[$slotId])) {
+        if (empty($entity->getSlotConfig()[$slotId])) {
             return $mailConfigs;
         }
 
-        $mailConfigs['receivers'] = $category->getSlotConfig()[$slotId]['mailReceiver']['value'];
-        $mailConfigs['message'] = $category->getSlotConfig()[$slotId]['confirmationText']['value'];
+        $mailConfigs['receivers'] = $entity->getSlotConfig()[$slotId]['mailReceiver']['value'];
+        $mailConfigs['message'] = $entity->getSlotConfig()[$slotId]['confirmationText']['value'];
 
         return $mailConfigs;
     }
 
-    private function getMailConfigs(SalesChannelContext $context, ?string $slotId = null, ?string $navigationId = null): array
+    private function getMailConfigs(SalesChannelContext $context, ?string $slotId = null, ?string $navigationId = null, ?string $cmsPageType = null): array
     {
         $mailConfigs['receivers'] = [];
         $mailConfigs['message'] = '';
@@ -190,7 +213,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         }
 
         if ($navigationId) {
-            $mailConfigs = $this->getCategoryConfig($slotId, $navigationId, $context);
+            $mailConfigs = $this->getSlotConfig($slotId, $navigationId, $context, $cmsPageType);
             if (!empty($mailConfigs['receivers'])) {
                 return $mailConfigs;
             }

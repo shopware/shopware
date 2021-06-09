@@ -97,6 +97,7 @@ class ProductPageLoader
 
         if ($cmsPage = $product->getCmsPage()) {
             $page->setCmsPage($cmsPage);
+            $page->setNavigationId($product->getId());
         } else {
             $request->request->set('parentId', $product->getParentId());
             $reviews = $this->productReviewLoader->load($request, $context);
@@ -112,6 +113,7 @@ class ProductPageLoader
             if ($cmsPageId !== null && $cmsPage = $this->getCmsPage($cmsPageId, $context)) {
                 $this->loadSlotData($cmsPage, $context, $product, $request);
                 $page->setCmsPage($cmsPage);
+                $page->setNavigationId($product->getId());
             }
         }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Authentication\AuthenticationProvider;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
+use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 
@@ -18,6 +20,8 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
  */
 class ExtensionDownloader
 {
+    private const DEFAULT_LOCALE = 'en_GB';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -38,16 +42,23 @@ class ExtensionDownloader
      */
     private $pluginManagementService;
 
+    /**
+     * @var ExtensionLoader
+     */
+    private $extensionLoader;
+
     public function __construct(
         EntityRepositoryInterface $pluginRepository,
         AuthenticationProvider $authenticationProvider,
         StoreClient $storeClient,
-        PluginManagementService $pluginManagementService
+        PluginManagementService $pluginManagementService,
+        ExtensionLoader $extensionLoader
     ) {
         $this->pluginRepository = $pluginRepository;
         $this->authenticationProvider = $authenticationProvider;
         $this->storeClient = $storeClient;
         $this->pluginManagementService = $pluginManagementService;
+        $this->extensionLoader = $extensionLoader;
     }
 
     public function download(string $technicalName, Context $context): PluginDownloadDataStruct
@@ -68,7 +79,13 @@ class ExtensionDownloader
             $storeToken = '';
         }
 
-        $data = $this->storeClient->getDownloadDataForPlugin($technicalName, $storeToken, 'de-DE', $storeToken !== '');
+        $localeCode = $this->extensionLoader->getLocaleCodeFromLanguageId($context) ?? self::DEFAULT_LOCALE;
+
+        try {
+            $data = $this->storeClient->getDownloadDataForPlugin($technicalName, $storeToken, $localeCode, $storeToken !== '');
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
 
         $this->pluginManagementService->downloadStorePlugin($data, $context);
 

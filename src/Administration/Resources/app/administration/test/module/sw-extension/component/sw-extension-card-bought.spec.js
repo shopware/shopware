@@ -4,6 +4,7 @@ import flushPromises from 'flush-promises';
 import 'src/module/sw-extension/component/sw-extension-card-base';
 import 'src/module/sw-extension/component/sw-extension-card-bought';
 import 'src/module/sw-extension/component/sw-extension-removal-modal';
+import 'src/module/sw-extension/component/sw-extension-adding-failed';
 import 'src/app/component/context-menu/sw-context-menu-item/';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
@@ -74,6 +75,7 @@ function createWrapper(extension) {
             'sw-context-menu': true,
             'sw-loader': true,
             'sw-icon': true,
+            'sw-circle-icon': true,
             'router-link': {
                 template: '<div class="sw-router-link"><slot></slot></div>',
                 props: ['to']
@@ -81,7 +83,8 @@ function createWrapper(extension) {
             'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
             'sw-extension-removal-modal': Shopware.Component.build('sw-extension-removal-modal'),
             'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-button': Shopware.Component.build('sw-button')
+            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-extension-adding-failed': Shopware.Component.build('sw-extension-adding-failed')
         },
         provide: {
             extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
@@ -449,5 +452,78 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(1);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
         expect(httpClient.delete).toHaveBeenCalledTimes(2);
+    });
+
+    it('should display error on install and download attempt when app subscription is expired', async () => {
+        httpClient.post.mockImplementation(() => {
+            // eslint-disable-next-line prefer-promise-reject-errors
+            return Promise.reject({
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                code: 'FRAMEWORK__STORE_ERROR',
+                                detail: 'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
+                                meta: {
+                                    documentationLink: 'https://docs.shopware.com/en/shopware-6-en'
+                                },
+                                status: '500',
+                                title: 'Download not allowed'
+                            }
+                        ]
+                    }
+                }
+            });
+        });
+
+        wrapper = createWrapper({
+            id: 1,
+            name: 'Expired extension',
+            label: 'Expired extension Label',
+            shortDescription: 'Expired extension description',
+            languages: [],
+            rating: null,
+            numberOfRatings: 0,
+            installedAt: null,
+            storeLicense: {
+                variants: [{}],
+                variant: 'rent',
+                expirationDate: '2021-06-08T00:00:00+02:00',
+                id: 5552
+            },
+            storeExtension: null,
+            permissions: {},
+            images: [],
+            icon: null,
+            iconRaw: null,
+            active: false,
+            source: 'store',
+            type: 'app'
+        });
+
+        // Click install
+        wrapper.get('.sw-extension-card-base__open-extension').trigger('click');
+
+        // Wait for error notification and modal render
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // Ensure error modal is displayed
+        expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal').exists()).toBe(true);
+
+        // Ensure error from server is processed correctly and applied to data prop
+        expect(wrapper.vm.installationFailedError).toEqual({
+            title: 'Download not allowed',
+            message: 'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
+            parameters: {
+                documentationLink: 'https://docs.shopware.com/en/shopware-6-en'
+            }
+        });
+
+        // Ensure error is rendered correctly in modal DOM
+        expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal h3').text()).toBe('Download not allowed');
+        expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal h3 + p').text())
+            .toBe('The download of the extension is not allowed, please purchase a corresponding license or contact the customer service');
+        expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal p > a').text()).toBe('https://docs.shopware.com/en/shopware-6-en');
     });
 });

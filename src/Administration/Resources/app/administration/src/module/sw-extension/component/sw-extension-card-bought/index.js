@@ -1,5 +1,6 @@
 import template from './sw-extension-card-bought.html.twig';
 import './sw-extension-card-bought.scss';
+import extensionErrorHandler from '../../service/extension-error-handler.service';
 
 const { Component } = Shopware;
 
@@ -23,7 +24,8 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
         return {
             showDeactivationModal: false,
             showRatingModal: false,
-            showExtensionInstallationFailedModal: false
+            showExtensionInstallationFailedModal: false,
+            installationFailedError: null
         };
     },
 
@@ -148,6 +150,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
+                this.installationFailedError = extensionErrorHandler.mapErrors(e.response.data.errors)?.[0];
                 this.showExtensionInstallationFailedModal = true;
             } finally {
                 this.isLoading = false;

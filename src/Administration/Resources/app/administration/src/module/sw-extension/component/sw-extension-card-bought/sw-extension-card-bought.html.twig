@@ -78,11 +78,15 @@
     v-if="showExtensionInstallationFailedModal"
     :title="extension.label"
     variant="small"
+    class="sw-extension-card-bought__installation-failed-modal"
     @modal-close="closeInstallationFailedNotification"
 >
     {% block sw_bought_extension_card_installation_failed_modal %}
     <sw-extension-adding-failed
         :extension-name="extension.name"
+        :title="installationFailedError && installationFailedError.title"
+        :detail="installationFailedError && installationFailedError.message"
+        :documentation-link="installationFailedError && installationFailedError.parameters && installationFailedError.parameters.documentationLink"
         @close="closeInstallationFailedNotification"
     />
     {% endblock %}

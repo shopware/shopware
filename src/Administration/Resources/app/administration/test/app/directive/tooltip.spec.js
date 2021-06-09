@@ -107,14 +107,7 @@ describe('directives/tooltip', () => {
     });
 
     it('should not be created when target element gets deleted before creation of tooltip', async () => {
-        // register component globally,
-        // so that new vue instances created from the tooltip can access it
-        Vue.component('sw-test', {
-            template: '<div class="sw-test"/>'
-        });
-
         const wrapper = createWrapper('a tooltip');
-        wrapper.vm.updateMessage('This is a <sw-test></sw-test>');
         await wrapper.vm.$nextTick();
 
         wrapper.trigger('mouseenter');
@@ -126,5 +119,23 @@ describe('directives/tooltip', () => {
 
         const tooltips = document.body.getElementsByClassName('sw-tooltip');
         expect(tooltips.length).toBe(0);
+    });
+
+    it('should not disappear if you hover the tooltip itself', async () => {
+        const wrapper = createWrapper('a tooltip');
+
+        wrapper.trigger('mouseenter');
+
+        jest.runAllTimers();
+
+        const tooltip = document.body.getElementsByClassName('sw-tooltip').item(0);
+        expect(tooltip).not.toBeNull();
+
+        wrapper.trigger('mouseleave');
+        tooltip.dispatchEvent(new Event('mouseenter'));
+
+        jest.runAllTimers();
+
+        expect(document.body.getElementsByClassName('sw-tooltip').item(0)).not.toBeNull();
     });
 });

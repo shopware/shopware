@@ -330,6 +330,10 @@ return [
     'database-configuration-create_new_database' => 'Create new database',
     'database-configuration_non_empty_database' => 'The selected database already contains data. Please select an empty database or create a new one from scratch.',
     'database-configuration_error_required_fields' => 'Please fill in all the blanks.',
+    'database-configuration_field_ssl_ca_path' => 'SSL certificate authority path',
+    'database-configuration_field_ssl_cert_path' => 'SSL certificate path',
+    'database-configuration_field_ssl_cert_key_path' => 'SSL certificate key path',
+    'database-configuration_field_ssl_dont_verify_cert' => 'Don\'t verify server certificate',
 
     'database-import_header' => 'Installation',
     'database-import_skip_import' => 'Skip',

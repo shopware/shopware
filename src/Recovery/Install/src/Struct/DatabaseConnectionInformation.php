@@ -4,33 +4,23 @@ namespace Shopware\Recovery\Install\Struct;
 
 class DatabaseConnectionInformation extends Struct
 {
-    /**
-     * @var string
-     */
-    public $hostname;
+    public ?string $hostname = '';
 
-    /**
-     * @var int
-     */
-    public $port;
+    public ?string $port = '';
 
-    /**
-     * @var string
-     */
-    public $socket;
+    public ?string $socket = '';
 
-    /**
-     * @var string
-     */
-    public $username;
+    public ?string $username = '';
 
-    /**
-     * @var string
-     */
-    public $password;
+    public ?string $password;
 
-    /**
-     * @var string
-     */
-    public $databaseName;
+    public ?string $databaseName = '';
+
+    public ?string $sslCaPath = null;
+
+    public ?string $sslCertPath = null;
+
+    public ?string $sslCertKeyPath = null;
+
+    public ?bool $sslDontVerifyServerCert = null;
 }

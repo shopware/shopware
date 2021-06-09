@@ -58,6 +58,11 @@ class AppActionControllerTest extends TestCase
                 ],
                 'action' => 'viewOrder',
                 'url' => 'https://swag-test.com/your-order',
+                /*
+                 * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "openNewTab" key will be removed.
+                 * It will no longer be used in the manifest.xml file
+                 * and will be processed in the Executor with an OpenNewTabResponse response instead.
+                 */
                 'openNewTab' => true,
                 'icon' => base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             ],

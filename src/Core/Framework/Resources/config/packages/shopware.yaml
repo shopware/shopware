@@ -138,6 +138,11 @@ shopware:
               major: false
               description: "Improve Product UX 2.0"
               # issue: NEXT-12437
+            - name: FEATURE_NEXT_14360
+              default: false
+              major: true
+              description: "App System 4.0 - Build action button messaging system"
+              # issue: NEXT-14360
 
     logger:
         file_rotation_count: 14

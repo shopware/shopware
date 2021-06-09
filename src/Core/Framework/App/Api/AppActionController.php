@@ -75,9 +75,7 @@ class AppActionController extends AbstractController
 
         $action = $this->appActionFactory->loadAppAction($id, $entityIds, $context);
 
-        $this->executor->execute($action, $context);
-
-        return new JsonResponse();
+        return $this->executor->execute($action, $context);
     }
 
     /**

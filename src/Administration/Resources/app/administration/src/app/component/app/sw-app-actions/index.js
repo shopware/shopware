@@ -3,6 +3,12 @@ import './sw-app-actions.scss';
 
 const { Component, Mixin } = Shopware;
 
+const actionTypeConstants = Object.freeze({
+    ACTION_SHOW_NOTITFICATION: 'notification',
+    ACTION_RELOAD_DATA: 'reload',
+    ACTION_OPEN_NEW_TAB: 'openNewTab',
+});
+
 Component.register('sw-app-actions', {
     template,
 
@@ -52,8 +58,26 @@ Component.register('sw-app-actions', {
     },
 
     methods: {
-        runAction(actionId) {
-            this.appActionButtonService.runAction(actionId, { ids: this.params });
+        async runAction(actionId) {
+            const { data } = await this.appActionButtonService.runAction(actionId, { ids: this.params });
+            const { actionType, redirectUrl, status, message } = data;
+
+            switch (actionType) {
+                case actionTypeConstants.ACTION_OPEN_NEW_TAB:
+                    window.open(redirectUrl, '_blank');
+                    break;
+                case actionTypeConstants.ACTION_SHOW_NOTITFICATION:
+                    this.createNotification({
+                        variant: status,
+                        message: message,
+                    });
+                    break;
+                case actionTypeConstants.ACTION_RELOAD_DATA:
+                    window.location.reload();
+                    break;
+                default:
+                    break;
+            }
         },
 
         async loadActions() {

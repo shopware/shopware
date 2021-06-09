@@ -1,3 +1,5 @@
+{# @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - `component` will be removed use `div` as a replacement,
+`:is="openInNewTab ? 'a' : 'div'"` and `v-bind="linkData"` will be removed #}
 {% block sw_connect_action_button %}
 <component
     :is="openInNewTab ? 'a' : 'div'"
@@ -15,6 +17,7 @@
 
     <span class="sw-context-menu-item__text">
         {{ buttonLabel }}
+        {# @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - `sw-icon` will be removed #}
         <sw-icon
             v-if="openInNewTab"
             name="default-action-external"

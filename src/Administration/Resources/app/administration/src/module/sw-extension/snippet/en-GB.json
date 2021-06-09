@@ -118,8 +118,11 @@
     },
     "detail": {
       "labelButtonAddExtension": "Add extension",
+      "labelButtonAddTheme": "Add theme",
       "labelButtonOpenExtension": "Open extension",
+      "labelButtonOpenTheme": "Open theme",
       "labelButtonInstallExtension": "Install extension",
+      "labelButtonInstallTheme": "Install theme",
       "labelBy": "by",
       "numberOfRatings": "{count} review | {count} reviews",
       "noRatings": "No ratings yet",
@@ -171,8 +174,7 @@
           "labelButtonBack": "Back to details"
         },
         "alertCanNotBuy": {
-          "text": "You need to be logged in to the Store to do this",
-          "linkChoosePLan": "Choose a plan"
+          "text": "You need to be logged in to the Store to do this"
         }
       },
       "sw-extension-adding-failed": {
@@ -313,82 +315,6 @@
       },
       "sw-extension-config": {
         "messageSaveSuccess": "Configuration saved."
-      }
-    },
-    "errors": {
-      "FRAMEWORK__TOC_NOT_ACCEPTED": {
-        "message": "You have to accept our terms and conditions to proceed."
-      },
-      "FRAMEWORK__EXTENSION_THEME_STILL_IN_USE": {
-        "message": "The theme is currently in use by one or more Sales Channels."
-      },
-      "FRAMEWORK__INVALID_EXTENSION_ID": {
-        "message": "The extension identification number is invalid."
-      },
-      "FRAMEWORK__INVALID_VARIANT_ID": {
-        "message": "The identification number of the price model of the extension is invalid."
-      },
-      "FRAMEWORK__EXTENSION_PERMISSIONS_NOT_ACCEPTED": {
-        "message": "You have to accept the permissions of the extension to proceed."
-      },
-      "FRAMEWORK__INVALID_EXTENSION_RATING_VALUE": {
-        "message": "The rating value is invalid."
-      },
-      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__EXTENSION": {
-        "message": "The extension could not be found."
-      },
-      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__LICENSE": {
-        "message": "The extension license could not be found."
-      },
-      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__BINARY": {
-        "message": "The extension files could not be found."
-      },
-      "SAAS_EXTENSION_CANCELLATION__NOT_POSSIBLE": {
-        "message": "The extension cannot be canceled."
-      },
-      "SAAS_EXTENSION_CANCELLATION__STILL_IN_USE": {
-        "message": "The extension cannot be canceled, because it is still in use."
-      },
-      "SAAS_EXTENSION_RATING__ALREADY_RATED": {
-        "message": "The extension has already been rated."
-      },
-      "SAAS_EXTENSION_LICENSE__NOT_ALLOWED_TO_REACTIVATE": {
-        "message": "The extension license is not allowed to be reactivated."
-      },
-      "SAAS_EXTENSION_DOWNLOAD__NOT_ALLOWED": {
-        "message": "Your shop is not allowed to download the extension."
-      },
-      "SAAS_EXTENSION_ORDER__NOT_ALLOWED_PRICE_MODEL": {
-        "message": "The selected price model is not allowed for the extension."
-      },
-      "SAAS_EXTENSION_ORDER__NO_DEFAULT_PAYMENT_MEAN": {
-        "message": "There is no default payment method available.",
-        "labelLink": "Set up default payment method"
-      },
-      "SAAS_EXTENSION_ORDER__INSUFFICIENT_BALANCE": {
-        "message": "Insufficient balance."
-      },
-      "SAAS_EXTENSION_REQUEST__INVALID_CONTENT": {
-        "message": "Required request data is missing or invalid."
-      },
-      "SAAS_EXTENSION_INVALID_BASKET__MULTIPLE_LICENSES_OR_LICENSE_ALREADY_OWNED": {
-        "message": "The shopping cart is invalid, because it contains multiple licenses or it contains an already owned license."
-      },
-      "SAAS_EXTENSION_INVALID_BASKET__INVALID_ORDER_POSITION": {
-        "message": "The shopping cart is invalid, because of an invalid order position."
-      },
-      "SAAS_EXTENSION_INVALID_BASKET__GENERAL": {
-        "message": "The shopping cart is invalid."
-      },
-      "SAAS_EXTENSION_INVALID_BASKET__INVALID_COMPANY": {
-        "message": "The shopping cart is invalid, because your company has no country assigned."
-      },
-      "SAAS_EXTENSION_RATING__INVALID_EXTENSION": {
-        "message": "Your rating could not be saved, because the related extension is invalid."
-      },
-      "SAAS_COMPANY__MISSING": {
-        "message": "Required company statement is missing.",
-        "labelLink": "Assign company"
       }
     }
   },

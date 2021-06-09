@@ -39,6 +39,7 @@ describe('Import/Export:  Visual tests', () => {
             method: 'post'
         }).as('getData');
 
+        cy.get('.sw-import-export-view-import').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
             mainMenuId: 'sw-settings'
@@ -82,6 +83,7 @@ describe('Import/Export:  Visual tests', () => {
             method: 'post'
         }).as('importExportLog');
 
+        cy.get('.sw-import-export-view-import').should('be.visible');
         cy.contains('[href="#/sw/import-export/index/export"]', 'Export').click();
 
         // Take snapshot for visual testing
@@ -135,6 +137,7 @@ describe('Import/Export:  Visual tests', () => {
         }).as('importExportLog');
 
         // Take snapshot for visual testing
+        cy.get('.sw-import-export-view-import').should('be.visible');
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('[Import export] Detail, Import overview', '.sw-import-export-view-import');
 

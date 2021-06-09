@@ -1,4 +1,4 @@
-const { Filter } = Shopware;
+const { Filter, Defaults } = Shopware;
 
 Filter.register('salutation', (entity, fallbackSnippet = '') => {
     if (!entity) {
@@ -6,9 +6,11 @@ Filter.register('salutation', (entity, fallbackSnippet = '') => {
     }
 
     let hideSalutation = true;
-    if (entity.salutation) {
-        hideSalutation = ['not_specified']
-            .some((item) => item === entity.salutation.salutationKey);
+
+    if (entity.salutation && entity.salutation.id !== Defaults.defaultSalutationId) {
+        hideSalutation = [
+            'not_specified',
+        ].some((item) => item === entity.salutation.salutationKey);
     }
 
     const params = {

@@ -4,36 +4,22 @@ namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 
-class SalutationMissingError extends Error
+abstract class SalutationMissingError extends Error
 {
-    private const KEY = 'salutation-missing';
+    protected const KEY = 'salutation-missing';
 
-    /**
-     * @var string
-     */
-    private $name;
+    protected array $parameters;
 
-    /**
-     * @var string|null
-     */
-    private $entityId;
+    abstract public function getId(): string;
 
-    public function __construct(string $name, ?string $entityId = null)
+    public function getMessageKey(): string
     {
-        $this->name = $name;
-        $this->entityId = $entityId;
-
-        $this->message = sprintf(
-            'A salutation needs to be specified for %s.',
-            $name
-        );
-
-        parent::__construct($this->message);
+        return $this->getId();
     }
 
-    public function getName(): string
+    public function getLevel(): int
     {
-        return $this->name;
+        return Error::LEVEL_WARNING;
     }
 
     public function blockOrder(): bool
@@ -41,28 +27,8 @@ class SalutationMissingError extends Error
         return true;
     }
 
-    public function getKey(): string
-    {
-        return sprintf('%s-%s', self::KEY, $this->name);
-    }
-
-    public function getLevel(): int
-    {
-        return self::LEVEL_NOTICE;
-    }
-
-    public function getMessageKey(): string
-    {
-        return self::KEY;
-    }
-
-    public function getId(): string
-    {
-        return $this->getKey();
-    }
-
     public function getParameters(): array
     {
-        return ['name' => $this->name, 'entityId' => $this->entityId];
+        return $this->parameters;
     }
 }

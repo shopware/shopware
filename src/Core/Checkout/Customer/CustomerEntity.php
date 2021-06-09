@@ -68,7 +68,7 @@ class CustomerEntity extends Entity
     protected $customerNumber;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salutationId;
 

@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Address;
 
-use Shopware\Core\Checkout\Cart\Address\Error\SalutationMissingError;
+use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
+use Shopware\Core\Checkout\Cart\Address\Error\ProfileSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
+use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -14,15 +17,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class AddressValidator implements CartValidatorInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
     /**
-     * @var bool[]
+     * @var array<string, bool>
      */
-    private $available = [];
+    private array $available = [];
 
     public function __construct(EntityRepositoryInterface $repository)
     {
@@ -56,31 +56,25 @@ class AddressValidator implements CartValidatorInterface
             return;
         }
 
-        if ($customer->getSalutationId() === null) {
-            $errors->add(new SalutationMissingError(
-                'profile',
-                $customer->getId()
-            ));
+        if (!$this->isValidSalutationId($customer->getSalutationId())) {
+            $errors->add(new ProfileSalutationMissingError($customer));
 
             return;
         }
 
-        if ($customer->getActiveBillingAddress() === null || $customer->getActiveBillingAddress()->getSalutationId() === null) {
-            $errors->add(new SalutationMissingError(
-                'billing-address',
-                $customer->getActiveBillingAddress() !== null ? $customer->getActiveBillingAddress()->getId() : null
-            ));
+        if ($customer->getActiveBillingAddress() === null || $customer->getActiveShippingAddress() === null) {
+            // No need to add salutation-specific errors in this case
+            return;
+        }
+
+        if (!$this->isValidSalutationId($customer->getActiveBillingAddress()->getSalutationId())) {
+            $errors->add(new BillingAddressSalutationMissingError($customer->getActiveBillingAddress()));
 
             return;
         }
 
-        if ($customer->getActiveShippingAddress() === null || $customer->getActiveShippingAddress()->getSalutationId() === null) {
-            $errors->add(new SalutationMissingError(
-                'shipping-address',
-                $customer->getActiveShippingAddress() !== null ? $customer->getActiveShippingAddress()->getId() : null
-            ));
-
-            return;
+        if (!$this->isValidSalutationId($customer->getActiveShippingAddress()->getSalutationId())) {
+            $errors->add(new ShippingAddressSalutationMissingError($customer->getActiveShippingAddress()));
         }
     }
 
@@ -93,8 +87,13 @@ class AddressValidator implements CartValidatorInterface
         $criteria = new Criteria([$countryId]);
         $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
-        $available = $this->repository->searchIds($criteria, $context->getContext());
+        $salesChannelCountryIds = $this->repository->searchIds($criteria, $context->getContext());
 
-        return $this->available[$countryId] = $available->has($countryId);
+        return $this->available[$countryId] = $salesChannelCountryIds->has($countryId);
+    }
+
+    private function isValidSalutationId(?string $salutationId = null): bool
+    {
+        return $salutationId !== null && $salutationId !== Defaults::SALUTATION;
     }
 }

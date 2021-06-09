@@ -38,4 +38,11 @@ final class Defaults
     public const STORAGE_DATE_FORMAT = 'Y-m-d';
 
     public const CMS_PRODUCT_DETAIL_PAGE = '7a6d253a67204037966f42b0119704d5';
+
+    /**
+     * @deprecated tag:6.5.0 This will be superfluous in future updates, as the salutation will be completely optional.
+     * This constant is only needed to ensure extensions always get a default salutation for customer/address entities
+     * via the `CustomerDefaultSalutationSubscriber`.
+     */
+    public const SALUTATION = 'ed643807c9f84cc8b50132ea3ccb1c3b';
 }

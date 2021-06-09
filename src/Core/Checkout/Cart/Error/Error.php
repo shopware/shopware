@@ -33,6 +33,11 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     abstract public function getParameters(): array;
 
+    public function getRoute(): ?ErrorRoute
+    {
+        return null;
+    }
+
     /**
      * Persistent Errors are passed between the shopping cart calculation processes and then displayed to the user.
      *

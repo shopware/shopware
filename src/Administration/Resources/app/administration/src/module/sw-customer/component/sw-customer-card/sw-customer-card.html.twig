@@ -29,7 +29,7 @@
                         {% block sw_custsomer_card_metadata_customer_name_label %}
                         <template v-if="!editMode">
                             <div
-                                v-if="customer && customer.salutation"
+                                v-if="customer"
                                 class="sw-customer-card__metadata-customer-name"
                             >
                                 {{ fullName }}
@@ -57,7 +57,7 @@
                                     entity="salutation"
                                     label-property="displayName"
                                     :label="$tc('sw-customer.card.labelSalutation')"
-                                    required
+                                    :criteria="salutationCriteria"
                                 />
                                 {% endblock %}
 

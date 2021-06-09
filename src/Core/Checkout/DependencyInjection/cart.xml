@@ -179,7 +179,6 @@
 
         <service id="Shopware\Core\Checkout\Cart\Address\AddressValidator">
             <argument type="service" id="country.repository"/>
-            <argument type="service" id="router"/>
             <tag name="shopware.cart.validator"/>
         </service>
 
@@ -293,6 +292,11 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\PriceDefinitionFactory"/>
             <argument type="service" id="media.repository"/>
             <tag name="shopware.cart.line_item.factory"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerDefaultSalutationSubscriber">
+            <argument type="service" id="salutation.repository"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- LINE ITEM GROUPS -->

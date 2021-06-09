@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Feature;
@@ -158,11 +160,20 @@ abstract class StorefrontController extends AbstractController
             $flat = array_merge($flat, $messages);
         }
 
+        /** @var array<string, Error[]> $groups */
         foreach ($groups as $type => $errors) {
             foreach ($errors as $error) {
                 $parameters = [];
+
                 foreach ($error->getParameters() as $key => $value) {
                     $parameters['%' . $key . '%'] = $value;
+                }
+
+                if ($error->getRoute() instanceof ErrorRoute) {
+                    $parameters['%url%'] = $this->generateUrl(
+                        $error->getRoute()->getKey(),
+                        $error->getRoute()->getParams()
+                    );
                 }
 
                 $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);

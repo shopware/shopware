@@ -1,5 +1,5 @@
 {% set currencyIsoCode = order.currency.isoCode %}
-Hallo {{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+Hallo {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
 
 Wir haben Ihre Zahlung erhalten und werden die Bestellung nun weiter verarbeiten.
 

@@ -406,10 +406,10 @@
     "collapseTriggerMore": "Mehr zeigen",
     "collapseTriggerLess": "Weniger zeigen",
     "product-not-found": "Das Produkt wurde nicht gefunden.",
-    "salutation-missing": "Es wurde keine Anrede konfiguriert, bitte wähle beim Abschluss Deiner Bestellung eine Anrede aus.",
-    "salutation-missing-profile": "Dein Profil enthält noch keine Anrede, bitte wähle <a href=\"%url%\">hier</a> eine aus.",
-    "salutation-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch keine Anrede festgelegt, bitte wähle <a href=\"%url%\">hier</a> eine aus.",
-    "salutation-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch keine Anrede festgelegt, bitte wähle <a href=\"%url%\">hier</a> eine aus."
+    "salutation-missing": "Es wurde keine Anrede konfiguriert, bitte wählen Sie beim Abschluss Ihrer Bestellung eine Anrede aus.",
+    "salutation-missing-profile": "Ihr Profil enthält noch keine Anrede, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
+    "salutation-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
+    "salutation-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus."
   },
   "listing": {
     "filterTitleText": "Filter",

@@ -5,8 +5,7 @@ namespace Shopware\Storefront\Theme;
 use League\Flysystem\FilesystemInterface;
 use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
-use ScssPhp\ScssPhp\Formatter\Crunched;
-use ScssPhp\ScssPhp\Formatter\Expanded;
+use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -19,7 +18,6 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\Asset\Package;
@@ -27,47 +25,28 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ThemeCompiler implements ThemeCompilerInterface
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystem;
 
-    /**
-     * @var Compiler
-     */
-    private $scssCompiler;
+    private ThemeFileResolver $themeFileResolver;
 
-    /**
-     * @var ThemeFileResolver
-     */
-    private $themeFileResolver;
+    private bool $debug;
 
-    /**
-     * @var ThemeFileImporterInterface
-     */
-    private $themeFileImporter;
+    private ThemeFileImporterInterface $themeFileImporter;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $tempFilesystem;
+    private FilesystemInterface $tempFilesystem;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepositoryInterface $mediaRepository;
 
     /**
      * @var Package[]
      */
-    private $packages;
+    private iterable $packages;
 
     private CacheInvalidator $logger;
+
+    private Compiler $scssCompiler;
 
     public function __construct(
         FilesystemInterface $filesystem,
@@ -84,15 +63,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->tempFilesystem = $tempFilesystem;
         $this->themeFileResolver = $themeFileResolver;
         $this->themeFileImporter = $themeFileImporter;
-
-        $this->scssCompiler = new Compiler();
-        $this->scssCompiler->setImportPaths('');
-
-        $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
+        $this->debug = $debug;
         $this->eventDispatcher = $eventDispatcher;
         $this->mediaRepository = $mediaRepository;
         $this->packages = $packages;
         $this->logger = $logger;
+
+        $this->scssCompiler = new Compiler();
+        $this->scssCompiler->setImportPaths('');
+        $this->scssCompiler->setOutputStyle($debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED);
     }
 
     public function compileTheme(
@@ -110,20 +89,19 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
-        /** @var FileCollection $styleFiles */
-        $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
 
+        $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
         $concatenatedStyles = '';
         foreach ($styleFiles as $file) {
             $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
         }
         $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
         $this->eventDispatcher->dispatch($concatenatedStylesEvent);
+
         $compiled = $this->compileStyles($concatenatedStylesEvent->getConcatenatedStyles(), $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
         $cssFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
         $this->filesystem->put($cssFilepath, $compiled);
 
-        /** @var FileCollection $scriptFiles */
         $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
         $concatenatedScripts = '';
         foreach ($scriptFiles as $file) {
@@ -209,16 +187,17 @@ class ThemeCompiler implements ThemeCompilerInterface
         $variables = $this->dumpVariables($configuration->getThemeConfig(), $salesChannelId);
 
         try {
-            $cssOutput = $this->scssCompiler->compile($variables . $concatenatedStyles);
+            $compilationResult = $this->scssCompiler->compileString($variables . $concatenatedStyles);
         } catch (\Throwable $exception) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),
                 $exception->getMessage()
             );
         }
-        $autoPreFixer = new Autoprefixer($cssOutput);
+
+        $autoPreFixer = new Autoprefixer($compilationResult->getCss());
         /** @var string|false $compiled */
-        $compiled = $autoPreFixer->compile();
+        $compiled = $autoPreFixer->compile($this->debug);
         if ($compiled === false) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),

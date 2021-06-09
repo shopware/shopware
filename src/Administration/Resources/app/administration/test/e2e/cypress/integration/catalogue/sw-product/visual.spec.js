@@ -54,13 +54,14 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('[Product] Listing');
 
-        // Edit base data of product
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+        cy.get('.sw-data-grid__row--0 .sw-context-button').click();
+        cy.get('.sw-context-menu__content').should('be.visible');
 
+        cy.takeSnapshot('[Product] Listing, context menu open');
+
+        cy.get('.sw-entity-listing__context-menu-edit-action').click();
+
+        // Edit base data of product
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
         cy.takeSnapshot('[Product] Detail, base', '.sw-product-detail-base');

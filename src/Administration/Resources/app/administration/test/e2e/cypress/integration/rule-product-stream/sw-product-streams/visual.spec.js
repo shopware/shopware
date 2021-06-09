@@ -95,5 +95,16 @@ describe('Dynamic product groups: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-select-selection-list__input').type('{esc}');
         cy.takeSnapshot('[Product groups] Detail, with conditions', '.sw-product-stream-detail');
+
+        cy.get('.sw-condition-or-container__actions > :nth-child(1) > .sw-button')
+            .click();
+
+        cy.get(':nth-child(3) > .sw-product-stream-filter > .sw-product-stream-filter__container > .sw-product-stream-filter__selects > .sw-product-stream-field-select > .sw-field > .sw-block-field__block > .sw-select__selection > .sw-single-select__selection')
+            .click();
+
+        cy.get('.sw-select-result-list__content')
+            .should('be.visible');
+
+        cy.takeSnapshot('[Product groups] Detail, with popover menu', '.sw-product-stream-detail');
     });
 });

@@ -33,7 +33,7 @@ describe('Order: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic order workflow', () => {
+    it.only('@visual: check appearance of basic order workflow', () => {
         const page = new OrderPageObject();
 
         cy.server();
@@ -65,11 +65,14 @@ describe('Order: Visual tests', () => {
         cy.takeSnapshot('[Order] Listing', '.sw-order-list');
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
-        cy.clickContextMenuItem(
-            '.sw-order-list__order-view-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.contextMenuButton}`).click();
+        cy.get('.sw-context-menu')
+            .should('be.visible');
+
+        cy.takeSnapshot('[Order] Listing, Context menu open', '.sw-page');
+
+        cy.get('.sw-order-list__order-view-action').click();
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-order-user-card__metadata-item', 'color: #fff');
@@ -134,7 +137,6 @@ describe('Order: Visual tests', () => {
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');
         cy.contains('.sw-button', 'Add order').click();
-
 
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Order] Create', '.sw-order-user-card');

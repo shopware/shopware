@@ -56,5 +56,13 @@ describe('Category: Visual tests', () => {
 
         cy.get('.sw-many-to-many-assignment-card__select-container').should('be.visible');
         cy.takeSnapshot('[Category] Detail, Products', '.sw-card');
+
+        cy.get('.sw-tree-item__actions .sw-context-button')
+            .click();
+
+        cy.get('.sw-context-menu')
+            .should('be.visible');
+
+        cy.takeSnapshot('[Category] Detail, Open context menu', '.sw-page');
     });
 });

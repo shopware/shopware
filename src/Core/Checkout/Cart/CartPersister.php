@@ -60,7 +60,7 @@ class CartPersister implements CartPersisterInterface
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
             VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :rule_ids, :now)
             ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :cart, `rule_ids` = :rule_ids, `updated_at` = :now

@@ -1,6 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-mail-template/page/sw-mail-template-detail';
 import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-icon';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const mailTemplateMock = {
@@ -61,8 +62,11 @@ const repositoryMockFactory = () => {
     };
 };
 
+const component = Shopware.Component.build('sw-mail-template-detail');
+const spyOnCopyVariable = jest.spyOn(component.methods, 'onCopyVariable');
+
 const createWrapper = (privileges = []) => {
-    return shallowMount(Shopware.Component.build('sw-mail-template-detail'), {
+    return shallowMount(component, {
         provide: {
             repositoryFactory: {
                 create: () => repositoryMockFactory()
@@ -114,7 +118,22 @@ const createWrapper = (privileges = []) => {
             'sw-code-editor': true,
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
-            'sw-tree': true,
+            'sw-icon': Shopware.Component.build('sw-icon'),
+            'icons-small-copy': {
+                template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>'
+            },
+            'sw-tree': {
+                props: ['items'],
+                template: `
+                    <div class="sw-tree">
+                      <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
+                    </div>
+                `
+            },
+            'sw-tree-item': {
+                props: ['item'],
+                template: '<div><slot name="actions" :item="item"></slot></div>'
+            },
             'sw-data-grid': {
                 props: ['dataSource'],
                 template: `
@@ -390,5 +409,47 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             null,
             '1a2b3c'
         );
+    });
+
+    it('should copy variables to clipboard', async () => {
+        Object.defineProperty(navigator, 'clipboard', {
+            value: {
+                writeText: () => new Promise(() => {})
+            }
+        });
+
+        const clipboardSpy = jest.spyOn(navigator.clipboard, 'writeText');
+
+        wrapper = await createWrapper();
+        wrapper.vm.addVariables([
+            {
+                id: 'order',
+                name: 'order',
+                childCount: 1,
+                parentId: null,
+                afterId: null
+            },
+            {
+                id: 'salesChannel',
+                name: 'salesChannel',
+                childCount: 1,
+                parentId: null,
+                afterId: null
+            }
+        ]);
+
+        wrapper.vm.mailTemplateType = {
+            templateData: true
+        };
+
+        await wrapper.vm.$nextTick();
+
+        const icon = await wrapper.find('.sw-mail-template-detail__copy_icon');
+        icon.trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(spyOnCopyVariable).toHaveBeenCalled();
+        expect(clipboardSpy).toHaveBeenCalled();
     });
 });

@@ -57,18 +57,22 @@ class TemplateFinder implements TemplateFinderInterface
         $originalTemplate = $source ? null : $template;
 
         $queue = $this->getNamespaceHierarchy();
+        $modifiedQueue = $queue;
 
         // If we are trying to load the same file as the template, we do are not allowed to search the hierarchy
         // up to the source file as that has already been searched and that would lead to an endless template inheritance.
 
         if ($sourceBundleName !== null && $sourcePath === $templatePath) {
-            $index = array_search($sourceBundleName, $queue, true);
-            $queue = \array_slice($queue, $index + 1);
+            $index = \array_search($sourceBundleName, $modifiedQueue, true);
+
+            if (\is_int($index)) {
+                $modifiedQueue = \array_merge(\array_slice($modifiedQueue, $index + 1), \array_slice($queue, 0, $index));
+            }
         }
 
         // iterate over all bundles but exclude the originally requested bundle
         // example: if @Storefront/storefront/index.html.twig is requested, all bundles except Storefront will be checked first
-        foreach ($queue as $prefix) {
+        foreach ($modifiedQueue as $prefix) {
             $name = '@' . $prefix . '/' . $templatePath;
 
             // original template is loaded last
@@ -83,6 +87,15 @@ class TemplateFinder implements TemplateFinderInterface
             return $name;
         }
 
+        // Throw an useful error when the template cannot be found
+        if ($originalTemplate === null) {
+            if ($ignoreMissing === true) {
+                return $templatePath;
+            }
+
+            throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
+        }
+
         // if no other bundle extends the requested template, load the original template
         if ($this->loader->exists($originalTemplate)) {
             return $originalTemplate;
@@ -92,7 +105,7 @@ class TemplateFinder implements TemplateFinderInterface
             return $templatePath;
         }
 
-        throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($queue))));
+        throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
     }
 
     private function getSourceBundleName(string $source): ?string

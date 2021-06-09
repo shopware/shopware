@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 
 abstract class MigrationStep
 {
@@ -35,14 +36,7 @@ abstract class MigrationStep
 
     public function isInstallation(): bool
     {
-        $install = $_SERVER[self::INSTALL_ENVIRONMENT_VARIABLE] ?? false;
-        if ($install) {
-            return $install;
-        }
-
-        return $_ENV[self::INSTALL_ENVIRONMENT_VARIABLE]
-            ?? $_SERVER[self::INSTALL_ENVIRONMENT_VARIABLE]
-            ?? false;
+        return (bool) EnvironmentHelper::getVariable(self::INSTALL_ENVIRONMENT_VARIABLE, false);
     }
 
     /**
@@ -96,7 +90,7 @@ abstract class MigrationStep
      */
     protected function createTrigger(Connection $connection, string $query, array $params = []): void
     {
-        $blueGreenDeployment = $_ENV['BLUE_GREEN_DEPLOYMENT'] ?? false;
+        $blueGreenDeployment = EnvironmentHelper::getVariable('BLUE_GREEN_DEPLOYMENT', false);
         if ((int) $blueGreenDeployment === 0) {
             return;
         }

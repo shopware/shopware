@@ -8,6 +8,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
@@ -106,9 +107,7 @@ class HttpKernel
             return self::$connection;
         }
 
-        $url = $_ENV['DATABASE_URL']
-            ?? $_SERVER['DATABASE_URL']
-            ?? getenv('DATABASE_URL');
+        $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
 
         $parameters = [
             'url' => $url,

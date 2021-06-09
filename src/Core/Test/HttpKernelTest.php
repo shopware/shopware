@@ -4,6 +4,8 @@ namespace Shopware\Core\Test;
 
 use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\HttpKernel;
 use Shopware\Core\Kernel;
@@ -13,22 +15,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class HttpKernelTest extends TestCase
 {
-    private string $oldUrl;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->oldUrl = $_ENV['DATABASE_URL'];
-        $_ENV['DATABASE_URL'] = str_replace('3306', '1111', $_ENV['DATABASE_URL']);
-    }
-
-    protected function tearDown(): void
-    {
-        $_ENV['DATABASE_URL'] = $this->oldUrl;
-    }
+    use EnvTestBehaviour;
 
     public function testHandleSensitiveDataIsReplaced(): void
     {
+        $this->setEnvVars([
+            'DATABASE_URL' => str_replace('3306', '1111', (string) EnvironmentHelper::getVariable('DATABASE_URL')),
+        ]);
         $kernel = $this->getHttpKernel();
 
         $this->expectException(\RuntimeException::class);

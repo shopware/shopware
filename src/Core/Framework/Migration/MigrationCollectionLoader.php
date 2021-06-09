@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 
@@ -113,7 +114,7 @@ class MigrationCollectionLoader
         [$_, $safeMajorVersion, $currentMinor] = explode('.', $currentVersion);
         $safeMajorVersion = (int) $safeMajorVersion;
 
-        $simulateMajor = ($_ENV['FEATURE_ALL'] ?? $_SERVER['FEATURE_ALL'] ?? null) === 'major';
+        $simulateMajor = EnvironmentHelper::getVariable('FEATURE_ALL') === 'major';
         if ($simulateMajor) {
             ++$safeMajorVersion;
         }

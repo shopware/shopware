@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\DevOps\System\Command;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -35,7 +36,7 @@ class SystemUpdatePrepareCommand extends Command
     {
         $output = new ShopwareStyle($input, $output);
 
-        $dsn = trim((string) ($_SERVER['DATABASE_URL'] ?? getenv('DATABASE_URL')));
+        $dsn = trim((string) (EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'))));
         if ($dsn === '' || $dsn === Kernel::PLACEHOLDER_DATABASE_URL) {
             $output->note("Environment variable 'DATABASE_URL' not defined. Skipping " . $this->getName() . '...');
 

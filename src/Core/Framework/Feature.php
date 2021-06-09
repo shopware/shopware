@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 
 class Feature
 {
@@ -35,7 +36,7 @@ class Feature
 
     public static function isActive(string $feature): bool
     {
-        $env = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
+        $env = EnvironmentHelper::getVariable('APP_ENV', 'prod');
         $feature = self::normalizeName($feature);
 
         if (self::$registeredFeatures !== []
@@ -45,7 +46,7 @@ class Feature
             trigger_error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
         }
 
-        $featureAll = $_SERVER['FEATURE_ALL'] ?? '';
+        $featureAll = EnvironmentHelper::getVariable('FEATURE_ALL', '');
         if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
             if ($featureAll === Feature::ALL_MAJOR) {
                 return true;
@@ -57,13 +58,13 @@ class Feature
             }
         }
 
-        if (!\array_key_exists($feature, $_SERVER)) {
+        if (!EnvironmentHelper::hasVariable($feature)) {
             $fallback = self::$registeredFeatures[$feature]['default'] ?? false;
 
             return (bool) $fallback;
         }
 
-        return self::isTrue(trim($_SERVER[$feature]));
+        return self::isTrue(trim((string) EnvironmentHelper::getVariable($feature)));
     }
 
     public static function ifActive(string $flagName, \Closure $closure): void
@@ -195,7 +196,7 @@ class Feature
 
     private static function dumpFeatures(string $dumpPath): void
     {
-        $env = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
+        $env = EnvironmentHelper::getVariable('APP_ENV', 'prod');
         // do not dump in prod
         if ($env === 'prod') {
             return;

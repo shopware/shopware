@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -32,9 +33,10 @@ class MailerTransportFactory extends Transport
         $emailAgent = $configService->getString('core.mailerSettings.emailAgent');
 
         if ($emailAgent === '') {
-            if (!empty($_SERVER['MAILER_URL'])) {
+            $mailerUrl = (string) EnvironmentHelper::getVariable('MAILER_URL', '');
+            if ($mailerUrl !== '') {
                 try {
-                    return parent::fromString($_SERVER['MAILER_URL']);
+                    return parent::fromString($mailerUrl);
                 } catch (\Throwable $e) {
                     // Mailer Url not valid. Use standard sendmail
                 }

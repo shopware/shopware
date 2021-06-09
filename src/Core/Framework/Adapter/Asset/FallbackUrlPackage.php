@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,8 +21,8 @@ class FallbackUrlPackage extends UrlPackage
         $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
         $requestUrl = rtrim($basePath, '/') . '/';
 
-        if ($request->getHost() === '' && isset($_SERVER['APP_URL'])) {
-            $requestUrl = $_SERVER['APP_URL'];
+        if ($request->getHost() === '' && EnvironmentHelper::getVariable('APP_URL')) {
+            $requestUrl = EnvironmentHelper::getVariable('APP_URL');
         }
 
         foreach ($baseUrls as $url) {

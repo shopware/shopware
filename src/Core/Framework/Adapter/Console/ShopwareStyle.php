@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Console;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ShopwareStyle extends SymfonyStyle
@@ -10,7 +11,7 @@ class ShopwareStyle extends SymfonyStyle
     {
         $progressBar = parent::createProgressBar($max);
 
-        $character = $_SERVER['PROGRESS_BAR_CHARACTER'] ?? '';
+        $character = (string) EnvironmentHelper::getVariable('PROGRESS_BAR_CHARACTER', '');
         if ($character) {
             $progressBar->setProgressCharacter($character);
         }

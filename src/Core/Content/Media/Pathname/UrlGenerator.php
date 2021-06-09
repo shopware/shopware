@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class UrlGenerator implements UrlGeneratorInterface
@@ -114,7 +115,7 @@ class UrlGenerator implements UrlGeneratorInterface
             return rtrim($basePath, '/');
         }
 
-        return $_SERVER['APP_URL'];
+        return (string) EnvironmentHelper::getVariable('APP_URL');
     }
 
     private function toPathString(array $parts): string

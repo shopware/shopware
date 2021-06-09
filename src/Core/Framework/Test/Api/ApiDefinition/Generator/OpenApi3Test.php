@@ -24,8 +24,8 @@ class OpenApi3Test extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        static::$env = $_ENV['APP_ENV'] ?? 'test';
-        $_ENV['APP_ENV'] = 'prod';
+        static::$env = $_SERVER['APP_ENV'] ?? 'test';
+        $_SERVER['APP_ENV'] = 'prod';
         KernelLifecycleManager::ensureKernelShutdown();
         KernelLifecycleManager::bootKernel();
     }
@@ -33,7 +33,7 @@ class OpenApi3Test extends TestCase
     public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
-        $_ENV['APP_ENV'] = static::$env;
+        $_SERVER['APP_ENV'] = static::$env;
         KernelLifecycleManager::ensureKernelShutdown();
     }
 

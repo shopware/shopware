@@ -361,6 +361,44 @@ Jest (Storefront):
 
 # Stage: E2E
 
+.percy_integration:
+    services:
+        -   name: docker:18.09.7-dind
+            alias: docker
+        -   name: mariadb:10.3
+            alias: mysql
+    dependencies: []
+    variables:
+        PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+        PERCY_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+        PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+        PERCY_COMMIT: $CI_COMMIT_SHA
+        PERCY_ENABLE: $CYPRESS_PERCY_USAGE
+        PERCY_TOKEN: $PERCY_TOKEN
+        CYPRESS_localUsage: 'true'
+        CYPRESS_usePercy: $CYPRESS_PERCY_USAGE
+        CYPRESS_projectPath: 'vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e'
+        CYPRESS_projectRoot: '/builds/shopware/6/product/platform/development'
+        CYPRESS_baseUrl: 'http://docker.vm:8000'
+        CYPRESS_numTestsKeptInMemory: 0
+    script:
+        - ./psh.phar init --APP_ENV="prod"
+        - ./psh.phar administration:init --APP_ENV="prod"
+        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
+        - ./psh.phar e2e:dump-db --APP_ENV="prod"
+        - chown -R 1000:1000 .
+        - cd $CYPRESS_projectPath
+        - npm clean-install
+        - npx percy exec -- cypress run
+            --browser chrome --headless
+            --spec "cypress/**/visual.spec.js,cypress/**/percy-storefront-validation/*"
+    artifacts:
+        when: always
+        paths:
+            - development/build/artifacts/e2e/
+        reports:
+            junit: development/build/artifacts/e2e/*.xml
+
 E2E:
     stage: E2E
     needs: []
@@ -454,6 +492,14 @@ E2E:
                 FEATURE_ALL: 'false'
                 cypress_usePercy: 'false'
                 SKIP_ON_MR: 'true'
+
+Visual Testing (Percy):
+    extends: .percy_integration
+    stage: visual
+    rules:
+        - if: '$PERCY_TOKEN == null || $CYPRESS_PERCY_USAGE == null'
+          when: never
+        - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 Symfony security check:
     stage: security
@@ -573,48 +619,14 @@ Upload Component Library:
 # Stage: visual
 
 Percy:
+    extends: .percy_integration
     stage: visual
     rules:
         -   if: '$PERCY_TOKEN == null || $CYPRESS_PERCY_USAGE == null'
             when: never
         -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/'
             when: never
+        -   if: '$CI_PIPELINE_SOURCE == "pipeline"'
         -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
         -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::visual.*/'
-        -   if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline"'
-    services:
-        -   name: docker:18.09.7-dind
-            alias: docker
-        -   name: mariadb:10.3
-            alias: mysql
-    dependencies: []
-    variables:
-        PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-        PERCY_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
-        PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-        PERCY_COMMIT: $CI_COMMIT_SHA
-        PERCY_ENABLE: $CYPRESS_PERCY_USAGE
-        PERCY_TOKEN: $PERCY_TOKEN
-        CYPRESS_localUsage: 'true'
-        CYPRESS_usePercy: $CYPRESS_PERCY_USAGE
-        CYPRESS_projectPath: 'vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e'
-        CYPRESS_projectRoot: '/builds/shopware/6/product/platform/development'
-        CYPRESS_baseUrl: 'http://docker.vm:8000'
-        CYPRESS_numTestsKeptInMemory: 0
-    script:
-        - ./psh.phar init --APP_ENV="prod"
-        - ./psh.phar administration:init --APP_ENV="prod"
-        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
-        - ./psh.phar e2e:dump-db --APP_ENV="prod"
-        - chown -R 1000:1000 .
-        - cd $CYPRESS_projectPath
-        - npm clean-install
-        - npx percy exec -- cypress run
-            --browser chrome --headless
-            --spec "cypress/**/visual.spec.js,cypress/**/percy-storefront-validation/*"
-    artifacts:
-        when: always
-        paths:
-            - development/build/artifacts/e2e/
-        reports:
-            junit: development/build/artifacts/e2e/*.xml
+        -   if: '$CI_PIPELINE_SOURCE == "pipeline"'

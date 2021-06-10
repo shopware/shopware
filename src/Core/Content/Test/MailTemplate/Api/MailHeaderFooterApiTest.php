@@ -55,7 +55,7 @@ class MailHeaderFooterApiTest extends TestCase
 
         // do API calls
         foreach ($data as $entry) {
-            $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
+            $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry));
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         }
@@ -142,9 +142,9 @@ class MailHeaderFooterApiTest extends TestCase
             $expextData[$id] = $data[$idx];
             unset($data[$idx]['id']);
 
-            $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, $data[$idx], [], [
+            $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
                 'HTTP_ACCEPT' => 'application/json',
-            ]);
+            ], json_encode($data[$idx]));
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }

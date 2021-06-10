@@ -107,7 +107,10 @@ class CartTaxTest extends TestCase
         $this->browser->request(
             'POST',
             '/store-api/checkout/cart/line-item',
-            [
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            (string) json_encode([
                 'items' => [
                     [
                         'id' => $this->ids->get('p1'),
@@ -116,7 +119,7 @@ class CartTaxTest extends TestCase
                         'quantity' => $quantity,
                     ],
                 ],
-            ]
+            ])
         );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -181,7 +184,10 @@ class CartTaxTest extends TestCase
         $this->browser->request(
             'POST',
             '/store-api/checkout/cart/line-item',
-            [
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            (string) json_encode([
                 'items' => [
                     [
                         'id' => $this->ids->get('p1'),
@@ -190,7 +196,7 @@ class CartTaxTest extends TestCase
                         'quantity' => $quantity,
                     ],
                 ],
-            ]
+            ])
         );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -242,7 +248,10 @@ class CartTaxTest extends TestCase
         $this->browser->request(
             'POST',
             '/store-api/checkout/cart/line-item',
-            [
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            (string) json_encode([
                 'items' => [
                     [
                         'id' => $this->ids->get('p1'),
@@ -251,7 +260,7 @@ class CartTaxTest extends TestCase
                         'quantity' => $quantity,
                     ],
                 ],
-            ]
+            ])
         );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -365,10 +374,13 @@ class CartTaxTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                (string) json_encode([
                     'email' => $email,
                     'password' => $password,
-                ]
+                ])
             );
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);

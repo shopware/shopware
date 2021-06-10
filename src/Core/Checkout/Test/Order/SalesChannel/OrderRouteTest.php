@@ -261,12 +261,15 @@ class OrderRouteTest extends TestCase
 
         $this->browser
             ->request(
-                'GET',
+                'POST',
                 '/store-api/order',
-                array_merge(
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode(array_merge(
                     $this->requestCriteriaBuilder->toArray($criteria),
                     ['checkPromotion' => true]
-                )
+                ))
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);

@@ -70,7 +70,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $this->getRegistrationData()
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData())
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -82,10 +85,13 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -122,7 +128,10 @@ class RegisterRouteTest extends TestCase
         $browser->request(
             'POST',
             '/store-api/account/register',
-            $this->getRegistrationData($storefrontUrl)
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($this->getRegistrationData($storefrontUrl))
         );
 
         $response = json_decode($browser->getResponse()->getContent(), true);
@@ -137,10 +146,13 @@ class RegisterRouteTest extends TestCase
             $browser->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ]
+                ])
             );
 
             $response = json_decode($browser->getResponse()->getContent(), true);
@@ -158,7 +170,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $this->getRegistrationData()
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData())
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -199,7 +214,10 @@ class RegisterRouteTest extends TestCase
         $browser->request(
             'POST',
             '/store-api/account/register',
-            $this->getRegistrationData($domainUrlTest['expectDomain'])
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($this->getRegistrationData($domainUrlTest['expectDomain']))
         );
 
         $response = json_decode($browser->getResponse()->getContent(), true);
@@ -213,10 +231,13 @@ class RegisterRouteTest extends TestCase
         $browser->request(
             'POST',
             '/store-api/account/login',
-            [
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
                 'email' => 'teg-reg@example.com',
                 'password' => '12345678',
-            ]
+            ])
         );
 
         $response = json_decode($browser->getResponse()->getContent(), true);
@@ -252,7 +273,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $this->getRegistrationData()
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData())
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -265,10 +289,13 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -285,10 +312,13 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register-confirm',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'hash' => $customer->getHash(),
                     'em' => sha1('teg-reg@example.com'),
-                ]
+                ])
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -297,10 +327,13 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -318,7 +351,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $this->getRegistrationData()
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData())
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -349,7 +385,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $this->getRegistrationData()
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData())
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -378,10 +417,13 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register-confirm',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'hash' => $customer->getHash(),
                     'em' => sha1('teg-reg@example.com'),
-                ]
+                ])
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -416,7 +458,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                array_merge($this->getRegistrationData(), ['requestedGroupId' => $this->ids->get('group')])
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode(array_merge($this->getRegistrationData(), ['requestedGroupId' => $this->ids->get('group')]))
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -482,7 +527,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $registrationData
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData)
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -495,10 +543,13 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -522,7 +573,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $registrationData
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData)
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -538,10 +592,13 @@ class RegisterRouteTest extends TestCase
                 ->request(
                     'POST',
                     '/store-api/account/login',
-                    [
+                    [],
+                    [],
+                    ['CONTENT_TYPE' => 'application/json'],
+                    json_encode([
                         'email' => 'teg-reg@example.com',
                         'password' => '12345678',
-                    ]
+                    ])
                 );
 
             $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -572,7 +629,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $registrationData
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData)
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -602,7 +662,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $registrationData
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData)
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -614,10 +677,13 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -647,7 +713,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $registrationData
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData)
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -678,10 +747,13 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -710,7 +782,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $registrationData
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData)
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -725,7 +800,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/checkout/cart/line-item',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'items' => [
                         [
                             'id' => $this->ids->get('p1'),
@@ -734,7 +812,7 @@ class RegisterRouteTest extends TestCase
                             'referencedId' => $this->ids->get('p1'),
                         ],
                     ],
-                ]
+                ])
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -751,7 +829,10 @@ class RegisterRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/register',
-                $registrationData
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData)
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());

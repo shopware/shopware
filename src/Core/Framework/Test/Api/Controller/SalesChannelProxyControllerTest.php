@@ -403,13 +403,20 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser = $this->createCart(Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
         $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
 
-        $browser->request('PATCH', $this->getRootProxyUrl('/modify-shipping-costs'), [
-            'shippingCosts' => [
-                'unitPrice' => 20,
-                'totalPrice' => 20,
-            ],
-            'salesChannelId' => Defaults::SALES_CHANNEL,
-        ]);
+        $browser->request(
+            'PATCH',
+            $this->getRootProxyUrl('/modify-shipping-costs'),
+            [],
+            [],
+            [],
+            json_encode([
+                'shippingCosts' => [
+                    'unitPrice' => 20,
+                    'totalPrice' => 20,
+                ],
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+            ])
+        );
 
         $response = $this->getBrowser()->getResponse();
 
@@ -429,9 +436,16 @@ class SalesChannelProxyControllerTest extends TestCase
         //create a new shipping method and request to change
         $shippingMethodId = $this->createShippingMethod();
 
-        $browser->request('PATCH', $this->getUrl(Defaults::SALES_CHANNEL, '/context'), [
-            'shippingMethodId' => $shippingMethodId,
-        ]);
+        $browser->request(
+            'PATCH',
+            $this->getUrl(Defaults::SALES_CHANNEL, '/context'),
+            [],
+            [],
+            [],
+            json_encode([
+                'shippingMethodId' => $shippingMethodId,
+            ])
+        );
 
         //assert response format
         $response = $this->getBrowser()->getResponse();
@@ -946,7 +960,7 @@ class SalesChannelProxyControllerTest extends TestCase
             $categoryData['id'] = Uuid::randomHex();
         }
 
-        $this->getBrowser()->request('POST', $baseResource, $categoryData);
+        $this->getBrowser()->request('POST', $baseResource, [], [], [], json_encode($categoryData));
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
@@ -984,7 +998,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
                 'translationCodeId' => $fallbackLocaleId,
             ];
-            $this->getBrowser()->request('POST', $baseUrl . '/language', $parentLanguageData);
+            $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($parentLanguageData));
             static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
         }
 
@@ -1005,7 +1019,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', $baseUrl . '/language', $languageData);
+        $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($languageData));
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $this->getBrowser()->request('GET', $baseUrl . '/language/' . $langId);
@@ -1101,7 +1115,10 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'POST',
             $this->getUrl($salesChannelId, 'checkout/cart/line-item'),
-            [
+            [],
+            [],
+            [],
+            json_encode([
                 'items' => [
                     [
                         'type' => 'product',
@@ -1109,7 +1126,7 @@ class SalesChannelProxyControllerTest extends TestCase
                         'quantity' => $quantity,
                     ],
                 ],
-            ]
+            ])
         );
     }
 
@@ -1118,11 +1135,12 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'POST',
             $this->getStoreApiUrl($salesChannelId, 'checkout/cart/line-item'),
-            ['items' => [$payload]],
+            [],
             [],
             [
                 'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
-            ]
+            ],
+            json_encode(['items' => [$payload]])
         );
     }
 
@@ -1131,17 +1149,18 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/modify-shipping-costs'),
+            [],
+            [],
             [
+                'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
+            ],
+            json_encode([
                 'shippingCosts' => [
                     'unitPrice' => $price,
                     'totalPrice' => $price,
                 ],
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-            ],
-            [],
-            [
-                'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
-            ]
+            ])
         );
     }
 
@@ -1150,13 +1169,14 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'DELETE',
             $this->getStoreApiUrl(Defaults::SALES_CHANNEL, '/checkout/cart/line-item'),
-            [
-                'ids' => $ids,
-            ],
+            [],
             [],
             [
                 'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
-            ]
+            ],
+            json_encode([
+                'ids' => $ids,
+            ])
         );
     }
 
@@ -1169,14 +1189,17 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getUrl($salesChannelId, 'checkout/cart/line-item'),
-            [
+            [],
+            [],
+            [],
+            json_encode([
                 'items' => [
                     [
                         'id' => $lineItemId,
                         'quantity' => $quantity,
                     ],
                 ],
-            ]
+            ])
         );
     }
 
@@ -1205,14 +1228,17 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'POST',
             $this->getUrl($salesChannelId, 'checkout/cart/line-item'),
-            [
+            [],
+            [],
+            [],
+            json_encode([
                 'items' => [
                     [
                         'type' => 'promotion',
                         'referencedId' => $code,
                     ],
                 ],
-            ]
+            ])
         );
     }
 

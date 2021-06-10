@@ -435,21 +435,6 @@ class InstallCommand extends Command
         return $databaseConnectionInformation;
     }
 
-    protected function getConnectionInfoFromConfig(string $configPath, DatabaseConnectionInformation $connectionInfo): DatabaseConnectionInformation
-    {
-        if (!$configuration = $this->loadConfiguration($configPath)) {
-            return $connectionInfo;
-        }
-
-        $connectionInfo->username = $configuration['db']['username'];
-        $connectionInfo->hostname = $configuration['db']['host'];
-        $connectionInfo->port = $configuration['db']['port'];
-        $connectionInfo->databaseName = $configuration['db']['dbname'];
-        $connectionInfo->password = $configuration['db']['password'];
-
-        return $connectionInfo;
-    }
-
     /**
      * @return DatabaseConnectionInformation
      */
@@ -457,30 +442,16 @@ class InstallCommand extends Command
     {
         $connectionInfo->username = $input->getOption('db-user');
         $connectionInfo->hostname = $input->getOption('db-host');
-        $connectionInfo->port = (int) $input->getOption('db-port');
+        $connectionInfo->port = $input->getOption('db-port');
         $connectionInfo->databaseName = $input->getOption('db-name');
         $connectionInfo->socket = $input->getOption('db-socket');
         $connectionInfo->password = $input->getOption('db-password');
+        $connectionInfo->sslCaPath = $input->getOption('db-ssl-ca');
+        $connectionInfo->sslCertPath = $input->getOption('db-ssl-cert');
+        $connectionInfo->sslCertKeyPath = $input->getOption('db-ssl-key');
+        $connectionInfo->sslDontVerifyServerCert = $input->getOption('db-ssl-dont-verify-cert') === '1' ? true : false;
 
         return $connectionInfo;
-    }
-
-    /**
-     * Loads config.php content as an array, or false if the file doesn't exist.
-     *
-     * @param string $configPath
-     *
-     * @return array|bool
-     */
-    protected function loadConfiguration($configPath)
-    {
-        if (!is_file($configPath)) {
-            return false;
-        }
-
-        $content = require $configPath;
-
-        return $content;
     }
 
     private function addDbOptions(): void
@@ -530,6 +501,34 @@ class InstallCommand extends Command
                 null,
                 InputOption::VALUE_NONE,
                 'Import database data even if a valid schema already exists'
+            )
+
+            ->addOption(
+                'db-ssl-ca',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Database SSL CA path'
+            )
+
+            ->addOption(
+                'db-ssl-cert',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Database SSL Cert path'
+            )
+
+            ->addOption(
+                'db-ssl-key',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Database SSL Key path'
+            )
+
+            ->addOption(
+                'db-ssl-dont-verify-cert',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Don\'t verify server cert'
             )
         ;
     }

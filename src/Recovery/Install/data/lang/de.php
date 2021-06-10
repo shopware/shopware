@@ -330,6 +330,10 @@ return [
     'database-configuration-create_new_database' => 'Neue Datenbank anlegen',
     'database-configuration_non_empty_database' => 'Die ausgewählte Datenbank enthält bereits Daten. Bitte wähle eine leere Datenbank aus oder erstelle eine neue.',
     'database-configuration_error_required_fields' => 'Bitte fülle alle Felder aus.',
+    'database-configuration_field_ssl_ca_path' => 'Dateipfad zur SSL Zertifizierungsstelle',
+    'database-configuration_field_ssl_cert_path' => 'Dateipfad zur SSL Zertifikat',
+    'database-configuration_field_ssl_cert_key_path' => 'Dateipfad zur SSL Zertifikatsschlüssel',
+    'database-configuration_field_ssl_dont_verify_cert' => 'Server Zertifikat nicht überprüfen',
 
     'database-import_header' => 'Installation',
     'database-import_skip_import' => 'Überspringen',

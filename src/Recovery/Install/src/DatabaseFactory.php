@@ -14,15 +14,33 @@ class DatabaseFactory
      */
     public function createPDOConnection(DatabaseConnectionInformation $info)
     {
+        $parameters = [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4',
+        ];
+
+        if ($info->sslCaPath) {
+            $parameters[\PDO::MYSQL_ATTR_SSL_CA] = $info->sslCaPath;
+        }
+
+        if ($info->sslCertPath) {
+            $parameters[\PDO::MYSQL_ATTR_SSL_CERT] = $info->sslCertPath;
+        }
+
+        if ($info->sslCertKeyPath) {
+            $parameters[\PDO::MYSQL_ATTR_SSL_KEY] = $info->sslCertKeyPath;
+        }
+
+        if ($info->sslDontVerifyServerCert === true) {
+            $parameters[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        }
+
         $conn = new \PDO(
             $this->buildDsn($info),
             $info->username,
             $info->password,
-            [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-            ]
+            $parameters
         );
 
         $this->setNonStrictSQLMode($conn);

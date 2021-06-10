@@ -88,6 +88,22 @@ class SystemInstallCommand extends Command
             'charset' => 'utf8mb4',
         ];
 
+        if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+        }
+
+        if ($sslCert = EnvironmentHelper::getVariable('DATABASE_SSL_CERT')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
+        }
+
+        if ($sslCertKey = EnvironmentHelper::getVariable('DATABASE_SSL_KEY')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $sslCertKey;
+        }
+
+        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        }
+
         $connection = DriverManager::getConnection($parameters, new Configuration());
 
         $output->writeln('Prepare installation');

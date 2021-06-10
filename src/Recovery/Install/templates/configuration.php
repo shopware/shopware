@@ -133,7 +133,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="eur"
                        name="c_available_currencies[]"
-                       value="<?= mb_strtoupper('EUR'); ?>"/>
+                       value="EUR"/>
                 <label for="eur"><?= $t->t('configuration_admin_currency_eur'); ?></label>
             </div>
 
@@ -141,14 +141,14 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="usd"
                        name="c_available_currencies[]"
-                       value="<?= mb_strtoupper('USD'); ?>"/>
+                       value="USD"/>
                 <label for="usd"><?= $t->t('configuration_admin_currency_usd'); ?></label>
             </div>
             <div class="custom-checkbox">
                 <input type="checkbox"
                        id="gbp"
                        name="c_available_currencies[]"
-                       value="<?= mb_strtoupper('GBP'); ?>"/>
+                       value="GBP"/>
                 <label for="gbp"><?= $t->t('configuration_admin_currency_gbp'); ?></label>
             </div>
 
@@ -156,7 +156,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="pln"
                        name="c_available_currencies[]"
-                       value="<?= mb_strtoupper('PLN'); ?>"/>
+                       value="PLN"/>
                 <label for="pln"><?= $t->t('configuration_admin_currency_pln'); ?></label>
             </div>
 
@@ -164,7 +164,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="chf"
                        name="c_available_currencies[]"
-                       value="<?= mb_strtoupper('CHF'); ?>"/>
+                       value="CHF"/>
                 <label for="chf"><?= $t->t('configuration_admin_currency_chf'); ?></label>
             </div>
 
@@ -172,7 +172,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="sek"
                        name="c_available_currencies[]"
-                       value="<?= mb_strtoupper('SEK'); ?>"/>
+                       value="SEK"/>
                 <label for="sek"><?= $t->t('configuration_admin_currency_sek'); ?></label>
             </div>
 
@@ -180,7 +180,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="dkk"
                        name="c_available_currencies[]"
-                       value="<?= mb_strtoupper('DKK'); ?>"/>
+                       value="DKK"/>
                 <label for="dkk"><?= $t->t('configuration_admin_currency_dkk'); ?></label>
             </div>
 
@@ -188,7 +188,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="nok"
                        name="c_available_currencies[]"
-                       value="<?= mb_strtoupper('NOK'); ?>"/>
+                       value="NOK"/>
                 <label for="nok"><?= $t->t('configuration_admin_currency_nok'); ?></label>
             </div>
 
@@ -196,7 +196,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="czk"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('CZK'); ?>"/>
+                       value="CZK"/>
                 <label for="czk"><?= $t->t('configuration_admin_currency_czk'); ?></label>
             </div>
         </div>

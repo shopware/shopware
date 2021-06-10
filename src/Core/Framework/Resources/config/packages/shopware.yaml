@@ -143,6 +143,11 @@ shopware:
               major: false
               description: "App System 3.0 - CMS blocks provided by apps"
               # issue: NEXT-14408
+            - name: FEATURE_NEXT_15475
+              default: false
+              major: false
+              description: "Refactor Preview Mail Dummy Data"
+              # issue: NEXT-15475
             - name: FEATURE_NEXT_12437
               default: false
               major: false

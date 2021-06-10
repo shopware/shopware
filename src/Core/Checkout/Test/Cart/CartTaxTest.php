@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -78,13 +79,16 @@ class CartTaxTest extends TestCase
         int $quantity,
         ?array $vatIds = null
     ): void {
+        $this->createShippingMethod();
+
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
+            'shippingMethodId' => $this->ids->get('shipping'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
 
-        $this->createTestData();
+        $this->createProduct();
 
         $countryId = Uuid::fromBytesToHex($this->getCountryIdByIso());
 
@@ -124,16 +128,16 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals(500 * $quantity, $response['price']['totalPrice']);
+            static::assertEquals((500 * $quantity) + 10, $response['price']['totalPrice']);
         } else {
-            static::assertEquals(550, $response['price']['totalPrice']);
+            static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
         }
     }
 
     /**
      * @dataProvider dataTestHandlingTaxFreeInStorefront
      */
-    public function testHandlingTaxFreeInStorefrontWithBaseCurrencyVND(
+    public function testHandlingTaxFreeInStorefrontWithBaseCurrencyCHF(
         string $testCase,
         float $currencyTaxFreeFrom,
         bool $countryTaxFree,
@@ -145,14 +149,16 @@ class CartTaxTest extends TestCase
     ): void {
         $currencyId = Uuid::fromBytesToHex($this->getCurrencyIdByIso('CHF'));
 
+        $this->createShippingMethod();
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
             'currencyId' => $currencyId,
+            'shippingMethodId' => $this->ids->get('shipping'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
 
-        $this->createTestData();
+        $this->createProduct();
 
         $countryId = Uuid::fromBytesToHex($this->getCountryIdByIso('CH'));
 
@@ -198,9 +204,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals(550 * $quantity, $response['price']['totalPrice']);
+            static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
         } else {
-            static::assertEquals(605, $response['price']['totalPrice']);
+            static::assertEquals((605 * $quantity) + 12.1, $response['price']['totalPrice']);
         }
     }
 
@@ -217,14 +223,16 @@ class CartTaxTest extends TestCase
     ): void {
         $currencyId = Uuid::fromBytesToHex($this->getCurrencyIdByIso('USD'));
 
+        $this->createShippingMethod();
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
             'currencyId' => $currencyId,
+            'shippingMethodId' => $this->ids->get('shipping'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
 
-        $this->createTestData();
+        $this->createProduct();
 
         $usCountryId = Uuid::fromBytesToHex($this->getCountryIdByIso('US'));
 
@@ -259,9 +267,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals(585.43 * $quantity, $response['price']['totalPrice']);
+            static::assertEquals((585.43 * $quantity) + 11.71, $response['price']['totalPrice']);
         } else {
-            static::assertEquals(643.97 * $quantity, $response['price']['totalPrice']);
+            static::assertEquals((643.97 * $quantity) + 12.88, $response['price']['totalPrice']);
         }
     }
 
@@ -307,7 +315,7 @@ class CartTaxTest extends TestCase
     public function dataTestHandlingTaxFreeInStorefront(): array
     {
         return [
-            'case 1 tax-free' => ['tax-free', 100, false, false, 0, 0, 1],
+            'case 1 tax-free' => ['tax-free', 500, false, false, 0, 0, 1],
             'case 2 tax-free' => ['tax-free', 1000, false, false, 0, 0, 2],
             'case 3 no tax-free' => ['no tax-free', 1000, false, false, 0, 0, 1],
             'case 4 no tax-free' => ['no tax-free', 1000, true, false, 100, 0,  1],
@@ -331,7 +339,7 @@ class CartTaxTest extends TestCase
         ];
     }
 
-    private function createTestData(): void
+    private function createProduct(): void
     {
         $this->productRepository->create([
             [
@@ -441,5 +449,49 @@ class CartTaxTest extends TestCase
     private function getCurrencyIdByIso(string $iso = 'EUR'): string
     {
         return $this->connection->fetchOne('SELECT id FROM currency WHERE iso_code = :iso', ['iso' => $iso]);
+    }
+
+    private function createShippingMethod(): void
+    {
+        $data = [
+            [
+                'id' => $this->ids->create('shipping'),
+                'active' => true,
+                'bindShippingfree' => false,
+                'name' => 'test',
+                'availabilityRule' => [
+                    'id' => $this->ids->create('rule'),
+                    'name' => 'asd',
+                    'priority' => 2,
+                ],
+                'deliveryTime' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'testDeliveryTime',
+                    'min' => 1,
+                    'max' => 90,
+                    'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+                ],
+                'prices' => [
+                    [
+                        'name' => 'Test',
+                        'price' => 10,
+                        'currencyId' => Defaults::CURRENCY,
+                        'calculation' => 1,
+                        'quantityStart' => 1,
+                        'currencyPrice' => [
+                            [
+                                'currencyId' => Defaults::CURRENCY,
+                                'net' => 10,
+                                'gross' => 11,
+                                'linked' => false,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('shipping_method.repository')
+            ->create($data, $this->ids->context);
     }
 }

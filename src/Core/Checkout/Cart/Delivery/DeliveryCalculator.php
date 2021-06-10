@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryCalculator
@@ -44,6 +45,8 @@ class DeliveryCalculator
     private $percentageTaxRuleBuilder;
 
     /**
+     * @feature-deprecated (FEATURE_NEXT_14114) - Will be removed after removing flag FEATURE_NEXT_14114
+     *
      * @var TaxDetector
      */
     private $taxDetector;
@@ -231,7 +234,7 @@ class DeliveryCalculator
 
     private function getPriceForTaxState(Price $price, SalesChannelContext $context): float
     {
-        $taxState = $this->taxDetector->getTaxState($context);
+        $taxState = Feature::isActive('FEATURE_NEXT_14114') ? $context->getTaxState() : $this->taxDetector->getTaxState($context);
 
         if ($taxState === CartPrice::TAX_STATE_GROSS) {
             return $price->getGross();

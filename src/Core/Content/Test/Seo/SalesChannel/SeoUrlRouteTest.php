@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
+/**
+ * @group store-api
+ */
 class SeoUrlRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

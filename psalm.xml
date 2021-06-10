@@ -13,7 +13,6 @@
             <directory name="src/Recovery"/>
             <file name="src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php"/>
             <file name="src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
-
             <!-- Would otherwise inspect node_modules directories of JS applications -->
             <directory name="src/*/Resources/app" />
         </ignoreFiles>
@@ -33,6 +32,14 @@
                 <referencedClass name="Shopware\Core\Framework\Adapter\Cache\TCachedContent"/>
             </errorLevel>
         </UndefinedDocblockClass>
+
+        <UnusedClosureParam>
+            <errorLevel type="info">
+                <file name="src/Core/Content/Test/Product/SalesChannel/Listing/CachedProductListingRouteTest.php"/>
+                <file name="src/Core/Content/Test/Category/SalesChannel/CachedCategoryRouteTest.php"/>
+                <file name="src/Core/Content/Test/Category/SalesChannel/CachedNavigationRouteTest.php"/>
+            </errorLevel>
+        </UnusedClosureParam>
 
         <!-- Shopware related issues which are ignored -->
         <UnusedMethodCall>

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group store-api
+ */
 class NewsletterSubscribeRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -26,6 +26,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 {
+    public const ALL_TAG = 'shipping-method-route';
+
     private AbstractShippingMethodRoute $decorated;
 
     private TagAwareAdapterInterface $cache;
@@ -172,7 +174,7 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
     {
         $tags = array_merge(
             $this->tracer->get(self::buildName($context->getSalesChannelId())),
-            [self::buildName($context->getSalesChannelId())]
+            [self::buildName($context->getSalesChannelId()), self::ALL_TAG]
         );
 
         $event = new ShippingMethodRouteCacheTagsEvent($tags, $request, $response, $context, $criteria);

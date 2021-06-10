@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
+/**
+ * @group store-api
+ */
 class NewsletterUnsubscribeRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

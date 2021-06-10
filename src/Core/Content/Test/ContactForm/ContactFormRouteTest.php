@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * @group store-api
+ */
 class ContactFormRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

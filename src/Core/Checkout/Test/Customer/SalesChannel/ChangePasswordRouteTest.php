@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 
+/**
+ * @group store-api
+ */
 class ChangePasswordRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

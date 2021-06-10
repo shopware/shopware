@@ -28,6 +28,10 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group cache
+ * @group store-api
+ */
 class CachedProductReviewRouteTest extends TestCase
 {
     use KernelTestBehaviour;

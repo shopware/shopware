@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @group store-api
+ */
 class CartOrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

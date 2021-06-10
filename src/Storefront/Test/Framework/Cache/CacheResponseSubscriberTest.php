@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+/**
+ * @group cache
+ */
 class CacheResponseSubscriberTest extends TestCase
 {
     public function testNoHeadersAreSetIfCacheIsDisabled(): void

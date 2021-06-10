@@ -16,6 +16,10 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
+/**
+ * @group store-api
+ * @group cart
+ */
 class CartDeleteRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

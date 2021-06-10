@@ -21,6 +21,9 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @group store-api
+ */
 class RegisterRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -19,6 +20,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CartRuleLoader
 {
@@ -41,6 +43,8 @@ class CartRuleLoader
      */
     private TaxDetector $taxDetector;
 
+    private EventDispatcherInterface $dispatcher;
+
     /**
      * @internal (FEATURE_NEXT_14114)
      */
@@ -58,7 +62,8 @@ class CartRuleLoader
         TagAwareAdapterInterface $cache,
         AbstractRuleLoader $loader,
         TaxDetector $taxDetector,
-        Connection $connection
+        Connection $connection,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->cartPersister = $cartPersister;
         $this->processor = $processor;
@@ -66,6 +71,7 @@ class CartRuleLoader
         $this->cache = $cache;
         $this->ruleLoader = $loader;
         $this->taxDetector = $taxDetector;
+        $this->dispatcher = $dispatcher;
         $this->connection = $connection;
     }
 
@@ -77,6 +83,7 @@ class CartRuleLoader
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), false);
         } catch (CartTokenNotFoundException $e) {
             $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
+            $this->dispatcher->dispatch(new CartCreatedEvent($cart));
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), true);
         }

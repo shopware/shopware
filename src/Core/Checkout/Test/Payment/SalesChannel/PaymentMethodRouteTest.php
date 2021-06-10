@@ -16,6 +16,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group store-api
+ */
 class PaymentMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

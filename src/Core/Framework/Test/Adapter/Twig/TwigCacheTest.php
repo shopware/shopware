@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 
+/**
+ * @group cache
+ */
 class TwigCacheTest extends TestCase
 {
     use KernelTestBehaviour;

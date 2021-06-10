@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @group store-api
+ */
 class ChangeEmailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -32,7 +32,7 @@
             <argument type="service" id="sales_channel.category.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
@@ -42,7 +42,11 @@
             <argument type="service" id="logger" />
         </service>
 
-        <service id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute" decorates="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-2000" public="true">
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute.inner"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute" decorates="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

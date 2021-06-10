@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group store-api
+ */
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

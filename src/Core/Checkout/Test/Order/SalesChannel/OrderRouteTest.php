@@ -38,6 +38,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @group slow
+ * @group store-api
  */
 class OrderRouteTest extends TestCase
 {

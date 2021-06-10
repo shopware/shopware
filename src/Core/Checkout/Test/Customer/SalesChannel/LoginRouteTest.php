@@ -22,6 +22,9 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
+/**
+ * @group store-api
+ */
 class LoginRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

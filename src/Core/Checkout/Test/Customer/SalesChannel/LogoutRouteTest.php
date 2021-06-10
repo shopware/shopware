@@ -20,6 +20,9 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @group store-api
+ */
 class LogoutRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

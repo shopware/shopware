@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
+/**
+ * @group store-api
+ */
 class ContextLoadRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

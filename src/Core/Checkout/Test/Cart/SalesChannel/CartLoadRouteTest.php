@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
+/**
+ * @group store-api
+ */
 class CartLoadRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

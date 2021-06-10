@@ -19,6 +19,7 @@ use Shopware\Core\Content\LandingPage\SalesChannel\CachedLandingPageRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
 use Shopware\Core\Content\Product\Events\ProductChangedEventInterface;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
@@ -434,27 +435,10 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
     public function invalidatePropertyFilters(EntityWrittenContainerEvent $event): void
     {
-        // invalidates the product listing route, each time a property changed
-        $ids = $event->getPrimaryKeys(PropertyGroupDefinition::ENTITY_NAME);
-
-        if (empty($ids)) {
-            return;
-        }
-
-        $ids = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(category_id)) as category_id
-             FROM product_category_tree
-                INNER JOIN product_property ON product_category_tree.product_id = product_property.product_id AND product_category_tree.product_version_id = product_property.product_version_id
-                INNER JOIN property_group_option ON property_group_option.id = product_property.property_group_option_id
-             WHERE property_group_option.property_group_id IN (:ids)
-             AND product_category_tree.product_version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        $this->logger->invalidate(
-            array_map([CachedProductListingRoute::class, 'buildName'], $ids)
-        );
+        $this->logger->invalidate(array_merge(
+            $this->getChangedPropertyFilterTags($event),
+            $this->getDeletedPropertyFilterTags($event)
+        ));
     }
 
     public function invalidateReviewRoute(ProductChangedEventInterface $event): void
@@ -467,18 +451,8 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateListings(ProductChangedEventInterface $event): void
     {
         // invalidates product listings which are based on the product category assignment
-        $ids = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(category_id)) as category_id
-             FROM product_category_tree
-             WHERE product_id IN (:ids)
-             AND product_version_id = :version
-             AND category_version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
         $this->logger->invalidate(
-            array_map([CachedProductListingRoute::class, 'buildName'], $ids)
+            array_map([CachedProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($event->getIds()))
         );
     }
 
@@ -543,6 +517,56 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         );
     }
 
+    private function getDeletedPropertyFilterTags(EntityWrittenContainerEvent $event): array
+    {
+        // invalidates the product listing route, each time a property changed
+        $ids = $event->getDeletedPrimaryKeys(ProductPropertyDefinition::ENTITY_NAME);
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $productIds = array_column($ids, 'productId');
+
+        return array_map([CachedProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($productIds));
+    }
+
+    private function getChangedPropertyFilterTags(EntityWrittenContainerEvent $event): array
+    {
+        // invalidates the product listing route, each time a property changed
+        $ids = $event->getPrimaryKeys(PropertyGroupDefinition::ENTITY_NAME);
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(category_id)) as category_id
+             FROM product_category_tree
+                INNER JOIN product_property ON product_category_tree.product_id = product_property.product_id AND product_category_tree.product_version_id = product_property.product_version_id
+                INNER JOIN property_group_option ON property_group_option.id = product_property.property_group_option_id
+             WHERE property_group_option.property_group_id IN (:ids)
+             AND product_category_tree.product_version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        return array_map([CachedProductListingRoute::class, 'buildName'], $ids);
+    }
+
+    private function getProductCategoryIds(array $ids): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(category_id)) as category_id
+             FROM product_category_tree
+             WHERE product_id IN (:ids)
+             AND product_version_id = :version
+             AND category_version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+    }
+
     private function getChangedShippingMethods(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(ShippingMethodDefinition::ENTITY_NAME);
@@ -556,7 +580,12 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_map([CachedShippingMethodRoute::class, 'buildName'], $ids);
+        $tags = [];
+        if ($event->getDeletedPrimaryKeys(ShippingMethodDefinition::ENTITY_NAME)) {
+            $tags[] = CachedShippingMethodRoute::ALL_TAG;
+        }
+
+        return array_merge($tags, array_map([CachedShippingMethodRoute::class, 'buildName'], $ids));
     }
 
     private function getChangedShippingAssignments(EntityWrittenContainerEvent $event): array
@@ -582,7 +611,12 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_map([CachedPaymentMethodRoute::class, 'buildName'], $ids);
+        $tags = [];
+        if ($event->getDeletedPrimaryKeys(PaymentMethodDefinition::ENTITY_NAME)) {
+            $tags[] = CachedPaymentMethodRoute::ALL_TAG;
+        }
+
+        return array_merge($tags, array_map([CachedPaymentMethodRoute::class, 'buildName'], $ids));
     }
 
     private function getChangedPaymentAssignments(EntityWrittenContainerEvent $event): array
@@ -679,7 +713,12 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_map([CachedLanguageRoute::class, 'buildName'], $ids);
+        $tags = [];
+        if ($event->getDeletedPrimaryKeys(LanguageDefinition::ENTITY_NAME)) {
+            $tags[] = CachedLanguageRoute::ALL_TAG;
+        }
+
+        return array_merge($tags, array_map([CachedLanguageRoute::class, 'buildName'], $ids));
     }
 
     private function getChangedLanguageAssignments(EntityWrittenContainerEvent $event): array
@@ -707,7 +746,12 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_map([CachedCurrencyRoute::class, 'buildName'], $ids);
+        $tags = [];
+        if ($event->getDeletedPrimaryKeys(CurrencyDefinition::ENTITY_NAME)) {
+            $tags[] = CachedCurrencyRoute::ALL_TAG;
+        }
+
+        return array_merge($tags, array_map([CachedCurrencyRoute::class, 'buildName'], $ids));
     }
 
     private function getChangedCurrencyAssignments(EntityWrittenContainerEvent $event): array

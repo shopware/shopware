@@ -29,7 +29,7 @@
             <argument type="service" id="sales_channel.shipping_method.repository"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

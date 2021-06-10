@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @group store-api
+ */
 class DeleteAddressRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

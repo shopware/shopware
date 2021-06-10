@@ -48,6 +48,8 @@ class IntegrationEntity extends Entity
      */
     protected $aclRoles;
 
+    protected ?\DateTimeInterface $deletedAt;
+
     public function getLabel(): string
     {
         return $this->label;
@@ -116,5 +118,15 @@ class IntegrationEntity extends Entity
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;
+    }
+
+    public function getDeletedAt(): ?\DateTimeInterface
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(\DateTimeInterface $deletedAt): void
+    {
+        $this->deletedAt = $deletedAt;
     }
 }

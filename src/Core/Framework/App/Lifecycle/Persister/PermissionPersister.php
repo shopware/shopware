@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -40,6 +41,17 @@ class PermissionPersister
             'DELETE FROM `acl_role` WHERE id = :id',
             [
                 'id' => Uuid::fromHexToBytes($roleId),
+            ]
+        );
+    }
+
+    public function softDeleteRole(string $roleId): void
+    {
+        $this->connection->executeUpdate(
+            'UPDATE `acl_role` SET `deleted_at` = :datetime WHERE id = :id',
+            [
+                'id' => Uuid::fromHexToBytes($roleId),
+                'datetime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }

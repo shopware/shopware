@@ -163,7 +163,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->appStateService->deactivateApp($appEntity->getId(), $context);
         }
 
-        $this->removeAppAndRole($appEntity, $context, $keepUserData);
+        $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
     }
 
     private function updateApp(
@@ -251,18 +251,26 @@ class AppLifecycle extends AbstractAppLifecycle
         return $app;
     }
 
-    private function removeAppAndRole(AppEntity $app, Context $context, bool $keepUserData = false): void
+    private function removeAppAndRole(AppEntity $app, Context $context, bool $keepUserData = false, bool $softDelete = false): void
     {
         // throw event before deleting app from db as it may be delivered via webhook to the deleted app
         $this->eventDispatcher->dispatch(
             new AppDeletedEvent($app->getId(), $context, $keepUserData)
         );
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app): void {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $softDelete): void {
             $this->appRepository->delete([['id' => $app->getId()]], $context);
-            $this->integrationRepository->delete([['id' => $app->getIntegrationId()]], $context);
+            if ($softDelete) {
+                $this->integrationRepository->update([[
+                    'id' => $app->getIntegrationId(),
+                    'deletedAt' => new \DateTimeImmutable(),
+                ]], $context);
+                $this->permissionPersister->softDeleteRole($app->getAclRoleId());
+            } else {
+                $this->integrationRepository->delete([['id' => $app->getIntegrationId()]], $context);
+                $this->permissionPersister->removeRole($app->getAclRoleId());
+            }
         });
-        $this->permissionPersister->removeRole($app->getAclRoleId());
     }
 
     private function updateMetadata(array $metadata, Context $context): void

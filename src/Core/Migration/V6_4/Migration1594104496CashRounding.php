@@ -36,7 +36,7 @@ class Migration1594104496CashRounding extends MigrationStep
         $connection->executeUpdate('ALTER TABLE `order` ADD COLUMN `total_rounding` JSON NULL;');
 
         $connection->executeUpdate('
-CREATE TABLE `currency_country_rounding` (
+CREATE TABLE IF NOT EXISTS `currency_country_rounding` (
   `id` binary(16) NOT NULL,
   `currency_id` binary(16) NOT NULL,
   `country_id` binary(16) NOT NULL,

@@ -15,7 +15,7 @@ class Migration1610448012LandingPage extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('
-            CREATE TABLE `landing_page` (
+            CREATE TABLE IF NOT EXISTS `landing_page` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,
               `active` TINYINT(1) NOT NULL DEFAULT 1,
@@ -29,7 +29,7 @@ class Migration1610448012LandingPage extends MigrationStep
         ');
 
         $connection->executeUpdate('
-            CREATE TABLE `landing_page_translation` (
+            CREATE TABLE IF NOT EXISTS `landing_page_translation` (
               `landing_page_id` BINARY(16) NOT NULL,
               `landing_page_version_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -52,7 +52,7 @@ class Migration1610448012LandingPage extends MigrationStep
         ');
 
         $connection->executeUpdate('
-            CREATE TABLE `landing_page_tag` (
+            CREATE TABLE IF NOT EXISTS `landing_page_tag` (
               `landing_page_id` BINARY(16) NOT NULL,
               `landing_page_version_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
@@ -65,7 +65,7 @@ class Migration1610448012LandingPage extends MigrationStep
         ');
 
         $connection->executeUpdate('
-            CREATE TABLE `landing_page_sales_channel` (
+            CREATE TABLE IF NOT EXISTS `landing_page_sales_channel` (
               `landing_page_id` BINARY(16) NOT NULL,
               `landing_page_version_id` BINARY(16) NOT NULL,
               `sales_channel_id` BINARY(16) NOT NULL,

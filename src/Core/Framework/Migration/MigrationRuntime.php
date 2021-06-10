@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class MigrationRuntime
@@ -49,6 +50,8 @@ class MigrationRuntime
                 $this->workaroundMariaDBBugMDEV25672();
             } catch (\Exception $e) {
                 $this->logError($migration, $e->getMessage());
+
+                $this->enrichException($e);
 
                 throw $e;
             }
@@ -194,5 +197,35 @@ class MigrationRuntime
              WHERE `class` = :class',
             ['class' => \get_class($migrationStep)]
         );
+    }
+
+    private function enrichException(\Exception $e): void
+    {
+        if ($e->getCode() !== 0) {
+            return;
+        }
+
+        if (preg_match('/SQLSTATE\[23000\]:.*(1452).*a foreign key constraint/', $e->getMessage())) {
+            $matches = [];
+            preg_match(
+                '/TABLE.*?`(.*?)`.*? (REFERENCES|constraint).*?`(.*?)`/',
+                (string) preg_replace(["/\r|\n/", '/ +/'], ['', ' '], $e->getMessage()),
+                $matches
+            );
+
+            if (isset($matches[1]) && isset($matches[2]) && $matches[2] === 'REFERENCES' && isset($matches[3])) {
+                throw new MigrateException(
+                    'The migration failed due to inconsistent data. You can try to check the table `' . $matches[1]
+                    . '` for entries that do not match the entries in table `' . $matches[3] . '`.',
+                    $e
+                );
+            } elseif (isset($matches[1])) {
+                throw new MigrateException(
+                    'The migration failed due to inconsistent data. You can try to check the table `' . $matches[1]
+                    . '` for entries that do not match the entries in the table referenced in the foreign key.',
+                    $e
+                );
+            }
+        }
     }
 }

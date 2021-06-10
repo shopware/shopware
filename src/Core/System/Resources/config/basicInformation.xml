@@ -193,13 +193,13 @@
     </card>
 
     <card>
-        <title>Captcha</title>
-        <title lang="de-DE">Captcha</title>
+        <title>CAPTCHA</title>
+        <title lang="de-DE">CAPTCHA</title>
 
         <component name="sw-settings-captcha-select-v2">
             <name>activeCaptchasV2</name>
-            <label>Active captchas</label>
-            <label lang="de-DE">Aktive Captchas</label>
+            <label>Active CAPTCHAS</label>
+            <label lang="de-DE">Aktive CAPTCHAS</label>
             <placeholder>None</placeholder>
             <placeholder lang="de-DE">Keine</placeholder>
             <flag>FEATURE_NEXT_12455</flag>

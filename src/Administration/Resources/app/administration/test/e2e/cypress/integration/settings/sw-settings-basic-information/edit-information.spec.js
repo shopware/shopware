@@ -144,7 +144,7 @@ describe('Basic Informaion: Edit assignments', () => {
         }).as('saveData');
 
         cy.get('.sw-card.sw-system-config__card--3').should('be.visible');
-        cy.get('.sw-card.sw-system-config__card--3 .sw-card__title').contains('Captcha');
+        cy.get('.sw-card.sw-system-config__card--3 .sw-card__title').contains('CAPTCHA');
         cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2').should('be.visible');
 

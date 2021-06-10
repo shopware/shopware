@@ -9,12 +9,12 @@
     },
     "captcha": {
       "label": {
-        "honeypot": "Honeypot CAPTCHA",
-        "basicCaptcha": "Basic Captcha",
+        "honeypot": "Honeypot",
+        "basicCaptcha": "Basic CAPTCHA",
         "googleReCaptchaV2": "Google reCAPTCHA v2",
         "googleReCaptchaV2SiteKey": "Google reCAPTCHA v2 site key",
         "googleReCaptchaV2SecretKey": "Google reCAPTCHA v2 secret key",
-        "googleReCaptchaV2Invisible": "Google reCAPTCHA v2 invisible",
+        "googleReCaptchaV2Invisible": "Invisible Google reCAPTCHA v2",
         "googleReCaptchaV3": "Google reCAPTCHA v3",
         "googleReCaptchaV3SiteKey": "Google reCAPTCHA v3 site key",
         "googleReCaptchaV3SecretKey": "Google reCAPTCHA v3 secret key",

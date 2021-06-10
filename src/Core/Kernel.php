@@ -6,6 +6,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -159,7 +160,7 @@ class Kernel extends HttpKernel
             $this->startTime = microtime(true);
         }
 
-        if ($this->debug && !isset($_ENV['SHELL_VERBOSITY']) && !isset($_SERVER['SHELL_VERBOSITY'])) {
+        if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
             putenv('SHELL_VERBOSITY=3');
             $_ENV['SHELL_VERBOSITY'] = 3;
             $_SERVER['SHELL_VERBOSITY'] = 3;
@@ -186,9 +187,7 @@ class Kernel extends HttpKernel
     public static function getConnection(): Connection
     {
         if (!self::$connection) {
-            $url = $_ENV['DATABASE_URL']
-                ?? $_SERVER['DATABASE_URL']
-                ?? getenv('DATABASE_URL');
+            $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
             $parameters = [
                 'url' => $url,
                 'charset' => 'utf8mb4',
@@ -330,7 +329,7 @@ class Kernel extends HttpKernel
             $this->cacheId,
             mb_substr((string) $this->shopwareVersionRevision, 0, 8),
             mb_substr($pluginHash, 0, 8),
-            $_SERVER['DATABASE_URL'] ?? '',
+            EnvironmentHelper::getVariable('DATABASE_URL', ''),
         ]));
     }
 
@@ -349,7 +348,7 @@ class Kernel extends HttpKernel
 
             $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
 
-            $setSessionVariables = $_SERVER['SQL_SET_DEFAULT_SESSION_VARIABLES'] ?? true;
+            $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
             $connectionVariables = [];
 
             if ($setSessionVariables) {

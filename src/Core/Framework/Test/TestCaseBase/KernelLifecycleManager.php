@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
@@ -109,21 +110,8 @@ class KernelLifecycleManager
             $kernelClass = static::$class;
         }
 
-        if (isset($_ENV['APP_ENV'])) {
-            $env = $_ENV['APP_ENV'];
-        } elseif (isset($_SERVER['APP_ENV'])) {
-            $env = $_SERVER['APP_ENV'];
-        } else {
-            $env = 'test';
-        }
-
-        if (isset($_ENV['APP_DEBUG'])) {
-            $debug = (bool) $_ENV['APP_DEBUG'];
-        } elseif (isset($_SERVER['APP_DEBUG'])) {
-            $debug = (bool) $_SERVER['APP_DEBUG'];
-        } else {
-            $debug = true;
-        }
+        $env = EnvironmentHelper::getVariable('APP_ENV', 'test');
+        $debug = (bool) EnvironmentHelper::getVariable('APP_DEBUG', true);
 
         if (self::$classLoader === null) {
             throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
@@ -163,7 +151,7 @@ class KernelLifecycleManager
      */
     public static function getKernelClass(): string
     {
-        if (!isset($_SERVER['KERNEL_CLASS']) && !isset($_ENV['KERNEL_CLASS'])) {
+        if (!EnvironmentHelper::hasVariable('KERNEL_CLASS')) {
             throw new \LogicException(
                 sprintf(
                     'You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the %1$s::createKernel() or %1$s::getKernelClass() method.',
@@ -172,7 +160,7 @@ class KernelLifecycleManager
             );
         }
 
-        if (!class_exists($class = $_ENV['KERNEL_CLASS'] ?? $_SERVER['KERNEL_CLASS'])) {
+        if (!class_exists($class = EnvironmentHelper::getVariable('KERNEL_CLASS'))) {
             throw new \RuntimeException(
                 sprintf(
                     'Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.',

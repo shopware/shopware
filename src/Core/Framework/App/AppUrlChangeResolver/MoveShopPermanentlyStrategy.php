@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -64,7 +65,7 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
         $shopId = $shopIdConfig['value'];
 
         $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-            'app_url' => $_SERVER['APP_URL'],
+            'app_url' => EnvironmentHelper::getVariable('APP_URL'),
             'value' => $shopId,
         ]);
 

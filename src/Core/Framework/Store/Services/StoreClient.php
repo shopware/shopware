@@ -394,6 +394,7 @@ class StoreClient
     public function signPayloadWithAppSecret(string $payload, string $appName): string
     {
         $response = $this->client->post($this->endpoints['app_generate_signature'], [
+            'query' => $this->storeService->getDefaultQueryParameters('en-GB'),
             'headers' => $this->getHeaders(),
             'json' => [
                 'payload' => $payload,

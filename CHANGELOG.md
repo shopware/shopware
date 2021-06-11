@@ -10,6 +10,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-15461 - Update composer lcobucci/jwt](/changelog/release-6-4-1-1/2021-05-26-update-lcobucci-jwt.md)
 *  [NEXT-15503 - Fix elasticsearch update error](/changelog/release-6-4-1-1/2021-05-31-fix-elasticsearch-update-error.md)
 *  [NEXT-14585 - Allow address management for guest users](/changelog/release-6-4-1-1/2021-06-07-allow-address-managment-for-guest-users.md)
+*  [NEXT-15688 - Fix app signature generation during app install](/changelog/release-6-4-1-1/2021-06-10-fix-app-signature-generation.md)
 
 ## 6.4.1.0
 *  [NEXT-13686 - Fix sorting with custom fields](/changelog/release-6-4-1-0/2021-03-09-fix-sorting-with-custom-fields.md)

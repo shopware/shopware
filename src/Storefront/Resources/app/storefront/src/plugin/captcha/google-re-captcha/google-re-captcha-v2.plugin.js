@@ -87,7 +87,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
             sitekey : this.options.siteKey,
             size: this.options.invisible ? 'invisible' : 'normal',
             callback: this._onCaptchaTokenResponse.bind(this),
-            'expired-callback': this._onGreCaptchaError.bind(this),
+            'expired-callback': this._onGreCaptchaExpire.bind(this),
             'error-callback': this._onGreCaptchaError.bind(this)
         });
 
@@ -97,12 +97,21 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
     /**
      * @private
      */
-    _onGreCaptchaError() {
-        this.$emitter.publish('onGreCaptchaError', {
+    _onGreCaptchaExpire() {
+        this.$emitter.publish('onGreCaptchaExpire', {
             info: this.getGreCaptchaInfo()
         });
 
         this.grecaptcha.reset(this.grecaptchaWidgetId);
         this.grecaptchaInput.value = '';
+    }
+
+    /**
+     * @private
+     */
+    _onGreCaptchaError() {
+        this.$emitter.publish('onGreCaptchaError', {
+            info: this.getGreCaptchaInfo()
+        });
     }
 }

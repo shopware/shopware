@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
@@ -156,6 +156,6 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-loader__element').should('not.exist');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Customer] Detail, address modal', '#sw-field--customer-title');
+        cy.takeSnapshot('[Customer] Detail, edit view', '#sw-field--customer-title');
     });
 });

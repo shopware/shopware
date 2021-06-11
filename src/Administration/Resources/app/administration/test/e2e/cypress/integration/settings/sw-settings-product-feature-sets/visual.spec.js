@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Feature sets: Visual testing', () => {
     beforeEach(() => {
@@ -31,9 +31,9 @@ describe('Feature sets: Visual testing', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.takeSnapshot('[Language] Listing', '.sw-settings-product-feature-sets-list-grid');
+        cy.takeSnapshot('[Feature sets] Listing', '.sw-settings-product-feature-sets-list-grid');
         cy.contains('.sw-data-grid__cell--name a', 'Default').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Language] Details', '.sw-settings-product-feature-sets-detail');
+        cy.takeSnapshot('[Feature sets] Details', '.sw-settings-product-feature-sets-detail');
     });
 });

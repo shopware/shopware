@@ -1,7 +1,6 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Event actions: Visual testing', () => {
-
     // eslint-disable-next-line no-undef
     before(() => {
         // Clean previous state and prepare Administration
@@ -25,7 +24,6 @@ describe('Event actions: Visual testing', () => {
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
-        cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
             mainMenuId: 'sw-settings'
@@ -36,10 +34,10 @@ describe('Event actions: Visual testing', () => {
         });
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Event action] Listing', '.sw-settings-currency-list-grid');
+        cy.takeSnapshot('[Event action] Listing', '.sw-event-action-list__grid');
 
         cy.contains('.sw-data-grid__row--0 a', 'Guest account registered with double opt-in').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Event action] Detail', '.sw-settings-currency-detail');
+        cy.takeSnapshot('[Event action] Detail', '.sw-event-action-detail');
     });
 });

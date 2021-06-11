@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Documents: Visual testing', () => {
     beforeEach(() => {
@@ -30,10 +30,11 @@ describe('Documents: Visual testing', () => {
         });
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Language] Listing', '.sw-settings-document-list-grid');
+        cy.takeSnapshot('[Documents] Listing', '.sw-settings-document-list-grid');
 
         cy.contains('.sw-document-list__column-name a', 'credit_note').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Language] Details', '.sw-settings-language-detail');
+        cy.takeSnapshot('[Documents] Details', '.sw-settings-document-detail');
+        cy.get('.sw-settings-document-detail').should('be.visible');
     });
 });

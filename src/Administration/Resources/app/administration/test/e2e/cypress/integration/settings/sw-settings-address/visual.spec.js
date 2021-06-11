@@ -28,6 +28,6 @@ describe('Address settings: Visual testing', () => {
         });
         cy.get('.sw-card__title').contains('Address');
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Basic information] Details', '.sw-settings-address');
+        cy.takeSnapshot('[Address settings] Details', '.sw-settings-address');
     });
 });

@@ -35,8 +35,9 @@ describe('Payment: Visual testing', () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.takeSnapshot('[Payment] Listing', '.sw-settings-payment-list');
 
-        cy.contains('.sw-data-grid__cell--name', 'Cash on delivery').click();
+        cy.contains('.sw-data-grid__cell--name a', 'Cash on delivery').click();
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Payment] Details', '.sw-settings-payment-detail');
+        cy.get('.sw-settings-payment-detail__condition_container').should('be.visible');
     });
 });

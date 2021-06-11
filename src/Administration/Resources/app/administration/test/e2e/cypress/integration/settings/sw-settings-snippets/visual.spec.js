@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Snippets: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -40,8 +40,8 @@ describe('Snippets: Visual testing', () => {
 
         cy.contains('.sw-grid__cell-content a', 'BASE de-DE').click();
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.takeSnapshot('[Snippets] Snippet listing',
-            '.sw-import-export-view-profiles__listing');
+        cy.takeSnapshot('[Snippets] Snippet listing itself',
+            '.sw-settings-snippet-list__grid');
 
         cy.contains('.sw-data-grid__cell-content a', 'aWonderful.customSnip').click();
         cy.get('.sw-loader').should('not.exist');

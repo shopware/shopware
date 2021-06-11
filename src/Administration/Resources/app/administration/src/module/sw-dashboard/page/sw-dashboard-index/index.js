@@ -196,6 +196,13 @@ Component.register('sw-dashboard-index', {
             this.cachedHeadlineGreetingKey = this.cachedHeadlineGreetingKey ?? this.getGreetingTimeKey('daytimeHeadline');
 
             if (!this.acl.can('order.viewer')) {
+                // check if user object is set up, if not recall this function…
+                if (Shopware.State.get('session')?.userPending) {
+                    // this.$nextTick was blocking whole renderflow, so setTimeout (aka a task) must do the job
+                    window.setTimeout(() => {
+                        this.createdComponent();
+                    }, 0);
+                }
                 return;
             }
 

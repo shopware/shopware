@@ -4,6 +4,7 @@ const debug = Shopware.Utils.debug;
 export default {
     state: {
         currentUser: null,
+        userPending: true,
         languageId: '', // move me to session/currentLanguageId
         currentLocale: null // move me to session/currentLanguageId
     },
@@ -56,10 +57,12 @@ export default {
 
     mutations: {
         setCurrentUser(state, user) {
+            state.userPending = false;
             state.currentUser = user;
         },
 
         removeCurrentUser(state) {
+            state.userPending = true;
             state.currentUser = null;
         },
 

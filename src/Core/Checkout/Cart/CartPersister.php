@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Event\BeforeCartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
@@ -60,18 +61,21 @@ class CartPersister implements CartPersisterInterface
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
+        $event = new BeforeCartSavedEvent($context, $cart);
+        $this->eventDispatcher->dispatch($event);
+
+        if (!$event->savesCart()) {
+            $this->delete($cart->getToken(), $context);
+
+            return;
+        }
+
         $sql = <<<'SQL'
             INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
             VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :rule_ids, :now)
             ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :cart, `rule_ids` = :rule_ids, `updated_at` = :now
             ;
         SQL;
-        //prevent empty carts
-        if ($cart->getLineItems()->count() <= 0) {
-            $this->delete($cart->getToken(), $context);
-
-            return;
-        }
 
         $customerId = $context->getCustomer() ? Uuid::fromHexToBytes($context->getCustomer()->getId()) : null;
 

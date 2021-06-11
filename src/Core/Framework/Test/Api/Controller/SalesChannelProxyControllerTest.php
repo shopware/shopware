@@ -541,13 +541,14 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
-        //shipping costs is now based on shipping method, there is one tax rate (shipping costs by manual value in cart is removed)
+        //after re-adding a line item, there is one tax rate and the manual shipping costs are restored.
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
+
         static::assertArrayHasKey('unitPrice', $shippingCosts);
-        static::assertEquals(0, $shippingCosts['unitPrice']);
+        static::assertEquals(20, $shippingCosts['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $shippingCosts);
-        static::assertEquals(0, $shippingCosts['totalPrice']);
+        static::assertEquals(20, $shippingCosts['totalPrice']);
 
         static::assertCount(1, $shippingCosts['calculatedTaxes']);
         static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);

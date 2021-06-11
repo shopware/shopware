@@ -1,0 +1,40 @@
+{% block sw_bulk_edit_order_documents %}
+<div class="sw-bulk-edit-order-documents">
+    {% block sw_bulk_edit_order_documents_container %}
+    <sw-container
+        columns="1fr"
+        rows="50px"
+    >
+        {% block sw_bulk_edit_order_documents_target %}
+        <sw-select-field
+            v-model="value.target"
+            size="small"
+        >
+            <option value="newest">
+                {{ $tc('sw-bulk-edit.order.status.documents.options.newest') }}
+            </option>
+            <option value="all">
+                {{ $tc('sw-bulk-edit.order.status.documents.options.all') }}
+            </option>
+        </sw-select-field>
+        {% endblock %}
+
+        {% block sw_bulk_edit_order_documents_type %}
+        <sw-checkbox-field
+            v-for="document in documentTypes"
+            v-model="value.documentType[document]"
+            :key="document.id"
+            :label="document.name"
+        />
+        {% endblock %}
+
+        {% block sw_bulk_edit_order_documents_skip_sent_documents %}
+        <sw-switch-field
+            v-model="value.skipSentDocuments"
+            :label="$tc('sw-bulk-edit.order.status.documents.skipSentDocuments')"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</div>
+{% endblock %}

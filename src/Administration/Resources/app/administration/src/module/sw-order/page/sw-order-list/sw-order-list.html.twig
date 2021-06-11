@@ -264,10 +264,12 @@
                 {% block sw_order_list_bulk_edit_modal %}
                 <template #bulk-modals>
                     <sw-bulk-edit-modal
+                        ref="bulkEditModal"
                         v-if="showBulkEditModal"
                         class="sw-order-bulk-edit-modal"
                         :selection="selection"
                         :bulk-grid-edit-columns="orderColumns"
+                        @edit-items="onBulkEditItems"
                         @modal-close="showBulkEditModal = false"
                     >
                         {% block sw_order_list_bulk_edit_grid_columns_order_number %}

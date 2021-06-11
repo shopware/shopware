@@ -1,4 +1,6 @@
 import './page/sw-bulk-edit-product';
+import './page/sw-bulk-edit-order';
+import './component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
 import './component/sw-bulk-edit-custom-fields';
 import './component/sw-bulk-edit-change-type';
 import './component/sw-bulk-edit-change-type-field-renderer';
@@ -57,6 +59,13 @@ Module.register('sw-bulk-edit', {
                         },
                     },
                 },
+            },
+        },
+        order: {
+            component: 'sw-bulk-edit-order',
+            path: 'order',
+            meta: {
+                parentPath: 'sw.order.index',
             },
         },
     },

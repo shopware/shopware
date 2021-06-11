@@ -97,7 +97,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             $shippingMethods = $shippingMethods->filterByActiveRules($context);
         }
 
-        $result->assign(['entities' => $shippingMethods]);
+        $result->assign(['entities' => $shippingMethods, 'elements' => $shippingMethods, 'total' => $shippingMethods->count()]);
 
         return new ShippingMethodRouteResponse($result);
     }

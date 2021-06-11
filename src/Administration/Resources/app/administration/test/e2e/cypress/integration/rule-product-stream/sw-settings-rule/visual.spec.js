@@ -35,7 +35,7 @@ describe('Rule builder: Visual tests', () => {
         cy.get('.sw-settings-rule-list__content').should('exist');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Rule builder] Listing', '.sw-condition');
+        cy.takeSnapshot('[Rule builder] Listing', '.sw-rule-list-grid');
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
 
@@ -136,5 +136,6 @@ describe('Rule builder: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Rule builder] Detail, rule with conditions', '.sw-condition');
+        cy.get('.sw-condition').should('be.visible');
     });
 });

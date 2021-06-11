@@ -36,6 +36,6 @@ describe('Mailer: Visual testing', () => {
         cy.get('.sw-settings-mailer__radio-selection select').select('SMTP server');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-mailer__input-fields').should('be.visible');
-        cy.takeSnapshot('[Shipping] Details', '.sw-settings-tax-detail');
+        cy.takeSnapshot('[Mailer] Details', '.sw-settings-mailer__input-fields');
     });
 });

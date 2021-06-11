@@ -49,6 +49,6 @@ describe('Category: Visual tests', () => {
 
         cy.contains('.sw-category-detail__tab-cms', 'Layout');
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Category] Detail, Products', '.sw-card');
+        cy.takeSnapshot('[Category] Detail, Layout', '.sw-card');
     });
 });

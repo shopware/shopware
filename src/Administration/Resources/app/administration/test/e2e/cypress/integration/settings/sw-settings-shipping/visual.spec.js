@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Administration: Check module navigation in settings', () => {
     // eslint-disable-next-line no-undef
@@ -34,11 +34,11 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-settings-shipping-list__content').should('exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.sortListingViaColumn('Name', 'Express', '.sw-data-grid__row--0')
+        cy.sortListingViaColumn('Name', 'Express', '.sw-data-grid__row--0');
         cy.takeSnapshot('[Shipping] Listing', '.sw-settings-shipping-list');
 
-        cy.contains('.sw-data-grid__cell--name', 'Express').click();
+        cy.contains('.sw-data-grid__cell--name a', 'Express').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Shipping] Details', '.sw-settings-shipping-detail');
+        cy.takeSnapshot('[Shipping] Details', '.sw-card__content');
     });
 });

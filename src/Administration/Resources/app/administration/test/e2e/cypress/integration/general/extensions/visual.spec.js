@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Dashboard:  Visual tests', () => {
     // eslint-disable-next-line no-undef
@@ -76,7 +76,7 @@ describe('Dashboard:  Visual tests', () => {
             '.sw-extension-listing-card__info-rating',
             'visibility: hidden'
         );
-        cy.takeSnapshot('[My extensions] List', '.sw-extension-store-listing');
+        cy.takeSnapshot('[My extensions] Store', '.sw-extension-store-listing');
 
         cy.visit(Cypress.env('admin'));
         cy.get('.sw-dashboard-index__card--bg-checklist').should('be.visible');

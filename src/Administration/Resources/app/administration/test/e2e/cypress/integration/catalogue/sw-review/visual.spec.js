@@ -34,8 +34,8 @@ describe('Administration: Check module navigation', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.contains('.sw-data-grid__cell--title', 'Bestes Produkt').should('be.visible');
-        cy.takeSnapshot('[Review] Listing', '.product-slider-item');
-
+        cy.takeSnapshot('[Review] Listing', '.sw-review-list');
+        cy.get('.sw-review-list').should('be.visible');
         cy.contains('.sw-data-grid__cell--title', 'Bestes Produkt').click();
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Review] Listing', '.sw-card-section--secondary');

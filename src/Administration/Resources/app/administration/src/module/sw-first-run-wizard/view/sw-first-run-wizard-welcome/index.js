@@ -1,7 +1,7 @@
 import template from './sw-first-run-wizard-welcome.html.twig';
 import './sw-first-run-wizard-welcome.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const cacheApiService = Shopware.Service('cacheApiService');
 const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
@@ -18,9 +18,8 @@ Component.register('sw-first-run-wizard-welcome', {
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        'notification'
     ],
-
 
     data() {
         return {
@@ -274,7 +273,7 @@ Component.register('sw-first-run-wizard-welcome', {
             languageCriteria.addAssociation('locale');
             languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
-            languageCriteria.limit = 10;
+            languageCriteria.limit = null;
 
             return languageCriteria;
         },

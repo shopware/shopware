@@ -47,7 +47,10 @@
             {% endblock %}
         </template>
 
-        <div v-if="hasAdditionalSeoSlot">
+        <div
+            v-if="hasAdditionalSeoSlot"
+            class="sw-seo-url__card-seo-additional"
+        >
             <slot
                 name="seo-additional"
                 v-bind="{currentSalesChannelId}"

@@ -233,6 +233,7 @@ Component.register('sw-seo-url', {
         },
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
+            this.$emit('on-change-sales-channel', salesChannelId);
             this.refreshCurrentSeoUrl();
         }
     }

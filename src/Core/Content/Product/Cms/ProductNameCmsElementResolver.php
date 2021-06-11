@@ -20,28 +20,25 @@ class ProductNameCmsElementResolver extends AbstractProductDetailCmsElementResol
         $text = new TextStruct();
         $slot->setData($text);
 
-        $config = $slot->getFieldConfig();
-
-        $contentConfig = $config->get('content');
-
-        if (!$contentConfig) {
+        $contentConfig = $slot->getFieldConfig()->get('content');
+        if ($contentConfig === null) {
             return;
         }
 
         if ($contentConfig->isStatic()) {
-            $content = (string) $contentConfig->getValue();
+            $content = $contentConfig->getStringValue();
 
             if ($resolverContext instanceof EntityResolverContext) {
-                $content = $this->resolveEntityValues($resolverContext, $content);
+                $content = (string) $this->resolveEntityValues($resolverContext, $content);
             }
 
-            $text->setContent((string) $content);
+            $text->setContent($content);
 
             return;
         }
 
         if ($contentConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            $content = $this->resolveEntityValue($resolverContext->getEntity(), $contentConfig->getValue());
+            $content = $this->resolveEntityValue($resolverContext->getEntity(), $contentConfig->getStringValue());
 
             $text->setContent((string) $content);
         }

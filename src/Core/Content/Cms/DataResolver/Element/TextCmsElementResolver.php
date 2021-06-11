@@ -26,23 +26,23 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
         $slot->setData($text);
 
         $config = $slot->getFieldConfig()->get('content');
-        if (!$config) {
+        if ($config === null) {
             return;
         }
 
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            $content = $this->resolveEntityValueToString($resolverContext->getEntity(), $config->getValue(), $resolverContext);
+            $content = $this->resolveEntityValueToString($resolverContext->getEntity(), $config->getStringValue(), $resolverContext);
 
             $text->setContent($content);
         }
 
         if ($config->isStatic()) {
             if ($resolverContext instanceof EntityResolverContext) {
-                $content = $this->resolveEntityValues($resolverContext, (string) $config->getValue());
+                $content = (string) $this->resolveEntityValues($resolverContext, $config->getStringValue());
 
-                $text->setContent((string) $content);
+                $text->setContent($content);
             } else {
-                $text->setContent((string) $config->getValue());
+                $text->setContent($config->getStringValue());
             }
         }
     }

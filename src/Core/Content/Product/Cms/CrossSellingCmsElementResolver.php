@@ -13,14 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
-    /**
-     * @var AbstractProductCrossSellingRoute
-     */
-    private $crossSellingLoader;
+    private AbstractProductCrossSellingRoute $crossSellingLoader;
 
-    public function __construct(
-        AbstractProductCrossSellingRoute $crossSellingLoader
-    ) {
+    public function __construct(AbstractProductCrossSellingRoute $crossSellingLoader)
+    {
         $this->crossSellingLoader = $crossSellingLoader;
     }
 
@@ -38,18 +34,18 @@ class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementReso
 
         $productConfig = $config->get('product');
 
-        if (!$productConfig || $productConfig->getValue() === null) {
+        if ($productConfig === null || $productConfig->getValue() === null) {
             return;
         }
 
         $product = null;
 
         if ($productConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getValue());
+            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getStringValue());
         }
 
         if ($productConfig->isStatic()) {
-            $product = $this->getSlotProduct($slot, $result, $productConfig->getValue());
+            $product = $this->getSlotProduct($slot, $result, $productConfig->getStringValue());
         }
 
         if ($product === null) {

@@ -13,9 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Struct\Struct;
 
 abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
 {
+    /**
+     * @return mixed|Entity|Struct|null
+     */
     protected function resolveEntityValue(?Entity $entity, string $path)
     {
         if ($entity === null) {
@@ -108,7 +112,8 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         EntityResolverContext $resolverContext,
         FieldConfig $config
     ): ?Criteria {
-        if (!$field = $this->resolveDefinitionField($resolverContext->getDefinition(), $config->getValue())) {
+        $field = $this->resolveDefinitionField($resolverContext->getDefinition(), $config->getStringValue());
+        if ($field === null) {
             return null;
         }
 

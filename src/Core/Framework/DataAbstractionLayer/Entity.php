@@ -58,6 +58,9 @@ class Entity extends Struct
         $this->versionId = $versionId;
     }
 
+    /**
+     * @return mixed|Struct|null
+     */
     public function get(string $property)
     {
         if ($this->has($property)) {

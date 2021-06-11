@@ -8,12 +8,10 @@ use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
@@ -23,21 +21,14 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         return 'image-slider';
     }
 
-    /**
-     * @throws DuplicateCriteriaKeyException
-     * @throws InconsistentCriteriaIdsException
-     */
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
-        $config = $slot->getFieldConfig();
-        $sliderItemsConfig = $config->get('sliderItems');
-
-        if (!$sliderItemsConfig || $sliderItemsConfig->isMapped()) {
+        $sliderItemsConfig = $slot->getFieldConfig()->get('sliderItems');
+        if ($sliderItemsConfig === null || $sliderItemsConfig->isMapped()) {
             return null;
         }
 
-        $sliderItems = $sliderItemsConfig->getValue();
-
+        $sliderItems = $sliderItemsConfig->getArrayValue();
         $mediaIds = array_column($sliderItems, 'mediaId');
 
         $criteria = new Criteria($mediaIds);
@@ -54,26 +45,25 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         $imageSlider = new ImageSliderStruct();
         $slot->setData($imageSlider);
 
-        if (($navigation = $config->get('navigation')) && $navigation->isStatic()) {
-            $imageSlider->setNavigation($navigation->getValue());
+        $navigation = $config->get('navigation');
+        if ($navigation !== null && $navigation->isStatic()) {
+            $imageSlider->setNavigation($navigation->getArrayValue());
         }
 
         $sliderItemsConfig = $config->get('sliderItems');
-
-        if (!$sliderItemsConfig) {
+        if ($sliderItemsConfig === null) {
             return;
         }
 
         if ($sliderItemsConfig->isStatic()) {
-            foreach ($sliderItemsConfig->getValue() as $sliderItem) {
+            foreach ($sliderItemsConfig->getArrayValue() as $sliderItem) {
                 $this->addMedia($slot, $imageSlider, $result, $sliderItem);
             }
         }
 
         if ($sliderItemsConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            $sliderItems = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getValue());
-
-            if (!$sliderItems) {
+            $sliderItems = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getStringValue());
+            if ($sliderItems === null) {
                 return;
             }
 

@@ -95,7 +95,7 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         },
 
         onSelectionChange(selection) {
-            this.$emit('selection-change', selection);
+            this.$emit('selection-change', selection, 'singleProducts');
         }
     }
 });

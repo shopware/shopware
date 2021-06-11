@@ -244,7 +244,10 @@
         "title": "Add products",
         "singleProducts": "Individual products",
         "categories": "Filter by categories",
-        "dynamicProductGroups": "Filter by dynamic product groups"
+        "dynamicProductGroups": {
+          "title": "Filter by dynamic product groups",
+          "infoText": "The assignments made here are static and are therefore not affected by subsequent changes to the respective dynamic product groups."
+        }
       }
     },
      "sw-sales-channel-defaults-select": {

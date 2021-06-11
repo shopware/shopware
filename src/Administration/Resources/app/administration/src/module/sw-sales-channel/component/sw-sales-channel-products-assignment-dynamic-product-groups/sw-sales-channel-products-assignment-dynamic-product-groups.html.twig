@@ -1,0 +1,32 @@
+{% block sw_sales_channel_products_assignment_dynamic_product_groups %}
+<div class="sw-sales-channel-products-assignment-dynamic-product-groups">
+    {% block sw_sales_channel_products_assignment_dynamic_product_groups_info_text%}
+    <sw-alert variant="info">
+        {{ $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.infoText') }}
+    </sw-alert>
+    {% endblock %}
+
+    {% block sw_sales_channel_products_assignment_dynamic_product_groups_select %}
+    <sw-entity-single-select
+        v-model="productStreamId"
+        class="sw-sales-channel-products-assignment-dynamic-product-groups__product-stream-select"
+        entity="product_stream"
+        :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"
+        :error="productStreamInvalidError"
+        :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')">
+    </sw-entity-single-select>
+    {% endblock %}
+
+    {% block sw_sales_channel_products_assignment_dynamic_product_groups_result %}
+    <sw-card>
+        <sw-product-stream-grid-preview
+            :show-selection="true"
+            :filters="productStreamFilter"
+            :criteria="productStreamCriteria"
+            :columns="productColumns"
+            @selection-change="onSelectionChange">
+        </sw-product-stream-grid-preview>
+    </sw-card>
+    {% endblock %}
+</div>
+{% endblock %}

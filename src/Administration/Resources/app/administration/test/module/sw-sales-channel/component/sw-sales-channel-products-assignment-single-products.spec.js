@@ -136,7 +136,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
                     name: 'Test product 3',
                     productNumber: '3'
                 }
-            }
+            },
+            'singleProducts'
         ]);
     });
 });

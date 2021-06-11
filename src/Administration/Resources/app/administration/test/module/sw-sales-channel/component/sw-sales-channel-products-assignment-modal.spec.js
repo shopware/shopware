@@ -2,17 +2,39 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
 import 'src/app/component/base/sw-button';
 
-function createWrapper() {
+let productData = [];
+
+function setProductData(products) {
+    productData = [...products];
+}
+
+function createWrapper(activeTab = 'singleProducts') {
     return shallowMount(Shopware.Component.build('sw-sales-channel-products-assignment-modal'), {
         stubs: {
             'sw-sales-channel-products-assignment-single-products': true,
+            'sw-sales-channel-product-assignment-categories': true,
+            'sw-sales-channel-products-assignment-dynamic-product-groups': true,
             'sw-container': true,
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-modal': true,
-            'sw-tabs': true,
-            'sw-tab-items': true
+            'sw-tabs': {
+                data() {
+                    return { active: activeTab };
+                },
+                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>'
+            },
+            'sw-tabs-item': true,
+            'sw-icon': true
         },
-        provide: {},
+        provide: {
+            repositoryFactory: {
+                create: () => {
+                    return {
+                        search: () => Promise.resolve(productData)
+                    };
+                }
+            }
+        },
         propsData: {
             salesChannel: {
                 id: 1,
@@ -31,16 +53,17 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         expect(wrapper.emitted('modal-close')).toBeTruthy();
     });
 
-    it('should emit products data when clicking Add Products button', async () => {
+    it('should emit products data when clicking Add Products button to assign product individually', async () => {
         const wrapper = createWrapper();
-        wrapper.setData({
-            products: {
-                1: {
-                    id: 1,
-                    name: 'Test product'
-                }
+
+        const products = [
+            {
+                name: 'Test product 1',
+                id: '1'
             }
-        });
+        ];
+
+        setProductData(products);
 
         wrapper.find('.sw-button--primary').trigger('click');
 

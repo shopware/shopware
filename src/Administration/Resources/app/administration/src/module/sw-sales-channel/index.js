@@ -20,6 +20,7 @@ import './service/export-template.service';
 import './product-export-templates';
 import './component/sw-sales-channel-products-assignment-modal';
 import './component/sw-sales-channel-products-assignment-single-products';
+import './component/sw-sales-channel-products-assignment-dynamic-product-groups';
 
 import './acl';
 

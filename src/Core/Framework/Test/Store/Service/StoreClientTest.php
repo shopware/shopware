@@ -56,10 +56,10 @@ class StoreClientTest extends TestCase
                     'query' => [
                         'shopwareVersion' => '___VERSION___',
                         'language' => 'en-GB',
-                        'domain' => 'test.com'
+                        'domain' => 'test.com',
                     ],
                     'headers' => [
-                        'X-Shopware-Shop-Secret' => 'secret'
+                        'X-Shopware-Shop-Secret' => 'secret',
                     ],
                     'json' => [
                         'appName' => 'testApp',

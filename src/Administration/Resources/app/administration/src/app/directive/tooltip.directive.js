@@ -45,8 +45,8 @@ class Tooltip {
         this._message = Tooltip.validateMessage(message);
         this._width = Tooltip.validateWidth(width);
         this._parentDOMElement = element;
-        this._showDelay = showDelay;
-        this._hideDelay = hideDelay;
+        this._showDelay = showDelay ?? 100;
+        this._hideDelay = hideDelay ?? 100;
         this._disabled = disabled;
         this._appearance = appearance;
         this._showOnDisabledElements = showOnDisabledElements;
@@ -108,11 +108,9 @@ class Tooltip {
 
             this._vue.$destroy();
             this._vue = new Vue({
-                template: this._DOMElement.outerHTML,
-                // eslint-disable-next-line vue/order-in-components
+                el: this._DOMElement,
                 parent: this._vue.$parent,
-                // eslint-disable-next-line vue/order-in-components
-                el: this._DOMElement
+                template: this._DOMElement.outerHTML
             });
 
             this._DOMElement = this._vue.$el;

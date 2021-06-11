@@ -37,12 +37,12 @@ Component.register('sw-help-text', {
         showDelay: {
             type: Number,
             required: false,
-            default: null
+            default: 100
         },
         hideDelay: {
             type: Number,
             required: false,
-            default: null
+            default: 100
         }
     }
 });

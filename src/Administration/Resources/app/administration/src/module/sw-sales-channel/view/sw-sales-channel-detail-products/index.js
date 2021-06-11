@@ -31,7 +31,8 @@ Component.register('sw-sales-channel-detail-products', {
             page: 1,
             limit: 25,
             total: 0,
-            showProductsModal: false
+            showProductsModal: false,
+            isAssignProductLoading: false
         };
     },
 
@@ -212,7 +213,7 @@ Component.register('sw-sales-channel-detail-products', {
         },
 
         onAddProducts(products) {
-            this.showProductsModal = false;
+            this.isAssignProductLoading = true;
 
             const visibilities = new EntityCollection(
                 this.productVisibilityRepository.route,
@@ -220,7 +221,11 @@ Component.register('sw-sales-channel-detail-products', {
                 Context.api
             );
 
-            Object.values(products).forEach(el => {
+            products.forEach(el => {
+                if (this.products?.has(el.id)) {
+                    return;
+                }
+
                 const visibility = this.productVisibilityRepository.create(Context.api);
                 Object.assign(visibility, {
                     visibility: 30,
@@ -235,6 +240,8 @@ Component.register('sw-sales-channel-detail-products', {
             return this.saveProductVisibilities(visibilities)
                 .then(() => this.getProducts())
                 .finally(() => {
+                    this.showProductsModal = false;
+                    this.isAssignProductLoading = false;
                     this.isLoading = false;
                 });
         },

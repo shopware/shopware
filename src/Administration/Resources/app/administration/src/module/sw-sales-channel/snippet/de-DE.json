@@ -243,7 +243,12 @@
       "productAssigmentModal": {
         "title": "Produkte hinzufügen",
         "singleProducts": "Einzelne Produkte",
-        "categories": "Nach Kategorien filtern",
+        "categories": {
+          "title": "Nach Kategorien filtern",
+          "textInfo": "Die hier gemachten Zuweisungen sind statisch und werden durch nachfolgende Änderungen der Kategorien nicht beeinflusst.",
+          "textSearch": "Kategorien durchsuchen ...",
+          "emptySearchResults": "Keine Kategorien gefunden."
+        },
         "dynamicProductGroups": {
           "title": "Nach Dynamischen Produktgruppen filtern",
           "infoText": "Die hier gemachten Zuweisungen sind statisch und werden durch nachfolgende Änderungen der Dynamischen Produktgruppen nicht beeinflusst."

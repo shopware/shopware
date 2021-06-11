@@ -1,0 +1,77 @@
+@import "~scss/variables";
+
+.sw-sales-channel-product-assignment-categories {
+    .sw-card {
+        margin: 0;
+    }
+
+    .sw-card .sw-card__content {
+        padding: 0;
+        min-height: 100px;
+    }
+
+    &__results {
+        position: absolute;
+        overflow-y: scroll;
+        top: calc(100% + 4px);
+        left: 0;
+        width: 100%;
+        height: 550px;
+        z-index: 20;
+        border: 1px solid $color-gray-100;
+        box-shadow: 0 3px 6px 0 $color-gray-300;
+        background-color: $color-white;
+    }
+
+    .sw-tree {
+        border: none;
+    }
+
+    .sw-tree .sw-tree__content {
+        height: 100%;
+    }
+
+    .sw-tree-item .sw-field--checkbox {
+        margin-bottom: 0;
+    }
+
+    &__search-results {
+        padding: 16px;
+
+        li.sw-sales-channel-product-assignment-categories__search-result {
+            transition: background-color 0.1s ease;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            padding: 0 12px 4px 12px;
+            height: 40px;
+            border-radius: $border-radius-default;
+        }
+
+        li.sw-sales-channel-product-assignment-categories__search-result:hover {
+            background-color: lighten($color-shopware-brand-500, 40);
+        }
+
+        li.sw-sales-channel-product-assignment-categories__search-result.is--focus {
+            background-color: lighten($color-shopware-brand-500, 40);
+        }
+
+        li .sw-sales-channel-product-assignment-categories__search-results-checkbox {
+            display: inline-block;
+            margin: 8px 12px 0 0;
+        }
+
+        li .sw-sales-channel-product-assignment-categories__search-results-icon {
+            margin-right: 12px;
+        }
+
+        li .sw-field--checkbox__content {
+            display: inline-block;
+        }
+    }
+
+    &__empty-state {
+        padding: 16px;
+    }
+}

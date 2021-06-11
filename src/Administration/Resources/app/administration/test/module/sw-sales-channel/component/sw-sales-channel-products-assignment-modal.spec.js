@@ -2,12 +2,6 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
 import 'src/app/component/base/sw-button';
 
-let productData = [];
-
-function setProductData(products) {
-    productData = [...products];
-}
-
 function createWrapper(activeTab = 'singleProducts') {
     return shallowMount(Shopware.Component.build('sw-sales-channel-products-assignment-modal'), {
         stubs: {
@@ -25,15 +19,6 @@ function createWrapper(activeTab = 'singleProducts') {
             },
             'sw-tabs-item': true,
             'sw-icon': true
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve(productData)
-                    };
-                }
-            }
         },
         propsData: {
             salesChannel: {
@@ -55,19 +40,42 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
     it('should emit products data when clicking Add Products button to assign product individually', async () => {
         const wrapper = createWrapper();
-
-        const products = [
-            {
-                name: 'Test product 1',
-                id: '1'
-            }
-        ];
-
-        setProductData(products);
+        await wrapper.setData({
+            singleProducts: [
+                {
+                    id: '1',
+                    name: 'Test product'
+                }
+            ]
+        });
 
         wrapper.find('.sw-button--primary').trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
         expect(wrapper.emitted('products-add')[0]).toEqual([wrapper.vm.products]);
+    });
+
+    it('should emit products data when clicking Add Products button to assign product by categories', async () => {
+        const products = [
+            {
+                name: 'Test product 1',
+                id: '1'
+            },
+            {
+                name: 'Test product 2',
+                id: '2'
+            }
+        ];
+
+        const wrapper = createWrapper();
+        await wrapper.setData({
+            categoryProducts: products
+        });
+
+        const assignButton = wrapper.find('.sw-button--primary');
+        await assignButton.trigger('click');
+
+        expect(wrapper.emitted('products-add')).toBeTruthy();
+        expect(wrapper.emitted('products-add')[0]).toEqual([products]);
     });
 });

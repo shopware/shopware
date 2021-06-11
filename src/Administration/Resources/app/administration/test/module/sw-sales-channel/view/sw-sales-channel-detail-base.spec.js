@@ -16,7 +16,12 @@ function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-button': true,
             'sw-radio-field': true,
-            'sw-multi-tag-ip-select': true
+            'sw-multi-tag-ip-select': true,
+            'sw-select-number-field': true,
+            'sw-select-field': true,
+            'sw-help-text': true,
+            'sw-sales-channel-detail-hreflang': true,
+            'sw-sales-channel-detail-domains': true
         },
         provide: {
             salesChannelService: {},
@@ -57,7 +62,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const selectField = wrapper.find(
-            'sw-select-field[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]'
+            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]'
         );
 
         expect(selectField.attributes().disabled).toBe('true');
@@ -75,7 +80,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const selectField = wrapper.find(
-            'sw-select-field[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]'
+            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]'
         );
 
         expect(selectField.attributes().disabled).toBeUndefined();
@@ -344,7 +349,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-sales-channel-detail-hreflang'
+            'sw-sales-channel-detail-hreflang-stub'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -362,7 +367,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-sales-channel-detail-hreflang'
+            'sw-sales-channel-detail-hreflang-stub'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -378,7 +383,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-sales-channel-detail-domains'
+            'sw-sales-channel-detail-domains-stub'
         );
 
         expect(field.attributes()['disable-edit']).toBe('true');
@@ -396,7 +401,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-sales-channel-detail-domains'
+            'sw-sales-channel-detail-domains-stub'
         );
 
         expect(field.attributes()['disable-edit']).toBeUndefined();
@@ -642,7 +647,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-select-field[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]'
+            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -660,7 +665,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-select-field[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]'
+            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -676,7 +681,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-select-field[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]'
+            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -694,7 +699,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-select-field[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]'
+            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -744,7 +749,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-select-number-field[label="sw-sales-channel.detail.productComparison.interval"]'
+            'sw-select-number-field-stub[label="sw-sales-channel.detail.productComparison.interval"]'
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -762,7 +767,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.find(
-            'sw-select-number-field[label="sw-sales-channel.detail.productComparison.interval"]'
+            'sw-select-number-field-stub[label="sw-sales-channel.detail.productComparison.interval"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -1055,7 +1060,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressWhitleList"]'
         );
 
-        console.log('hello', field.attributes());
 
         expect(field.attributes().disabled).toBeUndefined();
     });

@@ -169,7 +169,15 @@ Component.register('sw-category-tree-field', {
 
             // create criteria
             const categoryCriteria = new Criteria(1, 500);
-            categoryCriteria.addFilter(Criteria.equals('parentId', parentId), 'AND', Criteria.equals('type', 'page'));
+            categoryCriteria.addFilter(
+                Criteria.multi(
+                    'AND',
+                    [
+                        Criteria.equals('parentId', parentId),
+                        Criteria.equals('type', 'page')
+                    ]
+                )
+            );
 
             // search for categories
             return this.globalCategoryRepository.search(categoryCriteria, Shopware.Context.api).then((searchResult) => {

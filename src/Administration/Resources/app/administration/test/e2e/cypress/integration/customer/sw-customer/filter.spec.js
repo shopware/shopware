@@ -163,7 +163,8 @@ describe('Customer: Test filter and reset filter', () => {
         });
     });
 
-    it('@customer: check filter function and display list correctly', () => {
+    // TODO skipped due to flakiness, see NEXT-15697
+    it.skip('@customer: check filter function and display list correctly', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -250,7 +251,8 @@ describe('Customer: Test filter and reset filter', () => {
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
     });
 
-    it('@customer: check reset filter and reset all filter', () => {
+    // TODO skipped due to flakiness, see NEXT-15697
+    it.skip('@customer: check reset filter and reset all filter', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);

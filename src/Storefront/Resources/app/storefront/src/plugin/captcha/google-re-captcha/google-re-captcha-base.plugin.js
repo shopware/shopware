@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
 export default class GoogleReCaptchaBasePlugin extends Plugin
 {
@@ -19,8 +18,6 @@ export default class GoogleReCaptchaBasePlugin extends Plugin
         this.grecaptcha = window.grecaptcha;
         this._formSubmitting = false;
         this.formPluginInstances = window.PluginManager.getPluginInstancesFromElement(this._form);
-        this.cookieEnabledName = '_GRECAPTCHA';
-        this.cookieConfiguration = window.PluginManager.getPluginInstances('CookieConfiguration');
 
         this._registerEvents();
     }
@@ -91,31 +88,12 @@ export default class GoogleReCaptchaBasePlugin extends Plugin
     }
 
     _onFormSubmitCallback() {
-        if (this._formSubmitting || !this._checkCookieAccepted()) {
+        if (this._formSubmitting) {
             return;
         }
 
         this._formSubmitting = true;
 
         this.onFormSubmit()
-    }
-
-    _checkCookieAccepted() {
-        if (CookieStorageHelper.getItem(this.cookieEnabledName)) {
-            return true;
-        }
-
-        if (this.cookieConfiguration[0].isOpening) {
-            return false;
-        }
-
-        if (this.cookieConfiguration) {
-            this.cookieConfiguration[0].isOpening = true;
-            this.cookieConfiguration[0].openOffCanvas(() => {
-                this.cookieConfiguration[0].isOpening = false;
-            });
-        }
-
-        return false;
     }
 }

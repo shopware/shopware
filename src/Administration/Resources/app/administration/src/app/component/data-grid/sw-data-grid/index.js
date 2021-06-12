@@ -617,7 +617,7 @@ Component.register('sw-data-grid', {
         },
 
         onClickSaveInlineEdit(item) {
-            this.$emit('inline-edit-assign');
+            this.$emit('inline-edit-assign', item);
             this.save(item);
 
             this.disableInlineEdit();

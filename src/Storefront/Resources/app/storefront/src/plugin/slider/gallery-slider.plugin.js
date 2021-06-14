@@ -205,7 +205,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
       const navContainer = this.el.querySelector(this.options.thumbnailsSelector);
       const controlsContainer = this.el.querySelector(this.options.controlsSelector);
 
-      const hasThumbnails = (!!navContainer);
+      const hasThumbnails = !!navContainer && this._thumbnailSliderSettings.enabled;
 
       if (container) {
           const onInit = () => {

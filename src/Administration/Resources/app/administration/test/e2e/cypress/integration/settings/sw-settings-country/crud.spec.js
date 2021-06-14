@@ -53,8 +53,7 @@ describe('Country: Test crud operations', () => {
             .contains('01.Niemandsland');
     });
 
-    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15487
-    it.skip('@settings: update and read country', () => {
+    it('@settings: update and read country', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -64,11 +63,13 @@ describe('Country: Test crud operations', () => {
             method: 'patch'
         }).as('saveData');
 
+        cy.get('.sw-settings-country-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-country-list__edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+        cy.get('input[name=sw-field--country-name]').should('have.value', '1.Niemandsland');
         cy.get('input[name=sw-field--country-name]').clearTypeAndCheck('1.Niemandsland x2');
         cy.get(page.elements.countrySaveAction).click();
 

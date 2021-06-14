@@ -12,17 +12,20 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 1.25em;
+    max-width: 440px;
 }
 
 .basic-captcha-content-refresh-icon {
     display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column-reverse;
     height: 42px;
     align-self: flex-end;
     border-color: $border-color;
 
-    .icon {
-        margin-bottom: 10px;
+    &.btn .icon > svg {
+        top: 0;
     }
 
     &:hover {

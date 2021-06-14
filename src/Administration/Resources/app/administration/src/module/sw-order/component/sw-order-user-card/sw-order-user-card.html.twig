@@ -149,7 +149,17 @@
                 >
 
                     {% block sw_order_detail_base_order_overview_phone_number %}
-                    <dt>{{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
+                    <dt>
+                        {{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}
+                        <sw-label
+                            v-if="hasDifferentBillingAndShippingAddress"
+                            size="small"
+                            appearance="pill"
+                            class="sw-order-user-card__address-phone-label"
+                        >
+                            {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
+                        </sw-label>
+                    </dt>
                     <dd>
                         <sw-order-inline-field
                             v-model="billingAddress.phoneNumber"

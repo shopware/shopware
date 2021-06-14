@@ -35,7 +35,7 @@
 
                                             {% block buy_widget_price_block_table_body_cell_quantity %}
                                                 <th scope="row" class="product-block-prices-cell product-block-prices-cell-thin">
-                                                    <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.id }}" />
+                                                    <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.translated.shortName }}" />
                                                     <meta itemprop="price" content="{{ price.unitPrice }}" />
                                                     <link itemprop="availability" href="https://schema.org/InStock" />
 

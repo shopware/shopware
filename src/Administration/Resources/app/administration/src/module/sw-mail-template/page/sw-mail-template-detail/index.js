@@ -220,7 +220,8 @@ Component.register('sw-mail-template-detail', {
             return this.onSave();
         },
 
-        onChangeLanguage() {
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.loadEntityData();
         },
 
@@ -261,6 +262,8 @@ Component.register('sw-mail-template-detail', {
                     ) + errormsg,
                 });
             }));
+
+            return Promise.all(updatePromises);
         },
 
         onClickTestMailTemplate() {

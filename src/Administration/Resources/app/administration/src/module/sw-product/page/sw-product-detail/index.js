@@ -605,7 +605,7 @@ Component.register('sw-product-detail', {
         },
 
         abortOnLanguageChange() {
-            return Shopware.State.getters['swProductDetail/hasChanges'];
+            return this.productRepository.hasChanges(this.product);
         },
 
         saveOnLanguageChange() {

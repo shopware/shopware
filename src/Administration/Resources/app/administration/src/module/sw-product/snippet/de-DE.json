@@ -299,7 +299,14 @@
       "linkPropertiesOfParent": "Zeige die Eigenschaften des Hauptprodukts",
       "inheritSwitchLabel": "Nutze die Eigenschaften des Hauptprodukts",
       "propertiesNotInherited": "Du kannst jetzt benutzerdefinierte Eigenschaften für diese Variante verwenden.",
-      "propertiesNotExisting": "Diesem Produkt sind noch keine Eigenschaften zugewiesen."
+      "propertiesNotExisting": "Diesem Produkt sind noch keine Eigenschaften zugewiesen.",
+      "cardTitle": "Eigenschaften",
+      "buttonAddProperty": "Eigenschaft hinzufügen",
+      "buttonAddProperties": "Eigenschaften hinzufügen",
+      "titleEmptyState": "Diesem Produkt sind noch keine Eigenschaften zugewiesen worden.",
+      "titleEmptyStateList": "Keine passenden Eigenschaften gefunden.",
+      "columnProperty": "Eigenschaft",
+      "columnValue": "Eigenschaftswert"
     },
     "variations": {
       "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",

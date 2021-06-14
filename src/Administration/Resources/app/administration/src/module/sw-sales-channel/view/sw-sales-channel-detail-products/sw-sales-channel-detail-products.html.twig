@@ -62,8 +62,8 @@
                     :skeleton-item-amount="skeletonItemAmount"
                     :is-loading="isLoading"
                     :allow-inline-edit="false"
-                    :allow-view="acl.can('sales_channel.editor')"
-                    :allow-edit="acl.can('sales_channel.editor')"
+                    :allow-view="acl.can('sales_channel.viewer')"
+                    :allow-edit="acl.can('product.editor')"
                     :allow-delete="acl.can('sales_channel.deleter')"
                 >
                     <template #column-active="{ item }">

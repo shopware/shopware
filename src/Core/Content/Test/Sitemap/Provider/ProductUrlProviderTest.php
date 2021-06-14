@@ -83,8 +83,7 @@ class ProductUrlProviderTest extends TestCase
         $host = $this->getHost($this->salesChannelContext);
 
         foreach ($products as $product) {
-            $loc = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $product['id']]);
-            $urlGenerate = $this->seoUrlPlaceholderHandler->replace($loc, $host, $this->salesChannelContext);
+            $urlGenerate = $this->getComparisonUrl($product['id']);
             $check = false;
             foreach ($urls as $url) {
                 if ($urlGenerate === $host . '/' . $url->getLoc()) {
@@ -116,6 +115,91 @@ class ProductUrlProviderTest extends TestCase
         static::assertNull($urlResult->getNextOffset());
     }
 
+    public function testOnlyVariantUrlsGenerated(): void
+    {
+        $parentId = Uuid::randomHex();
+        $products = [
+            array_merge([
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test parent 1',
+            ], $this->getBasicProductData()),
+            array_merge([
+                'id' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test variant 1',
+            ], $this->getBasicProductData()),
+            array_merge([
+                'id' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test variant 2',
+            ], $this->getBasicProductData()),
+        ];
+        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 3);
+        $host = $this->getHost($this->salesChannelContext);
+        $locations = array_map(function ($url) use ($host) {
+            return $host . '/' . $url->getLoc();
+        }, $urlResult->getUrls());
+
+        foreach ($products as $product) {
+            $urlGenerate = $this->getComparisonUrl($product['id']);
+            if ($product['id'] === $parentId) {
+                static::assertNotContains($urlGenerate, $locations);
+            } else {
+                static::assertContains($urlGenerate, $locations);
+            }
+        }
+    }
+
+    public function testOnlyCanonicalVariantUrlGenerated(): void
+    {
+        $parentId = Uuid::randomHex();
+        $canonicalProductId = Uuid::randomHex();
+        $products = [
+            array_merge([
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test parent 2',
+            ], $this->getBasicProductData()),
+            array_merge([
+                'id' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test variant 3',
+            ], $this->getBasicProductData()),
+            array_merge([
+                'id' => $canonicalProductId,
+                'parentId' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test variant canonical',
+            ], $this->getBasicProductData()),
+            array_merge([
+                'id' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test variant 4',
+            ], $this->getBasicProductData()),
+        ];
+        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+        $this->productRepository->update(
+            [['id' => $parentId, 'canonicalProductId' => $canonicalProductId]],
+            $this->salesChannelContext->getContext()
+        );
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 4);
+        $urls = $urlResult->getUrls();
+
+        static::assertCount(1, $urls);
+
+        $host = $this->getHost($this->salesChannelContext);
+        $urlGenerate = $this->getComparisonUrl($canonicalProductId);
+        static::assertEquals($urlGenerate, $host . '/' . $urls[0]->getLoc());
+    }
+
     private function getProductUrlProvider(): ProductUrlProvider
     {
         return new ProductUrlProvider(
@@ -129,78 +213,41 @@ class ProductUrlProviderTest extends TestCase
 
     private function createProducts(): array
     {
-        $products = $this->getProductTestData($this->salesChannelContext);
+        $products = $this->getProductTestData();
 
         $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
 
         return $products;
     }
 
-    private function getProductTestData(SalesChannelContext $salesChannelContext): array
+    private function getProductTestData(): array
     {
-        $taxId = $salesChannelContext->getTaxRules()->first()->getId();
-
         $products = [
-            [
+            array_merge([
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
-                'stock' => 100,
                 'name' => 'test product 1',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['id' => $taxId],
-                'manufacturer' => ['name' => 'test'],
-                'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-            [
+            ], $this->getBasicProductData()),
+            array_merge([
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
-                'stock' => 100,
                 'name' => 'test product 2',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['id' => $taxId],
-                'manufacturer' => ['name' => 'test'],
-                'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-            [
+            ], $this->getBasicProductData()),
+            array_merge([
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
-                'stock' => 100,
                 'name' => 'test product 3',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['id' => $taxId],
-                'manufacturer' => ['name' => 'test'],
-                'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-            [
+            ], $this->getBasicProductData()),
+            array_merge([
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
-                'stock' => 100,
                 'name' => 'test product 4',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['id' => $taxId],
-                'manufacturer' => ['name' => 'test'],
-                'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-            [
+            ], $this->getBasicProductData()),
+            array_merge([
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
-                'stock' => 100,
                 'name' => 'test product 5',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['id' => $taxId],
-                'manufacturer' => ['name' => 'test'],
-                'visibilities' => [
-                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
+            ], $this->getBasicProductData()),
         ];
 
         return $products;
@@ -220,5 +267,27 @@ class ProductUrlProviderTest extends TestCase
         }
 
         throw new InvalidDomainException('Empty domain');
+    }
+
+    private function getComparisonUrl(string $productId): string
+    {
+        $loc = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+
+        return $this->seoUrlPlaceholderHandler->replace($loc, $this->getHost($this->salesChannelContext), $this->salesChannelContext);
+    }
+
+    private function getBasicProductData(): array
+    {
+        $taxId = $this->salesChannelContext->getTaxRules()->first()->getId();
+
+        return [
+            'stock' => 100,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'tax' => ['id' => $taxId],
+            'manufacturer' => ['name' => 'test'],
+            'visibilities' => [
+                ['salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
     }
 }

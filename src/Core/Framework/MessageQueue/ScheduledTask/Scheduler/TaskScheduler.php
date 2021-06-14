@@ -121,16 +121,14 @@ class TaskScheduler
     private function queueTask(ScheduledTaskEntity $taskEntity): void
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
-        $taskClassParents = class_parents($taskClass);
 
-        if ($taskClassParents === false || !\in_array(ScheduledTask::class, $taskClassParents, true)) {
+        if (!\is_a($taskClass, ScheduledTask::class, true)) {
             throw new \RuntimeException(sprintf(
                 'Tried to schedule "%s", but class does not extend ScheduledTask',
                 $taskClass
             ));
         }
 
-        /** @var ScheduledTask $task */
         $task = new $taskClass();
         $task->setTaskId($taskEntity->getId());
 

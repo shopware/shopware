@@ -528,11 +528,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             // check if current loop matches the command primary key
             $primaryKey = array_intersect($command->getPrimaryKey(), $state);
 
-            if (!$primaryKey) {
-                continue;
+            if (\count(array_diff_assoc($command->getPrimaryKey(), $primaryKey)) === 0) {
+                return new ChangeSet($state, $command->getPayload(), $command instanceof DeleteCommand);
             }
-
-            return new ChangeSet($state, $command->getPayload(), $command instanceof DeleteCommand);
         }
 
         return new ChangeSet([], [], $command instanceof DeleteCommand);

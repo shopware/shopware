@@ -495,7 +495,7 @@ E2E:
 
 Visual Testing (Percy):
     extends: .percy_integration
-    stage: visual
+    stage: E2E
     rules:
         - if: '$PERCY_TOKEN == null || $CYPRESS_PERCY_USAGE == null'
           when: never

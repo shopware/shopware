@@ -102,10 +102,9 @@ class PaymentController extends AbstractController
         $url = $token->getErrorUrl();
 
         $exception = $token->getException();
-
         if ($exception instanceof ShopwareException) {
             return new RedirectResponse(
-                (parse_url($url, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $exception->getErrorCode()
+                $url . (parse_url($url, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $exception->getErrorCode()
             );
         }
 
@@ -116,9 +115,7 @@ class PaymentController extends AbstractController
     {
         $context = Context::createDefaultContext();
 
-        $parsedToken = $this->tokenFactoryInterfaceV2->parseToken($paymentToken);
-        $transactionId = $parsedToken->getTransactionId();
-
+        $transactionId = $this->tokenFactoryInterfaceV2->parseToken($paymentToken)->getTransactionId();
         if ($transactionId === null) {
             throw new InvalidTokenException($paymentToken);
         }

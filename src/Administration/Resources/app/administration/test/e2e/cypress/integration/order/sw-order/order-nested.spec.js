@@ -49,11 +49,6 @@ function getLineItem(id, children = []) {
 }
 
 describe('Order: Visual tests', () => {
-    // eslint-disable-next-line no-undef
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_12635');
-    });
-
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();

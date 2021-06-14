@@ -21,15 +21,9 @@ class PaymentMethodRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var PaymentMethodRepositoryDecorator
-     */
-    private $paymentRepository;
+    private PaymentMethodRepositoryDecorator $paymentRepository;
 
-    /**
-     * @var string
-     */
-    private $paymentMethodId;
+    private string $paymentMethodId;
 
     public function setUp(): void
     {
@@ -50,17 +44,20 @@ class PaymentMethodRepositoryTest extends TestCase
 
         /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        $firstPaymentMethod = $resultSet->first();
+        static::assertNotNull($firstPaymentMethod);
 
-        static::assertSame($this->paymentMethodId, $resultSet->first()->getId());
+        static::assertSame($this->paymentMethodId, $firstPaymentMethod->getId());
+        static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
         static::assertSame(
             $paymentMethod[0]['availabilityRule']['id'],
-            $resultSet->first()->getAvailabilityRule()->getId()
+            $firstPaymentMethod->getAvailabilityRule()->getId()
         );
         static::assertSame(
             'handler_shopware_asynctestpaymenthandler',
-            $resultSet->first()->getFormattedHandlerIdentifier()
+            $firstPaymentMethod->getFormattedHandlerIdentifier()
         );
-        static::assertFalse($resultSet->first()->getAfterOrderEnabled());
+        static::assertFalse($firstPaymentMethod->getAfterOrderEnabled());
     }
 
     public function testPaymentMethodSetAfterOrder(): void
@@ -78,10 +75,12 @@ class PaymentMethodRepositoryTest extends TestCase
 
         /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        $firstPaymentMethod = $resultSet->first();
+        static::assertNotNull($firstPaymentMethod);
 
-        static::assertSame($this->paymentMethodId, $resultSet->first()->getId());
+        static::assertSame($this->paymentMethodId, $firstPaymentMethod->getId());
 
-        static::assertTrue($resultSet->first()->getAfterOrderEnabled());
+        static::assertTrue($firstPaymentMethod->getAfterOrderEnabled());
     }
 
     public function testCreatePaymentMethodNoNamespace(): void
@@ -97,17 +96,20 @@ class PaymentMethodRepositoryTest extends TestCase
 
         /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        $firstPaymentMethod = $resultSet->first();
+        static::assertNotNull($firstPaymentMethod);
 
-        static::assertSame($this->paymentMethodId, $resultSet->first()->getId());
+        static::assertSame($this->paymentMethodId, $firstPaymentMethod->getId());
+        static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
         static::assertSame(
             $paymentMethod[0]['availabilityRule']['id'],
-            $resultSet->first()->getAvailabilityRule()->getId()
+            $firstPaymentMethod->getAvailabilityRule()->getId()
         );
         static::assertSame(
             'Object',
-            $resultSet->first()->getFormattedHandlerIdentifier()
+            $firstPaymentMethod->getFormattedHandlerIdentifier()
         );
-        static::assertFalse($resultSet->first()->getAfterOrderEnabled());
+        static::assertFalse($firstPaymentMethod->getAfterOrderEnabled());
     }
 
     public function testUpdatePaymentMethod(): void
@@ -135,8 +137,11 @@ class PaymentMethodRepositoryTest extends TestCase
 
         /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        $firstPaymentMethod = $resultSet->first();
+        static::assertNotNull($firstPaymentMethod);
+        static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
 
-        static::assertSame('test update', $resultSet->first()->getAvailabilityRule()->getName());
+        static::assertSame('test update', $firstPaymentMethod->getAvailabilityRule()->getName());
     }
 
     public function testPaymentMethodCanBeDeleted(): void

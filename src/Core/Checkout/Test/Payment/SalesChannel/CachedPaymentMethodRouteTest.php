@@ -85,7 +85,7 @@ class CachedPaymentMethodRouteTest extends TestCase
         $route->load(new Request(), $this->context, new Criteria());
     }
 
-    public function invalidationProvider()
+    public function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 

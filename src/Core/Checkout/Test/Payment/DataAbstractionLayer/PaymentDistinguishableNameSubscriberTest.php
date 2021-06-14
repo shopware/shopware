@@ -25,7 +25,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
 
     public function setUp(): void
     {
-        $this->subscriber = new PaymentDistinguishableNameSubscriber($this->getContainer()->get('payment_method.repository'));
+        $this->subscriber = new PaymentDistinguishableNameSubscriber();
         $this->context = Context::createDefaultContext();
     }
 
@@ -126,6 +126,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
             ->getEntities();
 
         $creditCardPayment = $payments->get($creditCardPaymentId);
+        static::assertNotNull($creditCardPayment);
         static::assertEquals('Credit card', $creditCardPayment->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByShopwarePlugin */
@@ -160,6 +161,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
             ->getEntities();
 
         $creditCardPayment = $payments->get($creditCardPaymentId);
+        static::assertNotNull($creditCardPayment);
         static::assertEquals('Kreditkarte', $creditCardPayment->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByShopwarePlugin */

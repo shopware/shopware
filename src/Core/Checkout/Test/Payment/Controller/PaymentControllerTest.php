@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
@@ -26,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class PaymentControllerTest extends TestCase
 {
@@ -35,8 +37,6 @@ class PaymentControllerTest extends TestCase
     private JWTFactoryV2 $tokenFactory;
 
     private EntityRepositoryInterface $orderRepository;
-
-    private EntityRepositoryInterface $customerRepository;
 
     private EntityRepositoryInterface $orderTransactionRepository;
 
@@ -51,7 +51,6 @@ class PaymentControllerTest extends TestCase
         parent::setUp();
         $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
@@ -64,6 +63,7 @@ class PaymentControllerTest extends TestCase
 
         $client->request('GET', '/payment/finalize-transaction');
 
+        static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
@@ -75,6 +75,7 @@ class PaymentControllerTest extends TestCase
 
         $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=abc');
 
+        static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__INVALID_PAYMENT_TOKEN', $response['errors'][0]['code']);
@@ -89,6 +90,7 @@ class PaymentControllerTest extends TestCase
 
         $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
 
+        static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__INVALID_PAYMENT_TOKEN', $response['errors'][0]['code']);
@@ -96,22 +98,7 @@ class PaymentControllerTest extends TestCase
 
     public function testValid(): void
     {
-        $context = Context::createDefaultContext();
-
-        $paymentMethodId = $this->createPaymentMethodV630($context);
-        $orderId = $this->createOrder($context);
-        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $context);
-
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-
-        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
-
-        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
-
-        $transaction = JWTFactoryV2Test::createTransaction();
-        $transaction->setId($transactionId);
-        $transaction->setPaymentMethodId($paymentMethodId);
-        $transaction->setOrderId($orderId);
+        $transaction = $this->createValidOrderTransaction();
 
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
         $token = $this->tokenFactory->generateToken($tokenStruct);
@@ -120,7 +107,27 @@ class PaymentControllerTest extends TestCase
 
         $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
 
-        static::assertTrue($client->getResponse()->isRedirection());
+        $response = $client->getResponse();
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertStringContainsString('testFinishUrl', $response->getTargetUrl());
+        static::assertTrue($response->isRedirection());
+    }
+
+    public function testCancelledPayment(): void
+    {
+        $transaction = $this->createValidOrderTransaction();
+
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl', null, 'testErrorUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
+
+        $client = $this->getBrowser();
+
+        $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token . '&cancel=1');
+
+        $response = $client->getResponse();
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertStringContainsString('testErrorUrl', $response->getTargetUrl());
+        static::assertTrue($response->isRedirection());
     }
 
     private function getBrowser(): KernelBrowser
@@ -182,5 +189,28 @@ class PaymentControllerTest extends TestCase
         $this->paymentMethodRepository->upsert([$payment], $context);
 
         return $id;
+    }
+
+    private function createValidOrderTransaction(): OrderTransactionEntity
+    {
+        $context = Context::createDefaultContext();
+
+        $paymentMethodId = $this->createPaymentMethodV630($context);
+        $orderId = $this->createOrder($context);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $context);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+
+        static::assertNotNull($response);
+        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+
+        $transaction = JWTFactoryV2Test::createTransaction();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId($paymentMethodId);
+        $transaction->setOrderId($orderId);
+
+        return $transaction;
     }
 }

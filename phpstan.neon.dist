@@ -37,7 +37,6 @@ parameters:
         - src/Core/Checkout/Test/Customer/*.php
         - src/Core/Checkout/Test/Document/*.php
         - src/Core/Checkout/Test/Order/*.php
-        - src/Core/Checkout/Test/Payment/*.php
         - src/Core/Checkout/Test/Promotion/*.php
         - src/Core/Checkout/Test/Shipping/*.php
         - src/Core/Checkout/Test/Validation/*.php

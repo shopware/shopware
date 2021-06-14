@@ -37,45 +37,21 @@ class PaymentServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var PaymentService
-     */
-    private $paymentService;
+    private PaymentService $paymentService;
 
-    /**
-     * @var JWTFactoryV2
-     */
-    private $tokenFactory;
+    private JWTFactoryV2 $tokenFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderTransactionRepository;
+    private EntityRepositoryInterface $orderTransactionRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private StateMachineRegistry $stateMachineRegistry;
 
     protected function setUp(): void
     {
@@ -121,6 +97,7 @@ class PaymentServiceTest extends TestCase
 
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
+        static::assertNotNull($response);
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
     }
 
@@ -135,6 +112,7 @@ class PaymentServiceTest extends TestCase
 
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
+        static::assertNotNull($response);
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = JWTFactoryV2Test::createTransaction();
@@ -167,6 +145,7 @@ class PaymentServiceTest extends TestCase
 
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
+        static::assertNotNull($response);
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = JWTFactoryV2Test::createTransaction();
@@ -231,6 +210,7 @@ class PaymentServiceTest extends TestCase
 
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
+        static::assertNotNull($response);
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = JWTFactoryV2Test::createTransaction();
@@ -240,10 +220,11 @@ class PaymentServiceTest extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $request = new Request();
-        $request->query->set('cancel', true);
+        $request->query->set('cancel', '1');
 
         $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
 
+        static::assertNotNull($response);
         static::assertNotEmpty($response->getException());
 
         $criteria = new Criteria([$transactionId]);
@@ -273,7 +254,7 @@ class PaymentServiceTest extends TestCase
         );
 
         //can success after cancelled
-        $request->query->set('cancel', false);
+        $request->query->set('cancel', '0');
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
 

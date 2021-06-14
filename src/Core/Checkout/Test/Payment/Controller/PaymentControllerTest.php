@@ -38,8 +38,6 @@ class PaymentControllerTest extends TestCase
 
     private EntityRepositoryInterface $orderRepository;
 
-    private EntityRepositoryInterface $customerRepository;
-
     private EntityRepositoryInterface $orderTransactionRepository;
 
     private EntityRepositoryInterface $paymentMethodRepository;
@@ -53,7 +51,6 @@ class PaymentControllerTest extends TestCase
         parent::setUp();
         $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
@@ -66,6 +63,7 @@ class PaymentControllerTest extends TestCase
 
         $client->request('GET', '/payment/finalize-transaction');
 
+        static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
@@ -77,6 +75,7 @@ class PaymentControllerTest extends TestCase
 
         $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=abc');
 
+        static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__INVALID_PAYMENT_TOKEN', $response['errors'][0]['code']);
@@ -91,6 +90,7 @@ class PaymentControllerTest extends TestCase
 
         $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
 
+        static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__INVALID_PAYMENT_TOKEN', $response['errors'][0]['code']);
@@ -203,6 +203,7 @@ class PaymentControllerTest extends TestCase
 
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
+        static::assertNotNull($response);
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = JWTFactoryV2Test::createTransaction();

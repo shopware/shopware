@@ -54,14 +54,9 @@ class PaymentMethodRouteTest extends TestCase
 
     public function testLoading(): void
     {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/payment-method',
-                [
-                ]
-            );
+        $this->browser->request('POST', '/store-api/payment-method');
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         $ids = array_column($response['elements'], 'id');
@@ -79,29 +74,31 @@ class PaymentMethodRouteTest extends TestCase
         $request = new Request();
 
         $unselectedPaymentResult = $paymentMethodRoute->load($request, $this->salesChannelContext, new Criteria());
+        static::assertNotNull($unselectedPaymentResult->getPaymentMethods()->last());
         $lastPaymentMethodId = $unselectedPaymentResult->getPaymentMethods()->last()->getId();
 
         $this->salesChannelContext->getPaymentMethod()->setId($lastPaymentMethodId);
         $selectedPaymentMethodResult = $paymentMethodRoute->load($request, $this->salesChannelContext, new Criteria());
 
+        static::assertNotNull($selectedPaymentMethodResult->getPaymentMethods()->first());
         static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getPaymentMethods()->first()->getId());
     }
 
     public function testIncludes(): void
     {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/payment-method',
-                [
-                    'includes' => [
-                        'payment_method' => [
-                            'name',
-                        ],
+        $this->browser->request(
+            'POST',
+            '/store-api/payment-method',
+            [
+                'includes' => [
+                    'payment_method' => [
+                        'name',
                     ],
-                ]
-            );
+                ],
+            ]
+        );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(3, $response['total']);
@@ -117,6 +114,7 @@ class PaymentMethodRouteTest extends TestCase
                 '/store-api/payment-method?onlyAvailable=1',
             );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(2, $response['total']);

@@ -23,15 +23,9 @@ class PaymentHandlerRegistryTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    /**
-     * @var PaymentHandlerRegistry
-     */
-    private $paymentHandlerRegistry;
+    private PaymentHandlerRegistry $paymentHandlerRegistry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
     public function setUp(): void
     {
@@ -45,6 +39,8 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @dataProvider paymentMethodDataProvider
+     *
+     * @param class-string<AsynchronousPaymentHandlerInterface>|class-string<SynchronousPaymentHandlerInterface> $handlerClass
      */
     public function testGetHandler(string $handlerName, string $handlerClass): void
     {
@@ -74,7 +70,7 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getSyncHandlerForPaymentMethod($paymentMethod);
-        if (!$isAsync) {
+        if ($isAsync === false) {
             static::assertInstanceOf(SynchronousPaymentHandlerInterface::class, $handler);
         } else {
             static::assertNull($handler);
@@ -92,7 +88,7 @@ class PaymentHandlerRegistryTest extends TestCase
         ];
     }
 
-    private function getPaymentMethod(string $handler): ?PaymentMethodEntity
+    private function getPaymentMethod(string $handler): PaymentMethodEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('handlerIdentifier', $handler));

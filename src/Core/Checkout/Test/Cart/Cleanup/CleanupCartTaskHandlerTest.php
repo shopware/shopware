@@ -30,23 +30,29 @@ class CleanupCartTaskHandlerTest extends TestCase
 
         $ids = new IdsCollection();
 
-        $date = new \DateTime();
+        $now = new \DateTimeImmutable();
 
-        $this->createCart($ids->create('cart-1'), $date);
+        $this->createCart($ids->create('cart-1'), $now);
 
-        $date->modify(sprintf('-%s day', 121));
-        $this->createCart($ids->create('cart-2'), $date);
+        $expiredDate1 = $now->modify(sprintf('-%s day', 121));
+        $this->createCart($ids->create('cart-2'), $expiredDate1);
+
+        $this->createCart($ids->create('cart-3'), $expiredDate1, $now);
+
+        $expiredDate2 = $now->modify(sprintf('-%s day', 122));
+        $this->createCart($ids->create('cart-4'), $expiredDate2, $expiredDate1);
 
         $this->handler->run();
 
         $carts = $this->getContainer()->get(Connection::class)
             ->fetchFirstColumn('SELECT token FROM cart');
 
-        static::assertCount(1, $carts);
+        static::assertCount(2, $carts);
         static::assertContains($ids->get('cart-1'), $carts);
+        static::assertContains($ids->get('cart-3'), $carts);
     }
 
-    private function createCart(string $token, \DateTime $date): void
+    private function createCart(string $token, \DateTimeImmutable $date, ?\DateTimeImmutable $updatedAt = null): void
     {
         $cart = [
             'token' => $token,
@@ -62,6 +68,7 @@ class CleanupCartTaskHandlerTest extends TestCase
             'customer_id' => null,
             'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
             'created_at' => $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'updated_at' => $updatedAt === null ? null : $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $this->getContainer()->get(Connection::class)

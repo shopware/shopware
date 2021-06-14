@@ -34,7 +34,11 @@ class CleanupCartTaskHandler extends ScheduledTaskHandler
         $time->modify(sprintf('-%s day', $this->days));
 
         $this->connection->executeStatement(
-            'DELETE FROM cart WHERE created_at <= :timestamp',
+            <<<'SQL'
+                DELETE FROM cart
+                    WHERE (updated_at IS NULL AND created_at <= :timestamp)
+                        OR (updated_at IS NOT NULL AND updated_at <= :timestamp);
+            SQL,
             ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
         );
     }

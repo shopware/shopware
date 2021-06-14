@@ -31,14 +31,12 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
 
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
-        $config = $slot->getFieldConfig();
-        $productConfig = $config->get('product');
-
-        if (!$productConfig || $productConfig->isMapped() || $productConfig->getValue() === null) {
+        $productConfig = $slot->getFieldConfig()->get('product');
+        if ($productConfig === null || $productConfig->isMapped() || $productConfig->getValue() === null) {
             return null;
         }
 
-        $criteria = new Criteria([$productConfig->getValue()]);
+        $criteria = new Criteria([$productConfig->getStringValue()]);
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('product_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
@@ -51,42 +49,47 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
         $productBox = new ProductBoxStruct();
         $slot->setData($productBox);
 
-        $config = $slot->getFieldConfig();
-        $productConfig = $config->get('product');
-
-        if (!$productConfig || $productConfig->getValue() === null) {
+        $productConfig = $slot->getFieldConfig()->get('product');
+        if ($productConfig === null || $productConfig->getValue() === null) {
             return;
         }
 
         if ($resolverContext instanceof EntityResolverContext && $productConfig->isMapped()) {
             /** @var SalesChannelProductEntity $product */
-            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getValue());
+            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getStringValue());
 
             $productBox->setProduct($product);
             $productBox->setProductId($product->getId());
         }
 
         if ($productConfig->isStatic()) {
-            $this->resolveProductFromRemote($slot, $productBox, $result, $productConfig->getValue(), $resolverContext->getSalesChannelContext());
+            $this->resolveProductFromRemote($slot, $productBox, $result, $productConfig->getStringValue(), $resolverContext->getSalesChannelContext());
         }
     }
 
-    private function resolveProductFromRemote(CmsSlotEntity $slot, ProductBoxStruct $productBox, ElementDataCollection $result, string $productId, SalesChannelContext $salesChannelContext): void
-    {
+    private function resolveProductFromRemote(
+        CmsSlotEntity $slot,
+        ProductBoxStruct $productBox,
+        ElementDataCollection $result,
+        string $productId,
+        SalesChannelContext $salesChannelContext
+    ): void {
         $searchResult = $result->get('product_' . $slot->getUniqueIdentifier());
-        if (!$searchResult) {
+        if ($searchResult === null) {
             return;
         }
 
         /** @var SalesChannelProductEntity|null $product */
         $product = $searchResult->get($productId);
-        if (!$product) {
+        if ($product === null) {
             return;
         }
-        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelContext->getSalesChannel()->getId())) {
-            if ($product->getIsCloseout() && $product->getAvailableStock() <= 0) {
-                return;
-            }
+
+        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelContext->getSalesChannel()->getId())
+            && $product->getIsCloseout()
+            && $product->getAvailableStock() <= 0
+        ) {
+            return;
         }
 
         $productBox->setProduct($product);

@@ -30,12 +30,11 @@ abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElemen
         }
 
         $productConfig = $config->get('product');
-
-        if (!$productConfig || $productConfig->isMapped() || $productConfig->getValue() === null) {
+        if ($productConfig === null || $productConfig->isMapped() || $productConfig->getValue() === null) {
             return null;
         }
 
-        $criteria = $this->createBestVariantCriteria($productConfig->getValue());
+        $criteria = $this->createBestVariantCriteria($productConfig->getStringValue());
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('product_' . $slot->getUniqueIdentifier(), SalesChannelProductDefinition::class, $criteria);
@@ -48,8 +47,7 @@ abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElemen
     protected function getSlotProduct(CmsSlotEntity $slot, ElementDataCollection $result, string $productId): ?SalesChannelProductEntity
     {
         $searchResult = $result->get('product_' . $slot->getUniqueIdentifier());
-
-        if (!$searchResult) {
+        if ($searchResult === null) {
             return null;
         }
 

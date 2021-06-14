@@ -23,14 +23,12 @@ class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
 
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
-        $config = $slot->getFieldConfig();
-        $mediaConfig = $config->get('previewMedia');
-
-        if (!$mediaConfig || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
+        $mediaConfig = $slot->getFieldConfig()->get('previewMedia');
+        if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
             return null;
         }
 
-        $criteria = new Criteria([$mediaConfig->getValue()]);
+        $criteria = new Criteria([$mediaConfig->getStringValue()]);
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
@@ -54,7 +52,7 @@ class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
     {
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
             /** @var MediaEntity|null $media */
-            $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getValue());
+            $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
 
             if ($media !== null) {
                 $image->setMediaId($media->getUniqueIdentifier());
@@ -63,7 +61,7 @@ class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($config->isStatic()) {
-            $image->setMediaId($config->getValue());
+            $image->setMediaId($config->getStringValue());
 
             $searchResult = $result->get('media_' . $slot->getUniqueIdentifier());
             if (!$searchResult) {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver;
 
+use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
 use Shopware\Core\Framework\Struct\Struct;
 
 class FieldConfig extends Struct
@@ -20,8 +21,14 @@ class FieldConfig extends Struct
      */
     protected $source;
 
+    /**
+     * @var array|bool|float|int|string|null
+     */
     protected $value;
 
+    /**
+     * @param array|bool|float|int|string|null $value
+     */
     public function __construct(string $name, string $source, $value)
     {
         $this->name = $name;
@@ -39,9 +46,53 @@ class FieldConfig extends Struct
         return $this->source;
     }
 
+    /**
+     * @return array|bool|float|int|string|null
+     */
     public function getValue()
     {
         return $this->value;
+    }
+
+    public function getArrayValue(): array
+    {
+        if (\is_array($this->value)) {
+            return $this->value;
+        }
+
+        throw new UnexpectedFieldConfigValueType($this->name, 'array', \gettype($this->value));
+    }
+
+    public function getStringValue(): string
+    {
+        if (!\is_array($this->value)) {
+            return (string) $this->value;
+        }
+
+        throw new UnexpectedFieldConfigValueType($this->name, 'string', \gettype($this->value));
+    }
+
+    public function getIntValue(): int
+    {
+        if (!\is_array($this->value)) {
+            return (int) $this->value;
+        }
+
+        throw new UnexpectedFieldConfigValueType($this->name, 'int', \gettype($this->value));
+    }
+
+    public function getFloatValue(): float
+    {
+        if (!\is_array($this->value)) {
+            return (float) $this->value;
+        }
+
+        throw new UnexpectedFieldConfigValueType($this->name, 'float', \gettype($this->value));
+    }
+
+    public function getBoolValue(): bool
+    {
+        return (bool) $this->value;
     }
 
     public function isStatic(): bool

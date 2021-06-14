@@ -160,6 +160,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 

@@ -9,7 +9,7 @@ export default class ExtensionStoreActionService extends ApiService {
     downloadExtension(technicalName) {
         return this.httpClient
             .post(`_action/${this.getApiBasePath()}/download/${technicalName}`, {}, {
-                headers: this.basicHeaders(),
+                headers: this.basicHeaders(Shopware.Context.api),
                 version: 3
             });
     }

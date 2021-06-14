@@ -284,5 +284,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['cart']
     });
 
+    ruleConditionService.addCondition('cartLineItemGoodsTotal', {
+        component: 'sw-condition-line-item-goods-total',
+        label: 'global.sw-condition.condition.lineItemGoodsTotalRule',
+        scopes: ['lineItem']
+    });
+
     return ruleConditionService;
 });

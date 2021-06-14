@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+.sw-condition-line-item-goods-total {
+    display: grid;
+    grid-template-columns: auto 1fr 40px;
+
+    .sw-condition-line-item-goods-total__filter {
+        border-left: 1px solid $color-gray-300;
+        color: $color-darkgray-200;
+
+        .sw-button {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            border: none;
+            background: transparent;
+            padding: 2px 11px;
+        }
+    }
+}

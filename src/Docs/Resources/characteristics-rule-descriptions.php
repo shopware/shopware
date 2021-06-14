@@ -233,4 +233,8 @@ EOD
 Match a specific currency to the current context.
 EOD
     ,
+    Shopware\Core\Checkout\Cart\Rule\LineItemGoodsTotalRule::class => <<<'EOD'
+Matches a total number of products in cart.
+EOD
+    ,
 ];

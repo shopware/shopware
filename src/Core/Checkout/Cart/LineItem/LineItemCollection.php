@@ -205,6 +205,13 @@ class LineItemCollection extends Collection
         return 'cart_line_item_collection';
     }
 
+    public function getTotalQuantity(): int
+    {
+        return $this->reduce(function ($result, $item) {
+            return $result + $item->getQuantity();
+        }, 0);
+    }
+
     protected function getKey(LineItem $element): string
     {
         return $element->getId();

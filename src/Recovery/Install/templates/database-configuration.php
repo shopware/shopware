@@ -100,7 +100,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
         <?= $t->t('database-configuration_non_empty_database'); ?>
     </div>
     <p>
-        <div class="custom-checkbox">
+        <div class="custom-checkbox c_create_database">
             <input id="c_database_create_schema_new" type="checkbox" />
             <label for="c_database_create_schema_new"><?= $t->t('database-configuration_field_new_database'); ?></label>
         </div>

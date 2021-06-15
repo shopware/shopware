@@ -144,7 +144,11 @@ Component.register('sw-mail-template-detail', {
         },
 
         showPreview() {
-            if (this.mailTemplate.contentHtml === undefined || this.mailTemplate.mailTemplateTypeId === undefined || this.mailTemplate.contentHtml === '') {
+            if (
+                this.mailTemplate.contentHtml === undefined ||
+                this.mailTemplate.mailTemplateTypeId === undefined ||
+                this.mailTemplate.contentHtml === ''
+            ) {
                 return true;
             }
             return false;

@@ -13,8 +13,8 @@
         entity="product_stream"
         :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"
         :error="productStreamInvalidError"
-        :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')">
-    </sw-entity-single-select>
+        :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')"
+    />
     {% endblock %}
 
     {% block sw_sales_channel_products_assignment_dynamic_product_groups_result %}
@@ -24,8 +24,8 @@
             :filters="productStreamFilter"
             :criteria="productStreamCriteria"
             :columns="productColumns"
-            @selection-change="onSelectionChange">
-        </sw-product-stream-grid-preview>
+            @selection-change="onSelectionChange"
+        />
     </sw-card>
     {% endblock %}
 </div>

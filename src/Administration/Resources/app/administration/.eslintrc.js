@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+    root: true,
     extends: [
         '@shopware-ag/eslint-config-base'
     ],
@@ -52,11 +53,17 @@ module.exports = {
         'import/extensions': ['error', 'always', {
             js: 'never',
             vue: 'never'
-        }]
+        }],
+        'no-console': ['error', { allow: ['warn', 'error'] }]
     },
 
     overrides: [
         {
+            files: ['**/*.spec.js'],
+            rules: {
+                'max-len': 0
+            }
+        }, {
             extends: [
                 'plugin:vue/recommended',
                 '@shopware-ag/eslint-config-base'
@@ -109,17 +116,21 @@ module.exports = {
                 'vue/html-indent': ['error', 4, {
                     baseIndent: 0
                 }],
-                'no-multiple-empty-lines': ['error', { max: 1 }],
                 'eol-last': 'off', // no newline required at the end of file
+                'no-multiple-empty-lines': ['error', { max: 1 }],
                 'max-len': 'off',
+                'vue/attribute-hyphenation': 'error',
                 'vue/multiline-html-element-content-newline': 'off', // allow more spacy templates
                 'vue/html-self-closing': 'warn',
-                'vue/no-multiple-template-root': 'warn',
-                'vue/no-unused-vars': 'warn',
+                'vue/no-multiple-template-root': 'off',
+                'vue/no-unused-vars': 'off',
+                'vue/no-template-shadow': 'off',
+                'vue/no-lone-template': 'off',
+                'vue/no-v-html': 'off',
+                'vue/valid-template-root': 'off',
                 'vue/no-parsing-error': ['error', {
                     'nested-comment': false
                 }],
-                'vue/valid-template-root': 'warn',
                 'vue/valid-v-slot': ['error', {
                     allowModifiers: true
                 }]

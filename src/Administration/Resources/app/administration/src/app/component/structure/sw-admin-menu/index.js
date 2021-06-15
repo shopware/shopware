@@ -275,14 +275,14 @@ Component.register('sw-admin-menu', {
                     ['is--entry-expanded']
                 );
 
-                const currentlyActiveElement = this.$el.querySelector('a.router-link-active');
-                const currentlyActiveParentElement = currentlyActiveElement?.parentElement;
-                const parentIsFirstLevel = currentlyActiveParentElement?.classList?.contains('navigation-list-item__level-1');
+                const currentActiveElement = this.$el.querySelector('a.router-link-active');
+                const currentActiveParentElement = currentActiveElement?.parentElement;
+                const parentIsFirstLevel = currentActiveParentElement?.classList?.contains('navigation-list-item__level-1');
 
-                const ignoreElementsList = [currentlyActiveParentElement];
+                const ignoreElementsList = [currentActiveParentElement];
 
-                if (currentlyActiveElement && !parentIsFirstLevel) {
-                    const mainMenuListItem = currentlyActiveElement.closest(
+                if (currentActiveElement && !parentIsFirstLevel) {
+                    const mainMenuListItem = currentActiveElement.closest(
                         '.navigation-list-item__level-1.navigation-list-item__has-children'
                     );
                     ignoreElementsList.push(mainMenuListItem.firstElementChild);

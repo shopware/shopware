@@ -80,12 +80,12 @@
                 :natural-sorting="naturalSorting"
                 :criteria-limit="limit"
                 :disable-data-fetching="true"
+                :allow-bulk-edit="acl.can('product.editor')"
                 @column-sort="onColumnSort"
                 @page-change="onPageChange"
                 @inline-edit-save="onInlineEditSave"
                 @selection-change="updateSelection"
                 @update-records="updateTotal"
-                :allow-bulk-edit="acl.can('product.editor')"
                 @bulk-edit-modal-open="onBulkEditModalOpen"
             >
                 {% block sw_product_list_grid_columns %}

@@ -4,7 +4,7 @@
     :class="containerRowClass"
 >
     {% block sw_condition_or_container_children %}
-    <template v-for="(child, index) in condition[this.childAssociationField]">
+    <template v-for="(child, index) in condition[childAssociationField]">
         <div
             v-if="index > 0"
             :key="index"

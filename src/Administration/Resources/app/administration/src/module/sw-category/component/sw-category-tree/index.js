@@ -312,7 +312,11 @@ Component.register('sw-category-tree', {
                 this.removeFromStore(category.id);
 
                 if (category.parentId !== null) {
-                    this.categoryRepository.get(category.parentId, Shopware.Context.api, this.criteria).then((updatedParent) => {
+                    this.categoryRepository.get(
+                        category.parentId,
+                        Shopware.Context.api,
+                        this.criteria
+                    ).then((updatedParent) => {
                         this.addCategory(updatedParent);
                     });
                 }

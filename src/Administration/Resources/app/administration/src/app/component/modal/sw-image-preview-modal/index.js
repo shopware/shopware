@@ -126,7 +126,9 @@ Component.register('sw-image-preview-modal', {
         },
 
         async getActiveImage() {
-            this.image = this.$el.querySelector('.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active');
+            this.image = this.$el.querySelector(
+                '.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active'
+            );
 
             if (!this.image.complete) {
                 this.image = await this.loadImage(this.image);

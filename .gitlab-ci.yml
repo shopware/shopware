@@ -426,7 +426,7 @@ E2E:
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - CYPRESS_CMD="cypress run"
-        - FULL_CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && $CYPRESS_CMD --browser chrome --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
+        - FULL_CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && $CYPRESS_CMD --browser chrome --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec \"$TEST_DIRECTORY\""
         - echo $FULL_CYPRESS_CMD
         - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e cypress_grep -e cypress_usePercy -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:5.6.0 -c "$FULL_CYPRESS_CMD"
     after_script:
@@ -457,8 +457,8 @@ E2E:
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
-                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
+                    - "cypress/integration/content/**/*,cypress/integration/catalogue/**/*,cypress/integration/customer/**/*,cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*,cypress/integration/settings/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "minor"]
                 cypress_usePercy: 'false'
@@ -471,8 +471,8 @@ E2E:
                 SKIP_ON_MR: 'true'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
-                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
+                    - "cypress/integration/content/**/*,cypress/integration/catalogue/**/*,cypress/integration/customer/**/*,cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*,cypress/integration/settings/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: "major"
                 cypress_usePercy: 'false'
@@ -486,8 +486,8 @@ E2E:
                 SKIP_ON_MR: 'true'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
-                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
+                    - "cypress/integration/content/**/*,cypress/integration/catalogue/**/*,cypress/integration/customer/**/*,cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*,cypress/integration/settings/**/*"
                 BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
                 cypress_usePercy: 'false'

@@ -1,7 +1,6 @@
 ---
 title: Implement uploading and assigning variant images
 issue: NEXT-14120
-flag: FEATURE_NEXT_6544
 ---
 # Administration
 * Added `media-default-folder` service in `src/app/service` to get a media default folder id if needed.

@@ -2,231 +2,229 @@ import template from './sw-image-preview-modal.html.twig';
 import './sw-image-preview-modal.scss';
 
 const { Component } = Shopware;
-if (Shopware.Feature.isActive('FEATURE_NEXT_6544')) {
-    /**
-     * @private
-     * @status ready
-     * @example-type static
-     * @component-example
-     * <sw-image-preview-modal
-     *     v-if="showImagePreviewModal"
-     *     :mediaItems="mediaItems"
-     *     :activeItem="activeItemIdId"
-     *     @modal-close="onCloseModal">
-     * </sw-image-preview-modal>
-     */
-    Component.register('sw-image-preview-modal', {
-        template,
+/**
+ * @private
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-image-preview-modal
+ *     v-if="showImagePreviewModal"
+ *     :mediaItems="mediaItems"
+ *     :activeItem="activeItemIdId"
+ *     @modal-close="onCloseModal">
+ * </sw-image-preview-modal>
+ */
+Component.register('sw-image-preview-modal', {
+    template,
 
-        props: {
-            mediaItems: {
-                type: Array,
-                required: true
-            },
+    props: {
+        mediaItems: {
+            type: Array,
+            required: true
+        },
 
-            activeItemId: {
-                type: String,
-                required: false,
-                default: ''
-            },
+        activeItemId: {
+            type: String,
+            required: false,
+            default: ''
+        },
 
-            zoomSteps: {
-                type: Number,
-                required: false,
-                default: 5
-            },
+        zoomSteps: {
+            type: Number,
+            required: false,
+            default: 5
+        },
 
-            itemPerPage: {
-                type: Number,
-                required: false,
-                default: 10
+        itemPerPage: {
+            type: Number,
+            required: false,
+            default: 10
+        }
+    },
+
+    data() {
+        return {
+            activeItemIndex: 0,
+            image: null,
+            scale: 1,
+            isDisabledReset: true,
+            isDisabledZoomIn: true,
+            isDisabledZoomOut: true
+        };
+    },
+
+    computed: {
+        images() {
+            return this.mediaItems.map(item => {
+                if (item?.media?.url) {
+                    return {
+                        ...item.media,
+                        src: item.media.url
+                    };
+                }
+
+                return item;
+            });
+        },
+
+        maxZoomValue() {
+            if (this.image) {
+                const { offsetWidth, offsetHeight, naturalWidth, naturalHeight } = this.image;
+                const value = Math.max(naturalWidth / offsetWidth, naturalHeight / offsetHeight);
+                return Number.isNaN(value) ? 1 : value;
+            }
+
+            return 1;
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
+    },
+
+    updated() {
+        this.updatedComponent();
+    },
+
+    destroyed() {
+        this.destroyedComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            if (this.activeItemId) {
+                this.activeItemIndex = this.mediaItems.findIndex(item => item.id === this.activeItemId);
             }
         },
 
-        data() {
+        mountedComponent() {
+            this.$el.addEventListener('wheel', this.onMouseWheel);
+
+            this.getActiveImage().then(() => {
+                this.setActionButtonState();
+            });
+        },
+
+        updatedComponent() {
+            this.getActiveImage().then(() => {
+                this.setActionButtonState();
+            });
+        },
+
+        destroyedComponent() {
+            this.$el.removeEventListener('wheel', this.onMouseWheel);
+        },
+
+        buttonClass(isDisabled) {
             return {
-                activeItemIndex: 0,
-                image: null,
-                scale: 1,
-                isDisabledReset: true,
-                isDisabledZoomIn: true,
-                isDisabledZoomOut: true
+                'is--disabled': isDisabled
             };
         },
 
-        computed: {
-            images() {
-                return this.mediaItems.map(item => {
-                    if (item?.media?.url) {
-                        return {
-                            ...item.media,
-                            src: item.media.url
-                        };
-                    }
+        async getActiveImage() {
+            this.image = this.$el.querySelector('.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active');
 
-                    return item;
-                });
-            },
-
-            maxZoomValue() {
-                if (this.image) {
-                    const { offsetWidth, offsetHeight, naturalWidth, naturalHeight } = this.image;
-                    const value = Math.max(naturalWidth / offsetWidth, naturalHeight / offsetHeight);
-                    return Number.isNaN(value) ? 1 : value;
-                }
-
-                return 1;
+            if (!this.image.complete) {
+                this.image = await this.loadImage(this.image);
             }
         },
 
-        created() {
-            this.createdComponent();
+        loadImage(element) {
+            return new Promise((resolve, reject) => {
+                element.onload = () => resolve(element);
+                element.onerror = reject;
+            });
         },
 
-        mounted() {
-            this.mountedComponent();
+        onClickClose() {
+            this.$emit('modal-close');
         },
 
-        updated() {
-            this.updatedComponent();
+        onClickZoomIn() {
+            const zoomAmount = this.maxZoomValue / this.zoomSteps;
+
+            this.scale = (this.scale + zoomAmount > this.maxZoomValue)
+                ? this.maxZoomValue : this.scale + zoomAmount;
+            this.setTransition();
+            this.updateTransform();
         },
 
-        destroyed() {
-            this.destroyedComponent();
+        onClickZoomOut() {
+            const zoomAmount = this.maxZoomValue / this.zoomSteps;
+
+            this.scale = (this.scale - zoomAmount < 1) ? 1 : this.scale - zoomAmount;
+            this.setTransition();
+            this.updateTransform();
         },
 
-        methods: {
-            createdComponent() {
-                if (this.activeItemId) {
-                    this.activeItemIndex = this.mediaItems.findIndex(item => item.id === this.activeItemId);
-                }
-            },
+        onClickReset() {
+            this.scale = 1;
+            this.updateTransform();
+        },
 
-            mountedComponent() {
-                this.$el.addEventListener('wheel', this.onMouseWheel);
+        onImageSliderChange(index) {
+            this.activeItemIndex = index;
+            this.scale = 1;
+        },
 
-                this.getActiveImage().then(() => {
-                    this.setActionButtonState();
-                });
-            },
+        onThumbnailSliderChange(index) {
+            this.activeItemIndex = index;
+            this.scale = 1;
+        },
 
-            updatedComponent() {
-                this.getActiveImage().then(() => {
-                    this.setActionButtonState();
-                });
-            },
+        setTransition() {
+            const transition = 'all 350ms ease 0s';
+            this.image.style.transition = transition;
+            this.image.style.WebkitTransition = transition;
+            this.image.style.msTransition = transition;
+        },
 
-            destroyedComponent() {
-                this.$el.removeEventListener('wheel', this.onMouseWheel);
-            },
+        updateTransform() {
+            this.setActionButtonState();
 
-            buttonClass(isDisabled) {
-                return {
-                    'is--disabled': isDisabled
-                };
-            },
+            const transform = `scale(${this.scale})`;
+            this.image.style.transform = transform;
+            this.image.style.WebkitTransform = transform;
+            this.image.style.msTransform = transform;
+        },
 
-            async getActiveImage() {
-                this.image = this.$el.querySelector('.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active');
-
-                if (!this.image.complete) {
-                    this.image = await this.loadImage(this.image);
-                }
-            },
-
-            loadImage(element) {
-                return new Promise((resolve, reject) => {
-                    element.onload = () => resolve(element);
-                    element.onerror = reject;
-                });
-            },
-
-            onClickClose() {
-                this.$emit('modal-close');
-            },
-
-            onClickZoomIn() {
-                const zoomAmount = this.maxZoomValue / this.zoomSteps;
-
-                this.scale = (this.scale + zoomAmount > this.maxZoomValue)
-                    ? this.maxZoomValue : this.scale + zoomAmount;
-                this.setTransition();
-                this.updateTransform();
-            },
-
-            onClickZoomOut() {
-                const zoomAmount = this.maxZoomValue / this.zoomSteps;
-
-                this.scale = (this.scale - zoomAmount < 1) ? 1 : this.scale - zoomAmount;
-                this.setTransition();
-                this.updateTransform();
-            },
-
-            onClickReset() {
-                this.scale = 1;
-                this.updateTransform();
-            },
-
-            onImageSliderChange(index) {
-                this.activeItemIndex = index;
-                this.scale = 1;
-            },
-
-            onThumbnailSliderChange(index) {
-                this.activeItemIndex = index;
-                this.scale = 1;
-            },
-
-            setTransition() {
-                const transition = 'all 350ms ease 0s';
-                this.image.style.transition = transition;
-                this.image.style.WebkitTransition = transition;
-                this.image.style.msTransition = transition;
-            },
-
-            updateTransform() {
-                this.setActionButtonState();
-
-                const transform = `scale(${this.scale})`;
-                this.image.style.transform = transform;
-                this.image.style.WebkitTransform = transform;
-                this.image.style.msTransform = transform;
-            },
-
-            setActionButtonState() {
-                if (this.scale === 1 && this.maxZoomValue === 1) {
-                    this.isDisabledReset = true;
-                    this.isDisabledZoomIn = true;
-                    this.isDisabledZoomOut = true;
-                } else if (this.maxZoomValue <= this.scale) {
-                    this.isDisabledReset = false;
-                    this.isDisabledZoomIn = true;
-                    this.isDisabledZoomOut = false;
-                } else if (this.scale === 1) {
-                    this.isDisabledReset = true;
-                    this.isDisabledZoomIn = false;
-                    this.isDisabledZoomOut = true;
-                } else {
-                    this.isDisabledReset = false;
-                    this.isDisabledZoomIn = false;
-                    this.isDisabledZoomOut = false;
-                }
-            },
-
-            onMouseWheel(event) {
-                const zoomAmount = event.wheelDelta / 800;
-
-                if (this.scale + zoomAmount > this.maxZoomValue) {
-                    this.scale = this.maxZoomValue;
-                } else if (this.scale + zoomAmount < 1) {
-                    this.scale = 1;
-                } else {
-                    this.scale += zoomAmount;
-                }
-
-                this.setTransition();
-                this.updateTransform();
+        setActionButtonState() {
+            if (this.scale === 1 && this.maxZoomValue === 1) {
+                this.isDisabledReset = true;
+                this.isDisabledZoomIn = true;
+                this.isDisabledZoomOut = true;
+            } else if (this.maxZoomValue <= this.scale) {
+                this.isDisabledReset = false;
+                this.isDisabledZoomIn = true;
+                this.isDisabledZoomOut = false;
+            } else if (this.scale === 1) {
+                this.isDisabledReset = true;
+                this.isDisabledZoomIn = false;
+                this.isDisabledZoomOut = true;
+            } else {
+                this.isDisabledReset = false;
+                this.isDisabledZoomIn = false;
+                this.isDisabledZoomOut = false;
             }
+        },
+
+        onMouseWheel(event) {
+            const zoomAmount = event.wheelDelta / 800;
+
+            if (this.scale + zoomAmount > this.maxZoomValue) {
+                this.scale = this.maxZoomValue;
+            } else if (this.scale + zoomAmount < 1) {
+                this.scale = 1;
+            } else {
+                this.scale += zoomAmount;
+            }
+
+            this.setTransition();
+            this.updateTransform();
         }
-    });
-}
+    }
+});

@@ -74,8 +74,6 @@ describe('Product: Test variants', () => {
     });
 
     it('@catalogue: inline edit variant image', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_6544');
-
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -175,8 +173,6 @@ describe('Product: Test variants', () => {
     });
 
     it('@catalogue: set cover for variant image', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_6544');
-
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -303,8 +299,6 @@ describe('Product: Test variants', () => {
 
 
     it('@catalogue: view preview image modal', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_6544');
-
         const page = new ProductPageObject();
 
         // Request we want to wait for later

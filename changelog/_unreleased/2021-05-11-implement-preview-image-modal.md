@@ -1,7 +1,6 @@
 ---
 title: Implement preview image modal
 issue: NEXT-14121
-flag: FEATURE_NEXT-6544
 ---
 # Administration
 * Changed in `src/app/component/media/sw-image-slider/index.js`

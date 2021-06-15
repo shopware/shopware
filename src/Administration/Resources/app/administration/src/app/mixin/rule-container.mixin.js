@@ -6,37 +6,37 @@ Mixin.register('ruleContainer', {
         'createCondition',
         'insertNodeIntoTree',
         'removeNodeFromTree',
-        'childAssociationField'
+        'childAssociationField',
     ],
 
     props: {
         condition: {
             type: Object,
-            required: true
+            required: true,
         },
 
         parentCondition: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         level: {
             type: Number,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         containerRowClass() {
             const classes = {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
 
             const level = this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
@@ -51,7 +51,7 @@ Mixin.register('ruleContainer', {
                 return this.condition[this.childAssociationField].length;
             }
             return 0;
-        }
+        },
     },
 
     watch: {
@@ -59,6 +59,6 @@ Mixin.register('ruleContainer', {
             if (this.nextPosition === 0) {
                 this.onAddPlaceholder();
             }
-        }
-    }
+        },
+    },
 });

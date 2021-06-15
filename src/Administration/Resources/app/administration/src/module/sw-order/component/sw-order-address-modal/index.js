@@ -11,14 +11,14 @@ Component.register('sw-order-address-modal', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         address: {
             type: Object,
             required: true,
-            default: () => {}
+            default: () => {},
         },
 
         countries: {
@@ -26,27 +26,27 @@ Component.register('sw-order-address-modal', {
             required: true,
             default() {
                 return [];
-            }
+            },
         },
 
         order: {
             type: Object,
             required: true,
-            default: () => {}
+            default: () => {},
         },
 
         versionContext: {
             type: Object,
             required: true,
-            default: () => {}
-        }
+            default: () => {},
+        },
     },
 
     data() {
         return {
             availableAddresses: [],
             selectedAddressId: 0,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -69,7 +69,7 @@ Component.register('sw-order-address-modal', {
 
         orderCustomer() {
             return this.order.orderCustomer;
-        }
+        },
     },
 
     created() {
@@ -118,7 +118,7 @@ Component.register('sw-order-address-modal', {
             const isShippingAvailable = this.order.addresses[0].country.shippingAvailable;
             if (!isShippingAvailable && typeof isShippingAvailable === 'boolean') {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.detail.messageShippingNotAvailable')
+                    message: this.$tc('sw-order.detail.messageShippingNotAvailable'),
                 });
 
                 this.isLoading = false;
@@ -140,7 +140,7 @@ Component.register('sw-order-address-modal', {
                         this.$emit('save');
                     }).catch(() => {
                         this.createNotificationError({
-                            message: this.$tc('sw-order.detail.messageSaveError')
+                            message: this.$tc('sw-order.detail.messageSaveError'),
                         });
                     }).finally(() => {
                         resolve();
@@ -149,6 +149,6 @@ Component.register('sw-order-address-modal', {
             }).finally(() => {
                 this.isLoading = false;
             });
-        }
-    }
+        },
+    },
 });

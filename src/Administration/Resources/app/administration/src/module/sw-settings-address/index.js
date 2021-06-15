@@ -20,15 +20,15 @@ Module.register('sw-settings-address', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
-        }
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.address.index',
         icon: 'default-object-address',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

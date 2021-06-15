@@ -18,7 +18,7 @@ class CustomerValidationApiService extends ApiService {
         return this.httpClient
             .post(`/_admin/${this.apiEndpoint}`, payload, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

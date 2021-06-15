@@ -16,15 +16,15 @@ Shopware.Module.register('sw-settings-mailer', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
-        }
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.settings.mailer.index',
         icon: 'default-communication-envelope',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

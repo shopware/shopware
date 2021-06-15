@@ -10,18 +10,18 @@ Component.register('sw-product-detail-seo', {
 
     data() {
         return {
-            currentSalesChannelId: undefined
+            currentSalesChannelId: undefined,
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
-            'parentProduct'
+            'parentProduct',
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
         ]),
 
         categories() {
@@ -58,8 +58,8 @@ Component.register('sw-product-detail-seo', {
                 }
 
                 this.product.mainCategories.push(newMainCategory);
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -70,6 +70,6 @@ Component.register('sw-product-detail-seo', {
         },
         onChangeSalesChannel(currentSalesChannelId) {
             this.currentSalesChannelId = currentSalesChannelId;
-        }
-    }
+        },
+    },
 });

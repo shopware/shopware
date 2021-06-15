@@ -9,13 +9,13 @@ Component.register('sw-cms-el-config-image', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     data() {
         return {
             mediaModalIsOpen: false,
-            initialFolderId: null
+            initialFolderId: null,
         };
     },
 
@@ -34,7 +34,7 @@ Component.register('sw-cms-el-config-image', {
             }
 
             return this.element.config.media.value;
-        }
+        },
     },
 
     created() {
@@ -105,6 +105,6 @@ Component.register('sw-cms-el-config-image', {
             }
 
             this.$emit('element-update', this.element);
-        }
-    }
+        },
+    },
 });

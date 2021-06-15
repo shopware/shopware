@@ -12,10 +12,10 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginLeft: '20px',
         marginBottom: '20px',
         marginRight: '20px',
-        sizingMode: 'boxed'
+        sizingMode: 'boxed',
     },
     slots: {
         left: 'product-name',
-        right: 'manufacturer-logo'
-    }
+        right: 'manufacturer-logo',
+    },
 });

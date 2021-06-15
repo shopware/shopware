@@ -73,32 +73,32 @@ Component.register('sw-form-field-renderer', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     props: {
         type: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         config: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             currentComponentName: '',
             swFieldConfig: {},
-            currentValue: this.value
+            currentValue: this.value,
         };
     },
 
@@ -109,7 +109,7 @@ Component.register('sw-form-field-renderer', {
                 ...this.config,
                 ...this.swFieldType,
                 ...this.translations,
-                ...this.optionTranslations
+                ...this.optionTranslations,
             };
 
             if (this.componentName === 'sw-entity-multi-id-select') {
@@ -189,7 +189,7 @@ Component.register('sw-form-field-renderer', {
                     const translation = this.getTranslations(
                         'options',
                         option,
-                        [labelProperty]
+                        [labelProperty],
                     );
                     // Merge original option with translation
                     const translatedOption = { ...option, ...translation };
@@ -200,7 +200,7 @@ Component.register('sw-form-field-renderer', {
             }
 
             return {};
-        }
+        },
     },
 
     watch: {
@@ -211,7 +211,7 @@ Component.register('sw-form-field-renderer', {
         },
         value() {
             this.currentValue = this.value;
-        }
+        },
     },
 
     methods: {
@@ -248,6 +248,6 @@ Component.register('sw-form-field-renderer', {
             }
 
             return this.repositoryFactory.create(entity);
-        }
-    }
+        },
+    },
 });

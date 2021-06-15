@@ -10,13 +10,13 @@ Component.register('sw-admin', {
 
     metaInfo() {
         return {
-            title: this.$tc('global.sw-admin-menu.textShopwareAdmin')
+            title: this.$tc('global.sw-admin-menu.textShopwareAdmin'),
         };
     },
 
     computed: {
         isLoggedIn() {
             return Shopware.Service('loginService').isLoggedIn();
-        }
-    }
+        },
+    },
 });

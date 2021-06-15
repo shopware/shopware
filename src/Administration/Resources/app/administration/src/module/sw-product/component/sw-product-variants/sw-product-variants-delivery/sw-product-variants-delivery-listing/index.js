@@ -10,13 +10,13 @@ Component.register('sw-product-variants-delivery-listing', {
     props: {
         product: {
             type: Object,
-            required: true
+            required: true,
         },
 
         selectedGroups: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -24,12 +24,12 @@ Component.register('sw-product-variants-delivery-listing', {
             return [
                 {
                     value: 'single',
-                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelModeSingle')
+                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelModeSingle'),
                 },
                 {
                     value: 'expanded',
-                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelModeExpanded')
-                }
+                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelModeExpanded'),
+                },
             ];
         },
 
@@ -77,7 +77,7 @@ Component.register('sw-product-variants-delivery-listing', {
             sortedGroups = [...sortedGroups, ...selectedGroupsCopy];
 
             return sortedGroups;
-        }
+        },
     },
 
     created() {
@@ -123,7 +123,7 @@ Component.register('sw-product-variants-delivery-listing', {
             configuratorGroupConfig.push({
                 id: groupId,
                 expressionForListings: value,
-                representation: 'box'
+                representation: 'box',
             });
 
             this.product.configuratorGroupConfig = configuratorGroupConfig;
@@ -139,6 +139,6 @@ Component.register('sw-product-variants-delivery-listing', {
 
         isSelected(item) {
             return this.mainVariant === item.id;
-        }
-    }
+        },
+    },
 });

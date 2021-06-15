@@ -13,27 +13,27 @@ Component.register('sw-select-option', {
     props: {
         index: {
             type: Number,
-            required: true
+            required: true,
         },
         item: {
             type: Object,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         selected: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            isActive: false
+            isActive: false,
         };
     },
 
@@ -42,11 +42,11 @@ Component.register('sw-select-option', {
             return [
                 {
                     'is--active': this.isActive,
-                    'is--disabled': this.disabled
+                    'is--disabled': this.disabled,
                 },
-                `sw-select-option--${this.index}`
+                `sw-select-option--${this.index}`,
             ];
-        }
+        },
     },
 
     created() {
@@ -91,7 +91,7 @@ Component.register('sw-select-option', {
 
             this.$parent.$emit('option-click', {
                 originalDomEvent,
-                item: this.item
+                item: this.item,
             });
         },
 
@@ -118,6 +118,6 @@ Component.register('sw-select-option', {
         onMouseEnter(originalDomEvent) {
             this.$parent.$emit('option-mouse-over', { originalDomEvent, index: this.index });
             this.isActive = true;
-        }
-    }
+        },
+    },
 });

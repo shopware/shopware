@@ -11,34 +11,34 @@ Shopware.Service('privileges')
                     'property_group:read',
                     'user_config:read',
                     'user_config:create',
-                    'user_config:update'
+                    'user_config:update',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
-                    'product_feature_set:update'
-                ],
-                dependencies: [
-                    'product_feature_sets.viewer'
-                ]
-            },
-            creator: {
-                privileges: [
-                    'product_feature_set:create'
+                    'product_feature_set:update',
                 ],
                 dependencies: [
                     'product_feature_sets.viewer',
-                    'product_feature_sets.editor'
-                ]
+                ],
+            },
+            creator: {
+                privileges: [
+                    'product_feature_set:create',
+                ],
+                dependencies: [
+                    'product_feature_sets.viewer',
+                    'product_feature_sets.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'product_feature_set:delete'
+                    'product_feature_set:delete',
                 ],
                 dependencies: [
-                    'product_feature_sets.viewer'
-                ]
-            }
-        }
+                    'product_feature_sets.viewer',
+                ],
+            },
+        },
     });

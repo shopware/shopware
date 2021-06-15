@@ -18,22 +18,22 @@ Component.register('sw-media-modal-replace', {
     inject: ['mediaService', 'repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         itemToReplace: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             uploadTag: null,
             isUploadDataSet: false,
-            newFileExtension: ''
+            newFileExtension: '',
         };
     },
 
@@ -62,6 +62,6 @@ Component.register('sw-media-modal-replace', {
 
             this.itemToReplace.isLoading = false;
             this.$emit('media-replace-modal-item-replaced');
-        }
-    }
+        },
+    },
 });

@@ -5,7 +5,7 @@ const { warn } = Shopware.Utils.debug;
 
 Application.addServiceProvider('cmsDataResolverService', () => {
     return {
-        resolve
+        resolve,
     };
 });
 
@@ -43,11 +43,11 @@ function resolve(page) {
     const { directReads, searches } = optimizeCriteriaObjects(slotEntityList);
 
     loadedData.push(
-        fetchByIdentifier(directReads)
+        fetchByIdentifier(directReads),
     );
 
     loadedData.push(
-        fetchByCriteria(searches)
+        fetchByCriteria(searches),
     );
 
 
@@ -113,7 +113,7 @@ function optimizeCriteriaObjects(slotEntityCollection) {
 
     return {
         directReads,
-        searches
+        searches,
     };
 }
 
@@ -160,7 +160,7 @@ function fetchByIdentifier(directReads) {
             fetchPromises.push(
                 repo.search(criteria, contextService).then((response) => {
                     entities[entityName] = response;
-                })
+                }),
             );
         }
     });
@@ -198,7 +198,7 @@ function fetchByCriteria(searches) {
             fetchPromises.push(
                 repo.search(criteria, context).then((response) => {
                     results[slotId][searchKey] = response;
-                })
+                }),
             );
         });
     });

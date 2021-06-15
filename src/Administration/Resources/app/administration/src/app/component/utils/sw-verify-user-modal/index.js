@@ -6,16 +6,16 @@ Component.register('sw-verify-user-modal', {
     template,
 
     inject: [
-        'loginService'
+        'loginService',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
         return {
-            confirmPassword: ''
+            confirmPassword: '',
         };
     },
 
@@ -35,8 +35,8 @@ Component.register('sw-verify-user-modal', {
                 const authObject = {
                     ...this.loginService.getBearerAuthentication(),
                     ...{
-                        access: verifiedToken
-                    }
+                        access: verifiedToken,
+                    },
                 };
 
                 this.loginService.setBearerAuthentication(authObject);
@@ -45,11 +45,11 @@ Component.register('sw-verify-user-modal', {
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc(
-                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'
+                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
                     ),
                     message: this.$tc(
-                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage'
-                    )
+                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
+                    ),
                 });
             }).finally(() => {
                 this.confirmPassword = '';
@@ -60,6 +60,6 @@ Component.register('sw-verify-user-modal', {
         onCloseConfirmPasswordModal() {
             this.confirmPassword = '';
             this.$emit('close');
-        }
-    }
+        },
+    },
 });

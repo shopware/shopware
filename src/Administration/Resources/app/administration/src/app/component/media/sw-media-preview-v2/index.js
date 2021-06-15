@@ -20,14 +20,14 @@ Component.register('sw-media-preview-v2', {
     playableVideoFormats: [
         'video/mp4',
         'video/ogg',
-        'video/webm'
+        'video/webm',
     ],
 
     playableAudioFormats: [
         'audio/mp3',
         'audio/mpeg',
         'audio/ogg',
-        'audio/wav'
+        'audio/wav',
     ],
 
     placeHolderThumbnails: {
@@ -39,51 +39,51 @@ Component.register('sw-media-preview-v2', {
         'application/svg': 'multicolor-file-thumbnail-svg',
         'application/vnd.ms-powerpoint': 'multicolor-file-thumbnail-ppt',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'multicolor-file-thumbnail-ppt',
-        'application/svg+xml': 'multicolor-file-thumbnail-svg'
+        'application/svg+xml': 'multicolor-file-thumbnail-svg',
     },
 
     props: {
         // FIXME: add type to property
         // eslint-disable-next-line vue/require-prop-types
         source: {
-            required: true
+            required: true,
         },
 
         showControls: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         autoplay: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         transparency: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         useThumbnails: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         hideTooltip: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         mediaIsPrivate: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -92,7 +92,7 @@ Component.register('sw-media-preview-v2', {
             width: 0,
             dataUrl: '',
             urlPreviewFailed: false,
-            imagePreviewFailed: false
+            imagePreviewFailed: false,
         };
     },
 
@@ -104,13 +104,13 @@ Component.register('sw-media-preview-v2', {
         mediaPreviewClasses() {
             return {
                 'is--icon': this.isIcon,
-                'is--no-media': !this.source
+                'is--no-media': !this.source,
             };
         },
 
         transparencyClass() {
             return {
-                'shows--transparency': this.canBeTransparent
+                'shows--transparency': this.canBeTransparent,
             };
         },
 
@@ -230,7 +230,7 @@ Component.register('sw-media-preview-v2', {
             });
 
             return sources.join(', ');
-        }
+        },
     },
 
     watch: {
@@ -238,7 +238,7 @@ Component.register('sw-media-preview-v2', {
             this.urlPreviewFailed = false;
             this.imagePreviewFailed = false;
             this.fetchSourceIfNecessary();
-        }
+        },
     },
 
     created() {
@@ -275,7 +275,7 @@ Component.register('sw-media-preview-v2', {
                 originalDomEvent.stopPropagation();
                 this.$emit('media-preview-play', {
                     originalDomEvent,
-                    item: this.trueSource
+                    item: this.trueSource,
                 });
             }
         },
@@ -296,6 +296,6 @@ Component.register('sw-media-preview-v2', {
             if (!this.isFile) {
                 this.imagePreviewFailed = true;
             }
-        }
-    }
+        },
+    },
 });

@@ -7,7 +7,7 @@ Component.register('sw-cms-el-vimeo-video', {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     computed: {
@@ -89,7 +89,7 @@ Component.register('sw-cms-el-vimeo-video', {
             ${this.controls}\
             ${this.title}\
             ${this.portrait}`.replace(/ /g, '');
-        }
+        },
     },
 
     created() {
@@ -100,6 +100,6 @@ Component.register('sw-cms-el-vimeo-video', {
         createdComponent() {
             this.initElementConfig('vimeo-video');
             this.initElementData('vimeo-video');
-        }
-    }
+        },
+    },
 });

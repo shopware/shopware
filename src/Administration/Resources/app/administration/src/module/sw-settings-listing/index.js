@@ -25,8 +25,8 @@ Module.register('sw-settings-listing', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
+                privilege: 'system.system_config',
+            },
         },
 
         edit: {
@@ -34,8 +34,8 @@ Module.register('sw-settings-listing', {
             path: 'edit/:id',
             meta: {
                 parentPath: 'sw.settings.listing.index',
-                privilege: 'system.system_config'
-            }
+                privilege: 'system.system_config',
+            },
         },
 
         create: {
@@ -43,15 +43,15 @@ Module.register('sw-settings-listing', {
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.listing.index',
-                privilege: 'system.system_config'
-            }
-        }
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.listing.index',
         icon: 'default-symbol-products',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

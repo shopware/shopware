@@ -9,25 +9,25 @@ Component.register('sw-custom-field-detail', {
     inject: ['customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         currentCustomField: {
             type: Object,
-            required: true
+            required: true,
         },
 
         set: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             fieldTypes: {},
-            required: false
+            required: false,
         };
     },
 
@@ -58,7 +58,7 @@ Component.register('sw-custom-field-detail', {
             }
 
             return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');
-        }
+        },
     },
 
     watch: {
@@ -72,7 +72,7 @@ Component.register('sw-custom-field-detail', {
             if (this.currentCustomField.config.hasOwnProperty('validation')) {
                 this.$delete(this.currentCustomField.config, 'validation');
             }
-        }
+        },
     },
 
     created() {
@@ -142,7 +142,7 @@ Component.register('sw-custom-field-detail', {
 
             this.createNotificationError({
                 title: notificationTitle,
-                message: nameNotUniqueMessage
+                message: nameNotUniqueMessage,
             });
         },
 
@@ -152,7 +152,7 @@ Component.register('sw-custom-field-detail', {
 
             this.createNotificationError({
                 title: notificationTitle,
-                message: entityTypeRequiredTitle
+                message: entityTypeRequiredTitle,
             });
         },
 
@@ -165,8 +165,8 @@ Component.register('sw-custom-field-detail', {
 
             this.currentCustomField.config = {
                 ...this.fieldTypes[customFieldType].config,
-                ...this.currentCustomField.config
+                ...this.currentCustomField.config,
             };
-        }
-    }
+        },
+    },
 });

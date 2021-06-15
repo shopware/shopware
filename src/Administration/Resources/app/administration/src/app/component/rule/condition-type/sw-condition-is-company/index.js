@@ -19,12 +19,12 @@ Component.extend('sw-condition-is-company', 'sw-condition-base', {
             return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: true
+                    value: true,
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: false
-                }
+                    value: false,
+                },
             ];
         },
 
@@ -36,13 +36,13 @@ Component.extend('sw-condition-is-company', 'sw-condition-base', {
             set(isCompany) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, isCompany };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.isCompany']),
 
         currentError() {
             return this.conditionValueIsCompanyError;
-        }
-    }
+        },
+    },
 });

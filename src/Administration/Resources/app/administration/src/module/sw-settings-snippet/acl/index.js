@@ -5,37 +5,37 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     roles: {
         viewer: {
             privileges: [
-                'snippet_set:read'
+                'snippet_set:read',
             ],
-            dependencies: []
+            dependencies: [],
         },
         editor: {
             privileges: [
                 'snippet_set:update',
                 'snippet:create',
-                'snippet:update'
+                'snippet:update',
             ],
-            dependencies: ['snippet.viewer']
+            dependencies: ['snippet.viewer'],
         },
         creator: {
             privileges: [
                 'snippet_set:create',
-                'snippet_set:update'
+                'snippet_set:update',
             ],
             dependencies: [
                 'snippet.viewer',
-                'snippet.editor'
-            ]
+                'snippet.editor',
+            ],
         },
         deleter: {
             privileges: [
                 'snippet_set:delete',
-                'snippet:delete'
+                'snippet:delete',
             ],
             dependencies: [
                 'snippet.viewer',
-                'snippet.editor'
-            ]
-        }
-    }
+                'snippet.editor',
+            ],
+        },
+    },
 });

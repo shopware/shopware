@@ -46,6 +46,6 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
 
         onSave() {
             this.$super('onSave');
-        }
-    }
+        },
+    },
 });

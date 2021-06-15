@@ -27,14 +27,14 @@ Component.register('sw-promotion-individualcodes', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         promotion: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -54,7 +54,7 @@ Component.register('sw-promotion-individualcodes', {
             isGeneratingCodes: false,
             progressValue: 0,
             progressMax: 0,
-            shouldStartGenerate: false
+            shouldStartGenerate: false,
         };
     },
     computed: {
@@ -70,20 +70,20 @@ Component.register('sw-promotion-individualcodes', {
                     property: 'code',
                     dataIndex: 'code',
                     label: this.getColumnCodesTitle(),
-                    allowResize: false
+                    allowResize: false,
                 },
                 {
                     property: 'isRedeemed',
                     dataIndex: 'isRedeemed',
                     label: 'sw-promotion.detail.main.general.codes.individual.columnRedeemed',
-                    allowResize: false
+                    allowResize: false,
                 },
                 {
                     property: 'customerName',
                     dataIndex: 'customerName',
                     label: 'sw-promotion.detail.main.general.codes.individual.columnCustomer',
-                    allowResize: false
-                }
+                    allowResize: false,
+                },
             ];
         },
         gridItemsTotal() {
@@ -109,7 +109,7 @@ Component.register('sw-promotion-individualcodes', {
             return this.promotion.hasOrders;
         },
 
-        ...mapPropertyErrors('promotion', ['individualCodePattern'])
+        ...mapPropertyErrors('promotion', ['individualCodePattern']),
     },
     created() {
         this.createdComponent();
@@ -147,7 +147,7 @@ Component.register('sw-promotion-individualcodes', {
             if (string.isEmptyOrSpaces(individualCodePattern)) {
                 this.createNotificationError({
                     title: this.$tc(`${snippetRoot}.errorNoPatternTitle`),
-                    message: this.$tc(`${snippetRoot}.errorNoPatternMessage`)
+                    message: this.$tc(`${snippetRoot}.errorNoPatternMessage`),
                 });
                 return;
             }
@@ -157,7 +157,7 @@ Component.register('sw-promotion-individualcodes', {
 
             if (stringCount <= 0 && digitCount <= 0) {
                 this.createNotificationWarning({
-                    message: this.$tc(`${snippetRoot}.warningFormatCodes`)
+                    message: this.$tc(`${snippetRoot}.warningFormatCodes`),
                 });
                 return;
             }
@@ -171,7 +171,7 @@ Component.register('sw-promotion-individualcodes', {
             if ((digitCount === 1 && this.generateCount > digitSum)
                 || (stringCount === 1 && this.generateCount > stringSum)) {
                 this.createNotificationWarning({
-                    message: this.$tc(`${snippetRoot}.warningNotAllowPattern`, 0, { generateCount: this.generateCount })
+                    message: this.$tc(`${snippetRoot}.warningNotAllowPattern`, 0, { generateCount: this.generateCount }),
                 });
                 return;
             }
@@ -227,7 +227,7 @@ Component.register('sw-promotion-individualcodes', {
 
             this.createNotificationSuccess({
                 title: this.$tc(`${snippetRoot}.successGeneratedTitle`),
-                message: this.$tc(`${snippetRoot}.successGeneratedMessage`, 0, { count: result.count })
+                message: this.$tc(`${snippetRoot}.successGeneratedMessage`, 0, { count: result.count }),
             });
         },
 
@@ -240,7 +240,7 @@ Component.register('sw-promotion-individualcodes', {
         onOpenCustomer(customerId) {
             const route = {
                 name: 'sw.customer.detail',
-                params: { id: customerId }
+                params: { id: customerId },
             };
             const routeData = this.$router.resolve(route);
             window.open(routeData.href, '_blank');
@@ -309,7 +309,7 @@ Component.register('sw-promotion-individualcodes', {
             if (success) {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-promotion.detail.main.general.codes.individual.alerts.successDeletedTitle'),
-                    message: code.code
+                    message: code.code,
                 });
                 this.refreshGridDataSource();
                 return true;
@@ -317,7 +317,7 @@ Component.register('sw-promotion-individualcodes', {
 
             this.createNotificationError({
                 title: this.$tc('sw-promotion.detail.main.general.codes.individual.alerts.errorDeletedTitle'),
-                message: code.code
+                message: code.code,
             });
 
             return false;
@@ -357,6 +357,6 @@ Component.register('sw-promotion-individualcodes', {
                     this.refreshGridDataSource();
                 }
             });
-        }
-    }
+        },
+    },
 });

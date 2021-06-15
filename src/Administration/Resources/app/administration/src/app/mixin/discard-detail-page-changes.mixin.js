@@ -45,7 +45,7 @@ Mixin.register('discard-detail-page-changes', (...entityNames) => {
         watch: {
             '$route.params.id'() {
                 this.discardChanges();
-            }
+            },
         },
 
         methods: {
@@ -60,7 +60,7 @@ Mixin.register('discard-detail-page-changes', (...entityNames) => {
                     debug.warn('Discard-detail-page-changes Mixin',
                         `Could not discard changes for entity with name "${entityName}".`);
                 });
-            }
-        }
+            },
+        },
     };
 });

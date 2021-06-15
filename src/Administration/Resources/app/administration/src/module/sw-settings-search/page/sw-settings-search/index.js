@@ -8,7 +8,7 @@ Component.register('sw-settings-search', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -18,16 +18,16 @@ Component.register('sw-settings-search', {
             active() {
                 return this.allowSave;
             },
-            method: 'onSaveSearchSettings'
+            method: 'onSaveSearchSettings',
         },
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data: () => {
         return {
             productSearchConfigs: {
                 andLogic: true,
-                minSearchLength: 2
+                minSearchLength: 2,
             },
             isLoading: false,
             currentSalesChannelId: null,
@@ -38,7 +38,7 @@ Component.register('sw-settings-search', {
             nextRoute: null,
             isDisplayingLeavePageWarning: false,
             leaveConfirmation: false,
-            isEditing: false
+            isEditing: false,
         };
     },
 
@@ -74,7 +74,7 @@ Component.register('sw-settings-search', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -82,9 +82,9 @@ Component.register('sw-settings-search', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
-        }
+        },
     },
 
     created() {
@@ -117,7 +117,7 @@ Component.register('sw-settings-search', {
                 })
                 .catch((err) => {
                     this.createNotificationError({
-                        message: err.message
+                        message: err.message,
                     });
                 })
                 .finally(() => {
@@ -132,7 +132,7 @@ Component.register('sw-settings-search', {
                 })
                 .catch((err) => {
                     this.createNotificationError({
-                        message: err.message
+                        message: err.message,
                     });
                 });
         },
@@ -154,7 +154,7 @@ Component.register('sw-settings-search', {
             const configFieldCollection = new EntityCollection(
                 this.productSearchFieldRepository.route,
                 this.productSearchFieldRepository.entityName,
-                Shopware.Context.api
+                Shopware.Context.api,
             );
             this.defaultConfig.configFields.forEach(item => {
                 const newConfigField = this.productSearchFieldRepository.create();
@@ -178,7 +178,7 @@ Component.register('sw-settings-search', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError')
+                        message: this.$tc('sw-settings-search.notification.saveError'),
                     });
                 });
         },
@@ -197,14 +197,14 @@ Component.register('sw-settings-search', {
             this.productSearchRepository.save(this.productSearchConfigs)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess')
+                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
                     });
                     this.getProductSearchConfigs();
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError')
+                        message: this.$tc('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {
@@ -261,7 +261,7 @@ Component.register('sw-settings-search', {
             this.$nextTick(() => {
                 this.$router.push({
                     name: this.nextRoute.name,
-                    params: this.nextRoute.params
+                    params: this.nextRoute.params,
                 });
             });
         },
@@ -272,6 +272,6 @@ Component.register('sw-settings-search', {
 
         onCancelLeaveModal() {
             this.isDisplayingLeavePageWarning = false;
-        }
-    }
+        },
+    },
 });

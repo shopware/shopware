@@ -8,7 +8,7 @@ export default class RefreshTokenHelper {
         this._subscribers = [];
         this._errorSubscribers = [];
         this._whitelist = [
-            '/oauth/token'
+            '/oauth/token',
         ];
     }
 

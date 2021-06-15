@@ -13,7 +13,7 @@ Component.register('sw-media-modal-folder-settings', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -22,13 +22,13 @@ Component.register('sw-media-modal-folder-settings', {
             type: Object,
             validator(value) {
                 return value.getEntityName() === 'media_folder';
-            }
+            },
         },
         disabled: {
             required: false,
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -39,7 +39,7 @@ Component.register('sw-media-modal-folder-settings', {
             parent: null,
             configuration: null,
             mediaFolderConfigurationThumbnailSizeRepository: null,
-            originalConfiguration: null
+            originalConfiguration: null,
             // eslint-disable-next-line vue/no-dupe-keys
             // disabled: false
         };
@@ -66,7 +66,7 @@ Component.register('sw-media-modal-folder-settings', {
 
         thumbnailListClass() {
             return {
-                'is--editable': this.isEditThumbnails
+                'is--editable': this.isEditThumbnails,
             };
         },
 
@@ -74,7 +74,7 @@ Component.register('sw-media-modal-folder-settings', {
             return this.isEditThumbnails ?
                 this.$tc('global.sw-media-modal-folder-settings.labelStopEdit') :
                 this.$tc('global.sw-media-modal-folder-settings.labelEditList');
-        }
+        },
     },
 
     created() {
@@ -88,7 +88,7 @@ Component.register('sw-media-modal-folder-settings', {
 
             this.mediaFolderConfigurationThumbnailSizeRepository = this.repositoryFactory.create(
                 this.configuration.mediaThumbnailSizes.entity,
-                this.configuration.mediaThumbnailSizes.source
+                this.configuration.mediaThumbnailSizes.source,
             );
 
             this.configuration.mediaThumbnailSizes = await this.mediaFolderConfigurationThumbnailSizeRepository
@@ -245,8 +245,8 @@ Component.register('sw-media-modal-folder-settings', {
                 this.createNotificationSuccess({
                     title: this.$root.$tc('global.default.success'),
                     message: this.$root.$tc(
-                        'global.sw-media-modal-folder-settings.notification.success.message'
-                    )
+                        'global.sw-media-modal-folder-settings.notification.success.message',
+                    ),
                 });
 
                 this.$nextTick(() => {
@@ -256,8 +256,8 @@ Component.register('sw-media-modal-folder-settings', {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
                     message: this.$root.$tc(
-                        'global.sw-media-modal-folder-settings.notification.error.message'
-                    )
+                        'global.sw-media-modal-folder-settings.notification.error.message',
+                    ),
                 });
             }
         },
@@ -267,8 +267,8 @@ Component.register('sw-media-modal-folder-settings', {
                 .addFilter(
                     Criteria.multi('and', [
                         Criteria.equals('defaultFolderId', defaultFolderId),
-                        Criteria.not('or', [Criteria.equals('id', folderId)])
-                    ])
+                        Criteria.not('or', [Criteria.equals('id', folderId)]),
+                    ]),
                 );
 
             const items = await this.mediaFolderRepository.search(criteria, Context.api);
@@ -291,6 +291,6 @@ Component.register('sw-media-modal-folder-settings', {
 
         onInputDefaultFolder(defaultFolderId) {
             this.folder.defaultFolderId = defaultFolderId;
-        }
-    }
+        },
+    },
 });

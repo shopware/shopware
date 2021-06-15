@@ -9,5 +9,5 @@ import initWorker from './worker.init';
 export default {
     language: initLanguage,
     userInformation: initUserInformation,
-    worker: initWorker
+    worker: initWorker,
 };

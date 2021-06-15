@@ -11,24 +11,24 @@ Shopware.Component.register('sw-media-add-thumbnail-form', {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             width: null,
             height: null,
-            isLocked: true
+            isLocked: true,
         };
     },
 
     computed: {
         lockedButtonClass() {
             return {
-                'is--locked': this.isLocked
+                'is--locked': this.isLocked,
             };
-        }
+        },
     },
 
     methods: {
@@ -58,6 +58,6 @@ Shopware.Component.register('sw-media-add-thumbnail-form', {
         inputChanged() {
             const { width = 0, height = 0 } = this;
             this.$emit('on-input', { width, height });
-        }
-    }
+        },
+    },
 });

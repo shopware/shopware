@@ -7,5 +7,5 @@ import initState from './state.init';
 
 export default {
     apiServices: initApiServices,
-    state: initState
+    state: initState,
 };

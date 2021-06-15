@@ -9,19 +9,19 @@ Component.register('sw-settings-document-list', {
     inject: ['acl'],
 
     mixins: [
-        Mixin.getByName('sw-settings-list')
+        Mixin.getByName('sw-settings-list'),
     ],
 
     data() {
         return {
             entityName: 'document_base_config',
-            sortBy: 'document_base_config.name'
+            sortBy: 'document_base_config.name',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -31,12 +31,12 @@ Component.register('sw-settings-document-list', {
         },
         expandButtonClass() {
             return {
-                'is--hidden': this.expanded
+                'is--hidden': this.expanded,
             };
         },
         collapseButtonClass() {
             return {
-                'is--hidden': !this.expanded
+                'is--hidden': !this.expanded,
             };
         },
         listingCriteria() {
@@ -54,6 +54,6 @@ Component.register('sw-settings-document-list', {
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
-        }
-    }
+        },
+    },
 });

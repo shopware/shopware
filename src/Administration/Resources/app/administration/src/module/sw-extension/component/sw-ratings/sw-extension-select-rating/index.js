@@ -11,12 +11,12 @@ Component.extend('sw-extension-select-rating', 'sw-text-field', {
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     methods: {
         onChange(value) {
             this.$emit('change', value);
-        }
-    }
+        },
+    },
 });

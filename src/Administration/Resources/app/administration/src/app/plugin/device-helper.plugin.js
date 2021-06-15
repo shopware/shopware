@@ -16,18 +16,18 @@ export default {
             $device: {
                 get() {
                     return deviceHelper;
-                }
-            }
+                },
+            },
         });
 
         Vue.mixin({
             destroyed() {
                 this.$device.removeResizeListener(this);
-            }
+            },
         });
 
         pluginInstalled = true;
 
         return true;
-    }
+    },
 };

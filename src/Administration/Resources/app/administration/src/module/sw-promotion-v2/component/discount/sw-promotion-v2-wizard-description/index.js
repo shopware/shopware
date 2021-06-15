@@ -4,5 +4,5 @@ import './sw-promotion-v2-wizard-description.scss';
 const { Component } = Shopware;
 
 Component.register('sw-promotion-v2-wizard-description', {
-    template
+    template,
 });

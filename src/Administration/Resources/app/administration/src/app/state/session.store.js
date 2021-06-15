@@ -6,7 +6,7 @@ export default {
         currentUser: null,
         userPending: true,
         languageId: '', // move me to session/currentLanguageId
-        currentLocale: null // move me to session/currentLanguageId
+        currentLocale: null, // move me to session/currentLanguageId
     },
 
     getters: {
@@ -35,7 +35,7 @@ export default {
 
                 return acc;
             }, []);
-        }
+        },
     },
 
     actions: {
@@ -52,7 +52,7 @@ export default {
             return localeToLanguageService.localeToLanguage(locale).then((languageId) => {
                 commit('setAdminLocale', { locales, locale, languageId });
             });
-        }
+        },
     },
 
     mutations: {
@@ -76,6 +76,6 @@ export default {
             state.currentLocale = locale;
 
             Application.getContainer('factory').locale.storeCurrentLocale(state.currentLocale);
-        }
-    }
+        },
+    },
 };

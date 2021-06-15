@@ -16,13 +16,13 @@ Component.register('sw-media-modal-v2', {
         initialFolderId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         entityContext: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         defaultTab: {
@@ -32,20 +32,20 @@ Component.register('sw-media-modal-v2', {
             default: 'library',
             validator(value) {
                 return ['upload', 'library'].includes(value);
-            }
+            },
         },
 
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         fileAccept: {
             type: String,
             required: false,
-            default: 'image/*'
-        }
+            default: 'image/*',
+        },
     },
 
     data() {
@@ -57,7 +57,7 @@ Component.register('sw-media-modal-v2', {
             compact: false,
             term: '',
             id: Utils.createId(),
-            selectedMediaItem: {}
+            selectedMediaItem: {},
         };
     },
 
@@ -82,13 +82,13 @@ Component.register('sw-media-modal-v2', {
 
         uploadTag() {
             return `sw-media-modal-v2--${this.id}`;
-        }
+        },
     },
 
     watch: {
         folderId() {
             this.fetchCurrentFolder();
-        }
+        },
     },
 
     created() {
@@ -268,6 +268,6 @@ Component.register('sw-media-modal-v2', {
             }
 
             return upload.id === this.selectedMediaItem.id;
-        }
-    }
+        },
+    },
 });

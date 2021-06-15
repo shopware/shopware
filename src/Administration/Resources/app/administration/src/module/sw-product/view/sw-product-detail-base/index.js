@@ -12,15 +12,15 @@ Component.register('sw-product-detail-base', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         productId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -68,7 +68,7 @@ Component.register('sw-product-detail-base', {
              * @deprecated tag:v6.5.0 - The variable "showLayoutModal" will be removed because
              * the modal was moved from this component to `sw-product-detail-layout` component.
              */
-            showLayoutModal: false
+            showLayoutModal: false,
         };
     },
 
@@ -77,13 +77,13 @@ Component.register('sw-product-detail-base', {
             'product',
             'parentProduct',
             'customFieldSets',
-            'loading'
+            'loading',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
             'showModeSetting',
-            'showProductCard'
+            'showProductCard',
         ]),
 
         /**
@@ -96,7 +96,7 @@ Component.register('sw-product-detail-base', {
                     return [];
                 }
                 return state.customFieldSets;
-            }
+            },
         }),
 
         mediaFormVisible() {
@@ -122,21 +122,21 @@ Component.register('sw-product-detail-base', {
             return [{
                 property: 'points',
                 dataIndex: 'points',
-                label: this.$tc('sw-product.reviewForm.labelPoints')
+                label: this.$tc('sw-product.reviewForm.labelPoints'),
             }, {
                 property: 'status',
                 dataIndex: 'status',
                 label: this.$tc('sw-product.reviewForm.labelStatus'),
-                align: 'center'
+                align: 'center',
             }, {
                 property: 'createdAt',
                 dataIndex: 'createdAt',
-                label: this.$tc('sw-product.reviewForm.labelCreatedAt')
+                label: this.$tc('sw-product.reviewForm.labelCreatedAt'),
             }, {
                 property: 'title',
                 dataIndex: 'title',
                 routerLink: 'sw.review.detail',
-                label: this.$tc('sw-product.reviewForm.labelTitle')
+                label: this.$tc('sw-product.reviewForm.labelTitle'),
             }];
         },
 
@@ -171,7 +171,7 @@ Component.register('sw-product-detail-base', {
          */
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
-        }
+        },
     },
 
 
@@ -182,7 +182,7 @@ Component.register('sw-product-detail-base', {
              * its relevant view was moved from this component to `sw-product-detail-reviews` component.
              */
             this.reloadReviews();
-        }
+        },
     },
 
     created() {
@@ -260,7 +260,7 @@ Component.register('sw-product-detail-base', {
             media.forEach((item) => {
                 this.addMedia(item).catch(({ fileName }) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', 0, { fileName })
+                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', 0, { fileName }),
                     });
                 });
             });
@@ -275,7 +275,7 @@ Component.register('sw-product-detail-base', {
             newMedia.mediaId = media.id;
             newMedia.media = {
                 url: media.url,
-                id: media.id
+                id: media.id,
             };
 
             if (isEmpty(this.product.media)) {
@@ -446,6 +446,6 @@ Component.register('sw-product-detail-base', {
          */
         onLayoutReset() {
             this.onLayoutSelect(null);
-        }
-    }
+        },
+    },
 });

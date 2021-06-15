@@ -28,7 +28,7 @@ export default class EntityHydrator {
             criteria,
             entities,
             response.data.meta?.total,
-            response.data.aggregations
+            response.data.aggregations,
         );
     }
 
@@ -49,7 +49,7 @@ export default class EntityHydrator {
 
         data.data.forEach((row) => {
             collection.add(
-                this.hydrateEntity(entityName, row, data, context, criteria)
+                this.hydrateEntity(entityName, row, data, context, criteria),
             );
         });
 
@@ -200,7 +200,7 @@ export default class EntityHydrator {
         const url = value.links.related.substr(
             value.links.related.indexOf(context.apiResourcePath)
             +
-            context.apiResourcePath.length
+            context.apiResourcePath.length,
         );
 
         const collection = new EntityCollection(url, entity, context, associationCriteria);
@@ -216,7 +216,7 @@ export default class EntityHydrator {
                 nestedRaw,
                 response,
                 context,
-                associationCriteria
+                associationCriteria,
             );
 
             if (nestedEntity) {

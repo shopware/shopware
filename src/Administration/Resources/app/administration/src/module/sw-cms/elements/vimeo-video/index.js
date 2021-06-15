@@ -14,50 +14,50 @@ Application.getContainer('service').cmsService.registerCmsElement({
         videoID: {
             source: 'static',
             value: '',
-            required: true
+            required: true,
         },
         autoplay: {
             source: 'static',
-            value: false
+            value: false,
         },
         byLine: {
             source: 'static',
-            value: false
+            value: false,
         },
         color: {
             source: 'static',
-            value: ''
+            value: '',
         },
         doNotTrack: {
             source: 'static',
-            value: true
+            value: true,
         },
         loop: {
             source: 'static',
-            value: false
+            value: false,
         },
         portrait: {
             source: 'static',
-            value: true
+            value: true,
         },
         title: {
             source: 'static',
-            value: true
+            value: true,
         },
         controls: {
             source: 'static',
-            value: true
+            value: true,
         },
         needsConfirmation: {
             source: 'static',
-            value: false
+            value: false,
         },
         previewMedia: {
             source: 'static',
             value: null,
             entity: {
-                name: 'media'
-            }
-        }
-    }
+                name: 'media',
+            },
+        },
+    },
 });

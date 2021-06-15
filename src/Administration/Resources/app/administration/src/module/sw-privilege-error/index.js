@@ -11,9 +11,9 @@ Shopware.Module.register('sw-privilege-error', {
     routes: {
         index: {
             components: {
-                default: 'sw-privilege-error'
+                default: 'sw-privilege-error',
             },
-            path: 'index'
-        }
-    }
+            path: 'index',
+        },
+    },
 });

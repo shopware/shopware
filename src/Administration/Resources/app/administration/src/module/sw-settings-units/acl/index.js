@@ -5,34 +5,34 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     roles: {
         viewer: {
             privileges: [
-                'unit:read'
+                'unit:read',
             ],
-            dependencies: []
+            dependencies: [],
         },
         editor: {
             privileges: [
-                'unit:update'
-            ],
-            dependencies: [
-                'scale_unit.viewer'
-            ]
-        },
-        creator: {
-            privileges: [
-                'unit:create'
+                'unit:update',
             ],
             dependencies: [
                 'scale_unit.viewer',
-                'scale_unit.editor'
-            ]
+            ],
+        },
+        creator: {
+            privileges: [
+                'unit:create',
+            ],
+            dependencies: [
+                'scale_unit.viewer',
+                'scale_unit.editor',
+            ],
         },
         deleter: {
             privileges: [
-                'unit:delete'
+                'unit:delete',
             ],
             dependencies: [
-                'scale_unit.viewer'
-            ]
-        }
-    }
+                'scale_unit.viewer',
+            ],
+        },
+    },
 });

@@ -20,7 +20,7 @@ Module.register('sw-login', {
 
     snippets: {
         'de-DE': deDE,
-        'en-GB': enGB
+        'en-GB': enGB,
     },
 
     routes: {
@@ -30,33 +30,33 @@ Module.register('sw-login', {
             alias: '/signin',
             coreRoute: true,
             redirect: {
-                name: 'sw.login.index.login'
+                name: 'sw.login.index.login',
             },
             props: {
                 default: (route) => {
                     return {
-                        hash: route.params.hash
+                        hash: route.params.hash,
                     };
-                }
+                },
             },
             children: {
                 login: {
                     component: 'sw-login-login',
-                    path: ''
+                    path: '',
                 },
                 recovery: {
                     component: 'sw-login-recovery',
-                    path: 'recovery'
+                    path: 'recovery',
                 },
                 recoveryInfo: {
                     component: 'sw-login-recovery-info',
-                    path: 'info'
+                    path: 'info',
                 },
                 userRecovery: {
                     component: 'sw-login-recovery-recovery',
-                    path: 'user-recovery/:hash'
-                }
-            }
-        }
-    }
+                    path: 'user-recovery/:hash',
+                },
+            },
+        },
+    },
 });

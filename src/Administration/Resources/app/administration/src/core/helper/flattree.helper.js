@@ -66,7 +66,7 @@ class FlatTree {
             warn(
                 'FlatTree',
                 'The node needs an "id" or "path" property. Abort registration.',
-                node
+                node,
             );
             return this;
         }
@@ -84,7 +84,7 @@ class FlatTree {
                 'FlatTree',
                 `Tree contains node with unique identifier ${nodeIdentifier} already.`,
                 'Please remove it first before adding a new one.',
-                this._registeredNodes.get(nodeIdentifier)
+                this._registeredNodes.get(nodeIdentifier),
             );
             return this;
         }

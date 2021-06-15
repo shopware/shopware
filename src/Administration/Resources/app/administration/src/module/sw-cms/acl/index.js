@@ -24,9 +24,9 @@ Shopware.Service('privileges')
                     'delivery_time:read',
                     'product_cross_selling:read',
                     'product_cross_selling_assigned_products:read',
-                    'product_manufacturer:read'
+                    'product_manufacturer:read',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
@@ -45,28 +45,28 @@ Shopware.Service('privileges')
                     'currency:read',
                     'product_manufacturer:read',
                     'category:update',
-                    'landing_page:update'
-                ],
-                dependencies: [
-                    'cms.viewer'
-                ]
-            },
-            creator: {
-                privileges: [
-                    'cms_page:create'
+                    'landing_page:update',
                 ],
                 dependencies: [
                     'cms.viewer',
-                    'cms.editor'
-                ]
+                ],
+            },
+            creator: {
+                privileges: [
+                    'cms_page:create',
+                ],
+                dependencies: [
+                    'cms.viewer',
+                    'cms.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'cms_page:delete'
+                    'cms_page:delete',
                 ],
                 dependencies: [
-                    'cms.viewer'
-                ]
-            }
-        }
+                    'cms.viewer',
+                ],
+            },
+        },
     });

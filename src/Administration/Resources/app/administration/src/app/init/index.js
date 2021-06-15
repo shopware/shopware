@@ -33,5 +33,5 @@ export default {
     httpClient: initHttpClient,
     componentHelper: initComponentHelper,
     filterFactory: initFilterFactory,
-    entity: initEntity
+    entity: initEntity,
 };

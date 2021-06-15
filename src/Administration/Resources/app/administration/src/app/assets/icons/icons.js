@@ -16,10 +16,10 @@ export default (() => {
                     attrs: data.attrs,
                     on: data.on,
                     domProps: {
-                        innerHTML: context(item)
-                    }
+                        innerHTML: context(item),
+                    },
                 });
-            }
+            },
         };
 
         accumulator.push(component);

@@ -24,14 +24,14 @@ Component.register('sw-colorpicker', {
 
     mixins: [
         Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     props: {
         value: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         colorOutput: {
@@ -42,39 +42,39 @@ Component.register('sw-colorpicker', {
                 'auto',
                 'hex',
                 'hsl',
-                'rgb'
-            ]
+                'rgb',
+            ],
         },
 
         alpha: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         readonly: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         colorLabels: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         zIndex: {
             type: [Number, null],
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -86,7 +86,7 @@ Component.register('sw-colorpicker', {
             luminanceValue: 50,
             saturationValue: 50,
             hueValue: 0,
-            alphaValue: 1
+            alphaValue: 1,
         };
     },
 
@@ -99,7 +99,7 @@ Component.register('sw-colorpicker', {
             set(newColor) {
                 this.localValue = newColor;
                 this.debounceEmitColorValue();
-            }
+            },
         },
 
         integerAlpha: {
@@ -109,7 +109,7 @@ Component.register('sw-colorpicker', {
 
             set(newAlphaValue) {
                 this.alphaValue = newAlphaValue / 100;
-            }
+            },
         },
 
         sliderBackground() {
@@ -140,13 +140,13 @@ Component.register('sw-colorpicker', {
                     this.hueValue,
                     this.saturationValue,
                     this.luminanceValue,
-                    this.alphaValue
+                    this.alphaValue,
                 ).red;
             },
 
             set(newRedValue) {
                 this.setSingleRGBValue(newRedValue, 'red');
-            }
+            },
         },
 
         greenValue: {
@@ -155,13 +155,13 @@ Component.register('sw-colorpicker', {
                     this.hueValue,
                     this.saturationValue,
                     this.luminanceValue,
-                    this.alphaValue
+                    this.alphaValue,
                 ).green;
             },
 
             set(newGreenValue) {
                 this.setSingleRGBValue(newGreenValue, 'green');
-            }
+            },
         },
 
         blueValue: {
@@ -170,13 +170,13 @@ Component.register('sw-colorpicker', {
                     this.hueValue,
                     this.saturationValue,
                     this.luminanceValue,
-                    this.alphaValue
+                    this.alphaValue,
                 ).blue;
             },
 
             set(newBlueValue) {
                 this.setSingleRGBValue(newBlueValue, 'blue');
-            }
+            },
         },
 
         rgbValue() {
@@ -184,7 +184,7 @@ Component.register('sw-colorpicker', {
                 Math.abs(this.hueValue),
                 Math.abs(this.saturationValue),
                 Math.abs(this.luminanceValue),
-                Math.abs(this.alphaValue)
+                Math.abs(this.alphaValue),
             ).string;
         },
 
@@ -208,7 +208,7 @@ Component.register('sw-colorpicker', {
                         this.hueValue,
                         this.saturationValue,
                         this.luminanceValue,
-                        this.alphaValue
+                        this.alphaValue,
                     );
                 }
 
@@ -233,9 +233,9 @@ Component.register('sw-colorpicker', {
                     hslValue.hue,
                     hslValue.saturation,
                     hslValue.luminance,
-                    hslValue.alpha || this.alphaValue
+                    hslValue.alpha || this.alphaValue,
                 );
-            }
+            },
         },
 
         convertedValue() {
@@ -273,9 +273,9 @@ Component.register('sw-colorpicker', {
             return {
                 backgroundColor: this.hslValue,
                 top: this.selectorPositionY,
-                left: this.selectorPositionX
+                left: this.selectorPositionX,
             };
-        }
+        },
     },
 
     watch: {
@@ -302,7 +302,7 @@ Component.register('sw-colorpicker', {
                     convertedHSLValue.hue,
                     convertedHSLValue.saturation,
                     convertedHSLValue.luminance,
-                    convertedHSLValue.alpha
+                    convertedHSLValue.alpha,
                 );
             } else if (/^rgb/.test(color)) {
                 // if color is a rgb value
@@ -313,7 +313,7 @@ Component.register('sw-colorpicker', {
                     convertedHSLValue.hue,
                     convertedHSLValue.saturation,
                     convertedHSLValue.luminance,
-                    rgbValues.alpha
+                    rgbValues.alpha,
                 );
             } else if (/^hsl/.test(color)) {
                 // if color is an hsl value
@@ -323,10 +323,10 @@ Component.register('sw-colorpicker', {
                     hslValues.hue,
                     hslValues.saturation,
                     hslValues.luminance,
-                    hslValues.alpha
+                    hslValues.alpha,
                 );
             }
-        }
+        },
     },
 
     beforeDestroy() {
@@ -453,7 +453,7 @@ Component.register('sw-colorpicker', {
             const hslValue = this.convertRGBtoHSL(
                 type === 'red' ? sanitizedColorValue : this.redValue,
                 type === 'green' ? sanitizedColorValue : this.greenValue,
-                type === 'blue' ? sanitizedColorValue : this.blueValue
+                type === 'blue' ? sanitizedColorValue : this.blueValue,
             );
 
             this.setHslaValues(hslValue.hue, hslValue.saturation, hslValue.luminance, this.alphaValue);
@@ -476,7 +476,7 @@ Component.register('sw-colorpicker', {
             const returnValue = {
                 red,
                 green,
-                blue
+                blue,
             };
 
             if (/a/.test(rgbString)) {
@@ -498,7 +498,7 @@ Component.register('sw-colorpicker', {
             const returnValue = {
                 hue,
                 saturation,
-                luminance
+                luminance,
             };
 
             if (alpha !== undefined) {
@@ -513,7 +513,7 @@ Component.register('sw-colorpicker', {
                 hue: previousHue,
                 saturation: previousSaturation,
                 luminance: previousLuminance,
-                alpha: previousAlpha
+                alpha: previousAlpha,
             };
 
             return this.convertHSL('rgb', hsla);
@@ -524,7 +524,7 @@ Component.register('sw-colorpicker', {
                 hue: previousHue,
                 saturation: previousSaturation,
                 luminance: previousLuminance,
-                alpha: previousAlpha
+                alpha: previousAlpha,
             };
 
             return this.convertHSL('hex', hsla);
@@ -602,7 +602,7 @@ Component.register('sw-colorpicker', {
                 string: `rgb(${red}, ${green}, ${blue})`,
                 red,
                 green,
-                blue
+                blue,
             };
 
             if (alpha !== 1) {
@@ -675,7 +675,7 @@ Component.register('sw-colorpicker', {
                 string: `hsl(${hue},${saturation}%,${luminance}%)`,
                 hue,
                 saturation,
-                luminance
+                luminance,
             };
         },
 
@@ -752,7 +752,7 @@ Component.register('sw-colorpicker', {
                 string: `hsl(${hue}, ${saturation}%, ${luminance}%)`,
                 hue,
                 saturation,
-                luminance
+                luminance,
             };
 
             if (alpha !== 1) {
@@ -771,6 +771,6 @@ Component.register('sw-colorpicker', {
             }
 
             this.toggleColorPicker();
-        }
-    }
+        },
+    },
 });

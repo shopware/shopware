@@ -17,26 +17,26 @@ Component.register('sw-select-base', {
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            expanded: false
+            expanded: false,
         };
     },
 
     computed: {
         swFieldClasses() {
             return { 'has--focus': this.expanded };
-        }
+        },
     },
 
     methods: {
@@ -91,6 +91,6 @@ Component.register('sw-select-base', {
             }
 
             return path;
-        }
-    }
+        },
+    },
 });

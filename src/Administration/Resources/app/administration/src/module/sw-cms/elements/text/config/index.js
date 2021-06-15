@@ -6,7 +6,7 @@ Component.register('sw-cms-el-config-text', {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     created() {
@@ -31,6 +31,6 @@ Component.register('sw-cms-el-config-text', {
                 this.element.config.content.value = content;
                 this.$emit('element-update', this.element);
             }
-        }
-    }
+        },
+    },
 });

@@ -11,7 +11,7 @@ Component.register('sw-settings-index', {
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -29,11 +29,11 @@ Component.register('sw-settings-index', {
 
                 return acc;
             }, {});
-        }
+        },
     },
     methods: {
         hasPluginConfig() {
             return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0);
-        }
-    }
+        },
+    },
 });

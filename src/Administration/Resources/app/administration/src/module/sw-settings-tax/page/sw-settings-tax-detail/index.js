@@ -9,7 +9,7 @@ Component.register('sw-settings-tax-detail', {
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     shortcuts: {
@@ -17,17 +17,17 @@ Component.register('sw-settings-tax-detail', {
             active() {
                 return this.allowSave;
             },
-            method: 'onSave'
+            method: 'onSave',
         },
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
         taxId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -35,13 +35,13 @@ Component.register('sw-settings-tax-detail', {
             tax: {},
             isLoading: false,
             isSaveSuccessful: false,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -73,7 +73,7 @@ Component.register('sw-settings-tax-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -81,7 +81,7 @@ Component.register('sw-settings-tax-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -95,7 +95,7 @@ Component.register('sw-settings-tax-detail', {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     watch: {
@@ -103,7 +103,7 @@ Component.register('sw-settings-tax-detail', {
             if (!this.taxId) {
                 this.createdComponent();
             }
-        }
+        },
     },
 
     created() {
@@ -161,7 +161,7 @@ Component.register('sw-settings-tax-detail', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-tax.detail.messageSaveError')
+                    message: this.$tc('sw-settings-tax.detail.messageSaveError'),
                 });
                 this.isLoading = false;
             });
@@ -173,6 +173,6 @@ Component.register('sw-settings-tax-detail', {
 
         changeName(name) {
             this.tax.name = name;
-        }
-    }
+        },
+    },
 });

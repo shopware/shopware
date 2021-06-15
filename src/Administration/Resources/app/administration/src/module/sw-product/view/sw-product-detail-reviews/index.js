@@ -17,17 +17,17 @@ Component.register('sw-product-detail-reviews', {
             dataSource: [],
             page: 1,
             limit: 10,
-            total: 0
+            total: 0,
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
-            'product'
+            'product',
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
         ]),
 
         reviewRepository() {
@@ -38,7 +38,7 @@ Component.register('sw-product-detail-reviews', {
             const criteria = new Criteria();
 
             criteria.addFilter(
-                Criteria.equals('productId', this.product.id)
+                Criteria.equals('productId', this.product.id),
             );
             criteria.setPage(this.page);
             criteria.setLimit(this.limit);
@@ -52,27 +52,27 @@ Component.register('sw-product-detail-reviews', {
                 {
                     property: 'points',
                     dataIndex: 'points',
-                    label: this.$tc('sw-product.reviewForm.labelPoints')
+                    label: this.$tc('sw-product.reviewForm.labelPoints'),
                 },
                 {
                     property: 'status',
                     dataIndex: 'status',
                     label: this.$tc('sw-product.reviewForm.labelStatus'),
-                    align: 'center'
+                    align: 'center',
                 },
                 {
                     property: 'createdAt',
                     dataIndex: 'createdAt',
-                    label: this.$tc('sw-product.reviewForm.labelCreatedAt')
+                    label: this.$tc('sw-product.reviewForm.labelCreatedAt'),
                 },
                 {
                     property: 'title',
                     dataIndex: 'title',
                     label: this.$tc('sw-product.reviewForm.labelTitle'),
-                    routerLink: 'sw.review.detail'
-                }
+                    routerLink: 'sw.review.detail',
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -84,8 +84,8 @@ Component.register('sw-product-detail-reviews', {
                 }
 
                 this.getReviews();
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -144,6 +144,6 @@ Component.register('sw-product-detail-reviews', {
             this.page = data.page;
             this.limit = data.limit;
             this.getReviews();
-        }
-    }
+        },
+    },
 });

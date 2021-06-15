@@ -4,5 +4,5 @@ import './sw-cms-toolbar.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-toolbar', {
-    template
+    template,
 });

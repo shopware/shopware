@@ -24,7 +24,7 @@ class BusinessEventsApiService extends ApiService {
         return this.httpClient
             .get('/_info/events.json', {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

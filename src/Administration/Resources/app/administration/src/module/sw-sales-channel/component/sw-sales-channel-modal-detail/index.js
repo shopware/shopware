@@ -10,7 +10,7 @@ Component.register('sw-sales-channel-modal-detail', {
         detailType: {
             type: Object,
             required: false,
-            default: null
-        }
-    }
+            default: null,
+        },
+    },
 });

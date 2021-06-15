@@ -15,118 +15,118 @@ Component.register('sw-tree-item', {
             required: true,
             default() {
                 return {};
-            }
+            },
         },
 
         draggedItem: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         newElementId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         translationContext: {
             type: String,
-            default: 'sw-tree'
+            default: 'sw-tree',
         },
 
         onChangeRoute: {
             type: Function,
-            default: null
+            default: null,
         },
 
         disableContextMenu: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         contextMenuTooltipText: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         activeParentIds: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         activeItemIds: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         sortable: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         markInactive: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         shouldFocus: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         shouldShowActiveState: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         activeFocusId: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         displayCheckbox: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowNewCategories: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowCreateWithoutPosition: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
 
         allowDuplicate: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         getItemUrl: {
             type: Function,
             required: false,
-            default: null
+            default: null,
         },
 
         getIsHighlighted: {
@@ -134,8 +134,8 @@ Component.register('sw-tree-item', {
             required: false,
             default: () => {
                 return false;
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -153,7 +153,7 @@ Component.register('sw-tree-item', {
             rootParent: null,
             checked: false,
             checkedGhost: false,
-            currentEditElement: null
+            currentEditElement: null,
         };
     },
 
@@ -188,7 +188,7 @@ Component.register('sw-tree-item', {
                 'is--marked-inactive': this.markInactive && !this.item.data.active,
                 'is--focus': this.shouldFocus && this.activeFocusId === this.item.id,
                 'is--no-checkbox': !this.displayCheckbox,
-                'is--highlighted': this.isHighlighted
+                'is--highlighted': this.isHighlighted,
             };
         },
 
@@ -202,7 +202,7 @@ Component.register('sw-tree-item', {
                 onDragEnter: this.onMouseEnter,
                 onDrop: this.dragEnd,
                 preventEvent: true,
-                disabled: !this.sortable
+                disabled: !this.sortable,
             };
         },
 
@@ -220,14 +220,14 @@ Component.register('sw-tree-item', {
                 return {
                     showDelay: 300,
                     message: this.contextMenuTooltipText,
-                    disabled: !this.disableContextMenu
+                    disabled: !this.disableContextMenu,
                 };
             }
 
             return {
                 showDelay: 300,
                 message: this.$tc(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),
-                disabled: !this.disableContextMenu
+                disabled: !this.disableContextMenu,
             };
         },
 
@@ -237,7 +237,7 @@ Component.register('sw-tree-item', {
 
         isHighlighted() {
             return this.getIsHighlighted(this.item);
-        }
+        },
     },
 
     watch: {
@@ -255,7 +255,7 @@ Component.register('sw-tree-item', {
                     this.checkedGhost = this.activeParentIds.indexOf(this.item.id) >= 0;
                 }
             },
-            immediate: true
+            immediate: true,
         },
 
         activeItemIds: {
@@ -264,8 +264,8 @@ Component.register('sw-tree-item', {
                     this.checked = this.activeItemIds.indexOf(this.item.id) >= 0;
                 }
             },
-            immediate: true
-        }
+            immediate: true,
+        },
     },
 
     updated() {
@@ -440,6 +440,6 @@ Component.register('sw-tree-item', {
             }
 
             return false;
-        }
-    }
+        },
+    },
 });

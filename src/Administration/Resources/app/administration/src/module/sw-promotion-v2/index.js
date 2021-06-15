@@ -42,25 +42,25 @@ Module.register('sw-promotion-v2', {
     routes: {
         index: {
             components: {
-                default: 'sw-promotion-v2-list'
+                default: 'sw-promotion-v2-list',
             },
             path: 'index',
             meta: {
                 privilege: 'promotion.viewer',
                 appSystem: {
-                    view: 'list'
-                }
-            }
+                    view: 'list',
+                },
+            },
         },
 
         create: {
             component: 'sw-promotion-v2-detail',
             path: 'create',
             redirect: {
-                name: 'sw.promotion.v2.create.base'
+                name: 'sw.promotion.v2.create.base',
             },
             meta: {
-                privilege: 'promotion.creator'
+                privilege: 'promotion.creator',
             },
             children: {
                 base: {
@@ -68,23 +68,23 @@ Module.register('sw-promotion-v2', {
                     path: 'base',
                     meta: {
                         parentPath: 'sw.promotion.v2.index',
-                        privilege: 'promotion.creator'
-                    }
-                }
-            }
+                        privilege: 'promotion.creator',
+                    },
+                },
+            },
         },
 
         detail: {
             component: 'sw-promotion-v2-detail',
             path: 'detail/:id?',
             redirect: {
-                name: 'sw.promotion.v2.detail.base'
+                name: 'sw.promotion.v2.detail.base',
             },
             meta: {
                 privilege: 'promotion.viewer',
                 appSystem: {
-                    view: 'detail'
-                }
+                    view: 'detail',
+                },
             },
             children: {
                 base: {
@@ -92,34 +92,34 @@ Module.register('sw-promotion-v2', {
                     path: 'base',
                     meta: {
                         parentPath: 'sw.promotion.v2.index',
-                        privilege: 'promotion.viewer'
-                    }
+                        privilege: 'promotion.viewer',
+                    },
                 },
                 conditions: {
                     component: 'sw-promotion-v2-conditions',
                     path: 'conditions',
                     meta: {
                         parentPath: 'sw.promotion.v2.index',
-                        privilege: 'promotion.viewer'
-                    }
+                        privilege: 'promotion.viewer',
+                    },
                 },
                 discounts: {
                     component: 'sw-promotion-detail-discounts',
                     path: 'discounts',
                     meta: {
                         parentPath: 'sw.promotion.v2.index',
-                        privilege: 'promotion.viewer'
-                    }
-                }
+                        privilege: 'promotion.viewer',
+                    },
+                },
             },
             props: {
                 default: (route) => {
                     return {
-                        promotionId: route.params.id
+                        promotionId: route.params.id,
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     },
 
     navigation: [{
@@ -128,7 +128,7 @@ Module.register('sw-promotion-v2', {
         color: '#FFD700',
         icon: 'default-object-marketing',
         position: 70,
-        privilege: 'promotion.viewer'
+        privilege: 'promotion.viewer',
     }, {
         id: 'sw-promotion-v2',
         path: 'sw.promotion.v2.index',
@@ -137,6 +137,6 @@ Module.register('sw-promotion-v2', {
         icon: 'default-object-marketing',
         position: 100,
         parent: 'sw-marketing',
-        privilege: 'promotion.viewer'
-    }]
+        privilege: 'promotion.viewer',
+    }],
 });

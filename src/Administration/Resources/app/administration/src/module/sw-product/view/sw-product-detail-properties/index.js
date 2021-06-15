@@ -13,24 +13,24 @@ Component.register('sw-product-detail-properties', {
     data() {
         return {
             propertiesAvailable: true,
-            isInherited: false
+            isInherited: false,
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
-            'parentProduct'
+            'parentProduct',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
-            'isChild'
+            'isChild',
         ]),
 
         propertyRepository() {
             return this.repositoryFactory.create('property_group_option');
-        }
+        },
     },
 
     watch: {
@@ -42,8 +42,8 @@ Component.register('sw-product-detail-properties', {
 
                 this.isInherited = this.isChild && !this.product.options.total;
             },
-            immediate: true
-        }
+            immediate: true,
+        },
     },
 
     created() {
@@ -75,6 +75,6 @@ Component.register('sw-product-detail-properties', {
 
         removeInheritance() {
             this.isInherited = false;
-        }
-    }
+        },
+    },
 });

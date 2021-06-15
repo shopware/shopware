@@ -33,7 +33,7 @@ Component.register('sw-image-slider', {
     props: {
         images: {
             type: Array,
-            required: true
+            required: true,
         },
 
         canvasWidth: {
@@ -42,7 +42,7 @@ Component.register('sw-image-slider', {
             default: 0,
             validator(value) {
                 return value >= 0;
-            }
+            },
         },
 
         canvasHeight: {
@@ -51,7 +51,7 @@ Component.register('sw-image-slider', {
             default: 0,
             validator(value) {
                 return value >= 0;
-            }
+            },
         },
 
         gap: {
@@ -60,7 +60,7 @@ Component.register('sw-image-slider', {
             default: 20,
             validator(value) {
                 return value >= 0;
-            }
+            },
         },
 
         elementPadding: {
@@ -69,7 +69,7 @@ Component.register('sw-image-slider', {
             default: 0,
             validator(value) {
                 return value >= 0;
-            }
+            },
         },
 
         navigationType: {
@@ -78,13 +78,13 @@ Component.register('sw-image-slider', {
             default: 'arrow',
             validator(value) {
                 return ['arrow', 'button', 'all'].includes(value);
-            }
+            },
         },
 
         enableDescriptions: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         overflow: {
@@ -93,43 +93,43 @@ Component.register('sw-image-slider', {
             default: 'hidden',
             validator(value) {
                 return ['hidden', 'visible'].includes(value);
-            }
+            },
         },
 
         rewind: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         bordered: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         rounded: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         autoWidth: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         itemPerPage: {
             type: Number,
             required: false,
-            default: 1
+            default: 1,
         },
 
         initialIndex: {
             type: Number,
             required: false,
-            default: 0
+            default: 0,
         },
 
         arrowStyle: {
@@ -138,7 +138,7 @@ Component.register('sw-image-slider', {
             default: 'inside',
             validator(value) {
                 return ['inside', 'outside', 'none'].includes(value);
-            }
+            },
         },
 
         buttonStyle: {
@@ -147,7 +147,7 @@ Component.register('sw-image-slider', {
             default: 'outside',
             validator(value) {
                 return ['inside', 'outside', 'none'].includes(value);
-            }
+            },
         },
 
         displayMode: {
@@ -156,14 +156,14 @@ Component.register('sw-image-slider', {
             default: 'cover',
             validator(value) {
                 return ['contain', 'cover', 'none'].includes(value);
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             currentPageNumber: 0,
-            currentItemIndex: 0
+            currentItemIndex: 0,
         };
     },
 
@@ -188,13 +188,13 @@ Component.register('sw-image-slider', {
 
         wrapperStyles() {
             return {
-                width: this.canvasWidth ? `${this.canvasWidth}px` : '100%'
+                width: this.canvasWidth ? `${this.canvasWidth}px` : '100%',
             };
         },
 
         componentStyles() {
             return {
-                width: this.autoWidth ? 'auto' : `${100 / this.images.length}%`
+                width: this.autoWidth ? 'auto' : `${100 / this.images.length}%`,
             };
         },
 
@@ -207,7 +207,7 @@ Component.register('sw-image-slider', {
             return {
                 width,
                 overflowX: this.overflow,
-                margin: this.arrowStyle === 'outside' ? '0 56px' : 0
+                margin: this.arrowStyle === 'outside' ? '0 56px' : 0,
             };
         },
 
@@ -218,7 +218,7 @@ Component.register('sw-image-slider', {
                 return {
                     width: `${this.totalPage * 100}%`,
                     gap: `${this.gap}px`,
-                    transform: `translateX(-${this.currentPageNumber / this.totalPage * 100}%)`
+                    transform: `translateX(-${this.currentPageNumber / this.totalPage * 100}%)`,
                 };
             }
 
@@ -230,20 +230,20 @@ Component.register('sw-image-slider', {
             return {
                 width: `${(this.totalPage - 1 + this.remainder / this.itemPerPage) * 100}%`,
                 gap: `${this.gap}px`,
-                transform: `translateX(-${translateAmount}%)`
+                transform: `translateX(-${translateAmount}%)`,
             };
         },
 
         /* @deprecated tag:v6.5.0 Will be removed */
         arrowStyles() {
             return {
-                height: '100%'
+                height: '100%',
             };
         },
 
         imageStyles() {
             return {
-                objectFit: this.displayMode
+                objectFit: this.displayMode,
             };
         },
 
@@ -260,7 +260,7 @@ Component.register('sw-image-slider', {
         showArrows() {
             return this.images.length > this.itemPerPage
                 && ['arrow', 'all'].includes(this.navigationType);
-        }
+        },
     },
 
     watch: {
@@ -268,8 +268,8 @@ Component.register('sw-image-slider', {
             immediate: true,
             handler(value) {
                 this.onSetCurrentItem(value);
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -304,7 +304,7 @@ Component.register('sw-image-slider', {
         imageAlt(index) {
             return this.$tc('sw-image-slider.imageAlt', 0, {
                 index: index + 1,
-                total: this.images.length
+                total: this.images.length,
             });
         },
 
@@ -334,7 +334,7 @@ Component.register('sw-image-slider', {
             return [
                 { 'is--active': index === this.currentItemIndex && this.itemPerPage > 1 },
                 { 'is--bordered': this.bordered },
-                { 'is--rounded': this.rounded }
+                { 'is--rounded': this.rounded },
             ];
         },
 
@@ -343,14 +343,14 @@ Component.register('sw-image-slider', {
                 cursor: index === this.currentItemIndex ? 'default' : 'pointer',
                 height: this.canvasHeight ? `${this.canvasHeight}px` : '100%',
                 padding: this.elementPadding ? `${this.elementPadding}px` : 0,
-                ...this.borderStyles(image)
+                ...this.borderStyles(image),
             };
         },
 
         imageClasses(index) {
             return {
                 'is--active': index === this.currentItemIndex,
-                'is--auto-width': this.autoWidth
+                'is--auto-width': this.autoWidth,
             };
         },
 
@@ -361,7 +361,7 @@ Component.register('sw-image-slider', {
 
             return {
                 borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0
+                borderBottomRightRadius: 0,
             };
         },
 
@@ -386,6 +386,6 @@ Component.register('sw-image-slider', {
 
             return this.currentPageNumber * this.itemPerPage > index
                 || index >= (this.currentPageNumber + 1) * this.itemPerPage;
-        }
-    }
+        },
+    },
 });

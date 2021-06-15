@@ -16,12 +16,12 @@ const { Application } = Shopware;
 export default function createShortcutService(shortcutFactory, keystrokeDelay = 1000) {
     let state = {
         buffer: [],
-        lastKeyTime: Date.now()
+        lastKeyTime: Date.now(),
     };
 
     return {
         startEventListener,
-        stopEventListener
+        stopEventListener,
     };
 
     function startEventListener() {
@@ -51,7 +51,7 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
 
         state = {
             buffer: buffer,
-            lastKeyTime: currentTime
+            lastKeyTime: currentTime,
         };
 
         const combination = buffer.join('');

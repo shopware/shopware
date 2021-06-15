@@ -15,7 +15,7 @@ Shopware.Component.register('sw-first-run-wizard-markets', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.paypal.info',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'next',
@@ -23,10 +23,10 @@ Shopware.Component.register('sw-first-run-wizard-markets', {
                     position: 'right',
                     variant: 'primary',
                     action: 'sw.first.run.wizard.index.plugins',
-                    disabled: false
-                }
+                    disabled: false,
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -56,6 +56,6 @@ Shopware.Component.register('sw-first-run-wizard-markets', {
                 .finally(() => {
                     this.isInstalling = false;
                 });
-        }
-    }
+        },
+    },
 });

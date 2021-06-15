@@ -10,7 +10,7 @@ Component.register('sw-category-seo-form', {
     props: {
         category: {
             type: Object,
-            required: true
-        }
-    }
+            required: true,
+        },
+    },
 });

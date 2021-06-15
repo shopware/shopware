@@ -9,30 +9,30 @@ Component.register('sw-order-create-address-modal', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         customer: {
             type: Object,
-            required: true
+            required: true,
         },
         address: {
             type: Object,
-            required: true
+            required: true,
         },
         addAddressModalTitle: {
             type: String,
-            required: true
+            required: true,
         },
         editAddressModalTitle: {
             type: String,
-            required: true
+            required: true,
         },
         cart: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -45,9 +45,9 @@ Component.register('sw-order-create-address-modal', {
             showAddressFormModal: false,
             defaultAddressIdMapping: {
                 'billing-address': 'defaultBillingAddressId',
-                'shipping-address': 'defaultShippingAddressId'
+                'shipping-address': 'defaultShippingAddressId',
             },
-            currentAddress: null
+            currentAddress: null,
         };
     },
 
@@ -72,9 +72,9 @@ Component.register('sw-order-create-address-modal', {
         addressRepository() {
             return Service('repositoryFactory').create(
                 this.activeCustomer.addresses.entity,
-                this.activeCustomer.addresses.source
+                this.activeCustomer.addresses.source,
             );
-        }
+        },
     },
 
     created() {
@@ -99,7 +99,7 @@ Component.register('sw-order-create-address-modal', {
                 await Shopware.State.dispatch('error/resetApiErrors');
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.create.messageFetchCustomerAddressesError')
+                    message: this.$tc('sw-order.create.messageFetchCustomerAddressesError'),
                 });
             } finally {
                 this.isLoading = false;
@@ -134,20 +134,20 @@ Component.register('sw-order-create-address-modal', {
             const context = {
                 [this.address.contextId]: address.id,
                 [this.address.contextDataKey]: address,
-                [this.address.contextDataDefaultId]: address[this.address.contextDataDefaultId]
+                [this.address.contextDataDefaultId]: address[this.address.contextDataDefaultId],
             };
 
             await State
                 .dispatch('swOrder/updateOrderContext', {
                     context,
                     salesChannelId: this.activeCustomer.salesChannelId,
-                    contextToken: this.cart.token
+                    contextToken: this.cart.token,
                 });
 
             this.$emit('set-customer-address', {
                 contextId: this.address.contextId,
                 contextDataKey: this.address.contextDataKey,
-                data: address
+                data: address,
             });
         },
 
@@ -189,7 +189,7 @@ Component.register('sw-order-create-address-modal', {
                 this.closeModal();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.detail.messageSaveError')
+                    message: this.$tc('sw-order.detail.messageSaveError'),
                 });
             } finally {
                 this.isLoading = false;
@@ -237,7 +237,7 @@ Component.register('sw-order-create-address-modal', {
                 this.showAddressFormModal = false;
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.detail.messageSaveError')
+                    message: this.$tc('sw-order.detail.messageSaveError'),
                 });
             } finally {
                 this.isLoading = false;
@@ -255,6 +255,6 @@ Component.register('sw-order-create-address-modal', {
             newAddress.customerId = this.activeCustomer.id;
 
             this.currentAddress = newAddress;
-        }
-    }
+        },
+    },
 });

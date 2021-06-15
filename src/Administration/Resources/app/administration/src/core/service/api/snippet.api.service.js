@@ -48,7 +48,7 @@ class SnippetApiService extends ApiService {
 
         return this.httpClient
             .get(`/_admin/snippets?locale=${locale}`, {
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

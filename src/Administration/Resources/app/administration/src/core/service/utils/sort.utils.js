@@ -3,7 +3,7 @@
  * @module core/service/utils/sort
  */
 export default {
-    afterSort
+    afterSort,
 };
 
 /**

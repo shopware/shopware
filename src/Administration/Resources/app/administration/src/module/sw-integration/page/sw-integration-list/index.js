@@ -9,7 +9,7 @@ Component.register('sw-integration-list', {
     inject: ['integrationService', 'repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -19,13 +19,13 @@ Component.register('sw-integration-list', {
             isModalLoading: false,
             showDeleteModal: null,
             currentIntegration: null,
-            showSecretAccessKey: false
+            showSecretAccessKey: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -53,13 +53,13 @@ Component.register('sw-integration-list', {
                 {
                     property: 'label',
                     label: this.$tc('sw-integration.list.integrationName'),
-                    primary: true
+                    primary: true,
                 }, {
                     property: 'writeAccess',
-                    label: this.$tc('sw-integration.list.permissions')
-                }
+                    label: this.$tc('sw-integration.list.permissions'),
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -136,13 +136,13 @@ Component.register('sw-integration-list', {
 
         createSavedSuccessNotification() {
             this.createNotificationSuccess({
-                message: this.$tc('sw-integration.detail.messageSaveSuccess')
+                message: this.$tc('sw-integration.detail.messageSaveSuccess'),
             });
         },
 
         createSavedErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-integration.detail.messageSaveError')
+                message: this.$tc('sw-integration.detail.messageSaveError'),
             });
         },
 
@@ -161,7 +161,7 @@ Component.register('sw-integration-list', {
                 this.isModalLoading = false;
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-integration.detail.messageCreateNewError')
+                    message: this.$tc('sw-integration.detail.messageCreateNewError'),
                 });
             });
         },
@@ -197,6 +197,6 @@ Component.register('sw-integration-list', {
                 .then(() => {
                     this.getList();
                 });
-        }
-    }
+        },
+    },
 });

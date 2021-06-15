@@ -12,13 +12,13 @@ Component.register('sw-condition-modal', {
     props: {
         conditionDataProviderService: {
             type: Object,
-            required: true
+            required: true,
         },
 
         condition: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         scopes: {
@@ -26,26 +26,26 @@ Component.register('sw-condition-modal', {
             required: false,
             default() {
                 return ['lineItem'];
-            }
+            },
         },
 
         allowedTypes: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         childAssociationField: {
             type: String,
             required: false,
-            default: 'children'
-        }
+            default: 'children',
+        },
     },
 
     data() {
         return {
             childConditions: null,
-            deletedIds: []
+            deletedIds: [],
         };
     },
 
@@ -53,13 +53,13 @@ Component.register('sw-condition-modal', {
         conditionRepository() {
             return this.repositoryFactory.create(
                 this.condition[this.childAssociationField].entity,
-                this.condition[this.childAssociationField].source
+                this.condition[this.childAssociationField].source,
             );
         },
 
         initialConditions() {
             return this.condition[this.childAssociationField];
-        }
+        },
     },
 
     methods: {
@@ -75,7 +75,7 @@ Component.register('sw-condition-modal', {
                 this.condition[this.childAssociationField] = new EntityCollection(
                     this.condition[this.childAssociationField].source,
                     this.condition[this.childAssociationField].entity,
-                    this.condition[this.childAssociationField].context
+                    this.condition[this.childAssociationField].context,
                 );
                 this.closeModal();
             });
@@ -100,6 +100,6 @@ Component.register('sw-condition-modal', {
 
         closeModal() {
             this.$emit('modal-close');
-        }
-    }
+        },
+    },
 });

@@ -12,7 +12,7 @@ Component.register('sw-settings-search-search-index', {
     inject: [
         'productIndexService',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -26,7 +26,7 @@ Component.register('sw-settings-search-search-index', {
             offset: 0,
             syncPolling: null,
             totalProduct: 0,
-            latestProductIndexed: {}
+            latestProductIndexed: {},
         };
     },
 
@@ -59,7 +59,7 @@ Component.register('sw-settings-search-search-index', {
             const latestBuildDate = new Date(this.latestProductIndexed.createdAt);
             const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' };
             return format.date(latestBuildDate, options);
-        }
+        },
     },
 
     created() {
@@ -89,7 +89,7 @@ Component.register('sw-settings-search-search-index', {
                 })
                 .catch((err) => {
                     this.createNotificationError({
-                        message: err.message
+                        message: err.message,
                     });
                 })
                 .finally(() => {
@@ -105,7 +105,7 @@ Component.register('sw-settings-search-search-index', {
                 })
                 .catch((err) => {
                     this.createNotificationError({
-                        message: err.message
+                        message: err.message,
                     });
                 })
                 .finally(() => {
@@ -124,7 +124,7 @@ Component.register('sw-settings-search-search-index', {
                         this.getLatestProductKeywordIndexed();
                         this.progressBarValue = 100;
                         this.createNotificationInfo({
-                            message: this.$tc('sw-settings-search.notification.index.success')
+                            message: this.$tc('sw-settings-search.notification.index.success'),
                         });
                     } else {
                         this.progressBarValue = Math.floor(Math.max(this.offset, 1) / this.totalProduct * 100);
@@ -134,7 +134,7 @@ Component.register('sw-settings-search-search-index', {
                 })
                 .catch((err) => {
                     this.createNotificationError({
-                        message: err.message
+                        message: err.message,
                     });
                     this.isRebuildSuccess = false;
                 });
@@ -144,7 +144,7 @@ Component.register('sw-settings-search-search-index', {
             if (this.syncPolling === null) {
                 this.syncPolling = setTimeout(
                     this.updateProgress,
-                    PRODUCT_INDEXER_INTERVAL
+                    PRODUCT_INDEXER_INTERVAL,
                 );
             }
         },
@@ -164,7 +164,7 @@ Component.register('sw-settings-search-search-index', {
             this.$emit('edit-change', this.isRebuildInProgress);
             this.pollData();
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-search.notification.index.started')
+                message: this.$tc('sw-settings-search.notification.index.started'),
             });
         },
 
@@ -173,6 +173,6 @@ Component.register('sw-settings-search-search-index', {
             this.isRebuildInProgress = false;
             this.progressBarValue = 0;
             this.$emit('edit-change', this.isRebuildInProgress);
-        }
-    }
+        },
+    },
 });

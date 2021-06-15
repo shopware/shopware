@@ -9,29 +9,29 @@ Component.register('sw-extension-permissions-modal', {
     props: {
         permissions: {
             type: Object,
-            required: true
+            required: true,
         },
         domains: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
         extensionLabel: {
             type: String,
-            required: true
+            required: true,
         },
         actionLabel: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             showDetailsModal: false,
             showDomainsModal: false,
-            selectedEntity: ''
+            selectedEntity: '',
         };
     },
 
@@ -40,7 +40,7 @@ Component.register('sw-extension-permissions-modal', {
             return this.$tc(
                 'sw-extension-store.component.sw-extension-permissions-modal.title',
                 1,
-                { extensionLabel: this.extensionLabel }
+                { extensionLabel: this.extensionLabel },
             );
         },
 
@@ -63,7 +63,7 @@ Component.register('sw-extension-permissions-modal', {
             }
 
             return [];
-        }
+        },
     },
 
     methods: {
@@ -91,6 +91,6 @@ Component.register('sw-extension-permissions-modal', {
 
         toggleDomainsModal(shouldOpen) {
             this.showDomainsModal = !!shouldOpen;
-        }
-    }
+        },
+    },
 });

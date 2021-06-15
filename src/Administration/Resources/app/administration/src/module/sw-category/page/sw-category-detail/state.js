@@ -10,7 +10,7 @@ export default {
             customFieldSets: [],
             landingPagesToDelete: undefined,
             categoriesToDelete: undefined,
-            defaultLayout: null
+            defaultLayout: null,
         };
     },
 
@@ -37,7 +37,7 @@ export default {
 
         setDefaultLayout(state, defaultLayout) {
             state.defaultLayout = defaultLayout?.id;
-        }
+        },
     },
 
     actions: {
@@ -100,6 +100,6 @@ export default {
             }).then((category) => {
                 commit('setActiveCategory', { category });
             });
-        }
-    }
+        },
+    },
 };

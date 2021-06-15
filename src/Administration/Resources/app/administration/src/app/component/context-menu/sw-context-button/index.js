@@ -23,13 +23,13 @@ Component.register('sw-context-button', {
         showMenuOnStartup: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         menuWidth: {
             type: Number,
             required: false,
-            default: 220
+            default: 220,
         },
 
         menuHorizontalAlign: {
@@ -41,7 +41,7 @@ Component.register('sw-context-button', {
                     return true;
                 }
                 return ['right', 'left'].includes(value);
-            }
+            },
         },
 
         menuVerticalAlign: {
@@ -53,25 +53,25 @@ Component.register('sw-context-button', {
                     return true;
                 }
                 return ['bottom', 'top'].includes(value);
-            }
+            },
         },
 
         icon: {
             type: String,
             required: false,
-            default: 'small-more'
+            default: 'small-more',
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         autoClose: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         autoCloseOutsideClick: {
@@ -85,19 +85,19 @@ Component.register('sw-context-button', {
             required: false,
             default() {
                 return {};
-            }
+            },
         },
 
         zIndex: {
             type: Number,
             required: false,
-            default: 9000
-        }
+            default: 9000,
+        },
     },
 
     data() {
         return {
-            showMenu: this.showMenuOnStartup
+            showMenu: this.showMenuOnStartup,
         };
     },
 
@@ -106,20 +106,20 @@ Component.register('sw-context-button', {
             return {
                 right: '-34px',
                 top: '10px',
-                width: `${this.menuWidth}px`
+                width: `${this.menuWidth}px`,
             };
         },
 
         contextClass() {
             return {
                 'is--disabled': this.disabled,
-                'is--active': this.showMenu
+                'is--active': this.showMenu,
             };
         },
 
         contextButtonClass() {
             return {
-                'is--active': this.showMenu
+                'is--active': this.showMenu,
             };
         },
 
@@ -127,9 +127,9 @@ Component.register('sw-context-button', {
             return {
                 'is--left-align': this.menuHorizontalAlign === 'left',
                 'is--top-align': this.menuVerticalAlign === 'top',
-                ...this.additionalContextMenuClasses
+                ...this.additionalContextMenuClasses,
             };
-        }
+        },
     },
 
     methods: {
@@ -190,6 +190,6 @@ Component.register('sw-context-button', {
         closeMenu() {
             this.showMenu = false;
             document.removeEventListener('click', this.handleClickEvent);
-        }
-    }
+        },
+    },
 });

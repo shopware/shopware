@@ -10,6 +10,6 @@ Component.override('sw-admin-menu', {
     computed: {
         canViewSalesChannels() {
             return this.acl.can('sales_channel.viewer');
-        }
-    }
+        },
+    },
 });

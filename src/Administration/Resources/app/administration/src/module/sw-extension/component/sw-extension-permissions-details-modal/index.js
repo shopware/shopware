@@ -9,17 +9,17 @@ Component.register('sw-extension-permissions-details-modal', {
     props: {
         permissions: {
             type: Object,
-            required: true
+            required: true,
         },
         modalTitle: {
             type: String,
-            required: true
+            required: true,
         },
         selectedEntity: {
             type: String,
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     computed: {
@@ -27,26 +27,26 @@ Component.register('sw-extension-permissions-details-modal', {
             return [
                 {
                     label: this.$tc('sw-extension-store.component.sw-extension-permissions-details-modal.operationRead'),
-                    operation: 'read'
+                    operation: 'read',
                 },
                 {
                     label: this.$tc('sw-extension-store.component.sw-extension-permissions-details-modal.operationUpdate'),
-                    operation: 'update'
+                    operation: 'update',
                 },
                 {
                     label: this.$tc('sw-extension-store.component.sw-extension-permissions-details-modal.operationCreate'),
-                    operation: 'create'
+                    operation: 'create',
                 },
                 {
                     label: this.$tc('sw-extension-store.component.sw-extension-permissions-details-modal.operationDelete'),
-                    operation: 'delete'
-                }
+                    operation: 'delete',
+                },
             ];
         },
 
         ankerId() {
             return this.selectedEntity !== '' ? `permission-${this.selectedEntity}` : null;
-        }
+        },
     },
 
     mounted() {
@@ -85,6 +85,6 @@ Component.register('sw-extension-permissions-details-modal', {
             const translation = `entityCategories.${category}.entities.${entity}`;
 
             return this.$te(translation) ? this.$tc(translation) : entity;
-        }
-    }
+        },
+    },
 });

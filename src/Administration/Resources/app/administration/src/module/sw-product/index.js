@@ -58,25 +58,25 @@ Module.register('sw-product', {
     routes: {
         index: {
             components: {
-                default: 'sw-product-list'
+                default: 'sw-product-list',
             },
             path: 'index',
             meta: {
                 privilege: 'product.viewer',
                 appSystem: {
-                    view: 'list'
-                }
-            }
+                    view: 'list',
+                },
+            },
         },
 
         create: {
             component: 'sw-product-detail',
             path: 'create',
             redirect: {
-                name: 'sw.product.create.base'
+                name: 'sw.product.create.base',
             },
             meta: {
-                privilege: 'product.creator'
+                privilege: 'product.creator',
             },
             children: {
                 base: {
@@ -84,26 +84,26 @@ Module.register('sw-product', {
                     path: 'base',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.creator'
-                    }
-                }
-            }
+                        privilege: 'product.creator',
+                    },
+                },
+            },
         },
 
         detail: {
             component: 'sw-product-detail',
             path: 'detail/:id?',
             props: {
-                default: (route) => ({ productId: route.params.id })
+                default: (route) => ({ productId: route.params.id }),
             },
             redirect: {
-                name: 'sw.product.detail.base'
+                name: 'sw.product.detail.base',
             },
             meta: {
                 privilege: 'product.viewer',
                 appSystem: {
-                    view: 'detail'
-                }
+                    view: 'detail',
+                },
             },
             children: {
                 base: {
@@ -111,75 +111,75 @@ Module.register('sw-product', {
                     path: 'base',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
+                        privilege: 'product.viewer',
+                    },
                 },
                 specifications: {
                     component: 'sw-product-detail-specifications',
                     path: 'specifications',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
+                        privilege: 'product.viewer',
+                    },
                 },
                 prices: {
                     component: 'sw-product-detail-context-prices',
                     path: 'prices',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
+                        privilege: 'product.viewer',
+                    },
                 },
                 properties: {
                     component: 'sw-product-detail-properties',
                     path: 'properties',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
+                        privilege: 'product.viewer',
+                    },
                 },
                 variants: {
                     component: 'sw-product-detail-variants',
                     path: 'variants',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
+                        privilege: 'product.viewer',
+                    },
                 },
                 layout: {
                     component: 'sw-product-detail-layout',
                     path: 'layout',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
+                        privilege: 'product.viewer',
+                    },
                 },
                 seo: {
                     component: 'sw-product-detail-seo',
                     path: 'seo',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
+                        privilege: 'product.viewer',
+                    },
                 },
                 crossSelling: {
                     component: 'sw-product-detail-cross-selling',
                     path: 'cross-selling',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
+                        privilege: 'product.viewer',
+                    },
                 },
                 reviews: {
                     component: 'sw-product-detail-reviews',
                     path: 'reviews',
                     meta: {
                         parentPath: 'sw.product.index',
-                        privilege: 'product.viewer'
-                    }
-                }
-            }
-        }
+                        privilege: 'product.viewer',
+                    },
+                },
+            },
+        },
     },
 
     navigation: [{
@@ -187,7 +187,7 @@ Module.register('sw-product', {
         label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
         color: '#57D9A3',
         icon: 'default-symbol-products',
-        position: 20
+        position: 20,
     }, {
         id: 'sw-product',
         label: 'sw-product.general.mainMenuItemGeneral',
@@ -196,6 +196,6 @@ Module.register('sw-product', {
         icon: 'default-symbol-products',
         parent: 'sw-catalogue',
         privilege: 'product.viewer',
-        position: 10
-    }]
+        position: 10,
+    }],
 });

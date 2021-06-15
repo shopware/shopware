@@ -14,35 +14,35 @@ export default function createStateStyleService() {
             iconStyle: 'sw-order-state__bg-neutral-icon',
             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
-            variant: 'neutral'
-        }
+            variant: 'neutral',
+        },
     };
 
     const $icons = {
         neutral: 'small-arrow-small-down',
         progress: 'small-default-circle-small',
         danger: 'small-default-x-line-small',
-        done: 'small-default-checkmark-line-small'
+        done: 'small-default-checkmark-line-small',
     };
 
     const $colors = {
         neutral: 'sw-order-state__neutral',
         progress: 'sw-order-state__progress',
         danger: 'sw-order-state__danger',
-        done: 'sw-order-state__success'
+        done: 'sw-order-state__success',
     };
 
     const $variants = {
         neutral: 'neutral',
         progress: 'info',
         danger: 'danger',
-        done: 'success'
+        done: 'success',
     };
 
     return {
         getPlaceholder,
         addStyle,
-        getStyle
+        getStyle,
     };
 
     function getPlaceholder() {

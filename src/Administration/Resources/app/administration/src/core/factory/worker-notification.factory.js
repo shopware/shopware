@@ -11,7 +11,7 @@ export default {
     remove,
     override,
     initialize,
-    resetHelper
+    resetHelper,
 };
 
 /**
@@ -125,7 +125,7 @@ function initialize() {
 function middlewareFunctionWrapper(name, fn) {
     return (next, data) => {
         const entry = data.queue.find(
-            (q) => q.name === name
+            (q) => q.name === name,
         ) || null;
         const mergedData = { ...data, ...{ entry, name } };
 

@@ -13,7 +13,7 @@ export default class ShopwareError {
         code,
         meta = {},
         status = '',
-        detail = ''
+        detail = '',
     } = {}) {
         if (typeof code !== 'string' || code === '') {
             throw new Error('[ShopwareError] can not identify error by code');

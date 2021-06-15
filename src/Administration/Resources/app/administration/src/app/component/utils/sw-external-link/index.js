@@ -23,20 +23,20 @@ Component.register('sw-external-link', {
         small: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         icon: {
             type: String,
             required: false,
-            default: 'small-arrow-small-external'
-        }
+            default: 'small-arrow-small-external',
+        },
     },
 
     computed: {
         classes() {
             return {
-                'sw-external-link--small': this.small
+                'sw-external-link--small': this.small,
             };
         },
 
@@ -46,12 +46,12 @@ Component.register('sw-external-link', {
             }
 
             return '10px';
-        }
+        },
     },
 
     methods: {
         onClick(event) {
             this.$emit('click', event);
-        }
-    }
+        },
+    },
 });

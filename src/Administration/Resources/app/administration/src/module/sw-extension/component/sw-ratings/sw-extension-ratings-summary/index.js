@@ -12,19 +12,19 @@ Component.register('sw-extension-ratings-summary', {
     props: {
         summary: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            maxRating: 5
+            maxRating: 5,
         };
     },
 
     computed: {
         maxProgressValue() {
             return this.summary.numberOfRatings === 0 ? 1 : this.summary.numberOfRatings;
-        }
-    }
+        },
+    },
 });

@@ -5,15 +5,15 @@ Shopware.Component.register('sw-cms-el-sidebar-filter', {
     template,
 
     mixins: [
-        Shopware.Mixin.getByName('cms-element')
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     computed: {
         componentClasses() {
             return {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
-        }
+        },
     },
 
     created() {
@@ -23,6 +23,6 @@ Shopware.Component.register('sw-cms-el-sidebar-filter', {
     methods: {
         createdComponent() {
             this.initElementConfig('sidebar-filter');
-        }
-    }
+        },
+    },
 });

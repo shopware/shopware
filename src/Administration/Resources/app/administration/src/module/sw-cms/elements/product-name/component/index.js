@@ -4,13 +4,13 @@ const { Component, Mixin } = Shopware;
 
 Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     computed: {
         isProductPage() {
             return this.cmsPageState?.currentPage?.type ?? '' === 'product_detail';
-        }
+        },
     },
 
     methods: {
@@ -39,6 +39,6 @@ Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
                     this.demoValue = this.getDemoValue(this.element.config.content.value);
                 }
             }
-        }
-    }
+        },
+    },
 });

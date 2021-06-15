@@ -19,19 +19,19 @@ Component.register('sw-select-rule-create', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     props: {
         ruleId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         rules: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
         ruleFilter: {
             type: Object,
@@ -41,17 +41,17 @@ Component.register('sw-select-rule-create', {
                 criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
                 return criteria;
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             itemAddNewRule: {
                 index: -1,
-                id: ''
+                id: '',
             },
-            showRuleModal: false
+            showRuleModal: false,
         };
     },
 
@@ -71,8 +71,8 @@ Component.register('sw-select-rule-create', {
                         this.rules.remove(item.id);
                     }
                 });
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -100,6 +100,6 @@ Component.register('sw-select-rule-create', {
             if (!event) {
                 this.$emit('dismiss-rule');
             }
-        }
-    }
+        },
+    },
 });

@@ -11,19 +11,19 @@ Component.register('sw-users-permissions-detailed-permissions-grid', {
     props: {
         role: {
             type: Object,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         detailedPrivileges: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -42,9 +42,9 @@ Component.register('sw-users-permissions-detailed-permissions-grid', {
                 'read',
                 'update',
                 'create',
-                'delete'
+                'delete',
             ];
-        }
+        },
     },
 
     methods: {
@@ -53,7 +53,7 @@ Component.register('sw-users-permissions-detailed-permissions-grid', {
 
             const allPrivileges = [
                 ...this.allGeneralSelectedPrivileges,
-                ...this.detailedPrivileges
+                ...this.detailedPrivileges,
             ];
 
             return allPrivileges.includes(identifier);
@@ -80,6 +80,6 @@ Component.register('sw-users-permissions-detailed-permissions-grid', {
             }
 
             this.detailedPrivileges.push(identifier);
-        }
-    }
+        },
+    },
 });

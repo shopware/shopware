@@ -23,38 +23,38 @@ Module.register('sw-settings-currency', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'currencies.viewer'
-            }
+                privilege: 'currencies.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-currency-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.currency.index',
-                privilege: 'currencies.viewer'
+                privilege: 'currencies.viewer',
             },
             props: {
                 default(route) {
                     return {
-                        currencyId: route.params.id
+                        currencyId: route.params.id,
                     };
-                }
-            }
+                },
+            },
         },
         create: {
             component: 'sw-settings-currency-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.currency.index',
-                privilege: 'currencies.creator'
-            }
-        }
+                privilege: 'currencies.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.currency.index',
         icon: 'default-symbol-euro',
-        privilege: 'currencies.viewer'
-    }
+        privilege: 'currencies.viewer',
+    },
 });

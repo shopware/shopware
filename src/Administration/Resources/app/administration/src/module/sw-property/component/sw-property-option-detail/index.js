@@ -10,19 +10,19 @@ Shopware.Component.register('sw-property-option-detail', {
             type: Object,
             default() {
                 return {};
-            }
+            },
         },
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        }
+        },
     },
 
     methods: {
@@ -45,6 +45,6 @@ Shopware.Component.register('sw-property-option-detail', {
 
         setMedia(selection) {
             this.currentOption.mediaId = selection[0].id;
-        }
-    }
+        },
+    },
 });

@@ -10,7 +10,7 @@ Component.register('sw-settings-salutation-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     data() {
@@ -19,13 +19,13 @@ Component.register('sw-settings-salutation-list', {
             limit: 10,
             salutations: null,
             sortBy: 'salutationKey',
-            sortDirection: 'ASC'
+            sortDirection: 'ASC',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -42,9 +42,9 @@ Component.register('sw-settings-salutation-list', {
             return {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('salutation.creator'),
-                showOnDisabledElements: true
+                showOnDisabledElements: true,
             };
-        }
+        },
     },
 
     created() {
@@ -75,17 +75,17 @@ Component.register('sw-settings-salutation-list', {
                 label: 'sw-settings-salutation.list.columnSalutationKey',
                 inlineEdit: 'string',
                 routerLink: 'sw.settings.salutation.detail',
-                primary: true
+                primary: true,
             }, {
                 property: 'displayName',
                 label: 'sw-settings-salutation.list.columnDisplayName',
                 inlineEdit: 'string',
-                primary: true
+                primary: true,
             }, {
                 property: 'letterName',
                 label: 'sw-settings-salutation.list.columnLetterName',
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }];
-        }
-    }
+        },
+    },
 });

@@ -14,7 +14,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
             pluginInstallationFailed: false,
             pluginError: null,
             pluginName: 'SwagPayPal',
-            installPromise: Promise.resolve()
+            installPromise: Promise.resolve(),
         };
     },
 
@@ -41,7 +41,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.mailer.selection',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'skip',
@@ -49,7 +49,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
                     position: 'right',
                     variant: null,
                     action: 'sw.first.run.wizard.index.markets',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'configure',
@@ -57,8 +57,8 @@ Component.register('sw-first-run-wizard-paypal-info', {
                     position: 'right',
                     variant: 'primary',
                     action: this.activatePayPalAndRedirect.bind(this),
-                    disabled: false
-                }
+                    disabled: false,
+                },
             ];
 
             this.$emit('buttons-update', buttonConfig);
@@ -93,6 +93,6 @@ Component.register('sw-first-run-wizard-paypal-info', {
 
                 return true;
             });
-        }
-    }
+        },
+    },
 });

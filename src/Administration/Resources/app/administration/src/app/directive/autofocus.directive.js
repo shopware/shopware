@@ -8,5 +8,5 @@ Directive.register('autofocus', {
         }
 
         inputs[0].focus();
-    }
+    },
 });

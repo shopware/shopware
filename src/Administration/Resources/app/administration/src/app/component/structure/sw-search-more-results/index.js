@@ -16,19 +16,19 @@ Component.register('sw-search-more-results', {
     template,
 
     inject: [
-        'searchTypeService'
+        'searchTypeService',
     ],
 
     props: {
         result: {
             required: true,
-            type: Object
+            type: Object,
         },
         term: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -48,6 +48,6 @@ Component.register('sw-search-more-results', {
 
         searchTypes() {
             return this.searchTypeService.getTypes();
-        }
-    }
+        },
+    },
 });

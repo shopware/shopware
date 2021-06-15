@@ -16,13 +16,13 @@ class UserValidationApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload = {
             email,
-            id
+            id,
         };
 
         return this.httpClient
             .post(`/_action/user/${this.apiEndpoint}`, payload, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -34,13 +34,13 @@ class UserValidationApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload = {
             username,
-            id
+            id,
         };
 
         return this.httpClient
             .post('/_action/user/check-username-unique', payload, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

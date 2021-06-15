@@ -9,19 +9,19 @@ Component.register('sw-condition-operator-select', {
     props: {
         operators: {
             type: Array,
-            required: true
+            required: true,
         },
 
         condition: {
             type: Object,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -37,22 +37,22 @@ Component.register('sw-condition-operator-select', {
                     this.condition.value = {};
                 }
                 this.condition.value = { ...this.condition.value, operator };
-            }
+            },
         },
 
         translatedOperators() {
             return this.operators.map(({ identifier, label }) => {
                 return {
                     identifier,
-                    label: this.$tc(label)
+                    label: this.$tc(label),
                 };
             });
-        }
+        },
     },
 
     methods: {
         changeOperator(event) {
             this.operator = event;
-        }
-    }
+        },
+    },
 });

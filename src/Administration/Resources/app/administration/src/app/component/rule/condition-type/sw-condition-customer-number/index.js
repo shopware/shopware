@@ -27,13 +27,13 @@ Component.extend('sw-condition-customer-number', 'sw-condition-base', {
             set(numbers) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, numbers };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.numbers']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueNumbersError;
-        }
-    }
+        },
+    },
 });

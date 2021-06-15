@@ -13,19 +13,19 @@ Component.register('sw-category-tree-field', {
     props: {
         categoriesCollection: {
             type: Array,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         placeholder: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -41,7 +41,7 @@ Component.register('sw-category-tree-field', {
             searchResultFocusItem: {},
             setInputFocusClass: null,
             removeInputFocusClass: null,
-            selectedTreeItem: ''
+            selectedTreeItem: '',
         };
     },
 
@@ -76,7 +76,7 @@ Component.register('sw-category-tree-field', {
                 // add parent id to accumulator
                 return [...acc, ...pathIds];
             }, []);
-        }
+        },
     },
 
     watch: {
@@ -85,13 +85,13 @@ Component.register('sw-category-tree-field', {
                 // check if categoriesCollection is loaded
                 if (this.categoriesCollection.entity && !this.isComponentReady && !this.isFetching) {
                     Promise.all([
-                        this.getTreeItems()
+                        this.getTreeItems(),
                     ]).then(() => {
                         this.isComponentReady = true;
                     });
                 }
             },
-            immediate: true
+            immediate: true,
         },
 
         term: {
@@ -115,7 +115,7 @@ Component.register('sw-category-tree-field', {
                     });
                 }
             },
-            immediate: true
+            immediate: true,
         },
 
         selectedTreeItem(newValue) {
@@ -138,11 +138,11 @@ Component.register('sw-category-tree-field', {
 
                     actualElement.scrollTo({
                         top: offsetValue - (actualElement.clientHeight / 2) - 50,
-                        behavior: 'smooth'
+                        behavior: 'smooth',
                     });
                 }, 50)();
             }
-        }
+        },
     },
 
     created() {
@@ -174,9 +174,9 @@ Component.register('sw-category-tree-field', {
                     'AND',
                     [
                         Criteria.equals('parentId', parentId),
-                        Criteria.equals('type', 'page')
-                    ]
-                )
+                        Criteria.equals('type', 'page'),
+                    ],
+                ),
             );
 
             // search for categories
@@ -203,7 +203,7 @@ Component.register('sw-category-tree-field', {
             this.onCheckItem({
                 checked: shouldBeChecked,
                 id: item.id,
-                data: item
+                data: item,
             });
         },
 
@@ -606,6 +606,6 @@ Component.register('sw-category-tree-field', {
             }
 
             return foundInChildren;
-        }
-    }
+        },
+    },
 });

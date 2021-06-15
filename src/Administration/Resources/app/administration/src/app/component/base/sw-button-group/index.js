@@ -21,22 +21,22 @@ Component.register('sw-button-group', {
         block: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         splitButton: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         buttonGroupClasses() {
             return {
                 'sw-button-group--block': this.block,
-                'sw-button-group--split': this.splitButton
+                'sw-button-group--split': this.splitButton,
             };
-        }
-    }
+        },
+    },
 });

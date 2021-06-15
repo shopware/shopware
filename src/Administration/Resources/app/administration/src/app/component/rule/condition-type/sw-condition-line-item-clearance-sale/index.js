@@ -15,7 +15,7 @@ Component.extend('sw-condition-line-item-clearance-sale', 'sw-condition-base', {
             set(clearanceSale) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, clearanceSale };
-            }
+            },
         },
         trueOption() {
             return { value: true, label: this.$tc('global.sw-condition.condition.yes') };
@@ -32,6 +32,6 @@ Component.extend('sw-condition-line-item-clearance-sale', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueClearanceSaleError;
-        }
-    }
+        },
+    },
 });

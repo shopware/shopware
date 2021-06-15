@@ -12,7 +12,7 @@ Shopware.Component.register('sw-import-export-progress', {
     inject: ['importExport'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -22,51 +22,51 @@ Shopware.Component.register('sw-import-export-progress', {
             default: 'import',
             validValues: [
                 'import',
-                'export'
+                'export',
             ],
             validator(value) {
                 return [
                     'import',
-                    'export'
+                    'export',
                 ].includes(value);
-            }
+            },
         },
 
         offset: {
             type: Number,
             required: false,
-            default: 0
+            default: 0,
         },
 
         total: {
             type: Number,
             required: false,
-            default: null
+            default: null,
         },
 
         state: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         disableButton: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         logEntry: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -75,15 +75,15 @@ Shopware.Component.register('sw-import-export-progress', {
                 import: {
                     succeeded: this.$tc('sw-import-export.progress.succeededImportText'),
                     failed: this.$tc('sw-import-export.progress.failedImportText'),
-                    progress: this.$tc('sw-import-export.progress.progressImportText')
+                    progress: this.$tc('sw-import-export.progress.progressImportText'),
                 },
                 export: {
                     succeeded: this.$tc('sw-import-export.progress.succeededExportText'),
                     failed: this.$tc('sw-import-export.progress.failedExportText'),
-                    progress: this.$tc('sw-import-export.progress.progressExportText')
-                }
+                    progress: this.$tc('sw-import-export.progress.progressExportText'),
+                },
             },
-            selectedLog: null
+            selectedLog: null,
         };
     },
 
@@ -91,7 +91,7 @@ Shopware.Component.register('sw-import-export-progress', {
         progressBarClasses() {
             return {
                 'is--finished': (this.percentageProgress >= 100) && this.state === 'succeeded',
-                'is--errored': this.state === 'failed'
+                'is--errored': this.state === 'failed',
             };
         },
 
@@ -127,7 +127,7 @@ Shopware.Component.register('sw-import-export-progress', {
             }
 
             return this.$tc('sw-import-export.progress.entriesLabel');
-        }
+        },
     },
 
     methods: {
@@ -141,6 +141,6 @@ Shopware.Component.register('sw-import-export-progress', {
 
         closeSelectedLog() {
             this.selectedLog = null;
-        }
-    }
+        },
+    },
 });

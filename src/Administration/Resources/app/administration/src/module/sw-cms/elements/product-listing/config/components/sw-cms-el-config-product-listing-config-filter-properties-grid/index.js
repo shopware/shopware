@@ -7,26 +7,26 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-filter-prop
     props: {
         properties: {
             type: Array,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             limit: 6,
-            page: 1
+            page: 1,
         };
     },
 
     computed: {
         componentClasses() {
             return {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
         },
 
@@ -48,14 +48,14 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-filter-prop
                     property: 'status',
                     label: 'sw-cms.elements.productListing.config.filter.gridHeaderStatus',
                     disabled: this.disabled,
-                    width: '70px'
+                    width: '70px',
                 },
                 {
                     property: 'name',
-                    label: 'sw-cms.elements.productListing.config.filter.gridHeaderName'
-                }
+                    label: 'sw-cms.elements.productListing.config.filter.gridHeaderName',
+                },
             ];
-        }
+        },
     },
 
     methods: {
@@ -67,6 +67,6 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-filter-prop
 
         onChangePropertyStatus(item) {
             this.$emit('property-status-changed', item.id);
-        }
-    }
+        },
+    },
 });

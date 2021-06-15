@@ -21,55 +21,55 @@ Component.register('sw-multi-tag-select', {
     inheritAttrs: false,
 
     mixins: [
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         value: {
             type: Array,
-            required: true
+            required: true,
         },
 
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         validMessage: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         invalidMessage: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         validate: {
             type: Function,
             required: false,
-            default: searchTerm => searchTerm.length > 0
-        }
+            default: searchTerm => searchTerm.length > 0,
+        },
     },
 
     data() {
         return {
             searchTerm: '',
-            hasFocus: false
+            hasFocus: false,
         };
     },
 
@@ -84,7 +84,7 @@ Component.register('sw-multi-tag-select', {
 
         inputIsValid() {
             return this.validate(this.searchTerm);
-        }
+        },
     },
 
     mounted() {
@@ -144,6 +144,6 @@ Component.register('sw-multi-tag-select', {
             }
 
             this.addItem();
-        }
-    }
+        },
+    },
 });

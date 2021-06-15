@@ -40,76 +40,76 @@ Component.register('sw-inherit-wrapper', {
         // FIXME: add type property
         // eslint-disable-next-line vue/require-prop-types
         value: {
-            required: true
+            required: true,
         },
 
         // FIXME: add type property
         // eslint-disable-next-line vue/require-prop-types
         inheritedValue: {
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         label: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         required: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         isAssociation: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         hasParent: {
             type: Boolean,
             required: false,
-            default: undefined
+            default: undefined,
         },
 
         // custom inheritation check which returns true or false
         customInheritationCheckFunction: {
             type: Function,
             required: false,
-            default: null
+            default: null,
         },
 
         // custom reset inheritance function
         customRestoreInheritanceFunction: {
             type: Function,
             required: false,
-            default: null
+            default: null,
         },
 
         // custom remove inheritance function
         customRemoveInheritanceFunction: {
             type: Function,
             required: false,
-            default: null
+            default: null,
         },
 
         helpText: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            forceInheritanceRemove: false
+            forceInheritanceRemove: false,
         };
     },
 
@@ -126,7 +126,7 @@ Component.register('sw-inherit-wrapper', {
                 }
 
                 this.updateValue(newValue, 'restore');
-            }
+            },
         },
 
         isInheritField() {
@@ -156,7 +156,7 @@ Component.register('sw-inherit-wrapper', {
             }
 
             return this.value === null || this.value === undefined;
-        }
+        },
     },
 
     methods: {
@@ -231,6 +231,6 @@ Component.register('sw-inherit-wrapper', {
             }
 
             this.$emit('input', newValue);
-        }
-    }
+        },
+    },
 });

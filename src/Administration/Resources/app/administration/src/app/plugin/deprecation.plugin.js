@@ -79,7 +79,7 @@ class DeprecationPlugin {
 
                 _this.throwComponentDeprecationInformationErrors(this, componentDeprecationInformation);
                 _this.throwPropsDeprecationErrors(this, usedDeprecationProps);
-            }
+            },
         });
 
         this.pluginInstalled = true;
@@ -114,7 +114,7 @@ class DeprecationPlugin {
 
         return {
             version,
-            comment
+            comment,
         };
     }
 

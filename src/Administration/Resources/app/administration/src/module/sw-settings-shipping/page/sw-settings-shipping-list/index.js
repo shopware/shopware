@@ -10,7 +10,7 @@ Component.register('sw-settings-shipping-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -20,13 +20,13 @@ Component.register('sw-settings-shipping-list', {
             sortBy: 'name',
             sortDirection: 'ASC',
             skeletonItemAmount: 3,
-            showDeleteModal: false
+            showDeleteModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -42,23 +42,23 @@ Component.register('sw-settings-shipping-list', {
                 inlineEdit: 'string',
                 routerLink: 'sw.settings.shipping.detail',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'description',
                 label: 'sw-settings-shipping.list.columnDescription',
                 inlineEdit: 'string',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'taxType',
                 label: 'sw-settings-shipping.list.columnTaxType',
                 inlineEdit: 'string',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'active',
                 label: 'sw-settings-shipping.list.columnActive',
                 inlineEdit: 'boolean',
                 allowResize: true,
-                align: 'center'
+                align: 'center',
             }];
         },
 
@@ -70,7 +70,7 @@ Component.register('sw-settings-shipping-list', {
             }
 
             criteria.addSorting(
-                Criteria.sort('name', 'ASC')
+                Criteria.sort('name', 'ASC'),
             );
 
             return criteria;
@@ -79,15 +79,15 @@ Component.register('sw-settings-shipping-list', {
         shippingCostTaxOptions() {
             return [{
                 label: this.$tc('sw-settings-shipping.shippingCostOptions.auto'),
-                value: 'auto'
+                value: 'auto',
             }, {
                 label: this.$tc('sw-settings-shipping.shippingCostOptions.highest'),
-                value: 'highest'
+                value: 'highest',
             }, {
                 label: this.$tc('sw-settings-shipping.shippingCostOptions.fixed'),
-                value: 'fixed'
+                value: 'fixed',
             }];
-        }
+        },
     },
 
     methods: {
@@ -110,11 +110,11 @@ Component.register('sw-settings-shipping-list', {
             return this.entityRepository.save(item)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-shipping.list.messageSaveSuccess', 0, { name })
+                        message: this.$tc('sw-settings-shipping.list.messageSaveSuccess', 0, { name }),
                     });
                 }).catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shipping.list.messageSaveError', 0, { name })
+                        message: this.$tc('sw-settings-shipping.list.messageSaveError', 0, { name }),
                     });
                 }).finally(() => {
                     this.isLoading = false;
@@ -132,11 +132,11 @@ Component.register('sw-settings-shipping-list', {
             this.shippingRepository.delete(id)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-shipping.list.messageDeleteSuccess', 0, { name })
+                        message: this.$tc('sw-settings-shipping.list.messageDeleteSuccess', 0, { name }),
                     });
                 }).catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shipping.list.messageDeleteError', 0, { name })
+                        message: this.$tc('sw-settings-shipping.list.messageDeleteError', 0, { name }),
                     });
                 }).finally(() => {
                     this.showDeleteModal = null;
@@ -161,6 +161,6 @@ Component.register('sw-settings-shipping-list', {
             const tax = this.shippingCostTaxOptions.find((i) => taxName === i.value) || '';
 
             return tax?.label;
-        }
-    }
+        },
+    },
 });

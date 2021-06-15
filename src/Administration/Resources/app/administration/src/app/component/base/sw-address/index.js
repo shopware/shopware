@@ -36,39 +36,39 @@ Component.register('sw-address', {
                     zipcode: '',
                     city: '',
                     country: {
-                        name: ''
+                        name: '',
                     },
                     countryState: {
-                        name: ''
-                    }
+                        name: '',
+                    },
                 };
-            }
+            },
         },
 
         headline: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         showEditButton: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         editLink: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
         addressClasses() {
             return {
-                'sw-address--headline': this.headline
+                'sw-address--headline': this.headline,
             };
-        }
-    }
+        },
+    },
 });

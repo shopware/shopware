@@ -12,7 +12,7 @@ Component.register('sw-product-stream-detail', {
 
     provide() {
         return {
-            productCustomFields: this.productCustomFields
+            productCustomFields: this.productCustomFields,
         };
     },
 
@@ -30,20 +30,20 @@ Component.register('sw-product-stream-detail', {
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
         Mixin.getByName('discard-detail-page-changes')('productStream'),
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
         productStreamId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -57,13 +57,13 @@ Component.register('sw-product-stream-detail', {
             productCustomFields: {},
             showModalPreview: false,
             languageId: null,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -83,7 +83,7 @@ Component.register('sw-product-stream-detail', {
 
             return this.repositoryFactory.create(
                 this.productStream.filters.entity,
-                this.productStream.filters.source
+                this.productStream.filters.source,
             );
         },
 
@@ -96,7 +96,7 @@ Component.register('sw-product-stream-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     appearance: 'dark',
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -104,14 +104,14 @@ Component.register('sw-product-stream-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -127,7 +127,7 @@ Component.register('sw-product-stream-detail', {
 
         showCustomFields() {
             return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     watch: {
@@ -143,8 +143,8 @@ Component.register('sw-product-stream-detail', {
                 this.loadEntityData(this.productStreamId).then(() => {
                     this.isLoading = false;
                 });
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -260,8 +260,8 @@ Component.register('sw-product-stream-detail', {
         showErrorNotification() {
             this.createNotificationError({
                 message: this.$tc(
-                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
-                )
+                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                ),
             });
         },
 
@@ -308,7 +308,7 @@ Component.register('sw-product-stream-detail', {
                             acc[customField.name] = this.mapCustomFieldType({
                                 type: customField.type,
                                 value: `customFields.${customField.name}`,
-                                label: this.getCustomFieldLabel(customField)
+                                label: this.getCustomFieldLabel(customField),
                             });
                             return acc;
                         }, {});
@@ -344,7 +344,7 @@ Component.register('sw-product-stream-detail', {
             this.productStreamFiltersTree = conditions;
             this.deletedProductStreamFilters = [
                 ...this.deletedProductStreamFilters,
-                ...deletedIds
+                ...deletedIds,
             ];
         },
 
@@ -354,8 +354,8 @@ Component.register('sw-product-stream-detail', {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
-                disabled: this.acl.can(role)
+                disabled: this.acl.can(role),
             };
-        }
-    }
+        },
+    },
 });

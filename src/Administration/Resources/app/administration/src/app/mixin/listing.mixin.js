@@ -13,7 +13,7 @@ Mixin.register('listing', {
             naturalSorting: false,
             selection: [],
             term: undefined,
-            disableRouteParams: false
+            disableRouteParams: false,
         };
     },
 
@@ -37,7 +37,7 @@ Mixin.register('listing', {
         filters() {
             // You can create your custom filters by defining the computed property "filters"
             return [];
-        }
+        },
     },
 
     created() {
@@ -94,7 +94,7 @@ Mixin.register('listing', {
 
         selection() {
             Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.selection));
-        }
+        },
     },
 
     methods: {
@@ -123,8 +123,8 @@ Mixin.register('listing', {
                     sortBy: query.sortBy || this.sortBy,
                     sortDirection: query.sortDirection || this.sortDirection,
                     naturalSorting: query.naturalSorting || this.naturalSorting,
-                    ...queryExtension
-                }
+                    ...queryExtension,
+                },
             };
 
             // If query is empty then replace route, otherwise push
@@ -144,8 +144,8 @@ Mixin.register('listing', {
                     term: this.term,
                     sortBy: this.sortBy,
                     sortDirection: this.sortDirection,
-                    naturalSorting: this.naturalSorting
-                }
+                    naturalSorting: this.naturalSorting,
+                },
             });
         },
 
@@ -157,7 +157,7 @@ Mixin.register('listing', {
                     term: this.term,
                     sortBy: this.sortBy,
                     sortDirection: this.sortDirection,
-                    naturalSorting: this.naturalSorting
+                    naturalSorting: this.naturalSorting,
                 };
             }
             // Get actual query parameter
@@ -169,7 +169,7 @@ Mixin.register('listing', {
                 term: query.term,
                 sortBy: query.sortBy || this.sortBy,
                 sortDirection: query.sortDirection || this.sortDirection,
-                naturalSorting: query.naturalSorting || this.naturalSorting
+                naturalSorting: query.naturalSorting || this.naturalSorting,
             };
         },
 
@@ -185,7 +185,7 @@ Mixin.register('listing', {
                 return;
             }
             this.updateRoute({
-                page: this.page
+                page: this.page,
             });
         },
 
@@ -203,7 +203,7 @@ Mixin.register('listing', {
 
             this.updateRoute({
                 term: this.term,
-                page: 1
+                page: 1,
             });
         },
 
@@ -227,14 +227,14 @@ Mixin.register('listing', {
 
             if (this.sortBy === column.dataIndex) {
                 this.updateRoute({
-                    sortDirection: (this.sortDirection === 'ASC' ? 'DESC' : 'ASC')
+                    sortDirection: (this.sortDirection === 'ASC' ? 'DESC' : 'ASC'),
                 });
             } else {
                 this.naturalSorting = column.naturalSorting;
                 this.updateRoute({
                     sortBy: column.dataIndex,
                     sortDirection: 'ASC',
-                    naturalSorting: column.naturalSorting
+                    naturalSorting: column.naturalSorting,
                 });
             }
         },
@@ -246,8 +246,8 @@ Mixin.register('listing', {
         getList() {
             debug.warn(
                 'Listing Mixin',
-                'When using the listing mixin you have to implement your custom "getList()" method.'
+                'When using the listing mixin you have to implement your custom "getList()" method.',
             );
-        }
-    }
+        },
+    },
 });

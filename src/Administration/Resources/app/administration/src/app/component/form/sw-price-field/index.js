@@ -25,7 +25,7 @@ Component.register('sw-price-field', {
             required: true,
             default() {
                 return [];
-            }
+            },
         },
 
         defaultPrice: {
@@ -33,7 +33,7 @@ Component.register('sw-price-field', {
             required: false,
             default() {
                 return {};
-            }
+            },
         },
 
         taxRate: {
@@ -41,7 +41,7 @@ Component.register('sw-price-field', {
             required: true,
             default() {
                 return {};
-            }
+            },
         },
 
         currency: {
@@ -49,90 +49,90 @@ Component.register('sw-price-field', {
             required: true,
             default() {
                 return {};
-            }
+            },
         },
 
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         validation: {
             required: false,
-            default: null
+            default: null,
         },
 
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
-            default: true
+            default: true,
         },
 
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         compact: {
             required: false,
-            default: false
+            default: false,
         },
 
         error: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
-            default: false
+            default: false,
         },
 
         disableSuffix: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         grossLabel: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         netLabel: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         name: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         allowEmpty: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         inherited: {
             type: Boolean,
             required: false,
-            default: undefined
+            default: undefined,
         },
 
         grossHelpText: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         netHelpText: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -157,7 +157,7 @@ Component.register('sw-price-field', {
                         currencyId: this.currency.id,
                         gross: this.defaultPrice.gross ? this.convertPrice(this.defaultPrice.gross) : null,
                         linked: this.defaultPrice.linked,
-                        net: this.defaultPrice.net ? this.convertPrice(this.defaultPrice.net) : null
+                        net: this.defaultPrice.net ? this.convertPrice(this.defaultPrice.net) : null,
                     };
                 }
 
@@ -165,14 +165,14 @@ Component.register('sw-price-field', {
                     currencyId: this.currency.id,
                     gross: null,
                     linked: this.defaultPrice.linked,
-                    net: null
+                    net: null,
                 };
             },
             set(newValue) {
                 this.priceForCurrency.gross = newValue.gross;
                 this.priceForCurrency.linked = newValue.linked;
                 this.priceForCurrency.net = newValue.net;
-            }
+            },
         },
 
         isInherited() {
@@ -215,7 +215,7 @@ Component.register('sw-price-field', {
 
         netFieldName() {
             return this.name ? `${this.name}-net` : 'sw-price-field-net';
-        }
+        },
     },
 
     watch: {
@@ -229,7 +229,7 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked === true && this.priceForCurrency.gross !== null) {
                 this.convertGrossToNet(this.priceForCurrency.gross);
             }
-        }
+        },
     },
 
     methods: {
@@ -317,7 +317,7 @@ Component.register('sw-price-field', {
                     taxId: this.taxRate.id,
                     currencyId: this.currency.id,
                     price: this.priceForCurrency[outputType],
-                    output: outputType
+                    output: outputType,
                 }).then(({ data }) => {
                     let tax = 0;
 
@@ -341,6 +341,6 @@ Component.register('sw-price-field', {
                 const value = event.target.value;
                 event.target.value = value.replace(/,/, '.');
             }
-        }
-    }
+        },
+    },
 });

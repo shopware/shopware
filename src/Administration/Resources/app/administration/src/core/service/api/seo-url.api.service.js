@@ -21,8 +21,8 @@ class SeoUrlApiService extends ApiService {
             seoUrl,
             {
                 params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders)
-            }
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -36,8 +36,8 @@ class SeoUrlApiService extends ApiService {
             { routeName, urls },
             {
                 params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders)
-            }
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

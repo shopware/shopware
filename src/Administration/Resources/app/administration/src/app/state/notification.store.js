@@ -21,8 +21,8 @@ function _getOriginalNotification(notificationId, state) {
             state.notificationDefaults,
             {
                 uuid: notificationId,
-                timestamp: new Date()
-            }
+                timestamp: new Date(),
+            },
         );
     }
     return originalNotification;
@@ -38,9 +38,9 @@ function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
                     JSON.stringify(originalNotification.metadata) ===
                     JSON.stringify(notificationUpdate.metadata)
                 ) :
-                originalNotification.visited
+                originalNotification.visited,
         },
-        notificationUpdate
+        notificationUpdate,
     );
 }
 
@@ -79,7 +79,7 @@ export function getNotificationsForUser() {
 
         notifications[id] = {
             ...notificationsAll[id],
-            timestamp: new Date(notificationsAll[id].timestamp)
+            timestamp: new Date(notificationsAll[id].timestamp),
         };
     }
 
@@ -101,7 +101,7 @@ function _saveNotifications(notifications) {
         if (notifications[id].isLoading === false) {
             storageNotifications[id] = {
                 ...notifications[id],
-                timestamp: notifications[id].timestamp.toJSON()
+                timestamp: notifications[id].timestamp.toJSON(),
             };
         }
     });
@@ -119,14 +119,14 @@ export default {
         notificationDefaults: {
             visited: false,
             metadata: {},
-            isLoading: false
+            isLoading: false,
         },
         growlNotificationDefaults: {
             system: false,
             variant: 'info', // success, info, warning, error
             autoClose: true,
-            duration: 5000
-        }
+            duration: 5000,
+        },
     },
 
     getters: {
@@ -136,7 +136,7 @@ export default {
 
         getGrowlNotifications(state) {
             return Object.values(state.growlNotifications);
-        }
+        },
     },
 
     mutations: {
@@ -146,7 +146,7 @@ export default {
             if (state.growlNotifications.length > state.threshold) {
                 state.growlNotifications.splice(
                     threshold,
-                    state.growlNotifications.length - state.threshold
+                    state.growlNotifications.length - state.threshold,
                 );
             }
         },
@@ -221,7 +221,7 @@ export default {
 
         removeGrowlNotification(state, notification) {
             Application.view.deleteReactive(state.growlNotifications, notification.uuid);
-        }
+        },
     },
 
     actions: {
@@ -242,8 +242,8 @@ export default {
                 notification,
                 {
                     uuid: utils.createId(),
-                    timestamp: new Date()
-                }
+                    timestamp: new Date(),
+                },
             );
 
             if (mergedNotification.variant === 'success') {
@@ -261,8 +261,8 @@ export default {
                 notification,
                 {
                     uuid: utils.createId(),
-                    timestamp: new Date()
-                }
+                    timestamp: new Date(),
+                },
             );
 
             delete mergedNotification.growl;
@@ -295,6 +295,6 @@ export default {
 
         setAllNotificationsVisited({ commit }) {
             commit('setAllNotificationsVisited');
-        }
-    }
+        },
+    },
 };

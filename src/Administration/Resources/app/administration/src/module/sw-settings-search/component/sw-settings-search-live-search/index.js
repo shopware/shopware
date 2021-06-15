@@ -10,31 +10,31 @@ Component.register('sw-settings-search-live-search', {
 
     inject: [
         'repositoryFactory',
-        'liveSearchService'
+        'liveSearchService',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         currentSalesChannelId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         searchTerms: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         searchResults: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -44,7 +44,7 @@ Component.register('sw-settings-search-live-search', {
             salesChannelId: this.currentSalesChannelId,
             liveSearchResults: null,
             searchInProgress: false,
-            showExampleModal: false
+            showExampleModal: false,
         };
     },
 
@@ -61,17 +61,17 @@ Component.register('sw-settings-search-live-search', {
             return [{
                 property: 'name',
                 label: this.$tc('sw-settings-search.liveSearchTab.labelName'),
-                rawData: true
+                rawData: true,
             }, {
                 property: 'score',
                 label: this.$tc('sw-settings-search.liveSearchTab.labelScore'),
-                rawData: true
+                rawData: true,
             }];
         },
 
         products() {
             return this.liveSearchResults && this.liveSearchResults.elements;
-        }
+        },
     },
 
     created() {
@@ -93,13 +93,13 @@ Component.register('sw-settings-search-live-search', {
             this.searchInProgress = true;
             this.liveSearchService.search({
                 salesChannelId: this.salesChannelId,
-                search: this.liveSearchTerm
+                search: this.liveSearchTerm,
             }, {}, {}, { 'sw-language-id': Shopware.Context.api.languageId }).then((data) => {
                 this.liveSearchResults = data.data;
                 this.searchInProgress = false;
                 this.$emit('live-search-results-change', {
                     searchTerms: this.liveSearchTerm,
-                    searchResults: this.liveSearchResults
+                    searchResults: this.liveSearchResults,
                 });
             }).catch((error) => {
                 const message = error.response.status === 500
@@ -107,7 +107,7 @@ Component.register('sw-settings-search-live-search', {
                     : error.message;
 
                 this.createNotificationError({
-                    message
+                    message,
                 });
             }).finally(() => {
                 this.searchInProgress = false;
@@ -131,6 +131,6 @@ Component.register('sw-settings-search-live-search', {
 
         onCloseExampleModal() {
             this.showExampleModal = false;
-        }
-    }
+        },
+    },
 });

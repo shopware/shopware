@@ -3,7 +3,7 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     namespaced: true,
     state: {
-        settingsGroups: {}
+        settingsGroups: {},
     },
 
     mutations: {
@@ -19,6 +19,6 @@ export default {
             }
 
             state.settingsGroups[group].push(settingsItem);
-        }
-    }
+        },
+    },
 };

@@ -15,25 +15,25 @@ Component.register('sw-media-sidebar', {
                     return !['media', 'media_folder'].includes(element.getEntityName());
                 });
                 return invalidElements.length === 0;
-            }
+            },
         },
 
         currentFolderId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         editable: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            currentFolder: null
+            currentFolder: null,
         };
     },
 
@@ -48,7 +48,7 @@ Component.register('sw-media-sidebar', {
 
         mediaSidebarClasses() {
             return {
-                'no-headline': !this.headLine
+                'no-headline': !this.headLine,
             };
         },
 
@@ -85,13 +85,13 @@ Component.register('sw-media-sidebar', {
 
         firstEntity() {
             return this.items[0];
-        }
+        },
     },
 
     watch: {
         currentFolderId() {
             this.fetchCurrentFolder();
-        }
+        },
     },
 
     created() {
@@ -114,6 +114,6 @@ Component.register('sw-media-sidebar', {
 
         onMediaFolderRenamed() {
             this.$emit('media-sidebar-folder-renamed');
-        }
-    }
+        },
+    },
 });

@@ -7,44 +7,44 @@ Component.register('sw-purchase-price-field', {
     props: {
         price: {
             type: Array,
-            required: true
+            required: true,
         },
 
         compact: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         taxRate: {
             type: Object,
-            required: true
+            required: true,
         },
 
         error: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
-            default: true
+            default: true,
         },
 
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
-            default: false
+            default: false,
         },
 
         currency: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -59,7 +59,7 @@ Component.register('sw-purchase-price-field', {
                     gross: null,
                     currencyId: this.currency.id,
                     linked: true,
-                    net: null
+                    net: null,
                 }];
             },
 
@@ -72,13 +72,13 @@ Component.register('sw-purchase-price-field', {
                 }
 
                 this.$emit('input', this.price);
-            }
-        }
+            },
+        },
     },
 
     methods: {
         purchasePriceChanged(value) {
             this.purchasePrice = value;
-        }
-    }
+        },
+    },
 });

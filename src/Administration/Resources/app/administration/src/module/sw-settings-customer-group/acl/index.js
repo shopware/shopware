@@ -12,37 +12,37 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'sales_channel_domain:read',
                 'custom_field_set:read',
                 'custom_field:read',
-                'custom_field_set_relation:read'
+                'custom_field_set_relation:read',
             ],
-            dependencies: []
+            dependencies: [],
         },
         editor: {
             privileges: [
                 'customer_group:update',
                 'customer_group_registration_sales_channels:create',
-                'customer_group_registration_sales_channels:delete'
-            ],
-            dependencies: [
-                'customer_groups.viewer'
-            ]
-        },
-        creator: {
-            privileges: [
-                'customer_group:create'
+                'customer_group_registration_sales_channels:delete',
             ],
             dependencies: [
                 'customer_groups.viewer',
-                'customer_groups.editor'
-            ]
+            ],
+        },
+        creator: {
+            privileges: [
+                'customer_group:create',
+            ],
+            dependencies: [
+                'customer_groups.viewer',
+                'customer_groups.editor',
+            ],
         },
         deleter: {
             privileges: [
                 'customer_group:delete',
-                'seo_url:delete'
+                'seo_url:delete',
             ],
             dependencies: [
-                'customer_groups.viewer'
-            ]
-        }
-    }
+                'customer_groups.viewer',
+            ],
+        },
+    },
 });

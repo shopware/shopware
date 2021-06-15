@@ -10,7 +10,7 @@ Component.register('sw-cms-el-product-box', {
 
     mixins: [
         Mixin.getByName('cms-element'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     computed: {
@@ -22,14 +22,14 @@ Component.register('sw-cms-el-product-box', {
                     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                     sed diam voluptua.`.trim(),
                     price: [
-                        { gross: 19.90 }
+                        { gross: 19.90 },
                     ],
                     cover: {
                         media: {
                             url: '/administration/static/img/cms/preview_glasses_large.jpg',
-                            alt: 'Lorem Ipsum dolor'
-                        }
-                    }
+                            alt: 'Lorem Ipsum dolor',
+                        },
+                    },
                 };
             }
 
@@ -78,7 +78,7 @@ Component.register('sw-cms-el-product-box', {
 
         assetFilter() {
             return Filter.getByName('asset');
-        }
+        },
     },
 
     created() {
@@ -89,6 +89,6 @@ Component.register('sw-cms-el-product-box', {
         createdComponent() {
             this.initElementConfig('product-box');
             this.initElementData('product-box');
-        }
-    }
+        },
+    },
 });

@@ -205,7 +205,7 @@ export default class ChangesetGenerator {
                     // still existing?
                     deletionQueue.push({
                         route: draft.source,
-                        key: id
+                        key: id,
                     });
                 }
             });

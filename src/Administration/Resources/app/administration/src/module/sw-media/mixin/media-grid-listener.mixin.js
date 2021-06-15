@@ -10,7 +10,7 @@ Mixin.register('media-grid-listener', {
     data() {
         return {
             selectedItems: [],
-            listSelectionStartItem: null
+            listSelectionStartItem: null,
         };
     },
 
@@ -20,7 +20,7 @@ Mixin.register('media-grid-listener', {
                 'media-item-click': this.handleMediaItemClicked,
                 'media-item-selection-add': this.handleMediaGridItemSelected,
                 'media-item-selection-remove': this.handleMediaGridItemUnselected,
-                'media-item-play': this.handleMediaItemClicked
+                'media-item-play': this.handleMediaItemClicked,
             };
         },
 
@@ -30,7 +30,7 @@ Mixin.register('media-grid-listener', {
 
         selectableItems() {
             return [];
-        }
+        },
     },
 
     methods: {
@@ -169,8 +169,8 @@ Mixin.register('media-grid-listener', {
 
             return {
                 start: Math.min(firstIndex, secondIndex),
-                end: Math.max(firstIndex, secondIndex)
+                end: Math.max(firstIndex, secondIndex),
             };
-        }
-    }
+        },
+    },
 });

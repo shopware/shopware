@@ -9,8 +9,8 @@ Component.register('sw-app-action-button', {
     props: {
         action: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -29,12 +29,12 @@ Component.register('sw-app-action-button', {
             if (this.openInNewTab) {
                 return {
                     target: '_blank',
-                    href: this.action.url
+                    href: this.action.url,
                 };
             }
 
             return {};
-        }
+        },
     },
 
     methods: {
@@ -44,7 +44,7 @@ Component.register('sw-app-action-button', {
             }
 
             this.$emit('run-app-action', this.action.id);
-        }
-    }
+        },
+    },
 });
 

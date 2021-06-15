@@ -9,14 +9,14 @@ Component.register('sw-customer-default-addresses', {
     props: {
         customer: {
             type: Object,
-            required: true
+            required: true,
         },
 
         customerEditMode: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -24,12 +24,12 @@ Component.register('sw-customer-default-addresses', {
             return {
                 name: 'sw.customer.detail.addresses',
                 params: {
-                    id: this.customer.id
+                    id: this.customer.id,
                 },
                 query: {
                     detailId: this.customer.defaultShippingAddress.id,
-                    edit: this.customerEditMode
-                }
+                    edit: this.customerEditMode,
+                },
             };
         },
 
@@ -37,13 +37,13 @@ Component.register('sw-customer-default-addresses', {
             return {
                 name: 'sw.customer.detail.addresses',
                 params: {
-                    id: this.customer.id
+                    id: this.customer.id,
                 },
                 query: {
                     detailId: this.customer.defaultBillingAddress.id,
-                    edit: this.customerEditMode
-                }
+                    edit: this.customerEditMode,
+                },
             };
-        }
-    }
+        },
+    },
 });

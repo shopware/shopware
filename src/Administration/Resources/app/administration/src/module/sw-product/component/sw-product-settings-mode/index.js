@@ -9,14 +9,14 @@ Component.register('sw-product-settings-mode', {
     props: {
         modeSettings: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     computed: {
@@ -38,7 +38,7 @@ Component.register('sw-product-settings-mode', {
                     return this.modeSettings.value.settings;
                 }
             }
-        }
+        },
     },
 
     methods: {
@@ -48,6 +48,6 @@ Component.register('sw-product-settings-mode', {
 
         onChangeSettingItem() {
             this.$emit('settings-item-change');
-        }
-    }
+        },
+    },
 });

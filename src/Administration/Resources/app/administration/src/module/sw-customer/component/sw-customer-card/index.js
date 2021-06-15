@@ -11,28 +11,28 @@ Component.register('sw-customer-card', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('salutation')
+        Mixin.getByName('salutation'),
     ],
 
     props: {
         customer: {
             type: Object,
-            required: true
+            required: true,
         },
         title: {
             type: String,
-            required: true
+            required: true,
         },
         editMode: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -58,18 +58,18 @@ Component.register('sw-customer-card', {
         fullName() {
             const name = {
                 name: this.salutation(this.customer),
-                company: this.customer.company
+                company: this.customer.company,
             };
 
             return Object.values(name).filter(item => item !== null).join(' - ').trim();
         },
 
-        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer)
+        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer),
     },
 
     methods: {
         getMailTo(mail) {
             return `mailto:${mail}`;
-        }
-    }
+        },
+    },
 });

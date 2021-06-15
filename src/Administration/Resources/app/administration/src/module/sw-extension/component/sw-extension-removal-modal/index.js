@@ -12,16 +12,16 @@ Component.register('sw-extension-removal-modal', {
     props: {
         extensionName: {
             type: String,
-            required: true
+            required: true,
         },
         isLicensed: {
             type: Boolean,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -29,11 +29,11 @@ Component.register('sw-extension-removal-modal', {
             return this.isLicensed ?
                 this.$t(
                     'sw-extension-store.component.sw-extension-removal-modal.titleCancel',
-                    { extensionName: this.extensionName }
+                    { extensionName: this.extensionName },
                 ) :
                 this.$t(
                     'sw-extension-store.component.sw-extension-removal-modal.titleRemove',
-                    { extensionName: this.extensionName }
+                    { extensionName: this.extensionName },
                 );
         },
 
@@ -45,7 +45,7 @@ Component.register('sw-extension-removal-modal', {
         btnLabel() {
             return this.isLicensed ? this.$tc('sw-extension-store.component.sw-extension-removal-modal.labelCancel') :
                 this.$tc('sw-extension-store.component.sw-extension-removal-modal.labelRemove');
-        }
+        },
     },
 
     methods: {
@@ -59,6 +59,6 @@ Component.register('sw-extension-removal-modal', {
 
         emitRemoval() {
             this.$emit('remove-extension');
-        }
-    }
+        },
+    },
 });

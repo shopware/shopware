@@ -12,21 +12,21 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginTop: '20px',
         marginLeft: '20px',
         marginRight: '20px',
-        sizingMode: 'boxed'
+        sizingMode: 'boxed',
     },
     slots: {
         'left-image': {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_camera_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_camera_large.jpg',
+                    },
+                },
+            },
         },
         'left-text': {
             type: 'text',
@@ -39,23 +39,23 @@ Shopware.Service('cmsService').registerCmsBlock({
                         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
                         sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
                         Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-                        `.trim()
-                    }
-                }
-            }
+                        `.trim(),
+                    },
+                },
+            },
         },
         'center-image': {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_plant_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_plant_large.jpg',
+                    },
+                },
+            },
         },
         'center-text': {
             type: 'text',
@@ -68,23 +68,23 @@ Shopware.Service('cmsService').registerCmsBlock({
                         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
                         sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
                         Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-                        `.trim()
-                    }
-                }
-            }
+                        `.trim(),
+                    },
+                },
+            },
         },
         'right-image': {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_glasses_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                    },
+                },
+            },
         },
         'right-text': {
             type: 'text',
@@ -97,10 +97,10 @@ Shopware.Service('cmsService').registerCmsBlock({
                         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
                         sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
                         Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-                        `.trim()
-                    }
-                }
-            }
-        }
-    }
+                        `.trim(),
+                    },
+                },
+            },
+        },
+    },
 });

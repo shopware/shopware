@@ -10,27 +10,27 @@ Component.register('sw-media-breadcrumbs', {
 
     model: {
         prop: 'currentFolderId',
-        event: 'media-folder-change'
+        event: 'media-folder-change',
     },
 
     props: {
         currentFolderId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         small: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             currentFolder: null,
-            parentFolder: null
+            parentFolder: null,
         };
     },
 
@@ -47,15 +47,15 @@ Component.register('sw-media-breadcrumbs', {
 
         swMediaBreadcrumbsClasses() {
             return {
-                'is--small': this.small
+                'is--small': this.small,
             };
-        }
+        },
     },
 
     watch: {
         currentFolderId() {
             this.updateFolder();
-        }
+        },
     },
 
     created() {
@@ -84,6 +84,6 @@ Component.register('sw-media-breadcrumbs', {
 
         onBreadcrumbsItemClicked(id) {
             this.$emit('media-folder-change', id);
-        }
-    }
+        },
+    },
 });

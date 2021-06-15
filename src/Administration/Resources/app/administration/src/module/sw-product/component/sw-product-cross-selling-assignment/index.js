@@ -13,33 +13,33 @@ Component.register('sw-product-cross-selling-assignment', {
     props: {
         assignedProducts: {
             type: Array,
-            required: true
+            required: true,
         },
 
         crossSellingId: {
             type: String,
-            required: true
+            required: true,
         },
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
-            isLoadingData: false
+            isLoadingData: false,
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
-            'product'
+            'product',
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
         ]),
 
         isLoadingGrid() {
@@ -49,7 +49,7 @@ Component.register('sw-product-cross-selling-assignment', {
         assignmentRepository() {
             return this.repositoryFactory.create(
                 this.assignedProducts.entity,
-                this.assignedProducts.source
+                this.assignedProducts.source,
             );
         },
 
@@ -68,7 +68,7 @@ Component.register('sw-product-cross-selling-assignment', {
         searchContext() {
             return {
                 ...Context.api,
-                inheritance: true
+                inheritance: true,
             };
         },
 
@@ -87,19 +87,19 @@ Component.register('sw-product-cross-selling-assignment', {
                 label: this.$tc('sw-product.list.columnName'),
                 primary: true,
                 allowResize: true,
-                sortable: false
+                sortable: false,
             }, {
                 property: 'product.productNumber',
                 label: this.$tc('sw-product.list.columnProductNumber'),
                 allowResize: true,
-                sortable: false
+                sortable: false,
             }, {
                 property: 'position',
                 label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
                 allowResize: true,
-                sortable: false
+                sortable: false,
             }];
-        }
+        },
     },
 
     methods: {
@@ -145,6 +145,6 @@ Component.register('sw-product-cross-selling-assignment', {
 
         isSelected(item) {
             return this.assignedProducts.some(p => p.productId === item.id);
-        }
-    }
+        },
+    },
 });

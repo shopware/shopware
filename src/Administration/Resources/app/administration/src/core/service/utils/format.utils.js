@@ -8,7 +8,7 @@ export default {
     currency,
     date,
     md5,
-    fileSize
+    fileSize,
 };
 
 /**
@@ -24,17 +24,17 @@ export default {
 export function currency(val, sign, decimalPlaces, additionalOptions = {}) {
     const decimalOpts = decimalPlaces !== undefined ? {
         minimumFractionDigits: decimalPlaces,
-        maximumFractionDigits: decimalPlaces
+        maximumFractionDigits: decimalPlaces,
     } : {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 20
+        maximumFractionDigits: 20,
     };
 
     const opts = {
         style: 'currency',
         currency: sign || Shopware.Context.app.systemCurrencyISOCode,
         ...decimalOpts,
-        ...additionalOptions
+        ...additionalOptions,
     };
 
     return val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
@@ -63,7 +63,7 @@ export function date(val, options = {}) {
     const defaultOptions = {
         day: '2-digit',
         month: '2-digit',
-        year: '2-digit'
+        year: '2-digit',
     };
     options = { ...defaultOptions, ...options };
 

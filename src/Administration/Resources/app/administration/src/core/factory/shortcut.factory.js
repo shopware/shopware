@@ -6,7 +6,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 export default {
     getPathByCombination,
     getShortcutRegistry,
-    register
+    register,
 };
 
 /**
@@ -49,7 +49,7 @@ function register(combination, path = '') {
     if (!combination || !combination.length) {
         warn(
             'ShortcutFactory',
-            'A combination can\'t be blank.'
+            'A combination can\'t be blank.',
         );
         return false;
     }
@@ -57,7 +57,7 @@ function register(combination, path = '') {
     if (shortcutRegistry.has(combination)) {
         warn(
             'ShortcutFactory',
-            `The combination "${combination}" is registered already.`
+            `The combination "${combination}" is registered already.`,
         );
 
         return false;

@@ -18,12 +18,12 @@ Component.register('sw-help-text', {
         text: {
             type: String,
             required: true,
-            default: ''
+            default: '',
         },
         width: {
             type: Number,
             required: false,
-            default: 200
+            default: 200,
         },
         tooltipPosition: {
             type: String,
@@ -32,17 +32,17 @@ Component.register('sw-help-text', {
             validValues: ['top', 'bottom', 'left', 'right'],
             validator(value) {
                 return ['top', 'bottom', 'left', 'right'].includes(value);
-            }
+            },
         },
         showDelay: {
             type: Number,
             required: false,
-            default: 100
+            default: 100,
         },
         hideDelay: {
             type: Number,
             required: false,
-            default: 100
-        }
-    }
+            default: 100,
+        },
+    },
 });

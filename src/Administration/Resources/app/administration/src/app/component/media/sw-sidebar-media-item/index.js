@@ -27,18 +27,18 @@ Component.register('sw-sidebar-media-item', {
         initialFolderId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         isParentLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -50,7 +50,7 @@ Component.register('sw-sidebar-media-item', {
             page: 1,
             limit: 25,
             total: 0,
-            term: ''
+            term: '',
         };
     },
 
@@ -73,7 +73,7 @@ Component.register('sw-sidebar-media-item', {
 
         additionalEventListeners() {
             return this.$listeners;
-        }
+        },
     },
 
     watch: {
@@ -92,7 +92,7 @@ Component.register('sw-sidebar-media-item', {
 
         isParentLoading() {
             this.getList();
-        }
+        },
     },
 
     created() {
@@ -189,6 +189,6 @@ Component.register('sw-sidebar-media-item', {
 
         onNavigateToFolder(folderId) {
             this.mediaFolderId = folderId;
-        }
-    }
+        },
+    },
 });

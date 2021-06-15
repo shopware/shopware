@@ -9,7 +9,7 @@ const availableTooltipPlacements = [
     'top',
     'right',
     'bottom',
-    'left'
+    'left',
 ];
 
 const tooltipRegistry = new Map();
@@ -38,7 +38,7 @@ class Tooltip {
         hideDelay = showDelay,
         disabled = false,
         appearance = 'dark',
-        showOnDisabledElements = false
+        showOnDisabledElements = false,
     }) {
         this._id = id;
         this._placement = Tooltip.validatePlacement(placement);
@@ -110,7 +110,7 @@ class Tooltip {
             this._vue = new Vue({
                 el: this._DOMElement,
                 parent: this._vue.$parent,
-                template: this._DOMElement.outerHTML
+                template: this._DOMElement.outerHTML,
             });
 
             this._DOMElement = this._vue.$el;
@@ -180,7 +180,7 @@ class Tooltip {
         this._vue = new Vue({
             el: element,
             parent: node.context,
-            template: element.outerHTML
+            template: element.outerHTML,
         });
 
         return this._vue.$el;
@@ -335,7 +335,7 @@ class Tooltip {
             top: boundingClientRect.top > 0,
             right: boundingClientRect.right < windowWidth,
             bottom: boundingClientRect.bottom < windowHeight,
-            left: boundingClientRect.left > 0
+            left: boundingClientRect.left > 0,
         };
 
         return visibleBorders.top && visibleBorders.right && visibleBorders.bottom && visibleBorders.left;
@@ -349,7 +349,7 @@ class Tooltip {
         if (!availableTooltipPlacements.includes(placement)) {
             debug.warn(
                 'Tooltip Directive',
-                `The modifier has to be one of these "${availableTooltipPlacements.join(',')}"`
+                `The modifier has to be one of these "${availableTooltipPlacements.join(',')}"`,
             );
             return 'top';
         }
@@ -428,7 +428,7 @@ function createOrUpdateTooltip(el, { value, modifiers }) {
         hideDelay: hideDelay,
         disabled: disabled,
         appearance: appearance,
-        showOnDisabledElements: showOnDisabledElements
+        showOnDisabledElements: showOnDisabledElements,
     };
 
     if (el.hasAttribute('tooltip-id')) {
@@ -501,5 +501,5 @@ Directive.register('tooltip', {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id'));
             tooltip.init(node);
         }
-    }
+    },
 });

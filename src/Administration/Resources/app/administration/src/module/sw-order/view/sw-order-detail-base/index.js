@@ -12,29 +12,29 @@ Component.register('sw-order-detail-base', {
         'orderService',
         'stateStyleDataProviderService',
         'acl',
-        'feature'
+        'feature',
     ],
 
     props: {
         orderId: {
             type: String,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
-            required: true
+            required: true,
         },
 
         isEditing: {
             type: Boolean,
-            required: true
+            required: true,
         },
 
         isSaveSuccessful: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -46,7 +46,7 @@ Component.register('sw-order-detail-base', {
             orderOptions: [],
             deliveryOptions: [],
             versionContext: null,
-            customFieldSets: []
+            customFieldSets: [],
         };
     },
 
@@ -86,8 +86,8 @@ Component.register('sw-order-detail-base', {
             const formattedTaxes = `${calcTaxes.map(
                 calcTax => `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
                     taxRate: calcTax.taxRate,
-                    tax: format.currency(calcTax.tax, this.order.currency.shortName)
-                })}`
+                    tax: format.currency(calcTax.tax, this.order.currency.shortName),
+                })}`,
             ).join('<br>')}`;
 
             return `${this.$tc('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
@@ -235,7 +235,7 @@ Component.register('sw-order-detail-base', {
             }
 
             return this.order.price.totalPrice;
-        }
+        },
     },
 
     watch: {
@@ -249,7 +249,7 @@ Component.register('sw-order-detail-base', {
 
         'order.createdById'() {
             this.emitCreatedById();
-        }
+        },
     },
 
     created() {
@@ -379,7 +379,7 @@ Component.register('sw-order-detail-base', {
             this.orderRepository.deleteVersion(
                 this.orderId,
                 this.versionContext.versionId,
-                this.versionContext
+                this.versionContext,
             ).catch((error) => {
                 // This error has no consequences, because we revert to the live version anyways
                 this.$emit('error', error);
@@ -437,6 +437,6 @@ Component.register('sw-order-detail-base', {
             this.$nextTick(() => {
                 this.nextRoute();
             });
-        }
-    }
+        },
+    },
 });

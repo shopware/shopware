@@ -11,25 +11,25 @@ Component.register('sw-settings-rule-detail', {
         'ruleConditionDataProviderService',
         'repositoryFactory',
         'acl',
-        'feature'
+        'feature',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('rule')
+        Mixin.getByName('discard-detail-page-changes')('rule'),
     ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
         ruleId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -39,13 +39,13 @@ Component.register('sw-settings-rule-detail', {
             conditionTree: null,
             deletedIds: [],
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -65,7 +65,7 @@ Component.register('sw-settings-rule-detail', {
 
             return this.repositoryFactory.create(
                 this.rule.conditions.entity,
-                this.rule.conditions.source
+                this.rule.conditions.source,
             );
         },
 
@@ -74,7 +74,7 @@ Component.register('sw-settings-rule-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('rule.editor'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -82,14 +82,14 @@ Component.register('sw-settings-rule-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -98,15 +98,15 @@ Component.register('sw-settings-rule-detail', {
                 {
                     title: this.$tc('sw-settings-rule.detail.tabGeneral'),
                     route: { name: 'sw.settings.rule.detail.base', params: { id: this.$route.params.id } },
-                    cssClassSuffix: 'general'
+                    cssClassSuffix: 'general',
                 },
                 {
                     title: this.$tc('sw-settings-rule.detail.tabAssignments'),
                     route: { name: 'sw.settings.rule.detail.assignments', params: { id: this.$route.params.id } },
-                    cssClassSuffix: 'assignments'
-                }
+                    cssClassSuffix: 'assignments',
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -122,8 +122,8 @@ Component.register('sw-settings-rule-detail', {
                 this.loadEntityData(this.ruleId).then(() => {
                     this.isLoading = false;
                 });
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -158,7 +158,7 @@ Component.register('sw-settings-rule-detail', {
 
             const criteria = new Criteria(
                 conditions.criteria.page + 1,
-                conditions.criteria.limit
+                conditions.criteria.limit,
             );
 
             if (conditions.entity === 'product') {
@@ -228,13 +228,13 @@ Component.register('sw-settings-rule-detail', {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name })
+                message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }),
             });
             this.isLoading = false;
         },
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.rule.index' });
-        }
-    }
+        },
+    },
 });

@@ -4,5 +4,5 @@ import './sw-cms-preview-vimeo-video.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-preview-vimeo-video', {
-    template
+    template,
 });

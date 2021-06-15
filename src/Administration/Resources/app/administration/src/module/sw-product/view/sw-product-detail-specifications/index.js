@@ -12,13 +12,13 @@ Component.register('sw-product-detail-specifications', {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'customFieldSets'
+            'customFieldSets',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
             'showModeSetting',
-            'showProductCard'
+            'showProductCard',
         ]),
 
         customFieldsExists() {
@@ -33,6 +33,6 @@ Component.register('sw-product-detail-specifications', {
             return this.showProductCard('custom_fields') &&
                 !this.isLoading &&
                 this.customFieldsExists;
-        }
-    }
+        },
+    },
 });

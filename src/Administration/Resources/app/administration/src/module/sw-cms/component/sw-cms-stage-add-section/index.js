@@ -10,28 +10,28 @@ Component.register('sw-cms-stage-add-section', {
         forceChoose: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            showSelection: this.forceChoose
+            showSelection: this.forceChoose,
         };
     },
 
     computed: {
         componentClasses() {
             return {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
-        }
+        },
     },
 
     methods: {
@@ -45,6 +45,6 @@ Component.register('sw-cms-stage-add-section', {
                 return;
             }
             this.showSelection = !this.showSelection;
-        }
-    }
+        },
+    },
 });

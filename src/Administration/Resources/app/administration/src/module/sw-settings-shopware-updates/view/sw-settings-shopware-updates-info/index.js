@@ -8,10 +8,10 @@ Component.register('sw-settings-shopware-updates-info', {
     props: {
         changelog: {
             type: String,
-            required: true
+            required: true,
         },
         isLoading: {
-            type: Boolean
-        }
-    }
+            type: Boolean,
+        },
+    },
 });

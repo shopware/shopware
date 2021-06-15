@@ -10,19 +10,19 @@ Component.register('sw-settings-currency-country-modal', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         currencyCountryRounding: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            assignedCountryIds: []
+            assignedCountryIds: [],
         };
     },
 
@@ -43,14 +43,14 @@ Component.register('sw-settings-currency-country-modal', {
             criteria.addFilter(
                 Criteria.equals(
                     'currencyCountryRoundings.currencyId',
-                    this.currencyCountryRounding.currencyId
-                )
+                    this.currencyCountryRounding.currencyId,
+                ),
             );
 
             return criteria;
         },
 
-        ...mapPropertyErrors('currencyCountryRounding', ['countryId'])
+        ...mapPropertyErrors('currencyCountryRounding', ['countryId']),
     },
 
     created() {
@@ -79,6 +79,6 @@ Component.register('sw-settings-currency-country-modal', {
             }
 
             return this.assignedCountryIds.includes(country.id);
-        }
-    }
+        },
+    },
 });

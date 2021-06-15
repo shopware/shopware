@@ -8,18 +8,18 @@ Component.register('sw-cms-block-config', {
 
     inject: [
         'repositoryFactory',
-        'cmsService'
+        'cmsService',
     ],
 
     mixins: [
-        Mixin.getByName('cms-state')
+        Mixin.getByName('cms-state'),
     ],
 
     props: {
         block: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -49,9 +49,9 @@ Component.register('sw-cms-block-config', {
 
         quickactionClasses() {
             return {
-                'is--disabled': this.quickactionsDisabled
+                'is--disabled': this.quickactionsDisabled,
             };
-        }
+        },
     },
 
     methods: {
@@ -87,6 +87,6 @@ Component.register('sw-cms-block-config', {
             }
 
             this.$emit('block-duplicate', this.block);
-        }
-    }
+        },
+    },
 });

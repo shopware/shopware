@@ -14,25 +14,25 @@ Component.register('sw-property-search', {
         collapsible: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         overlay: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         options: {
             type: Array,
             required: true,
             default() {
                 return [];
-            }
+            },
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -47,7 +47,7 @@ Component.register('sw-property-search', {
             groupPage: 1,
             optionPage: 1,
             groupTotal: 1,
-            optionTotal: 1
+            optionTotal: 1,
         };
     },
 
@@ -105,7 +105,7 @@ Component.register('sw-property-search', {
             criteria.addAssociation('group');
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -287,6 +287,6 @@ Component.register('sw-property-search', {
 
                 this.$set(group, 'optionCount', optionCount.length);
             });
-        }
-    }
+        },
+    },
 });

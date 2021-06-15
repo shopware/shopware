@@ -8,7 +8,7 @@ export default {
             seoUrlCollection: null,
             originalSeoUrls: [],
             defaultSeoUrl: null,
-            currentSeoUrl: null
+            currentSeoUrl: null,
         };
     },
 
@@ -31,7 +31,7 @@ export default {
 
         setSalesChannelCollection(state, salesChannelCollection) {
             state.salesChannelCollection = salesChannelCollection;
-        }
+        },
     },
 
     getters: {
@@ -65,6 +65,6 @@ export default {
 
                 return seoUrls;
             };
-        }
-    }
+        },
+    },
 };

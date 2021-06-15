@@ -21,8 +21,8 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             required: false,
             default() {
                 return {};
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -30,54 +30,54 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             supportedEntities: [
                 {
                     value: 'product',
-                    label: this.$tc('sw-import-export.profile.productLabel')
+                    label: this.$tc('sw-import-export.profile.productLabel'),
                 },
                 {
                     value: 'customer',
-                    label: this.$tc('sw-import-export.profile.customerLabel')
+                    label: this.$tc('sw-import-export.profile.customerLabel'),
                 },
                 {
                     value: 'category',
-                    label: this.$tc('sw-import-export.profile.categoriesLabel')
+                    label: this.$tc('sw-import-export.profile.categoriesLabel'),
                 },
                 {
                     value: 'media',
-                    label: this.$tc('sw-import-export.profile.mediaLabel')
+                    label: this.$tc('sw-import-export.profile.mediaLabel'),
                 },
                 {
                     value: 'newsletter_recipient',
-                    label: this.$tc('sw-import-export.profile.newsletterRecipientLabel')
+                    label: this.$tc('sw-import-export.profile.newsletterRecipientLabel'),
                 },
                 {
                     value: 'property_group_option',
-                    label: this.$tc('sw-import-export.profile.propertyLabel')
+                    label: this.$tc('sw-import-export.profile.propertyLabel'),
                 },
                 {
                     value: 'product_configurator_setting',
-                    label: this.$tc('sw-import-export.profile.configuratorSettingLabel')
-                }
+                    label: this.$tc('sw-import-export.profile.configuratorSettingLabel'),
+                },
             ],
             supportedDelimiter: [
                 {
                     value: '^',
-                    label: this.$tc('sw-import-export.profile.caretsLabel')
+                    label: this.$tc('sw-import-export.profile.caretsLabel'),
                 },
                 {
                     value: ',',
-                    label: this.$tc('sw-import-export.profile.commasLabel')
+                    label: this.$tc('sw-import-export.profile.commasLabel'),
                 },
                 {
                     value: ';',
-                    label: this.$tc('sw-import-export.profile.semicolonLabel')
-                }
+                    label: this.$tc('sw-import-export.profile.semicolonLabel'),
+                },
             ],
             supportedEnclosures: [
                 {
                     value: '"',
-                    label: this.$tc('sw-import-export.profile.doubleQuoteLabel')
-                }
+                    label: this.$tc('sw-import-export.profile.doubleQuoteLabel'),
+                },
             ],
-            missingRequiredFields: []
+            missingRequiredFields: [],
         };
     },
 
@@ -87,7 +87,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                 'name',
                 'sourceEntity',
                 'delimiter',
-                'enclosure'
+                'enclosure',
             ]),
 
         isNew() {
@@ -125,7 +125,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
 
         profileRepository() {
             return this.repositoryFactory.create('import_export_profile');
-        }
+        },
     },
 
     methods: {
@@ -151,7 +151,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                 return null;
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-import-export.profile.messageSearchParentProfileError')
+                    message: this.$tc('sw-import-export.profile.messageSearchParentProfileError'),
                 });
             });
         },
@@ -162,7 +162,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             const validationErrors = Shopware.Service('importExportProfileMapping').validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,
-                parentMapping
+                parentMapping,
             );
 
             if (validationErrors.missingRequiredFields.length > 0) {
@@ -172,6 +172,6 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
 
         resetViolations() {
             this.missingRequiredFields = [];
-        }
-    }
+        },
+    },
 });

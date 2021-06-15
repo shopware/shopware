@@ -6,12 +6,12 @@ Component.register('sw-settings-store', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
     data() {
         return {
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
         };
     },
 
@@ -21,7 +21,7 @@ Component.register('sw-settings-store', {
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -43,7 +43,7 @@ Component.register('sw-settings-store', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: err
+                    message: err,
                 });
             });
         },
@@ -54,6 +54,6 @@ Component.register('sw-settings-store', {
             if (actualConfigData.null?.['core.store.licenseHost']) {
                 actualConfigData.null['core.store.licenseHost'] = actualConfigData.null['core.store.licenseHost'].trim();
             }
-        }
-    }
+        },
+    },
 });

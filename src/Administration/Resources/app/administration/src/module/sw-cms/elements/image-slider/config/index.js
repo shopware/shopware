@@ -11,7 +11,7 @@ Component.register('sw-cms-el-config-image-slider', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     data() {
@@ -19,7 +19,7 @@ Component.register('sw-cms-el-config-image-slider', {
             mediaModalIsOpen: false,
             initialFolderId: null,
             entity: this.element,
-            mediaItems: []
+            mediaItems: [],
         };
     },
 
@@ -42,7 +42,7 @@ Component.register('sw-cms-el-config-image-slider', {
             }
 
             return [];
-        }
+        },
     },
 
     created() {
@@ -73,7 +73,7 @@ Component.register('sw-cms-el-config-image-slider', {
                 mediaUrl: mediaItem.url,
                 mediaId: mediaItem.id,
                 url: null,
-                newTab: false
+                newTab: false,
             });
 
             this.mediaItems.push(mediaItem);
@@ -89,13 +89,13 @@ Component.register('sw-cms-el-config-image-slider', {
             this.element.config.sliderItems.value = value.filter(
                 (item, i) => {
                     return (item.mediaId !== key || i !== index);
-                }
+                },
             );
 
             this.mediaItems = this.mediaItems.filter(
                 (item, i) => {
                     return (item.id !== key || i !== index);
-                }
+                },
             );
 
             this.updateMediaDataValue();
@@ -112,7 +112,7 @@ Component.register('sw-cms-el-config-image-slider', {
                     mediaUrl: item.url,
                     mediaId: item.id,
                     url: null,
-                    newTab: false
+                    newTab: false,
                 });
             });
 
@@ -158,6 +158,6 @@ Component.register('sw-cms-el-config-image-slider', {
 
         emitUpdateEl() {
             this.$emit('element-update', this.element);
-        }
-    }
+        },
+    },
 });

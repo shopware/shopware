@@ -14,8 +14,8 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginRight: '20px',
         sizingMode: 'boxed',
         backgroundMedia: {
-            url: '/administration/static/img/cms/preview_mountain_large.jpg'
-        }
+            url: '/administration/static/img/cms/preview_mountain_large.jpg',
+        },
     },
     slots: {
         content: {
@@ -29,10 +29,10 @@ Shopware.Service('cmsService').registerCmsBlock({
                         <p style="text-align: center; color: #FFFFFF">Lorem ipsum dolor sit amet, consetetur
                         sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
                         lorem ipsum dolor sit amet.</p>
-                        `.trim()
-                    }
-                }
-            }
-        }
-    }
+                        `.trim(),
+                    },
+                },
+            },
+        },
+    },
 });

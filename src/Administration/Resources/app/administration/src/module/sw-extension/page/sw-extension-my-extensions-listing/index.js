@@ -14,7 +14,7 @@ Component.register('sw-extension-my-extensions-listing', {
     data() {
         return {
             filterByActiveState: false,
-            sortingOption: 'updated-at'
+            sortingOption: 'updated-at',
         };
     },
 
@@ -81,7 +81,7 @@ Component.register('sw-extension-my-extensions-listing', {
             },
             set(newLimit) {
                 this.updateRouteQuery({ limit: newLimit });
-            }
+            },
         },
 
         page: {
@@ -90,7 +90,7 @@ Component.register('sw-extension-my-extensions-listing', {
             },
             set(newPage) {
                 this.updateRouteQuery({ page: newPage });
-            }
+            },
         },
 
         term: {
@@ -101,17 +101,17 @@ Component.register('sw-extension-my-extensions-listing', {
             set(newTerm) {
                 this.updateRouteQuery({
                     term: newTerm,
-                    page: 1
+                    page: 1,
                 });
-            }
-        }
+            },
+        },
     },
 
     watch: {
         '$route.name'() {
             this.updateList();
             this.filterByActiveState = false;
-        }
+        },
     },
 
     mounted() {
@@ -130,7 +130,7 @@ Component.register('sw-extension-my-extensions-listing', {
 
         openStore() {
             this.$router.push({
-                name: 'sw.extension.store.listing'
+                name: 'sw.extension.store.listing',
             });
         },
 
@@ -147,8 +147,8 @@ Component.register('sw-extension-my-extensions-listing', {
                 query: {
                     limit: limit || 25,
                     page: page || 1,
-                    term: term || undefined
-                }
+                    term: term || undefined,
+                },
             };
 
             // If query is empty then replace route, otherwise push
@@ -234,6 +234,6 @@ Component.register('sw-extension-my-extensions-listing', {
             return extensions.filter(extension => {
                 return extension.active;
             });
-        }
-    }
+        },
+    },
 });

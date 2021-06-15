@@ -26,7 +26,7 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base', {
             set(amount) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, amount };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
@@ -35,6 +35,6 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base', {
             return this.conditionValueIsNetError
                 || this.conditionValueOperatorError
                 || this.conditionValueAmountError;
-        }
-    }
+        },
+    },
 });

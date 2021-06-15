@@ -16,14 +16,14 @@ Component.extend('sw-compact-colorpicker', 'sw-colorpicker', {
             },
             set(newColor) {
                 this.localValue = newColor;
-            }
-        }
+            },
+        },
     },
 
     methods: {
         emitColor() {
             this.$emit('input', this.localValue);
             this.visible = false;
-        }
-    }
+        },
+    },
 });

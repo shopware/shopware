@@ -28,20 +28,20 @@ Component.register('sw-circle-icon', {
             default: 50,
             validator(value) {
                 return value > 0;
-            }
+            },
         },
 
         iconName: {
             type: String,
-            required: true
+            required: true,
         },
 
         variant: {
             type: String,
             required: false,
             default: '',
-            validValues: ['info', 'danger', 'success', 'warning', 'neutral', 'primary']
-        }
+            validValues: ['info', 'danger', 'success', 'warning', 'neutral', 'primary'],
+        },
     },
 
     computed: {
@@ -54,8 +54,8 @@ Component.register('sw-circle-icon', {
 
             return {
                 width: sizeInPx,
-                height: sizeInPx
+                height: sizeInPx,
             };
-        }
-    }
+        },
+    },
 });

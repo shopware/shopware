@@ -11,19 +11,19 @@ Component.register('sw-product-variants-overview', {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature'
+        'feature',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
     ],
 
     props: {
         selectedGroups: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -37,7 +37,7 @@ Component.register('sw-product-variants-overview', {
             activeFilter: [],
             includeOptions: [],
             filterWindowOpen: false,
-            toBeDeletedVariantId: null
+            toBeDeletedVariantId: null,
         };
     },
 
@@ -46,14 +46,14 @@ Component.register('sw-product-variants-overview', {
             'product',
             'currencies',
             'taxes',
-            'variants'
+            'variants',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
             'defaultPrice',
             'defaultCurrency',
-            'productTaxRate'
+            'productTaxRate',
         ]),
 
         productRepository() {
@@ -69,7 +69,7 @@ Component.register('sw-product-variants-overview', {
                 {
                     property: 'name',
                     label: this.$tc('sw-product.variations.generatedListColumnVariation'),
-                    allowResize: true
+                    allowResize: true,
                 },
                 ...this.currencyColumns,
                 {
@@ -78,29 +78,29 @@ Component.register('sw-product-variants-overview', {
                     allowResize: true,
                     inlineEdit: 'number',
                     width: '125px',
-                    align: 'right'
+                    align: 'right',
                 },
                 {
                     property: 'productNumber',
                     label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
                     allowResize: true,
                     inlineEdit: 'string',
-                    width: '150px'
+                    width: '150px',
                 },
                 {
                     property: 'media',
                     label: this.$tc('sw-product.detailBase.cardTitleMedia'),
                     allowResize: true,
                     inlineEdit: true,
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     property: 'active',
                     label: this.$tc('sw-product.variations.generatedListColumnActive'),
                     allowResize: true,
                     inlineEdit: 'boolean',
-                    align: 'center'
-                }
+                    align: 'center',
+                },
             ];
         },
 
@@ -117,7 +117,7 @@ Component.register('sw-product-variants-overview', {
                     primary: false,
                     rawData: false,
                     inlineEdit: 'number',
-                    width: '250px'
+                    width: '250px',
                 };
             });
         },
@@ -127,13 +127,13 @@ Component.register('sw-product-variants-overview', {
             criteria.addFilter(Criteria.equals('canonicalProductId', this.toBeDeletedVariantId));
 
             return criteria;
-        }
+        },
     },
 
     watch: {
         'selectedGroups'() {
             this.getFilterOptions();
-        }
+        },
     },
 
     methods: {
@@ -220,7 +220,7 @@ Component.register('sw-product-variants-overview', {
                         childCount: children.length,
                         parentId: null,
                         afterId: index > 0 ? this.selectedGroups[index - 1].id : null,
-                        storeObject: group
+                        storeObject: group,
                     };
                 });
 
@@ -246,7 +246,7 @@ Component.register('sw-product-variants-overview', {
                         childCount: 0,
                         parentId: option.groupId,
                         afterId,
-                        storeObject: element
+                        storeObject: element,
                     };
                 });
 
@@ -272,7 +272,7 @@ Component.register('sw-product-variants-overview', {
                 // Remove from include list
                 this.includeOptions.push({
                     id: option.id,
-                    groupId: option.parentId
+                    groupId: option.parentId,
                 });
             } else {
                 // Add to include option list
@@ -300,7 +300,7 @@ Component.register('sw-product-variants-overview', {
                     // otherwise create new group with the option
                     result.push({
                         id: option.groupId,
-                        options: [option.id]
+                        options: [option.id],
                     });
                 }
 
@@ -388,7 +388,7 @@ Component.register('sw-product-variants-overview', {
                 currencyId: currency.id,
                 gross: defaultPrice.gross * currency.factor,
                 linked: defaultPrice.linked,
-                net: defaultPrice.net * currency.factor
+                net: defaultPrice.net * currency.factor,
             };
 
             // add new price currency to variant
@@ -456,12 +456,12 @@ Component.register('sw-product-variants-overview', {
                 // create success notification
                 const titleSaveSuccess = this.$tc('global.default.success');
                 const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
-                    name: productName
+                    name: productName,
                 });
 
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
-                    message: messageSaveSuccess
+                    message: messageSaveSuccess,
                 });
 
                 // update items
@@ -473,7 +473,7 @@ Component.register('sw-product-variants-overview', {
 
                 this.createNotificationError({
                     title: titleSaveError,
-                    message: messageSaveError
+                    message: messageSaveError,
                 });
             });
         },
@@ -497,7 +497,7 @@ Component.register('sw-product-variants-overview', {
                     this.toBeDeletedVariantId = null;
 
                     this.createNotificationError({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl')
+                        message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
                     });
 
                     return;
@@ -508,7 +508,7 @@ Component.register('sw-product-variants-overview', {
                     this.toBeDeletedVariantId = null;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess')
+                        message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess'),
                     });
 
                     this.getList();
@@ -527,14 +527,14 @@ Component.register('sw-product-variants-overview', {
                 this.$router.push({
                     name: 'sw.product.detail',
                     params: {
-                        id: variant.id
-                    }
+                        id: variant.id,
+                    },
                 });
             }
         },
 
         isPriceEditing(value) {
             this.priceEdit = value;
-        }
-    }
+        },
+    },
 });

@@ -140,7 +140,7 @@ DeviceHelper.prototype = Object.assign(DeviceHelper.prototype, {
         return this.getPlatform().indexOf('Mac') > -1
             ? 'CTRL'
             : 'ALT';
-    }
+    },
 });
 
 export default DeviceHelper;

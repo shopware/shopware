@@ -19,8 +19,8 @@ Component.register('sw-sidebar', {
         propagateWidth: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -28,7 +28,7 @@ Component.register('sw-sidebar', {
             items: [],
             isOpened: false,
             // eslint-disable-next-line vue/no-reserved-keys
-            _parent: this.$parent
+            _parent: this.$parent,
         };
     },
 
@@ -47,9 +47,9 @@ Component.register('sw-sidebar', {
 
         sidebarClasses() {
             return {
-                'is--opened': this.isOpened
+                'is--opened': this.isOpened,
             };
-        }
+        },
     },
 
     created() {
@@ -128,6 +128,6 @@ Component.register('sw-sidebar', {
             if (clickedItem.hasDefaultSlot) {
                 this.isOpened = this._isAnyItemActive();
             }
-        }
-    }
+        },
+    },
 });

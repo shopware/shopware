@@ -8,18 +8,18 @@ Component.register('sw-property-option-list', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     props: {
         propertyGroup: {
             type: Object,
-            required: true
+            required: true,
         },
         optionRepository: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -33,7 +33,7 @@ Component.register('sw-property-option-list', {
             sortBy: 'name',
             sortDirection: 'ASC',
             showDeleteModal: false,
-            limit: 10
+            limit: 10,
         };
     },
 
@@ -53,19 +53,19 @@ Component.register('sw-property-option-list', {
         tooltipAdd() {
             return {
                 message: this.$tc('sw-property.detail.addOptionNotPossible'),
-                disabled: this.isSystemLanguage
+                disabled: this.isSystemLanguage,
             };
         },
 
         disableAddButton() {
             return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
-        }
+        },
     },
 
     watch: {
         currentLanguage() {
             this.refreshOptionList();
-        }
+        },
     },
 
     methods: {
@@ -168,14 +168,14 @@ Component.register('sw-property-option-list', {
                 label: this.$tc('sw-property.detail.labelOptionName'),
                 routerLink: 'sw.property.detail',
                 inlineEdit: 'string',
-                primary: true
+                primary: true,
             }, {
                 property: 'colorHexCode',
-                label: this.$tc('sw-property.detail.labelOptionColor')
+                label: this.$tc('sw-property.detail.labelOptionColor'),
             }, {
                 property: 'position',
-                label: this.$tc('sw-property.detail.labelOptionPosition')
+                label: this.$tc('sw-property.detail.labelOptionPosition'),
             }];
-        }
-    }
+        },
+    },
 });

@@ -23,28 +23,28 @@ Component.register('sw-custom-field-set-renderer', {
             getEntity: this.entity,
             getParentEntity: this.parentEntity,
             getCustomFieldSet: this.set,
-            getCustomFieldSetVariant: this.variant
+            getCustomFieldSetVariant: this.variant,
         };
     },
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         sets: {
             type: Array,
-            required: true
+            required: true,
         },
         entity: {
             type: Object,
-            required: true
+            required: true,
         },
         parentEntity: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
         variant: {
             type: String,
@@ -56,28 +56,28 @@ Component.register('sw-custom-field-set-renderer', {
                     return true;
                 }
                 return ['tabs', 'media-collapse'].includes(value);
-            }
+            },
         },
         disabled: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
         isLoading: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
         isSaveSuccessful: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
         showCustomFieldSetSelection: {
             type: Boolean,
             default: false,
-            require: false
-        }
+            require: false,
+        },
     },
 
     computed: {
@@ -148,7 +148,7 @@ Component.register('sw-custom-field-set-renderer', {
 
         componentsWithMapInheritanceSupport() {
             return ['sw-field'];
-        }
+        },
     },
 
     watch: {
@@ -156,14 +156,14 @@ Component.register('sw-custom-field-set-renderer', {
             handler(value) {
                 this.onChangeCustomFieldSetSelectionActive(value);
             },
-            deep: true
+            deep: true,
         },
 
         'entity.customFieldsSets': {
             handler() {
                 this.onChangeCustomFieldSets();
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -300,7 +300,7 @@ Component.register('sw-custom-field-set-renderer', {
 
             return {
                 helpText: this.getInlineSnippet(customField.config.helpText) || '',
-                label: this.getInlineSnippet(customField.config.label) || ' '
+                label: this.getInlineSnippet(customField.config.label) || ' ',
             };
         },
 
@@ -336,6 +336,6 @@ Component.register('sw-custom-field-set-renderer', {
          */
         sortSets(sets) {
             return sets.sort((a, b) => a.position - b.position);
-        }
-    }
+        },
+    },
 });

@@ -109,7 +109,7 @@ function parseDataStructure(json) {
         errors: null,
         data: null,
         associations: null,
-        aggregations: null
+        aggregations: null,
     };
 
     // Errors will be returned right away, we don't need to convert anything
@@ -170,7 +170,7 @@ function createItem(record, includedMap) {
         id: record.id,
         type: record.type,
         links: record.links || {},
-        meta: record.meta || {}
+        meta: record.meta || {},
     };
 
     if (record.attributes && Object.keys(record.attributes).length > 0) {

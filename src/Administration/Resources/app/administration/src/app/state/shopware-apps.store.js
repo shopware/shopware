@@ -4,7 +4,7 @@ export default {
     state() {
         return {
             apps: [],
-            selectedIds: []
+            selectedIds: [],
         };
     },
 
@@ -12,7 +12,7 @@ export default {
         /** @deprecated tag:v6.5.0 use adminMenu.appModuleNavigation instead */
         navigation(state, getters, rootState, rootGetters) {
             return rootGetters['adminMenu/appModuleNavigation'];
-        }
+        },
     },
 
     mutations: {
@@ -22,7 +22,7 @@ export default {
 
         setSelectedIds(state, selectedIds) {
             state.selectedIds = selectedIds;
-        }
+        },
     },
 
     actions: {
@@ -32,6 +32,6 @@ export default {
 
         setSelectedIds({ commit }, selectedIds) {
             commit('setSelectedIds', selectedIds);
-        }
-    }
+        },
+    },
 };

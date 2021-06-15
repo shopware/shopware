@@ -10,27 +10,27 @@ Component.register('sw-order-inline-field', {
         value: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         displayValue: {
             type: String,
             required: true,
-            default: ''
+            default: '',
         },
         editable: {
             type: Boolean,
             required: true,
-            default: false
+            default: false,
         },
         required: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
     methods: {
         onInput(value) {
             this.$emit('input', value);
-        }
-    }
+        },
+    },
 });

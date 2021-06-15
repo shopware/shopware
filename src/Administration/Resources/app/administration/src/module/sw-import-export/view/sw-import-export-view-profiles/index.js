@@ -13,7 +13,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -23,13 +23,13 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             profiles: null,
             searchTerm: null,
             sortBy: 'name',
-            sortDirection: 'ASC'
+            sortDirection: 'ASC',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -56,16 +56,16 @@ Shopware.Component.register('sw-import-export-view-profiles', {
                     dataIndex: 'label',
                     label: 'sw-import-export.profile.nameColumn',
                     allowResize: true,
-                    primary: true
+                    primary: true,
                 },
                 {
                     property: 'systemDefault',
                     dataIndex: 'systemDefault',
                     label: 'sw-import-export.profile.typeColumn',
-                    allowResize: true
-                }
+                    allowResize: true,
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -138,12 +138,12 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             this.profileRepository.save(this.selectedProfile).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)
+                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
                 });
                 return this.loadProfiles();
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-import-export.profile.messageSaveError', 0)
+                    message: this.$tc('sw-import-export.profile.messageSaveError', 0),
                 });
             }).finally(() => {
                 this.isLoading = false;
@@ -154,6 +154,6 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             return isSystemDefault ?
                 this.$tc('sw-import-export.profile.defaultTypeLabel') :
                 this.$tc('sw-import-export.profile.customTypeLabel');
-        }
-    }
+        },
+    },
 });

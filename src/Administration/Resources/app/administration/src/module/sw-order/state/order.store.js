@@ -24,12 +24,12 @@ export default {
             defaultSalesChannel: null,
             cart: {
                 token: null,
-                lineItems: []
+                lineItems: [],
             },
             currency: {
-                shortName: 'EUR'
+                shortName: 'EUR',
             },
-            promotionCodes: []
+            promotionCodes: [],
         };
     },
 
@@ -70,7 +70,7 @@ export default {
 
         removeInvalidPromotionCodes(state) {
             state.promotionCodes = state.promotionCodes.filter(item => !item.isInvalid);
-        }
+        },
     },
 
     getters: {
@@ -92,7 +92,7 @@ export default {
 
         cartErrors(state) {
             return state?.cart?.errors ?? null;
-        }
+        },
     },
 
     actions: {
@@ -157,6 +157,6 @@ export default {
             return Service('cartStoreService')
                 .modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
                 .then(response => commit('setCart', response.data.data));
-        }
-    }
+        },
+    },
 };

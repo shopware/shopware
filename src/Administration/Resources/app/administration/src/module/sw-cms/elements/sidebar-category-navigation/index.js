@@ -8,5 +8,5 @@ Shopware.Service('cmsService').registerCmsElement({
     component: 'sw-cms-el-category-navigation',
     configComponent: 'sw-cms-el-config-category-navigation',
     previewComponent: 'sw-cms-el-preview-category-navigation',
-    disabledConfigInfoTextKey: 'sw-cms.elements.sidebarCategoryNavigation.infoText.navigationElement'
+    disabledConfigInfoTextKey: 'sw-cms.elements.sidebarCategoryNavigation.infoText.navigationElement',
 });

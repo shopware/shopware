@@ -20,26 +20,26 @@ Component.register('sw-image-preview-modal', {
     props: {
         mediaItems: {
             type: Array,
-            required: true
+            required: true,
         },
 
         activeItemId: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         zoomSteps: {
             type: Number,
             required: false,
-            default: 5
+            default: 5,
         },
 
         itemPerPage: {
             type: Number,
             required: false,
-            default: 10
-        }
+            default: 10,
+        },
     },
 
     data() {
@@ -49,7 +49,7 @@ Component.register('sw-image-preview-modal', {
             scale: 1,
             isDisabledReset: true,
             isDisabledZoomIn: true,
-            isDisabledZoomOut: true
+            isDisabledZoomOut: true,
         };
     },
 
@@ -59,7 +59,7 @@ Component.register('sw-image-preview-modal', {
                 if (item?.media?.url) {
                     return {
                         ...item.media,
-                        src: item.media.url
+                        src: item.media.url,
                     };
                 }
 
@@ -75,7 +75,7 @@ Component.register('sw-image-preview-modal', {
             }
 
             return 1;
-        }
+        },
     },
 
     created() {
@@ -121,13 +121,13 @@ Component.register('sw-image-preview-modal', {
 
         buttonClass(isDisabled) {
             return {
-                'is--disabled': isDisabled
+                'is--disabled': isDisabled,
             };
         },
 
         async getActiveImage() {
             this.image = this.$el.querySelector(
-                '.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active'
+                '.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active',
             );
 
             if (!this.image.complete) {
@@ -227,6 +227,6 @@ Component.register('sw-image-preview-modal', {
 
             this.setTransition();
             this.updateTransform();
-        }
-    }
+        },
+    },
 });

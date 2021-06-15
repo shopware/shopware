@@ -27,43 +27,43 @@ Component.register('sw-icon', {
     props: {
         name: {
             type: String,
-            required: true
+            required: true,
         },
         color: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         small: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         large: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         size: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         title: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         multicolor: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         decorative: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -77,8 +77,8 @@ Component.register('sw-icon', {
                 this.multicolor ? 'sw-icon--multicolor' : 'sw-icon--fill',
                 {
                     'sw-icon--small': this.small,
-                    'sw-icon--large': this.large
-                }
+                    'sw-icon--large': this.large,
+                },
             ];
         },
 
@@ -92,9 +92,9 @@ Component.register('sw-icon', {
             return {
                 color: this.color,
                 width: size,
-                height: size
+                height: size,
             };
-        }
+        },
     },
 
     created() {
@@ -106,9 +106,9 @@ Component.register('sw-icon', {
             if (this.color && this.multicolor) {
                 warn(
                     this.$options.name,
-                    `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`
+                    `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`,
                 );
             }
-        }
-    }
+        },
+    },
 });

@@ -22,15 +22,15 @@ Module.register('sw-settings-seo', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
-        }
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.seo.index',
         icon: 'default-action-search',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

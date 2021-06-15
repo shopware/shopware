@@ -10,7 +10,7 @@ Component.register('sw-settings-delivery-time-detail', {
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     shortcuts: {
@@ -18,10 +18,10 @@ Component.register('sw-settings-delivery-time-detail', {
             active() {
                 return this.allowSave;
             },
-            method: 'onSave'
+            method: 'onSave',
         },
 
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
@@ -29,13 +29,13 @@ Component.register('sw-settings-delivery-time-detail', {
             deliveryTime: null,
             isLoading: false,
             isSaveSuccessful: false,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -44,7 +44,7 @@ Component.register('sw-settings-delivery-time-detail', {
             'name',
             'min',
             'max',
-            'unit'
+            'unit',
         ]),
 
         deliveryTimeRepository() {
@@ -54,16 +54,16 @@ Component.register('sw-settings-delivery-time-detail', {
         deliveryTimeUnits() {
             return [{
                 value: 'day',
-                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitDay')
+                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitDay'),
             }, {
                 value: 'week',
-                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitWeek')
+                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitWeek'),
             }, {
                 value: 'month',
-                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitMonth')
+                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitMonth'),
             }, {
                 value: 'year',
-                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitYear')
+                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitYear'),
             }];
         },
 
@@ -102,7 +102,7 @@ Component.register('sw-settings-delivery-time-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -110,20 +110,20 @@ Component.register('sw-settings-delivery-time-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         showCustomFields() {
             return this.deliveryTime && this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     created() {
@@ -143,7 +143,7 @@ Component.register('sw-settings-delivery-time-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-delivery-time.detail.errorLoad')
+                        message: this.$tc('sw-settings-delivery-time.detail.errorLoad'),
                     });
 
                     this.isLoading = false;
@@ -169,7 +169,7 @@ Component.register('sw-settings-delivery-time-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-delivery-time.detail.errorSave')
+                        message: this.$tc('sw-settings-delivery-time.detail.errorSave'),
                     });
 
                     this.isLoading = false;
@@ -187,6 +187,6 @@ Component.register('sw-settings-delivery-time-detail', {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.delivery.time.index' });
-        }
-    }
+        },
+    },
 });

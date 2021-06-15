@@ -14,29 +14,29 @@ Shopware.Service('cmsService').registerCmsElement({
             value: [],
             required: true,
             entity: {
-                name: 'media'
-            }
+                name: 'media',
+            },
         },
         navigationArrows: {
             source: 'static',
-            value: 'outside'
+            value: 'outside',
         },
         navigationDots: {
             source: 'static',
-            value: null
+            value: null,
         },
         displayMode: {
             source: 'static',
-            value: 'standard'
+            value: 'standard',
         },
         minHeight: {
             source: 'static',
-            value: '300px'
+            value: '300px',
         },
         verticalAlign: {
             source: 'static',
-            value: null
-        }
+            value: null,
+        },
     },
     enrich: function enrich(elem, data) {
         if (Object.keys(data).length < 1) {
@@ -60,9 +60,9 @@ Shopware.Service('cmsService').registerCmsElement({
                 elem.data[configKey].push({
                     newTab: sliderItem.newTab,
                     url: sliderItem.url,
-                    media: data[`entity-${entityKey}`].get(sliderItem.mediaId)
+                    media: data[`entity-${entityKey}`].get(sliderItem.mediaId),
                 });
             });
         });
-    }
+    },
 });

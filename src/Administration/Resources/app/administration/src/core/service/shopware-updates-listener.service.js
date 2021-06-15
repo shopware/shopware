@@ -38,29 +38,29 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
         const notification = {
             title: getApplicationRootReference().$t(
                 'global.notification-center.shopware-updates-listener.updatesAvailableTitle', {
-                    version: response.version
-                }
+                    version: response.version,
+                },
             ),
             message: getApplicationRootReference().$t(
                 'global.notification-center.shopware-updates-listener.updatesAvailableMessage', {
-                    version: response.version
-                }
+                    version: response.version,
+                },
             ),
             variant: 'info',
             growl: true,
             system: true,
             actions: [{
                 label: updateLabel,
-                route: { name: 'sw.settings.shopware.updates.wizard' }
+                route: { name: 'sw.settings.shopware.updates.wizard' },
             }, {
-                label: cancelLabel
+                label: cancelLabel,
             }],
-            autoClose: false
+            autoClose: false,
         };
 
         getApplicationRootReference().$store.dispatch(
             'notification/createNotification',
-            notification
+            notification,
         );
     }
 

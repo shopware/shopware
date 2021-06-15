@@ -10,38 +10,38 @@ Component.register('sw-landing-page-tree', {
 
     inject: ['repositoryFactory', 'syncService', 'acl'],
     mixins: [
-        'notification'
+        'notification',
     ],
 
     props: {
         landingPageId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         currentLanguageId: {
             type: String,
-            required: true
+            required: true,
         },
 
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowCreate: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -49,13 +49,13 @@ Component.register('sw-landing-page-tree', {
             loadedLandingPages: {},
             translationContext: 'sw-landing-page',
             linkContext: 'sw.category.landingPage',
-            isLoadingInitialData: true
+            isLoadingInitialData: true,
         };
     },
 
     computed: {
         ...mapState('swCategoryDetail', [
-            'landingPagesToDelete'
+            'landingPagesToDelete',
         ]),
 
         cmsLandingPageCriteria() {
@@ -92,7 +92,7 @@ Component.register('sw-landing-page-tree', {
             }
 
             return null;
-        }
+        },
     },
 
     watch: {
@@ -104,7 +104,7 @@ Component.register('sw-landing-page-tree', {
             this.$refs.landingPageTree.onDeleteElements(value);
 
             Shopware.State.commit('swCategoryDetail/setLandingPagesToDelete', {
-                landingPagesToDelete: undefined
+                landingPagesToDelete: undefined,
             });
         },
 
@@ -135,7 +135,7 @@ Component.register('sw-landing-page-tree', {
             this.loadLandingPages().finally(() => {
                 this.isLoadingInitialData = false;
             });
-        }
+        },
     },
 
 
@@ -148,7 +148,7 @@ Component.register('sw-landing-page-tree', {
             this.loadLandingPages()
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 })
                 .finally(() => {
@@ -204,8 +204,8 @@ Component.register('sw-landing-page-tree', {
                 overwrites: {
                     name: `${contextItem.data.name} ${this.$tc('sw-product.general.copy')}`,
                     url: `${contextItem.data.url}-${this.$tc('sw-product.general.copy')}`,
-                    active: false
-                }
+                    active: false,
+                },
             };
 
             this.landingPageRepository.clone(contextItem.id, Shopware.Context.api, behavior).then((clone) => {
@@ -221,7 +221,7 @@ Component.register('sw-landing-page-tree', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
                 });
             });
         },
@@ -276,15 +276,15 @@ Component.register('sw-landing-page-tree', {
         getLandingPageUrl(landingPage) {
             return this.$router.resolve({
                 name: this.linkContext,
-                params: { id: landingPage.id }
+                params: { id: landingPage.id },
             }).href;
         },
 
         newLandingPageUrl() {
             return {
                 name: 'sw.category.landingPageDetail',
-                params: { id: 'create' }
+                params: { id: 'create' },
             };
-        }
-    }
+        },
+    },
 });

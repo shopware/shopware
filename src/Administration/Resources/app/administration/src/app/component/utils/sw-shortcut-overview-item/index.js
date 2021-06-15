@@ -11,17 +11,17 @@ Component.register('sw-shortcut-overview-item', {
     props: {
         title: {
             type: String,
-            required: true
+            required: true,
         },
         content: {
             type: String,
-            required: true
+            required: true,
         },
         privilege: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -31,6 +31,6 @@ Component.register('sw-shortcut-overview-item', {
 
         keys() {
             return this.content.split(' ') || [];
-        }
-    }
+        },
+    },
 });

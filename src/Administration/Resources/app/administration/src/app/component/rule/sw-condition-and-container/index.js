@@ -18,7 +18,7 @@ Component.register('sw-condition-and-container', {
     inject: ['acl'],
 
     mixins: [
-        Mixin.getByName('ruleContainer')
+        Mixin.getByName('ruleContainer'),
     ],
 
     created() {
@@ -38,8 +38,8 @@ Component.register('sw-condition-and-container', {
                 this.createCondition(
                     this.conditionDataProviderService.getPlaceholderData(),
                     this.condition.id,
-                    this.nextPosition
-                )
+                    this.nextPosition,
+                ),
             );
         },
 
@@ -47,7 +47,7 @@ Component.register('sw-condition-and-container', {
             const orContainer = this.createCondition(
                 this.conditionDataProviderService.getOrContainerData(),
                 this.condition.id,
-                this.nextPosition
+                this.nextPosition,
             );
 
             this.insertNodeIntoTree(this.condition, orContainer);
@@ -69,8 +69,8 @@ Component.register('sw-condition-and-container', {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
-                disabled: this.acl.can(role)
+                disabled: this.acl.can(role),
             };
-        }
-    }
+        },
+    },
 });

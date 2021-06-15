@@ -26,13 +26,13 @@ Component.extend('sw-condition-cart-amount', 'sw-condition-base', {
             set(amount) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, amount };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueAmountError;
-        }
-    }
+        },
+    },
 });

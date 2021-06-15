@@ -7,7 +7,7 @@ export default (publicObject, privateObject) => {
                     value,
                     configurable: true,
                     enumerable: true,
-                    writable: true
+                    writable: true,
                 });
             });
         };

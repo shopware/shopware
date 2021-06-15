@@ -24,12 +24,12 @@ Component.register('sw-modal', {
     props: {
         title: {
             type: String,
-            default: ''
+            default: '',
         },
 
         size: {
             type: String,
-            default: ''
+            default: '',
         },
 
         variant: {
@@ -42,44 +42,44 @@ Component.register('sw-modal', {
                     return true;
                 }
                 return ['default', 'small', 'large', 'full'].includes(value);
-            }
+            },
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         selector: {
             type: String,
             required: false,
-            default: 'body'
+            default: 'body',
         },
 
         showHeader: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         closable: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
-            id: utils.createId()
+            id: utils.createId(),
         };
     },
 
     computed: {
         modalClasses() {
             return {
-                [`sw-modal--${this.variant}`]: (this.variant && !this.size)
+                [`sw-modal--${this.variant}`]: (this.variant && !this.size),
             };
         },
 
@@ -89,7 +89,7 @@ Component.register('sw-modal', {
 
         hasFooterSlot() {
             return !!this.$slots['modal-footer'];
-        }
+        },
     },
 
     created() {
@@ -142,6 +142,6 @@ Component.register('sw-modal', {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.closeModal();
             }
-        }
-    }
+        },
+    },
 });

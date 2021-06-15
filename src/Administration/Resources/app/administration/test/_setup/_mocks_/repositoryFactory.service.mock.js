@@ -62,7 +62,7 @@ class ResponseRegistry {
             method,
             status,
             response,
-            warning
+            warning,
         });
     }
 
@@ -83,7 +83,7 @@ function clientMockFactory() {
     clientMock.onAny().reply(config => {
         const customResponse = responses.getResponse({
             url: config.url,
-            method: config.method
+            method: config.method,
         });
 
         if (customResponse) {
@@ -107,9 +107,9 @@ function clientMockFactory() {
         response: {
             data: [],
             meta: {
-                total: 0
-            }
-        }
+                total: 0,
+            },
+        },
     });
 
     return { client, clientMock, responses };
@@ -122,7 +122,7 @@ global.repositoryFactoryMock = {
     httpClient,
     clientMock,
     responses,
-    showWarning: true
+    showWarning: true,
 };
 
 const hydrator = new EntityHydrator();
@@ -135,7 +135,7 @@ const repositoryFactory = new RepositoryFactory(
     changesetGenerator,
     entityFactory,
     httpClient,
-    errorResolver
+    errorResolver,
 );
 
 export default repositoryFactory;

@@ -20,7 +20,7 @@ function splitFileNameAndExtension(completeFileName) {
     if (fileParts.length === 1) {
         return {
             extension: '',
-            fileName: completeFileName
+            fileName: completeFileName,
         };
     }
 
@@ -28,13 +28,13 @@ function splitFileNameAndExtension(completeFileName) {
     if (fileParts.length === 2 && !fileParts[0]) {
         return {
             extension: '',
-            fileName: completeFileName
+            fileName: completeFileName,
         };
     }
 
     return {
         extension: fileParts.pop(),
-        fileName: fileParts.join('.')
+        fileName: fileParts.join('.'),
     };
 }
 
@@ -100,5 +100,5 @@ export default {
     readFileAsDataURL,
     readFileAsText,
     getNameAndExtensionFromFile,
-    getNameAndExtensionFromUrl
+    getNameAndExtensionFromUrl,
 };

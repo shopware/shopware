@@ -3,7 +3,7 @@ export default {
     state: {
         violations: [],
         warnings: [],
-        other: []
+        other: [],
     },
 
     mutations: {
@@ -29,6 +29,6 @@ export default {
 
         removeOther(state) {
             state.other = [];
-        }
-    }
+        },
+    },
 };

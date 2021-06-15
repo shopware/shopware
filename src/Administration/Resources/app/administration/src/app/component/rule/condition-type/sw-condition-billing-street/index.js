@@ -27,13 +27,13 @@ Component.extend('sw-condition-billing-street', 'sw-condition-base', {
             set(streetName) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, streetName };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.streetName']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueStreetNameError;
-        }
-    }
+        },
+    },
 });

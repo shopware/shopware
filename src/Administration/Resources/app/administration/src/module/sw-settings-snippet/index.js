@@ -26,39 +26,39 @@ Module.register('sw-settings-snippet', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'snippet.viewer'
-            }
+                privilege: 'snippet.viewer',
+            },
         },
         list: {
             component: 'sw-settings-snippet-list',
             path: 'list',
             meta: {
                 parentPath: 'sw.settings.snippet.index',
-                privilege: 'snippet.viewer'
-            }
+                privilege: 'snippet.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-snippet-detail',
             path: 'detail/:key',
             meta: {
                 parentPath: 'sw.settings.snippet.list',
-                privilege: 'snippet.viewer'
-            }
+                privilege: 'snippet.viewer',
+            },
         },
         create: {
             component: 'sw-settings-snippet-create',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.snippet.list',
-                privilege: 'snippet.viewer'
-            }
-        }
+                privilege: 'snippet.viewer',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.snippet.index',
         icon: 'default-object-globe',
-        privilege: 'snippet.viewer'
-    }
+        privilege: 'snippet.viewer',
+    },
 });

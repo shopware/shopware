@@ -12,21 +12,21 @@ Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
         },
         defaultValues() {
             return {
-                isAlwaysValid: true
+                isAlwaysValid: true,
             };
         },
         selectValues() {
             return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: true
-                }
+                    value: true,
+                },
             ];
         },
         ...mapPropertyErrors('condition', ['value.isNew']),
 
         currentError() {
             return this.conditionValueIsNewError;
-        }
-    }
+        },
+    },
 });

@@ -14,7 +14,7 @@ Shopware.Component.register('sw-import-export-activity', {
     inject: ['repositoryFactory', 'importExport'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -24,15 +24,15 @@ Shopware.Component.register('sw-import-export-activity', {
             default: 'import',
             validValues: [
                 'import',
-                'export'
+                'export',
             ],
             validator(value) {
                 return [
                     'import',
-                    'export'
+                    'export',
                 ].includes(value);
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -40,7 +40,7 @@ Shopware.Component.register('sw-import-export-activity', {
             logs: null,
             isLoading: false,
             selectedProfile: null,
-            selectedLog: null
+            selectedLog: null,
         };
     },
 
@@ -79,50 +79,50 @@ Shopware.Component.register('sw-import-export-activity', {
                     dataIndex: 'createdAt',
                     label: 'sw-import-export.activity.columns.date',
                     allowResize: true,
-                    primary: true
+                    primary: true,
                 }, {
                     property: 'profileName',
                     dataIndex: 'profileName',
                     label: 'sw-import-export.activity.columns.profile',
                     allowResize: true,
-                    primary: false
+                    primary: false,
                 },
                 {
                     property: 'records',
                     dataIndex: 'records',
                     label: 'sw-import-export.activity.columns.records',
                     allowResize: true,
-                    primary: false
+                    primary: false,
                 },
                 ...(this.type === 'import' ? [{
                     property: 'invalidRecords',
                     dataIndex: 'records',
                     label: 'sw-import-export.activity.columns.invalidRecords',
                     allowResize: true,
-                    primary: false
+                    primary: false,
                 }] : []),
                 {
                     property: 'file.size',
                     dataIndex: 'file.size',
                     label: 'sw-import-export.activity.columns.size',
                     allowResize: true,
-                    primary: false
+                    primary: false,
                 },
                 {
                     property: 'user.lastName',
                     dataIndex: 'user.lastName',
                     label: 'sw-import-export.activity.columns.user',
                     allowResize: true,
-                    primary: false
+                    primary: false,
                 },
                 {
                     property: 'state',
                     dataIndex: 'state',
                     label: 'sw-import-export.activity.columns.state',
                     allowResize: true,
-                    primary: false
+                    primary: false,
                 }];
-        }
+        },
     },
 
     created() {
@@ -167,11 +167,11 @@ Shopware.Component.register('sw-import-export-activity', {
             this.profileRepository.save(this.selectedProfile).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)
+                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-import-export.profile.messageSaveError', 0)
+                    message: this.$tc('sw-import-export.profile.messageSaveError', 0),
                 });
             }).finally(() => {
                 this.isLoading = false;
@@ -186,6 +186,6 @@ Shopware.Component.register('sw-import-export-activity', {
             const translationKey = `sw-import-export.activity.status.${state}`;
 
             return this.$te(translationKey) ? this.$tc(translationKey) : state;
-        }
-    }
+        },
+    },
 });

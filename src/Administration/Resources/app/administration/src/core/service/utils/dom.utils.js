@@ -49,5 +49,5 @@ function copyToClipboard(stringToCopy) {
 export default {
     getScrollbarHeight,
     getScrollbarWidth,
-    copyToClipboard
+    copyToClipboard,
 };

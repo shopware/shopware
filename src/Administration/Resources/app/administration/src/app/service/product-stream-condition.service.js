@@ -12,30 +12,30 @@ const utils = Shopware.Utils;
  */
 export default function conditionService() {
     const allowedProperties = [
-        'id'
+        'id',
     ];
 
     const entityAllowedProperties = {
         tag: [
-            'id'
+            'id',
         ],
         category: [
-            'id'
+            'id',
         ],
         product_manufacturer: [
-            'id'
+            'id',
         ],
         property_group_option: [
-            'id'
+            'id',
         ],
         property_group: [
-            'id'
+            'id',
         ],
         product_visibility: [
-            'id'
+            'id',
         ],
         sales_channel: [
-            'id'
+            'id',
         ],
         product: [
             'id',
@@ -61,75 +61,75 @@ export default function conditionService() {
             'properties',
             'isCloseout',
             'purchasePrices',
-            'releaseDate'
-        ]
+            'releaseDate',
+        ],
     };
 
     const productFilterTypes = {
         equals: {
             identifier: 'equals',
-            label: 'sw-product-stream.filter.type.equals'
+            label: 'sw-product-stream.filter.type.equals',
         },
 
         equalsAny: {
             identifier: 'equalsAny',
-            label: 'sw-product-stream.filter.type.equalsAny'
+            label: 'sw-product-stream.filter.type.equalsAny',
         },
 
         contains: {
             identifier: 'contains',
-            label: 'sw-product-stream.filter.type.contains'
+            label: 'sw-product-stream.filter.type.contains',
         },
 
         lessThan: {
             identifier: 'lessThan',
-            label: 'sw-product-stream.filter.type.lessThan'
+            label: 'sw-product-stream.filter.type.lessThan',
         },
 
         greaterThan: {
             identifier: 'greaterThan',
-            label: 'sw-product-stream.filter.type.greaterThan'
+            label: 'sw-product-stream.filter.type.greaterThan',
         },
 
         lessThanEquals: {
             identifier: 'lessThanEquals',
-            label: 'sw-product-stream.filter.type.lessThanEquals'
+            label: 'sw-product-stream.filter.type.lessThanEquals',
         },
 
         greaterThanEquals: {
             identifier: 'greaterThanEquals',
-            label: 'sw-product-stream.filter.type.greaterThanEquals'
+            label: 'sw-product-stream.filter.type.greaterThanEquals',
         },
 
         notEquals: {
             identifier: 'notEquals',
-            label: 'sw-product-stream.filter.type.notEquals'
+            label: 'sw-product-stream.filter.type.notEquals',
         },
 
         notEqualsAny: {
             identifier: 'notEqualsAny',
-            label: 'sw-product-stream.filter.type.notEqualsAny'
+            label: 'sw-product-stream.filter.type.notEqualsAny',
         },
 
         notContains: {
             identifier: 'notContains',
-            label: 'sw-product-stream.filter.type.notContains'
+            label: 'sw-product-stream.filter.type.notContains',
         },
 
         range: {
             identifier: 'range',
-            label: 'sw-product-stream.filter.type.range'
+            label: 'sw-product-stream.filter.type.range',
         },
 
         not: {
             identifier: 'not',
-            label: 'sw-product-stream.filter.type.not'
-        }
+            label: 'sw-product-stream.filter.type.not',
+        },
     };
 
     const operatorSets = {
         boolean: [
-            productFilterTypes.equals
+            productFilterTypes.equals,
         ],
         string: [
             productFilterTypes.equals,
@@ -137,7 +137,7 @@ export default function conditionService() {
             productFilterTypes.equalsAny,
             productFilterTypes.notEqualsAny,
             productFilterTypes.contains,
-            productFilterTypes.notContains
+            productFilterTypes.notContains,
         ],
 
         date: [
@@ -147,14 +147,14 @@ export default function conditionService() {
             productFilterTypes.lessThan,
             productFilterTypes.lessThanEquals,
             productFilterTypes.notEquals,
-            productFilterTypes.range
+            productFilterTypes.range,
         ],
 
         uuid: [
             productFilterTypes.equals,
             productFilterTypes.notEquals,
             productFilterTypes.equalsAny,
-            productFilterTypes.notEqualsAny
+            productFilterTypes.notEqualsAny,
         ],
 
         int: [
@@ -164,7 +164,7 @@ export default function conditionService() {
             productFilterTypes.lessThan,
             productFilterTypes.lessThanEquals,
             productFilterTypes.notEquals,
-            productFilterTypes.range
+            productFilterTypes.range,
         ],
 
         float: [
@@ -174,7 +174,7 @@ export default function conditionService() {
             productFilterTypes.lessThan,
             productFilterTypes.lessThanEquals,
             productFilterTypes.notEquals,
-            productFilterTypes.range
+            productFilterTypes.range,
         ],
 
         object: [
@@ -184,15 +184,15 @@ export default function conditionService() {
             productFilterTypes.lessThan,
             productFilterTypes.lessThanEquals,
             productFilterTypes.notEquals,
-            productFilterTypes.range
+            productFilterTypes.range,
         ],
 
         default: [
             productFilterTypes.equals,
             productFilterTypes.notEquals,
             productFilterTypes.equalsAny,
-            productFilterTypes.notEqualsAny
-        ]
+            productFilterTypes.notEqualsAny,
+        ],
     };
 
     return {
@@ -212,7 +212,7 @@ export default function conditionService() {
         negateOperator,
         getOperator,
         isNegatedType,
-        isRangeType
+        isRangeType,
     };
 
     /**
@@ -276,8 +276,8 @@ export default function conditionService() {
                 type: 'productStreamFilter',
                 component: 'sw-product-stream-filter',
                 label: 'product',
-                scopes: ['product']
-            }
+                scopes: ['product'],
+            },
         ];
     }
 
@@ -348,7 +348,7 @@ export default function conditionService() {
         return [
             productFilterTypes.notContains.identifier,
             productFilterTypes.notEqualsAny.identifier,
-            productFilterTypes.notEquals.identifier
+            productFilterTypes.notEquals.identifier,
         ].includes(type);
     }
 
@@ -358,7 +358,7 @@ export default function conditionService() {
             productFilterTypes.lessThanEquals.identifier,
             productFilterTypes.greaterThan.identifier,
             productFilterTypes.greaterThanEquals.identifier,
-            productFilterTypes.range.identifier
+            productFilterTypes.range.identifier,
         ].includes(type);
     }
 }

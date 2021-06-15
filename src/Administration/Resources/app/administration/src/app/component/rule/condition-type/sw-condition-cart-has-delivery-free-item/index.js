@@ -15,7 +15,7 @@ Component.extend('sw-condition-cart-has-delivery-free-item', 'sw-condition-base'
             set(allowed) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, allowed };
-            }
+            },
         },
         trueOption() {
             return { value: true, label: this.$tc('global.sw-condition.condition.yes') };
@@ -32,6 +32,6 @@ Component.extend('sw-condition-cart-has-delivery-free-item', 'sw-condition-base'
 
         currentError() {
             return this.conditionValueAllowedError;
-        }
-    }
+        },
+    },
 });

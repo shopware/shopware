@@ -21,28 +21,28 @@ Component.register('sw-text-preview', {
     props: {
         text: {
             type: String,
-            required: true
+            required: true,
         },
         maximumLength: {
             type: Number,
-            required: true
+            required: true,
         },
         modalTitle: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         maximumNewLines: {
             type: Number,
             required: false,
-            default: 0
-        }
+            default: 0,
+        },
     },
 
     data() {
         return {
             shortened: false,
-            showModal: false
+            showModal: false,
         };
     },
 
@@ -69,7 +69,7 @@ Component.register('sw-text-preview', {
         },
         fullText() {
             return this.text.replace(lineExpr, lineBreak);
-        }
+        },
     },
 
     methods: {
@@ -79,6 +79,6 @@ Component.register('sw-text-preview', {
 
         openModal() {
             this.showModal = true;
-        }
-    }
+        },
+    },
 });

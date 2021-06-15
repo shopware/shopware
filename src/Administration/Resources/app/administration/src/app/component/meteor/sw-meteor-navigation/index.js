@@ -23,9 +23,9 @@ Component.register('sw-meteor-navigation', {
 
             return {
                 name: this.$route.meta.parentPath,
-                label: this.$tc('sw-meteor.navigation.backButton')
+                label: this.$tc('sw-meteor.navigation.backButton'),
             };
-        }
-    }
+        },
+    },
 });
 }

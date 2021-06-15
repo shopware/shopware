@@ -10,22 +10,22 @@ Component.register('sw-order-delivery-metadata', {
         delivery: {
             type: Object,
             required: true,
-            default: () => {}
+            default: () => {},
         },
         order: {
             type: Object,
             required: true,
-            default: () => {}
+            default: () => {},
         },
         title: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
-    }
+            default: false,
+        },
+    },
 });

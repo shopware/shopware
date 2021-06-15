@@ -9,11 +9,11 @@ Component.register('sw-event-action-list', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
     ],
 
     data() {
@@ -23,13 +23,13 @@ Component.register('sw-event-action-list', {
             sortDirection: 'ASC',
             isLoading: false,
             mailTemplates: null,
-            total: 0
+            total: 0,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -71,7 +71,7 @@ Component.register('sw-event-action-list', {
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
             criteria.addFilter(Criteria.equals('actionName', 'action.mail.send'));
             criteria.addFilter(Criteria.not('and', [
-                Criteria.equals('config.mail_template_id', null)
+                Criteria.equals('config.mail_template_id', null),
             ]));
 
             return criteria;
@@ -85,41 +85,41 @@ Component.register('sw-event-action-list', {
                 routerLink: 'sw.event.action.detail',
                 multiLine: true,
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'title',
                 dataIndex: 'title',
                 label: 'sw-event-action.list.columnTitle',
                 routerLink: 'sw.event.action.detail',
                 multiLine: true,
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'salesChannels',
                 dataIndex: 'salesChannels',
                 label: 'sw-event-action.list.columnSalesChannel',
                 sortable: false,
                 allowResize: true,
-                multiLine: true
+                multiLine: true,
             }, {
                 property: 'rules',
                 dataIndex: 'rules',
                 label: 'sw-event-action.list.columnRules',
                 sortable: false,
                 allowResize: true,
-                multiLine: true
+                multiLine: true,
             }, {
                 property: 'mailTemplate',
                 label: 'sw-event-action.list.columnMailTemplate',
                 multiLine: true,
-                sortable: false
+                sortable: false,
             }, {
                 property: 'active',
                 dataIndex: 'active',
                 label: 'sw-event-action.list.columnActive',
                 align: 'center',
-                allowResize: true
+                allowResize: true,
             }];
-        }
+        },
     },
 
     methods: {
@@ -180,6 +180,6 @@ Component.register('sw-event-action-list', {
 
         snakeCaseEventName(value) {
             return snakeCase(value);
-        }
-    }
+        },
+    },
 });

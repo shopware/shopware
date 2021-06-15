@@ -5,18 +5,18 @@ Shopware.Component.register('sw-users-permissions-role-view-detailed', {
     template,
 
     inject: [
-        'acl'
+        'acl',
     ],
 
     props: {
         role: {
             type: Object,
-            required: true
+            required: true,
         },
 
         detailedPrivileges: {
             type: Array,
-            required: true
-        }
-    }
+            required: true,
+        },
+    },
 });

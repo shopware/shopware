@@ -8,7 +8,7 @@ Shopware.Mixin.register('media-sidebar-modal-mixin', {
             showModalDelete: false,
             showFolderSettings: false,
             showFolderDissolve: false,
-            showModalMove: false
+            showModalMove: false,
         };
     },
 
@@ -90,6 +90,6 @@ Shopware.Mixin.register('media-sidebar-modal-mixin', {
             this.$nextTick(() => {
                 this.$emit('media-sidebar-items-move', ids);
             });
-        }
-    }
+        },
+    },
 });

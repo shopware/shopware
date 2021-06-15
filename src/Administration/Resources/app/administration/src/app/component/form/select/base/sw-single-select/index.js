@@ -8,48 +8,48 @@ Component.register('sw-single-select', {
     template,
 
     mixins: [
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         options: {
             required: true,
-            type: Array
+            type: Array,
         },
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         labelProperty: {
             type: String,
             required: false,
-            default: 'label'
+            default: 'label',
         },
         valueProperty: {
             type: String,
             required: false,
-            default: 'value'
+            default: 'value',
         },
 
         popoverClasses: {
@@ -57,7 +57,7 @@ Component.register('sw-single-select', {
             required: false,
             default() {
                 return [];
-            }
+            },
         },
 
         // Used to implement a custom search function.
@@ -73,14 +73,14 @@ Component.register('sw-single-select', {
                     }
                     return label.toLowerCase().includes(searchTerm.toLowerCase());
                 });
-            }
+            },
         },
 
         disableSearchFunction: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -89,7 +89,7 @@ Component.register('sw-single-select', {
             isExpanded: false,
             results: this.options,
             // used to track if an item was selected before closing the result list
-            itemRecentlySelected: false
+            itemRecentlySelected: false,
         };
     },
 
@@ -100,18 +100,18 @@ Component.register('sw-single-select', {
             },
             set(newValue) {
                 this.$emit('change', newValue);
-            }
+            },
         },
 
         inputClasses() {
             return {
-                'is--expanded': this.isExpanded
+                'is--expanded': this.isExpanded,
             };
         },
 
         selectionTextClasses() {
             return {
-                'is--placeholder': !this.singleSelection
+                'is--placeholder': !this.singleSelection,
             };
         },
 
@@ -123,7 +123,7 @@ Component.register('sw-single-select', {
             },
             set(newValue) {
                 this.currentValue = this.getKey(newValue, this.valueProperty);
-            }
+            },
         },
 
         /**
@@ -131,7 +131,7 @@ Component.register('sw-single-select', {
          */
         visibleResults() {
             return this.results;
-        }
+        },
     },
 
     methods: {
@@ -213,8 +213,8 @@ Component.register('sw-single-select', {
                     options: this.options,
                     labelProperty: this.labelProperty,
                     valueProperty: this.valueProperty,
-                    searchTerm: this.searchTerm
-                }
+                    searchTerm: this.searchTerm,
+                },
             );
 
             this.$nextTick(() => {
@@ -224,6 +224,6 @@ Component.register('sw-single-select', {
 
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
-        }
-    }
+        },
+    },
 });

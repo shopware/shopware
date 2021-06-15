@@ -6,19 +6,19 @@ Shopware.Component.register('sw-gtc-checkbox', {
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         value: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     methods: {
         onChange(value) {
             this.$emit('change', value);
-        }
-    }
+        },
+    },
 });

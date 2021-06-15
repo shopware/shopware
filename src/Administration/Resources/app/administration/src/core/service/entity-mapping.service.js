@@ -4,14 +4,14 @@ const { Entity } = Shopware;
  * @module core/service/validation
  */
 export default {
-    getEntityMapping
+    getEntityMapping,
 };
 
 const mappingTypesCache = {};
 
 function getEntityMapping(entityName, entityNameMapping) {
     let schema = {
-        properties: {}
+        properties: {},
     };
 
     if (typeof entityName === 'undefined') {
@@ -22,7 +22,7 @@ function getEntityMapping(entityName, entityNameMapping) {
         Object.keys(entityNameMapping).forEach((mappedKey) => {
             schema.properties[mappedKey] = {
                 entity: entityNameMapping[mappedKey],
-                type: 'object'
+                type: 'object',
             };
         });
     } else {
@@ -51,7 +51,7 @@ function getEntityMapping(entityName, entityNameMapping) {
                     mappingTypesCache[lastEntityName] = {};
                     mappingTypesCache[lastEntityName] = handlePropertyMappings(
                         schema.properties,
-                        mappingTypesCache[lastEntityName]
+                        mappingTypesCache[lastEntityName],
                     );
                 }
             }

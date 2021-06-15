@@ -10,7 +10,7 @@ Application.addServiceProvider('cmsService', () => {
         getCmsElementRegistry,
         getCmsBlockRegistry,
         getEntityMappingTypes,
-        getPropertyByMappingPath
+        getPropertyByMappingPath,
     };
 });
 
@@ -104,13 +104,13 @@ function getEntityData(element, configKey) {
         entityData = {
             value: entityIds,
             key: configKey,
-            ...entity
+            ...entity,
         };
     } else {
         entityData = {
             value: [configValue],
             key: configKey,
-            ...entity
+            ...entity,
         };
     }
 
@@ -198,7 +198,7 @@ function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep 
                     propSchema.properties,
                     mappings,
                     `${pathPrefix}.${property}`,
-                    false
+                    false,
                 );
             }
         } else if (propSchema.type === 'array') {

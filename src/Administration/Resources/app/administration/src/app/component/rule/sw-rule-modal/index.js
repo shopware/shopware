@@ -18,27 +18,27 @@ Component.register('sw-rule-modal', {
 
     inject: [
         'repositoryFactory',
-        'ruleConditionDataProviderService'
+        'ruleConditionDataProviderService',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         allowedRuleScopes: {
             type: Array,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             rule: null,
             initialConditions: null,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -54,7 +54,7 @@ Component.register('sw-rule-modal', {
 
             return this.repositoryFactory.create(
                 this.rule.conditions.entity,
-                this.rule.conditions.source
+                this.rule.conditions.source,
             );
         },
 
@@ -65,7 +65,7 @@ Component.register('sw-rule-modal', {
             return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));
         },
 
-        ...mapPropertyErrors('rule', ['name', 'priority'])
+        ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
     created() {
@@ -87,19 +87,19 @@ Component.register('sw-rule-modal', {
             const messageSaveSuccess = this.$tc(
                 'sw-rule-modal.messageSaveSuccess',
                 0,
-                { name: this.rule.name }
+                { name: this.rule.name },
             );
 
             const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
-                'sw-rule-modal.messageSaveError', 0, { name: this.rule.name }
+                'sw-rule-modal.messageSaveError', 0, { name: this.rule.name },
             );
 
             this.isLoading = true;
             return this.ruleRepository.save(this.rule, Context.api).then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
-                    message: messageSaveSuccess
+                    message: messageSaveSuccess,
                 });
 
                 this.loading = false;
@@ -109,9 +109,9 @@ Component.register('sw-rule-modal', {
                 this.isLoading = false;
                 this.createNotificationError({
                     title: titleSaveError,
-                    message: messageSaveError
+                    message: messageSaveError,
                 });
             });
-        }
-    }
+        },
+    },
 });

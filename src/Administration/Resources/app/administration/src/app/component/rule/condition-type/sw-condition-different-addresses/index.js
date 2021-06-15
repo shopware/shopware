@@ -19,12 +19,12 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
             return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: true
+                    value: true,
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: false
-                }
+                    value: false,
+                },
             ];
         },
         isDifferent: {
@@ -34,13 +34,13 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
             },
             set(isDifferent) {
                 this.condition.value = { ...this.condition.value, isDifferent };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.isDifferent']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIsDifferentError;
-        }
-    }
+        },
+    },
 });

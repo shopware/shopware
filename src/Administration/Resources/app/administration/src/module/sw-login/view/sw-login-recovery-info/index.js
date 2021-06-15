@@ -12,6 +12,6 @@ Component.register('sw-login-recovery-info', {
     methods: {
         createdComponent() {
             this.$emit('is-not-loading');
-        }
-    }
+        },
+    },
 });

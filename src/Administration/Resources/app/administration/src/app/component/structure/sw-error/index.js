@@ -22,20 +22,20 @@ Component.register('sw-error', {
             required: false,
             default() {
                 return {};
-            }
+            },
         },
         routerLink: {
             type: Object,
             required: false,
             default() {
                 return {};
-            }
+            },
         },
         linkText: {
             type: String,
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     computed: {
@@ -71,7 +71,7 @@ Component.register('sw-error', {
 
         showLink() {
             return Object.keys(this.routerLink).length > 0;
-        }
+        },
     },
 
     created() {
@@ -83,6 +83,6 @@ Component.register('sw-error', {
             if (!this.linkText) {
                 this.linkText = this.$tc('sw-error.general.textLink');
             }
-        }
-    }
+        },
+    },
 });

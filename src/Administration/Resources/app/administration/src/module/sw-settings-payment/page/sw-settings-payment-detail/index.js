@@ -12,7 +12,7 @@ Component.register('sw-settings-payment-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     shortcuts: {
@@ -20,9 +20,9 @@ Component.register('sw-settings-payment-detail', {
             active() {
                 return this.acl.can('payment.editor');
             },
-            method: 'onSave'
+            method: 'onSave',
         },
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
@@ -32,13 +32,13 @@ Component.register('sw-settings-payment-detail', {
             uploadTag: 'sw-payment-method-upload-tag',
             isLoading: false,
             isSaveSuccessful: false,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -64,21 +64,21 @@ Component.register('sw-settings-payment-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('payment.editor'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
             const systemKey = this.$device.getSystemKey();
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -88,8 +88,8 @@ Component.register('sw-settings-payment-detail', {
                 'OR',
                 [
                     Criteria.contains('rule.moduleTypes.types', 'payment'),
-                    Criteria.equals('rule.moduleTypes', null)
-                ]
+                    Criteria.equals('rule.moduleTypes', null),
+                ],
             ));
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
@@ -99,7 +99,7 @@ Component.register('sw-settings-payment-detail', {
 
         showCustomFields() {
             return this.paymentMethod && this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     watch: {
@@ -107,7 +107,7 @@ Component.register('sw-settings-payment-detail', {
             if (this.paymentMethod.mediaId) {
                 this.setMediaItem({ targetId: this.paymentMethod.mediaId });
             }
-        }
+        },
     },
 
     created() {
@@ -168,7 +168,7 @@ Component.register('sw-settings-payment-detail', {
 
         onSave() {
             const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
+                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
             );
             this.isSaveSuccessful = false;
             this.isLoading = true;
@@ -181,7 +181,7 @@ Component.register('sw-settings-payment-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: messageSaveError
+                        message: messageSaveError,
                     });
                     warn(this._name, exception.message, exception.response);
                     throw exception;
@@ -219,6 +219,6 @@ Component.register('sw-settings-payment-detail', {
 
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
-        }
-    }
+        },
+    },
 });

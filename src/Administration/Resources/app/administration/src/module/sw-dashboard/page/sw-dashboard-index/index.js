@@ -14,13 +14,13 @@ Component.register('sw-dashboard-index', {
             historyOrderData: null,
             todayOrderData: [],
             todayOrderDataLoaded: false,
-            cachedHeadlineGreetingKey: null
+            cachedHeadlineGreetingKey: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -30,7 +30,7 @@ Component.register('sw-dashboard-index', {
             const welcomeMessage = this.$tc(
                 this.cachedHeadlineGreetingKey,
                 1,
-                { greetingName }
+                { greetingName },
             );
 
             // in the headline we want to greet the user by his firstname
@@ -68,9 +68,9 @@ Component.register('sw-dashboard-index', {
                     min: 0,
                     tickAmount: 3,
                     labels: {
-                        formatter: (value) => { return parseInt(value, 10); }
-                    }
-                }
+                        formatter: (value) => { return parseInt(value, 10); },
+                    },
+                },
             };
         },
 
@@ -84,9 +84,9 @@ Component.register('sw-dashboard-index', {
                     tickAmount: 5,
                     labels: {
                         // price aggregations do not support currencies yet, see NEXT-5069
-                        formatter: (value) => this.$options.filters.currency(value, null, 2)
-                    }
-                }
+                        formatter: (value) => this.$options.filters.currency(value, null, 2),
+                    },
+                },
             };
         },
 
@@ -183,7 +183,7 @@ Component.register('sw-dashboard-index', {
 
         systemCurrencyISOCode() {
             return Shopware.Context.app.systemCurrencyISOCode;
-        }
+        },
     },
 
     created() {
@@ -228,8 +228,8 @@ Component.register('sw-dashboard-index', {
                     'orderDateTime',
                     'day',
                     null,
-                    Criteria.sum('totalAmount', 'amountTotal')
-                )
+                    Criteria.sum('totalAmount', 'amountTotal'),
+                ),
             );
 
             // add filter for last 30 days
@@ -259,27 +259,27 @@ Component.register('sw-dashboard-index', {
                 label: 'sw-order.list.columnOrderNumber',
                 routerLink: 'sw.order.detail',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'orderDateTime',
                 dataIndex: 'orderDateTime',
                 label: 'sw-dashboard.todayStats.orderTime',
                 allowResize: true,
-                primary: false
+                primary: false,
             }, {
                 property: 'orderCustomer.firstName',
                 dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
                 label: 'sw-order.list.columnCustomerName',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'stateMachineState.name',
                 label: 'sw-order.list.columnState',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'amountTotal',
                 label: 'sw-order.list.columnAmount',
                 align: 'right',
-                allowResize: true
+                allowResize: true,
             }];
         },
 
@@ -329,6 +329,6 @@ Component.register('sw-dashboard-index', {
             const fallbackGreetings = i18nMessages?.[this.$i18n.fallbackLocale]?.['sw-dashboard']?.introduction?.[type];
 
             return localeGreetings ?? fallbackGreetings;
-        }
-    }
+        },
+    },
 });

@@ -33,11 +33,11 @@ Module.register('sw-settings-search', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'product_search_config.viewer'
+                privilege: 'product_search_config.viewer',
             },
 
             redirect: {
-                name: 'sw.settings.search.index.general'
+                name: 'sw.settings.search.index.general',
             },
 
             children: {
@@ -46,8 +46,8 @@ Module.register('sw-settings-search', {
                     path: 'general',
                     meta: {
                         parentPath: 'sw.settings.index',
-                        privilege: 'product_search_config.viewer'
-                    }
+                        privilege: 'product_search_config.viewer',
+                    },
                 },
 
                 liveSearch: {
@@ -55,17 +55,17 @@ Module.register('sw-settings-search', {
                     path: 'live-search',
                     meta: {
                         parentPath: 'sw.settings.index',
-                        privilege: 'product_search_config.viewer'
-                    }
-                }
-            }
-        }
+                        privilege: 'product_search_config.viewer',
+                    },
+                },
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.search.index',
         icon: 'default-action-search',
-        privilege: 'product_search_config.viewer'
-    }
+        privilege: 'product_search_config.viewer',
+    },
 });

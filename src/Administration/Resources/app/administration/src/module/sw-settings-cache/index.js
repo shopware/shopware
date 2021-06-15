@@ -21,15 +21,15 @@ Module.register('sw-settings-cache', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.clear_cache'
-            }
-        }
+                privilege: 'system.clear_cache',
+            },
+        },
     },
 
     settingsItem: {
         privilege: 'system.clear_cache',
         group: 'system',
         to: 'sw.settings.cache.index',
-        icon: 'default-action-replace'
-    }
+        icon: 'default-action-replace',
+    },
 });

@@ -9,7 +9,7 @@ Component.extend('sw-category-sales-channel-multi-select', 'sw-entity-multi-sele
     computed: {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        }
+        },
     },
 
     methods: {
@@ -36,6 +36,6 @@ Component.extend('sw-category-sales-channel-multi-select', 'sw-entity-multi-sele
             this.$emit('item-add', item);
             this.emitChanges(changedCollection);
             this.onSelectExpanded();
-        }
-    }
+        },
+    },
 });

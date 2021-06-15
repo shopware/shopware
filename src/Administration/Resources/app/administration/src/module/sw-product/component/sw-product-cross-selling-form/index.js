@@ -12,25 +12,25 @@ Component.register('sw-product-cross-selling-form', {
 
     provide() {
         return {
-            productCustomFields: {}
+            productCustomFields: {},
         };
     },
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         crossSelling: {
             type: Object,
-            required: true
+            required: true,
         },
 
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -44,7 +44,7 @@ Component.register('sw-product-cross-selling-form', {
             useManualAssignment: false,
             sortBy: 'name',
             sortDirection: 'ASC',
-            assignmentKey: 0
+            assignmentKey: 0,
         };
     },
 
@@ -52,15 +52,15 @@ Component.register('sw-product-cross-selling-form', {
         ...mapPropertyErrors('crossSelling', [
             'name',
             'type',
-            'position'
+            'position',
         ]),
 
         ...mapState('swProductDetail', [
-            'product'
+            'product',
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
         ]),
 
         productCrossSellingRepository() {
@@ -85,7 +85,7 @@ Component.register('sw-product-cross-selling-form', {
             const criteria = new Criteria();
 
             criteria.addFilter(
-                Criteria.equals('productStreamId', this.crossSelling.productStreamId)
+                Criteria.equals('productStreamId', this.crossSelling.productStreamId),
             );
 
             return criteria;
@@ -98,29 +98,29 @@ Component.register('sw-product-cross-selling-form', {
         sortingTypes() {
             return [{
                 label: this.$tc('sw-product.crossselling.priceDescendingSortingType'),
-                value: 'price:DESC'
+                value: 'price:DESC',
             }, {
                 label: this.$tc('sw-product.crossselling.priceAscendingSortingType'),
-                value: 'price:ASC'
+                value: 'price:ASC',
             }, {
                 label: this.$tc('sw-product.crossselling.nameSortingType'),
-                value: 'name:ASC'
+                value: 'name:ASC',
             }, {
                 label: this.$tc('sw-product.crossselling.releaseDateDescendingSortingType'),
-                value: 'releaseDate:DESC'
+                value: 'releaseDate:DESC',
             }, {
                 label: this.$tc('sw-product.crossselling.releaseDateAscendingSortingType'),
-                value: 'releaseDate:ASC'
+                value: 'releaseDate:ASC',
             }];
         },
 
         crossSellingTypes() {
             return [{
                 label: this.$tc('sw-product.crossselling.productStreamType'),
-                value: 'productStream'
+                value: 'productStream',
             }, {
                 label: this.$tc('sw-product.crossselling.productListType'),
-                value: 'productList'
+                value: 'productList',
             }];
         },
 
@@ -138,7 +138,7 @@ Component.register('sw-product-cross-selling-form', {
 
         associationValue() {
             return this.crossSelling?.productStreamId || '';
-        }
+        },
     },
 
     watch: {
@@ -146,7 +146,7 @@ Component.register('sw-product-cross-selling-form', {
             if (!this.useManualAssignment) {
                 this.loadStreamPreview();
             }
-        }
+        },
     },
 
     created() {
@@ -216,6 +216,6 @@ Component.register('sw-product-cross-selling-form', {
 
         onTypeChanged(value) {
             this.useManualAssignment = value === 'productList';
-        }
-    }
+        },
+    },
 });

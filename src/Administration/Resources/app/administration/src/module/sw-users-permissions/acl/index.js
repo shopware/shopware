@@ -13,9 +13,9 @@ Shopware.Service('privileges')
                     'app:read',
                     'user_config:read',
                     'user_config:create',
-                    'user_config:update'
+                    'user_config:update',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
@@ -24,30 +24,30 @@ Shopware.Service('privileges')
                     'acl_role:update',
                     'user_access_key:create',
                     'user_access_key:update',
-                    'user_access_key:delete'
+                    'user_access_key:delete',
                 ],
                 dependencies: [
-                    'users_and_permissions.viewer'
-                ]
+                    'users_and_permissions.viewer',
+                ],
             },
             creator: {
                 privileges: [
                     'user:create',
-                    'acl_role:create'
+                    'acl_role:create',
                 ],
                 dependencies: [
                     'users_and_permissions.viewer',
-                    'users_and_permissions.editor'
-                ]
+                    'users_and_permissions.editor',
+                ],
             },
             deleter: {
                 privileges: [
                     'user:delete',
-                    'acl_role:delete'
+                    'acl_role:delete',
                 ],
                 dependencies: [
-                    'users_and_permissions.viewer'
-                ]
-            }
-        }
+                    'users_and_permissions.viewer',
+                ],
+            },
+        },
     });

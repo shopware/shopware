@@ -17,7 +17,7 @@ Component.register('sw-media-modal-delete', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -26,15 +26,15 @@ Component.register('sw-media-modal-delete', {
             type: Array,
             validator(value) {
                 return (value.length !== 0);
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             mediaItems: [],
             folders: [],
-            notificationId: null
+            notificationId: null,
         };
     },
 
@@ -54,7 +54,7 @@ Component.register('sw-media-modal-delete', {
                 return {
                     successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.mediaAndFolder',
                     errorOverall: this.$tc(
-                        'global.sw-media-modal-delete.notification.errorOverall.message.mediaAndFolder'
+                        'global.sw-media-modal-delete.notification.errorOverall.message.mediaAndFolder',
                     ),
                     modalTitle: this.$tc('global.default.warning'),
                     deleteMessage: this.$tc(
@@ -62,9 +62,9 @@ Component.register('sw-media-modal-delete', {
                         this.itemsToDelete.length,
                         {
                             mediaCount: this.mediaItems.length,
-                            folderCount: this.folders.length
-                        }
-                    )
+                            folderCount: this.folders.length,
+                        },
+                    ),
                 };
             }
 
@@ -78,9 +78,9 @@ Component.register('sw-media-modal-delete', {
                         this.mediaItems.length,
                         {
                             name: this.mediaNameFilter(this.mediaItems[0]),
-                            count: this.mediaItems.length
-                        }
-                    )
+                            count: this.mediaItems.length,
+                        },
+                    ),
                 };
             }
 
@@ -93,9 +93,9 @@ Component.register('sw-media-modal-delete', {
                     this.folders.length,
                     {
                         name: this.folders[0].name,
-                        count: this.folders.length
-                    }
-                )
+                        count: this.folders.length,
+                    },
+                ),
             };
         },
 
@@ -108,7 +108,7 @@ Component.register('sw-media-modal-delete', {
             if (this.mediaItems.length <= 1) return [];
 
             return this.mediaItems.filter(mediaItem => this._checkInUsage(mediaItem));
-        }
+        },
     },
 
     created() {
@@ -161,7 +161,7 @@ Component.register('sw-media-modal-delete', {
                         this.$tc(`${errorSnippet}.folder`, 1, { name: item.name });
 
                     this.createNotificationError({
-                        message
+                        message,
                     });
 
                     return false;
@@ -193,8 +193,8 @@ Component.register('sw-media-modal-delete', {
                 'media-delete-modal-items-delete',
                 {
                     mediaIds: this.mediaItems.map((media) => { return media.id; }),
-                    folderIds: this.folders.map((folder) => { return folder.id; })
-                }
+                    folderIds: this.folders.map((folder) => { return folder.id; }),
+                },
             );
         },
 
@@ -205,16 +205,16 @@ Component.register('sw-media-modal-delete', {
                     successAmount,
                     {
                         count: successAmount,
-                        total: totalAmount
-                    }
+                        total: totalAmount,
+                    },
                 ),
-                growl: successAmount + failureAmount === totalAmount
+                growl: successAmount + failureAmount === totalAmount,
             };
 
             if (this.notificationId !== null) {
                 await Shopware.State.dispatch('notification/updateNotification', {
                     uuid: this.notificationId,
-                    ...notification
+                    ...notification,
                 });
 
                 if (successAmount + failureAmount === totalAmount) {
@@ -226,7 +226,7 @@ Component.register('sw-media-modal-delete', {
 
             const newNotificationId = await Shopware.State.dispatch('notification/createNotification', {
                 variant: 'success',
-                ...notification
+                ...notification,
             });
 
             if (successAmount + failureAmount < totalAmount) {
@@ -246,12 +246,12 @@ Component.register('sw-media-modal-delete', {
                 'mailTemplateMedia',
                 'documentBaseConfigs',
                 'paymentMethods',
-                'shippingMethods'
+                'shippingMethods',
             ];
 
             return mediaAssociations.some((association) => {
                 return mediaItem[association].length > 0;
             });
-        }
-    }
+        },
+    },
 });

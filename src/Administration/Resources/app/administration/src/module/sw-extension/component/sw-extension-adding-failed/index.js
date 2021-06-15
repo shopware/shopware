@@ -11,32 +11,32 @@ Component.register('sw-extension-adding-failed', {
     template,
 
     inject: [
-        'shopwareExtensionService'
+        'shopwareExtensionService',
     ],
 
     props: {
         extensionName: {
             type: String,
-            required: true
+            required: true,
         },
 
         title: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         detail: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         documentationLink: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -66,6 +66,6 @@ Component.register('sw-extension-adding-failed', {
             }
 
             return this.$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem');
-        }
-    }
+        },
+    },
 });

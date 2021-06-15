@@ -11,9 +11,9 @@ Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', {
             propertyNames: {
                 label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
                 placeholder: this.$tc('sw-settings-custom-field.customField.detail.labelPlaceholder'),
-                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText')
+                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
-            multiSelectSwitch: false
+            multiSelectSwitch: false,
         };
     },
 
@@ -57,6 +57,6 @@ Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', {
             }
 
             this.currentCustomField.config.componentName = 'sw-single-select';
-        }
-    }
+        },
+    },
 });

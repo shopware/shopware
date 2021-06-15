@@ -12,21 +12,21 @@ Component.register('sw-extension-uninstall-modal', {
     props: {
         extensionName: {
             type: String,
-            required: true
+            required: true,
         },
         isLicensed: {
             type: Boolean,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            removePluginData: false
+            removePluginData: false,
         };
     },
 
@@ -34,9 +34,9 @@ Component.register('sw-extension-uninstall-modal', {
         title() {
             return this.$t(
                 'sw-extension-store.component.sw-extension-uninstall-modal.title',
-                { extensionName: this.extensionName }
+                { extensionName: this.extensionName },
             );
-        }
+        },
     },
 
     methods: {
@@ -50,6 +50,6 @@ Component.register('sw-extension-uninstall-modal', {
 
         emitUninstall() {
             this.$emit('uninstall-extension', this.removePluginData);
-        }
-    }
+        },
+    },
 });

@@ -13,7 +13,7 @@ Component.register('sw-media-quickinfo', {
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('media-sidebar-modal-mixin'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
@@ -22,14 +22,14 @@ Component.register('sw-media-quickinfo', {
             type: Object,
             validator(value) {
                 return value.getEntityName() === 'media';
-            }
+            },
         },
 
         editable: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -37,7 +37,7 @@ Component.register('sw-media-quickinfo', {
             customFieldSets: [],
             isLoading: false,
             isSaveSuccessful: false,
-            showModalReplace: false
+            showModalReplace: false,
         };
     },
 
@@ -60,7 +60,7 @@ Component.register('sw-media-quickinfo', {
         createdAt() {
             const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
-        }
+        },
     },
 
     created() {
@@ -101,7 +101,7 @@ Component.register('sw-media-quickinfo', {
             if (this.item) {
                 dom.copyToClipboard(this.item.url);
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-media.general.notification.urlCopied.message')
+                    message: this.$tc('sw-media.general.notification.urlCopied.message'),
                 });
             }
         },
@@ -135,12 +135,12 @@ Component.register('sw-media-quickinfo', {
                 item.fileName = value;
 
                 this.createNotificationSuccess({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
+                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message'),
                 });
                 this.$emit('media-item-rename-success', item);
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
+                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
                 });
             } finally {
                 item.isLoading = false;
@@ -169,8 +169,8 @@ Component.register('sw-media-quickinfo', {
 
         quickActionClasses(disabled) {
             return ['sw-media-sidebar__quickaction', {
-                'sw-media-sidebar__quickaction--disabled': disabled
+                'sw-media-sidebar__quickaction--disabled': disabled,
             }];
-        }
-    }
+        },
+    },
 });

@@ -10,37 +10,37 @@ Component.register('sw-condition-tree-node', {
         'conditionDataProviderService',
         'createCondition',
         'insertNodeIntoTree',
-        'removeNodeFromTree'
+        'removeNodeFromTree',
     ],
 
     props: {
         level: {
             type: Number,
-            required: true
+            required: true,
         },
 
         condition: {
             type: Object,
-            required: true
+            required: true,
         },
 
         parentCondition: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         conditionNodeComponent() {
             return this.conditionDataProviderService.getComponentByCondition(this.condition);
-        }
+        },
     },
 
     methods: {
@@ -55,8 +55,8 @@ Component.register('sw-condition-tree-node', {
                     this.conditionDataProviderService.getPlaceholderData(),
                     this.parentCondition.id,
                     this.condition.position,
-                    []
-                )
+                    [],
+                ),
             );
         },
 
@@ -67,9 +67,9 @@ Component.register('sw-condition-tree-node', {
                     this.conditionDataProviderService.getPlaceholderData(),
                     this.parentCondition.id,
                     this.condition.position + 1,
-                    []
-                )
+                    [],
+                ),
             );
-        }
-    }
+        },
+    },
 });

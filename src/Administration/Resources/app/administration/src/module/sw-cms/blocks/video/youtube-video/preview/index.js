@@ -4,5 +4,5 @@ import './sw-cms-preview-youtube-video.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-preview-youtube-video', {
-    template
+    template,
 });

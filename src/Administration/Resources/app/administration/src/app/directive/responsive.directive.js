@@ -33,5 +33,5 @@ Shopware.Directive.register('responsive', {
 
         const observer = new ResizeObserver(handleResize);
         observer.observe(el);
-    }
+    },
 });

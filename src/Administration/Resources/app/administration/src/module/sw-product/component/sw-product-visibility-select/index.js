@@ -14,14 +14,14 @@ Component.extend('sw-product-visibility-select', 'sw-entity-multi-select', {
 
     computed: {
         ...mapState('swProductDetail', [
-            'product'
+            'product',
         ]),
         repository() {
             return this.repositoryFactory.create('sales_channel');
         },
         associationRepository() {
             return this.repositoryFactory.create('product_visibility');
-        }
+        },
     },
 
     methods: {
@@ -56,6 +56,6 @@ Component.extend('sw-product-visibility-select', 'sw-entity-multi-select', {
 
             this.emitChanges(changedCollection);
             this.onSelectExpanded();
-        }
-    }
+        },
+    },
 });

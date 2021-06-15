@@ -26,7 +26,7 @@ export default class ImportExportService extends ApiService {
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', {
             profileId: profileId,
             config: config,
-            expireDate: expireDate.toDateString()
+            expireDate: expireDate.toDateString(),
         }, { headers: this.getBasicHeaders() });
 
         return this.trackProgress(createdLog, callback);
@@ -71,7 +71,7 @@ export default class ImportExportService extends ApiService {
 
 
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {
-            headers: this.getBasicHeaders()
+            headers: this.getBasicHeaders(),
         });
 
         return this.trackProgress(createdLog, callback);
@@ -86,7 +86,7 @@ export default class ImportExportService extends ApiService {
     async trackProgress(logEntry, callback, progress) {
         const { data: { progress: newProgress } } = await this.httpClient.post('/_action/import-export/process', {
             logId: logEntry.data.log.id,
-            offset: (progress?.offset) ? progress.offset : 0
+            offset: (progress?.offset) ? progress.offset : 0,
         }, { headers: this.getBasicHeaders() });
 
         callback.call(this, newProgress);

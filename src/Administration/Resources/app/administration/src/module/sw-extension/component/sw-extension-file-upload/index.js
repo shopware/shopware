@@ -10,12 +10,12 @@ Component.register('sw-extension-file-upload', {
     inject: ['extensionStoreActionService', 'repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
         return {
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -38,7 +38,7 @@ Component.register('sw-extension-file-upload', {
             return this.extensionStoreActionService.upload(formData).then(() => {
                 Shopware.Service('shopwareExtensionService').updateExtensionData().then(() => {
                     return this.createNotificationSuccess({
-                        message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess')
+                        message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess'),
                     });
                 });
             }).catch((exception) => {
@@ -50,7 +50,7 @@ Component.register('sw-extension-file-upload', {
                     }
 
                     this.createNotificationError({
-                        message: this.$tc(error.message)
+                        message: this.$tc(error.message),
                     });
                 });
             }).finally(() => {
@@ -62,8 +62,8 @@ Component.register('sw-extension-file-upload', {
             const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', 0, error.parameters);
             this.createNotificationError({
                 message: `${error.message} ${docLink}`,
-                autoClose: false
+                autoClose: false,
             });
-        }
-    }
+        },
+    },
 });

@@ -13,7 +13,7 @@ Component.register('sw-app-actions', {
     data() {
         return {
             actions: [],
-            matchedRoutes: []
+            matchedRoutes: [],
         };
     },
 
@@ -38,7 +38,7 @@ Component.register('sw-app-actions', {
 
         params() {
             return Shopware.State.get('shopwareApps').selectedIds;
-        }
+        },
     },
 
     watch: {
@@ -47,8 +47,8 @@ Component.register('sw-app-actions', {
             handler() {
                 this.matchedRoutes = this.$router.currentRoute.matched;
                 this.loadActions();
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -68,9 +68,9 @@ Component.register('sw-app-actions', {
                 }
 
                 this.createNotificationError({
-                    message: this.$tc('sw-app.component.sw-app-actions.messageErrorFetchButtons')
+                    message: this.$tc('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
                 });
             }
-        }
-    }
+        },
+    },
 });

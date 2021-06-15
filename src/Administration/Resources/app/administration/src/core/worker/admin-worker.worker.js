@@ -14,7 +14,7 @@ function onMessage({ data: { context, bearerAuth, host, transports } }) {
     const baseURL = process.env.NODE_ENV !== 'production' ? `${host}${context.apiResourcePath}` : context.apiResourcePath;
     const client = Axios.create({
         baseURL: baseURL,
-        timeout: 1000 * 60 * 5
+        timeout: 1000 * 60 * 5,
     });
 
     const loginService = LoginService(client, context, bearerAuth);
@@ -70,5 +70,5 @@ function consumeMessages(messageQueueService, receiver, _setTimeout = setTimeout
 export default {
     onMessage,
     runTasks,
-    consumeMessages
+    consumeMessages,
 };

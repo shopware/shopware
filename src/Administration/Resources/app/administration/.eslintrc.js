@@ -71,6 +71,7 @@ module.exports = {
             files: ['**/*.js'],
             excludedFiles: '*.spec.js',
             rules: {
+                'comma-dangle': ['error', 'always-multiline'],
                 'vue/require-prop-types': 'error',
                 'vue/require-default-prop': 'error',
                 'vue/no-mutating-props': ['off'],

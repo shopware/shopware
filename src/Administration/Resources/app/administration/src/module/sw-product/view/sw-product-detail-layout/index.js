@@ -14,7 +14,7 @@ Component.register('sw-product-detail-layout', {
     data() {
         return {
             showLayoutModal: false,
-            isConfigLoading: false
+            isConfigLoading: false,
         };
     },
 
@@ -32,15 +32,15 @@ Component.register('sw-product-detail-layout', {
         },
 
         ...mapState('swProductDetail', [
-            'product'
+            'product',
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
         ]),
 
         ...mapState('cmsPageState', [
-            'currentPage'
+            'currentPage',
         ]),
 
         cmsPageCriteria() {
@@ -55,7 +55,7 @@ Component.register('sw-product-detail-layout', {
                 .addAssociation('slots');
 
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -72,8 +72,8 @@ Component.register('sw-product-detail-layout', {
                 }
 
                 this.updateCmsPageDataMapping();
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -155,13 +155,13 @@ Component.register('sw-product-detail-layout', {
             Shopware.State.commit('cmsPageState/setCurrentMappingEntity', 'product');
             Shopware.State.commit(
                 'cmsPageState/setCurrentMappingTypes',
-                this.cmsService.getEntityMappingTypes('product')
+                this.cmsService.getEntityMappingTypes('product'),
             );
             Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.product);
         },
 
         onResetLayout() {
             this.onSelectLayout(null);
-        }
-    }
+        },
+    },
 });

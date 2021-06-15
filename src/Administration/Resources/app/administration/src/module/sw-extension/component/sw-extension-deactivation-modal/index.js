@@ -12,16 +12,16 @@ Component.register('sw-extension-deactivation-modal', {
     props: {
         extensionName: {
             type: String,
-            required: true
+            required: true,
         },
         isLicensed: {
             type: Boolean,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -30,9 +30,9 @@ Component.register('sw-extension-deactivation-modal', {
                 {
                     removeLabel: this.isLicensed ?
                         this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') :
-                        this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel')
+                        this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
                 });
-        }
+        },
     },
 
     methods: {
@@ -46,6 +46,6 @@ Component.register('sw-extension-deactivation-modal', {
 
         emitDeactivate() {
             this.$emit('extension-deactivate');
-        }
-    }
+        },
+    },
 });

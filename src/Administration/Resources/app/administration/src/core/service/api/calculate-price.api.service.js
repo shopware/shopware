@@ -18,13 +18,13 @@ class CalculatePriceApiService extends ApiService {
             taxId,
             price,
             output,
-            currencyId
+            currencyId,
         };
 
         return this.httpClient
             .post(`/_action/${this.apiEndpoint}`, payload, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

@@ -17,28 +17,28 @@ Component.register('sw-product-image', {
     props: {
         mediaId: {
             type: String,
-            required: true
+            required: true,
         },
 
         isCover: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         isPlaceholder: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         productImageClasses() {
             return {
                 'is--placeholder': this.isPlaceholder,
-                'is--cover': this.isCover
+                'is--cover': this.isCover,
             };
-        }
-    }
+        },
+    },
 });

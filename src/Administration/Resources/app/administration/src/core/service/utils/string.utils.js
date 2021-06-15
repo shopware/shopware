@@ -13,7 +13,7 @@ export default {
     snakeCase,
     isEmptyOrSpaces,
     isUrl,
-    isValidIp
+    isValidIp,
 };
 
 /**

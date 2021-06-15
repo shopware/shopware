@@ -13,18 +13,18 @@ Component.register('sw-product-modal-variant-generation', {
     props: {
         product: {
             type: Object,
-            required: true
+            required: true,
         },
 
         groups: {
             type: Array,
-            required: true
+            required: true,
         },
 
         selectedGroups: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -37,13 +37,13 @@ Component.register('sw-product-modal-variant-generation', {
             notificationInfos: {},
             progressType: '',
             variantsNumber: 0,
-            variantsGenerator: new VariantsGenerator()
+            variantsGenerator: new VariantsGenerator(),
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
-            'currencies'
+            'currencies',
         ]),
 
         productRepository() {
@@ -65,7 +65,7 @@ Component.register('sw-product-modal-variant-generation', {
                 return this.$tc('sw-product.variations.progressTypeCalculated');
             }
             return '';
-        }
+        },
     },
 
     created() {
@@ -144,6 +144,6 @@ Component.register('sw-product-modal-variant-generation', {
         onCloseNotificationModal() {
             this.notificationModal = false;
             this.isLoading = false;
-        }
-    }
+        },
+    },
 });

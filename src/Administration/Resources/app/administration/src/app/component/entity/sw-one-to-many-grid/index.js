@@ -11,22 +11,22 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
     props: {
         collection: {
             required: true,
-            type: Array
+            type: Array,
         },
         localMode: {
             type: Boolean,
-            default: true
+            default: true,
         },
         // FIXME: add default value to this property
         // eslint-disable-next-line vue/require-default-prop
         dataSource: {
             type: [Array, Object],
-            required: false
+            required: false,
         },
         allowDelete: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         tooltipDelete: {
             type: Object,
@@ -34,17 +34,17 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             default() {
                 return {
                     message: '',
-                    disabled: true
+                    disabled: true,
                 };
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             page: 1,
             limit: 25,
-            total: 0
+            total: 0,
         };
     },
 
@@ -67,7 +67,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
                 this.collection.entity,
 
                 // product/{id}/price-rules/
-                this.collection.source
+                this.collection.source,
             );
 
             // records contains a pre loaded offset
@@ -181,7 +181,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             }
 
             this.result.criteria.addSorting(
-                Criteria.sort(column.dataIndex, direction, !!column.naturalSorting)
+                Criteria.sort(column.dataIndex, direction, !!column.naturalSorting),
             );
 
             this.currentSortBy = column.dataIndex;
@@ -200,6 +200,6 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             this.result.criteria.setLimit(params.limit);
 
             return this.load();
-        }
-    }
+        },
+    },
 });

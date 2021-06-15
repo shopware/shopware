@@ -5,7 +5,7 @@ Mixin.register('sw-settings-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     inject: ['repositoryFactory'],
@@ -17,7 +17,7 @@ Mixin.register('sw-settings-list', {
             isLoading: false,
             showDeleteModal: false,
             deleteEntity: null,
-            steps: [10, 25, 50]
+            steps: [10, 25, 50],
         };
     },
 
@@ -52,18 +52,18 @@ Mixin.register('sw-settings-list', {
                     return this.$tc(
                         `sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`,
                         0,
-                        { name: name }
+                        { name: name },
                     );
                 }
 
                 return this.$tc(
                     'global.notification.messageDeleteSuccess',
                     0,
-                    { name: name }
+                    { name: name },
                 );
             }
             return '';
-        }
+        },
     },
 
     created() {
@@ -108,7 +108,7 @@ Mixin.register('sw-settings-list', {
                 .then(() => {
                     this.createNotificationSuccess({
                         title: this.titleSaveSuccess,
-                        message: this.messageSaveSuccess
+                        message: this.messageSaveSuccess,
                     });
                 })
                 .finally(() => {
@@ -128,6 +128,6 @@ Mixin.register('sw-settings-list', {
 
         onInlineEditCancel() {
             this.getList();
-        }
-    }
+        },
+    },
 });

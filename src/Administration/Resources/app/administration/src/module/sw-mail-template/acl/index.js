@@ -11,9 +11,9 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'mail_template_media:read',
                 'mail_template_type:read',
                 'mail_template_sales_channel:read',
-                Shopware.Service('privileges').getPrivileges('media.viewer')
+                Shopware.Service('privileges').getPrivileges('media.viewer'),
             ],
-            dependencies: []
+            dependencies: [],
         },
         editor: {
             privileges: [
@@ -24,30 +24,30 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'mail_template_sales_channel:create',
                 'mail_template_sales_channel:delete',
                 'sales_channel:update',
-                Shopware.Service('privileges').getPrivileges('media.creator')
+                Shopware.Service('privileges').getPrivileges('media.creator'),
             ],
             dependencies: [
-                'mail_templates.viewer'
-            ]
+                'mail_templates.viewer',
+            ],
         },
         creator: {
             privileges: [
                 'mail_template:create',
-                'mail_header_footer:create'
+                'mail_header_footer:create',
             ],
             dependencies: [
                 'mail_templates.viewer',
-                'mail_templates.editor'
-            ]
+                'mail_templates.editor',
+            ],
         },
         deleter: {
             privileges: [
                 'mail_template:delete',
-                'mail_header_footer:delete'
+                'mail_header_footer:delete',
             ],
             dependencies: [
-                'mail_templates.viewer'
-            ]
-        }
-    }
+                'mail_templates.viewer',
+            ],
+        },
+    },
 });

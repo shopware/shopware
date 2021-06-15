@@ -10,20 +10,20 @@ Component.register('sw-review-list', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
     ],
 
     data() {
         return {
             isLoading: false,
             items: null,
-            sortBy: 'status,createdAt'
+            sortBy: 'status,createdAt',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -33,42 +33,42 @@ Component.register('sw-review-list', {
                 {
                     property: 'title',
                     dataIndex: 'title',
-                    label: 'sw-review.list.columnTitle'
+                    label: 'sw-review.list.columnTitle',
                 },
                 {
                     property: 'points',
                     dataIndex: 'points',
-                    label: 'sw-review.list.columnPoints'
+                    label: 'sw-review.list.columnPoints',
                 },
                 {
                     property: 'product',
                     dataIndex: 'product.name',
                     label: 'sw-review.list.columnProduct',
                     routerLink: 'sw.review.detail',
-                    primary: true
+                    primary: true,
                 },
                 {
                     property: 'user',
                     dataIndex: 'customer.lastName,customer.firstName',
-                    label: 'sw-review.list.columnUser'
+                    label: 'sw-review.list.columnUser',
                 },
                 {
                     property: 'createdAt',
                     dataIndex: 'createdAt',
-                    label: 'sw-review.list.columnCreatedAt'
+                    label: 'sw-review.list.columnCreatedAt',
                 },
                 {
                     property: 'status',
                     dataIndex: 'status',
                     label: 'sw-review.list.columnStatus',
-                    align: 'center'
+                    align: 'center',
                 },
                 {
                     property: 'comment',
                     dataIndex: 'comment',
                     label: 'sw-review.list.columnComment',
-                    align: 'center'
-                }
+                    align: 'center',
+                },
             ];
         },
         repository() {
@@ -86,7 +86,7 @@ Component.register('sw-review-list', {
             criteria.addAssociation('product');
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -116,6 +116,6 @@ Component.register('sw-review-list', {
                 this.total = result.total;
                 this.items = result;
             });
-        }
-    }
+        },
+    },
 });

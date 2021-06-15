@@ -7,31 +7,31 @@ Component.register('sw-product-packaging-form', {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         showSettingPackaging: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     computed: {
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
         ]),
 
         ...mapState('swProductDetail', [
             'product',
-            'parentProduct'
+            'parentProduct',
         ]),
 
         ...mapPropertyErrors('product', [
@@ -42,7 +42,7 @@ Component.register('sw-product-packaging-form', {
             'width',
             'height',
             'length',
-            'weight'
-        ])
-    }
+            'weight',
+        ]),
+    },
 });

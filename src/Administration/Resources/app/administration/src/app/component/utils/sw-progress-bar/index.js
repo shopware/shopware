@@ -17,13 +17,13 @@ Component.register('sw-progress-bar', {
     props: {
         value: {
             type: Number,
-            default: 0
+            default: 0,
         },
         maxValue: {
             type: Number,
             default: 100,
-            required: false
-        }
+            required: false,
+        },
     },
 
     computed: {
@@ -42,8 +42,8 @@ Component.register('sw-progress-bar', {
 
         progressClasses() {
             return {
-                'sw-progress-bar__value--no-transition': this.value < 1 || this.value >= this.maxValue
+                'sw-progress-bar__value--no-transition': this.value < 1 || this.value >= this.maxValue,
             };
-        }
-    }
+        },
+    },
 });

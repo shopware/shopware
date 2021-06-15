@@ -21,15 +21,15 @@ Module.register('sw-integration', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'integration.viewer'
-            }
-        }
+                privilege: 'integration.viewer',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.integration.index',
         icon: 'default-action-settings',
-        privilege: 'integration.viewer'
-    }
+        privilege: 'integration.viewer',
+    },
 });

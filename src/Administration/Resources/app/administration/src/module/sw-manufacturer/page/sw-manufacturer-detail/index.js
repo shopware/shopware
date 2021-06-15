@@ -13,20 +13,20 @@ Component.register('sw-manufacturer-detail', {
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('manufacturer')
+        Mixin.getByName('discard-detail-page-changes')('manufacturer'),
     ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
         manufacturerId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
 
@@ -35,13 +35,13 @@ Component.register('sw-manufacturer-detail', {
             manufacturer: null,
             customFieldSets: [],
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -71,7 +71,7 @@ Component.register('sw-manufacturer-detail', {
             criteria.setPage(1);
             criteria.setLimit(100);
             criteria.addFilter(
-                Criteria.equals('relations.entityName', 'product_manufacturer')
+                Criteria.equals('relations.entityName', 'product_manufacturer'),
             );
 
             criteria.getAssociation('customFields')
@@ -91,7 +91,7 @@ Component.register('sw-manufacturer-detail', {
 
                 return {
                     message: `${systemKey} + S`,
-                    appearance: 'light'
+                    appearance: 'light',
                 };
             }
 
@@ -99,24 +99,24 @@ Component.register('sw-manufacturer-detail', {
                 showDelay: 300,
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('order.editor'),
-                showOnDisabledElements: true
+                showOnDisabledElements: true,
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
-        ...mapPropertyErrors('manufacturer', ['name'])
+        ...mapPropertyErrors('manufacturer', ['name']),
     },
 
     watch: {
         manufacturerId() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -201,8 +201,8 @@ Component.register('sw-manufacturer-detail', {
                 this.isLoading = false;
                 this.createNotificationError({
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
-                    )
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                    ),
                 });
                 throw exception;
             });
@@ -210,6 +210,6 @@ Component.register('sw-manufacturer-detail', {
 
         onCancel() {
             this.$router.push({ name: 'sw.manufacturer.index' });
-        }
-    }
+        },
+    },
 });

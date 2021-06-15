@@ -17,8 +17,8 @@ Module.register('sw-landing-page', {
             component: 'sw-category-detail',
             path: 'index',
             redirect: {
-                name: 'sw.category.detail.base'
-            }
-        }
-    }
+                name: 'sw.category.detail.base',
+            },
+        },
+    },
 });

@@ -11,7 +11,7 @@ Component.register('sw-settings-language-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     shortcuts: {
@@ -19,17 +19,17 @@ Component.register('sw-settings-language-detail', {
             active() {
                 return this.allowSave;
             },
-            method: 'onSave'
+            method: 'onSave',
         },
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
         languageId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -39,13 +39,13 @@ Component.register('sw-settings-language-detail', {
             showAlertForChangeParentLanguage: false,
             isLoading: false,
             isSaveSuccessful: false,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -74,7 +74,7 @@ Component.register('sw-settings-language-detail', {
 
         usedLocaleCriteria() {
             return (new Criteria(1, 1)).addAggregation(
-                Criteria.terms('usedLocales', 'language.locale.code', null, null, null)
+                Criteria.terms('usedLocales', 'language.locale.code', null, null, null),
             );
         },
 
@@ -89,7 +89,7 @@ Component.register('sw-settings-language-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -97,14 +97,14 @@ Component.register('sw-settings-language-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -128,7 +128,7 @@ Component.register('sw-settings-language-detail', {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     watch: {
@@ -137,7 +137,7 @@ Component.register('sw-settings-language-detail', {
             if (this.languageId === null) {
                 this.createdComponent();
             }
-        }
+        },
     },
 
     created() {
@@ -219,6 +219,6 @@ Component.register('sw-settings-language-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
-        }
-    }
+        },
+    },
 });

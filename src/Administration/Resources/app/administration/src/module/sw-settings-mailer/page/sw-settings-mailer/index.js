@@ -20,14 +20,14 @@ Shopware.Component.register('sw-settings-mailer', {
                 'core.mailerSettings.encryption': 'null',
                 'core.mailerSettings.senderAddress': null,
                 'core.mailerSettings.deliveryAddress': null,
-                'core.mailerSettings.disableDelivery': false
-            }
+                'core.mailerSettings.disableDelivery': false,
+            },
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -36,18 +36,18 @@ Shopware.Component.register('sw-settings-mailer', {
             return [
                 {
                     value: '-bs',
-                    name: this.$tc('sw-settings-mailer.sendmail.sync')
+                    name: this.$tc('sw-settings-mailer.sendmail.sync'),
                 },
                 {
                     value: '-t',
-                    name: this.$tc('sw-settings-mailer.sendmail.async')
-                }
+                    name: this.$tc('sw-settings-mailer.sendmail.async'),
+                },
             ];
         },
 
         isSmtpMode() {
             return this.mailerSettings['core.mailerSettings.emailAgent'] === 'smtp';
-        }
+        },
     },
 
     created() {
@@ -72,7 +72,7 @@ Shopware.Component.register('sw-settings-mailer', {
             if (Object.keys(this.mailerSettings).length === 0) {
                 this.mailerSettings = {
                     'core.mailerSettings.emailAgent': '',
-                    'core.mailerSettings.sendMailOptions': '-t'
+                    'core.mailerSettings.sendMailOptions': '-t',
                 };
             }
 
@@ -97,6 +97,6 @@ Shopware.Component.register('sw-settings-mailer', {
 
         checkFirstConfiguration() {
             this.isFirstConfiguration = !this.mailerSettings['core.mailerSettings.emailAgent'];
-        }
-    }
+        },
+    },
 });

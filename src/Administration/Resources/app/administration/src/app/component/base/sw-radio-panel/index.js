@@ -22,65 +22,65 @@ Component.register('sw-radio-panel', {
 
     model: {
         prop: 'modelValue', // use the variable 'modelValue' instead of 'value' because both are relevant!
-        event: 'input'
+        event: 'input',
     },
 
     props: {
         // FIXME: add require flag, add default value
         // eslint-disable-next-line vue/require-default-prop
         value: {
-            type: String
+            type: String,
         },
         // FIXME: add require flag, add default value
         // eslint-disable-next-line vue/require-default-prop
         modelValue: {
-            type: String
+            type: String,
         },
         title: {
             type: String,
-            default: ''
+            default: '',
         },
         description: {
             type: String,
-            default: ''
+            default: '',
         },
         icon: {
             type: String,
-            default: ''
+            default: '',
         },
         id: {
             type: String,
             default() {
                 return `sw-radio-panel--${utils.createId()}`;
-            }
+            },
         },
         name: {
             type: String,
-            default: null
+            default: null,
         },
         required: {
             type: Boolean,
-            default: false
+            default: false,
         },
         disabled: {
             type: Boolean,
-            default: false
+            default: false,
         },
         truncate: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         checked() {
             return this.modelValue === this.value;
-        }
+        },
     },
 
     methods: {
         toggle() {
             this.$emit('input', this.value);
-        }
-    }
+        },
+    },
 });

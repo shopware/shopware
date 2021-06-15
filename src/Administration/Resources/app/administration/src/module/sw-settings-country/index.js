@@ -27,19 +27,19 @@ Module.register('sw-settings-country', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'country.viewer'
-            }
+                privilege: 'country.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-country-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.country.index',
-                privileges: ['country.viewer', 'country.editor']
+                privileges: ['country.viewer', 'country.editor'],
             },
 
             redirect: {
-                name: 'sw.settings.country.detail.general'
+                name: 'sw.settings.country.detail.general',
             },
 
             children: {
@@ -48,8 +48,8 @@ Module.register('sw-settings-country', {
                     path: 'general',
                     meta: {
                         parentPath: 'sw.settings.country.index',
-                        privileges: ['country.editor', 'country.creator']
-                    }
+                        privileges: ['country.editor', 'country.creator'],
+                    },
                 },
 
                 state: {
@@ -57,22 +57,22 @@ Module.register('sw-settings-country', {
                     path: 'state',
                     meta: {
                         parentPath: 'sw.settings.country.index',
-                        privileges: ['country.editor', 'country.creator']
-                    }
-                }
+                        privileges: ['country.editor', 'country.creator'],
+                    },
+                },
 
-            }
+            },
         },
         create: {
             component: 'sw-settings-country-create',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.country.index',
-                privilege: 'country.creator'
+                privilege: 'country.creator',
             },
 
             redirect: {
-                name: 'sw.settings.country.create.general'
+                name: 'sw.settings.country.create.general',
             },
 
             children: {
@@ -81,8 +81,8 @@ Module.register('sw-settings-country', {
                     path: 'general',
                     meta: {
                         parentPath: 'sw.settings.country.index',
-                        privilege: 'country.creator'
-                    }
+                        privilege: 'country.creator',
+                    },
                 },
 
                 state: {
@@ -90,18 +90,18 @@ Module.register('sw-settings-country', {
                     path: 'state',
                     meta: {
                         parentPath: 'sw.settings.country.index',
-                        privilege: 'country.creator'
-                    }
-                }
+                        privilege: 'country.creator',
+                    },
+                },
 
-            }
-        }
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.country.index',
         icon: 'default-location-map',
-        privilege: 'country.viewer'
-    }
+        privilege: 'country.viewer',
+    },
 });

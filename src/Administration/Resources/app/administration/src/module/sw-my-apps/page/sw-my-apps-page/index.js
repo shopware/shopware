@@ -9,21 +9,21 @@ Component.register('sw-my-apps-page', {
     props: {
         appName: {
             type: String,
-            required: true
+            required: true,
         },
 
         moduleName: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             appLoaded: false,
             timedOut: false,
-            timedOutTimeout: null
+            timedOutTimeout: null,
         };
     },
 
@@ -96,7 +96,7 @@ Component.register('sw-my-apps-page', {
 
         loadedMessage() {
             return 'sw-app-loaded';
-        }
+        },
     },
 
     watch: {
@@ -118,8 +118,8 @@ Component.register('sw-my-apps-page', {
                         }
                     }, 5000);
                 }
-            }
-        }
+            },
+        },
     },
 
     mounted() {
@@ -147,6 +147,6 @@ Component.register('sw-my-apps-page', {
             if (event.data === this.loadedMessage) {
                 this.appLoaded = true;
             }
-        }
-    }
+        },
+    },
 });

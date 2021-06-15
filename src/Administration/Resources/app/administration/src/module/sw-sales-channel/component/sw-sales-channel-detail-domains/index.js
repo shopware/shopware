@@ -9,21 +9,21 @@ Component.register('sw-sales-channel-detail-domains', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     props: {
         // FIXME: add type to salesChannel property
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
-            required: true
+            required: true,
         },
 
         disableEdit: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -36,10 +36,10 @@ Component.register('sw-sales-channel-detail-domains', {
                 currency: null,
                 currencyId: null,
                 snippetSet: null,
-                snippetSetId: null
+                snippetSetId: null,
             },
             isLoadingDomains: false,
-            deleteDomain: null
+            deleteDomain: null,
         };
     },
 
@@ -47,7 +47,7 @@ Component.register('sw-sales-channel-detail-domains', {
         domainRepository() {
             return this.repositoryFactory.create(
                 this.salesChannel.domains.entity,
-                this.salesChannel.domains.source
+                this.salesChannel.domains.source,
             );
         },
 
@@ -57,7 +57,7 @@ Component.register('sw-sales-channel-detail-domains', {
             }
 
             return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
-                name: this.$options.filters.unicodeUri(this.currentDomainBackup.url)
+                name: this.$options.filters.unicodeUri(this.currentDomainBackup.url),
             });
         },
 
@@ -93,13 +93,13 @@ Component.register('sw-sales-channel-detail-domains', {
                 {
                     name: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIso'),
                     value: false,
-                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIsoHelpText')
+                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIsoHelpText'),
                 },
                 {
                     name: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviation'),
                     value: true,
-                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviationHelpText')
-                }
+                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviationHelpText'),
+                },
             ];
         },
 
@@ -110,7 +110,7 @@ Component.register('sw-sales-channel-detail-domains', {
                 !this.currentDomain.url ||
                 !this.currentDomain.languageId ||
                 this.disableEdit;
-        }
+        },
     },
 
     methods: {
@@ -122,7 +122,7 @@ Component.register('sw-sales-channel-detail-domains', {
                 currency: domain.currency,
                 currencyId: domain.currencyId,
                 snippetSet: domain.snippetSet,
-                snippetSetId: domain.snippetSetId
+                snippetSetId: domain.snippetSetId,
             };
         },
 
@@ -191,26 +191,26 @@ Component.register('sw-sales-channel-detail-domains', {
                 label: this.$t('sw-sales-channel.detail.columnDomainUrl'),
                 allowResize: false,
                 primary: true,
-                inlineEdit: true
+                inlineEdit: true,
             }, {
                 property: 'languageId',
                 dataIndex: 'languageId',
                 label: this.$t('sw-sales-channel.detail.columnDomainLanguage'),
                 allowResize: false,
-                inlineEdit: false
+                inlineEdit: false,
             }, {
                 property: 'snippetSetId',
                 dataIndex: 'snippetSetId',
                 label: this.$t('sw-sales-channel.detail.columnDomainSnippetSet'),
                 allowResize: false,
-                inlineEdit: false
+                inlineEdit: false,
             }, {
                 property: 'currencyId',
                 dataIndex: 'currencyId',
                 label: this.$t('sw-sales-channel.detail.columnDomainCurrency'),
                 allowResize: false,
-                inlineEdit: false
+                inlineEdit: false,
             }];
-        }
-    }
+        },
+    },
 });

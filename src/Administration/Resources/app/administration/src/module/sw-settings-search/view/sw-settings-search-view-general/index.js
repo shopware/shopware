@@ -7,31 +7,31 @@ Shopware.Component.register('sw-settings-search-view-general', {
         productSearchConfigs: {
             type: Object,
             required: false,
-            default: () => {}
+            default: () => {},
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            searchConfigId: ''
+            searchConfigId: '',
         };
     },
 
     watch: {
         productSearchConfigs(newValue) {
             this.searchConfigId = newValue.id || '';
-        }
+        },
     },
 
     methods: {
         loadData() {
             this.$emit('excluded-search-terms-load');
-        }
-    }
+        },
+    },
 });

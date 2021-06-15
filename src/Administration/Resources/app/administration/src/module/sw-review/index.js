@@ -19,21 +19,21 @@ Module.register('sw-review', {
     routes: {
         index: {
             components: {
-                default: 'sw-review-list'
+                default: 'sw-review-list',
             },
             path: 'index',
             meta: {
-                privilege: 'review.viewer'
-            }
+                privilege: 'review.viewer',
+            },
         },
         detail: {
             component: 'sw-review-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.review.index',
-                privilege: 'review.viewer'
-            }
-        }
+                privilege: 'review.viewer',
+            },
+        },
     },
 
     navigation: [{
@@ -44,6 +44,6 @@ Module.register('sw-review', {
         icon: 'default-symbol-products',
         parent: 'sw-catalogue',
         position: 20,
-        privilege: 'review.viewer'
-    }]
+        privilege: 'review.viewer',
+    }],
 });

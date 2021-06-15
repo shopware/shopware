@@ -14,7 +14,7 @@ Component.register('sw-promotion-list', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
     ],
 
     data() {
@@ -23,13 +23,13 @@ Component.register('sw-promotion-list', {
             showDeleteModal: false,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            isLoading: true
+            isLoading: true,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -40,7 +40,7 @@ Component.register('sw-promotion-list', {
 
         promotionColumns() {
             return this.getPromotionColumns();
-        }
+        },
     },
 
     methods: {
@@ -75,31 +75,31 @@ Component.register('sw-promotion-list', {
                 routerLink: 'sw.promotion.detail',
                 inlineEdit: 'string',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'active',
                 label: 'sw-promotion.list.columnActive',
                 inlineEdit: 'boolean',
                 allowResize: true,
-                align: 'center'
+                align: 'center',
             }, {
                 property: 'validFrom',
                 label: 'sw-promotion.list.columnValidFrom',
                 inlineEdit: 'date',
                 allowResize: true,
-                align: 'center'
+                align: 'center',
             }, {
                 property: 'validUntil',
                 label: 'sw-promotion.list.columnValidUntil',
                 inlineEdit: 'date',
                 allowResize: true,
-                align: 'center'
+                align: 'center',
             }];
         },
 
         updateTotal({ total }) {
             this.total = total;
-        }
+        },
 
-    }
+    },
 });

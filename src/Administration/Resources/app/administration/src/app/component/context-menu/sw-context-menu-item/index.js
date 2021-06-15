@@ -13,25 +13,25 @@ Component.register('sw-context-menu-item', {
         icon: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         routerLink: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         target: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         variant: {
@@ -43,8 +43,8 @@ Component.register('sw-context-menu-item', {
                     return true;
                 }
                 return ['success', 'danger', 'warning', 'headline'].includes(value);
-            }
-        }
+            },
+        },
     },
 
     computed: {
@@ -52,12 +52,12 @@ Component.register('sw-context-menu-item', {
             return {
                 [`sw-context-menu-item--${this.variant}`]: this.variant,
                 'is--disabled': this.disabled && this.variant !== 'headline',
-                'sw-context-menu-item--icon': this.icon
+                'sw-context-menu-item--icon': this.icon,
             };
         },
 
         contextListeners() {
             return (this.disabled || this.variant === 'headline') ? {} : this.$listeners;
-        }
-    }
+        },
+    },
 });

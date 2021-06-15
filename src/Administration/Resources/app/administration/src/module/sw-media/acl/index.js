@@ -24,9 +24,9 @@ Shopware.Service('privileges')
                     'shipping_method:read',
                     'custom_field_set:read',
                     'custom_field:read',
-                    'custom_field_set_relation:read'
+                    'custom_field_set_relation:read',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
@@ -42,32 +42,32 @@ Shopware.Service('privileges')
                     'media_thumbnail_size:delete',
                     'media_folder_configuration_media_thumbnail_size:delete',
                     'media_folder_configuration_media_thumbnail_size:create',
-                    'media_folder_configuration_media_thumbnail_size:update'
+                    'media_folder_configuration_media_thumbnail_size:update',
                 ],
                 dependencies: [
-                    'media.viewer'
-                ]
+                    'media.viewer',
+                ],
             },
             creator: {
                 privileges: [
                     'media:create',
                     'media_folder:create',
-                    'media_default_folder:create'
+                    'media_default_folder:create',
                 ],
                 dependencies: [
                     'media.viewer',
-                    'media.editor'
-                ]
+                    'media.editor',
+                ],
             },
             deleter: {
                 privileges: [
                     'media:delete',
                     'media_folder:delete',
-                    'media_default_folder:delete'
+                    'media_default_folder:delete',
                 ],
                 dependencies: [
-                    'media.viewer'
-                ]
-            }
-        }
+                    'media.viewer',
+                ],
+            },
+        },
     });

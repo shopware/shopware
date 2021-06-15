@@ -11,7 +11,7 @@ Component.register('sw-cms-block-layout-config', {
     props: {
         block: {
             type: Object,
-            required: true
-        }
-    }
+            required: true,
+        },
+    },
 });

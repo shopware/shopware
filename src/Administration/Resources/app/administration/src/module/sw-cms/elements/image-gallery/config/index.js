@@ -11,7 +11,7 @@ Component.register('sw-cms-el-config-image-gallery', {
     inject: ['repositoryFactory', 'feature'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     data() {
@@ -20,7 +20,7 @@ Component.register('sw-cms-el-config-image-gallery', {
             initialFolderId: null,
             enitiy: this.element,
             mediaItems: [],
-            columnWidth: '100px'
+            columnWidth: '100px',
         };
     },
 
@@ -55,7 +55,7 @@ Component.register('sw-cms-el-config-image-gallery', {
 
         isProductPage() {
             return (this.cmsPageState?.currentPage?.type ?? '') === 'product_detail';
-        }
+        },
     },
 
     watch: {
@@ -85,10 +85,10 @@ Component.register('sw-cms-el-config-image-gallery', {
                     mediaId: item.media.id,
                     mediaUrl: item.media.url,
                     newTab: item.newTab,
-                    url: item.url
+                    url: item.url,
                 };
             });
-        }
+        },
     },
 
     created() {
@@ -168,7 +168,7 @@ Component.register('sw-cms-el-config-image-gallery', {
                 mediaUrl: mediaItem.url,
                 mediaId: mediaItem.id,
                 url: null,
-                newTab: false
+                newTab: false,
             });
 
             this.mediaItems.push(mediaItem);
@@ -180,11 +180,11 @@ Component.register('sw-cms-el-config-image-gallery', {
             const key = mediaItem.id;
             this.element.config.sliderItems.value =
                 this.element.config.sliderItems.value.filter(
-                    (item, i) => (item.mediaId !== key || i !== index)
+                    (item, i) => (item.mediaId !== key || i !== index),
                 );
 
             this.mediaItems = this.mediaItems.filter(
-                (item, i) => (item.id !== key || i !== index)
+                (item, i) => (item.id !== key || i !== index),
             );
 
             this.updateMediaDataValue();
@@ -197,7 +197,7 @@ Component.register('sw-cms-el-config-image-gallery', {
                     mediaUrl: item.url,
                     mediaId: item.id,
                     url: null,
-                    newTab: false
+                    newTab: false,
                 });
             });
 
@@ -242,6 +242,6 @@ Component.register('sw-cms-el-config-image-gallery', {
 
         emitUpdateEl() {
             this.$emit('element-update', this.element);
-        }
-    }
+        },
+    },
 });

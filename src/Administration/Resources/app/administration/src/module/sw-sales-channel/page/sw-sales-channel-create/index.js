@@ -21,7 +21,7 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
     computed: {
         allowSaving() {
             return this.acl.can('sales_channel.creator');
-        }
+        },
     },
 
     methods: {
@@ -48,6 +48,6 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
 
         onSave() {
             this.$super('onSave');
-        }
-    }
+        },
+    },
 });

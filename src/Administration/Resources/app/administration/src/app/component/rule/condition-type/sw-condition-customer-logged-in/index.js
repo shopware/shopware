@@ -19,12 +19,12 @@ Component.extend('sw-condition-customer-logged-in', 'sw-condition-base', {
             return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: true
+                    value: true,
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: false
-                }
+                    value: false,
+                },
             ];
         },
 
@@ -36,13 +36,13 @@ Component.extend('sw-condition-customer-logged-in', 'sw-condition-base', {
             set(isLoggedIn) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, isLoggedIn };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.isLoggedIn']),
 
         currentError() {
             return this.conditionValueIsLoggedInError;
-        }
-    }
+        },
+    },
 });

@@ -19,7 +19,7 @@ export default {
     cloneDeep: objectCopy,
     get: objectGet,
     set: objectSet,
-    pick: objectPick
+    pick: objectPick,
 };
 
 /**

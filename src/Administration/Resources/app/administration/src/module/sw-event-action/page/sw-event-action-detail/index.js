@@ -12,24 +12,24 @@ Component.register('sw-event-action-detail', {
         'repositoryFactory',
         'businessEventService',
         'acl',
-        'customFieldDataProviderService'
+        'customFieldDataProviderService',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
         eventActionId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -39,19 +39,19 @@ Component.register('sw-event-action-detail', {
             isLoading: false,
             recipients: [],
             isSaveSuccessful: false,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
     computed: {
         ...mapPropertyErrors('eventAction', [
-            'eventName'
+            'eventName',
         ]),
 
         eventActionMailTemplateError() {
@@ -61,7 +61,7 @@ Component.register('sw-event-action-detail', {
 
             return new ShopwareError({
                 code: 'EVENT_ACTION_DETAIL_MISSING_MAIL_TEMPLATE_ID',
-                detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3')
+                detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
             });
         },
 
@@ -95,7 +95,7 @@ Component.register('sw-event-action-detail', {
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -105,7 +105,7 @@ Component.register('sw-event-action-detail', {
 
                 return {
                     message: `${systemKey} + S`,
-                    appearance: 'light'
+                    appearance: 'light',
                 };
             }
 
@@ -113,19 +113,19 @@ Component.register('sw-event-action-detail', {
                 showDelay: 300,
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('event_action.editor'),
-                showOnDisabledElements: true
+                showOnDisabledElements: true,
             };
         },
 
         showCustomFields() {
             return this.eventAction && this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     watch: {
         eventActionId() {
             this.loadData();
-        }
+        },
     },
 
     created() {
@@ -155,7 +155,7 @@ Component.register('sw-event-action-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: exception
+                        message: exception,
                     });
                     this.isLoading = false;
 
@@ -174,7 +174,7 @@ Component.register('sw-event-action-detail', {
                 newEventAction.actionName = 'action.mail.send';
                 newEventAction.active = false;
                 newEventAction.config = {
-                    mail_template_type_id: Utils.createId()
+                    mail_template_type_id: Utils.createId(),
                 };
 
                 return newEventAction;
@@ -183,7 +183,7 @@ Component.register('sw-event-action-detail', {
             return this.eventActionRepository.get(
                 this.eventActionId,
                 Shopware.Context.api,
-                this.eventActionCriteria
+                this.eventActionCriteria,
             );
         },
 
@@ -218,7 +218,7 @@ Component.register('sw-event-action-detail', {
                 .then(() => {
                     if (typeof this.eventAction.isNew === 'function' && this.eventAction.isNew()) {
                         this.$router.push({
-                            name: 'sw.event.action.detail', params: { id: this.eventAction.id }
+                            name: 'sw.event.action.detail', params: { id: this.eventAction.id },
                         });
                         return Promise.resolve(this.eventAction);
                     }
@@ -230,7 +230,7 @@ Component.register('sw-event-action-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
+                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                     });
                     this.isLoading = false;
 
@@ -274,10 +274,10 @@ Component.register('sw-event-action-detail', {
                 Object.entries(this.eventAction.config.recipients).forEach(([key, value]) => {
                     this.recipients.push({
                         email: key,
-                        name: value
+                        name: value,
                     });
                 });
             }
-        }
-    }
+        },
+    },
 });

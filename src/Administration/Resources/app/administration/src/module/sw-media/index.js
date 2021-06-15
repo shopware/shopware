@@ -33,20 +33,20 @@ Module.register('sw-media', {
     routes: {
         index: {
             components: {
-                default: 'sw-media-index'
+                default: 'sw-media-index',
             },
             path: 'index/:folderId?',
             props: {
                 default: (route) => {
                     return {
-                        routeFolderId: route.params.folderId
+                        routeFolderId: route.params.folderId,
                     };
-                }
+                },
             },
             meta: {
-                privilege: 'media.viewer'
-            }
-        }
+                privilege: 'media.viewer',
+            },
+        },
     },
 
     navigation: [{
@@ -57,6 +57,6 @@ Module.register('sw-media', {
         path: 'sw.media.index',
         position: 20,
         parent: 'sw-content',
-        privilege: 'media.viewer'
-    }]
+        privilege: 'media.viewer',
+    }],
 });

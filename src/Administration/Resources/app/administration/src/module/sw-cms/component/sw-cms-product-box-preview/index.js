@@ -10,7 +10,7 @@ Component.register('sw-cms-product-box-preview', {
         hasText: {
             type: Boolean,
             default: true,
-            required: false
-        }
-    }
+            required: false,
+        },
+    },
 });

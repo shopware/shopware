@@ -10,19 +10,19 @@ Component.extend('sw-custom-field-type-number', 'sw-custom-field-type-base', {
             propertyNames: {
                 label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
                 placeholder: this.$tc('sw-settings-custom-field.customField.detail.labelPlaceholder'),
-                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText')
+                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
             numberTypes: [
                 { id: 'int', name: this.$tc('sw-settings-custom-field.customField.detail.labelInt') },
-                { id: 'float', name: this.$tc('sw-settings-custom-field.customField.detail.labelFloat') }
-            ]
+                { id: 'float', name: this.$tc('sw-settings-custom-field.customField.detail.labelFloat') },
+            ],
         };
     },
 
     watch: {
         'currentCustomField.config.numberType'(value) {
             this.currentCustomField.type = value;
-        }
+        },
     },
 
     created() {
@@ -34,6 +34,6 @@ Component.extend('sw-custom-field-type-number', 'sw-custom-field-type-base', {
             if (!this.currentCustomField.config.numberType) {
                 this.$set(this.currentCustomField.config, 'numberType', 'int');
             }
-        }
-    }
+        },
+    },
 });

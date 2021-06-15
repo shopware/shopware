@@ -4,7 +4,7 @@ Application.addServiceProvider('exportTemplateService', () => {
     return {
         registerProductExportTemplate,
         getProductExportTemplateByName,
-        getProductExportTemplateRegistry
+        getProductExportTemplateRegistry,
     };
 });
 

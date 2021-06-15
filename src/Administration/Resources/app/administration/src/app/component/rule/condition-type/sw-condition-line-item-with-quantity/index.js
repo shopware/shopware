@@ -19,7 +19,7 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
 
     data() {
         return {
-            initialProduct: null
+            initialProduct: null,
         };
     },
 
@@ -40,7 +40,7 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
             set(quantity) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, quantity };
-            }
+            },
         },
 
         id: {
@@ -51,13 +51,13 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
             set(id) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, id };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.quantity', 'value.id']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueQuantityError || this.conditionValueIdError;
-        }
-    }
+        },
+    },
 });

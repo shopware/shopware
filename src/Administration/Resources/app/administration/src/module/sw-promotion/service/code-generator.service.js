@@ -7,7 +7,7 @@ export default {
     getRandomCharacter,
     getRandomNumber,
     getCharacters,
-    getDigit
+    getDigit,
 };
 
 /**

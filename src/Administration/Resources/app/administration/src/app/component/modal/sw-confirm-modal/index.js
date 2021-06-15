@@ -26,7 +26,7 @@ Component.register('sw-confirm-modal', {
             required: false,
             default() {
                 return '';
-            }
+            },
         },
 
         text: {
@@ -34,7 +34,7 @@ Component.register('sw-confirm-modal', {
             required: false,
             default() {
                 return '';
-            }
+            },
         },
 
         variant: {
@@ -49,7 +49,7 @@ Component.register('sw-confirm-modal', {
                     return true;
                 }
                 return ['default', 'small', 'large', 'full'].includes(value);
-            }
+            },
         },
 
         type: {
@@ -64,8 +64,8 @@ Component.register('sw-confirm-modal', {
                     return true;
                 }
                 return ['confirm', 'delete', 'yesno'].includes(value);
-            }
-        }
+            },
+        },
     },
 
     computed: {
@@ -102,6 +102,6 @@ Component.register('sw-confirm-modal', {
             }
 
             return this.$tc('global.default.cancel');
-        }
-    }
+        },
+    },
 });

@@ -20,19 +20,19 @@ Component.register('sw-collapse', {
         expandOnLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            expanded: this.expandOnLoading
+            expanded: this.expandOnLoading,
         };
     },
 
     methods: {
         collapseItem() {
             this.expanded = !this.expanded;
-        }
-    }
+        },
+    },
 });

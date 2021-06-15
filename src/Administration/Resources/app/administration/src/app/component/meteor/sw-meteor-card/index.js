@@ -33,34 +33,34 @@ Component.register('sw-meteor-card', {
         title: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         hero: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         large: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         defaultTab: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            activeTab: null
+            activeTab: null,
         };
     },
 
@@ -87,9 +87,9 @@ Component.register('sw-meteor-card', {
                 'sw-meteor-card--toolbar': this.hasToolbar,
                 'sw-meteor-card--hero': !!this.hero,
                 'sw-meteor-card--large': this.large,
-                'has--header': this.hasHeader && !this.isToolbarLastHeaderElement
+                'has--header': this.hasHeader && !this.isToolbarLastHeaderElement,
             };
-        }
+        },
     },
 
     created() {
@@ -103,7 +103,7 @@ Component.register('sw-meteor-card', {
 
         setActiveTab(name) {
             this.activeTab = name;
-        }
-    }
+        },
+    },
 });
 }

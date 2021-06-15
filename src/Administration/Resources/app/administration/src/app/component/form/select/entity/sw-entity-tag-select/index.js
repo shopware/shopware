@@ -4,7 +4,7 @@ const { Criteria } = Shopware.Data;
 Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
     data() {
         return {
-            tagExists: true
+            tagExists: true,
         };
     },
 
@@ -66,7 +66,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
 
             const criteria = new Criteria();
             criteria.addFilter(
-                Criteria.equals('name', term)
+                Criteria.equals('name', term),
             );
 
             return this.repository.search(criteria, this.context).then((response) => {
@@ -78,6 +78,6 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             this.resultCollection = this.resultCollection.filter(entity => {
                 return entity.id !== -1;
             });
-        }
-    }
+        },
+    },
 });

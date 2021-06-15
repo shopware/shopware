@@ -18,7 +18,7 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
 
     data() {
         return {
-            products: null
+            products: null,
         };
     },
 
@@ -39,7 +39,7 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
             set(identifiers) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, identifiers };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.identifiers']),
@@ -57,7 +57,7 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
 
         productContext() {
             return { ...Shopware.Context.api, inheritance: true };
-        }
+        },
     },
 
     created() {
@@ -69,7 +69,7 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
             this.products = new EntityCollection(
                 this.productRepository.route,
                 this.productRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.identifiers.length <= 0) {
@@ -88,6 +88,6 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
         setProductIds(products) {
             this.identifiers = products.getIds();
             this.products = products;
-        }
-    }
+        },
+    },
 });

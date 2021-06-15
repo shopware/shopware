@@ -12,46 +12,46 @@ Shopware.Service('cmsService').registerCmsElement({
         videoID: {
             source: 'static',
             value: '',
-            required: true
+            required: true,
         },
         autoPlay: {
             source: 'static',
-            value: false
+            value: false,
         },
         loop: {
             source: 'static',
-            value: false
+            value: false,
         },
         showControls: {
             source: 'static',
-            value: true
+            value: true,
         },
         start: {
             source: 'static',
-            value: null
+            value: null,
         },
         end: {
             source: 'static',
-            value: null
+            value: null,
         },
         displayMode: {
             source: 'static',
-            value: 'standard'
+            value: 'standard',
         },
         advancedPrivacyMode: {
             source: 'static',
-            value: true
+            value: true,
         },
         needsConfirmation: {
             source: 'static',
-            value: false
+            value: false,
         },
         previewMedia: {
             source: 'static',
             value: null,
             entity: {
-                name: 'media'
-            }
-        }
-    }
+                name: 'media',
+            },
+        },
+    },
 });

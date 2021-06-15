@@ -13,7 +13,7 @@ Component.register('sw-sales-channel-modal', {
         return {
             detailType: null,
             productStreamsExist: false,
-            productStreamsLoading: false
+            productStreamsLoading: false,
         };
     },
 
@@ -40,9 +40,9 @@ Component.register('sw-sales-channel-modal', {
                 disabled: (salesChannelTypeId) => {
                     return this.isProductComparisonSalesChannelType(salesChannelTypeId) &&
                         !this.productStreamsExist;
-                }
+                },
             };
-        }
+        },
     },
 
     created() {
@@ -78,6 +78,6 @@ Component.register('sw-sales-channel-modal', {
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
-        }
-    }
+        },
+    },
 });

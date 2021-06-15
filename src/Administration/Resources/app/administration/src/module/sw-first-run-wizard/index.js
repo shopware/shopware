@@ -34,99 +34,99 @@ Module.register('sw-first-run-wizard', {
             component: 'sw-first-run-wizard',
             path: 'index',
             meta: {
-                privilege: 'admin'
+                privilege: 'admin',
             },
             redirect: {
-                name: 'sw.first.run.wizard.index.welcome'
+                name: 'sw.first.run.wizard.index.welcome',
             },
             children: {
                 welcome: {
                     component: 'sw-first-run-wizard-welcome',
                     path: '',
                     meta: {
-                        privilege: 'admin'
-                    }
+                        privilege: 'admin',
+                    },
                 },
                 'data-import': {
                     component: 'sw-first-run-wizard-data-import',
                     path: 'data-import',
                     meta: {
-                        privilege: 'admin'
-                    }
+                        privilege: 'admin',
+                    },
                 },
                 mailer: {
                     component: 'sw-first-run-wizard-mailer-base',
                     path: 'mailer',
                     meta: {
-                        privilege: 'admin'
+                        privilege: 'admin',
                     },
                     children: {
                         selection: {
                             component: 'sw-first-run-wizard-mailer-selection',
                             path: 'selection',
                             meta: {
-                                privilege: 'admin'
-                            }
+                                privilege: 'admin',
+                            },
                         },
                         smtp: {
                             component: 'sw-first-run-wizard-mailer-smtp',
                             path: 'smtp',
                             meta: {
-                                privilege: 'admin'
-                            }
+                                privilege: 'admin',
+                            },
                         },
                         local: {
                             component: 'sw-first-run-wizard-mailer-local',
                             path: 'local',
                             meta: {
-                                privilege: 'admin'
-                            }
-                        }
-                    }
+                                privilege: 'admin',
+                            },
+                        },
+                    },
                 },
                 paypal: {
                     component: 'sw-first-run-wizard-paypal-base',
                     path: 'paypal',
                     meta: {
-                        privilege: 'admin'
+                        privilege: 'admin',
                     },
                     children: {
                         info: {
                             component: 'sw-first-run-wizard-paypal-info',
                             path: 'info',
                             meta: {
-                                privilege: 'admin'
-                            }
+                                privilege: 'admin',
+                            },
                         },
                         install: {
                             component: 'sw-first-run-wizard-paypal-install',
                             path: 'install',
                             meta: {
-                                privilege: 'admin'
-                            }
+                                privilege: 'admin',
+                            },
                         },
                         credentials: {
                             component: 'sw-first-run-wizard-paypal-credentials',
                             path: 'credentials',
                             meta: {
-                                privilege: 'admin'
-                            }
-                        }
-                    }
+                                privilege: 'admin',
+                            },
+                        },
+                    },
                 },
                 markets: {
                     component: 'sw-first-run-wizard-markets',
                     path: 'markets',
                     meta: {
-                        privilege: 'admin'
-                    }
+                        privilege: 'admin',
+                    },
                 },
                 plugins: {
                     component: 'sw-first-run-wizard-plugins',
                     path: 'plugins',
                     meta: {
-                        privilege: 'admin'
-                    }
+                        privilege: 'admin',
+                    },
                 },
                 shopware: {
                     component: 'sw-first-run-wizard-shopware-base',
@@ -136,40 +136,40 @@ Module.register('sw-first-run-wizard', {
                             component: 'sw-first-run-wizard-shopware-account',
                             path: 'account',
                             meta: {
-                                privilege: 'admin'
-                            }
+                                privilege: 'admin',
+                            },
                         },
                         domain: {
                             component: 'sw-first-run-wizard-shopware-domain',
                             path: 'domain',
                             meta: {
-                                privilege: 'admin'
-                            }
-                        }
-                    }
+                                privilege: 'admin',
+                            },
+                        },
+                    },
                 },
                 store: {
                     component: 'sw-first-run-wizard-store',
                     path: 'store',
                     meta: {
-                        privilege: 'admin'
-                    }
+                        privilege: 'admin',
+                    },
                 },
                 finish: {
                     component: 'sw-first-run-wizard-finish',
                     path: 'finish',
                     meta: {
-                        privilege: 'admin'
-                    }
-                }
-            }
-        }
+                        privilege: 'admin',
+                    },
+                },
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.first.run.wizard.index',
         icon: 'default-object-rocket',
-        privilege: 'admin'
-    }
+        privilege: 'admin',
+    },
 });

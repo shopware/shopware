@@ -15,66 +15,66 @@ export default function createConditionService() {
     const operators = {
         lowerThanEquals: {
             identifier: '<=',
-            label: 'global.sw-condition.operator.lowerThanEquals'
+            label: 'global.sw-condition.operator.lowerThanEquals',
         },
         equals: {
             identifier: '=',
-            label: 'global.sw-condition.operator.equals'
+            label: 'global.sw-condition.operator.equals',
         },
         greaterThanEquals: {
             identifier: '>=',
-            label: 'global.sw-condition.operator.greaterThanEquals'
+            label: 'global.sw-condition.operator.greaterThanEquals',
         },
         notEquals: {
             identifier: '!=',
-            label: 'global.sw-condition.operator.notEquals'
+            label: 'global.sw-condition.operator.notEquals',
         },
         greaterThan: {
             identifier: '>',
-            label: 'global.sw-condition.operator.greaterThan'
+            label: 'global.sw-condition.operator.greaterThan',
         },
         lowerThan: {
             identifier: '<',
-            label: 'global.sw-condition.operator.lowerThan'
+            label: 'global.sw-condition.operator.lowerThan',
         },
         isOneOf: {
             identifier: '=',
-            label: 'global.sw-condition.operator.isOneOf'
+            label: 'global.sw-condition.operator.isOneOf',
         },
         isNoneOf: {
             identifier: '!=',
-            label: 'global.sw-condition.operator.isNoneOf'
+            label: 'global.sw-condition.operator.isNoneOf',
         },
         gross: {
             identifier: false,
-            label: 'global.sw-condition.operator.gross'
+            label: 'global.sw-condition.operator.gross',
         },
         net: {
             identifier: true,
-            label: 'global.sw-condition.operator.net'
-        }
+            label: 'global.sw-condition.operator.net',
+        },
     };
     const operatorSets = {
         defaultSet: [
             operators.equals,
             operators.notEquals,
             operators.greaterThanEquals,
-            operators.lowerThanEquals
+            operators.lowerThanEquals,
         ],
         singleStore: [
             operators.equals,
-            operators.notEquals
+            operators.notEquals,
         ],
         multiStore: [
             operators.isOneOf,
-            operators.isNoneOf
+            operators.isNoneOf,
         ],
         string: [
             operators.equals,
-            operators.notEquals
+            operators.notEquals,
         ],
         bool: [
-            operators.equals
+            operators.equals,
         ],
         number: [
             operators.equals,
@@ -82,7 +82,7 @@ export default function createConditionService() {
             operators.greaterThanEquals,
             operators.lowerThan,
             operators.lowerThanEquals,
-            operators.notEquals
+            operators.notEquals,
         ],
         date: [
             operators.equals,
@@ -90,11 +90,11 @@ export default function createConditionService() {
             operators.greaterThanEquals,
             operators.lowerThan,
             operators.lowerThanEquals,
-            operators.notEquals
+            operators.notEquals,
         ],
         isNet: [
             operators.gross,
-            operators.net
+            operators.net,
         ],
         zipCode: [
             operators.isOneOf,
@@ -102,23 +102,23 @@ export default function createConditionService() {
             operators.greaterThanEquals,
             operators.lowerThan,
             operators.lowerThanEquals,
-            operators.isNoneOf
-        ]
+            operators.isNoneOf,
+        ],
     };
 
     const moduleTypes = {
         shipping: {
             id: 'shipping',
-            name: 'sw-settings-rule.detail.types.shipping'
+            name: 'sw-settings-rule.detail.types.shipping',
         },
         payment: {
             id: 'payment',
-            name: 'sw-settings-rule.detail.types.payment'
+            name: 'sw-settings-rule.detail.types.payment',
         },
         price: {
             id: 'price',
-            name: 'sw-settings-rule.detail.types.price'
-        }
+            name: 'sw-settings-rule.detail.types.price',
+        },
     };
 
     return {
@@ -134,7 +134,7 @@ export default function createConditionService() {
         getOrContainerData,
         isOrContainer,
         getPlaceholderData,
-        getComponentByCondition
+        getComponentByCondition,
     };
 
     function getByType(type) {

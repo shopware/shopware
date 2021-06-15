@@ -9,41 +9,41 @@ Component.register('sw-maintain-currencies-modal', {
     props: {
         currencies: {
             type: Array,
-            required: true
+            required: true,
         },
 
         prices: {
             type: Array,
-            required: true
+            required: true,
         },
 
         defaultPrice: {
             type: Object,
-            required: true
+            required: true,
         },
 
         taxRate: {
             type: Object,
-            required: true
+            required: true,
         },
 
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         hideListPrices: {
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            clonePrices: null
+            clonePrices: null,
         };
     },
 
@@ -57,17 +57,17 @@ Component.register('sw-maintain-currencies-modal', {
                     allowResize: false,
                     primary: true,
                     rawData: false,
-                    width: '150px'
+                    width: '150px',
                 }, {
                     property: 'price',
                     label: 'sw-maintain-currencies-modal.columnPrice',
                     visible: true,
                     allowResize: false,
                     primary: true,
-                    rawData: false
-                }
+                    rawData: false,
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -128,7 +128,7 @@ Component.register('sw-maintain-currencies-modal', {
                 gross: this.convertPrice(this.defaultPrice.gross, currency),
                 linked: this.defaultPrice.linked,
                 net: this.convertPrice(this.defaultPrice.net, currency),
-                listPrice: null
+                listPrice: null,
             };
 
             if (this.defaultPrice.listPrice) {
@@ -136,7 +136,7 @@ Component.register('sw-maintain-currencies-modal', {
                     currencyId: currency.id,
                     gross: this.convertPrice(this.defaultPrice.listPrice.gross, currency),
                     linked: this.defaultPrice.listPrice.linked,
-                    net: this.convertPrice(this.defaultPrice.listPrice.net, currency)
+                    net: this.convertPrice(this.defaultPrice.listPrice.net, currency),
                 };
             }
 
@@ -150,6 +150,6 @@ Component.register('sw-maintain-currencies-modal', {
 
         onApply() {
             this.$emit('modal-close', this.prices);
-        }
-    }
+        },
+    },
 });

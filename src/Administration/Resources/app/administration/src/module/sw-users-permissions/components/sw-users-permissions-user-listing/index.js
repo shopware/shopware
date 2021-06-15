@@ -11,13 +11,13 @@ Component.register('sw-users-permissions-user-listing', {
         'userService',
         'loginService',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('notification'),
-        Mixin.getByName('salutation')
+        Mixin.getByName('salutation'),
     ],
 
     data() {
@@ -27,13 +27,13 @@ Component.register('sw-users-permissions-user-listing', {
             itemToDelete: null,
             disableRouteParams: true,
             confirmPassword: '',
-            sortBy: 'username'
+            sortBy: 'username',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -45,7 +45,7 @@ Component.register('sw-users-permissions-user-listing', {
         currentUser: {
             get() {
                 return State.get('session').currentUser;
-            }
+            },
         },
 
         userCriteria() {
@@ -67,22 +67,22 @@ Component.register('sw-users-permissions-user-listing', {
         userColumns() {
             return [{
                 property: 'username',
-                label: this.$tc('sw-users-permissions.users.user-grid.labelUsername')
+                label: this.$tc('sw-users-permissions.users.user-grid.labelUsername'),
             }, {
                 property: 'firstName',
-                label: this.$tc('sw-users-permissions.users.user-grid.labelFirstName')
+                label: this.$tc('sw-users-permissions.users.user-grid.labelFirstName'),
             }, {
                 property: 'lastName',
-                label: this.$tc('sw-users-permissions.users.user-grid.labelLastName')
+                label: this.$tc('sw-users-permissions.users.user-grid.labelLastName'),
             }, {
                 property: 'aclRoles',
                 sortable: false,
-                label: this.$tc('sw-users-permissions.users.user-grid.labelRoles')
+                label: this.$tc('sw-users-permissions.users.user-grid.labelRoles'),
             }, {
                 property: 'email',
-                label: this.$tc('sw-users-permissions.users.user-grid.labelEmail')
+                label: this.$tc('sw-users-permissions.users.user-grid.labelEmail'),
             }];
-        }
+        },
     },
 
     methods: {
@@ -124,12 +124,12 @@ Component.register('sw-users-permissions-user-listing', {
                 { name: username });
             const titleDeleteError = this.$tc('global.default.error');
             const messageDeleteError = this.$tc(
-                'sw-users-permissions.users.user-grid.notification.deleteError.message', 0, { name: username }
+                'sw-users-permissions.users.user-grid.notification.deleteError.message', 0, { name: username },
             );
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message')
+                    message: this.$tc('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message'),
                 });
                 return;
             }
@@ -140,11 +140,11 @@ Component.register('sw-users-permissions-user-listing', {
             } catch (e) {
                 this.createNotificationError({
                     title: this.$tc(
-                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'
+                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
                     ),
                     message: this.$tc(
-                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage'
-                    )
+                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
+                    ),
                 });
             } finally {
                 this.confirmPassword = '';
@@ -161,13 +161,13 @@ Component.register('sw-users-permissions-user-listing', {
             this.userRepository.delete(user.id, context).then(() => {
                 this.createNotificationSuccess({
                     title: titleDeleteSuccess,
-                    message: messageDeleteSuccess
+                    message: messageDeleteSuccess,
                 });
                 this.getList();
             }).catch(() => {
                 this.createNotificationError({
                     title: titleDeleteError,
-                    message: messageDeleteError
+                    message: messageDeleteError,
                 });
             });
             this.onCloseDeleteModal();
@@ -175,6 +175,6 @@ Component.register('sw-users-permissions-user-listing', {
 
         onCloseDeleteModal() {
             this.itemToDelete = null;
-        }
-    }
+        },
+    },
 });

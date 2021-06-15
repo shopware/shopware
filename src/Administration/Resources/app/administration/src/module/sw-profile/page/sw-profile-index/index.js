@@ -11,7 +11,7 @@ Component.register('sw-profile-index', {
     inject: ['userService', 'loginService', 'repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -27,19 +27,19 @@ Component.register('sw-profile-index', {
             isLoading: false,
             isUserLoading: true,
             isSaveSuccessful: false,
-            confirmPasswordModal: false
+            confirmPasswordModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
     computed: {
         ...mapPropertyErrors('user', [
-            'email'
+            'email',
         ]),
 
         isDisabled() {
@@ -75,7 +75,7 @@ Component.register('sw-profile-index', {
 
         languageId() {
             return Shopware.State.get('session').languageId;
-        }
+        },
     },
 
     watch: {
@@ -87,7 +87,7 @@ Component.register('sw-profile-index', {
 
         languageId() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -110,7 +110,7 @@ Component.register('sw-profile-index', {
 
             const promises = [
                 languagePromise,
-                this.userPromise
+                this.userPromise,
             ];
 
             Promise.all(promises).then(() => {
@@ -216,7 +216,7 @@ Component.register('sw-profile-index', {
 
         createErrorMessage(errorMessage) {
             this.createNotificationError({
-                message: errorMessage
+                message: errorMessage,
             });
         },
 
@@ -285,8 +285,8 @@ Component.register('sw-profile-index', {
                 const authObject = {
                     ...this.loginService.getBearerAuthentication(),
                     ...{
-                        access: verifiedToken
-                    }
+                        access: verifiedToken,
+                    },
                 };
 
                 this.loginService.setBearerAuthentication(authObject);
@@ -324,9 +324,9 @@ Component.register('sw-profile-index', {
 
         handleUserSaveError() {
             this.createNotificationError({
-                message: this.$tc('sw-profile.index.notificationSaveErrorMessage')
+                message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
             });
             this.isLoading = false;
-        }
-    }
+        },
+    },
 });

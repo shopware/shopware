@@ -7,20 +7,20 @@ Component.register('sw-media-quickinfo-multiple', {
     template,
 
     mixins: [
-        Mixin.getByName('media-sidebar-modal-mixin')
+        Mixin.getByName('media-sidebar-modal-mixin'),
     ],
 
     props: {
         items: {
             required: true,
-            type: Array
+            type: Array,
         },
 
         editable: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -56,7 +56,7 @@ Component.register('sw-media-quickinfo-multiple', {
             return this.items.some((item) => {
                 return item.private === true;
             });
-        }
+        },
     },
 
     methods: {
@@ -66,14 +66,14 @@ Component.register('sw-media-quickinfo-multiple', {
 
         quickActionClassesDelete(disabled) {
             return ['sw-media-sidebar__quickaction', {
-                'sw-media-sidebar__quickaction--disabled': disabled
+                'sw-media-sidebar__quickaction--disabled': disabled,
             }];
         },
 
         quickActionClasses(disabled) {
             return ['sw-media-sidebar__quickaction', {
-                'sw-media-sidebar__quickaction--disabled': disabled
+                'sw-media-sidebar__quickaction--disabled': disabled,
             }];
-        }
-    }
+        },
+    },
 });

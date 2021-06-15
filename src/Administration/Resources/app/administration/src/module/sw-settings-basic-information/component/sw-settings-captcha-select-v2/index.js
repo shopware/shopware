@@ -9,20 +9,20 @@ Component.register('sw-settings-captcha-select-v2', {
     inject: ['feature', 'captchaService'],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     props: {
         value: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            availableCaptchas: []
+            availableCaptchas: [],
         };
     },
 
@@ -30,7 +30,7 @@ Component.register('sw-settings-captcha-select-v2', {
         attributes() {
             return {
                 ...this.$attrs,
-                ...this.getTranslations()
+                ...this.getTranslations(),
             };
         },
 
@@ -41,7 +41,7 @@ Component.register('sw-settings-captcha-select-v2', {
 
             set(val) {
                 this.$emit('input', val);
-            }
+            },
         },
 
         activeCaptchaSelect: {
@@ -62,8 +62,8 @@ Component.register('sw-settings-captcha-select-v2', {
                         this.currentValue[key].isActive = val.includes(key);
                     });
                 }
-            }
-        }
+            },
+        },
     },
 
     watch: {
@@ -71,8 +71,8 @@ Component.register('sw-settings-captcha-select-v2', {
             deep: true,
             handler(val) {
                 this.$emit('input', val);
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -91,7 +91,7 @@ Component.register('sw-settings-captcha-select-v2', {
         renderCaptchaOption(technicalName) {
             return {
                 label: this.$tc(`sw-settings-basic-information.captcha.label.${technicalName}`),
-                value: technicalName
+                value: technicalName,
             };
         },
 
@@ -100,8 +100,8 @@ Component.register('sw-settings-captcha-select-v2', {
                 .filter(name => !!this.$attrs[name])
                 .reduce((translations, name) => ({
                     ...translations,
-                    [name]: this.getInlineSnippet(this.$attrs[name])
+                    [name]: this.getInlineSnippet(this.$attrs[name]),
                 }), {});
-        }
-    }
+        },
+    },
 });

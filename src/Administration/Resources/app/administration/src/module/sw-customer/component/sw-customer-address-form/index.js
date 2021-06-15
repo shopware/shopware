@@ -13,7 +13,7 @@ Component.register('sw-customer-address-form', {
     props: {
         customer: {
             type: Object,
-            required: true
+            required: true,
         },
 
         address: {
@@ -21,19 +21,19 @@ Component.register('sw-customer-address-form', {
             required: true,
             default() {
                 return this.addressRepository.create(this.context);
-            }
+            },
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            country: null
+            country: null,
         };
     },
 
@@ -41,7 +41,7 @@ Component.register('sw-customer-address-form', {
         addressRepository() {
             return this.repositoryFactory.create(
                 this.customer.addresses.entity,
-                this.customer.addresses.source
+                this.customer.addresses.source,
             );
         },
 
@@ -63,7 +63,7 @@ Component.register('sw-customer-address-form', {
             'city',
             'countryId',
             'phoneNumber',
-            'vatId'
+            'vatId',
         ]),
 
         ...mapPropertyErrors('address', [
@@ -74,7 +74,7 @@ Component.register('sw-customer-address-form', {
             'street',
             'zipcode',
             'lastName',
-            'firstName'
+            'firstName',
         ]),
 
         countryId: {
@@ -84,7 +84,7 @@ Component.register('sw-customer-address-form', {
 
             set(countryId) {
                 this.address.countryId = countryId;
-            }
+            },
         },
 
         stateCriteria() {
@@ -95,7 +95,7 @@ Component.register('sw-customer-address-form', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('countryId', this.countryId));
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -114,7 +114,7 @@ Component.register('sw-customer-address-form', {
                 return this.countryRepository.get(this.countryId).then((country) => {
                     this.country = country;
                 });
-            }
+            },
         },
 
         'address.company'(newVal) {
@@ -123,6 +123,6 @@ Component.register('sw-customer-address-form', {
             }
 
             this.customer.company = newVal;
-        }
-    }
+        },
+    },
 });

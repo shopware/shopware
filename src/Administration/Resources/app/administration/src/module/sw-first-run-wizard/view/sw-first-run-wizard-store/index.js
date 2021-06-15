@@ -14,7 +14,7 @@ Component.register('sw-first-run-wizard-store', {
             isActivating: false,
             activationError: null,
             extensionStatus: null,
-            error: null
+            error: null,
         };
     },
 
@@ -36,7 +36,7 @@ Component.register('sw-first-run-wizard-store', {
                 position: 'left',
                 variant: null,
                 action: 'sw.first.run.wizard.index.shopware.account',
-                disabled: this.isActivating || this.loadStatus
+                disabled: this.isActivating || this.loadStatus,
             };
 
             if (this.extensionStatus && this.extensionStatus.active) {
@@ -48,8 +48,8 @@ Component.register('sw-first-run-wizard-store', {
                         position: 'right',
                         variant: 'primary',
                         action: 'sw.first.run.wizard.index.finish',
-                        disabled: false
-                    }
+                        disabled: false,
+                    },
                 ];
             }
 
@@ -61,7 +61,7 @@ Component.register('sw-first-run-wizard-store', {
                     position: 'right',
                     variant: null,
                     action: 'sw.first.run.wizard.index.finish',
-                    disabled: this.isActivating || this.loadStatus
+                    disabled: this.isActivating || this.loadStatus,
                 },
                 {
                     key: 'activate',
@@ -69,10 +69,10 @@ Component.register('sw-first-run-wizard-store', {
                     position: 'right',
                     variant: 'primary',
                     action: this.activateStore.bind(this),
-                    disabled: this.isActivating || this.loadStatus
-                }
+                    disabled: this.isActivating || this.loadStatus,
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -80,8 +80,8 @@ Component.register('sw-first-run-wizard-store', {
             handler() {
                 this.updateButtons();
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     created() {
@@ -142,6 +142,6 @@ Component.register('sw-first-run-wizard-store', {
 
         updateButtons() {
             this.$emit('buttons-update', this.buttonConfig);
-        }
-    }
+        },
+    },
 });

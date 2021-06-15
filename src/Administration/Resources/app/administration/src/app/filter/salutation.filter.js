@@ -15,7 +15,7 @@ Filter.register('salutation', (entity, fallbackSnippet = '') => {
         salutation: !hideSalutation ? entity.salutation.displayName : '',
         title: entity.title || '',
         firstName: entity.firstName || '',
-        lastName: entity.lastName || ''
+        lastName: entity.lastName || '',
     };
 
     const fullname = Object.values(params).join(' ').replace(/\s+/g, ' ').trim();

@@ -12,26 +12,26 @@ Component.register('sw-promotion-v2-empty-state-hero', {
     props: {
         title: {
             type: String,
-            required: true
+            required: true,
         },
 
         assetPath: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         description: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         hideDescription: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -42,6 +42,6 @@ Component.register('sw-promotion-v2-empty-state-hero', {
 
         showDescription() {
             return !this.hideDescription && this.description && this.description.length > 0;
-        }
-    }
+        },
+    },
 });

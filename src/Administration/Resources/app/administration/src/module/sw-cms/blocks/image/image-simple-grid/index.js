@@ -12,47 +12,47 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginTop: '20px',
         marginLeft: '20px',
         marginRight: '20px',
-        sizingMode: 'boxed'
+        sizingMode: 'boxed',
     },
     slots: {
         'left-top': {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_camera_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_camera_large.jpg',
+                    },
+                },
+            },
         },
         'left-bottom': {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_glasses_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                    },
+                },
+            },
         },
         right: {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_plant_large.jpg'
-                    }
-                }
-            }
-        }
-    }
+                        url: '/administration/static/img/cms/preview_plant_large.jpg',
+                    },
+                },
+            },
+        },
+    },
 });

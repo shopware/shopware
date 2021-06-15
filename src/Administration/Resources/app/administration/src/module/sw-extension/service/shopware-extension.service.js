@@ -7,12 +7,12 @@ export default class ShopwareExtensionService {
         this.EXTENSION_VARIANT_TYPES = Object.freeze({
             RENT: 'rent',
             BUY: 'buy',
-            FREE: 'free'
+            FREE: 'free',
         });
 
         this.EXTENSION_TYPES = Object.freeze({
             APP: 'app',
-            PLUGIN: 'plugin'
+            PLUGIN: 'plugin',
         });
     }
 
@@ -64,7 +64,7 @@ export default class ShopwareExtensionService {
         return extensionStoreActionService.refresh()
             .then(() => {
                 return extensionStoreActionService.getMyExtensions(
-                    { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
+                    { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId },
                 );
             }).then((myExtensions) => {
                 Shopware.State.commit('shopwareExtensions/myExtensions', myExtensions);
@@ -96,7 +96,7 @@ export default class ShopwareExtensionService {
 
         return [
             ...this._orderByType(discounted),
-            ...this._orderByType(notDiscounted)
+            ...this._orderByType(notDiscounted),
         ];
     }
 
@@ -159,7 +159,7 @@ export default class ShopwareExtensionService {
         if (entryRoutes[extension.name] !== undefined) {
             return {
                 name: entryRoutes[extension.name].route,
-                label: entryRoutes[extension.name].label || null
+                label: entryRoutes[extension.name].label || null,
             };
         }
 
@@ -189,8 +189,8 @@ export default class ShopwareExtensionService {
         return {
             name: 'sw.theme.manager.detail',
             params: {
-                id: ids[0]
-            }
+                id: ids[0],
+            },
         };
     }
 
@@ -222,8 +222,8 @@ export default class ShopwareExtensionService {
         return {
             name: 'sw.my.apps.index',
             params: {
-                appName
-            }
+                appName,
+            },
         };
     }
 

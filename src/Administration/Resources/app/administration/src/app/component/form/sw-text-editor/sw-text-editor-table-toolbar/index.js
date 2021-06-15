@@ -14,15 +14,15 @@ Component.register('sw-text-editor-table-toolbar', {
         // eslint-disable-next-line vue/require-prop-types
         selection: {
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             range: null,
             colClassName: 'sw-text-editor-table__col',
-            resizeHandle: '<div class="sw-text-editor-table__col-selector" contenteditable="false"></div>'
+            resizeHandle: '<div class="sw-text-editor-table__col-selector" contenteditable="false"></div>',
         };
     },
 
@@ -226,7 +226,7 @@ Component.register('sw-text-editor-table-toolbar', {
 
             const indexConfig = {
                 td: 'cellIndex',
-                tr: 'rowIndex'
+                tr: 'rowIndex',
             };
 
             const table = node.closest('table');
@@ -268,6 +268,6 @@ Component.register('sw-text-editor-table-toolbar', {
 
             this.selection.removeAllRanges();
             this.selection.addRange(this.range);
-        }
-    }
+        },
+    },
 });

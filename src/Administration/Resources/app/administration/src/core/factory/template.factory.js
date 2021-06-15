@@ -15,7 +15,7 @@ export default {
     disableTwigCache,
     getTemplateRegistry,
     getNormalizedTemplateRegistry,
-    getTemplateOverrides
+    getTemplateOverrides,
 };
 
 /**
@@ -43,7 +43,7 @@ Twig.extend(TwigCore => {
         TwigCore.token.definitions[6],
         TwigCore.token.definitions[7],
         TwigCore.token.definitions[9],
-        TwigCore.token.definitions[10]
+        TwigCore.token.definitions[10],
     ];
 
     /**
@@ -61,9 +61,9 @@ Twig.extend(TwigCore => {
         parse(token, context, chain) {
             return {
                 chain,
-                output: TwigCore.placeholders.parent
+                output: TwigCore.placeholders.parent,
             };
-        }
+        },
     });
 
     /** Make the placeholders available in the exposed Twig object. */
@@ -133,7 +133,7 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
         name: componentName,
         raw: componentTemplate,
         extend: null,
-        overrides: overrides
+        overrides: overrides,
     });
 
     return true;
@@ -151,7 +151,7 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
 function extendComponentTemplate(
     componentName,
     extendComponentName,
-    templateExtension = null
+    templateExtension = null,
 ) {
     const template = templateRegistry.get(componentName) || {};
     const overrides = (template.overrides ? template.overrides : []);
@@ -165,7 +165,7 @@ function extendComponentTemplate(
         name: componentName,
         raw: templateExtension,
         extend: extendComponentName,
-        overrides: overrides
+        overrides: overrides,
     });
 
     return true;
@@ -182,17 +182,17 @@ function extendComponentTemplate(
 function registerTemplateOverride(
     componentName,
     templateOverride = null,
-    overrideIndex = 0
+    overrideIndex = 0,
 ) {
     const component = templateRegistry.get(componentName) || {
         name: componentName,
         raw: null,
         extend: null,
-        overrides: []
+        overrides: [],
     };
     component.overrides.push({
         index: overrideIndex,
-        raw: templateOverride
+        raw: templateOverride,
     });
     templateRegistry.set(componentName, component);
     return true;
@@ -218,7 +218,7 @@ function resolveTemplates() {
 
         templateDefinition = {
             ...templateDefinition,
-            html: ''
+            html: '',
         };
 
         // Extend with overrides
@@ -249,7 +249,7 @@ function applyTemplateOverrides(name) {
         // Update item which will written to the registry
         const updatedTemplate = {
             ...item,
-            html: finalHtml
+            html: finalHtml,
         };
 
         normalizedTemplateRegistry.set(updatedTemplate.name, updatedTemplate);
@@ -262,7 +262,7 @@ function applyTemplateOverrides(name) {
     item.overrides.forEach((override, index) => {
         const overrideTemplate = buildTwigTemplateInstance(
             `${baseTemplate.name}-${index}`,
-            override.raw
+            override.raw,
         );
 
         overrideTemplate.tokens.forEach((overrideTokens) => {
@@ -283,7 +283,7 @@ function applyTemplateOverrides(name) {
     // Update item which will written to the registry
     updatedTemplate = {
         ...updatedTemplate,
-        html: finalHtml
+        html: finalHtml,
     };
 
     normalizedTemplateRegistry.set(updatedTemplate.name, updatedTemplate);
@@ -472,7 +472,7 @@ function resolveExtendsComponent(item) {
         return {
             ...item,
             template: buildTwigTemplateInstance(item.name, item.raw),
-            extend
+            extend,
         };
     }
 
@@ -490,7 +490,7 @@ function buildTwigTemplateInstance(name, template) {
         id: `${name}-baseTemplate`,
         data: template,
         path: false,
-        options: {}
+        options: {},
     });
 }
 

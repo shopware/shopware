@@ -11,18 +11,18 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
     inject: [
         'acl',
         'repositoryFactory',
-        'promotionCodeApiService'
+        'promotionCodeApiService',
     ],
 
     mixins: [
-        'notification'
+        'notification',
     ],
 
     props: {
         promotion: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -36,7 +36,7 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
             addCodesModal: false,
             newCodeAmount: 10,
             cardIdentifier: createId(),
-            currentSelection: []
+            currentSelection: [],
         };
     },
 
@@ -53,28 +53,28 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
             return this.$tc(
                 'sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm',
                 this.currentSelection.length,
-                { code: this.currentSelection[0].code || '' }
+                { code: this.currentSelection[0].code || '' },
             );
         },
 
         codeColumns() {
             return [{
                 property: 'code',
-                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCode')
+                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCode'),
             }, {
                 property: 'payload',
-                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnRedeemed')
+                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnRedeemed'),
             }, {
                 property: 'payload.customerName',
-                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer')
+                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
             }];
-        }
+        },
     },
 
     watch: {
         'promotion.individualCodes'() {
             this.cardIdentifier = createId();
-        }
+        },
     },
 
     mounted() {
@@ -183,8 +183,8 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
                     this.createNotificationError({
                         autoClose: false,
                         message: this.$tc(
-                            `sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`
-                        )
+                            `sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`,
+                        ),
                     });
                 });
             });
@@ -203,7 +203,7 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
                 this.$router.push({
                     name: 'sw.customer.detail',
-                    params: { id: result.id }
+                    params: { id: result.id },
                 });
             }).catch(() => {
                 this.createRoutingErrorNotification(redeemedCustomer.customerName);
@@ -212,8 +212,8 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
         createRoutingErrorNotification(name) {
             this.createNotificationError({
-                message: this.$tc('sw-promotion-v2.detail.base.codes.individual.routingError', 0, { name })
+                message: this.$tc('sw-promotion-v2.detail.base.codes.individual.routingError', 0, { name }),
             });
-        }
-    }
+        },
+    },
 });

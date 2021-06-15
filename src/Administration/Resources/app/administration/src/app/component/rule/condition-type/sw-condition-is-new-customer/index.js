@@ -19,12 +19,12 @@ Component.extend('sw-condition-is-new-customer', 'sw-condition-base', {
             return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: true
+                    value: true,
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: false
-                }
+                    value: false,
+                },
             ];
         },
 
@@ -36,13 +36,13 @@ Component.extend('sw-condition-is-new-customer', 'sw-condition-base', {
             set(isNew) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, isNew };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.isNew']),
 
         currentError() {
             return this.conditionValueIsNewError;
-        }
-    }
+        },
+    },
 });

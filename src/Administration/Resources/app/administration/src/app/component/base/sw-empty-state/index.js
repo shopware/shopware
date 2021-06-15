@@ -13,33 +13,33 @@ Component.register('sw-empty-state', {
         title: {
             type: String,
             default: '',
-            required: true
+            required: true,
         },
         subline: {
             type: String,
             default: '',
-            required: false
+            required: false,
         },
         showDescription: {
             type: Boolean,
             default: true,
-            required: false
+            required: false,
         },
         color: {
             type: String,
             default: '',
-            required: false
+            required: false,
         },
         icon: {
             type: String,
             default: '',
-            required: false
+            required: false,
         },
         absolute: {
             type: Boolean,
             default: true,
-            required: false
-        }
+            required: false,
+        },
     },
 
     computed: {
@@ -61,8 +61,8 @@ Component.register('sw-empty-state', {
 
         classes() {
             return {
-                'sw-empty-state--absolute': this.absolute
+                'sw-empty-state--absolute': this.absolute,
             };
-        }
-    }
+        },
+    },
 });

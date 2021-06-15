@@ -11,7 +11,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         'insertNodeIntoTree',
         'removeNodeFromTree',
         'productCustomFields',
-        'acl'
+        'acl',
     ],
 
     computed: {
@@ -48,7 +48,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 }
 
                 this.actualCondition.field = concatenation;
-            }
+            },
         },
 
         fieldDefinitions() {
@@ -75,7 +75,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             if (this.fieldDefinitions.length > this.fields.length) {
                 return {
                     fieldName: null,
-                    definition: EntityDefinition.get('product')
+                    definition: EntityDefinition.get('product'),
                 };
             }
 
@@ -84,9 +84,9 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
             return {
                 fieldName,
-                definition
+                definition,
             };
-        }
+        },
     },
 
     methods: {
@@ -144,8 +144,8 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     field: null,
                     operator: null,
                     value: null,
-                    parameters: null
-                }
+                    parameters: null,
+                },
             );
         },
 
@@ -168,7 +168,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
-                disabled: this.acl.can(role)
+                disabled: this.acl.can(role),
             };
         },
 
@@ -176,6 +176,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             const strippedFieldName = fieldName.replace(/customFields\./, '');
 
             return Object.keys(this.productCustomFields).includes(strippedFieldName);
-        }
-    }
+        },
+    },
 });

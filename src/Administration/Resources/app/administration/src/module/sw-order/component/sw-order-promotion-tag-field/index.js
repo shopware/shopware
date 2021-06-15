@@ -12,22 +12,22 @@ Component.register('sw-order-promotion-tag-field', {
     props: {
         currency: {
             type: Object,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         taggedFieldListClasses() {
             return {
-                'sw-tagged-field__tag-list--disabled': this.disabled
+                'sw-tagged-field__tag-list--disabled': this.disabled,
             };
-        }
+        },
     },
 
     methods: {
@@ -47,7 +47,7 @@ Component.register('sw-order-promotion-tag-field', {
             }
 
             const newTagItem = {
-                code: this.newTagName
+                code: this.newTagName,
             };
 
             this.$emit('change', [...this.value, newTagItem]);
@@ -80,8 +80,8 @@ Component.register('sw-order-promotion-tag-field', {
 
             return this.$tc(
                 `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, 0,
-                { value: discountValue, groupId }
+                { value: discountValue, groupId },
             );
-        }
-    }
+        },
+    },
 });

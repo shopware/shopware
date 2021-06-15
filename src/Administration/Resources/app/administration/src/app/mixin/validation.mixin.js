@@ -11,8 +11,8 @@ Mixin.register('validation', {
         validation: {
             type: [String, Array, Object, Boolean],
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -20,7 +20,7 @@ Mixin.register('validation', {
             const value = this.currentValue || this.value || this.selections;
 
             return this.validate(value);
-        }
+        },
     },
 
     methods: {
@@ -61,6 +61,6 @@ Mixin.register('validation', {
             }
 
             return this.validationService[rule](value);
-        }
-    }
+        },
+    },
 });

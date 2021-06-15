@@ -12,13 +12,13 @@ Component.register('sw-settings-listing-visibility-detail', {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         config: {
             required: true,
-            type: Array
-        }
+            type: Array,
+        },
     },
 
     data() {
@@ -26,14 +26,14 @@ Component.register('sw-settings-listing-visibility-detail', {
             items: [],
             page: 1,
             limit: 10,
-            total: 0
+            total: 0,
         };
     },
 
     computed: {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        }
+        },
     },
 
     created() {
@@ -74,10 +74,10 @@ Component.register('sw-settings-listing-visibility-detail', {
 
                     return {
                         ...el,
-                        name: salesChannel.name
+                        name: salesChannel.name,
                     };
                 });
             });
-        }
-    }
+        },
+    },
 });

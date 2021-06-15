@@ -10,33 +10,33 @@ Component.register('sw-settings-product-feature-sets-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         productFeatureSetId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
         return {
             productFeatureSet: {},
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -54,7 +54,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('product_feature_sets.editor'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -62,21 +62,21 @@ Component.register('sw-settings-product-feature-sets-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         ...mapPropertyErrors(
             'productFeatureSet',
-            ['name', 'description', 'features.id']
-        )
+            ['name', 'description', 'features.id'],
+        ),
     },
 
     watch: {
@@ -84,7 +84,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
             if (!this.productFeatureSetId) {
                 this.createdComponent();
             }
-        }
+        },
     },
 
     created() {
@@ -130,7 +130,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
                     if (!this.productFeatureSetId) {
                         this.$router.push({
                             name: 'sw.settings.product.feature.sets.detail',
-                            params: { id: this.productFeatureSet.id }
+                            params: { id: this.productFeatureSet.id },
                         });
                     }
                 })
@@ -139,7 +139,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage')
+                        message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage'),
                     });
                 })
                 .finally(() => {
@@ -161,6 +161,6 @@ Component.register('sw-settings-product-feature-sets-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
-        }
-    }
+        },
+    },
 });

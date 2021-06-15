@@ -10,7 +10,7 @@ Component.register('sw-cms-el-config-product-box', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     computed: {
@@ -30,7 +30,7 @@ Component.register('sw-cms-el-config-product-box', {
             criteria.addAssociation('options.group');
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -60,6 +60,6 @@ Component.register('sw-cms-el-config-product-box', {
             }
 
             this.$emit('element-update', this.element);
-        }
-    }
+        },
+    },
 });

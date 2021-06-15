@@ -14,8 +14,8 @@ Component.extend('sw-condition-line-item-creation-date', 'sw-condition-base', {
             datepickerConfig: {
                 enableTime: true,
                 dateFormat: 'H:i',
-                altFormat: 'H:i'
-            }
+                altFormat: 'H:i',
+            },
         };
     },
 
@@ -33,13 +33,13 @@ Component.extend('sw-condition-line-item-creation-date', 'sw-condition-base', {
             set(lineItemCreationDate) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, lineItemCreationDate };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.useTime', 'value.lineItemCreationDate']),
 
         currentError() {
             return this.conditionValueLineItemCreationDateError;
-        }
-    }
+        },
+    },
 });

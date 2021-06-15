@@ -11,21 +11,21 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     props: {
         productSortingEntity: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             customFields: [],
             selectedCriteria: null,
-            customFieldSetIDs: null
+            customFieldSetIDs: null,
         };
     },
 
@@ -47,13 +47,13 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(
-                    Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs)
+                    Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs),
                 );
             }
 
             if (this.getProductSortingFieldsByName().length) {
                 criteria.addFilter(
-                    Criteria.equalsAny('id', this.getProductSortingFieldsByName())
+                    Criteria.equalsAny('id', this.getProductSortingFieldsByName()),
                 );
             }
 
@@ -101,18 +101,18 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 {
                     property: 'field',
                     label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.header.name'),
-                    inlineEdit: 'string'
+                    inlineEdit: 'string',
                 },
                 {
                     property: 'order',
                     label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.header.order'),
-                    inlineEdit: 'string'
+                    inlineEdit: 'string',
                 },
                 {
                     property: 'priority',
                     label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.header.priority'),
-                    inlineEdit: 'number'
-                }
+                    inlineEdit: 'number',
+                },
             ];
         },
 
@@ -121,53 +121,53 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 {
                     value: 'product.name',
                     label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.name'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.name',
+                    ),
                 },
                 {
                     value: 'product.ratingAverage',
                     label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage',
+                    ),
                 },
                 {
                     value: 'product.productNumber',
                     label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.productNumber'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.productNumber',
+                    ),
                 },
                 {
                     value: 'product.releaseDate',
                     label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.releaseDate'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.releaseDate',
+                    ),
                 },
                 {
                     value: 'product.stock',
                     label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.stock'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.stock',
+                    ),
                 },
                 {
                     value: 'product.sales',
                     label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.sales'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.sales',
+                    ),
                 },
                 {
                     value: 'customField',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.customField')
+                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.customField'),
                 },
                 {
                     value: 'product.cheapestPrice',
                     label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.cheapestPrice'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.cheapestPrice',
+                    ),
                 },
                 {
                     value: 'product.price',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price')
-                }
+                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price'),
+                },
             ];
 
             return criteriaOptions.sort((a, b) => {
@@ -179,14 +179,14 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             return [
                 {
                     label: this.$tc('global.default.ascending'),
-                    value: 'asc'
+                    value: 'asc',
                 },
                 {
                     label: this.$tc('global.default.descending'),
-                    value: 'desc'
-                }
+                    value: 'desc',
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -202,8 +202,8 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                     }
                 });
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     created() {
@@ -272,8 +272,8 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             this.createNotificationError({
                 message: this.$t(
                     'sw-settings-listing.general.productSortingCriteriaGrid.options.criteriaAlreadyUsed',
-                    { criteriaName }
-                )
+                    { criteriaName },
+                ),
             });
         },
 
@@ -297,8 +297,8 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             if (item.field === null) {
                 this.createNotificationError({
                     message: this.$t(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.customFieldCriteriaNotNull'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.customFieldCriteriaNotNull',
+                    ),
                 });
 
                 return;
@@ -311,8 +311,8 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             if (item.field === 'customField') {
                 this.createNotificationError({
                     message: this.$t(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.customFieldCriteriaNotNull'
-                    )
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.customFieldCriteriaNotNull',
+                    ),
                 });
 
                 this.filterEmptyCustomFields(item);
@@ -380,7 +380,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(
-                    Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs)
+                    Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs),
                 );
             }
 
@@ -388,8 +388,8 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 criteria.addFilter(Criteria.not(
                     'AND',
                     [
-                        Criteria.equalsAny('id', this.getProductSortingFieldsByName(customField))
-                    ]
+                        Criteria.equalsAny('id', this.getProductSortingFieldsByName(customField)),
+                    ],
                 ));
             }
 
@@ -414,6 +414,6 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
 
                 return /^customFields\./.test(item.field);
             }).map(item => item.name) || {};
-        }
-    }
+        },
+    },
 });

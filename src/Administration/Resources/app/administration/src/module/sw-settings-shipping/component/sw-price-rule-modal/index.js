@@ -8,14 +8,14 @@ Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
     computed: {
         modalTitle() {
             return this.$tc('sw-settings-shipping.shippingPriceModal.modalTitle');
-        }
+        },
     },
 
     methods: {
         createdComponent() {
             this.$super('createdComponent');
             this.rule.moduleTypes = { types: ['shipping'] };
-        }
+        },
 
-    }
+    },
 });

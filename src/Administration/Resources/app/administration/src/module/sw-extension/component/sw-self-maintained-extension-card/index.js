@@ -13,15 +13,15 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
     props: {
         extension: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         extensionCardClasses() {
             return {
                 'sw-self-maintained-extension-card': true,
-                ...this.$super('extensionCardClasses')
+                ...this.$super('extensionCardClasses'),
             };
         },
 
@@ -32,7 +32,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
 
         isInstalled() {
             return this.extension.installedAt !== null;
-        }
+        },
     },
 
     methods: {
@@ -52,7 +52,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
             try {
                 await this.shopwareExtensionService.installExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
 
                 await this.clearCacheAndReloadPage();
@@ -69,7 +69,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
 
                 await this.shopwareExtensionService.activateExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
                 this.extension.active = true;
 
@@ -88,7 +88,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
 
                 await this.shopwareExtensionService.deactivateExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
                 this.extension.active = false;
 
@@ -109,7 +109,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
 
                 await this.shopwareExtensionService.removeExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
                 this.extension.active = false;
                 await this.clearCacheAndReloadPage();
@@ -118,7 +118,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
             } finally {
                 this.isLoading = false;
             }
-        }
-    }
+        },
+    },
 });
 

@@ -13,7 +13,7 @@ export default class FeatureGridTranslationService {
 
         this.entities = {
             property: [],
-            customField: []
+            customField: [],
         };
     }
 
@@ -54,7 +54,7 @@ export default class FeatureGridTranslationService {
 
         criteria.addFilter(Criteria.equalsAny(
             filterBy,
-            identifier
+            identifier,
         ));
 
         return repo.search(criteria, Shopware.Context.api).then((items) => {

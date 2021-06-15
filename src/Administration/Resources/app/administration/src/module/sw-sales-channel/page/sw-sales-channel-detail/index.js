@@ -10,16 +10,16 @@ Component.register('sw-sales-channel-detail', {
         'repositoryFactory',
         'exportTemplateService',
         'acl',
-        'feature'
+        'feature',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave'
+        'SYSTEMKEY+S': 'onSave',
     },
 
     data() {
@@ -36,14 +36,14 @@ Component.register('sw-sales-channel-detail', {
                 templates: null,
                 templateName: null,
                 showTemplateModal: false,
-                selectedTemplate: null
-            }
+                selectedTemplate: null,
+            },
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -118,7 +118,7 @@ Component.register('sw-sales-channel-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.allowSaving,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -126,19 +126,19 @@ Component.register('sw-sales-channel-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         allowSaving() {
             return this.acl.can('sales_channel.editor');
-        }
+        },
     },
 
     watch: {
         '$route.params.id'() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -236,7 +236,7 @@ Component.register('sw-sales-channel-detail', {
             this.onTemplateModalClose();
 
             this.createNotificationInfo({
-                message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message')
+                message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
             });
         },
 
@@ -267,7 +267,7 @@ Component.register('sw-sales-channel-detail', {
 
         loadProductExportTemplates() {
             this.productComparison.templateOptions = Object.values(
-                this.exportTemplateService.getProductExportTemplateRegistry()
+                this.exportTemplateService.getProductExportTemplateRegistry(),
             );
             this.productComparison.templates = this.exportTemplateService.getProductExportTemplateRegistry();
         },
@@ -301,8 +301,8 @@ Component.register('sw-sales-channel-detail', {
 
                     this.createNotificationError({
                         message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
-                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name')
-                        })
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                        }),
                     });
                 });
         },
@@ -317,6 +317,6 @@ Component.register('sw-sales-channel-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
-        }
-    }
+        },
+    },
 });

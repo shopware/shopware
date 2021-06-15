@@ -34,6 +34,6 @@ Mixin.register('placeholder', {
 
             // Return the placeholder snippet
             return fallbackSnippet;
-        }
-    }
+        },
+    },
 });

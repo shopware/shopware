@@ -9,38 +9,38 @@ Shopware.Component.register('sw-extension-rating-stars', {
 
     model: {
         prop: 'rating',
-        event: 'rating-changed'
+        event: 'rating-changed',
     },
 
     props: {
         editable: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         size: {
             type: Number,
             required: false,
-            default: 8
+            default: 8,
         },
         rating: {
             type: Number,
             required: false,
-            default: 0
-        }
+            default: 0,
+        },
     },
 
     data() {
         return {
             maxRating: 5,
-            ratingValue: null
+            ratingValue: null,
         };
     },
 
     computed: {
         editableClass() {
             return {
-                'sw-extension-rating-stars--is-editable': this.editable
+                'sw-extension-rating-stars--is-editable': this.editable,
             };
         },
 
@@ -51,7 +51,7 @@ Shopware.Component.register('sw-extension-rating-stars', {
 
         starSize() {
             return {
-                width: `${this.sizeValue * this.scaleFactor}px`
+                width: `${this.sizeValue * this.scaleFactor}px`,
             };
         },
 
@@ -69,13 +69,13 @@ Shopware.Component.register('sw-extension-rating-stars', {
 
         scaleFactor() {
             return 0.0125 * 20 + 1;
-        }
+        },
     },
 
     watch: {
         rating(value) {
             this.ratingValue = value;
-        }
+        },
     },
 
     created() {
@@ -90,7 +90,7 @@ Shopware.Component.register('sw-extension-rating-stars', {
         colorClass(key) {
             return {
                 // subtract because rtl direction is used
-                'sw-extension-rating-stars__star--is-rated': this.maxRating + 1 - key <= this.ratingValue
+                'sw-extension-rating-stars__star--is-rated': this.maxRating + 1 - key <= this.ratingValue,
             };
         },
 
@@ -108,6 +108,6 @@ Shopware.Component.register('sw-extension-rating-stars', {
             return this.ratingValue % 1 !== 0
                 // subtract because rtl direction is used
                 && (this.maxRating - Math.ceil(this.ratingValue)) === key;
-        }
-    }
+        },
+    },
 });

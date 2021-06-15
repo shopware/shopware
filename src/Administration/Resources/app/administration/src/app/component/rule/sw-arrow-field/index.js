@@ -8,29 +8,29 @@ Component.register('sw-arrow-field', {
         return h('div', {
             class: {
                 'sw-arrow-field': true,
-                'is--disabled': this.disabled
-            }
+                'is--disabled': this.disabled,
+            },
         }, [
             this.$slots.default,
-            this.getArrow(h)
+            this.getArrow(h),
         ]);
     },
     props: {
         primary: {
             type: String,
             required: false,
-            default: '#ffffff'
+            default: '#ffffff',
         },
         secondary: {
             type: String,
             required: false,
-            default: '#d1d9e0'
+            default: '#d1d9e0',
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -40,40 +40,40 @@ Component.register('sw-arrow-field', {
             }
 
             return this.primary;
-        }
+        },
     },
 
     methods: {
         getArrow(h) {
             return h('div', {
                 class: {
-                    'sw-arrow-field__arrow': true
-                }
+                    'sw-arrow-field__arrow': true,
+                },
             }, [
                 h('svg', {
                     attrs: {
                         xmlns: 'http://www.w3.org/1200/svg',
                         viewBox: '0 0 12 100',
-                        preserveAspectRatio: 'none'
-                    }
+                        preserveAspectRatio: 'none',
+                    },
                 }, [
                     h('path', {
                         attrs: {
                             d: 'M 0 0 L 12 50 L 0 100 Z',
                             fill: this.arrowFill,
-                            stroke: 'none'
-                        }
+                            stroke: 'none',
+                        },
                     }),
                     h('polyline', {
                         attrs: {
                             points: '0 0 12 50 0 100',
                             fill: 'none',
                             stroke: this.secondary,
-                            'stroke-width': 1
-                        }
-                    })
-                ])
+                            'stroke-width': 1,
+                        },
+                    }),
+                ]),
             ]);
-        }
-    }
+        },
+    },
 });

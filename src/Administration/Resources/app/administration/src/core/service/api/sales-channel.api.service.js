@@ -25,7 +25,7 @@ class SalesChannelApiService extends ApiService {
         return this.httpClient
             .get('/_action/access-key/sales-channel', {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

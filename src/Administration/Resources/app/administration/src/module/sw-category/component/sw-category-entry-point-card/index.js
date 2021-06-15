@@ -8,20 +8,20 @@ Component.register('sw-category-entry-point-card', {
     template,
 
     inject: [
-        'acl'
+        'acl',
     ],
 
     props: {
         category: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -29,7 +29,7 @@ Component.register('sw-category-entry-point-card', {
             selectedEntryPoint: this.getInitialEntryPointFromCategory(),
             initialNavigationSalesChannels: this.category.navigationSalesChannels,
             addedNavigationSalesChannels: new EntityCollection('/sales_channel', 'sales_channel', Context.api),
-            configureHomeModalVisible: false
+            configureHomeModalVisible: false,
         };
     },
 
@@ -37,13 +37,13 @@ Component.register('sw-category-entry-point-card', {
         entryPoints() {
             return [{
                 value: 'navigationSalesChannels',
-                label: this.$tc('sw-category.base.entry-point-card.types.labelMainNavigation')
+                label: this.$tc('sw-category.base.entry-point-card.types.labelMainNavigation'),
             }, {
                 value: 'footerSalesChannels',
-                label: this.$tc('sw-category.base.entry-point-card.types.labelFooterNavigation')
+                label: this.$tc('sw-category.base.entry-point-card.types.labelFooterNavigation'),
             }, {
                 value: 'serviceSalesChannels',
-                label: this.$tc('sw-category.base.entry-point-card.types.labelServiceNavigation')
+                label: this.$tc('sw-category.base.entry-point-card.types.labelServiceNavigation'),
             }];
         },
 
@@ -85,12 +85,12 @@ Component.register('sw-category-entry-point-card', {
 
             if (this.hasExistingNavigation) {
                 criteria.addFilter(Criteria.not('or', [
-                    Criteria.equalsAny('id', this.initialNavigationSalesChannels.getIds())
+                    Criteria.equalsAny('id', this.initialNavigationSalesChannels.getIds()),
                 ]));
             }
 
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -98,7 +98,7 @@ Component.register('sw-category-entry-point-card', {
             this.initialNavigationSalesChannels = newCategory.navigationSalesChannels;
             this.addedNavigationSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api);
             this.selectedEntryPoint = this.getInitialEntryPointFromCategory();
-        }
+        },
     },
 
     methods: {
@@ -167,6 +167,6 @@ Component.register('sw-category-entry-point-card', {
 
         closeConfigureHomeModal() {
             this.configureHomeModalVisible = false;
-        }
-    }
+        },
+    },
 });

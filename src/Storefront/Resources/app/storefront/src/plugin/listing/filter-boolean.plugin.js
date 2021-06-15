@@ -8,8 +8,8 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
         checkboxSelector: '.filter-boolean-input',
         activeClass: 'is-active',
         snippets: {
-            disabledFilterText: 'Filter not active'
-        }
+            disabledFilterText: 'Filter not active',
+        },
     });
 
     init() {
@@ -65,7 +65,7 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
         if (this.checkbox.checked) {
             labels.push({
                 label: this.options.displayName,
-                id: this.options.name
+                id: this.options.name,
             });
         } else {
             labels = [];

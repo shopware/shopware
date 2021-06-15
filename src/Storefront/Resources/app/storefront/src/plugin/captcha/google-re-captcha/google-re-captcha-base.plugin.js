@@ -68,7 +68,7 @@ export default class GoogleReCaptchaBasePlugin extends Plugin
 
         this.$emitter.publish('beforeGreCaptchaFormSubmit', {
             info: this.getGreCaptchaInfo(),
-            token: this.grecaptchaInput.value
+            token: this.grecaptchaInput.value,
         });
 
         let ajaxSubmitFound = false;

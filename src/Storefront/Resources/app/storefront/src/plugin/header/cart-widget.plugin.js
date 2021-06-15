@@ -5,7 +5,7 @@ import Storage from 'src/helper/storage/storage.helper';
 export default class CartWidgetPlugin extends Plugin {
 
     static options = {
-        cartWidgetStorageKey: 'cart-widget-template'
+        cartWidgetStorageKey: 'cart-widget-template',
     };
 
     init() {

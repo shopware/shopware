@@ -30,8 +30,8 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               sm: {},
               md: {},
               lg: {},
-              xl: {}
-          }
+              xl: {},
+          },
       },
       thumbnailSlider: {
           enabled: true,
@@ -46,9 +46,9 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               sm: {},
               md: {},
               lg: {},
-              xl: {}
-          }
-      }
+              xl: {},
+          },
+      },
   });
 
   init() {
@@ -227,7 +227,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
                   controlsContainer,
                   navContainer,
                   onInit,
-                  ...this._sliderSettings
+                  ...this._sliderSettings,
               });
 
               this._initDots();
@@ -253,7 +253,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
                   container: navContainer,
                   controlsContainer: thumbnailControls,
                   onInit: onInitThumbnails,
-                  ...this._thumbnailSliderSettings
+                  ...this._thumbnailSliderSettings,
               });
           } else {
               navContainer.style.display = 'none';

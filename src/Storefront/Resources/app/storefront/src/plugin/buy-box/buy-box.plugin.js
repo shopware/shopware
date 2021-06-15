@@ -12,7 +12,7 @@ export default class BuyBoxPlugin extends Plugin {
         elementId: '',
         modalTriggerSelector: 'a[data-toggle="modal"]',
         buyWidgetSelector: '.product-detail-buy',
-        urlAttribute: 'data-url'
+        urlAttribute: 'data-url',
     };
 
     /**

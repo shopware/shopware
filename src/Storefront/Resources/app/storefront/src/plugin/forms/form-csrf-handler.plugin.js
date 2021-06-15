@@ -8,7 +8,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 export default class FormCsrfHandler extends Plugin {
 
     static options = {
-        formSelector: ''
+        formSelector: '',
     };
 
     init() {

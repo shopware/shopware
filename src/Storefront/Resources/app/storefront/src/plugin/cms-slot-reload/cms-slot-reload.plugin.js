@@ -14,7 +14,7 @@ export default class CmsSlotReloadPlugin extends Plugin {
         elements: [],
         events: [],
         updateHistory: false,
-        hiddenParams: []
+        hiddenParams: [],
     };
 
     init() {

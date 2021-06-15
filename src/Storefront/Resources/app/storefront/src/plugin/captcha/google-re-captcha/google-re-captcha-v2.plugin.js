@@ -8,7 +8,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
         checkboxContainer: '.grecaptcha-v2-container',
         grecaptchaIframeHasErrorClassSelector: 'has-error',
         siteKey: null,
-        invisible: false
+        invisible: false,
     };
 
     init() {
@@ -24,7 +24,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
     getGreCaptchaInfo() {
         return {
             version: 'GoogleReCaptchaV2',
-            invisible: this.options.invisible
+            invisible: this.options.invisible,
         }
     }
 
@@ -47,7 +47,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
 
             this.$emitter.publish('beforeGreCaptchaFormSubmit', {
                 info: this.getGreCaptchaInfo(),
-                token: this.grecaptchaInput.value
+                token: this.grecaptchaInput.value,
             });
         }
     }
@@ -65,7 +65,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
     _onCaptchaTokenResponse(token) {
         this.$emitter.publish('onGreCaptchaTokenResponse', {
             info: this.getGreCaptchaInfo(),
-            token
+            token,
         });
 
         this._formSubmitting = false;
@@ -88,7 +88,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
             size: this.options.invisible ? 'invisible' : 'normal',
             callback: this._onCaptchaTokenResponse.bind(this),
             'expired-callback': this._onGreCaptchaExpire.bind(this),
-            'error-callback': this._onGreCaptchaError.bind(this)
+            'error-callback': this._onGreCaptchaError.bind(this),
         });
 
         this.grecaptchaContainerIframe = DomAccess.querySelector(this.el, 'iframe');
@@ -99,7 +99,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
      */
     _onGreCaptchaExpire() {
         this.$emitter.publish('onGreCaptchaExpire', {
-            info: this.getGreCaptchaInfo()
+            info: this.getGreCaptchaInfo(),
         });
 
         this.grecaptcha.reset(this.grecaptchaWidgetId);
@@ -111,7 +111,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
      */
     _onGreCaptchaError() {
         this.$emitter.publish('onGreCaptchaError', {
-            info: this.getGreCaptchaInfo()
+            info: this.getGreCaptchaInfo(),
         });
     }
 }

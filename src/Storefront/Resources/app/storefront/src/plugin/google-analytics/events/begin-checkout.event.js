@@ -10,7 +10,7 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
 
     getEvents() {
         return {
-            'offCanvasOpened': this._offCanvasOpened.bind(this)
+            'offCanvasOpened': this._offCanvasOpened.bind(this),
         };
     }
 
@@ -28,7 +28,7 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
         }
 
         gtag('event', 'begin_checkout', {
-            'items': LineItemHelper.getLineItems()
+            'items': LineItemHelper.getLineItems(),
         });
     }
 }

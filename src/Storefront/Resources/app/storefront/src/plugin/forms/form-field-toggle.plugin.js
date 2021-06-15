@@ -54,7 +54,7 @@ export default class FormFieldTogglePlugin extends Plugin {
          * This is only used if the scope, defined in the data attribute of `scopeDataAttribute`, is not set to 'all',
          * which is the default.
          */
-        parentSelectorDataAttribute: 'data-form-field-toggle-parent-selector'
+        parentSelectorDataAttribute: 'data-form-field-toggle-parent-selector',
     };
 
     init() {

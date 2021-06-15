@@ -12,7 +12,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
 
     getEvents() {
         return {
-            'beforeFormSubmit':  this._beforeFormSubmit.bind(this)
+            'beforeFormSubmit':  this._beforeFormSubmit.bind(this),
         };
     }
 
@@ -39,8 +39,8 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
             'items': [{
                 'id': productId,
                 'name': formData.get('product-name'),
-                'quantity': formData.get('lineItems[' + productId + '][quantity]')
-            }]
+                'quantity': formData.get('lineItems[' + productId + '][quantity]'),
+            }],
         });
     }
 }

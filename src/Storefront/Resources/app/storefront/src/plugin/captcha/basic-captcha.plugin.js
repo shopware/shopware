@@ -8,7 +8,7 @@ export default class BasicCaptchaPlugin extends Plugin {
         router: '',
         captchaRefreshIconId: '#basic-captcha-content-refresh-icon',
         captchaImageId: '#basic-captcha-content-image',
-        formId: ''
+        formId: '',
     }
 
     init() {

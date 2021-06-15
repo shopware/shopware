@@ -3,7 +3,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 
 export default class EllipsisPlugin extends Plugin {
     static options = {
-        hiddenClass: 'swag-ellipsis-hidden'
+        hiddenClass: 'swag-ellipsis-hidden',
     };
 
     init() {

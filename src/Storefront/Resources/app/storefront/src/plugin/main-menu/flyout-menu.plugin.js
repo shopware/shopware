@@ -36,7 +36,7 @@ export default class FlyoutMenuPlugin extends Plugin {
          * Trigger attribute for the opening elements.
          * Should be the same as 'flyoutIdDataAttribute'
          */
-        triggerDataAttribute: 'data-flyout-menu-trigger'
+        triggerDataAttribute: 'data-flyout-menu-trigger',
     };
 
     init() {

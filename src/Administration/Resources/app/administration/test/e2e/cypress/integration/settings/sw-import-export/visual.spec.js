@@ -185,7 +185,9 @@ describe('Import/Export:  Visual tests', () => {
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--createdAt', 'color : #fff');
+
         // Take snapshot for visual testing
+        cy.contains('Import successful').should('be.visible');
         cy.takeSnapshot('[Import export] Detail, Overview after import', '.sw-import-export-activity');
     });
 });

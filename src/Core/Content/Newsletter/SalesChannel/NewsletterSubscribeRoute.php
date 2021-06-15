@@ -186,7 +186,10 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         if (isset($recipientId)) {
             /** @var NewsletterRecipientEntity $recipient */
             $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context->getContext())->first();
-            if ($recipient->getConfirmedAt()) {
+
+            // If the user was previously subscribed but has unsubscribed now, the `getConfirmedAt()`
+            // will still be set. So we need to check for the status as well.
+            if ($recipient->getStatus() !== self::STATUS_OPT_OUT && $recipient->getConfirmedAt()) {
                 return new NoContentResponse();
             }
         }

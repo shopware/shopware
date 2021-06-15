@@ -76,7 +76,7 @@ class NewsletterSubscribeRouteTest extends TestCase
                 'POST',
                 '/store-api/newsletter/subscribe',
                 [
-                    'email' => 'test@test.de',
+                    'email' => 'test@example.com',
                     'option' => 'direct',
                     'storefrontUrl' => 'https://google.de',
                 ]
@@ -98,14 +98,86 @@ class NewsletterSubscribeRouteTest extends TestCase
                 'POST',
                 '/store-api/newsletter/subscribe',
                 [
-                    'email' => 'test@test.de',
+                    'email' => 'test@example.com',
                     'option' => 'direct',
                     'storefrontUrl' => 'http://localhost',
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
+        $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@example.com" AND status = "direct"');
         static::assertSame(1, $count);
+    }
+
+    public function testResubscribeAfterUnsubscribe(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
+
+        // 1: prepare existing user with double opt in
+        $firstConfirmedAt = '2020-06-06 00:00:00.000';
+        $initData = [
+            'email' => 'test@example.com',
+            'status' => 'optIn',
+            'hash' => 'confirm-hash',
+            'salesChannelId' => $this->salesChannelId,
+            'confirmedAt' => $firstConfirmedAt,
+        ];
+        $newsletterRecipientRepository->upsert([$initData], Context::createDefaultContext());
+
+        // 2: validate start data
+        $row = $connection->fetchAssoc('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
+        static::assertSame('optIn', $row['status']);
+        static::assertSame($firstConfirmedAt, $row['confirmed_at']);
+
+        // 3: unsubscribe
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/unsubscribe',
+                [
+                    'email' => 'test@example.com',
+                ]
+            );
+
+        static::assertTrue($this->browser->getResponse()->isSuccessful());
+        $row = $connection->fetchAssoc('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
+        static::assertSame('optOut', $row['status']);
+        static::assertNotNull($row['confirmed_at']);
+
+        // 4: resubscribe
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/subscribe',
+                [
+                    'email' => 'test@example.com',
+                    'option' => 'subscribe',
+                    'storefrontUrl' => 'http://localhost',
+                ]
+            );
+
+        static::assertTrue($this->browser->getResponse()->isSuccessful());
+        $row = $connection->fetchAssoc('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
+        static::assertSame('notSet', $row['status']);
+        static::assertNotNull($row['confirmed_at']);
+
+        // 5: confirm double opt-in again
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/confirm',
+                [
+                    'email' => 'test@example.com',
+                    'hash' => $row['hash'],
+                ]
+            );
+
+        static::assertTrue($this->browser->getResponse()->isSuccessful());
+        $row = $connection->fetchAssoc('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
+        static::assertSame('optIn', $row['status']);
+        static::assertNotNull($row['confirmed_at']);
+        // the confirmation date should have changed
+        static::assertNotSame($row['confirmed_at'], $firstConfirmedAt);
     }
 
     public function testSubscribeIfAlreadyRegistered(): void
@@ -167,13 +239,13 @@ class NewsletterSubscribeRouteTest extends TestCase
             'POST',
             '/store-api/newsletter/subscribe',
             [
-                'email' => 'test@test.de',
+                'email' => 'test@example.com',
                 'option' => 'direct',
                 'storefrontUrl' => $domainUrlTest['expectDomain'],
             ]
         );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
+        $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@example.com" AND status = "direct"');
         static::assertSame(1, $count);
     }
 

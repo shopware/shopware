@@ -86,6 +86,10 @@
         <sw-number-field
             v-model="currentValue.googleReCaptchaV3.config.thresholdScore"
             name="googleReCaptchaV3ThresholdScore"
+            number-type="float"
+            :min="0"
+            :max="1"
+            :step="0.1"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3ThresholdScore')"
             :help-text="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3DescriptionThresholdScore')"
         />

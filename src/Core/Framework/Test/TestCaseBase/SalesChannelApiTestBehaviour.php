@@ -61,7 +61,7 @@ trait SalesChannelApiTestBehaviour
     public function getSalesChannelApiSalesChannelId(): string
     {
         if (!$this->salesChannelIds) {
-            throw new \LogicException('The sales channel id con only be requested after calling `createSalesChannelApiClient`.');
+            throw new \LogicException('The sales channel id can only be requested after calling `createSalesChannelApiClient`.');
         }
 
         return end($this->salesChannelIds);

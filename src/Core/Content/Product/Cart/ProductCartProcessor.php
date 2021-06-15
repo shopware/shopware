@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
+use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -49,7 +49,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private ProductFeatureBuilder $featureBuilder;
 
-    private ProductPriceCalculator $priceCalculator;
+    private AbstractProductPriceCalculator $priceCalculator;
 
     private EntityCacheKeyGenerator $generator;
 
@@ -59,7 +59,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
         ProductFeatureBuilder $featureBuilder,
-        ProductPriceCalculator $priceCalculator,
+        AbstractProductPriceCalculator $priceCalculator,
         EntityCacheKeyGenerator $generator,
         SalesChannelRepositoryInterface $repository
     ) {

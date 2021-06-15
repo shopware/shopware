@@ -353,6 +353,20 @@ Component.register('sw-cms-detail', {
                     this.updateDataMapping();
                     this.pageOrigin = cloneDeep(this.page);
 
+                    if (this.selectedBlock) {
+                        const blockId = this.selectedBlock.id;
+                        const blockSectionId = this.selectedBlock.sectionId;
+                        this.page.sections.forEach((section) => {
+                            if (section.id === blockSectionId) {
+                                section.blocks.forEach((block) => {
+                                    if (block.id === blockId) {
+                                        this.setSelectedBlock(blockSectionId, block);
+                                    }
+                                });
+                            }
+                        });
+                    }
+
                     this.isLoading = false;
                 }).catch((exception) => {
                     this.isLoading = false;

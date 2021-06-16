@@ -72,6 +72,8 @@ describe('Promotion v2: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
+        cy.contains('General settings').click();
+        cy.get('.sw-tooltip').should('not.exist');
         cy.takeSnapshot('[Promotion] Detail', '.sw-promotion-v2-detail');
 
         cy.get(page.elements.smartBarBack).click();
@@ -112,6 +114,6 @@ describe('Promotion v2: Visual tests', () => {
         cy.get('.btn-buy').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Promotion] Storefront, off-canvas of checkout', '.offcanvas.is-open');
+        cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas.is-open');
     });
 });

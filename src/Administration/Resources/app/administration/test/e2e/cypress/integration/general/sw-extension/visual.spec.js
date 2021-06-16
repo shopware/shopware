@@ -93,6 +93,13 @@ describe('Dashboard:  Visual tests', () => {
         });
 
         cy.get('.sw-loader').should('not.exist');
+
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            '.sw-extension-card-base__meta-info',
+            'color: #fff'
+        );
+
         cy.takeSnapshot('[My extensions] List', '.sw-extension-my-extensions-listing');
     });
 });

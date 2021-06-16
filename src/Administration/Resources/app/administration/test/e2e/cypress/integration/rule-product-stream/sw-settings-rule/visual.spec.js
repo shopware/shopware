@@ -34,6 +34,12 @@ describe('Rule builder: Visual tests', () => {
         });
         cy.get('.sw-settings-rule-list__content').should('exist');
 
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            '.sw-data-grid__cell--updatedAt',
+            'color: #fff'
+        );
+
         // Take snapshot for visual testing
         cy.takeSnapshot('[Rule builder] Listing', '.sw-rule-list-grid');
 

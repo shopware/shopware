@@ -163,6 +163,7 @@ describe('Product: Visual tests', () => {
             .click();
 
         // Take snapshot for visual testing
+        cy.get('.sw-modal').should('be.visible');
         cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation');
 
         // Create and verify one-dimensional variant

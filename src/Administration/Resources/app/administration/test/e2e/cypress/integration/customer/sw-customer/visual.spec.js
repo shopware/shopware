@@ -102,7 +102,9 @@ describe('Customer:  Visual test', () => {
 
         // Verify new customer in detail
         cy.wait('@saveData').then((xhr) => {
+            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
             expect(xhr).to.have.property('status', 204);
+            cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
         });
 
         // Take snapshot for visual testing
@@ -124,9 +126,10 @@ describe('Customer:  Visual test', () => {
 
         // Open and add new address
         cy.get('.sw-customer-detail__tab-addresses').click();
-        cy.sortListingViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.sortListingViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName');
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('[Customer] Detail, address listing', '.sw-customer-detail-addresses');
 

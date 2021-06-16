@@ -40,6 +40,12 @@ describe('Category: Visual tests', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-loader').should('not.exist');
+
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            '.sw-category-entry-point-card__navigation-list',
+            'color: #fff'
+        );
         cy.takeSnapshot('[Category] Listing', '.sw-card');
 
         cy.contains('.sw-category-detail__tab-products', 'Products');
@@ -47,8 +53,9 @@ describe('Category: Visual tests', () => {
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('[Category] Detail, Products', '.sw-card');
 
-        cy.contains('.sw-category-detail__tab-cms', 'Layout');
+        cy.contains('.sw-category-detail__tab-cms', 'Layout').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Category] Detail, Layout', '.sw-card');
+        cy.get('.sw-category-layout-card__preview').should('be.visible');
+        cy.takeSnapshot('[Category] Detail, Layout', '.sw-category-layout-card__preview');
     });
 });

@@ -42,6 +42,8 @@ describe('Tax: Visual testing', () => {
         cy.contains('.sw-data-grid__cell--name', 'Reduced rate').should('be.visible');
         cy.contains('.sw-data-grid__cell--name a', 'Reduced rate').click();
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-data-grid__cell--country-name').should('is.visible');
         cy.takeSnapshot('[Tax] Details', '.sw-settings-tax-detail');
     });
 });

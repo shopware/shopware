@@ -35,6 +35,13 @@ describe('Snippets: Visual testing', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-grid').should('be.visible');
+
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            '.sw-settings-snippet-set-file__column-changed-at',
+            'color: #fff'
+        );
+
         cy.takeSnapshot('[Snippets] Listing of snippet sets',
             '.sw-settings-snippet-set-list');
 

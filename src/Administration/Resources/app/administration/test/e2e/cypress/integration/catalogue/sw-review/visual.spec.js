@@ -22,6 +22,7 @@ describe('Administration: Check module navigation', () => {
             method: 'post'
         }).as('getData');
 
+        // Open reviews
         cy.clickMainMenuItem({
             targetPath: '#/sw/review/index',
             mainMenuId: 'sw-catalogue',
@@ -34,10 +35,27 @@ describe('Administration: Check module navigation', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.contains('.sw-data-grid__cell--title', 'Bestes Produkt').should('be.visible');
+
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            '.sw-data-grid__cell--createdAt',
+            'color: #fff'
+        );
+
+        // Take snapshot
         cy.takeSnapshot('[Review] Listing', '.sw-review-list');
+
+        // Open detail review
         cy.get('.sw-review-list').should('be.visible');
         cy.contains('.sw-data-grid__cell--title', 'Bestes Produkt').click();
         cy.get('.sw-loader').should('not.exist');
+
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            ':nth-child(1) > :nth-child(1) > dd',
+            'color: #F6F6F6'
+        );
+        // Take snapshot
         cy.takeSnapshot('[Review] Listing', '.sw-card-section--secondary');
     });
 });

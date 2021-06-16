@@ -109,11 +109,6 @@ shopware:
               major: false
               description: "Captcha Integration"
               # issue: NEXT-12455
-            - name: FEATURE_NEXT_14363
-              default: false
-              major: false
-              description: "App System 3.0 - Dispatch webhook overqueue"
-              # issue: NEXT-14363
             - name: FEATURE_NEXT_8225
               default: false
               major: false

@@ -8,7 +8,6 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,8 +30,6 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14363', $this);
-
         $this->context = Context::createDefaultContext();
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
     }

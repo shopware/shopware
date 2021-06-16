@@ -6,15 +6,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-/**
- * @internal (FEATURE_NEXT_14363)
- */
 class WebhookEventLogEntity extends Entity
 {
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    protected string $appName;
+    protected ?string $appName;
 
     protected string $webhookName;
 
@@ -26,7 +23,7 @@ class WebhookEventLogEntity extends Entity
 
     protected ?int $processingTime;
 
-    protected string $appVersion;
+    protected ?string $appVersion;
 
     protected ?array $requestContent;
 
@@ -40,12 +37,12 @@ class WebhookEventLogEntity extends Entity
 
     protected object $serializedWebhookMessage;
 
-    public function getAppName(): string
+    public function getAppName(): ?string
     {
         return $this->appName;
     }
 
-    public function setAppName(string $appName): void
+    public function setAppName(?string $appName): void
     {
         $this->appName = $appName;
     }
@@ -100,12 +97,12 @@ class WebhookEventLogEntity extends Entity
         $this->processingTime = $processingTime;
     }
 
-    public function getAppVersion(): string
+    public function getAppVersion(): ?string
     {
         return $this->appVersion;
     }
 
-    public function setAppVersion(string $appVersion): void
+    public function setAppVersion(?string $appVersion): void
     {
         $this->appVersion = $appVersion;
     }

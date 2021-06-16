@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 
 class WebhookDefinition extends EntityDefinition
 {
@@ -43,10 +42,10 @@ class WebhookDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return Feature::isActive('FEATURE_NEXT_14363') ? [
+        return [
             'active' => true,
             'errorCount' => 0,
-        ] : [];
+        ];
     }
 
     protected function defineFields(): FieldCollection
@@ -56,14 +55,11 @@ class WebhookDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('event_name', 'eventName', 500))->addFlags(new Required()),
             (new StringField('url', 'url', 500))->addFlags(new Required()),
+            (new IntField('error_count', 'errorCount', 0))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            new BoolField('active', 'active'),
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_14363')) {
-            $collection->add((new IntField('error_count', 'errorCount', 0))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)));
-            $collection->add(new BoolField('active', 'active'));
-        }
 
         return $collection;
     }

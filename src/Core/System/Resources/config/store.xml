@@ -7,9 +7,9 @@
 
         <input-field>
             <name>licenseHost</name>
-            <label>License domain</label>
+            <label>Licence domain</label>
             <label lang="de-DE">Lizenzdomain</label>
-            <placeholder>Enter license domain...</placeholder>
+            <placeholder>Enter licence domain...</placeholder>
             <placeholder lang="de-DE">Gib eine Lizenzdomain ein ...</placeholder>
         </input-field>
 
@@ -17,9 +17,9 @@
             <name>verificationHash</name>
             <label>Verification hash</label>
             <label lang="de-DE">Verifikationsprüfsumme</label>
-            <helpText>This setting is part of the Shopware shop verification process to verify this installation to be in your ownership. When a sw-domain-hash.html file is present it will probably override this setting.</helpText>
-            <helpText lang="de-DE">Diese Einstellung wird benötigt im Shopware Shop Verifikationsprozess um diese Installation deiner Zugehörigkeit zu indentifizieren. Wenn eine sw-domain-hash.html Datei vorliegt, wird diese wahrscheinlich dieser Einstellung vorgezogen.</helpText>
-            <placeholder>Enter verification code ...</placeholder>
+            <helpText>This setting is part of the Shopware shop verification process. It helps to verify ownership of the installation. If a sw-domain-hash.html file is present it will override this setting.</helpText>
+            <helpText lang="de-DE">Diese Einstellung wird im Verifikationsprozess Deines Shopware-Shops benötigt und hilft, die Zugehörigkeit Deiner Installation zu identifizieren. Falls eine sw-domain-hash.html-Datei vorhanden ist, wird diese Einstellung überschrieben werden.</helpText>
+            <placeholder>Enter verification code...</placeholder>
             <placeholder lang="de-DE">Gib den Verifikationscode ein ...</placeholder>
         </input-field>
     </card>

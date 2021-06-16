@@ -60,7 +60,7 @@
       "messageUploadFailureUnzipFailed": "Unable to extract ZIP file.",
       "messageUploadFailureNoPluginFoundInZipFile": "No extension found in ZIP file.",
       "messageLoginDataInvalid": "Login data incomplete.",
-      "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct license domain from your Shopware Account in \"Settings/Shopware Account\"?",
+      "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct licence domain from your Shopware Account in \"Settings/Shopware Account\"?",
       "messageStoreNotAvailable": "The Shopware Store is not available.",
       "messagePluginBaseClassNotFound": "The extension base class could not be loaded. Check your plugin composer.json regarding the class autoloading.",
       "messagePluginInstallationFailed": "The extension could not be installed: \"{message}\".",

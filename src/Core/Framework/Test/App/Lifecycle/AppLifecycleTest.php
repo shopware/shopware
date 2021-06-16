@@ -820,12 +820,12 @@ class AppLifecycleTest extends TestCase
         /** @var EntityRepositoryInterface $aclRoleRepository */
         $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
         $roles = $aclRoleRepository->searchIds(new Criteria([$roleId]), $this->context)->getIds();
-        static::assertCount(0, $roles);
+        static::assertCount(1, $roles);
 
         /** @var EntityRepositoryInterface $integrationRepository */
         $integrationRepository = $this->getContainer()->get('integration.repository');
         $integrations = $integrationRepository->searchIds(new Criteria([$integrationId]), $this->context)->getIds();
-        static::assertCount(0, $integrations);
+        static::assertCount(1, $integrations);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));

@@ -42,6 +42,8 @@ class AclRoleEntity extends Entity
      */
     protected $integrations;
 
+    protected ?\DateTimeInterface $deletedAt;
+
     public function getName(): string
     {
         return $this->name;
@@ -100,5 +102,15 @@ class AclRoleEntity extends Entity
     public function setIntegrations(IntegrationCollection $integrations): void
     {
         $this->integrations = $integrations;
+    }
+
+    public function getDeletedAt(): ?\DateTimeInterface
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(\DateTimeInterface $deletedAt): void
+    {
+        $this->deletedAt = $deletedAt;
     }
 }

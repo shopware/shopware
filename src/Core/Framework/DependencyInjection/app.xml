@@ -198,6 +198,17 @@
             <tag name="messenger.message_handler"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="acl_role.repository"/>
+            <argument type="service" id="integration.repository"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLoader">
             <argument>%shopware.app_dir%</argument>
             <argument>%kernel.project_dir%</argument>

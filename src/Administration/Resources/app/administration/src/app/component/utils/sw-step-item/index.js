@@ -19,14 +19,14 @@ Component.register('sw-step-item', {
         disabledIcon: {
             type: String,
             default: 'small-default-circle-medium',
-            required: false
-        }
+            required: false,
+        },
     },
 
     data() {
         return {
             variant: 'disabled',
-            active: false
+            active: false,
         };
     },
 
@@ -35,8 +35,8 @@ Component.register('sw-step-item', {
             return [
                 `sw-step-item--${this.variant}`,
                 {
-                    'sw-step-item--active': this.active
-                }
+                    'sw-step-item--active': this.active,
+                },
             ];
         },
 
@@ -45,11 +45,11 @@ Component.register('sw-step-item', {
                 disabled: this.disabledIcon,
                 info: 'small-default-circle-medium',
                 error: 'small-default-x-line-medium',
-                success: 'small-default-checkmark-line-medium'
+                success: 'small-default-checkmark-line-medium',
             };
 
             return iconConfig[this.variant];
-        }
+        },
     },
 
     methods: {
@@ -63,6 +63,6 @@ Component.register('sw-step-item', {
             }
 
             this.variant = variant;
-        }
-    }
+        },
+    },
 });

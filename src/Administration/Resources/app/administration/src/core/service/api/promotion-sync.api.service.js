@@ -10,8 +10,8 @@ export default class PromotionSyncApiService extends SyncApiService {
         return this.httpClient.get(
             '/_action/promotion/setgroup/packager',
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return response.data;
         });
@@ -21,8 +21,8 @@ export default class PromotionSyncApiService extends SyncApiService {
         return this.httpClient.get(
             '/_action/promotion/setgroup/sorter',
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return response.data;
         });

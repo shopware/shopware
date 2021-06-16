@@ -9,7 +9,7 @@ Component.register('sw-media-folder-info', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('media-sidebar-modal-mixin')
+        Mixin.getByName('media-sidebar-modal-mixin'),
     ],
 
     props: {
@@ -18,14 +18,14 @@ Component.register('sw-media-folder-info', {
             required: true,
             validator(value) {
                 return value.getEntityName() === 'media_folder';
-            }
+            },
         },
 
         editable: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -35,7 +35,7 @@ Component.register('sw-media-folder-info', {
 
         createdAt() {
             return Shopware.Utils.format.date(this.mediaFolder.createdAt);
-        }
+        },
     },
 
     methods: {
@@ -47,8 +47,8 @@ Component.register('sw-media-folder-info', {
 
         quickActionClasses(disabled) {
             return ['sw-media-sidebar__quickaction', {
-                'sw-media-sidebar__quickaction--disabled': disabled
+                'sw-media-sidebar__quickaction--disabled': disabled,
             }];
-        }
-    }
+        },
+    },
 });

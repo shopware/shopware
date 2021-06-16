@@ -10,7 +10,7 @@ global.activeFeatureFlags = [];
 const featureMock = {
     isActive: (flagName) => {
         return global.activeFeatureFlags.includes(flagName);
-    }
+    },
 };
 
 const feature = new Feature(featureMock);

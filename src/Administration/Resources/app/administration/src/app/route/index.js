@@ -5,7 +5,7 @@ export default [
         coreRoute: true,
         root: true,
         component: 'sw-desktop',
-        redirect: '/sw/dashboard/index'
+        redirect: '/sw/dashboard/index',
     },
     {
         path: '/error',
@@ -13,7 +13,7 @@ export default [
         coreRoute: true,
         component: 'sw-error',
         meta: {
-            forceRoute: true
-        }
-    }
+            forceRoute: true,
+        },
+    },
 ];

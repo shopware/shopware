@@ -15,7 +15,7 @@ Shopware.Component.register('sw-import-export', {
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -24,6 +24,6 @@ Shopware.Component.register('sw-import-export', {
             if (this.$refs.tabContent.reloadContent) {
                 this.$refs.tabContent.reloadContent();
             }
-        }
-    }
+        },
+    },
 });

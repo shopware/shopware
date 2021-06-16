@@ -11,7 +11,7 @@ export default {
     getPropertyBlacklist,
     getRequiredProperties,
     getAssociatedProperties,
-    getTranslatableProperties
+    getTranslatableProperties,
 };
 
 /**
@@ -138,7 +138,7 @@ function getPropertyBlacklist() {
         'fileSize',
         'fileName',
         'mediaType',
-        'mediaFolder'
+        'mediaFolder',
     ];
 }
 

@@ -7,7 +7,7 @@
     @click="clickEvent"
 >
     {% block sw_tabs_item_slot %}
-    <slot />
+    <slot></slot>
     {% endblock %}
 </a>
 
@@ -21,7 +21,7 @@
     @click.native="clickEvent"
 >
     {% block sw_tabs_item_slot_native %}
-    <slot />
+    <slot></slot>
     <sw-icon
         v-if="hasError"
         v-tooltip="{ message: $tc('global.sw-tabs-item.tooltipTabHasErrors') }"

@@ -19,8 +19,8 @@ class SeoUrlTemplateApiService extends ApiService {
             urlTemplate,
             {
                 params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders)
-            }
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -34,8 +34,8 @@ class SeoUrlTemplateApiService extends ApiService {
             urlTemplate,
             {
                 params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders)
-            }
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
         ).then((response) => {
             if (response.status === 204) {
                 return null;
@@ -52,8 +52,8 @@ class SeoUrlTemplateApiService extends ApiService {
             urlTemplate,
             {
                 params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders)
-            }
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -66,8 +66,8 @@ class SeoUrlTemplateApiService extends ApiService {
             apiRoute,
             {
                 params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders)
-            }
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

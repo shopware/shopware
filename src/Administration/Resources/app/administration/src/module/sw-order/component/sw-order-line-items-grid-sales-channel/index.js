@@ -11,34 +11,34 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         salesChannelId: {
             type: String,
             required: true,
-            default: ''
+            default: '',
         },
 
         cart: {
             type: Object,
-            required: true
+            required: true,
         },
 
         currency: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isCustomerActive: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         isLoading: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             selectedItems: {},
-            searchTerm: ''
+            searchTerm: '',
         };
     },
 
@@ -99,7 +99,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 allowResize: false,
                 primary: true,
                 inlineEdit: true,
-                width: '200px'
+                width: '200px',
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
@@ -107,7 +107,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 allowResize: false,
                 align: 'right',
                 inlineEdit: true,
-                width: '120px'
+                width: '120px',
             }, {
                 property: 'quantity',
                 dataIndex: 'quantity',
@@ -115,7 +115,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 allowResize: false,
                 align: 'right',
                 inlineEdit: true,
-                width: '80px'
+                width: '80px',
             }, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
@@ -124,7 +124,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                     this.$tc('sw-order.createBase.columnTotalPriceNet'),
                 allowResize: false,
                 align: 'right',
-                width: '80px'
+                width: '80px',
             }];
 
             if (this.taxStatus !== 'tax-free') {
@@ -134,12 +134,12 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                     allowResize: false,
                     align: 'right',
                     inlineEdit: true,
-                    width: '100px'
+                    width: '100px',
                 }];
             }
 
             return columnDefinitions;
-        }
+        },
     },
 
     methods: {
@@ -173,13 +173,13 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             item.priceDefinition = {
                 isCalculated: false,
                 taxRules: [{ taxRate: 0, percentage: 100 }],
-                price: 0
+                price: 0,
             };
             item.price = {
                 taxRules: [{ taxRate: 0 }],
                 unitPrice: '...',
                 quantity: 1,
-                totalPrice: '...'
+                totalPrice: '...',
             };
             item.quantity = 1;
             item.unitPrice = 0;
@@ -285,18 +285,18 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             const decorateTaxes = sortTaxes.map((taxItem) => {
                 return this.$tc('sw-order.createBase.taxDetail', 0, {
                     taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.currency.shortName)
+                    tax: format.currency(taxItem.tax, this.currency.shortName),
                 });
             });
 
             return {
                 showDelay: 300,
-                message: `${this.$tc('sw-order.createBase.tax')}<br>${decorateTaxes.join('<br>')}`
+                message: `${this.$tc('sw-order.createBase.tax')}<br>${decorateTaxes.join('<br>')}`,
             };
         },
 
         hasMultipleTaxes(item) {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
-        }
-    }
+        },
+    },
 });

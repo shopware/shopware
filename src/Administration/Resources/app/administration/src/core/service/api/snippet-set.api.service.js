@@ -19,7 +19,7 @@ class SnippetSetApiService extends ApiService {
 
         const defaultSort = {
             sortBy: 'id',
-            sortDirection: 'ASC'
+            sortDirection: 'ASC',
         };
 
         sort = { ...defaultSort, ...sort };
@@ -28,7 +28,7 @@ class SnippetSetApiService extends ApiService {
             .post(
                 `/_action/${this.getApiBasePath()}`,
                 { page, limit, filters, sort },
-                { headers }
+                { headers },
             )
             .then((response) => {
                 return ApiService.handleResponse(response);

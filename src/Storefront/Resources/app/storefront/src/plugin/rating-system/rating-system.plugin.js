@@ -9,7 +9,7 @@ export default class RatingSystemPlugin extends Plugin {
         ratingTextAttr: 'data-rating-text',
 
         activeClass: 'is-active',
-        hiddenClass: 'd-none'
+        hiddenClass: 'd-none',
     };
 
     init() {

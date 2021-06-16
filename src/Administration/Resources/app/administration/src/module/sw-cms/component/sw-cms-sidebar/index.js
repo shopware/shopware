@@ -13,44 +13,44 @@ Component.register('sw-cms-sidebar', {
     inject: [
         'cmsService',
         'repositoryFactory',
-        'feature'
+        'feature',
     ],
 
     mixins: [
         Mixin.getByName('cms-state'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         page: {
             type: Object,
-            required: true
+            required: true,
         },
 
         demoEntity: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         demoEntityIdProp: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             demoEntityId: this.demoEntityIdProp,
             currentBlockCategory: 'text',
-            currentDragSectionIndex: null
+            currentDragSectionIndex: null,
         };
     },
 
@@ -94,7 +94,7 @@ Component.register('sw-cms-sidebar', {
         tooltipDisabled() {
             return {
                 message: this.$tc('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
-                disabled: this.page.type !== 'product_detail'
+                disabled: this.page.type !== 'product_detail',
             };
         },
 
@@ -119,7 +119,7 @@ Component.register('sw-cms-sidebar', {
 
         blockTypes() {
             return Object.keys(this.cmsBlocks);
-        }
+        },
     },
 
     methods: {
@@ -249,7 +249,7 @@ Component.register('sw-cms-sidebar', {
                 data: { block, sectionIndex },
                 validDragCls: null,
                 onDragEnter: this.onBlockDragSort,
-                onDrop: this.onBlockDragStop
+                onDrop: this.onBlockDragStop,
             };
         },
 
@@ -257,7 +257,7 @@ Component.register('sw-cms-sidebar', {
             return {
                 dragGroup: 'cms-navigator',
                 data: { block, sectionIndex },
-                onDrop: this.onBlockDropAbort
+                onDrop: this.onBlockDropAbort,
             };
         },
 
@@ -297,7 +297,7 @@ Component.register('sw-cms-sidebar', {
             Object.assign(
                 newBlock,
                 cloneDeep(this.blockConfigDefaults),
-                cloneDeep(blockConfig.defaultConfig || {})
+                cloneDeep(blockConfig.defaultConfig || {}),
             );
 
             Object.keys(blockConfig.slots).forEach((slotName) => {
@@ -414,6 +414,6 @@ Component.register('sw-cms-sidebar', {
 
         blockTypeExists(type) {
             return this.blockTypes.includes(type);
-        }
-    }
+        },
+    },
 });

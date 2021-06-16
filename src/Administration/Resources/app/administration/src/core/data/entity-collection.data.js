@@ -149,7 +149,7 @@ export default class EntityCollection extends Array {
             const orderedItems = [
                 ...remainingItems.slice(0, newIndex),
                 movedItem,
-                ...remainingItems.slice(newIndex)
+                ...remainingItems.slice(newIndex),
             ];
 
             this.splice(0, this.length, ...orderedItems);
@@ -172,7 +172,7 @@ export default class EntityCollection extends Array {
                 this.criteria,
                 filtered,
                 this.total,
-                this.aggregations
+                this.aggregations,
             );
         };
     }
@@ -190,7 +190,7 @@ export default class EntityCollection extends Array {
             Criteria.fromCriteria(collection.criteria),
             collection,
             collection.total,
-            collection.aggregations
+            collection.aggregations,
         );
     }
 }

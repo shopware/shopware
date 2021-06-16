@@ -15,27 +15,27 @@ Component.register('sw-data-grid-skeleton', {
             required: true,
             default() {
                 return [];
-            }
+            },
         },
         itemAmount: {
             type: Number,
             required: false,
-            default: 7
+            default: 7,
         },
         showSelection: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         showActions: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         hasResizeColumns: {
             type: Boolean,
             required: true,
-            default: false
-        }
-    }
+            default: false,
+        },
+    },
 });

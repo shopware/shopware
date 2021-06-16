@@ -45,12 +45,12 @@ Component.register('sw-page', {
     props: {
         showSmartBar: {
             type: Boolean,
-            default: true
+            default: true,
         },
         showSearchBar: {
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -60,7 +60,7 @@ Component.register('sw-page', {
             sidebarOffset: 0,
             scrollbarOffset: 0,
             hasFullWidthHeader: false,
-            languageId: ''
+            languageId: '',
         };
     },
 
@@ -83,13 +83,13 @@ Component.register('sw-page', {
 
         pageClasses() {
             return {
-                'has--head-area': this.showHeadArea
+                'has--head-area': this.showHeadArea,
             };
         },
 
         pageContainerClasses() {
             return {
-                'has--smart-bar': this.showSmartBar
+                'has--smart-bar': this.showSmartBar,
             };
         },
 
@@ -97,7 +97,7 @@ Component.register('sw-page', {
             return {
                 'has--smart-bar': !!this.showSmartBar,
                 'has--side-content': !!this.hasSideContentSlot,
-                'has--side-bar ': !!this.hasSidebarSlot && !this.hasSideContentSlot
+                'has--side-bar ': !!this.hasSidebarSlot && !this.hasSideContentSlot,
             };
         },
 
@@ -111,19 +111,19 @@ Component.register('sw-page', {
         headerStyles() {
             return {
                 'border-bottom-color': this.pageColor,
-                'padding-right': this.pageOffset
+                'padding-right': this.pageOffset,
             };
         },
 
         topBarActionStyles() {
             return {
-                'margin-right': `-${this.pageOffset}`
+                'margin-right': `-${this.pageOffset}`,
             };
         },
 
         additionalEventListeners() {
             return this.$listeners;
-        }
+        },
     },
 
     created() {
@@ -196,6 +196,6 @@ Component.register('sw-page', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
-        }
-    }
+        },
+    },
 });

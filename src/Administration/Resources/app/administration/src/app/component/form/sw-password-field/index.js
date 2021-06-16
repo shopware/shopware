@@ -18,25 +18,25 @@ Component.extend('sw-password-field', 'sw-text-field', {
         passwordToggleAble: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         placeholderIsPassword: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         autocomplete: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            showPassword: false
+            showPassword: false,
         };
     },
 
@@ -50,7 +50,7 @@ Component.extend('sw-password-field', 'sw-text-field', {
                 !this.placeholderIsPassword ?
                 this.placeholder :
                 '*'.repeat(this.placeholder.length ? this.placeholder.length : 6);
-        }
+        },
     },
 
     methods: {
@@ -60,6 +60,6 @@ Component.extend('sw-password-field', 'sw-text-field', {
             }
 
             this.showPassword = !this.showPassword;
-        }
-    }
+        },
+    },
 });

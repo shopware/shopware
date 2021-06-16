@@ -23,7 +23,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         createRouterInstance,
         getViewComponent,
         getRouterInstance,
-        _setModuleFavicon: setModuleFavicon
+        _setModuleFavicon: setModuleFavicon,
     };
 
     /**
@@ -49,7 +49,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         // assign to view router options
         const options = Object.assign({}, opts, {
-            routes: mergedRoutes
+            routes: mergedRoutes,
         });
 
         // create router
@@ -86,7 +86,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
             const loginWhitelist = [
-                '/login', '/login/info', '/login/recovery'
+                '/login', '/login/info', '/login/recovery',
             ];
 
             if (to.meta && to.meta.forceRoute === true) {
@@ -116,7 +116,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 // Save the last route in case the user gets logged out in the mean time.
                 sessionStorage.setItem('sw-admin-previous-route', JSON.stringify({
                     fullPath: to.fullPath,
-                    name: to.name
+                    name: to.name,
                 }));
 
                 if (!tokenHandler.isRefreshing) {
@@ -124,7 +124,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                         return resolveRoute(to, from, next);
                     }).catch(() => {
                         return next({
-                            name: 'sw.login.index'
+                            name: 'sw.login.index',
                         });
                     });
                 }

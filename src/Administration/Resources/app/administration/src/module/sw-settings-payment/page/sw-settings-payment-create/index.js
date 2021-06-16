@@ -30,6 +30,6 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
 
         onSave() {
             this.$super('onSave');
-        }
-    }
+        },
+    },
 });

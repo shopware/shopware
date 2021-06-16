@@ -16,64 +16,64 @@ Component.register('sw-select-selection-list', {
         selections: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
         labelProperty: {
             type: String,
             required: false,
-            default: 'label'
+            default: 'label',
         },
         valueProperty: {
             type: String,
             required: false,
-            default: 'value'
+            default: 'value',
         },
         enableSearch: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         invisibleCount: {
             type: Number,
             required: false,
-            default: 0
+            default: 0,
         },
         size: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         searchTerm: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         hideLabels: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         showPlaceholder() {
             return (this.selections.length > 0 && !this.hideLabels) ? '' : this.placeholder;
-        }
+        },
     },
 
     methods: {
@@ -109,6 +109,6 @@ Component.register('sw-select-selection-list', {
 
         getFocusEl() {
             return this.$refs.swSelectInput;
-        }
-    }
+        },
+    },
 });

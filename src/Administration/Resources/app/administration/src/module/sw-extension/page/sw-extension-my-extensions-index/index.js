@@ -14,8 +14,8 @@ Shopware.Component.register('sw-extension-my-extensions-index', {
 
             set(newTerm) {
                 this.updateRouteQueryTerm(newTerm);
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -33,8 +33,8 @@ Shopware.Component.register('sw-extension-my-extensions-index', {
                 query: {
                     term: term || undefined,
                     limit: this.$route.query.limit,
-                    page: 1
-                }
+                    page: 1,
+                },
             };
 
             // If query is empty then replace route, otherwise push
@@ -43,6 +43,6 @@ Shopware.Component.register('sw-extension-my-extensions-index', {
             } else {
                 this.$router.push(route);
             }
-        }
-    }
+        },
+    },
 });

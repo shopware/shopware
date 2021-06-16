@@ -6,7 +6,7 @@ const { types } = Shopware.Utils;
 export default {
     required,
     regex,
-    email
+    email,
 };
 
 /**

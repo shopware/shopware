@@ -5,8 +5,8 @@ Mixin.register('sw-form-field', {
         mapInheritance: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -31,7 +31,7 @@ Mixin.register('sw-form-field', {
             }
 
             return null;
-        }
+        },
     },
 
     watch: {
@@ -57,8 +57,8 @@ Mixin.register('sw-form-field', {
                 });
             },
             deep: true,
-            immediate: true
-        }
+            immediate: true,
+        },
     },
 
     beforeDestroy() {
@@ -108,6 +108,6 @@ Mixin.register('sw-form-field', {
                     break;
                 }
             }
-        }
-    }
+        },
+    },
 });

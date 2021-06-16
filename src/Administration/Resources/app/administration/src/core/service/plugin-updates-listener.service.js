@@ -38,19 +38,19 @@ export default function addPluginUpdatesListener(loginService, serviceContainer)
     function createUpdatesAvailableNotification() {
         const notification = {
             title: getApplicationRootReference().$tc(
-                'global.notification-center.plugin-updates-listener.updatesAvailableTitle'
+                'global.notification-center.plugin-updates-listener.updatesAvailableTitle',
             ),
             message: getApplicationRootReference().$tc(
-                'global.notification-center.plugin-updates-listener.updatesAvailableMessage'
+                'global.notification-center.plugin-updates-listener.updatesAvailableMessage',
             ),
             variant: 'info',
             growl: true,
-            system: true
+            system: true,
         };
 
         getApplicationRootReference().$store.dispatch(
             'notification/createNotification',
-            notification
+            notification,
         );
     }
 

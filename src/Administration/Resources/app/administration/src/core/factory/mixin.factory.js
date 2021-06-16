@@ -6,7 +6,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 export default {
     register,
     getByName,
-    getMixinRegistry
+    getMixinRegistry,
 };
 
 /**
@@ -37,7 +37,7 @@ function register(mixinName, mixin = {}) {
         warn(
             'MixinFactory',
             'A mixin always needs a name.',
-            mixin
+            mixin,
         );
         return false;
     }
@@ -46,7 +46,7 @@ function register(mixinName, mixin = {}) {
         warn(
             'MixinFactory',
             `The mixin "${mixinName}" is already registered. Please select a unique name for your mixin.`,
-            mixin
+            mixin,
         );
         return false;
     }

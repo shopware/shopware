@@ -9,37 +9,37 @@ Component.register('sw-media-list-selection-v2', {
     inject: ['repositoryFactory', 'mediaService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         entity: {
             type: Object,
-            required: true
+            required: true,
         },
 
         entityMediaItems: {
             type: Array,
-            required: true
+            required: true,
         },
 
         uploadTag: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         defaultFolderName: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             columnCount: 8,
-            columnWidth: '90px'
+            columnWidth: '90px',
         };
     },
 
@@ -75,7 +75,7 @@ Component.register('sw-media-list-selection-v2', {
 
         defaultFolder() {
             return this.defaultFolderName || this.entity.getEntityName();
-        }
+        },
     },
 
     mounted() {
@@ -86,7 +86,7 @@ Component.register('sw-media-list-selection-v2', {
         mountedComponent() {
             this.$device.onResize({
                 listener: this.updateColumnCount,
-                component: this
+                component: this,
             });
             this.updateColumnCount();
         },
@@ -106,9 +106,9 @@ Component.register('sw-media-list-selection-v2', {
                 isPlaceholder: true,
                 media: {
                     isPlaceholder: true,
-                    name: ''
+                    name: '',
                 },
-                mediaId: this.currentCount
+                mediaId: this.currentCount,
             });
         },
 
@@ -147,6 +147,6 @@ Component.register('sw-media-list-selection-v2', {
 
         removeItem(mediaItem, index) {
             this.$emit('item-remove', mediaItem, index);
-        }
-    }
+        },
+    },
 });

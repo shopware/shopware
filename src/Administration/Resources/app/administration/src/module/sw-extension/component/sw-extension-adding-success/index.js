@@ -7,5 +7,5 @@ const { Component } = Shopware;
  * private
  */
 Component.register('sw-extension-adding-success', {
-    template
+    template,
 });

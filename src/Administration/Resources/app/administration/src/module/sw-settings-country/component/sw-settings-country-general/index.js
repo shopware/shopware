@@ -13,32 +13,32 @@ Component.register('sw-settings-country-general', {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature'
+        'feature',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('country')
+        Mixin.getByName('discard-detail-page-changes')('country'),
     ],
 
     props: {
         country: {
             type: Object,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
-            required: true
+            required: true,
         },
         userConfig: {
             type: Object,
-            required: true
+            required: true,
         },
         userConfigValues: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -49,7 +49,7 @@ Component.register('sw-settings-country-general', {
             menuOptions: [],
             taxFreeType: '',
             countryId: '',
-            baseCurrencyId: ''
+            baseCurrencyId: '',
         };
     },
 
@@ -62,7 +62,7 @@ Component.register('sw-settings-country-general', {
             return this.repositoryFactory.create('currency');
         },
 
-        ...mapPropertyErrors('country', ['name'])
+        ...mapPropertyErrors('country', ['name']),
 
     },
 
@@ -205,6 +205,6 @@ Component.register('sw-settings-country-general', {
 
         saveCountryCurrencyDependent() {
             this.$emit('modal-save');
-        }
-    }
+        },
+    },
 });

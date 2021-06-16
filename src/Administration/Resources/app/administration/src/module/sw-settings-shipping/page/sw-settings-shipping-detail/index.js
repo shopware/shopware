@@ -15,20 +15,20 @@ Component.register('sw-settings-shipping-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
         shippingMethodId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -39,25 +39,25 @@ Component.register('sw-settings-shipping-detail', {
             isProcessLoading: false,
             isLoading: false,
             currenciesLoading: false,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
     computed: {
         ...mapState('swShippingDetail', [
             'shippingMethod',
-            'currencies'
+            'currencies',
         ]),
         ...mapPropertyErrors('shippingMethod', [
             'name',
             'deliveryTimeId',
-            'availabilityRuleId'
+            'availabilityRuleId',
         ]),
 
         identifier() {
@@ -100,14 +100,14 @@ Component.register('sw-settings-shipping-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -117,8 +117,8 @@ Component.register('sw-settings-shipping-detail', {
                 'OR',
                 [
                     Criteria.contains('rule.moduleTypes.types', 'shipping'),
-                    Criteria.equals('rule.moduleTypes', null)
-                ]
+                    Criteria.equals('rule.moduleTypes', null),
+                ],
             ));
 
             return criteria;
@@ -136,7 +136,7 @@ Component.register('sw-settings-shipping-detail', {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     watch: {
@@ -151,7 +151,7 @@ Component.register('sw-settings-shipping-detail', {
             if (this.shippingMethodId === null) {
                 this.createdComponent();
             }
-        }
+        },
     },
 
     beforeCreate() {
@@ -204,7 +204,7 @@ Component.register('sw-settings-shipping-detail', {
             this.shippingMethodRepository.get(
                 this.shippingMethodId,
                 Shopware.Context.api,
-                this.shippingMethodCriteria
+                this.shippingMethodCriteria,
             ).then(res => {
                 Shopware.State.commit('swShippingDetail/setShippingMethod', res);
                 this.isLoading = false;
@@ -232,7 +232,7 @@ Component.register('sw-settings-shipping-detail', {
         onSave() {
             const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
+                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
             );
 
             this.filterIncompletePrices();
@@ -250,7 +250,7 @@ Component.register('sw-settings-shipping-detail', {
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,
-                    message: messageSaveError
+                    message: messageSaveError,
                 });
                 warn(this._name, exception.message, exception.response);
                 this.isProcessLoading = false;
@@ -317,6 +317,6 @@ Component.register('sw-settings-shipping-detail', {
             });
 
             return currencies;
-        }
-    }
+        },
+    },
 });

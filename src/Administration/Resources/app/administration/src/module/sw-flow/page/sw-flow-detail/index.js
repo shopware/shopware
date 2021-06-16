@@ -8,12 +8,12 @@ Component.register('sw-flow-detail', {
     inject: ['acl'],
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     data() {
         return {
-            flow: {}
+            flow: {},
         };
-    }
+    },
 });

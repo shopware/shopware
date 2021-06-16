@@ -17,7 +17,7 @@ import './acl';
 Shopware.Service().register('importExport', () => {
     return new ImportExportService(
         Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
+        Shopware.Service('loginService'),
     );
 });
 
@@ -44,10 +44,10 @@ Shopware.Module.register('sw-import-export', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.import_export'
+                privilege: 'system.import_export',
             },
             redirect: {
-                name: 'sw.import.export.index.import'
+                name: 'sw.import.export.index.import',
             },
 
             children: {
@@ -56,33 +56,33 @@ Shopware.Module.register('sw-import-export', {
                     path: 'import',
                     meta: {
                         parentPath: 'sw.settings.index',
-                        privilege: 'system.import_export'
-                    }
+                        privilege: 'system.import_export',
+                    },
                 },
                 export: {
                     component: 'sw-import-export-view-export',
                     path: 'export',
                     meta: {
                         parentPath: 'sw.settings.index',
-                        privilege: 'system.import_export'
-                    }
+                        privilege: 'system.import_export',
+                    },
                 },
                 profiles: {
                     component: 'sw-import-export-view-profiles',
                     path: 'profiles',
                     meta: {
                         parentPath: 'sw.settings.index',
-                        privilege: 'system.import_export'
-                    }
-                }
-            }
-        }
+                        privilege: 'system.import_export',
+                    },
+                },
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.import.export.index',
         icon: 'default-location-flag',
-        privilege: 'system.import_export'
-    }
+        privilege: 'system.import_export',
+    },
 });

@@ -9,7 +9,7 @@ export default class AddToCartPlugin extends Plugin {
     static options = {
         redirectSelector: '[name="redirectTo"]',
         redirectParamSelector: '[data-redirect-parameters="true"]',
-        redirectTo: 'frontend.cart.offcanvas'
+        redirectTo: 'frontend.cart.offcanvas',
     };
 
     init() {

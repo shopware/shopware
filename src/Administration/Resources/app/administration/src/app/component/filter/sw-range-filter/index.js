@@ -10,19 +10,19 @@ Component.register('sw-range-filter', {
     props: {
         value: {
             type: Object,
-            required: true
+            required: true,
         },
 
         property: {
             type: String,
-            required: true
+            required: true,
         },
 
         isShowDivider: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     computed: {
@@ -32,7 +32,7 @@ Component.register('sw-range-filter', {
 
         gap() {
             return this.isShowDivider ? '4px' : '12px';
-        }
+        },
     },
 
     watch: {
@@ -40,19 +40,19 @@ Component.register('sw-range-filter', {
             deep: true,
             handler(newValue) {
                 this.updateFilter(newValue);
-            }
-        }
+            },
+        },
     },
 
     methods: {
         updateFilter(range) {
             const params = {
                 ...(range.from ? { gte: range.from } : {}),
-                ...(range.to ? { lte: range.to } : {})
+                ...(range.to ? { lte: range.to } : {}),
             };
 
             const filterCriteria = [Criteria.range(this.property, params)];
             this.$emit('filter-update', filterCriteria);
-        }
-    }
+        },
+    },
 });

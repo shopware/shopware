@@ -34,18 +34,18 @@ Component.register('sw-card-section', {
                     return true;
                 }
                 return ['top', 'right', 'bottom', 'left'].includes(value);
-            }
+            },
         },
         secondary: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         slim: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -53,8 +53,8 @@ Component.register('sw-card-section', {
             return {
                 [`sw-card-section--divider-${this.divider}`]: this.divider,
                 'sw-card-section--secondary': this.secondary,
-                'sw-card-section--slim': this.slim
+                'sw-card-section--slim': this.slim,
             };
-        }
-    }
+        },
+    },
 });

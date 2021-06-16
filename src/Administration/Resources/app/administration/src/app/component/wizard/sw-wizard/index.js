@@ -33,7 +33,7 @@ Component.register('sw-wizard', {
             required: false,
             default() {
                 return false;
-            }
+            },
         },
 
         activePage: {
@@ -41,7 +41,7 @@ Component.register('sw-wizard', {
             required: false,
             default() {
                 return 0;
-            }
+            },
         },
 
         leftButtonDisabled: {
@@ -49,7 +49,7 @@ Component.register('sw-wizard', {
             required: false,
             default() {
                 return false;
-            }
+            },
         },
 
         rightButtonDisabled: {
@@ -57,15 +57,15 @@ Component.register('sw-wizard', {
             required: false,
             default() {
                 return false;
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             pages: [],
             currentlyActivePage: this.activePage,
-            title: this.$attrs.title || ''
+            title: this.$attrs.title || '',
         };
     },
 
@@ -77,7 +77,7 @@ Component.register('sw-wizard', {
 
         pagesCount() {
             return this.pages.length;
-        }
+        },
     },
 
     mounted() {
@@ -148,6 +148,6 @@ Component.register('sw-wizard', {
 
         onClose() {
             this.$emit('close');
-        }
-    }
+        },
+    },
 });

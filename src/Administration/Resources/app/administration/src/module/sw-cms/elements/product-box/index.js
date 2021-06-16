@@ -19,31 +19,31 @@ Shopware.Service('cmsService').registerCmsElement({
             required: true,
             entity: {
                 name: 'product',
-                criteria: criteria
-            }
+                criteria: criteria,
+            },
         },
         boxLayout: {
             source: 'static',
-            value: 'standard'
+            value: 'standard',
         },
         displayMode: {
             source: 'static',
-            value: 'standard'
+            value: 'standard',
         },
         verticalAlign: {
             source: 'static',
-            value: null
-        }
+            value: null,
+        },
     },
     defaultData: {
         boxLayout: 'standard',
-        product: null
+        product: null,
     },
     collect: function collect(elem) {
         const context = Object.assign(
             {},
             Shopware.Context.api,
-            { inheritance: true }
+            { inheritance: true },
         );
 
         const criteriaList = {};
@@ -61,7 +61,7 @@ Shopware.Service('cmsService').registerCmsElement({
                     value: [elem.config[configKey].value],
                     key: configKey,
                     searchCriteria: entity.criteria ? entity.criteria : new Criteria(),
-                    ...entity
+                    ...entity,
                 };
 
                 entityData.searchCriteria.setIds(entityData.value);
@@ -72,5 +72,5 @@ Shopware.Service('cmsService').registerCmsElement({
         });
 
         return criteriaList;
-    }
+    },
 });

@@ -19,36 +19,36 @@ Module.register('sw-manufacturer', {
     routes: {
         index: {
             components: {
-                default: 'sw-manufacturer-list'
+                default: 'sw-manufacturer-list',
             },
             path: 'index',
             meta: {
-                privilege: 'product_manufacturer.viewer'
-            }
+                privilege: 'product_manufacturer.viewer',
+            },
         },
         create: {
             component: 'sw-manufacturer-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.manufacturer.index',
-                privilege: 'product_manufacturer.creator'
-            }
+                privilege: 'product_manufacturer.creator',
+            },
         },
         detail: {
             component: 'sw-manufacturer-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.manufacturer.index',
-                privilege: 'product_manufacturer.viewer'
+                privilege: 'product_manufacturer.viewer',
             },
             props: {
                 default(route) {
                     return {
-                        manufacturerId: route.params.id
+                        manufacturerId: route.params.id,
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     },
 
     navigation: [{
@@ -58,6 +58,6 @@ Module.register('sw-manufacturer', {
         id: 'sw-manufacturer',
         parent: 'sw-catalogue',
         color: '#57D9A3',
-        position: 50
-    }]
+        position: 50,
+    }],
 });

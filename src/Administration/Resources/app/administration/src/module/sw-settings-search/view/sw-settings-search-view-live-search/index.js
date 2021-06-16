@@ -7,13 +7,13 @@ Shopware.Component.register('sw-settings-search-view-live-search', {
         currentSalesChannelId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         searchTerms: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         searchResults: {
@@ -21,13 +21,13 @@ Shopware.Component.register('sw-settings-search-view-live-search', {
             required: false,
             default() {
                 return null;
-            }
+            },
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
-    }
+            default: false,
+        },
+    },
 });

@@ -30,14 +30,14 @@ Component.register('sw-media-media-item', {
     inject: ['mediaService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
         return {
             showModalReplace: false,
             showModalDelete: false,
-            showModalMove: false
+            showModalMove: false,
         };
     },
 
@@ -48,9 +48,9 @@ Component.register('sw-media-media-item', {
 
         defaultContextMenuClass() {
             return {
-                'sw-context-menu__group': this.$slots.default
+                'sw-context-menu__group': this.$slots.default,
             };
-        }
+        },
     },
 
     methods: {
@@ -67,12 +67,12 @@ Component.register('sw-media-media-item', {
                 item.fileName = updatedName;
                 item.isLoading = false;
                 this.createNotificationSuccess({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
+                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message'),
                 });
                 this.$emit('media-item-rename-success', item);
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
+                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
                 });
             } finally {
                 item.isLoading = false;
@@ -82,7 +82,7 @@ Component.register('sw-media-media-item', {
 
         rejectRenaming(endInlineEdit) {
             this.createNotificationError({
-                message: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.message')
+                message: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.message'),
             });
 
             endInlineEdit();
@@ -107,7 +107,7 @@ Component.register('sw-media-media-item', {
             if (!this.selected) {
                 this.$emit('media-item-play', {
                     originalDomEvent,
-                    item
+                    item,
                 });
                 return;
             }
@@ -118,7 +118,7 @@ Component.register('sw-media-media-item', {
         copyItemLink(item) {
             dom.copyToClipboard(item.url);
             this.createNotificationSuccess({
-                message: this.$tc('sw-media.general.notification.urlCopied.message')
+                message: this.$tc('sw-media.general.notification.urlCopied.message'),
             });
         },
 
@@ -164,6 +164,6 @@ Component.register('sw-media-media-item', {
             this.$nextTick(() => {
                 this.$emit('media-item-replaced');
             });
-        }
-    }
+        },
+    },
 });

@@ -15,20 +15,20 @@ Component.register('sw-promotion-basic-form', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         promotion: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            excludedPromotions: null
+            excludedPromotions: null,
         };
     },
 
@@ -38,7 +38,7 @@ Component.register('sw-promotion-basic-form', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.promotion.id)]));
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -46,7 +46,7 @@ Component.register('sw-promotion-basic-form', {
             if (this.promotion) {
                 this.loadExclusions();
             }
-        }
+        },
     },
 
     created() {
@@ -88,6 +88,6 @@ Component.register('sw-promotion-basic-form', {
 
         createPromotionCollection() {
             return new EntityCollection('/promotion', 'promotion', Shopware.Context.api, new Criteria());
-        }
-    }
+        },
+    },
 });

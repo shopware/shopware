@@ -13,7 +13,7 @@ export default class CheckoutProgressEvent extends AnalyticsEvent
         }
 
         gtag('event', 'checkout_progress', {
-            'items': LineItemHelper.getLineItems()
+            'items': LineItemHelper.getLineItems(),
         });
     }
 }

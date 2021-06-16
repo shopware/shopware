@@ -18,8 +18,8 @@ Module.register('sw-settings', {
         index: {
             component: 'sw-settings-index',
             path: 'index',
-            icon: 'default-action-settings'
-        }
+            icon: 'default-action-settings',
+        },
     },
 
     navigation: [{
@@ -28,6 +28,6 @@ Module.register('sw-settings', {
         color: '#9AA8B5',
         icon: 'default-action-settings',
         path: 'sw.settings.index',
-        position: 80
-    }]
+        position: 80,
+    }],
 });

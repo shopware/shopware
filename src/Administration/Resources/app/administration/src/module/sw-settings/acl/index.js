@@ -20,9 +20,9 @@ Shopware.Service('privileges')
                     'product_sorting:delete',
                     'seo_url_template:read',
                     'seo_url_template:create',
-                    'seo_url_template:update'
+                    'seo_url_template:update',
                 ],
-                dependencies: []
-            }
-        }
+                dependencies: [],
+            },
+        },
     });

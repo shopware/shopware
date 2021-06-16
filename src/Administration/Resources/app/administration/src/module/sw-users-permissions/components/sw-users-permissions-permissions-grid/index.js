@@ -11,13 +11,13 @@ Component.register('sw-users-permissions-permissions-grid', {
     props: {
         role: {
             type: Object,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -27,7 +27,7 @@ Component.register('sw-users-permissions-permissions-grid', {
             this.parents.forEach(parent => {
                 permissionsWithParents.push({
                     type: 'parent',
-                    value: parent
+                    value: parent,
                 });
 
                 const children = this.getPermissionsForParent(parent);
@@ -94,9 +94,9 @@ Component.register('sw-users-permissions-permissions-grid', {
                 'viewer',
                 'editor',
                 'creator',
-                'deleter'
+                'deleter',
             ];
-        }
+        },
     },
 
     methods: {
@@ -281,6 +281,6 @@ Component.register('sw-users-permissions-permissions-grid', {
             return this.getPermissionsForParent(parentKey).some(currentRole => {
                 return currentRole.roles[roleKey] !== undefined;
             });
-        }
-    }
+        },
+    },
 });

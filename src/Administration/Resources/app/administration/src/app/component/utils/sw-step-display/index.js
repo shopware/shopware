@@ -32,24 +32,24 @@ Component.register('sw-step-display', {
     props: {
         itemIndex: {
             type: Number,
-            required: true
+            required: true,
         },
         itemVariant: {
             type: String,
-            required: true
+            required: true,
         },
         initialItemVariants: {
             type: Array,
             default() {
                 return [];
             },
-            required: false
-        }
+            required: false,
+        },
     },
 
     data() {
         return {
-            items: []
+            items: [],
         };
     },
 
@@ -66,8 +66,8 @@ Component.register('sw-step-display', {
             deep: true,
             handler(newItemVariants) {
                 this.setItemVariants(newItemVariants);
-            }
-        }
+            },
+        },
     },
 
     mounted() {
@@ -105,6 +105,6 @@ Component.register('sw-step-display', {
             }
 
             this.items[index].setActive(active);
-        }
-    }
+        },
+    },
 });

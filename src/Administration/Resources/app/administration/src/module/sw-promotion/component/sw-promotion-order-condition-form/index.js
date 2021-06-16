@@ -17,8 +17,8 @@ Component.register('sw-promotion-order-condition-form', {
         promotion: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -31,9 +31,9 @@ Component.register('sw-promotion-order-condition-form', {
                     'customerBillingStreet', 'customerBillingZipCode', 'customerCustomerGroup',
                     'customerCustomerNumber', 'customerDifferentAddresses', 'customerIsNewCustomer',
                     'customerLastName', 'customerShippingCountry', 'customerShippingStreet',
-                    'customerShippingZipCode'
+                    'customerShippingZipCode',
                 ]),
-                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
+                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
             ]));
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
@@ -47,6 +47,6 @@ Component.register('sw-promotion-order-condition-form', {
             }
 
             return !PromotionPermissions.isEditingAllowed(this.promotion);
-        }
-    }
+        },
+    },
 });

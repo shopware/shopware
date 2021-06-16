@@ -7,13 +7,13 @@ export default class PrivilegesService {
     alreadyImportedAdminPrivileges = [];
 
     state = Vue.observable({
-        privilegesMappings: []
+        privilegesMappings: [],
     });
 
     requiredPrivileges = [
         'language:read', // for entityInit and languageSwitch
         'locale:read', // for localeToLanguage service
-        'message_queue_stats:read' // for message queue
+        'message_queue_stats:read', // for message queue
     ];
 
     /**
@@ -129,7 +129,7 @@ export default class PrivilegesService {
         const dependenciesPrivileges = dependencies.reduce((acc, dependencyKey) => {
             return [
                 ...acc,
-                ...this._getPrivilegesWithDependencies(dependencyKey, shouldAddAdminPrivilege)
+                ...this._getPrivilegesWithDependencies(dependencyKey, shouldAddAdminPrivilege),
             ];
         }, []);
 
@@ -150,7 +150,7 @@ export default class PrivilegesService {
          */
         const collectedPrivileges = [
             ...resolvedPrivileges,
-            ...dependenciesPrivileges
+            ...dependenciesPrivileges,
         ];
 
         /**
@@ -234,7 +234,7 @@ export default class PrivilegesService {
 
         return [
             // convert to Set and back to Array to remove duplicates
-            ...new Set([...allPrivileges, ...this.getRequiredPrivileges()])
+            ...new Set([...allPrivileges, ...this.getRequiredPrivileges()]),
         ].sort();
     }
 
@@ -275,7 +275,7 @@ export default class PrivilegesService {
                     Vue.set(
                         existingCategoryKeyCombination.roles,
                         role,
-                        object.deepMergeObject(existingCategoryKeyCombination.roles[role], entry)
+                        object.deepMergeObject(existingCategoryKeyCombination.roles[role], entry),
                     );
                 } else {
                     Vue.set(existingCategoryKeyCombination.roles, role, entry);

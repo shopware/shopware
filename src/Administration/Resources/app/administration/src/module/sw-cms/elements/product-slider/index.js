@@ -19,55 +19,55 @@ Shopware.Service('cmsService').registerCmsElement({
             required: true,
             entity: {
                 name: 'product',
-                criteria: criteria
-            }
+                criteria: criteria,
+            },
         },
         title: {
             source: 'static',
-            value: ''
+            value: '',
         },
         displayMode: {
             source: 'static',
-            value: 'standard'
+            value: 'standard',
         },
         boxLayout: {
             source: 'static',
-            value: 'standard'
+            value: 'standard',
         },
         navigation: {
             source: 'static',
-            value: true
+            value: true,
         },
         rotate: {
             source: 'static',
-            value: false
+            value: false,
         },
         border: {
             source: 'static',
-            value: false
+            value: false,
         },
         elMinWidth: {
             source: 'static',
-            value: '300px'
+            value: '300px',
         },
         verticalAlign: {
             source: 'static',
-            value: null
+            value: null,
         },
         productStreamSorting: {
             source: 'static',
-            value: 'name:ASC'
+            value: 'name:ASC',
         },
         productStreamLimit: {
             source: 'static',
-            value: 10
-        }
+            value: 10,
+        },
     },
     collect: function collect(elem) {
         const context = Object.assign(
             {},
             Shopware.Context.api,
-            { inheritance: true }
+            { inheritance: true },
         );
 
         const criteriaList = {};
@@ -89,7 +89,7 @@ Shopware.Service('cmsService').registerCmsElement({
                     value: [...elem.config[configKey].value],
                     key: configKey,
                     searchCriteria: entity.criteria ? entity.criteria : new Criteria(),
-                    ...entity
+                    ...entity,
                 };
 
                 entityData.searchCriteria.setIds(entityData.value);
@@ -100,5 +100,5 @@ Shopware.Service('cmsService').registerCmsElement({
         });
 
         return criteriaList;
-    }
+    },
 });

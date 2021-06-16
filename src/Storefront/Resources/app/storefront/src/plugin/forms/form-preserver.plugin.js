@@ -42,7 +42,7 @@ export default class FormPreserverPlugin extends Plugin {
          *
          * @type Number
          */
-        delay: 300
+        delay: 300,
     };
 
     init() {

@@ -15,7 +15,7 @@ Component.register('sw-product-properties', {
             groupIds: [],
             properties: [],
             isPropertiesLoading: false,
-            searchTerm: null
+            searchTerm: null,
         };
     },
 
@@ -28,7 +28,7 @@ Component.register('sw-product-properties', {
             const criteria = new Criteria(1, 10);
 
             criteria.addFilter(
-                Criteria.equalsAny('id', this.groupIds)
+                Criteria.equalsAny('id', this.groupIds),
             );
 
             if (this.searchTerm) {
@@ -44,31 +44,31 @@ Component.register('sw-product-properties', {
                     property: 'name',
                     label: 'sw-product.properties.columnProperty',
                     sortable: false,
-                    routerLink: 'sw.property.detail'
+                    routerLink: 'sw.property.detail',
                 },
                 {
                     property: 'values',
                     label: 'sw-product.properties.columnValue',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ];
         },
 
         ...mapState('swProductDetail', [
             'product',
-            'parentProduct'
+            'parentProduct',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
-            'isChild'
+            'isChild',
         ]),
 
         productProperties() {
             return this.isChild && this.product?.properties?.length <= 0
                 ? this.parentProduct.properties
                 : this.product.properties;
-        }
+        },
     },
 
     watch: {
@@ -81,8 +81,8 @@ Component.register('sw-product-properties', {
 
                 this.getGroupIds();
                 this.getProperties();
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -167,6 +167,6 @@ Component.register('sw-product-properties', {
 
         turnOnAddPropertiesModal() {
             // TODO - Handle in NEXT-14021
-        }
-    }
+        },
+    },
 });

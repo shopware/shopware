@@ -11,8 +11,8 @@ Component.register('sw-cms-page-form', {
     props: {
         page: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -22,7 +22,7 @@ Component.register('sw-cms-page-form', {
 
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
-        }
+        },
     },
 
     methods: {
@@ -71,6 +71,6 @@ Component.register('sw-cms-page-form', {
             return block.sectionPosition === 'main' ?
                 this.$tc('sw-cms.section.positionRight') :
                 this.$tc('sw-cms.section.positionLeft');
-        }
-    }
+        },
+    },
 });

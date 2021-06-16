@@ -9,11 +9,11 @@ Shopware.Service('cmsService').registerCmsElement({
     defaultConfig: {
         content: {
             source: 'static',
-            value: '<h2>Lorem ipsum dolor sit amet.</h2>'.trim()
+            value: '<h2>Lorem ipsum dolor sit amet.</h2>'.trim(),
         },
         verticalAlign: {
             source: 'static',
-            value: null
-        }
-    }
+            value: null,
+        },
+    },
 });

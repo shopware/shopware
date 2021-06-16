@@ -34,6 +34,6 @@ Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail',
 
         onSave() {
             this.$super('onSave');
-        }
-    }
+        },
+    },
 });

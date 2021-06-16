@@ -9,13 +9,13 @@ Component.register('sw-sidebar-filter-panel', {
     props: {
         activeFilterNumber: {
             type: Number,
-            required: true
-        }
+            required: true,
+        },
     },
 
     methods: {
         resetAll() {
             this.$refs.filterPanel.resetAll();
-        }
-    }
+        },
+    },
 });

@@ -16,17 +16,17 @@ Component.register('sw-cms-detail', {
         'loginService',
         'cmsService',
         'cmsDataResolverService',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('cms-state'),
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave'
+        'SYSTEMKEY+S': 'onSave',
     },
 
     data() {
@@ -34,7 +34,7 @@ Component.register('sw-cms-detail', {
             pageId: null,
             pageOrigin: null,
             page: {
-                sections: []
+                sections: [],
             },
             salesChannels: [],
             isLoading: false,
@@ -52,9 +52,9 @@ Component.register('sw-cms-detail', {
                         {
                             slot: 'content',
                             type: 'cross-selling',
-                            config: {}
-                        }
-                    ]
+                            config: {},
+                        },
+                    ],
                 },
                 {
                     type: 'product-description-reviews',
@@ -62,9 +62,9 @@ Component.register('sw-cms-detail', {
                         {
                             slot: 'content',
                             type: 'product-description-reviews',
-                            config: {}
-                        }
-                    ]
+                            config: {},
+                        },
+                    ],
                 },
                 {
                     type: 'gallery-buybox',
@@ -72,14 +72,14 @@ Component.register('sw-cms-detail', {
                         {
                             slot: 'left',
                             type: 'image-gallery',
-                            config: {}
+                            config: {},
                         },
                         {
                             slot: 'right',
                             type: 'buy-box',
-                            config: {}
-                        }
-                    ]
+                            config: {},
+                        },
+                    ],
                 },
                 {
                     type: 'product-heading',
@@ -87,28 +87,28 @@ Component.register('sw-cms-detail', {
                         {
                             slot: 'left',
                             type: 'product-name',
-                            config: {}
+                            config: {},
                         },
                         {
                             slot: 'right',
                             type: 'manufacturer-logo',
-                            config: {}
-                        }
-                    ]
-                }
+                            config: {},
+                        },
+                    ],
+                },
             ],
             showLayoutAssignmentModal: false,
             showMissingElementModal: false,
             missingElements: [],
 
             /** @deprecated tag:v6.5.0 data prop can be removed completely */
-            previousRoute: ''
+            previousRoute: '',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -154,7 +154,7 @@ Component.register('sw-cms-detail', {
 
         cmsStageClasses() {
             return [
-                `is--${this.currentDeviceView}`
+                `is--${this.currentDeviceView}`,
             ];
         },
 
@@ -162,12 +162,12 @@ Component.register('sw-cms-detail', {
             return {
                 product_detail: {
                     entity: 'product',
-                    mode: 'single'
+                    mode: 'single',
                 },
                 product_list: {
                     entity: 'category',
-                    mode: 'single'
-                }
+                    mode: 'single',
+                },
             };
         },
 
@@ -176,7 +176,7 @@ Component.register('sw-cms-detail', {
                 page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
                 landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
                 product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
+                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
             };
         },
 
@@ -187,7 +187,7 @@ Component.register('sw-cms-detail', {
 
             return {
                 entity: null,
-                mode: 'static'
+                mode: 'static',
             };
         },
 
@@ -198,7 +198,7 @@ Component.register('sw-cms-detail', {
                 marginTop: null,
                 marginLeft: null,
                 marginRight: null,
-                sizingMode: 'boxed'
+                sizingMode: 'boxed',
             };
         },
 
@@ -207,7 +207,7 @@ Component.register('sw-cms-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('cms.editor'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -215,7 +215,7 @@ Component.register('sw-cms-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -265,7 +265,7 @@ Component.register('sw-cms-detail', {
 
         isProductPage() {
             return this.page.type === 'product_detail';
-        }
+        },
     },
 
     created() {
@@ -292,7 +292,7 @@ Component.register('sw-cms-detail', {
 
                 const criteria = new Criteria();
                 criteria.addFilter(
-                    Criteria.equals('typeId', defaultStorefrontId)
+                    Criteria.equals('typeId', defaultStorefrontId),
                 );
 
                 this.salesChannelRepository.search(criteria).then((response) => {
@@ -372,7 +372,7 @@ Component.register('sw-cms-detail', {
                     this.isLoading = false;
                     this.createNotificationError({
                         title: exception.message,
-                        message: exception.response
+                        message: exception.response,
                     });
 
                     warn(this._name, exception.message, exception.response);
@@ -381,7 +381,7 @@ Component.register('sw-cms-detail', {
                 this.isLoading = false;
                 this.createNotificationError({
                     title: exception.message,
-                    message: exception.response.statusText
+                    message: exception.response.statusText,
                 });
 
                 warn(this._name, exception.message, exception.response);
@@ -406,7 +406,7 @@ Component.register('sw-cms-detail', {
                 Shopware.State.commit('cmsPageState/setCurrentMappingEntity', mappingEntity);
                 Shopware.State.commit(
                     'cmsPageState/setCurrentMappingTypes',
-                    this.cmsService.getEntityMappingTypes(mappingEntity)
+                    this.cmsService.getEntityMappingTypes(mappingEntity),
                 );
 
                 this.currentMappingEntity = mappingEntity;
@@ -554,7 +554,7 @@ Component.register('sw-cms-detail', {
                 this.isLoading = false;
 
                 this.createNotificationError({
-                    message: exception.message
+                    message: exception.message,
                 });
 
                 let hasEmptyConfig = false;
@@ -570,7 +570,7 @@ Component.register('sw-cms-detail', {
                     const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingElements');
                     this.createNotificationError({
                         message: warningMessage,
-                        duration: 10000
+                        duration: 10000,
                     });
 
                     this.$store.commit('cmsPageState/removeSelectedItem');
@@ -586,7 +586,7 @@ Component.register('sw-cms-detail', {
             const foundProductPageElements = {
                 buyBox: 0,
                 productDescriptionReviews: 0,
-                crossSelling: 0
+                crossSelling: 0,
             };
 
             sections.forEach((section) => {
@@ -613,7 +613,7 @@ Component.register('sw-cms-detail', {
 
             return {
                 foundEmptyRequiredField,
-                foundProductPageElements
+                foundProductPageElements,
             };
         },
 
@@ -625,8 +625,8 @@ Component.register('sw-cms-detail', {
                     warningMessages.push(
                         this.$tc('sw-cms.detail.notification.messageRedundantElements',
                             0, {
-                                name: this.$tc(`sw-cms.elements.${key}.label`)
-                            })
+                                name: this.$tc(`sw-cms.elements.${key}.label`),
+                            }),
                     );
                 }
             });
@@ -646,7 +646,7 @@ Component.register('sw-cms-detail', {
 
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingFields');
                 this.createNotificationError({
-                    message: warningMessage
+                    message: warningMessage,
                 });
 
                 return Promise.reject();
@@ -666,7 +666,7 @@ Component.register('sw-cms-detail', {
 
                 if (!foundListingBlock) {
                     this.createNotificationError({
-                        message: this.$tc('sw-cms.detail.notification.messageMissingProductListing')
+                        message: this.$tc('sw-cms.detail.notification.messageMissingProductListing'),
                     });
 
                     this.cmsBlocks['product-listing'].hidden = false;
@@ -680,7 +680,7 @@ Component.register('sw-cms-detail', {
 
             if (sections.length < 1) {
                 this.createNotificationError({
-                    message: this.$tc('sw-cms.detail.notification.messageMissingSections')
+                    message: this.$tc('sw-cms.detail.notification.messageMissingSections'),
                 });
 
                 return Promise.reject();
@@ -688,7 +688,7 @@ Component.register('sw-cms-detail', {
 
             if (sections.length === 1 && sections[0].blocks.length === 0) {
                 this.createNotificationError({
-                    message: this.$tc('sw-cms.detail.notification.messageMissingBlocks')
+                    message: this.$tc('sw-cms.detail.notification.messageMissingBlocks'),
                 });
 
                 this.pageConfigOpen('blocks');
@@ -703,7 +703,7 @@ Component.register('sw-cms-detail', {
                 if (warningMessages.length > 0) {
                     warningMessages.forEach((message) => {
                         this.createNotificationError({
-                            message
+                            message,
                         });
                     });
 
@@ -722,7 +722,7 @@ Component.register('sw-cms-detail', {
             if (foundEmptyRequiredField.length > 0) {
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingBlockFields');
                 this.createNotificationError({
-                    message: warningMessage
+                    message: warningMessage,
                 });
 
                 return Promise.reject();
@@ -857,8 +857,8 @@ Component.register('sw-cms-detail', {
                     blockId: listingBlock.id,
                     slot: 'content',
                     type: 'product-listing',
-                    config: {}
-                }
+                    config: {},
+                },
             ];
 
             this.processBlock(listingBlock, 'product-listing');
@@ -888,7 +888,7 @@ Component.register('sw-cms-detail', {
                     marginTop: (blockType === 'gallery-buybox' || blockType === 'product-description-reviews')
                         ? '20px' : '0',
                     marginBottom: (blockType === 'product-heading' || blockType === 'product-description-reviews')
-                        ? '20px' : '0'
+                        ? '20px' : '0',
                 };
             }
 
@@ -901,7 +901,7 @@ Component.register('sw-cms-detail', {
             Object.assign(
                 block,
                 cloneDeep(this.blockConfigDefaults),
-                cloneDeep(defaultConfig || {})
+                cloneDeep(defaultConfig || {}),
             );
         },
 
@@ -973,6 +973,6 @@ Component.register('sw-cms-detail', {
                     this.isSaveable = false;
                 });
             });
-        }
-    }
+        },
+    },
 });

@@ -18,18 +18,18 @@ Component.register('sw-sidebar-item', {
     props: {
         title: {
             type: String,
-            required: true
+            required: true,
         },
 
         icon: {
             type: String,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         position: {
@@ -38,20 +38,20 @@ Component.register('sw-sidebar-item', {
             default: 'top',
             validator(value) {
                 return ['top', 'bottom'].includes(value);
-            }
+            },
         },
 
         // FIXME: add default value for property
         // eslint-disable-next-line vue/require-default-prop
         badge: {
             type: Number,
-            required: false
-        }
+            required: false,
+        },
     },
 
     data() {
         return {
-            isActive: false
+            isActive: false,
         };
     },
 
@@ -59,7 +59,7 @@ Component.register('sw-sidebar-item', {
         sidebarItemClasses() {
             return {
                 'is--active': this.showContent,
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
         },
 
@@ -69,7 +69,7 @@ Component.register('sw-sidebar-item', {
 
         showContent() {
             return this.hasDefaultSlot && this.isActive;
-        }
+        },
     },
 
     watch: {
@@ -77,7 +77,7 @@ Component.register('sw-sidebar-item', {
             if (newDisabledState) {
                 this.closeContent();
             }
-        }
+        },
     },
 
     created() {
@@ -126,6 +126,6 @@ Component.register('sw-sidebar-item', {
             if (sidebarItem.hasDefaultSlot) {
                 this.isActive = false;
             }
-        }
-    }
+        },
+    },
 });

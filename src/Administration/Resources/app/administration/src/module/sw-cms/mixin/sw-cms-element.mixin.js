@@ -7,38 +7,38 @@ Mixin.register('cms-element', {
 
     model: {
         prop: 'element',
-        event: 'element-update'
+        event: 'element-update',
     },
 
     props: {
         element: {
             type: Object,
-            required: true
+            required: true,
         },
 
         defaultConfig: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            cmsPageState: Shopware.State.get('cmsPageState')
+            cmsPageState: Shopware.State.get('cmsPageState'),
         };
     },
 
     computed: {
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
-        }
+        },
     },
 
     methods: {
@@ -72,8 +72,8 @@ Mixin.register('cms-element', {
         getDemoValue(mappingPath) {
             return this.cmsService.getPropertyByMappingPath(
                 this.cmsPageState.currentDemoEntity,
-                mappingPath
+                mappingPath,
             );
-        }
-    }
+        },
+    },
 });

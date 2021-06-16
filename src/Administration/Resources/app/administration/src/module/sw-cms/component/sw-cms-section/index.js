@@ -8,35 +8,35 @@ Component.register('sw-cms-section', {
 
     inject: [
         'cmsService',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     mixins: [
-        Mixin.getByName('cms-state')
+        Mixin.getByName('cms-state'),
     ],
 
     props: {
         page: {
             type: Object,
-            required: true
+            required: true,
         },
 
         section: {
             type: Object,
-            required: true
+            required: true,
         },
 
         active: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -51,7 +51,7 @@ Component.register('sw-cms-section', {
         sectionClasses() {
             return {
                 'is--active': this.active,
-                'is--boxed': this.section.sizingMode === 'boxed'
+                'is--boxed': this.section.sizingMode === 'boxed',
             };
         },
 
@@ -77,14 +77,14 @@ Component.register('sw-cms-section', {
             return {
                 'background-color': this.section.backgroundColor || 'transparent',
                 'background-image': backgroundMedia,
-                'background-size': this.section.backgroundMediaMode
+                'background-size': this.section.backgroundMediaMode,
             };
         },
 
         sectionSidebarClasses() {
             return {
                 'is--empty': this.sideBarEmpty,
-                'is--hidden': this.sectionMobileAndHidden
+                'is--hidden': this.sectionMobileAndHidden,
             };
         },
 
@@ -127,7 +127,7 @@ Component.register('sw-cms-section', {
 
         blockTypes() {
             return Object.keys(this.cmsService.getCmsBlockRegistry());
-        }
+        },
     },
 
     created() {
@@ -184,6 +184,6 @@ Component.register('sw-cms-section', {
 
         blockTypeExists(type) {
             return this.blockTypes.includes(type);
-        }
-    }
+        },
+    },
 });

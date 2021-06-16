@@ -9,24 +9,24 @@ Component.register('sw-settings-country-currency-hamburger-menu', {
 
     inject: [
         'acl',
-        'feature'
+        'feature',
     ],
 
     props: {
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         options: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     methods: {
         onCheckCurrency(currencyId, isChecked) {
             this.$emit('currency-change', currencyId, isChecked);
-        }
-    }
+        },
+    },
 });

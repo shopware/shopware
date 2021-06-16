@@ -18,8 +18,8 @@ Component.register('sw-highlight-text', {
             'div',
             {
                 class: 'sw-highlight-text',
-                domProps: { innerHTML: this.searchAndReplace() }
-            }
+                domProps: { innerHTML: this.searchAndReplace() },
+            },
         );
     },
 
@@ -27,13 +27,13 @@ Component.register('sw-highlight-text', {
         searchTerm: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         text: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     methods: {
@@ -56,6 +56,6 @@ Component.register('sw-highlight-text', {
         // Remove regex special characters from search string
         escapeRegExp(string) {
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-        }
-    }
+        },
+    },
 });

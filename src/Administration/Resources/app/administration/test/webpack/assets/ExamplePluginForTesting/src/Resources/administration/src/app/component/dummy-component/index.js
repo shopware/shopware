@@ -17,6 +17,6 @@ Component.register('dummy-component', {
 
             console.log(md5Value);
             console.log(camelCaseSample);
-        }
-    }
+        },
+    },
 });

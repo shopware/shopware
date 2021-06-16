@@ -11,25 +11,25 @@ Component.register('sw-customer-detail-base', {
     props: {
         customer: {
             type: Object,
-            required: true
+            required: true,
         },
 
         customerEditMode: {
             type: Boolean,
             required: true,
-            default: false
+            default: false,
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            customerCustomFieldSets: null
+            customerCustomFieldSets: null,
         };
     },
 
@@ -48,7 +48,7 @@ Component.register('sw-customer-detail-base', {
                 .addSorting(Criteria.sort('config.customFieldPosition'));
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -63,6 +63,6 @@ Component.register('sw-customer-detail-base', {
                 .then((customFieldSets) => {
                     this.customerCustomFieldSets = customFieldSets;
                 });
-        }
-    }
+        },
+    },
 });

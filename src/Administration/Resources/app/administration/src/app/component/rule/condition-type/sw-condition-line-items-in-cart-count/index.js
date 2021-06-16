@@ -19,13 +19,13 @@ Component.extend('sw-condition-line-items-in-cart-count', 'sw-condition-base', {
             set(count) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, count };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.count']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCountError;
-        }
-    }
+        },
+    },
 });

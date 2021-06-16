@@ -15,27 +15,27 @@ Component.register('sw-meteor-page', {
         fullWidth: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         hideIcon: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             module: null,
-            parentRoute: null
+            parentRoute: null,
         };
     },
 
     computed: {
         pageClasses() {
             return {
-                'sw-meteor-page--full-width': this.fullWidth
+                'sw-meteor-page--full-width': this.fullWidth,
             };
         },
 
@@ -53,7 +53,7 @@ Component.register('sw-meteor-page', {
 
         pageColor() {
             return (this.module !== null) ? this.module.color : '#d8dde6';
-        }
+        },
     },
 
     beforeDestroy() {
@@ -81,7 +81,7 @@ Component.register('sw-meteor-page', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
-        }
-    }
+        },
+    },
 });
 }

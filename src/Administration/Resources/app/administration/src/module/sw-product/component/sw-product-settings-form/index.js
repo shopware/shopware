@@ -10,14 +10,14 @@ Component.register('sw-product-settings-form', {
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
-            'parentProduct'
+            'parentProduct',
         ]),
 
         ...mapPropertyErrors('product', [
@@ -28,7 +28,7 @@ Component.register('sw-product-settings-form', {
             'ean',
             'manufacturerNumber',
             'shippingFree',
-            'markAsTopseller'
-        ])
-    }
+            'markAsTopseller',
+        ]),
+    },
 });

@@ -12,7 +12,7 @@ export default {
     getBrowserLanguage,
     getBrowserLanguages,
     getLastKnownLocale,
-    storeCurrentLocale
+    storeCurrentLocale,
 };
 
 /**
@@ -55,7 +55,7 @@ function register(localeName, localeMessages = {}) {
     if (!localeName || !localeName.length) {
         warn(
             'LocaleFactory',
-            'A locale always needs a name'
+            'A locale always needs a name',
         );
         return false;
     }
@@ -63,7 +63,7 @@ function register(localeName, localeMessages = {}) {
     if (localeName.split('-').length < 2) {
         warn(
             'LocaleFactory',
-            'The locale name should follow the RFC-4647 standard e.g. [languageCode-countryCode] for example "en-US"'
+            'The locale name should follow the RFC-4647 standard e.g. [languageCode-countryCode] for example "en-US"',
         );
         return false;
     }
@@ -72,7 +72,7 @@ function register(localeName, localeMessages = {}) {
         warn(
             'LocaleFactory',
             `The locale "${localeName}" is registered already.`,
-            'Please use the extend method to extend and override certain keys'
+            'Please use the extend method to extend and override certain keys',
         );
 
         return false;
@@ -94,7 +94,7 @@ function extend(localeName, localeMessages = {}) {
     if (localeName.split('-').length < 2) {
         warn(
             'LocaleFactory',
-            'The locale name should follow the RFC-4647 standard e.g. [languageCode-countryCode]] for example "en-US"'
+            'The locale name should follow the RFC-4647 standard e.g. [languageCode-countryCode]] for example "en-US"',
         );
         return false;
     }
@@ -102,7 +102,7 @@ function extend(localeName, localeMessages = {}) {
     if (!localeRegistry.has(localeName)) {
         warn(
             'LocaleFactory',
-            `The locale "${localeName}" doesn't exists. Please use the register method to register a new locale`
+            `The locale "${localeName}" doesn't exists. Please use the register method to register a new locale`,
         );
         return false;
     }

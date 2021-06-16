@@ -21,34 +21,34 @@ Module.register('sw-settings-document', {
             path: 'index',
             meta: {
                 privilege: 'document.viewer',
-                parentPath: 'sw.settings.index'
-            }
+                parentPath: 'sw.settings.index',
+            },
         },
         detail: {
             component: 'sw-settings-document-detail',
             path: 'detail/:id',
             meta: {
                 privilege: 'document.viewer',
-                parentPath: 'sw.settings.document.index'
+                parentPath: 'sw.settings.document.index',
             },
             props: {
-                default: (route) => ({ documentConfigId: route.params.id })
-            }
+                default: (route) => ({ documentConfigId: route.params.id }),
+            },
         },
         create: {
             component: 'sw-settings-document-detail',
             path: 'create',
             meta: {
                 privilege: 'document.creator',
-                parentPath: 'sw.settings.document.index'
-            }
-        }
+                parentPath: 'sw.settings.document.index',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.document.index',
         privilege: 'document.viewer',
-        icon: 'default-documentation-file'
-    }
+        icon: 'default-documentation-file',
+    },
 });

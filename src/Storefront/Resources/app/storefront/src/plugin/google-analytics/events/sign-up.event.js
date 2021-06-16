@@ -21,12 +21,12 @@ export default class SignUpEvent extends EventAwareAnalyticsEvent
                  * @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455) - onFormSubmit event will be removed, use beforeSubmit instead
                  */
                 'onFormSubmit': this._onFormSubmit.bind(this),
-                'beforeSubmit':  this._onFormSubmit.bind(this)
+                'beforeSubmit':  this._onFormSubmit.bind(this),
             };
         }
 
         return {
-            'onFormSubmit': this._onFormSubmit.bind(this)
+            'onFormSubmit': this._onFormSubmit.bind(this),
         };
     }
 

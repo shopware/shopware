@@ -12,7 +12,7 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base', 
 
     data() {
         return {
-            manufacturers: null
+            manufacturers: null,
         };
     },
 
@@ -33,14 +33,14 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base', 
             set(manufacturerIds) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, manufacturerIds };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.manufacturerIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueManufacturerIdsError;
-        }
+        },
     },
 
     created() {
@@ -52,7 +52,7 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base', 
             this.manufacturers = new EntityCollection(
                 this.manufacturerRepository.route,
                 this.manufacturerRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.manufacturerIds.length <= 0) {
@@ -70,6 +70,6 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base', 
         setManufacturerIds(manufacturers) {
             this.manufacturerIds = manufacturers.getIds();
             this.manufacturers = manufacturers;
-        }
-    }
+        },
+    },
 });

@@ -7,7 +7,7 @@ Component.register('sw-property-detail-base', {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
@@ -16,31 +16,31 @@ Component.register('sw-property-detail-base', {
             required: true,
             default() {
                 return {};
-            }
+            },
         },
         isLoading: {
             type: Boolean,
-            default: false
+            default: false,
         },
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
             sortingTypes: [
                 { value: 'alphanumeric', label: this.$tc('sw-property.detail.alphanumericSortingType') },
-                { value: 'position', label: this.$tc('sw-property.detail.positionSortingType') }
+                { value: 'position', label: this.$tc('sw-property.detail.positionSortingType') },
             ],
             displayTypes: [
                 { value: 'media', label: this.$tc('sw-property.detail.mediaDisplayType') },
                 { value: 'text', label: this.$tc('sw-property.detail.textDisplayType') },
                 { value: 'select', label: this.$tc('sw-property.detail.selectDisplayType') },
-                { value: 'color', label: this.$tc('sw-property.detail.colorDisplayType') }
-            ]
+                { value: 'color', label: this.$tc('sw-property.detail.colorDisplayType') },
+            ],
         };
     },
 
@@ -48,7 +48,7 @@ Component.register('sw-property-detail-base', {
         ...mapPropertyErrors('propertyGroup', [
             'name',
             'displayType',
-            'sortingType'
-        ])
-    }
+            'sortingType',
+        ]),
+    },
 });

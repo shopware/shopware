@@ -17,27 +17,27 @@ Component.register('sw-select-result', {
     props: {
         index: {
             type: Number,
-            required: true
+            required: true,
         },
         item: {
             type: Object,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         selected: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            active: false
+            active: false,
         };
     },
 
@@ -46,11 +46,11 @@ Component.register('sw-select-result', {
             return [
                 {
                     'is--active': this.active,
-                    'is--disabled': this.disabled
+                    'is--disabled': this.disabled,
                 },
-                `sw-select-option--${this.index}`
+                `sw-select-option--${this.index}`,
             ];
-        }
+        },
     },
 
     created() {
@@ -90,6 +90,6 @@ Component.register('sw-select-result', {
 
         onMouseEnter() {
             this.setActiveItemIndex(this.index);
-        }
-    }
+        },
+    },
 });

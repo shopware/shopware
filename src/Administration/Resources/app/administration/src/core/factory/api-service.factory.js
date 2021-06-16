@@ -8,7 +8,7 @@ export default {
     register,
     getByName,
     getServices,
-    has
+    has,
 };
 
 /**
@@ -44,7 +44,7 @@ function register(apiServiceName, apiService = null) {
     if (!apiServiceName || !apiServiceName.length) {
         warn(
             name,
-            'A apiService always needs a name'
+            'A apiService always needs a name',
         );
         return false;
     }
@@ -52,7 +52,7 @@ function register(apiServiceName, apiService = null) {
     if (has(apiServiceName)) {
         warn(
             name,
-            `The apiService "${apiServiceName}" is already registered. Please select a unique name for your apiService.`
+            `The apiService "${apiServiceName}" is already registered. Please select a unique name for your apiService.`,
         );
         return false;
     }

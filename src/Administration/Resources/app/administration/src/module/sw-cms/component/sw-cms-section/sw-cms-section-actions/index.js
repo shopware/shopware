@@ -9,28 +9,28 @@ Component.register('sw-cms-section-actions', {
     props: {
         section: {
             type: Object,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            cmsPageState: Shopware.State.get('cmsPageState')
+            cmsPageState: Shopware.State.get('cmsPageState'),
         };
     },
 
     computed: {
         componentClasses() {
             return {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
-        }
+        },
     },
 
     methods: {
@@ -41,6 +41,6 @@ Component.register('sw-cms-section-actions', {
 
             this.$store.dispatch('cmsPageState/setSection', this.section);
             this.$parent.$emit('page-config-open', 'itemConfig');
-        }
-    }
+        },
+    },
 });

@@ -22,31 +22,31 @@ Module.register('sw-settings-payment', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'payment.viewer'
-            }
+                privilege: 'payment.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-payment-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.payment.index',
-                privilege: 'payment.viewer'
-            }
+                privilege: 'payment.viewer',
+            },
         },
         create: {
             component: 'sw-settings-payment-create',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.payment.index',
-                privilege: 'payment.creator'
-            }
-        }
+                privilege: 'payment.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.payment.index',
         icon: 'default-money-card',
-        privilege: 'payment.viewer'
-    }
+        privilege: 'payment.viewer',
+    },
 });

@@ -15,34 +15,34 @@ Shopware.Service('privileges')
                     'user_config:update',
                     'custom_field_set:read',
                     'custom_field:read',
-                    'custom_field_set_relation:read'
+                    'custom_field_set_relation:read',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
-                    'product_review:update'
-                ],
-                dependencies: [
-                    'review.viewer'
-                ]
-            },
-            creator: {
-                privileges: [
-                    'product_review:create'
+                    'product_review:update',
                 ],
                 dependencies: [
                     'review.viewer',
-                    'review.editor'
-                ]
+                ],
+            },
+            creator: {
+                privileges: [
+                    'product_review:create',
+                ],
+                dependencies: [
+                    'review.viewer',
+                    'review.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'product_review:delete'
+                    'product_review:delete',
                 ],
                 dependencies: [
-                    'review.viewer'
-                ]
-            }
-        }
+                    'review.viewer',
+                ],
+            },
+        },
     });

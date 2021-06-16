@@ -6,12 +6,12 @@ Component.register('sw-settings-address', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
     data() {
         return {
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
         };
     },
     methods: {
@@ -28,9 +28,9 @@ Component.register('sw-settings-address', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: err
+                    message: err,
                 });
             });
-        }
-    }
+        },
+    },
 });

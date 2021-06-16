@@ -9,27 +9,27 @@ Component.register('sw-extension-domains-modal', {
     props: {
         extensionLabel: {
             type: String,
-            required: true
+            required: true,
         },
 
         domains: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         modalTitle() {
             return this.$t(
                 'sw-extension-store.component.sw-extension-domains-modal.modalTitle',
-                { extensionLabel: this.extensionLabel }
+                { extensionLabel: this.extensionLabel },
             );
-        }
+        },
     },
 
     methods: {
         close() {
             this.$emit('modal-close');
-        }
-    }
+        },
+    },
 });

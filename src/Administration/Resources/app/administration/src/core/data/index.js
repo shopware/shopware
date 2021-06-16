@@ -21,5 +21,5 @@ export default {
     Repository,
     ErrorResolver,
     ErrorStore,
-    FilterFactory
+    FilterFactory,
 };

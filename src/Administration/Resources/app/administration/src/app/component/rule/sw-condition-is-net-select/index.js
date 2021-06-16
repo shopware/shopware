@@ -14,7 +14,7 @@ Component.extend('sw-condition-is-net-select', 'sw-condition-operator-select', {
                     this.condition.value = {};
                 }
                 this.condition.value = { ...this.condition.value, isNet };
-            }
-        }
-    }
+            },
+        },
+    },
 });

@@ -4,7 +4,7 @@
 
 export default {
     addBootPromise,
-    getBootPromises
+    getBootPromises,
 };
 
 /**

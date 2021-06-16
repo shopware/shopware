@@ -12,12 +12,12 @@ Component.register('sw-order-nested-line-items-row', {
     props: {
         lineItem: {
             type: Object,
-            required: true
+            required: true,
         },
 
         currency: {
             type: Object,
-            required: true
+            required: true,
         },
 
         renderParent: {
@@ -25,15 +25,15 @@ Component.register('sw-order-nested-line-items-row', {
             required: false,
             default() {
                 return false;
-            }
-        }
+            },
+        },
     },
 
     methods: {
         getNestingClasses(nestingLevel) {
             return [
-                `nesting-level-${nestingLevel}`
+                `nesting-level-${nestingLevel}`,
             ];
-        }
-    }
+        },
+    },
 });

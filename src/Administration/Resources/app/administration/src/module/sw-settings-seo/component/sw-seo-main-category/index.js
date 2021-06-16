@@ -11,36 +11,36 @@ Component.register('sw-seo-main-category', {
         currentSalesChannelId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         categories: {
             type: Array,
-            required: true
+            required: true,
         },
         mainCategories: {
             type: Array,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         overwriteLabel: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            mainCategoryForSalesChannel: null
+            mainCategoryForSalesChannel: null,
         };
     },
 
@@ -64,7 +64,7 @@ Component.register('sw-seo-main-category', {
 
         selectedCategory() {
             return this.mainCategoryForSalesChannel !== null ? this.mainCategoryForSalesChannel.categoryId : null;
-        }
+        },
     },
 
     watch: {
@@ -73,7 +73,7 @@ Component.register('sw-seo-main-category', {
         },
         mainCategories() {
             this.refreshMainCategoryForSalesChannel();
-        }
+        },
     },
 
     created() {
@@ -117,6 +117,6 @@ Component.register('sw-seo-main-category', {
             }
 
             this.mainCategoryForSalesChannel = mainCategory;
-        }
-    }
+        },
+    },
 });

@@ -10,14 +10,14 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         salesChannel: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -25,7 +25,7 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
             products: [],
             searchTerm: null,
             skeletonItemAmount: 25,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -43,7 +43,7 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
 
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(Criteria.not('and', [
-                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)
+                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
             ]));
             criteria.addFilter(Criteria.equals('parentId', null));
 
@@ -56,15 +56,15 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
                     property: 'name',
                     label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
-                    primary: true
+                    primary: true,
                 },
                 {
                     property: 'productNumber',
                     label: this.$tc('sw-sales-channel.detail.products.columnProductNumber'),
-                    allowResize: true
-                }
+                    allowResize: true,
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -81,7 +81,7 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
                 .catch(err => {
                     this.products = [];
                     this.createNotificationError({
-                        message: err.message
+                        message: err.message,
                     });
                 })
                 .finally(() => {
@@ -96,6 +96,6 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
 
         onSelectionChange(selection) {
             this.$emit('selection-change', selection, 'singleProducts');
-        }
-    }
+        },
+    },
 });

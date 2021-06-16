@@ -19,15 +19,15 @@ Module.register('sw-settings-login-registration', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
-        }
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.login.registration.index',
         icon: 'default-action-log-in',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

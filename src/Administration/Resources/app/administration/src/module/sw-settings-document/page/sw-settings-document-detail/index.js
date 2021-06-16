@@ -13,20 +13,20 @@ Component.register('sw-settings-document-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
         documentConfigId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
 
@@ -34,8 +34,8 @@ Component.register('sw-settings-document-detail', {
         return {
             documentConfig: {
                 config: {
-                    displayAdditionalNoteDelivery: false
-                }
+                    displayAdditionalNoteDelivery: false,
+                },
             },
             documentConfigSalesChannelOptionsCollection: [],
             documentConfigSalesChannels: [],
@@ -56,10 +56,10 @@ Component.register('sw-settings-document-detail', {
                         valueProperty: 'id',
                         options: [
                             { id: 'portrait', name: 'Portrait' },
-                            { id: 'landscape', name: 'Landscape' }
+                            { id: 'landscape', name: 'Landscape' },
                         ],
-                        label: this.$tc('sw-settings-document.detail.labelPageOrientation')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelPageOrientation'),
+                    },
                 },
                 {
                     name: 'pageSize',
@@ -72,18 +72,18 @@ Component.register('sw-settings-document-detail', {
                             { id: 'a4', name: 'A4' },
                             { id: 'a5', name: 'A5' },
                             { id: 'legal', name: 'Legal' },
-                            { id: 'letter', name: 'Letter' }
+                            { id: 'letter', name: 'Letter' },
                         ],
-                        label: this.$tc('sw-settings-document.detail.labelPageSize')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelPageSize'),
+                    },
                 },
                 {
                     name: 'itemsPerPage',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelItemsPerPage')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelItemsPerPage'),
+                    },
                 },
                 null,
                 {
@@ -91,48 +91,48 @@ Component.register('sw-settings-document-detail', {
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: this.$tc('sw-settings-document.detail.labelDisplayHeader')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayHeader'),
+                    },
                 },
                 {
                     name: 'displayFooter',
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: this.$tc('sw-settings-document.detail.labelDisplayFooter')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayFooter'),
+                    },
                 },
                 {
                     name: 'displayPageCount',
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: this.$tc('sw-settings-document.detail.labelDisplayPageCount')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayPageCount'),
+                    },
                 },
                 {
                     name: 'displayLineItems',
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: this.$tc('sw-settings-document.detail.labelDisplayLineItems')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayLineItems'),
+                    },
                 },
                 {
                     name: 'displayLineItemPosition',
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: this.$tc('sw-settings-document.detail.labelDisplayLineItemPosition')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayLineItemPosition'),
+                    },
                 },
                 {
                     name: 'displayPrices',
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: this.$tc('sw-settings-document.detail.labelDisplayPrices')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayPrices'),
+                    },
                 },
                 {
                     name: 'displayInCustomerAccount',
@@ -140,9 +140,9 @@ Component.register('sw-settings-document-detail', {
                     config: {
                         type: 'checkbox',
                         label: this.$tc('sw-settings-document.detail.labelDisplayDocumentInCustomerAccount'),
-                        helpText: this.$tc('sw-settings-document.detail.helpTextDisplayDocumentInCustomerAccount')
-                    }
-                }
+                        helpText: this.$tc('sw-settings-document.detail.helpTextDisplayDocumentInCustomerAccount'),
+                    },
+                },
             ],
             companyFormFields: [
                 {
@@ -151,131 +151,131 @@ Component.register('sw-settings-document-detail', {
                     config: {
                         type: 'checkbox',
                         label: this.$tc('sw-settings-document.detail.labelDisplayCompanyAddress'),
-                        class: 'sw-settings-document-detail__company-address-checkbox'
-                    }
+                        class: 'sw-settings-document-detail__company-address-checkbox',
+                    },
                 },
                 {
                     name: 'companyAddress',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyAddress')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyAddress'),
+                    },
                 },
                 {
                     name: 'companyName',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyName')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyName'),
+                    },
                 },
                 {
                     name: 'companyEmail',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyEmail')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyEmail'),
+                    },
                 },
                 {
                     name: 'companyPhone',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyPhone')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyPhone'),
+                    },
                 },
                 {
                     name: 'companyUrl',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyUrl')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyUrl'),
+                    },
                 },
                 {
                     name: 'taxNumber',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelTaxNumber')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelTaxNumber'),
+                    },
                 },
                 {
                     name: 'taxOffice',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelTaxOffice')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelTaxOffice'),
+                    },
                 },
                 {
                     name: 'vatId',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelVatId')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelVatId'),
+                    },
                 },
                 {
                     name: 'bankName',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelBankName')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelBankName'),
+                    },
                 },
                 {
                     name: 'bankIban',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelBankIban')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelBankIban'),
+                    },
                 },
                 {
                     name: 'bankBic',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelBankBic')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelBankBic'),
+                    },
                 },
                 {
                     name: 'placeOfJurisdiction',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelPlaceOfJurisdiction')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelPlaceOfJurisdiction'),
+                    },
                 },
                 {
                     name: 'placeOfFulfillment',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelPlaceOfFulfillment')
-                    }
+                        label: this.$tc('sw-settings-document.detail.labelPlaceOfFulfillment'),
+                    },
                 },
                 {
                     name: 'executiveDirector',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelExecutiveDirector')
-                    }
-                }
+                        label: this.$tc('sw-settings-document.detail.labelExecutiveDirector'),
+                    },
+                },
             ],
             alreadyAssignedSalesChannelIdsToType: [],
             typeIsLoading: false,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -319,20 +319,20 @@ Component.register('sw-settings-document-detail', {
             if (this.acl.can('document.editor')) {
                 return {
                     message: `${this.$device.getSystemKey()} + S`,
-                    appearance: 'light'
+                    appearance: 'light',
                 };
             }
             return {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('order.editor'),
-                showOnDisabledElements: true
+                showOnDisabledElements: true,
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -352,7 +352,7 @@ Component.register('sw-settings-document-detail', {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     created() {
@@ -381,7 +381,7 @@ Component.register('sw-settings-document-detail', {
             this.documentConfig = await this.documentBaseConfigRepository.get(
                 documentConfigId,
                 Shopware.Context.api,
-                this.documentBaseConfigCriteria
+                this.documentBaseConfigCriteria,
             );
             if (!this.documentConfig) {
                 this.documentConfig = {};
@@ -438,7 +438,7 @@ Component.register('sw-settings-document-detail', {
             this.createSalesChannelSelectOptions();
             const documentSalesChannelCriteria = new Criteria();
             documentSalesChannelCriteria.addFilter(
-                Criteria.equals('documentTypeId', documentType.id)
+                Criteria.equals('documentTypeId', documentType.id),
             );
 
             this.documentBaseConfigSalesChannelRepository.search(documentSalesChannelCriteria)
@@ -460,7 +460,7 @@ Component.register('sw-settings-document-detail', {
                 this.documentConfigSalesChannels.forEach((salesChannelId) => {
                     if (!this.documentConfig.salesChannels.has(salesChannelId)) {
                         this.documentConfig.salesChannels.push(
-                            this.documentConfigSalesChannelOptionsCollection.get(salesChannelId)
+                            this.documentConfigSalesChannelOptionsCollection.get(salesChannelId),
                         );
                     }
                 });
@@ -501,7 +501,7 @@ Component.register('sw-settings-document-detail', {
             this.documentConfigSalesChannelOptionsCollection = new EntityCollection(
                 this.documentConfig.salesChannels.source,
                 this.documentConfig.salesChannels.entity,
-                Shopware.Context.api
+                Shopware.Context.api,
             );
 
             // Abort if no type is assigned yet
@@ -526,6 +526,6 @@ Component.register('sw-settings-document-detail', {
                     this.documentConfigSalesChannelOptionsCollection.push(option);
                 }
             });
-        }
-    }
+        },
+    },
 });

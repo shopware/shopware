@@ -32,7 +32,7 @@ export const { CancelToken, isCancel, Cancel } = Axios;
  */
 function createClient() {
     const client = Axios.create({
-        baseURL: Shopware.Context.api.apiPath
+        baseURL: Shopware.Context.api.apiPath,
     });
 
     refreshTokenInterceptor(client);
@@ -60,7 +60,7 @@ function globalErrorHandlingInterceptor(client) {
                     Shopware.State.dispatch('notification/createNotification', {
                         variant: 'error',
                         title: singleError.title,
-                        message: singleError.detail
+                        message: singleError.detail,
                     });
                 });
             }
@@ -126,7 +126,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 autoClose: false,
                 growl: true,
                 title: $tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
-                message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`
+                message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`,
             });
         });
     }
@@ -151,9 +151,9 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 message: `${$tc(
                     'global.notification.messageDeleteFailed',
                     3,
-                    { entityName: $tc(`global.entities.${entityName}`) }
+                    { entityName: $tc(`global.entities.${entityName}`) },
                 )
-                }${blockingEntities}`
+                }${blockingEntities}`,
             });
         }
     }
@@ -174,9 +174,9 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 actions: [
                     {
                         label: 'Reload administration',
-                        method: () => window.location.reload()
-                    }
-                ]
+                        method: () => window.location.reload(),
+                    },
+                ],
             });
         }
     }

@@ -10,13 +10,13 @@ Component.register('sw-promotion-v2-detail', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         'notification',
         'placeholder',
-        Mixin.getByName('discard-detail-page-changes')('promotion')
+        Mixin.getByName('discard-detail-page-changes')('promotion'),
     ],
 
     shortcuts: {
@@ -24,9 +24,9 @@ Component.register('sw-promotion-v2-detail', {
             active() {
                 return this.acl.can('promotion.editor');
             },
-            method: 'onSave'
+            method: 'onSave',
         },
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     props: {
@@ -35,8 +35,8 @@ Component.register('sw-promotion-v2-detail', {
             required: false,
             default() {
                 return null;
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -47,13 +47,13 @@ Component.register('sw-promotion-v2-detail', {
             cleanUpFixedCode: false,
             showCodeTypeChangeModal: false,
             isSaveSuccessful: false,
-            saveCallbacks: []
+            saveCallbacks: [],
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -90,7 +90,7 @@ Component.register('sw-promotion-v2-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('category.editor'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -98,14 +98,14 @@ Component.register('sw-promotion-v2-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -113,13 +113,13 @@ Component.register('sw-promotion-v2-detail', {
             return this.repositoryFactory.create('promotion_setgroup');
         },
 
-        ...mapPageErrors(errorConfig)
+        ...mapPageErrors(errorConfig),
     },
 
     watch: {
         promotionId() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -214,7 +214,7 @@ Component.register('sw-promotion-v2-detail', {
                         Object.assign(discount, {
                             type: 'percentage',
                             value: 100,
-                            applierKey: 'SELECT'
+                            applierKey: 'SELECT',
                         });
                     }
                 });
@@ -232,8 +232,8 @@ Component.register('sw-promotion-v2-detail', {
                     this.isLoading = false;
                     this.createNotificationError({
                         message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                            entityName: this.promotion.name
-                        })
+                            entityName: this.promotion.name,
+                        }),
                     });
                 })
                 .finally(() => {
@@ -275,6 +275,6 @@ Component.register('sw-promotion-v2-detail', {
 
         onGenerateIndividualCodesFinish() {
             this.savePromotion();
-        }
-    }
+        },
+    },
 });

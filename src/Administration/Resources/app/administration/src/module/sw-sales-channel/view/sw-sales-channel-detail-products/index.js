@@ -10,15 +10,15 @@ Component.register('sw-sales-channel-detail-products', {
     inject: ['repositoryFactory', 'feature', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         salesChannel: {
             type: Object,
             required: false,
-            default: () => {}
-        }
+            default: () => {},
+        },
     },
 
     data() {
@@ -32,7 +32,7 @@ Component.register('sw-sales-channel-detail-products', {
             limit: 25,
             total: 0,
             showProductsModal: false,
-            isAssignProductLoading: false
+            isAssignProductLoading: false,
         };
     },
 
@@ -54,7 +54,7 @@ Component.register('sw-sales-channel-detail-products', {
 
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(
-                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)
+                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
             );
 
             if (this.searchTerm) {
@@ -71,21 +71,21 @@ Component.register('sw-sales-channel-detail-products', {
                     label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
                     primary: true,
-                    routerLink: 'sw.product.detail'
+                    routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'active',
                     label: this.$tc('sw-sales-channel.detail.products.columnActive'),
                     allowResize: true,
-                    align: 'center'
+                    align: 'center',
                 },
                 {
                     property: 'productNumber',
                     label: this.$tc('sw-sales-channel.detail.products.columnProductNumber'),
-                    allowResize: true
-                }
+                    allowResize: true,
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -98,8 +98,8 @@ Component.register('sw-sales-channel-detail-products', {
                 }
 
                 this.getProducts();
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -146,7 +146,7 @@ Component.register('sw-sales-channel-detail-products', {
                     }
 
                     this.createNotificationError({
-                        message: error.message
+                        message: error.message,
                     });
                 });
         },
@@ -174,7 +174,7 @@ Component.register('sw-sales-channel-detail-products', {
                     }
 
                     this.createNotificationError({
-                        message: error.message
+                        message: error.message,
                     });
                 });
         },
@@ -191,7 +191,7 @@ Component.register('sw-sales-channel-detail-products', {
                     this.showNotificationError(error.errors);
                 } else {
                     this.createNotificationError({
-                        message: `${error.code}: ${error.detail}`
+                        message: `${error.code}: ${error.detail}`,
                     });
                 }
             });
@@ -218,7 +218,7 @@ Component.register('sw-sales-channel-detail-products', {
             const visibilities = new EntityCollection(
                 this.productVisibilityRepository.route,
                 this.productVisibilityRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             products.forEach(el => {
@@ -231,7 +231,7 @@ Component.register('sw-sales-channel-detail-products', {
                     visibility: 30,
                     productId: el.id,
                     salesChannelId: this.salesChannel.id,
-                    salesChannel: this.salesChannel
+                    salesChannel: this.salesChannel,
                 });
 
                 visibilities.add(visibility);
@@ -254,6 +254,6 @@ Component.register('sw-sales-channel-detail-products', {
             this.isLoading = true;
 
             return this.productVisibilityRepository.saveAll(data, Context.api);
-        }
-    }
+        },
+    },
 });

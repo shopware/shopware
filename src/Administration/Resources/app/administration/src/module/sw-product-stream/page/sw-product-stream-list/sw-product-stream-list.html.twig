@@ -86,7 +86,7 @@
 
                 {% block sw_product_stream_list_grid_bulk %}
                 <template #bulk>
-                    <span v-if="!acl.can('product_stream.deleter')" />
+                    <span v-if="!acl.can('product_stream.deleter')"></span>
                 </template>
                 {% endblock %}
 

@@ -4,5 +4,5 @@ import './sw-cms-preview-image-text-bubble.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-preview-image-text-bubble', {
-    template
+    template,
 });

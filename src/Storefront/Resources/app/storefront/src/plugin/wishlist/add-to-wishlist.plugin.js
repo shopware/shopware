@@ -6,7 +6,7 @@ export default class AddToWishlistPlugin extends Plugin {
         this.classList = {
             isLoading: 'product-wishlist-loading',
             addedState: 'product-wishlist-added',
-            notAddedState: 'product-wishlist-not-added'
+            notAddedState: 'product-wishlist-not-added',
         };
 
         this._getWishlistStorage();

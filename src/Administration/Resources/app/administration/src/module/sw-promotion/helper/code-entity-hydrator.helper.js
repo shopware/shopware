@@ -1,5 +1,5 @@
 export default {
-    hydrate
+    hydrate,
 };
 
 /**

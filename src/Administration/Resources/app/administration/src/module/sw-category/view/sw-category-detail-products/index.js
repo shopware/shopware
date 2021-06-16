@@ -12,21 +12,21 @@ Component.register('sw-category-detail-products', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        'placeholder'
+        'placeholder',
     ],
 
     props: {
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             productStreamFilter: null,
             productStreamInvalid: false,
-            manualAssignedProductsCount: 0
+            manualAssignedProductsCount: 0,
         };
     },
 
@@ -46,13 +46,13 @@ Component.register('sw-category-detail-products', {
                     label: this.$tc('sw-category.base.products.columnNameLabel'),
                     dataIndex: 'name',
                     routerLink: 'sw.product.detail',
-                    sortable: false
+                    sortable: false,
                 }, {
                     property: 'manufacturer.name',
                     label: this.$tc('sw-category.base.products.columnManufacturerLabel'),
                     routerLink: 'sw.manufacturer.detail',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ];
         },
 
@@ -75,7 +75,7 @@ Component.register('sw-category-detail-products', {
             if (this.productStreamInvalid) {
                 return new ShopwareError({
                     code: 'PRODUCT_STREAM_INVALID',
-                    detail: this.$tc('sw-category.base.products.dynamicProductGroupInvalidMessage')
+                    detail: this.$tc('sw-category.base.products.dynamicProductGroupInvalidMessage'),
                 });
             }
             return null;
@@ -83,25 +83,25 @@ Component.register('sw-category-detail-products', {
 
         ...mapPropertyErrors('category', [
             'productStreamId',
-            'productAssignmentType'
+            'productAssignmentType',
         ]),
 
         productAssignmentTypes() {
             return [
                 {
                     value: 'product',
-                    label: this.$tc('sw-category.base.products.productAssignmentTypeManualLabel')
+                    label: this.$tc('sw-category.base.products.productAssignmentTypeManualLabel'),
                 },
                 {
                     value: 'product_stream',
-                    label: this.$tc('sw-category.base.products.productAssignmentTypeStreamLabel')
-                }
+                    label: this.$tc('sw-category.base.products.productAssignmentTypeStreamLabel'),
+                },
             ];
         },
 
         dynamicProductGroupHelpText() {
             const link = {
-                name: 'sw.product.stream.index'
+                name: 'sw.product.stream.index',
             };
 
             const helpText = this.$tc('sw-category.base.products.dynamicProductGroupHelpText.label', 0, {
@@ -109,7 +109,7 @@ Component.register('sw-category-detail-products', {
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.linkText')}
-                       </sw-internal-link>`
+                       </sw-internal-link>`,
             });
 
             try {
@@ -125,7 +125,7 @@ Component.register('sw-category-detail-products', {
                         href="${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl')}">
                         ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
                     </sw-external-link>`;
-        }
+        },
     },
 
     watch: {
@@ -135,7 +135,7 @@ Component.register('sw-category-detail-products', {
                 return;
             }
             this.loadProductStreamPreview();
-        }
+        },
     },
 
     created() {
@@ -163,6 +163,6 @@ Component.register('sw-category-detail-products', {
 
         onPaginateManualProductAssignment(assignment) {
             this.manualAssignedProductsCount = assignment.total;
-        }
-    }
+        },
+    },
 });

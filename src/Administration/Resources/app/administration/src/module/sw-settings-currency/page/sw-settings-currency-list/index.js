@@ -10,7 +10,7 @@ Component.register('sw-settings-currency-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -21,26 +21,26 @@ Component.register('sw-settings-currency-list', {
             isLoading: false,
             sortDirection: 'ASC',
             naturalSorting: true,
-            showDeleteModal: false
+            showDeleteModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
     computed: {
         currencyRepository() {
             return this.repositoryFactory.create('currency');
-        }
+        },
     },
 
     methods: {
         metaInfo() {
             return {
-                title: this.$createTitle()
+                title: this.$createTitle(),
             };
         },
 
@@ -71,12 +71,12 @@ Component.register('sw-settings-currency-list', {
         onInlineEditSave(promise, currency) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currency.name })
+                    message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currency.name }),
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-currency.detail.messageSaveError')
+                    message: this.$tc('sw-settings-currency.detail.messageSaveError'),
                 });
             });
         },
@@ -106,20 +106,20 @@ Component.register('sw-settings-currency-list', {
                 label: 'sw-settings-currency.list.columnName',
                 routerLink: 'sw.settings.currency.detail',
                 width: '250px',
-                primary: true
+                primary: true,
             }, {
                 property: 'shortName',
                 inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnShortName'
+                label: 'sw-settings-currency.list.columnShortName',
             }, {
                 property: 'symbol',
                 inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnSymbol'
+                label: 'sw-settings-currency.list.columnSymbol',
             }, {
                 property: 'factor',
                 inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnFactor'
+                label: 'sw-settings-currency.list.columnFactor',
             }];
-        }
-    }
+        },
+    },
 });

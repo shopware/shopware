@@ -27,13 +27,13 @@ Component.extend('sw-condition-billing-zip-code', 'sw-condition-base', {
             set(zipCodes) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, zipCodes };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.zipCodes']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueZipCodesError;
-        }
-    }
+        },
+    },
 });

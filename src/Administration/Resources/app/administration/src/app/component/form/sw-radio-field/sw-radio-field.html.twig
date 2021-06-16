@@ -29,7 +29,7 @@
                         :checked="currentIndex === index"
                         @change="onChange"
                     >
-                    <div class="sw-field__radio-state" />
+                    <div class="sw-field__radio-state"></div>
                 </div>
 
                 <label :for="`${identification}-${index}`">
@@ -52,7 +52,7 @@
                 <slot
                     :name="`custom-field-${option.value}`"
                     v-bind="{ option, disabled, checked: currentIndex === index }"
-                />
+                ></slot>
             </div>
         </div>
 

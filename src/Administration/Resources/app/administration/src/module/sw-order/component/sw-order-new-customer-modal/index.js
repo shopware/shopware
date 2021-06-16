@@ -9,7 +9,7 @@ Component.register('sw-order-new-customer-modal', {
     inject: ['repositoryFactory', 'numberRangeService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -17,7 +17,7 @@ Component.register('sw-order-new-customer-modal', {
             customer: null,
             salesChannels: null,
             isLoading: false,
-            customerNumberPreview: ''
+            customerNumberPreview: '',
         };
     },
 
@@ -68,8 +68,8 @@ Component.register('sw-order-new-customer-modal', {
                 const shippingAddress = this.addressRepository.create();
                 this.customer.addresses.add(shippingAddress);
                 this.customer.defaultShippingAddressId = shippingAddress.id;
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -105,7 +105,7 @@ Component.register('sw-order-new-customer-modal', {
                 this.onClose();
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError')
+                    message: this.$tc('sw-customer.detail.messageSaveError'),
                 });
                 this.isLoading = false;
             });
@@ -121,6 +121,6 @@ Component.register('sw-order-new-customer-modal', {
 
         onClose() {
             this.$emit('close');
-        }
-    }
+        },
+    },
 });

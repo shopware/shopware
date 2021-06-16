@@ -9,7 +9,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-selection', {
     data() {
         return {
             mailAgent: null,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -26,7 +26,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-selection', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.data-import',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'configure-later',
@@ -34,7 +34,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-selection', {
                     position: 'right',
                     variant: null,
                     action: 'sw.first.run.wizard.index.paypal.info',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'next',
@@ -42,16 +42,16 @@ Shopware.Component.register('sw-first-run-wizard-mailer-selection', {
                     position: 'right',
                     variant: 'primary',
                     action: this.handleSelection.bind(this),
-                    disabled: !this.mailAgent
-                }
+                    disabled: !this.mailAgent,
+                },
             ];
-        }
+        },
     },
 
     watch: {
         buttonConfig() {
             this.updateButtons();
-        }
+        },
     },
 
     created() {
@@ -90,6 +90,6 @@ Shopware.Component.register('sw-first-run-wizard-mailer-selection', {
 
         setMailAgent(name) {
             this.mailAgent = name;
-        }
-    }
+        },
+    },
 });

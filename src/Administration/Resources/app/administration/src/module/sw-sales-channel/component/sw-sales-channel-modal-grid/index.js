@@ -13,33 +13,33 @@ Component.register('sw-sales-channel-modal-grid', {
         productStreamsExist: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         productStreamsLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         addChannelAction: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             salesChannelTypes: [],
             isLoading: false,
-            total: 0
+            total: 0,
         };
     },
 
     computed: {
         salesChannelTypeRepository() {
             return this.repositoryFactory.create('sales_channel_type');
-        }
+        },
     },
 
     created() {
@@ -68,6 +68,6 @@ Component.register('sw-sales-channel-modal-grid', {
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
-        }
-    }
+        },
+    },
 });

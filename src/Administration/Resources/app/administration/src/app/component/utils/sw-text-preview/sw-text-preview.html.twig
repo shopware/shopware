@@ -1,7 +1,7 @@
 {% block sw_text_preview %}
 <div class="sw-text-preview">
     {% block sw_text_preview_shortened_content %}
-    <span v-html="shortenedText" />
+    <span v-html="shortenedText"></span>
     {% endblock %}
 
     {% block sw_text_preview_expand_button %}
@@ -23,7 +23,7 @@
         @modal-close="closeModal"
     >
         {% block sw_text_preview_modal_content %}
-        <div v-html="fullText" />
+        <div v-html="fullText"></div>
         {% endblock %}
 
         <template #modal-footer>

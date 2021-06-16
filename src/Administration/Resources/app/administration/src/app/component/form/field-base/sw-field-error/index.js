@@ -13,8 +13,8 @@ Component.register('sw-field-error', {
         error: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -30,6 +30,6 @@ Component.register('sw-field-error', {
                 return this.error.detail;
             }
             return translation;
-        }
-    }
+        },
+    },
 });

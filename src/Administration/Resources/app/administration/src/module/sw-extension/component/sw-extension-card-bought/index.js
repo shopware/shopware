@@ -16,8 +16,8 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
         extension: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -25,7 +25,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
             showDeactivationModal: false,
             showRatingModal: false,
             showExtensionInstallationFailedModal: false,
-            installationFailedError: null
+            installationFailedError: null,
         };
     },
 
@@ -33,7 +33,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
         extensionCardClasses() {
             return {
                 'sw-extension-card-bought': true,
-                ...this.$super('extensionCardClasses')
+                ...this.$super('extensionCardClasses'),
             };
         },
 
@@ -45,8 +45,8 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
             return {
                 name: 'sw.extension.store.detail',
                 params: {
-                    id: String(this.extension.storeExtension ? this.extension.storeExtension.id : this.extension.id)
-                }
+                    id: String(this.extension.storeExtension ? this.extension.storeExtension.id : this.extension.id),
+                },
             };
         },
 
@@ -61,9 +61,9 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
 
             return this.$t(
                 'sw-extension-store.component.sw-extension-card-bought.subscriptionExpiredAt',
-                { date: localDateString }
+                { date: localDateString },
             );
-        }
+        },
     },
 
     methods: {
@@ -94,7 +94,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
 
                 await this.shopwareExtensionService.activateExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
                 this.extension.active = true;
                 this.clearCacheAndReloadPage();
@@ -112,7 +112,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
 
                 await this.shopwareExtensionService.deactivateExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
                 this.extension.active = false;
                 this.clearCacheAndReloadPage();
@@ -139,13 +139,13 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
             try {
                 if (this.extension.source === 'store') {
                     await this.extensionStoreActionService.downloadExtension(
-                        this.extension.name
+                        this.extension.name,
                     );
                 }
 
                 await this.shopwareExtensionService.installExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
                 await this.clearCacheAndReloadPage();
             } catch (e) {
@@ -170,7 +170,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
 
                 await this.shopwareExtensionService.removeExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
 
                 this.$nextTick(() => {
@@ -193,6 +193,6 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
 
         closeInstallationFailedNotification() {
             this.showExtensionInstallationFailedModal = false;
-        }
-    }
+        },
+    },
 });

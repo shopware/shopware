@@ -14,7 +14,7 @@
         <slot
             name="prefix"
             v-bind="{ disabled, identification }"
-        />
+        ></slot>
     </template>
 
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
@@ -40,7 +40,7 @@
         <slot
             name="suffix"
             v-bind="{ identification }"
-        />
+        ></slot>
         <sw-field-copyable
             v-if="copyable"
             :display-name="identification"

@@ -30,7 +30,7 @@ Component.register('sw-seo-url-template-card', {
             seoUrlTemplateRepository: {},
             salesChannelId: null,
             salesChannels: [],
-            selectedProperty: null
+            selectedProperty: null,
         };
     },
 
@@ -52,7 +52,7 @@ Component.register('sw-seo-url-template-card', {
 
             // from Defaults.php
             return currentSalesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6';
-        }
+        },
     },
 
     created() {
@@ -66,19 +66,19 @@ Component.register('sw-seo-url-template-card', {
                 this.seoUrlTemplateRepository.route,
                 this.seoUrlTemplateRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria()
+                new Criteria(),
             );
 
             this.defaultSeoUrlTemplates = new EntityCollection(
                 this.seoUrlTemplateRepository.route,
                 this.seoUrlTemplateRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria()
+                new Criteria(),
             );
 
             this.seoUrlPreviewCriteria['frontend.navigation.page'] =
                 (new Criteria()).addFilter(
-                    Criteria.not('and', [Criteria.equals('path', null)])
+                    Criteria.not('and', [Criteria.equals('path', null)]),
                 );
 
             this.fetchSalesChannels();
@@ -206,7 +206,7 @@ Component.register('sw-seo-url-template-card', {
                     this.seoUrlTemplateRepository.route,
                     this.seoUrlTemplateRepository.schema.entity,
                     Shopware.Context.api,
-                    new Criteria()
+                    new Criteria(),
                 );
                 this.fetchSeoUrlTemplates(this.salesChannelId);
                 this.createSaveSuccessNotification();
@@ -220,7 +220,7 @@ Component.register('sw-seo-url-template-card', {
 
             this.createNotificationError({
                 title: titleSaveSuccess,
-                message: messageSaveSuccess
+                message: messageSaveSuccess,
             });
         },
         createSaveSuccessNotification() {
@@ -229,7 +229,7 @@ Component.register('sw-seo-url-template-card', {
 
             this.createNotificationSuccess({
                 title: titleSaveSuccess,
-                message: messageSaveSuccess
+                message: messageSaveSuccess,
             });
         },
 
@@ -294,6 +294,6 @@ Component.register('sw-seo-url-template-card', {
             return this.seoUrlTemplates.filter((templateEntity) => {
                 return templateEntity.salesChannelId === salesChannelId;
             });
-        }
-    }
+        },
+    },
 });

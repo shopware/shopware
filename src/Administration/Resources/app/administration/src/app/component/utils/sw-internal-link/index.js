@@ -20,33 +20,33 @@ Component.register('sw-internal-link', {
     props: {
         routerLink: {
             type: Object,
-            required: true
+            required: true,
         },
 
         target: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         icon: {
             type: String,
             required: false,
-            default: 'default-arrow-simple-right'
+            default: 'default-arrow-simple-right',
         },
 
         inline: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         componentClasses() {
             return {
-                'sw-internal-link--inline': this.inline
+                'sw-internal-link--inline': this.inline,
             };
-        }
-    }
+        },
+    },
 });

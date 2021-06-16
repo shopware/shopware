@@ -6,7 +6,7 @@ export default class CrossSellingPlugin extends Plugin {
 
     static options = {
         tabSelector: 'a[data-toggle="tab"]',
-        productSliderSelector: '[data-product-slider="true"]'
+        productSliderSelector: '[data-product-slider="true"]',
     };
 
     init() {

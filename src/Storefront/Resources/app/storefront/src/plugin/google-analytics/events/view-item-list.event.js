@@ -14,7 +14,7 @@ export default class ViewItemListEvent extends AnalyticsEvent
         }
 
         gtag('event', 'view_item_list', {
-            'items': this.getListItems()
+            'items': this.getListItems(),
         });
     }
 
@@ -36,7 +36,7 @@ export default class ViewItemListEvent extends AnalyticsEvent
 
             lineItems.push({
                 id,
-                name
+                name,
             });
         });
 

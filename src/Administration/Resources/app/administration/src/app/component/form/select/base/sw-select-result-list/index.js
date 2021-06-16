@@ -14,7 +14,7 @@ Component.register('sw-select-result-list', {
 
     provide() {
         return {
-            setActiveItemIndex: this.setActiveItemIndex
+            setActiveItemIndex: this.setActiveItemIndex,
         };
     },
 
@@ -24,25 +24,25 @@ Component.register('sw-select-result-list', {
             required: false,
             default() {
                 return [];
-            }
+            },
         },
 
         emptyMessage: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         focusEl: {
             type: [HTMLDocument, HTMLElement],
             required: false,
-            default() { return document; }
+            default() { return document; },
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         popoverClasses: {
@@ -50,19 +50,19 @@ Component.register('sw-select-result-list', {
             required: false,
             default() {
                 return [];
-            }
+            },
         },
 
         popoverResizeWidth: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
-            activeItemIndex: 0
+            activeItemIndex: 0,
         };
     },
 
@@ -73,7 +73,7 @@ Component.register('sw-select-result-list', {
 
         popoverClass() {
             return [...this.popoverClasses, 'sw-select-result-list-popover-wrapper'];
-        }
+        },
     },
 
     created() {
@@ -218,6 +218,6 @@ Component.register('sw-select-result-list', {
 
         getBottomDistance(element) {
             return element.scrollHeight - element.clientHeight - element.scrollTop;
-        }
-    }
+        },
+    },
 });

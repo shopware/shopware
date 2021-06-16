@@ -8,7 +8,7 @@ Component.extend('sw-promotion-v2-wizard-discount-selection', 'sw-wizard-page', 
     data() {
         return {
             value: 'basic',
-            modalTitle: this.$tc('sw-promotion-v2.detail.discount-selection.modalTitle')
+            modalTitle: this.$tc('sw-promotion-v2.detail.discount-selection.modalTitle'),
         };
     },
 
@@ -17,20 +17,20 @@ Component.extend('sw-promotion-v2-wizard-discount-selection', 'sw-wizard-page', 
             return [{
                 value: 'basic',
                 name: this.$tc('sw-promotion-v2.detail.discount-selection.basic.name'),
-                description: this.$tc('sw-promotion-v2.detail.discount-selection.basic.description')
+                description: this.$tc('sw-promotion-v2.detail.discount-selection.basic.description'),
             }, {
                 value: 'buy-x-get-y',
                 name: this.$tc('sw-promotion-v2.detail.discount-selection.buy-x-get-y.name'),
-                description: this.$tc('sw-promotion-v2.detail.discount-selection.buy-x-get-y.description')
+                description: this.$tc('sw-promotion-v2.detail.discount-selection.buy-x-get-y.description'),
             }, {
                 value: 'shipping-discount',
                 name: this.$tc('sw-promotion-v2.detail.discount-selection.shipping-discount.name'),
-                description: this.$tc('sw-promotion-v2.detail.discount-selection.shipping-discount.description')
+                description: this.$tc('sw-promotion-v2.detail.discount-selection.shipping-discount.description'),
             }];
         },
 
         onChangeSelection(value) {
             this.$emit('change-selection', value);
-        }
-    }
+        },
+    },
 });

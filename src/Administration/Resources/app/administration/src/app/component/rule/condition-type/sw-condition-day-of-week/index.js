@@ -27,39 +27,39 @@ Component.extend('sw-condition-day-of-week', 'sw-condition-base', {
             set(dayOfWeek) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, dayOfWeek };
-            }
+            },
         },
 
         weekdays() {
             return [
                 {
                     label: this.$tc('global.day-of-week.monday'),
-                    value: 1
+                    value: 1,
                 },
                 {
                     label: this.$tc('global.day-of-week.tuesday'),
-                    value: 2
+                    value: 2,
                 },
                 {
                     label: this.$tc('global.day-of-week.wednesday'),
-                    value: 3
+                    value: 3,
                 },
                 {
                     label: this.$tc('global.day-of-week.thursday'),
-                    value: 4
+                    value: 4,
                 },
                 {
                     label: this.$tc('global.day-of-week.friday'),
-                    value: 5
+                    value: 5,
                 },
                 {
                     label: this.$tc('global.day-of-week.saturday'),
-                    value: 6
+                    value: 6,
                 },
                 {
                     label: this.$tc('global.day-of-week.sunday'),
-                    value: 7
-                }
+                    value: 7,
+                },
             ];
         },
 
@@ -67,6 +67,6 @@ Component.extend('sw-condition-day-of-week', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueDayOfWeekError;
-        }
-    }
+        },
+    },
 });

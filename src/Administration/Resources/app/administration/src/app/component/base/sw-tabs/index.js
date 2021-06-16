@@ -30,26 +30,26 @@ Component.register('sw-tabs', {
         isVertical: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         small: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         alignRight: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         defaultItem: {
             type: String,
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     data() {
@@ -60,7 +60,7 @@ Component.register('sw-tabs', {
             scrollLeftPossible: false,
             scrollRightPossible: true,
             firstScroll: false,
-            scrollbarOffset: ''
+            scrollbarOffset: '',
         };
     },
 
@@ -71,19 +71,19 @@ Component.register('sw-tabs', {
                 'sw-tabs--small': this.small,
                 'sw-tabs--scrollable': this.isScrollable,
                 'sw-tabs--align-right': this.alignRight,
-                'sw-tabs--scrollbar-active': this.scrollbarOffset > 0
+                'sw-tabs--scrollbar-active': this.scrollbarOffset > 0,
             };
         },
 
         arrowClassesLeft() {
             return {
-                'sw-tabs__arrow--disabled': !this.scrollLeftPossible
+                'sw-tabs__arrow--disabled': !this.scrollLeftPossible,
             };
         },
 
         arrowClassesRight() {
             return {
-                'sw-tabs__arrow--disabled': !this.scrollRightPossible
+                'sw-tabs__arrow--disabled': !this.scrollRightPossible,
             };
         },
 
@@ -128,9 +128,9 @@ Component.register('sw-tabs', {
 
         tabContentStyle() {
             return {
-                'padding-bottom': `${this.scrollbarOffset}px`
+                'padding-bottom': `${this.scrollbarOffset}px`,
             };
-        }
+        },
     },
 
     watch: {
@@ -140,7 +140,7 @@ Component.register('sw-tabs', {
 
         activeTabHasErrors() {
             this.recalculateSlider();
-        }
+        },
     },
 
     created() {
@@ -172,7 +172,7 @@ Component.register('sw-tabs', {
                     that.checkIfNeedScroll();
                     that.addScrollbarOffset();
                 },
-                component: this
+                component: this,
             });
             this.recalculateSlider();
         },
@@ -247,6 +247,6 @@ Component.register('sw-tabs', {
 
         addScrollbarOffset() {
             this.scrollbarOffset = dom.getScrollbarHeight(this.$refs.swTabContent);
-        }
-    }
+        },
+    },
 });

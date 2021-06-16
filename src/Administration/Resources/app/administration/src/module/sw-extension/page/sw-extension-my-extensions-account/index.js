@@ -13,7 +13,7 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
     inject: ['systemConfigApiService', 'shopwareExtensionService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -22,8 +22,8 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
             unsubscribeStore: null,
             form: {
                 password: '',
-                shopwareId: ''
-            }
+                shopwareId: '',
+            },
         };
     },
 
@@ -39,8 +39,8 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
 
             set(shopwareId) {
                 State.commit('shopwareExtensions/storeShopwareId', shopwareId);
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -84,11 +84,11 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
 
             return this.loginShopwareUser({
                 shopwareId: this.form.shopwareId,
-                password: this.form.password
+                password: this.form.password,
             }).then(() => {
                 this.$emit('login-success');
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-extension.my-extensions.account.loginNotificationMessage')
+                    message: this.$tc('sw-extension.my-extensions.account.loginNotificationMessage'),
                 });
             }).finally(() => {
                 this.isLoading = false;
@@ -123,7 +123,7 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
                     return;
                 }
                 this.createNotificationError({
-                    message: this.$tc(error.message)
+                    message: this.$tc(error.message),
                 });
             });
         },
@@ -134,8 +134,8 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
             this.createNotificationError({
                 title: error.title,
                 message: `${error.message} ${docLink}`,
-                autoClose: false
+                autoClose: false,
             });
-        }
-    }
+        },
+    },
 });

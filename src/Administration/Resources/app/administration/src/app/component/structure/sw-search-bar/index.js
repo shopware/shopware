@@ -18,34 +18,34 @@ Component.register('sw-search-bar', {
     inject: [
         'searchService',
         'searchTypeService',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     shortcuts: {
-        f: 'setFocus'
+        f: 'setFocus',
     },
 
     props: {
         initialSearchType: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         typeSearchAlwaysInContainer: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         initialSearch: {
             type: String,
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     data() {
@@ -64,14 +64,14 @@ Component.register('sw-search-bar', {
             searchTypes: null,
             showTypeSelectContainer: false,
             typeSelectResults: [],
-            moduleFactory: {}
+            moduleFactory: {},
         };
     },
 
     computed: {
         searchBarFieldClasses() {
             return {
-                'is--active': this.isActive
+                'is--active': this.isActive,
             };
         },
 
@@ -87,7 +87,7 @@ Component.register('sw-search-bar', {
             }
 
             return placeholder;
-        }
+        },
     },
 
     watch: {
@@ -104,7 +104,7 @@ Component.register('sw-search-bar', {
             }
 
             this.searchTerm = newValue.query.term ? newValue.query.term : '';
-        }
+        },
     },
 
     created() {
@@ -125,7 +125,7 @@ Component.register('sw-search-bar', {
                 listener() {
                     that.showSearchFieldOnLargerViewports();
                 },
-                component: this
+                component: this,
             });
 
             if (this.$route.query.term) {
@@ -363,7 +363,7 @@ Component.register('sw-search-bar', {
             this.isLoading = true;
             const params = {
                 limit: 25,
-                term: searchTerm
+                term: searchTerm,
             };
             this.results = [];
             const entityResults = {};
@@ -397,7 +397,7 @@ Component.register('sw-search-bar', {
         emitActiveResultPosition() {
             this.$emit('active-item-index-select', {
                 index: this.activeResultIndex,
-                column: this.activeResultColumn
+                column: this.activeResultColumn,
             });
         },
 
@@ -563,6 +563,6 @@ Component.register('sw-search-bar', {
 
         onMouseEnterSearchType(index) {
             this.activeTypeListIndex = index;
-        }
-    }
+        },
+    },
 });

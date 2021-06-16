@@ -10,7 +10,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient
             .post(`_action/${this.getApiBasePath()}/download/${technicalName}`, {}, {
                 headers: this.basicHeaders(Shopware.Context.api),
-                version: 3
+                version: 3,
             });
     }
 
@@ -18,7 +18,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient
             .post(`_action/${this.getApiBasePath()}/install/${type}/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
-                version: 3
+                version: 3,
             });
     }
 
@@ -26,7 +26,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient
             .post(`_action/${this.getApiBasePath()}/update/${type}/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
-                version: 3
+                version: 3,
             });
     }
 
@@ -34,7 +34,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient
             .put(`_action/${this.getApiBasePath()}/activate/${type}/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
-                version: 3
+                version: 3,
             });
     }
 
@@ -42,7 +42,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient
             .put(`_action/${this.getApiBasePath()}/deactivate/${type}/${technicalName}`, {}, {
                 headers: this.basicHeaders(),
-                version: 3
+                version: 3,
             });
     }
 
@@ -50,7 +50,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient
             .post(`_action/${this.getApiBasePath()}/uninstall/${type}/${technicalName}`, { keepUserData: !removeData }, {
                 headers: this.basicHeaders(),
-                version: 3
+                version: 3,
             });
     }
 
@@ -58,7 +58,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient
             .delete(`_action/${this.getApiBasePath()}/remove/${type}/${technicalName}`, {
                 headers: this.basicHeaders(),
-                version: 3
+                version: 3,
             });
     }
 
@@ -66,7 +66,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient
             .delete(`/license/cancel/${licenseId}`, {
                 headers: this.basicHeaders(),
-                version: 3
+                version: 3,
             })
             .then(({ data }) => {
                 return data;
@@ -79,8 +79,8 @@ export default class ExtensionStoreActionService extends ApiService {
             { authorName, headline, rating, text, tocAccepted, version },
             {
                 headers: this.basicHeaders(),
-                version: 3
-            }
+                version: 3,
+            },
         );
     }
 
@@ -88,7 +88,7 @@ export default class ExtensionStoreActionService extends ApiService {
         const headers = {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            Authorization: `Bearer ${this.loginService.getToken()}`
+            Authorization: `Bearer ${this.loginService.getToken()}`,
         };
 
         if (context?.languageId) {
@@ -103,7 +103,7 @@ export default class ExtensionStoreActionService extends ApiService {
 
         const { data } = await this.httpClient.get(`/_action/${this.getApiBasePath()}/installed`, {
             headers,
-            version: 3
+            version: 3,
         });
 
         return data;
@@ -116,7 +116,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return this.httpClient.post(
             `/_action/${this.getApiBasePath()}/upload`,
             formData,
-            { headers }
+            { headers },
         )
             .then((response) => {
                 return ApiService.handleResponse(response);

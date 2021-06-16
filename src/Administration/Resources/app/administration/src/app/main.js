@@ -104,7 +104,7 @@ Application
     .addServiceProvider('extensionHelperService', () => {
         return new ExtensionHelperService({
             storeService: Shopware.Service('storeService'),
-            extensionStoreActionService: Shopware.Service('extensionStoreActionService')
+            extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
         });
     })
     .addServiceProvider('languageAutoFetchingService', () => {
@@ -133,12 +133,12 @@ Application
             Shopware: Shopware,
             localeRepository: Shopware.Service('repositoryFactory').create('locale'),
             snippetService: Shopware.Service('snippetService'),
-            localeFactory: Application.getContainer('factory').locale
+            localeFactory: Application.getContainer('factory').locale,
         });
     })
     .addServiceProvider('filterService', () => {
         return new FilterService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config')
+            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
         });
     })
     .addServiceProvider('mediaDefaultFolderService', () => {

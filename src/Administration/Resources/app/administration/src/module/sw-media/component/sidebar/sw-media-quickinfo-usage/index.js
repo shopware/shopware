@@ -15,13 +15,13 @@ Component.register('sw-media-quickinfo-usage', {
             type: Object,
             validator(value) {
                 return value.getEntityName() === 'media';
-            }
+            },
         },
         routerLinkTarget: {
             required: false,
             type: String,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     data() {
@@ -34,7 +34,7 @@ Component.register('sw-media-quickinfo-usage', {
             avatarUser: {},
             paymentMethods: [],
             shippingMethods: [],
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -85,13 +85,13 @@ Component.register('sw-media-quickinfo-usage', {
 
         isNotUsed() {
             return this.getUsages.length === 0;
-        }
+        },
     },
 
     watch: {
         item() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -148,9 +148,9 @@ Component.register('sw-media-quickinfo-usage', {
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {
                     name: 'sw.product.detail',
-                    id: product.id
+                    id: product.id,
                 },
-                icon: this.getIconForModule('sw-product')
+                icon: this.getIconForModule('sw-product'),
             };
         },
 
@@ -160,9 +160,9 @@ Component.register('sw-media-quickinfo-usage', {
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInCategories'),
                 link: {
                     name: 'sw.category.detail',
-                    id: category.id
+                    id: category.id,
                 },
-                icon: this.getIconForModule('sw-category')
+                icon: this.getIconForModule('sw-category'),
             };
         },
 
@@ -172,9 +172,9 @@ Component.register('sw-media-quickinfo-usage', {
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInManufacturers'),
                 link: {
                     name: 'sw.manufacturer.detail',
-                    id: manufacturer.id
+                    id: manufacturer.id,
                 },
-                icon: this.getIconForModule('sw-manufacturer')
+                icon: this.getIconForModule('sw-manufacturer'),
             };
         },
 
@@ -184,9 +184,9 @@ Component.register('sw-media-quickinfo-usage', {
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInMailTemplate'),
                 link: {
                     name: 'sw.mail.template.detail',
-                    id: mailTemplate.id
+                    id: mailTemplate.id,
                 },
-                icon: this.getIconForModule('sw-mail-template')
+                icon: this.getIconForModule('sw-mail-template'),
             };
         },
 
@@ -196,9 +196,9 @@ Component.register('sw-media-quickinfo-usage', {
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInDocument'),
                 link: {
                     name: 'sw.settings.document.detail',
-                    id: document.id
+                    id: document.id,
                 },
-                icon: this.getIconForModule('sw-settings-document')
+                icon: this.getIconForModule('sw-settings-document'),
             };
         },
 
@@ -208,9 +208,9 @@ Component.register('sw-media-quickinfo-usage', {
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInUser'),
                 link: {
                     name: 'sw.settings.user.detail',
-                    id: user.id
+                    id: user.id,
                 },
-                icon: this.getIconForModule('sw-settings-user')
+                icon: this.getIconForModule('sw-settings-user'),
             };
         },
 
@@ -220,9 +220,9 @@ Component.register('sw-media-quickinfo-usage', {
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInPayment'),
                 link: {
                     name: 'sw.settings.payment.detail',
-                    id: paymentMethod.id
+                    id: paymentMethod.id,
                 },
-                icon: this.getIconForModule('sw-settings-payment')
+                icon: this.getIconForModule('sw-settings-payment'),
             };
         },
 
@@ -232,9 +232,9 @@ Component.register('sw-media-quickinfo-usage', {
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundShipping'),
                 link: {
                     name: 'sw.settings.shipping.detail',
-                    id: shippingMethod.id
+                    id: shippingMethod.id,
                 },
-                icon: this.getIconForModule('sw-settings-shipping')
+                icon: this.getIconForModule('sw-settings-shipping'),
             };
         },
 
@@ -242,8 +242,8 @@ Component.register('sw-media-quickinfo-usage', {
             const module = this.moduleFactory.getModuleRegistry().get(name);
             return {
                 name: module.manifest.icon,
-                color: module.manifest.color
+                color: module.manifest.color,
             };
-        }
-    }
+        },
+    },
 });

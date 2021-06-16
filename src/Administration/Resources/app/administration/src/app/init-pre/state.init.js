@@ -14,7 +14,7 @@ function initVuexState(state) {
 
     const store = new Vuex.Store({
         modules: {},
-        strict: false
+        strict: false,
     });
 
     state._registerPrivateProperty('_store', store);

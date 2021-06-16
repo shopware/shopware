@@ -17,6 +17,6 @@ Component.register('sw-cms-block-product-heading', {
             }
 
             return null;
-        }
-    }
+        },
+    },
 });

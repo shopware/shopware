@@ -84,7 +84,7 @@ Component.register('sw-chart', {
     inheritAttrs: false,
 
     components: {
-        apexchart: VueApexCharts
+        apexchart: VueApexCharts,
     },
 
     props: {
@@ -101,43 +101,43 @@ Component.register('sw-chart', {
                 'donut',
                 'scatter',
                 'bubble',
-                'heatmap'
-            ]
+                'heatmap',
+            ],
         },
 
         options: {
             type: Object,
-            required: true
+            required: true,
         },
 
         series: {
             type: Array,
-            required: true
+            required: true,
         },
 
         height: {
             type: Number,
             required: false,
-            default: 400
+            default: 400,
         },
 
         fillEmptyDates: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         sort: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             localeConfig: null,
-            isLoading: true
+            isLoading: true,
         };
     },
 
@@ -147,7 +147,7 @@ Component.register('sw-chart', {
                 {},
                 this.defaultOptions,
                 this.options,
-                { labels: this.mergedLabels }
+                { labels: this.mergedLabels },
             );
         },
 
@@ -180,7 +180,7 @@ Component.register('sw-chart', {
 
                 return {
                     name: serie.name,
-                    data: convertedData
+                    data: convertedData,
                 };
             });
         },
@@ -240,68 +240,68 @@ Component.register('sw-chart', {
                 chart: {
                     fontFamily: 'Source Sans Pro, Helvetica Neue, Helvetica, Arial, sans-serif',
                     toolbar: {
-                        show: false
+                        show: false,
                     },
 
                     defaultLocale: this.defaultLocale,
                     locales: [...(this.localeConfig ? [this.localeConfig] : [])],
-                    zoom: false
+                    zoom: false,
                 },
 
                 markers: {
                     size: 4,
                     strokeWidth: 0,
                     hover: {
-                        size: 8
-                    }
+                        size: 8,
+                    },
                 },
 
                 stroke: {
-                    width: 2
+                    width: 2,
                 },
 
                 title: {
                     margin: 0,
                     style: {
                         color: '#52667a',
-                        fontSize: '24px'
-                    }
+                        fontSize: '24px',
+                    },
                 },
 
                 tooltip: {
-                    theme: 'dark'
+                    theme: 'dark',
                 },
 
                 xaxis: {
                     axisBorder: {
-                        show: false
+                        show: false,
                     },
 
                     axisTicks: {
-                        show: false
+                        show: false,
                     },
 
                     labels: {
                         style: {
-                            colors: '#52667a'
-                        }
+                            colors: '#52667a',
+                        },
                     },
 
                     tooltip: {
                         enabled: true,
-                        offsetY: 10
-                    }
+                        offsetY: 10,
+                    },
                 },
 
                 yaxis: {
                     labels: {
                         style: {
-                            color: '#52667a'
-                        }
-                    }
-                }
+                            color: '#52667a',
+                        },
+                    },
+                },
             };
-        }
+        },
     },
 
     created() {
@@ -386,7 +386,7 @@ Component.register('sw-chart', {
                 // add index date with zero value to array
                 zeroTimestamps.push({
                     x: indexDate.getTime(),
-                    y: 0
+                    y: 0,
                 });
 
                 // go to next date
@@ -404,6 +404,6 @@ Component.register('sw-chart', {
             const localeConfigModule = await import('apexcharts/dist/locales/' + defaultLocale + '.json');
 
             this.localeConfig = localeConfigModule?.default;
-        }
-    }
+        },
+    },
 });

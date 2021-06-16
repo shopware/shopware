@@ -5,7 +5,7 @@ export default class FilterBasePlugin extends Plugin {
 
     static options = {
         parentFilterPanelSelector: '.cms-element-product-listing-wrapper',
-        dropdownSelector: '.filter-panel-item-dropdown'
+        dropdownSelector: '.filter-panel-item-dropdown',
     };
 
     _init() {

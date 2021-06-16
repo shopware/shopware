@@ -25,11 +25,11 @@ class MailApiService extends ApiService {
                 subject: mailTemplate.subject ?? mailTemplate.translated?.subject,
                 senderMail: mailTemplate.senderMail,
                 senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
-                testMode: true
+                testMode: true,
             },
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -42,11 +42,11 @@ class MailApiService extends ApiService {
             apiRoute,
             {
                 mailTemplateType: mailTemplateType,
-                mailTemplate: mailTemplate
+                mailTemplate: mailTemplate,
             },
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

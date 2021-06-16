@@ -13,43 +13,43 @@ Component.register('sw-grid-column', {
         label: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         iconLabel: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         align: {
             type: String,
-            default: 'left'
+            default: 'left',
         },
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         flex: {
             required: false,
-            default: 1
+            default: 1,
         },
         sortable: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         dataIndex: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         editable: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         truncate: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     watch: {
@@ -59,7 +59,7 @@ Component.register('sw-grid-column', {
             if (index !== -1 && newLabel) {
                 this.$parent.columns[index].label = newLabel;
             }
-        }
+        },
     },
 
     created() {
@@ -86,8 +86,8 @@ Component.register('sw-grid-column', {
                 dataIndex: this.dataIndex,
                 align: this.align,
                 editable: this.editable,
-                truncate: this.truncate
+                truncate: this.truncate,
             });
-        }
-    }
+        },
+    },
 });

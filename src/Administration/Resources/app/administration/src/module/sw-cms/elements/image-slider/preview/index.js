@@ -4,5 +4,5 @@ import './sw-cms-el-preview-image-slider.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-el-preview-image-slider', {
-    template
+    template,
 });

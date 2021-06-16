@@ -20,10 +20,10 @@ Mixin.register('remove-api-error', {
                 if (this.$attrs.error && this.$attrs.error.selfLink) {
                     Shopware.State.dispatch(
                         'error/removeApiError',
-                        { expression: this.$attrs.error.selfLink }
+                        { expression: this.$attrs.error.selfLink },
                     );
                 }
-            }
+            },
         );
-    }
+    },
 });

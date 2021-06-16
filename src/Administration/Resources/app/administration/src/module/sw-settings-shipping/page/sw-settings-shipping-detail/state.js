@@ -4,7 +4,7 @@ export default {
     state() {
         return {
             shippingMethod: {},
-            currencies: []
+            currencies: [],
         };
     },
 
@@ -14,7 +14,7 @@ export default {
         },
         setCurrencies(state, currencies) {
             state.currencies = currencies;
-        }
+        },
     },
 
     getters: {
@@ -36,7 +36,7 @@ export default {
                         ruleId: shippingPrice.ruleId,
                         rule: shippingPrice.rule,
                         calculation: shippingPrice.calculation,
-                        prices: []
+                        prices: [],
                     };
                 }
 
@@ -69,6 +69,6 @@ export default {
 
         newPriceMatrixExists(state, getters) {
             return getters.shippingPriceGroups.hasOwnProperty('new');
-        }
-    }
+        },
+    },
 };

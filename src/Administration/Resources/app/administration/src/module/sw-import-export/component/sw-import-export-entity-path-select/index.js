@@ -11,43 +11,43 @@ Component.register('sw-import-export-entity-path-select', {
     template,
 
     mixins: [
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         // FIXME: add type attribute
         // eslint-disable-next-line vue/require-prop-types
         value: {
-            required: true
+            required: true,
         },
         entityType: {
             type: String,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         valueProperty: {
             type: String,
             required: false,
-            default: 'value'
+            default: 'value',
         },
 
         searchFunction: {
@@ -61,7 +61,7 @@ Component.register('sw-import-export-entity-path-select', {
                     }
                     return label.toLowerCase().includes(searchTerm.toLowerCase());
                 });
-            }
+            },
         },
 
         currencies: {
@@ -69,7 +69,7 @@ Component.register('sw-import-export-entity-path-select', {
             required: false,
             default() {
                 return [{ isoCode: 'DEFAULT' }];
-            }
+            },
         },
 
         languages: {
@@ -77,8 +77,8 @@ Component.register('sw-import-export-entity-path-select', {
             required: false,
             default() {
                 return [{ locale: 'DEFAULT' }];
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -90,7 +90,7 @@ Component.register('sw-import-export-entity-path-select', {
             // used to track if an item was selected before closing the result list
             itemRecentlySelected: false,
             priceProperties: ['net', 'gross', 'currencyId', 'linked', 'listPrice'],
-            visibilityProperties: ['all', 'link', 'search']
+            visibilityProperties: ['all', 'link', 'search'],
         };
     },
 
@@ -101,18 +101,18 @@ Component.register('sw-import-export-entity-path-select', {
             },
             set(newValue) {
                 this.$emit('change', newValue);
-            }
+            },
         },
 
         inputClasses() {
             return {
-                'is--expanded': this.isExpanded
+                'is--expanded': this.isExpanded,
             };
         },
 
         selectionTextClasses() {
             return {
-                'is--placeholder': !this.singleSelection
+                'is--placeholder': !this.singleSelection,
             };
         },
 
@@ -124,7 +124,7 @@ Component.register('sw-import-export-entity-path-select', {
             },
             set(newValue) {
                 this.currentValue = this.getKey(newValue, this.valueProperty);
-            }
+            },
         },
 
         /**
@@ -235,7 +235,7 @@ Component.register('sw-import-export-entity-path-select', {
                 definition: definition,
                 options: [],
                 properties: Object.keys(definition.properties),
-                path: this.actualPathPrefix.length > 0 ? this.actualPathPrefix.replace(/\.?$/, '.') : this.actualPathPrefix
+                path: this.actualPathPrefix.length > 0 ? this.actualPathPrefix.replace(/\.?$/, '.') : this.actualPathPrefix,
             };
 
             // flow is from lodash
@@ -250,8 +250,8 @@ Component.register('sw-import-export-entity-path-select', {
                     options: this.options,
                     labelProperty: this.labelProperty,
                     valueProperty: this.valueProperty,
-                    searchTerm: this.searchTerm
-                }
+                    searchTerm: this.searchTerm,
+                },
             );
         },
 
@@ -265,7 +265,7 @@ Component.register('sw-import-export-entity-path-select', {
 
         searchTerm() {
             return this.actualSearch.split('.').pop();
-        }
+        },
     },
 
     methods: {
@@ -380,7 +380,7 @@ Component.register('sw-import-export-entity-path-select', {
                 properties: filteredProperties,
                 options: newOptions,
                 definition: definition,
-                path: path
+                path: path,
             };
         },
 
@@ -416,14 +416,14 @@ Component.register('sw-import-export-entity-path-select', {
                 properties: filteredProperties,
                 options: newOptions,
                 definition: definition,
-                path: path
+                path: path,
             };
         },
 
         getPriceProperties(path) {
             return [
                 ...this.generatePriceProperties('price', path),
-                ...this.generatePriceProperties('purchasePrices', path)
+                ...this.generatePriceProperties('purchasePrices', path),
             ];
         },
 
@@ -475,7 +475,7 @@ Component.register('sw-import-export-entity-path-select', {
                 properties: filteredProperties,
                 options: newOptions,
                 definition: definition,
-                path: path
+                path: path,
             };
         },
 
@@ -498,6 +498,6 @@ Component.register('sw-import-export-entity-path-select', {
                 return -1;
             }
             return 0;
-        }
-    }
+        },
+    },
 });

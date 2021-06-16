@@ -27,13 +27,13 @@ Component.extend('sw-condition-last-name', 'sw-condition-base', {
             set(lastName) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, lastName };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.lastName']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueLastNameError;
-        }
-    }
+        },
+    },
 });

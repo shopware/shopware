@@ -20,7 +20,7 @@ class KnownIpsApiService extends ApiService {
 
         return this.httpClient
             .get('/_admin/known-ips', {
-                headers
+                headers,
             }).then(response => {
                 return response.data.ips;
             });

@@ -19,13 +19,13 @@ Component.extend('sw-condition-days-since-last-order', 'sw-condition-base', {
             set(daysPassed) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, daysPassed };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.daysPassed']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueDaysPassedError;
-        }
-    }
+        },
+    },
 });

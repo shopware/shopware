@@ -8,11 +8,11 @@ Component.register('sw-settings-cache-index', {
     template,
 
     inject: [
-        'cacheApiService'
+        'cacheApiService',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
 
@@ -23,19 +23,19 @@ Component.register('sw-settings-cache-index', {
             processes: {
                 normalClearCache: false,
                 clearAndWarmUpCache: false,
-                updateIndexes: false
+                updateIndexes: false,
             },
             processSuccess: {
                 normalClearCache: false,
                 clearAndWarmUpCache: false,
-                updateIndexes: false
-            }
+                updateIndexes: false,
+            },
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -69,7 +69,7 @@ Component.register('sw-settings-cache-index', {
             }
 
             return this.cacheInfo.cacheAdapter;
-        }
+        },
     },
 
     created() {
@@ -88,7 +88,7 @@ Component.register('sw-settings-cache-index', {
             this.processSuccess = {
                 normalClearCache: false,
                 clearAndWarmUpCache: false,
-                updateIndexes: false
+                updateIndexes: false,
             };
         },
 
@@ -102,7 +102,7 @@ Component.register('sw-settings-cache-index', {
 
         clearCache() {
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-cache.notifications.clearCache.started')
+                message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
             });
 
             this.processes.normalClearCache = true;
@@ -110,13 +110,13 @@ Component.register('sw-settings-cache-index', {
                 this.processSuccess.normalClearCache = true;
 
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.success')
+                    message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
                 });
             }).catch(() => {
                 this.processSuccess.normalClearCache = false;
 
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.error')
+                    message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
                 });
             }).finally(() => {
                 this.processes.normalClearCache = false;
@@ -132,7 +132,7 @@ Component.register('sw-settings-cache-index', {
                 }, 30000);
 
                 this.createNotificationInfo({
-                    message: this.$tc('sw-settings-cache.notifications.clearCacheAndWarmup.started')
+                    message: this.$tc('sw-settings-cache.notifications.clearCacheAndWarmup.started'),
                 });
 
                 this.processSuccess.clearAndWarmUpCache = true;
@@ -148,7 +148,7 @@ Component.register('sw-settings-cache-index', {
             this.cacheApiService.index().then(() => {
                 this.decreaseWorkerPoll();
                 this.createNotificationInfo({
-                    message: this.$tc('sw-settings-cache.notifications.index.started')
+                    message: this.$tc('sw-settings-cache.notifications.index.started'),
                 });
                 this.processSuccess.updateIndexes = true;
             }).catch(() => {
@@ -156,6 +156,6 @@ Component.register('sw-settings-cache-index', {
             }).finally(() => {
                 this.processes.updateIndexes = false;
             });
-        }
-    }
+        },
+    },
 });

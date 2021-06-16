@@ -10,30 +10,30 @@ Component.register('sw-settings-snippet-filter-switch', {
         label: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         name: {
             type: String,
-            required: true
+            required: true,
         },
 
         group: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         borderTop: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         borderBottom: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         type: {
@@ -45,8 +45,8 @@ Component.register('sw-settings-snippet-filter-switch', {
                     return true;
                 }
                 return ['small', 'large'].includes(value);
-            }
-        }
+            },
+        },
     },
 
     computed: {
@@ -56,10 +56,10 @@ Component.register('sw-settings-snippet-filter-switch', {
                 `sw-settings-snippet-filter-switch--${this.type}`,
                 {
                     'border-top': this.borderTop,
-                    'border-bottom': this.borderBottom
-                }
+                    'border-bottom': this.borderBottom,
+                },
             ].join(' ');
-        }
+        },
     },
 
     methods: {
@@ -67,6 +67,6 @@ Component.register('sw-settings-snippet-filter-switch', {
             const name = this.name;
             const group = this.group;
             this.$emit('change', { value, name, group });
-        }
-    }
+        },
+    },
 });

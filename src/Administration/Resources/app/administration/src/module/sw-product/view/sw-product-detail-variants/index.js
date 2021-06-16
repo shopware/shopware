@@ -20,21 +20,21 @@ Component.register('sw-product-detail-variants', {
             productEntity: {},
             configuratorSettingsRepository: {},
             groups: [],
-            productEntityLoaded: false
+            productEntityLoaded: false,
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
-            'product'
+            'product',
         ]),
 
         ...mapState('context', {
-            contextLanguageId: state => state.api.languageId
+            contextLanguageId: state => state.api.languageId,
         }),
 
         ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading'
+            isStoreLoading: 'isLoading',
         }),
 
         productRepository() {
@@ -58,7 +58,7 @@ Component.register('sw-product-detail-variants', {
             return this.groups.filter((group) => {
                 return groupIds.indexOf(group.id) >= 0;
             });
-        }
+        },
     },
 
     watch: {
@@ -67,14 +67,14 @@ Component.register('sw-product-detail-variants', {
                 if (this.isStoreLoading === false) {
                     this.loadData();
                 }
-            }
+            },
         },
 
         contextLanguageId: {
             handler() {
                 this.$refs.generatedVariants.getList();
-            }
-        }
+            },
+        },
     },
 
     mounted() {
@@ -158,6 +158,6 @@ Component.register('sw-product-detail-variants', {
         onConfigurationClosed() {
             this.loadData();
             this.activeModal = '';
-        }
-    }
+        },
+    },
 });

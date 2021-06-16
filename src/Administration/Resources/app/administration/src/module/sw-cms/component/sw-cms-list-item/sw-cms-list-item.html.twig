@@ -5,7 +5,7 @@
 >
 
     {% block sw_cms_list_item_options %}
-    <slot name="contextMenu" />
+    <slot name="contextMenu"></slot>
     {% endblock %}
 
     {% block sw_cms_list_item_image %}
@@ -14,7 +14,7 @@
         class="sw-cms-list-item__image"
         :style="previewMedia"
         @click="onItemClick(page)"
-    />
+    ></div>
 
     <div
         v-else
@@ -30,7 +30,7 @@
             v-if="page"
             class="sw-cms-list-item__status"
             :class="statusClasses"
-        />
+        ></div>
         <div
             v-if="page"
             class="sw-cms-list-item__title"

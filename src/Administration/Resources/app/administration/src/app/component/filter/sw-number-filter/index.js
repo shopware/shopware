@@ -12,21 +12,21 @@ Component.register('sw-number-filter', {
     props: {
         filter: {
             type: Object,
-            required: true
+            required: true,
         },
 
         active: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             numberValue: {
                 from: null,
-                to: null
-            }
+                to: null,
+            },
         };
     },
 
@@ -36,8 +36,8 @@ Component.register('sw-number-filter', {
                 if (this.filter.value) {
                     this.numberValue = { ...this.filter.value };
                 }
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -58,6 +58,6 @@ Component.register('sw-number-filter', {
         resetFilter() {
             this.numberValue = { from: null, to: null };
             this.$emit('filter-reset', this.filter.name, this.numberValue);
-        }
-    }
+        },
+    },
 });

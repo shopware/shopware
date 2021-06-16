@@ -9,26 +9,26 @@ Component.register('sw-sales-channel-detail-analytics', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     props: {
         isLoading: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         // FIXME: add type to salesChannel property
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
-            required: true
-        }
+            required: true,
+        },
     },
 
     watch: {
         salesChannel() {
             this.createAnalyticsData();
-        }
+        },
     },
 
     created() {
@@ -41,6 +41,6 @@ Component.register('sw-sales-channel-detail-analytics', {
                 const repository = this.repositoryFactory.create('sales_channel_analytics');
                 this.salesChannel.analytics = repository.create(Context.api);
             }
-        }
-    }
+        },
+    },
 });

@@ -43,43 +43,43 @@ Component.register('sw-tree', {
     props: {
         items: {
             type: Array,
-            required: true
+            required: true,
         },
 
         rootParentId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         parentProperty: {
             type: String,
             required: false,
-            default: 'parentId'
+            default: 'parentId',
         },
 
         afterIdProperty: {
             type: String,
             required: false,
-            default: 'afterId'
+            default: 'afterId',
         },
 
         childCountProperty: {
             type: String,
             required: false,
-            default: 'childCount'
+            default: 'childCount',
         },
 
         searchable: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         activeTreeItemId: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         routeParamsActiveElementId: {
@@ -87,50 +87,50 @@ Component.register('sw-tree', {
             required: false,
             default() {
                 return 'id';
-            }
+            },
         },
 
         translationContext: {
             type: String,
-            default: 'sw-tree'
+            default: 'sw-tree',
         },
 
         onChangeRoute: {
             type: Function,
-            default: null
+            default: null,
         },
 
         disableContextMenu: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         bindItemsToFolder: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         sortable: {
             type: Boolean,
-            default: true
+            default: true,
         },
 
         checkItemsInitial: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         allowDeleteCategories: {
             type: Boolean,
             default: true,
-            required: false
+            required: false,
         },
 
         allowCreateCategories: {
             type: Boolean,
             default: true,
-            required: false
-        }
+            required: false,
+        },
     },
 
     data() {
@@ -150,7 +150,7 @@ Component.register('sw-tree', {
             checkedElementsCount: 0,
             showDeleteModal: false,
             toDeleteItem: null,
-            checkedElementsChildCount: 0
+            checkedElementsChildCount: 0,
         };
     },
 
@@ -180,7 +180,7 @@ Component.register('sw-tree', {
                 return true;
             }
             return this.items.length < 1;
-        }
+        },
     },
 
     watch: {
@@ -188,14 +188,14 @@ Component.register('sw-tree', {
             immediate: true,
             handler() {
                 this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
-            }
+            },
         },
 
         activeTreeItemId(val) {
             if (val && this.activeElementId) {
                 this.openTreeById();
             }
-        }
+        },
     },
 
     created() {
@@ -250,7 +250,7 @@ Component.register('sw-tree', {
                     active: false,
                     activeElementId: this.routeParamsActiveElementId,
                     checked: !!this.checkItemsInitial,
-                    [this.afterIdProperty]: item[this.afterIdProperty]
+                    [this.afterIdProperty]: item[this.afterIdProperty],
                 });
             });
             return sort.afterSort(treeItems, this.afterIdProperty);
@@ -314,7 +314,7 @@ Component.register('sw-tree', {
                 draggedItem: this.draggedItem,
                 droppedItem: this.droppedItem,
                 oldParentId,
-                newParentId
+                newParentId,
             };
 
             // reset event items
@@ -502,7 +502,7 @@ Component.register('sw-tree', {
                 childCount: childCount,
                 children: 0,
                 initialOpened: false,
-                active: false
+                active: false,
             };
         },
 
@@ -618,6 +618,6 @@ Component.register('sw-tree', {
             }
             this.showDeleteModal = false;
             this.toDeleteItem = null;
-        }
-    }
+        },
+    },
 });

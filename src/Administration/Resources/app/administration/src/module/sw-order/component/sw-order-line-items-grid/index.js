@@ -12,17 +12,17 @@ Component.register('sw-order-line-items-grid', {
     props: {
         order: {
             type: Object,
-            required: true
+            required: true,
         },
         context: {
             type: Object,
-            required: true
+            required: true,
         },
         editable: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -30,7 +30,7 @@ Component.register('sw-order-line-items-grid', {
             isLoading: false,
             selectedItems: {},
             searchTerm: '',
-            nestedLineItemsModal: null
+            nestedLineItemsModal: null,
         };
     },
     computed: {
@@ -87,7 +87,7 @@ Component.register('sw-order-line-items-grid', {
                 primary: true,
                 inlineEdit: true,
                 multiLine: true,
-                width: '200px'
+                width: '200px',
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
@@ -95,7 +95,7 @@ Component.register('sw-order-line-items-grid', {
                 allowResize: false,
                 align: 'right',
                 inlineEdit: true,
-                width: '120px'
+                width: '120px',
             }, {
                 property: 'quantity',
                 dataIndex: 'quantity',
@@ -103,7 +103,7 @@ Component.register('sw-order-line-items-grid', {
                 allowResize: false,
                 align: 'right',
                 inlineEdit: true,
-                width: '80px'
+                width: '80px',
             }, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
@@ -112,7 +112,7 @@ Component.register('sw-order-line-items-grid', {
                     'sw-order.detailBase.columnTotalPriceNet',
                 allowResize: false,
                 align: 'right',
-                width: '80px'
+                width: '80px',
             }];
 
             if (this.taxStatus !== 'tax-free') {
@@ -122,7 +122,7 @@ Component.register('sw-order-line-items-grid', {
                     allowResize: false,
                     align: 'right',
                     inlineEdit: true,
-                    width: '100px'
+                    width: '100px',
                 }];
             }
 
@@ -131,7 +131,7 @@ Component.register('sw-order-line-items-grid', {
 
         salesChannelId() {
             return this.order?.salesChannelId ?? '';
-        }
+        },
     },
     methods: {
         onInlineEditSave(item) {
@@ -143,7 +143,7 @@ Component.register('sw-order-line-items-grid', {
                             this.order.id,
                             this.order.versionId,
                             item.identifier,
-                            item.quantity
+                            item.quantity,
                         ).then((lineItem) => {
                             this.$emit('item-edit');
                             resolve(lineItem);
@@ -152,7 +152,7 @@ Component.register('sw-order-line-items-grid', {
                         this.orderService.addCreditItemToOrder(
                             this.order.id,
                             this.order.versionId,
-                            item
+                            item,
                         ).then((lineItem) => {
                             this.$emit('item-edit');
                             resolve(lineItem);
@@ -162,7 +162,7 @@ Component.register('sw-order-line-items-grid', {
                         this.orderService.addCustomLineItemToOrder(
                             this.order.id,
                             this.order.versionId,
-                            item
+                            item,
                         ).then((lineItem) => {
                             this.$emit('item-edit');
                             resolve(lineItem);
@@ -185,13 +185,13 @@ Component.register('sw-order-line-items-grid', {
             item.priceDefinition = {
                 isCalculated: false,
                 taxRules: [{ taxRate: 0, percentage: 100 }],
-                price: 0
+                price: 0,
             };
             item.price = {
                 taxRules: [{ taxRate: 0 }],
                 unitPrice: 0,
                 quantity: 1,
-                totalPrice: 0
+                totalPrice: 0,
             };
             item.quantity = 1;
             item.unitPrice = '...';
@@ -291,13 +291,13 @@ Component.register('sw-order-line-items-grid', {
             const decorateTaxes = sortTaxes.map((taxItem) => {
                 return this.$tc('sw-order.detailBase.taxDetail', 0, {
                     taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.order.currency.shortName)
+                    tax: format.currency(taxItem.tax, this.order.currency.shortName),
                 });
             });
 
             return {
                 showDelay: 300,
-                message: `${this.$tc('sw-order.detailBase.tax')}<br>${decorateTaxes.join('<br>')}`
+                message: `${this.$tc('sw-order.detailBase.tax')}<br>${decorateTaxes.join('<br>')}`,
             };
         },
 
@@ -330,6 +330,6 @@ Component.register('sw-order-line-items-grid', {
                 item.priceDefinition &&
                 item.priceDefinition.taxRules &&
                 !this.isCreditItem(item.id);
-        }
-    }
+        },
+    },
 });

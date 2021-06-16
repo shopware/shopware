@@ -11,13 +11,13 @@ Component.register('sw-users-permissions-additional-permissions', {
     props: {
         role: {
             type: Object,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -29,7 +29,7 @@ Component.register('sw-users-permissions-additional-permissions', {
             const privileges = this.privileges.getPrivilegesMappings();
 
             return privileges.filter(privilege => privilege.category === 'additional_permissions');
-        }
+        },
     },
 
     methods: {
@@ -47,6 +47,6 @@ Component.register('sw-users-permissions-additional-permissions', {
             } else {
                 this.role.privileges = this.role.privileges.filter(p => p !== privilegeKey);
             }
-        }
-    }
+        },
+    },
 });

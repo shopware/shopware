@@ -12,21 +12,21 @@ Component.register('sw-date-filter', {
     props: {
         filter: {
             type: Object,
-            required: true
+            required: true,
         },
 
         active: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             dateValue: {
                 from: null,
-                to: null
-            }
+                to: null,
+            },
         };
     },
 
@@ -41,7 +41,7 @@ Component.register('sw-date-filter', {
 
         isDateTimeType() {
             return this.dateType === 'datetime' || this.dateType === 'datetime-local';
-        }
+        },
     },
 
     watch: {
@@ -50,8 +50,8 @@ Component.register('sw-date-filter', {
                 if (this.filter.value) {
                     this.dateValue = { ...this.filter.value };
                 }
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -72,6 +72,6 @@ Component.register('sw-date-filter', {
         resetFilter() {
             this.dateValue = { from: null, to: null };
             this.$emit('filter-reset', this.filter.name, this.dateValue);
-        }
-    }
+        },
+    },
 });

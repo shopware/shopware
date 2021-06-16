@@ -9,13 +9,13 @@ Component.register('sw-extension-privacy-policy-extensions-modal', {
     props: {
         extensionName: {
             type: String,
-            required: true
+            required: true,
         },
 
         privacyPolicyExtension: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -23,14 +23,14 @@ Component.register('sw-extension-privacy-policy-extensions-modal', {
             return this.$tc(
                 'sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.title',
                 0,
-                { extensionLabel: this.extensionName }
+                { extensionLabel: this.extensionName },
             );
-        }
+        },
     },
 
     methods: {
         close() {
             this.$emit('modal-close');
-        }
-    }
+        },
+    },
 });

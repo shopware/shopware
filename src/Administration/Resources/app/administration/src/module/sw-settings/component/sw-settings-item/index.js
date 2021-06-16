@@ -9,32 +9,32 @@ Component.register('sw-settings-item', {
     props: {
         label: {
             required: true,
-            type: String
+            type: String,
         },
         to: {
             required: true,
             type: Object,
             default() {
                 return {};
-            }
+            },
         },
         disabled: {
             required: false,
             type: Boolean,
-            default: false
+            default: false,
         },
         backgroundEnabled: {
             required: false,
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
 
     computed: {
         classes() {
             return {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
-        }
-    }
+        },
+    },
 });

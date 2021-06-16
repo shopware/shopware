@@ -10,37 +10,37 @@ Component.register('sw-product-variants-price-field', {
     props: {
         price: {
             type: Object,
-            required: true
+            required: true,
         },
 
         taxRate: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         currency: {
             type: Object,
-            required: true
+            required: true,
         },
 
         readonly: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         onlyPositive: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         calculatePriceApiService() {
             return Application.getContainer('factory').apiService.getByName('calculate-price');
-        }
+        },
     },
 
     watch: {
@@ -54,7 +54,7 @@ Component.register('sw-product-variants-price-field', {
             if (this.price.linked === true) {
                 this.price.net = this.convertGrossToNet(this.price.gross);
             }
-        }
+        },
     },
 
     methods: {
@@ -136,13 +136,13 @@ Component.register('sw-product-variants-price-field', {
                     taxId: this.taxRate,
                     price: this.price[outputType],
                     output: outputType,
-                    currencyId: this.currency.id
+                    currencyId: this.currency.id,
                 }).then(({ data }) => {
                     resolve(data.calculatedTaxes[0].tax);
                     this.$emit('price-calculate', false);
                 });
                 return true;
             });
-        }
-    }
+        },
+    },
 });

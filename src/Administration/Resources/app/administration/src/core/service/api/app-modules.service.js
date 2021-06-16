@@ -10,8 +10,8 @@ export default class AppModulesService extends ApiService {
         return this.httpClient.get(
             'app-system/modules',
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then(({ data }) => {
             return data.modules;
         });

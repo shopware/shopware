@@ -23,23 +23,23 @@ Component.register('sw-snippet-field-edit-modal', {
     inject: [
         // @Jonas no usage found, still relevant?
         'acl',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     props: {
         snippets: {
             type: Array,
-            required: true
+            required: true,
         },
 
         snippetSets: {
             type: Array,
-            required: true
+            required: true,
         },
 
         translationKey: {
             type: String,
-            required: true
+            required: true,
         },
 
         fieldType: {
@@ -48,14 +48,14 @@ Component.register('sw-snippet-field-edit-modal', {
             validValues: ['text', 'textarea'],
             validator(value) {
                 return ['text', 'textarea'].includes(value);
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             isLoading: false,
-            editableSnippets: []
+            editableSnippets: [],
         };
     },
 
@@ -72,7 +72,7 @@ Component.register('sw-snippet-field-edit-modal', {
 
         snippetRepository() {
             return this.repositoryFactory.create('snippet');
-        }
+        },
     },
 
     created() {
@@ -123,7 +123,7 @@ Component.register('sw-snippet-field-edit-modal', {
                 appearance: 'dark',
                 showOnDisabledElements: true,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning')
+                message: this.$tc('sw-privileges.tooltip.warning'),
             };
         },
 
@@ -143,12 +143,12 @@ Component.register('sw-snippet-field-edit-modal', {
                 if (snippet.origin !== snippet.value) {
                     // Only save if values differs from origin
                     responses.push(
-                        this.snippetRepository.save(snippet, Shopware.Context.api)
+                        this.snippetRepository.save(snippet, Shopware.Context.api),
                     );
                 } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
                     // There's no need to keep a snippet which is exactly like the file-snippet, so delete
                     responses.push(
-                        this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                        this.snippetRepository.delete(snippet.id, Shopware.Context.api),
                     );
                 }
             });
@@ -157,6 +157,6 @@ Component.register('sw-snippet-field-edit-modal', {
                 this.isLoading = false;
                 this.$emit('save');
             });
-        }
-    }
+        },
+    },
 });

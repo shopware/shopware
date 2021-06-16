@@ -23,13 +23,13 @@ class NumberRangeApiService extends ApiService {
     reserve(typeName, salesChannelId = '', preview = false, additionalHeaders = {}) {
         const headers = this.getBasicHeaders(additionalHeaders);
         const params = {
-            preview: preview
+            preview: preview,
         };
 
         return this.httpClient
             .get(`_action/number-range/reserve/${typeName}/${salesChannelId}`, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -49,13 +49,13 @@ class NumberRangeApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
         const params = {
             pattern: pattern,
-            start: start
+            start: start,
         };
 
         return this.httpClient
             .get(`_action/number-range/preview-pattern/${typeName}`, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

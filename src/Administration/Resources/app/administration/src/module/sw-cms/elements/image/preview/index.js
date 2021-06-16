@@ -4,5 +4,5 @@ import './sw-cms-el-preview-image.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-el-preview-image', {
-    template
+    template,
 });

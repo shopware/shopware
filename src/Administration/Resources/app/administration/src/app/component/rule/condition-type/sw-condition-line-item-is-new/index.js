@@ -15,7 +15,7 @@ Component.extend('sw-condition-line-item-is-new', 'sw-condition-base', {
             set(isNew) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, isNew };
-            }
+            },
         },
         trueOption() {
             return { value: true, label: this.$tc('global.sw-condition.condition.yes') };
@@ -32,6 +32,6 @@ Component.extend('sw-condition-line-item-is-new', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueIsNewError;
-        }
-    }
+        },
+    },
 });

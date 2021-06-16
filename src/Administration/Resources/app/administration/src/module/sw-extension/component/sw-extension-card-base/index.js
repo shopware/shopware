@@ -18,8 +18,8 @@ Component.register('sw-extension-card-base', {
     props: {
         extension: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -32,7 +32,7 @@ Component.register('sw-extension-card-base', {
             showPrivacyModal: false,
             permissionModalActionLabel: null,
             openLink: null,
-            extensionCanBeOpened: false
+            extensionCanBeOpened: false,
         };
     },
 
@@ -47,7 +47,7 @@ Component.register('sw-extension-card-base', {
 
         extensionCardClasses() {
             return {
-                'is--deactivated': this.isInstalled && !this.extension.active
+                'is--deactivated': this.isInstalled && !this.extension.active,
             };
         },
 
@@ -93,7 +93,7 @@ Component.register('sw-extension-card-base', {
                 this.$nextTick(() => {
                     this.changeExtensionStatus();
                 }, 0);
-            }
+            },
         },
 
         isInstalled() {
@@ -149,7 +149,7 @@ Component.register('sw-extension-card-base', {
 
         openLinkExists() {
             return !!this.openLink;
-        }
+        },
     },
 
     created() {
@@ -198,7 +198,7 @@ Component.register('sw-extension-card-base', {
                 await this.shopwareExtensionService.uninstallExtension(
                     this.extension.name,
                     this.extension.type,
-                    removeData
+                    removeData,
                 );
                 this.clearCacheAndReloadPage();
             } catch (e) {
@@ -219,7 +219,7 @@ Component.register('sw-extension-card-base', {
                 if (this.extension.installedAt) {
                     await this.shopwareExtensionService.updateExtension(
                         this.extension.name,
-                        this.extension.type
+                        this.extension.type,
                     );
                 }
                 this.clearCacheAndReloadPage();
@@ -260,7 +260,7 @@ Component.register('sw-extension-card-base', {
             }
 
             this.permissionModalActionLabel = this.$tc(
-                'sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall'
+                'sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall',
             );
             this.showPermissionsModal = true;
         },
@@ -299,7 +299,7 @@ Component.register('sw-extension-card-base', {
 
                 await this.shopwareExtensionService.removeExtension(
                     this.extension.name,
-                    this.extension.type
+                    this.extension.type,
                 );
                 this.extension.active = false;
             } catch (e) {
@@ -326,6 +326,6 @@ Component.register('sw-extension-card-base', {
                 .then(() => {
                     window.location.reload();
                 });
-        }
-    }
+        },
+    },
 });

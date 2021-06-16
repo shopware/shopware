@@ -12,11 +12,11 @@ Component.register('sw-settings-snippet-list', {
         'snippetService',
         'userService',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('sw-settings-list')
+        Mixin.getByName('sw-settings-list'),
     ],
 
     data() {
@@ -38,13 +38,13 @@ Component.register('sw-settings-snippet-list', {
             appliedFilter: [],
             appliedAuthors: [],
             emptyIcon: this.$route.meta.$module.icon,
-            skeletonItemAmount: 25
+            skeletonItemAmount: 25,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -54,8 +54,8 @@ Component.register('sw-settings-snippet-list', {
                 'sw-settings-snippet.list.identifier',
                 this.snippetSets.length,
                 {
-                    setName: this.metaName
-                }
+                    setName: this.metaName,
+                },
             ) : '';
         },
 
@@ -79,7 +79,7 @@ Component.register('sw-settings-snippet-list', {
 
             criteria.addFilter(Criteria.equalsAny('id', this.queryIds));
             criteria.addSorting(
-                Criteria.sort('name', 'ASC')
+                Criteria.sort('name', 'ASC'),
             );
 
             if (this.term) {
@@ -125,7 +125,7 @@ Component.register('sw-settings-snippet-list', {
             return this.acl.can('snippet.editor') ?
                 this.$tc('global.default.edit') :
                 this.$tc('global.default.view');
-        }
+        },
     },
 
     created() {
@@ -163,7 +163,7 @@ Component.register('sw-settings-snippet-list', {
                 inlineEdit: true,
                 allowResize: true,
                 rawData: true,
-                primary: true
+                primary: true,
             }];
 
             if (this.snippetSets) {
@@ -173,7 +173,7 @@ Component.register('sw-settings-snippet-list', {
                         label: item.name,
                         allowResize: true,
                         inlineEdit: 'string',
-                        rawData: true
+                        rawData: true,
                     });
                 });
             }
@@ -190,7 +190,7 @@ Component.register('sw-settings-snippet-list', {
 
             const sort = {
                 sortBy: this.sortBy,
-                sortDirection: this.sortDirection
+                sortDirection: this.sortDirection,
             };
 
             this.snippetSetService.getCustomList(this.page, this.limit, this.filter, sort).then((response) => {
@@ -225,8 +225,8 @@ Component.register('sw-settings-snippet-list', {
                 this.$router.push({
                     name: 'sw.settings.snippet.detail',
                     params: {
-                        id: snippet.id
-                    }
+                        id: snippet.id,
+                    },
                 });
             }
         },
@@ -262,11 +262,11 @@ Component.register('sw-settings-snippet-list', {
                     snippetEntity.setId = snippet.setId;
 
                     responses.push(
-                        this.snippetRepository.save(snippetEntity)
+                        this.snippetRepository.save(snippetEntity),
                     );
                 } else if (snippet.id !== null && !snippet.author.startsWith('user/')) {
                     responses.push(
-                        this.snippetRepository.delete(snippet.id)
+                        this.snippetRepository.delete(snippet.id),
                     );
                 }
             });
@@ -303,9 +303,9 @@ Component.register('sw-settings-snippet-list', {
 
             this.updateRoute({
                 term: term,
-                page: 1
+                page: 1,
             }, {
-                ids: this.queryIds
+                ids: this.queryIds,
             });
         },
 
@@ -313,7 +313,7 @@ Component.register('sw-settings-snippet-list', {
             this.$router.push({ name: 'sw.settings.snippet.index' });
 
             this.createNotificationError({
-                message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage')
+                message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage'),
             });
         },
 
@@ -322,12 +322,12 @@ Component.register('sw-settings-snippet-list', {
             const messageSaveSuccess = this.$tc(
                 'sw-settings-snippet.list.messageSaveSuccess',
                 this.queryIdCount,
-                { key }
+                { key },
             );
 
             this.createNotificationSuccess({
                 title: titleSaveSuccess,
-                message: messageSaveSuccess
+                message: messageSaveSuccess,
             });
         },
 
@@ -336,12 +336,12 @@ Component.register('sw-settings-snippet-list', {
             const messageSaveError = this.$tc(
                 'sw-settings-snippet.list.messageSaveError',
                 this.queryIdCount,
-                { key }
+                { key },
             );
 
             this.createNotificationError({
                 title: titleSaveError,
-                message: messageSaveError
+                message: messageSaveError,
             });
         },
 
@@ -420,7 +420,7 @@ Component.register('sw-settings-snippet-list', {
                             this.createSuccessMessage(item);
                         }).catch(() => {
                             this.createResetErrorNote(item);
-                        })
+                        }),
                     );
                 });
                 Promise.all(promises).then(() => {
@@ -439,13 +439,13 @@ Component.register('sw-settings-snippet-list', {
                 'sw-settings-snippet.list.resetSuccessMessage',
                 !item.isCustomSnippet,
                 {
-                    key: item.value
-                }
+                    key: item.value,
+                },
             );
 
             this.createNotificationSuccess({
                 title,
-                message
+                message,
             });
         },
 
@@ -454,12 +454,12 @@ Component.register('sw-settings-snippet-list', {
             const message = this.$tc(
                 'sw-settings-snippet.list.resetErrorMessage',
                 item.isCustomSnippet ? 2 : 0,
-                { key: item.value }
+                { key: item.value },
             );
 
             this.createNotificationError({
                 title,
-                message
+                message,
             });
         },
 
@@ -518,15 +518,15 @@ Component.register('sw-settings-snippet-list', {
             }
             this.updateRoute({
                 sortDirection: this.sortDirection,
-                sortBy: column.dataIndex
+                sortBy: column.dataIndex,
             }, {
-                ids: this.queryIds
+                ids: this.queryIds,
             });
         },
 
         onPageChange({ page, limit }) {
             this.updateRoute({ page, limit }, {
-                ids: this.queryIds
+                ids: this.queryIds,
             });
         },
 
@@ -536,8 +536,8 @@ Component.register('sw-settings-snippet-list', {
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning')
+                message: this.$tc('sw-privileges.tooltip.warning'),
             };
-        }
-    }
+        },
+    },
 });

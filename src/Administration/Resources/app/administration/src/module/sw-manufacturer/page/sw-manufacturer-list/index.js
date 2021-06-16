@@ -9,7 +9,7 @@ Component.register('sw-manufacturer-list', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
     ],
 
     data() {
@@ -18,13 +18,13 @@ Component.register('sw-manufacturer-list', {
             isLoading: true,
             sortBy: 'name',
             sortDirection: 'ASC',
-            total: 0
+            total: 0,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -41,11 +41,11 @@ Component.register('sw-manufacturer-list', {
                 routerLink: 'sw.manufacturer.detail',
                 label: 'sw-manufacturer.list.columnName',
                 inlineEdit: 'string',
-                primary: true
+                primary: true,
             }, {
                 property: 'link',
                 label: 'sw-manufacturer.list.columnLink',
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }];
         },
 
@@ -56,7 +56,7 @@ Component.register('sw-manufacturer-list', {
             manufacturerCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
             return manufacturerCriteria;
-        }
+        },
     },
 
     methods: {
@@ -77,6 +77,6 @@ Component.register('sw-manufacturer-list', {
 
         updateTotal({ total }) {
             this.total = total;
-        }
-    }
+        },
+    },
 });

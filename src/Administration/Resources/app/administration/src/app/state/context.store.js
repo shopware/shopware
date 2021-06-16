@@ -4,13 +4,13 @@ const storeState = {
             adminWorker: null,
             bundles: null,
             version: null,
-            versionRevision: null
+            versionRevision: null,
         },
         environment: null,
         fallbackLocale: null,
         features: null,
         firstRunWizard: null,
-        systemCurrencyId: null
+        systemCurrencyId: null,
     },
     api: {
         apiPath: null,
@@ -23,8 +23,8 @@ const storeState = {
         language: null,
         apiVersion: null,
         liveVersionId: null,
-        systemLanguageId: null
-    }
+        systemLanguageId: null,
+    },
 };
 
 export default {
@@ -54,14 +54,14 @@ export default {
 
         resetLanguageToDefault(state) {
             state.api.languageId = state.api.systemLanguageId;
-        }
+        },
     },
 
     getters: {
         isSystemDefaultLanguage(state) {
             return state.api.languageId === state.api.systemLanguageId;
-        }
-    }
+        },
+    },
 };
 
 function createMutationsForState(stateValues, parent) {

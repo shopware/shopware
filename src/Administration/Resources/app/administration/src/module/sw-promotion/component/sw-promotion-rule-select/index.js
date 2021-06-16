@@ -13,25 +13,25 @@ Component.register('sw-promotion-rule-select', {
 
     model: {
         prop: 'collection',
-        event: 'collection-added-item'
+        event: 'collection-added-item',
     },
 
     props: {
         collection: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
         ruleScope: {
             type: Array,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            showRuleModal: false
+            showRuleModal: false,
         };
     },
 
@@ -42,7 +42,7 @@ Component.register('sw-promotion-rule-select', {
         onSaveRule(ruleId) {
             const ruleRepository = this.repositoryFactory.create(
                 this.collection.entity,
-                this.collection.source
+                this.collection.source,
             );
 
             ruleRepository.assign(ruleId, this.collection.context).then(() => {
@@ -51,6 +51,6 @@ Component.register('sw-promotion-rule-select', {
                     this.$refs.ruleSelect.sendSearchRequest();
                 });
             });
-        }
-    }
+        },
+    },
 });

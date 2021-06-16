@@ -8,20 +8,20 @@ Shopware.Component.extend('sw-media-collapse', 'sw-collapse', {
     props: {
         title: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         expandButtonClass() {
             return {
-                'is--hidden': this.expanded
+                'is--hidden': this.expanded,
             };
         },
         collapseButtonClass() {
             return {
-                'is--hidden': !this.expanded
+                'is--hidden': !this.expanded,
             };
-        }
-    }
+        },
+    },
 });

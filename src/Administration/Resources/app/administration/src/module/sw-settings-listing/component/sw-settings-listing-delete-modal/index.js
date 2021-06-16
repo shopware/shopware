@@ -7,13 +7,13 @@ Shopware.Component.register('sw-settings-listing-delete-modal', {
     props: {
         title: {
             type: String,
-            required: true
+            required: true,
         },
 
         description: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     methods: {
@@ -23,6 +23,6 @@ Shopware.Component.register('sw-settings-listing-delete-modal', {
 
         emitDelete() {
             this.$emit('delete');
-        }
-    }
+        },
+    },
 });

@@ -20,7 +20,7 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
 
     data() {
         return {
-            currencies: null
+            currencies: null,
         };
     },
 
@@ -41,14 +41,14 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
             set(currencyIds) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, currencyIds };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.currencyIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCurrencyIdsError;
-        }
+        },
     },
 
     created() {
@@ -60,7 +60,7 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
             this.currencies = new EntityCollection(
                 this.currencyRepository.route,
                 this.currencyRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.currencyIds.length <= 0) {
@@ -78,6 +78,6 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
         setCurrencyIds(currencies) {
             this.currencyIds = currencies.getIds();
             this.currencies = currencies;
-        }
-    }
+        },
+    },
 });

@@ -26,29 +26,29 @@ Component.register('sw-many-to-many-assignment-card', {
 
     model: {
         property: 'entityCollection',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         columns: {
             type: Array,
-            required: true
+            required: true,
         },
 
         entityCollection: {
             type: Array,
-            required: true
+            required: true,
         },
 
         localMode: {
             type: Boolean,
-            required: true
+            required: true,
         },
 
         resultLimit: {
             type: Number,
             required: false,
-            default: 25
+            default: 25,
         },
 
         criteria: {
@@ -56,25 +56,25 @@ Component.register('sw-many-to-many-assignment-card', {
             required: false,
             default() {
                 return new Criteria(1, this.resultLimit);
-            }
+            },
         },
 
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         labelProperty: {
             type: String,
             required: false,
-            default: 'name'
+            default: 'name',
         },
 
         selectLabel: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         placeholder: {
@@ -82,7 +82,7 @@ Component.register('sw-many-to-many-assignment-card', {
             required: false,
             default() {
                 return this.$tc('global.entity-components.placeholderToManyAssociationCard');
-            }
+            },
         },
 
         searchableFields: {
@@ -90,14 +90,14 @@ Component.register('sw-many-to-many-assignment-card', {
             required: false,
             default() {
                 return [];
-            }
+            },
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -111,7 +111,7 @@ Component.register('sw-many-to-many-assignment-card', {
             gridData: [],
             searchTerm: '',
             totalAssigned: 0,
-            loadingGridState: false
+            loadingGridState: false,
         };
     },
 
@@ -127,24 +127,24 @@ Component.register('sw-many-to-many-assignment-card', {
         assignmentRepository() {
             return this.repositoryFactory.create(
                 this.entityCollection.entity,
-                this.entityCollection.source
+                this.entityCollection.source,
             );
         },
 
         searchRepository() {
             return this.repositoryFactory.create(
-                this.entityCollection.entity
+                this.entityCollection.entity,
             );
         },
 
         page: {
             get() { return this.gridCriteria.page; },
-            set(page) { this.gridCriteria.page = page; }
+            set(page) { this.gridCriteria.page = page; },
         },
 
         limit: {
             get() { return this.gridCriteria.limit; },
-            set(limit) { this.gridCriteria.page = limit; }
+            set(limit) { this.gridCriteria.page = limit; },
         },
 
         total() {
@@ -157,7 +157,7 @@ Component.register('sw-many-to-many-assignment-card', {
 
         originalFilters() {
             return this.criteria.filters;
-        }
+        },
     },
 
     watch: {
@@ -170,7 +170,7 @@ Component.register('sw-many-to-many-assignment-card', {
                 if (!this.localMode) {
                     this.paginateGrid();
                 }
-            }
+            },
         },
 
         entityCollection() {
@@ -188,7 +188,7 @@ Component.register('sw-many-to-many-assignment-card', {
             if (!this.localMode) {
                 this.paginateGrid();
             }
-        }
+        },
     },
 
     created() {
@@ -372,8 +372,8 @@ Component.register('sw-many-to-many-assignment-card', {
                     ...this.criteria.filters,
                     Criteria.multi(
                         'OR',
-                        containsFilter
-                    )
+                        containsFilter,
+                    ),
                 ];
                 criteria.term = null;
             }
@@ -385,6 +385,6 @@ Component.register('sw-many-to-many-assignment-card', {
                     this.paginateGrid();
                 }
             });
-        }
-    }
+        },
+    },
 });

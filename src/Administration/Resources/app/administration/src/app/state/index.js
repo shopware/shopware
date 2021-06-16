@@ -19,5 +19,5 @@ export default {
     error,
     settingsItems,
     shopwareApps,
-    extensionEntryRoutes
+    extensionEntryRoutes,
 };

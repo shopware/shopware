@@ -16,8 +16,8 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         snippets: {
             filterRangeActiveMinLabel: '',
             filterRangeActiveMaxLabel: '',
-            filterRangeErrorMessage: ''
-        }
+            filterRangeErrorMessage: '',
+        },
     });
 
     init() {
@@ -147,14 +147,14 @@ export default class FilterRangePlugin extends FilterBasePlugin {
             if (this._inputMin.value.length) {
                 labels.push({
                     label: `${this.options.snippets.filterRangeActiveMinLabel} ${this._inputMin.value} ${this.options.currencySymbol}`,
-                    id: this.options.minKey
+                    id: this.options.minKey,
                 });
             }
 
             if (this._inputMax.value.length) {
                 labels.push({
                     label: `${this.options.snippets.filterRangeActiveMaxLabel} ${this._inputMax.value} ${this.options.currencySymbol}`,
-                    id: this.options.maxKey
+                    id: this.options.maxKey,
                 });
             }
         } else {

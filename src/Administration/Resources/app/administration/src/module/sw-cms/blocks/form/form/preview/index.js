@@ -4,5 +4,5 @@ import './sw-cms-preview-form.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-preview-form', {
-    template
+    template,
 });

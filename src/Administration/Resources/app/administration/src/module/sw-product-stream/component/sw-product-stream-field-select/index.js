@@ -8,31 +8,31 @@ Component.register('sw-product-stream-field-select', {
 
     inject: [
         'conditionDataProviderService',
-        'productCustomFields'
+        'productCustomFields',
     ],
 
     props: {
         definition: {
             type: Object,
-            required: true
+            required: true,
         },
 
         field: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         index: {
             type: Number,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -45,13 +45,13 @@ Component.register('sw-product-stream-field-select', {
                 if (property === 'id') {
                     return {
                         label: this.getPropertyTranslation(this.definition.entity),
-                        value: property
+                        value: property,
                     };
                 }
 
                 return {
                     label: this.getPropertyTranslation(property),
-                    value: property
+                    value: property,
                 };
             }).filter((option) => option !== null);
 
@@ -62,7 +62,7 @@ Component.register('sw-product-stream-field-select', {
             }
 
             return entityFields;
-        }
+        },
     },
 
     methods: {
@@ -75,6 +75,6 @@ Component.register('sw-product-stream-field-select', {
             const translated = this.$tc(translationKey);
 
             return translated === translationKey ? property : translated;
-        }
-    }
+        },
+    },
 });

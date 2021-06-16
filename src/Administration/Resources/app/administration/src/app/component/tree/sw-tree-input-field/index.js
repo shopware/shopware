@@ -19,26 +19,26 @@ Component.register('sw-tree-input-field', {
         // eslint-disable-next-line vue/require-default-prop
         currentValue: {
             type: String,
-            required: false
+            required: false,
         },
 
         disabled: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         classes() {
             return {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
-        }
+        },
     },
 
     methods: {
         createNewItem(itemName) {
             this.$emit('new-item-create', itemName);
-        }
-    }
+        },
+    },
 });

@@ -25,7 +25,7 @@ Component.register('sw-alert', {
             validValues: ['info', 'warning', 'error', 'success'],
             validator(value) {
                 return ['info', 'warning', 'error', 'success'].includes(value);
-            }
+            },
         },
         appearance: {
             type: String,
@@ -33,28 +33,28 @@ Component.register('sw-alert', {
             validValues: ['default', 'notification', 'system'],
             validator(value) {
                 return ['default', 'notification', 'system'].includes(value);
-            }
+            },
         },
         title: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         showIcon: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         closable: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         notificationIndex: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
     computed: {
         alertClasses() {
@@ -64,8 +64,8 @@ Component.register('sw-alert', {
                 {
                     'sw-alert--no-icon': !this.showIcon,
                     'sw-alert--closable': this.closable,
-                    'sw-alert--actions': this.hasActionSlot
-                }
+                    'sw-alert--actions': this.hasActionSlot,
+                },
             ];
         },
 
@@ -74,7 +74,7 @@ Component.register('sw-alert', {
                 info: 'default-badge-info',
                 warning: 'default-badge-warning',
                 error: 'default-badge-error',
-                success: 'default-basic-checkmark-circle'
+                success: 'default-basic-checkmark-circle',
             };
 
             return iconConfig[this.variant] || 'default-bell-bell';
@@ -82,6 +82,6 @@ Component.register('sw-alert', {
 
         hasActionSlot() {
             return !!this.$slots.actions;
-        }
-    }
+        },
+    },
 });

@@ -11,7 +11,7 @@ Component.register('sw-settings-language-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -23,13 +23,13 @@ Component.register('sw-settings-language-list', {
             filterInheritedLanguages: false,
             isLoading: true,
             sortBy: 'name',
-            sortDirection: 'DESC'
+            sortDirection: 'DESC',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -62,21 +62,21 @@ Component.register('sw-settings-language-list', {
                 property: 'name',
                 label: 'sw-settings-language.list.columnName',
                 dataIndex: 'name',
-                inlineEdit: true
+                inlineEdit: true,
             }, {
                 property: 'locale',
                 dataIndex: 'locale.id',
-                label: 'sw-settings-language.list.columnLocaleName'
+                label: 'sw-settings-language.list.columnLocaleName',
             }, {
                 property: 'locale.code',
-                label: 'sw-settings-language.list.columnIsoCode'
+                label: 'sw-settings-language.list.columnIsoCode',
             }, {
                 property: 'parent',
                 dataIndex: 'parent.id',
-                label: 'sw-settings-language.list.columnInherit'
+                label: 'sw-settings-language.list.columnInherit',
             }, {
                 property: 'id',
-                label: 'sw-settings-language.list.columnDefault'
+                label: 'sw-settings-language.list.columnDefault',
             }];
         },
 
@@ -98,7 +98,7 @@ Component.register('sw-settings-language-list', {
 
         allowDelete() {
             return this.acl.can('language.deleter');
-        }
+        },
     },
 
     methods: {
@@ -148,14 +148,14 @@ Component.register('sw-settings-language-list', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('language.deleter'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
             return {
                 message: '',
-                disabled: true
+                disabled: true,
             };
-        }
-    }
+        },
+    },
 });

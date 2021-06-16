@@ -20,15 +20,15 @@ Module.register('sw-settings-cart', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
-        }
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.cart.index',
         icon: 'default-lock-closed',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

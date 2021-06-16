@@ -14,12 +14,12 @@ Component.register('sw-multi-select-filter', {
     props: {
         filter: {
             type: Object,
-            required: true
+            required: true,
         },
         active: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -39,20 +39,20 @@ Component.register('sw-multi-select-filter', {
             const entities = new EntityCollection(
                 '',
                 this.filter.schema.entity,
-                Shopware.Context.api
+                Shopware.Context.api,
             );
 
             if (Array.isArray(this.filter.value)) {
                 this.filter.value.forEach(value => {
                     entities.push({
                         id: value.id,
-                        [this.labelProperty]: value[this.labelProperty]
+                        [this.labelProperty]: value[this.labelProperty],
                     });
                 });
             }
 
             return entities;
-        }
+        },
     },
 
     methods: {
@@ -66,14 +66,14 @@ Component.register('sw-multi-select-filter', {
                 this.filter.schema
                     ? Criteria.equalsAny(
                         `${this.filter.property}.${this.filter.schema.referenceField}`,
-                        newValues.map(newValue => newValue[this.filter.schema.referenceField])
+                        newValues.map(newValue => newValue[this.filter.schema.referenceField]),
                     )
-                    : Criteria.equalsAny(this.filter.property, newValues)
+                    : Criteria.equalsAny(this.filter.property, newValues),
             ];
 
             const values = !this.isEntityMultiSelect ? newValues : newValues.map(value => ({
                 id: value.id,
-                [this.labelProperty]: value[this.labelProperty]
+                [this.labelProperty]: value[this.labelProperty],
             }));
 
             this.$emit('filter-update', this.filter.name, filterCriteria, values);
@@ -81,6 +81,6 @@ Component.register('sw-multi-select-filter', {
 
         resetFilter() {
             this.$emit('filter-reset', this.filter.name);
-        }
-    }
+        },
+    },
 });

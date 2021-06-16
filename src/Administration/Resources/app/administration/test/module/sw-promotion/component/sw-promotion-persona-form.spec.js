@@ -116,8 +116,6 @@ describe('src/module/sw-promotion/component/sw-promotion-persona-form', () => {
     it('should have disabled form fields', async () => {
         expect(wrapper.vm.isEditingDisabled).toBe(true);
 
-        console.log('wrapper.htm() : ', wrapper.html());
-
         const elements = wrapper.findAll('.sw-promotion-rule-select');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));

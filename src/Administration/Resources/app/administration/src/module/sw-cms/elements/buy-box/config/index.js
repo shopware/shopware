@@ -10,7 +10,7 @@ Component.register('sw-cms-el-config-buy-box', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     computed: {
@@ -21,7 +21,7 @@ Component.register('sw-cms-el-config-buy-box', {
         productSelectContext() {
             return {
                 ...Shopware.Context.api,
-                inheritance: true
+                inheritance: true,
             };
         },
 
@@ -41,7 +41,7 @@ Component.register('sw-cms-el-config-buy-box', {
 
         isProductPage() {
             return this.cmsPageState?.currentPage?.type === 'product_detail';
-        }
+        },
     },
 
     created() {
@@ -68,6 +68,6 @@ Component.register('sw-cms-el-config-buy-box', {
             }
 
             this.$emit('element-update', this.element);
-        }
-    }
+        },
+    },
 });

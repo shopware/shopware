@@ -19,25 +19,25 @@ Component.register('sw-sales-channel-switch', {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         // FIXME: add default value
         // eslint-disable-next-line vue/require-default-prop
         abortChangeFunction: {
             type: Function,
-            required: false
+            required: false,
         },
         // FIXME: add default value
         // eslint-disable-next-line vue/require-default-prop
         saveChangesFunction: {
             type: Function,
-            required: false
+            required: false,
         },
         label: {
             type: String,
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     data() {
@@ -45,7 +45,7 @@ Component.register('sw-sales-channel-switch', {
             salesChannelId: '',
             lastSalesChannelId: '',
             newSalesChannelId: '',
-            showUnsavedChangesModal: false
+            showUnsavedChangesModal: false,
         };
     },
 
@@ -61,7 +61,7 @@ Component.register('sw-sales-channel-switch', {
             if (typeof this.abortChangeFunction === 'function') {
                 if (this.abortChangeFunction({
                     oldSalesChannelId: this.lastSalesChannelId,
-                    newSalesChannelId: this.salesChannelId
+                    newSalesChannelId: this.salesChannelId,
                 })) {
                     this.showUnsavedChangesModal = true;
                     this.salesChannelId = this.lastSalesChannelId;
@@ -106,6 +106,6 @@ Component.register('sw-sales-channel-switch', {
             this.newSalesChannelId = '';
             this.$refs.salesChannelSelect.loadSelected();
             this.emitChange();
-        }
-    }
+        },
+    },
 });

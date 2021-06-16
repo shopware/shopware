@@ -15,8 +15,8 @@ export default function initializeEntities(container) {
 
     return httpClient.get('_info/open-api-schema.json', {
         headers: {
-            Authorization: `Bearer ${loginService.getToken()}`
-        }
+            Authorization: `Bearer ${loginService.getToken()}`,
+        },
     }).then(({ data }) => {
         Object.keys(data).forEach((entityName) => {
             const entityDefinition = data[entityName];

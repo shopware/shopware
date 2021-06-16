@@ -9,18 +9,18 @@ Component.register('sw-cms-el-form', {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     components: {
         contact,
-        newsletter
+        newsletter,
     },
 
     computed: {
         selectedForm() {
             return this.element.config.type.value;
-        }
+        },
     },
 
     created() {
@@ -30,6 +30,6 @@ Component.register('sw-cms-el-form', {
     methods: {
         createdComponent() {
             this.initElementConfig('form');
-        }
-    }
+        },
+    },
 });

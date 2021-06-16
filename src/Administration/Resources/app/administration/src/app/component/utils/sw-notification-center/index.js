@@ -8,16 +8,16 @@ Component.register('sw-notification-center', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
         return {
             additionalContextMenuClasses: {
-                'sw-notification-center__context-container': true
+                'sw-notification-center__context-container': true,
             },
             showDeleteModal: false,
-            unsubscribeFromStore: null
+            unsubscribeFromStore: null,
         };
     },
 
@@ -28,9 +28,9 @@ Component.register('sw-notification-center', {
 
         additionalContextButtonClass() {
             return {
-                'sw-notification-center__context-button--new-available': this.notifications.some(n => !n.visited)
+                'sw-notification-center__context-button--new-available': this.notifications.some(n => !n.visited),
             };
-        }
+        },
     },
 
     created() {
@@ -85,8 +85,8 @@ Component.register('sw-notification-center', {
 
             this.createSystemNotificationError({
                 id: payload.id,
-                message: payload.error.detail
+                message: payload.error.detail,
             });
-        }
-    }
+        },
+    },
 });

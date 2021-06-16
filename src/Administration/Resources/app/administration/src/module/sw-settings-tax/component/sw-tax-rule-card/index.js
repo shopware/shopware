@@ -9,23 +9,23 @@ Component.register('sw-tax-rule-card', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     props: {
         tax: {
             type: Object,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -41,7 +41,7 @@ Component.register('sw-tax-rule-card', {
             limit: 25,
             sortBy: 'country.name',
             sortDirection: 'ASC',
-            total: undefined
+            total: undefined,
         };
     },
 
@@ -56,7 +56,7 @@ Component.register('sw-tax-rule-card', {
 
         taxRuleCardClasses() {
             return {
-                'sw-tax-rule-card--is-empty': this.taxRulesEmpty
+                'sw-tax-rule-card--is-empty': this.taxRulesEmpty,
             };
         },
 
@@ -74,7 +74,7 @@ Component.register('sw-tax-rule-card', {
                     Criteria.contains('taxRate', this.term),
                     Criteria.contains('type.technicalName', this.term),
                     Criteria.contains('type.typeName', this.term),
-                    Criteria.contains('country.name', this.term)
+                    Criteria.contains('country.name', this.term),
                 ]));
             }
 
@@ -86,17 +86,17 @@ Component.register('sw-tax-rule-card', {
                 property: 'country.name',
                 dataIndex: 'country.name',
                 label: 'sw-settings-tax.taxRuleCard.labelCountryName',
-                primary: true
+                primary: true,
             }, {
                 property: 'type.typeName',
                 dataIndex: 'type.typeName',
-                label: 'sw-settings-tax.taxRuleCard.labelAppliesOn'
+                label: 'sw-settings-tax.taxRuleCard.labelAppliesOn',
             }, {
                 property: 'taxRate',
                 dataIndex: 'taxRate',
-                label: 'sw-settings-tax.taxRuleCard.labelTaxRate'
+                label: 'sw-settings-tax.taxRuleCard.labelTaxRate',
             }];
-        }
+        },
     },
 
     created() {
@@ -171,6 +171,6 @@ Component.register('sw-tax-rule-card', {
         getTypeCellComponent(taxRule) {
             const subComponentName = taxRule.type.technicalName.replace(/_/g, '-');
             return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}-cell`];
-        }
-    }
+        },
+    },
 });

@@ -26,7 +26,7 @@ export default class CookiePermissionPlugin extends Plugin {
         /**
          * resize debounce delay
          */
-        resizeDebounceTime: 200
+        resizeDebounceTime: 200,
     };
 
     init() {
@@ -86,7 +86,7 @@ export default class CookiePermissionPlugin extends Plugin {
 
         window.addEventListener('resize', Debouncer.debounce(this._setBodyPadding.bind(this), this.options.resizeDebounceTime), {
             capture: true,
-            passive: true
+            passive: true,
         });
     }
 

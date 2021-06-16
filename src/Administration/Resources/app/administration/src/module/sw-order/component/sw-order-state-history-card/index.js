@@ -12,27 +12,27 @@ Component.register('sw-order-state-history-card', {
         'stateMachineService',
         'orderStateMachineService',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         title: {
             type: String,
-            required: true
+            required: true,
         },
         order: {
             type: Object,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
     data() {
         return {
@@ -47,7 +47,7 @@ Component.register('sw-order-state-history-card', {
             modalConfirmed: false,
             currentActionName: null,
             currentStateType: null,
-            technicalName: ''
+            technicalName: '',
         };
     },
     computed: {
@@ -92,14 +92,14 @@ Component.register('sw-order-state-history-card', {
             criteria.addFilter(
                 Criteria.equalsAny(
                     'state_machine_history.entityId.id',
-                    entityIds
-                )
+                    entityIds,
+                ),
             );
             criteria.addFilter(
                 Criteria.equalsAny(
                     'state_machine_history.entityName',
-                    ['order', 'order_transaction', 'order_delivery']
-                )
+                    ['order', 'order_transaction', 'order_delivery'],
+                ),
             );
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
@@ -107,7 +107,7 @@ Component.register('sw-order-state-history-card', {
             criteria.addSorting({ field: 'state_machine_history.createdAt', order: 'ASC' });
 
             return criteria;
-        }
+        },
 
     },
 
@@ -126,7 +126,7 @@ Component.register('sw-order-state-history-card', {
 
             Promise.all([
                 this.getStateHistoryEntries(),
-                this.getTransitionOptions()
+                this.getTransitionOptions(),
             ]).then(() => {
                 this.$emit('options-change', 'order.states', this.orderOptions);
                 if (this.transaction) {
@@ -166,7 +166,7 @@ Component.register('sw-order-state-history-card', {
                 return [{
                     state: entity.stateMachineState,
                     createdAt: entity.createdAt,
-                    user: null
+                    user: null,
                 }];
             }
 
@@ -175,14 +175,14 @@ Component.register('sw-order-state-history-card', {
             entries.push({
                 state: fetchedEntries[0].fromStateMachineState,
                 createdAt: entity.createdAt,
-                user: null
+                user: null,
             });
 
             fetchedEntries.forEach((entry) => {
                 entries.push({
                     state: entry.toStateMachineState,
                     createdAt: entry.createdAt,
-                    user: entry.user ? entry.user : null
+                    user: entry.user ? entry.user : null,
                 });
             });
 
@@ -201,15 +201,15 @@ Component.register('sw-order-state-history-card', {
             return Promise.all(
                 [
                     this.getAllStates(),
-                    ...statePromises
-                ]
+                    ...statePromises,
+                ],
             ).then((data) => {
                 const allStates = data[0];
                 const orderState = data[1];
                 this.orderOptions = this.buildTransitionOptions(
                     'order.state',
                     allStates,
-                    orderState.data.transitions
+                    orderState.data.transitions,
                 );
 
                 if (this.transaction) {
@@ -217,7 +217,7 @@ Component.register('sw-order-state-history-card', {
                     this.transactionOptions = this.buildTransitionOptions(
                         'order_transaction.state',
                         allStates,
-                        orderTransactionState.data.transitions
+                        orderTransactionState.data.transitions,
                     );
                 }
 
@@ -226,7 +226,7 @@ Component.register('sw-order-state-history-card', {
                     this.deliveryOptions = this.buildTransitionOptions(
                         'order_delivery.state',
                         allStates,
-                        orderDeliveryState.data.transitions
+                        orderDeliveryState.data.transitions,
                     );
                 }
 
@@ -245,8 +245,8 @@ Component.register('sw-order-state-history-card', {
             criteria.addFilter(
                 Criteria.equalsAny(
                     'state_machine_state.stateMachine.technicalName',
-                    ['order.state', 'order_transaction.state', 'order_delivery.state']
-                )
+                    ['order.state', 'order_transaction.state', 'order_delivery.state'],
+                ),
             );
 
             return criteria;
@@ -262,7 +262,7 @@ Component.register('sw-order-state-history-card', {
                     stateName: state.technicalName,
                     id: null,
                     name: state.translated.name,
-                    disabled: true
+                    disabled: true,
                 };
             });
 
@@ -344,7 +344,7 @@ Component.register('sw-order-state-history-card', {
                 this.orderStateMachineService.transitionOrderTransactionState(
                     this.transaction.id,
                     this.currentActionName,
-                    { documentIds: docIds, sendMail }
+                    { documentIds: docIds, sendMail },
                 ).then(() => {
                     this.$emit('order-state-change');
                     this.loadHistory();
@@ -355,7 +355,7 @@ Component.register('sw-order-state-history-card', {
                 this.orderStateMachineService.transitionOrderState(
                     this.order.id,
                     this.currentActionName,
-                    { documentIds: docIds, sendMail }
+                    { documentIds: docIds, sendMail },
                 ).then(() => {
                     this.$emit('order-state-change');
                     this.loadHistory();
@@ -366,7 +366,7 @@ Component.register('sw-order-state-history-card', {
                 this.orderStateMachineService.transitionOrderDeliveryState(
                     this.delivery.id,
                     this.currentActionName,
-                    { documentIds: docIds, sendMail }
+                    { documentIds: docIds, sendMail },
                 ).then(() => {
                     this.$emit('order-state-change');
                     this.loadHistory();
@@ -380,8 +380,8 @@ Component.register('sw-order-state-history-card', {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage
+                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage,
             });
-        }
-    }
+        },
+    },
 });

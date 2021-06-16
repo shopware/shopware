@@ -6,21 +6,21 @@ Component.register('sw-settings-cache-modal', {
     template,
 
     shortcuts: {
-        'SYSTEMKEY+c': 'openModal'
+        'SYSTEMKEY+c': 'openModal',
     },
 
     inject: [
         'cacheApiService',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
         return {
-            open: false
+            open: false,
         };
     },
 
@@ -33,7 +33,7 @@ Component.register('sw-settings-cache-modal', {
             this.$nextTick(() => {
                 this.$refs.button.$el.focus();
             });
-        }
+        },
     },
 
     created() {
@@ -63,20 +63,20 @@ Component.register('sw-settings-cache-modal', {
 
         clearCache() {
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-cache.notifications.clearCache.started')
+                message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
             });
 
             this.cacheApiService.clear().then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.success')
+                    message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.error')
+                    message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
                 });
             });
 
             this.open = false;
-        }
-    }
+        },
+    },
 });

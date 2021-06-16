@@ -22,34 +22,34 @@ Shopware.Module.register('sw-event-action', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'event_action.viewer'
-            }
+                privilege: 'event_action.viewer',
+            },
         },
         detail: {
             component: 'sw-event-action-detail',
             path: 'detail/:id',
             props: {
-                default: (route) => ({ eventActionId: route.params.id })
+                default: (route) => ({ eventActionId: route.params.id }),
             },
             meta: {
                 parentPath: 'sw.event.action.index',
-                privilege: 'event_action.viewer'
-            }
+                privilege: 'event_action.viewer',
+            },
         },
         create: {
             component: 'sw-event-action-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.event.action.index',
-                privilege: 'event_action.creator'
-            }
-        }
+                privilege: 'event_action.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.event.action.index',
         icon: 'default-action-sliders',
-        privilege: 'event_action.viewer'
-    }
+        privilege: 'event_action.viewer',
+    },
 });

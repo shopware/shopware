@@ -12,5 +12,5 @@ Shopware.Service('exportTemplateService').registerProductExportTemplate({
     encoding: 'UTF-8',
     fileFormat: 'xml',
     generateByCronjob: false,
-    interval: 86400
+    interval: 86400,
 });

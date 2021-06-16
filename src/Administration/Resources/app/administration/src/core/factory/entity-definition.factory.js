@@ -10,7 +10,7 @@ export default {
     remove,
     getTranslatedFields,
     getAssociationFields,
-    getRequiredFields
+    getRequiredFields,
 };
 
 const entityDefinitionRegistry = new Map();

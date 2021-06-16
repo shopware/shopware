@@ -14,15 +14,15 @@ Component.register('sw-settings-salutation-detail', {
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('salutation')
+        Mixin.getByName('discard-detail-page-changes')('salutation'),
     ],
 
     props: {
         salutationId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     shortcuts: {
@@ -30,10 +30,10 @@ Component.register('sw-settings-salutation-detail', {
             active() {
                 return this.allowSave;
             },
-            method: 'onSave'
+            method: 'onSave',
         },
 
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
@@ -44,13 +44,13 @@ Component.register('sw-settings-salutation-detail', {
             invalidKey: false,
             isKeyChecking: false,
             isSaveSuccessful: false,
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -67,7 +67,7 @@ Component.register('sw-settings-salutation-detail', {
             return this.placeholder(
                 this.salutation,
                 'salutationKey',
-                this.$tc('sw-settings-salutation.detail.placeholderNewSalutation')
+                this.$tc('sw-settings-salutation.detail.placeholderNewSalutation'),
             );
         },
 
@@ -89,7 +89,7 @@ Component.register('sw-settings-salutation-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -97,14 +97,14 @@ Component.register('sw-settings-salutation-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -112,7 +112,7 @@ Component.register('sw-settings-salutation-detail', {
 
         showCustomFields() {
             return this.salutation && this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     watch: {
@@ -120,7 +120,7 @@ Component.register('sw-settings-salutation-detail', {
             if (!this.salutationId) {
                 this.createdComponent();
             }
-        }
+        },
     },
 
     created() {
@@ -175,7 +175,7 @@ Component.register('sw-settings-salutation-detail', {
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage')
+                    message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage'),
                 });
             });
         },
@@ -208,9 +208,9 @@ Component.register('sw-settings-salutation-detail', {
                     'AND',
                     [
                         Criteria.equals('salutationKey', this.salutation.salutationKey),
-                        Criteria.not('AND', [Criteria.equals('id', this.salutation.id)])
-                    ]
-                )
+                        Criteria.not('AND', [Criteria.equals('id', this.salutation.id)]),
+                    ],
+                ),
             );
 
             this.salutationRepository.search(criteria).then(({ total }) => {
@@ -220,6 +220,6 @@ Component.register('sw-settings-salutation-detail', {
                 this.invalidKey = true;
                 this.isKeyChecking = false;
             });
-        }, 500)
-    }
+        }, 500),
+    },
 });

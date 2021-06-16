@@ -21,11 +21,11 @@ Module.register('sw-my-apps', {
                     const { appName, moduleName } = route.params;
                     return {
                         appName,
-                        moduleName
+                        moduleName,
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     },
 
     navigation: [{
@@ -33,7 +33,7 @@ Module.register('sw-my-apps', {
         label: 'sw-my-apps.general.mainMenuItemGeneral',
         icon: 'default-view-grid',
         color: '#9AA8B5',
-        position: 100
-    }]
+        position: 100,
+    }],
 });
 

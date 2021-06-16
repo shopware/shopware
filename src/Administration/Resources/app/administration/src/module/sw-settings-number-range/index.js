@@ -21,31 +21,31 @@ Module.register('sw-settings-number-range', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'number_ranges.viewer'
-            }
+                privilege: 'number_ranges.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-number-range-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.number.range.index',
-                privilege: 'number_ranges.viewer'
-            }
+                privilege: 'number_ranges.viewer',
+            },
         },
         create: {
             component: 'sw-settings-number-range-create',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.number.range.index',
-                privilege: 'number_ranges.creator'
-            }
-        }
+                privilege: 'number_ranges.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.number.range.index',
         icon: 'default-documentation-paper-pencil-signed',
-        privilege: 'number_ranges.viewer'
-    }
+        privilege: 'number_ranges.viewer',
+    },
 });

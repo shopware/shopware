@@ -59,9 +59,9 @@ export default class VueAdapter extends ViewAdapter {
             components,
             data() {
                 return {
-                    initError: {}
+                    initError: {},
                 };
-            }
+            },
         });
 
         return this.root;
@@ -292,7 +292,7 @@ export default class VueAdapter extends ViewAdapter {
             fallbackLocale,
             silentFallbackWarn: true,
             sync: true,
-            messages
+            messages,
         });
 
         store.subscribe(({ type }, state) => {

@@ -11,7 +11,7 @@ export default {
     registerModule,
     getModuleRegistry,
     getModuleByEntityName,
-    getModuleSnippets
+    getModuleSnippets,
 };
 
 /**
@@ -56,7 +56,7 @@ function registerModule(moduleId, module) {
         warn(
             'ModuleFactory',
             'Module has no unique identifier "id". Abort registration.',
-            module
+            module,
         );
         return false;
     }
@@ -65,7 +65,7 @@ function registerModule(moduleId, module) {
         warn(
             'ModuleFactory',
             `A module with the identifier "${moduleId}" is registered already. Abort registration.`,
-            modules.get(moduleId)
+            modules.get(moduleId),
         );
 
         return false;
@@ -78,7 +78,7 @@ function registerModule(moduleId, module) {
             'ModuleFactory',
             'Module identifier does not match the necessary format "[namespace]-[name]":',
             moduleId,
-            'Abort registration.'
+            'Abort registration.',
         );
         return false;
     }
@@ -91,7 +91,7 @@ function registerModule(moduleId, module) {
             `Module "${moduleId}" has no configured routes or a routeMiddleware.`,
             'The module will not be accessible in the administration UI.',
             'Abort registration.',
-            module
+            module,
         );
         return false;
     }
@@ -155,7 +155,7 @@ function registerModule(moduleId, module) {
             'ModuleFactory',
             `The module "${moduleId}" was not registered cause it hasn't a valid route definition`,
             'Abort registration.',
-            module.routes
+            module.routes,
         );
         return false;
     }
@@ -163,7 +163,7 @@ function registerModule(moduleId, module) {
     const moduleDefinition = {
         routes: moduleRoutes,
         manifest: module,
-        type
+        type,
     };
 
     // Add the navigation of the module to the module definition. We'll create a menu entry later on
@@ -172,7 +172,7 @@ function registerModule(moduleId, module) {
             warn(
                 'ModuleFactory',
                 'The route definition has to be an array.',
-                module.navigation
+                module.navigation,
             );
             return false;
         }
@@ -184,7 +184,7 @@ function registerModule(moduleId, module) {
                 warn(
                     'ModuleFactory',
                     'Navigation entries from plugins are not allowed on the first level.',
-                    'Set a property "parent" to register your navigation entry'
+                    'Set a property "parent" to register your navigation entry',
                 );
                 return false;
             }
@@ -194,7 +194,7 @@ function registerModule(moduleId, module) {
                     'ModuleFactory',
                     'The navigation entry does not contains the necessary properties',
                     'Abort registration of the navigation entry',
-                    navigationEntry
+                    navigationEntry,
                 );
                 return false;
             }
@@ -202,7 +202,7 @@ function registerModule(moduleId, module) {
             if (!navigationEntry.label || !navigationEntry.label.length) {
                 warn(
                     'ModuleFactory',
-                    'The navigation entry needs a property called "label"'
+                    'The navigation entry needs a property called "label"',
                 );
                 return false;
             }
@@ -300,7 +300,7 @@ function createRouteComponentList(route, moduleId, module) {
     // Remove the component cause we remapped it to the components object of the route object
     if (route.component) {
         route.components = {
-            default: route.component
+            default: route.component,
         };
         delete route.component;
     }
@@ -314,7 +314,7 @@ function createRouteComponentList(route, moduleId, module) {
             warn(
                 'ModuleFactory',
                 `The route definition of module "${moduleId}" is not valid.
-                    A route needs an assigned component name.`
+                    A route needs an assigned component name.`,
             );
             return;
         }
@@ -434,7 +434,7 @@ function addSettingsItemsToStore(moduleId, module) {
                 'ModuleFactory',
                 'The settingsItem entry does not contain the necessary properties',
                 'Abort registration of settingsItem entry',
-                settingsItem
+                settingsItem,
             );
         }
     });
@@ -444,7 +444,7 @@ function addEntryRouteToExtensionRouteStore(config) {
     if (config.extensionName === 'string') {
         warn(
             'ModuleFactory',
-            'extensionEntryRoute.extensionName needs to be an string'
+            'extensionEntryRoute.extensionName needs to be an string',
         );
 
         return;
@@ -453,7 +453,7 @@ function addEntryRouteToExtensionRouteStore(config) {
     if (config.route === 'string') {
         warn(
             'ModuleFactory',
-            'extensionEntryRoute.route needs to be an string'
+            'extensionEntryRoute.route needs to be an string',
         );
 
         return;

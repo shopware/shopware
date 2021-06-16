@@ -9,6 +9,6 @@ Component.register('sw-cms-stage-section-selection', {
     methods: {
         selectSection(type) {
             this.$emit('section-select', type);
-        }
-    }
+        },
+    },
 });

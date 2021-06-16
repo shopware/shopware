@@ -9,6 +9,6 @@ Component.register('sw-my-apps-error-page', {
     methods: {
         goBack() {
             this.$router.go(-1);
-        }
-    }
+        },
+    },
 });

@@ -11,9 +11,9 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'custom_field:read',
                 'custom_field_set_relation:read',
                 'currency:read',
-                'user_config:read'
+                'user_config:read',
             ],
-            dependencies: []
+            dependencies: [],
         },
         editor: {
             privileges: [
@@ -21,28 +21,28 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'country_state:read',
                 'country_state:create',
                 'country_state:update',
-                'country_state:delete'
-            ],
-            dependencies: [
-                'country.viewer'
-            ]
-        },
-        creator: {
-            privileges: [
-                'country:create'
+                'country_state:delete',
             ],
             dependencies: [
                 'country.viewer',
-                'country.editor'
-            ]
+            ],
+        },
+        creator: {
+            privileges: [
+                'country:create',
+            ],
+            dependencies: [
+                'country.viewer',
+                'country.editor',
+            ],
         },
         deleter: {
             privileges: [
-                'country:delete'
+                'country:delete',
             ],
             dependencies: [
-                'country.viewer'
-            ]
-        }
-    }
+                'country.viewer',
+            ],
+        },
+    },
 });

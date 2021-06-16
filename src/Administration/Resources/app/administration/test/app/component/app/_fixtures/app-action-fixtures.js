@@ -7,41 +7,41 @@ export function createRouter() {
             path: '/sw/product/detail/:{id}',
             meta: {
                 $module: {
-                    entity: 'product'
+                    entity: 'product',
                 },
                 appSystem: {
-                    view: 'detail'
-                }
-            }
+                    view: 'detail',
+                },
+            },
         }, {
             name: 'sw.product.list',
             path: '/sw/product/list',
             meta: {
                 $module: {
-                    entity: 'product'
+                    entity: 'product',
                 },
                 appSystem: {
-                    view: 'list'
-                }
-            }
+                    view: 'list',
+                },
+            },
         }, {
             name: 'sw.order.detail',
             path: '/sw/order/detail',
             meta: {
                 $module: {
-                    entity: 'order'
+                    entity: 'order',
                 },
                 appSystem: {
-                    view: 'list'
-                }
-            }
+                    view: 'list',
+                },
+            },
         }, {
             name: 'sw.settings.index',
             path: '/sw/setting/index',
             meta: {
-                $module: {}
-            }
-        }]
+                $module: {},
+            },
+        }],
     });
 }
 
@@ -52,10 +52,10 @@ export const actionButtonData = [{
     icon: 'someBase64Icon',
     label: {
         'de-DE': 'Product hinzufügen',
-        'en-GB': 'Add product'
+        'en-GB': 'Add product',
     },
     openNewTab: false,
-    url: 'http://test-url/actions/product/add'
+    url: 'http://test-url/actions/product/add',
 }, {
     id: Shopware.Utils.createId(),
     action: 'renameProduct',
@@ -63,8 +63,8 @@ export const actionButtonData = [{
     icon: 'someBase64Icon',
     label: {
         'de-DE': 'Product umbenennen',
-        'en-GB': 'Rename product'
+        'en-GB': 'Rename product',
     },
     openNewTab: false,
-    url: 'http://test-url/actions/product/rename'
+    url: 'http://test-url/actions/product/rename',
 }];

@@ -8,7 +8,7 @@ Mixin.register('sw-inline-snippet', {
         },
         swInlineSnippetFallbackLocale() {
             return Shopware.Context.app.fallbackLocale;
-        }
+        },
     },
 
     methods: {
@@ -33,6 +33,6 @@ Mixin.register('sw-inline-snippet', {
             }
 
             return value;
-        }
-    }
+        },
+    },
 });

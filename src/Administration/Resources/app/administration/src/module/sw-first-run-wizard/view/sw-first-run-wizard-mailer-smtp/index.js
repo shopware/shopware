@@ -19,8 +19,8 @@ Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
                 'core.mailerSettings.authenticationMethod': 'null',
                 'core.mailerSettings.senderAddress': null,
                 'core.mailerSettings.deliveryAddress': null,
-                'core.mailerSettings.disableDelivery': false
-            }
+                'core.mailerSettings.disableDelivery': false,
+            },
         };
     },
 
@@ -33,7 +33,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.mailer.selection',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'configure-later',
@@ -41,7 +41,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
                     position: 'right',
                     variant: null,
                     action: 'sw.first.run.wizard.index.paypal.info',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'next',
@@ -49,8 +49,8 @@ Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
                     position: 'right',
                     variant: 'primary',
                     action: this.saveMailerSettings.bind(this),
-                    disabled: !this.requiredFieldsFilled
-                }
+                    disabled: !this.requiredFieldsFilled,
+                },
             ];
         },
 
@@ -60,7 +60,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
                 !!this.mailerSettings['core.mailerSettings.host'] &&
                 !!this.mailerSettings['core.mailerSettings.port']
             );
-        }
+        },
     },
 
     watch: {
@@ -68,8 +68,8 @@ Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
             deep: true,
             handler() {
                 this.updateButtons();
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -109,6 +109,6 @@ Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
             }).catch(() => {
                 this.isLoading = false;
             });
-        }
-    }
+        },
+    },
 });

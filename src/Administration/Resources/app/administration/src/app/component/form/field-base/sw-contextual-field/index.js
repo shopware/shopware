@@ -16,6 +16,6 @@ Component.register('sw-contextual-field', {
         hasSuffix() {
             return this.$scopedSlots.hasOwnProperty('sw-contextual-field-suffix')
                 && this.$scopedSlots['sw-contextual-field-suffix']({}) !== undefined;
-        }
-    }
+        },
+    },
 });

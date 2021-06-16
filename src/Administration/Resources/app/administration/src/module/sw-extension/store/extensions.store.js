@@ -9,16 +9,16 @@ export default {
                 rating: null,
                 sorting: null,
                 term: null,
-                filter: {}
+                filter: {},
             },
             extensionListing: [],
             categoriesLanguageId: null,
             myExtensions: {
                 loading: true,
-                data: []
+                data: [],
             },
             shopwareId: null,
-            loginStatus: false
+            loginStatus: false,
         };
     },
 
@@ -71,6 +71,6 @@ export default {
             state.totalPlugins = searchResult.total;
         },
 
-        pluginErrorsMapped() { /* nth */ }
-    }
+        pluginErrorsMapped() { /* nth */ },
+    },
 };

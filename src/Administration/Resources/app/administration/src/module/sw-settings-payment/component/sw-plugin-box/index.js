@@ -11,22 +11,22 @@ Component.register('sw-plugin-box', {
     props: {
         pluginId: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
 
     data() {
         return {
             plugin: {},
-            hasPluginConfig: false
+            hasPluginConfig: false,
         };
     },
 
     computed: {
         pluginRepository() {
             return this.repositoryFactory.create('plugin');
-        }
+        },
     },
 
     watch: {
@@ -37,8 +37,8 @@ Component.register('sw-plugin-box', {
                 }
 
                 this.checkPluginConfig();
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -59,6 +59,6 @@ Component.register('sw-plugin-box', {
             }).catch(() => {
                 this.hasPluginConfig = false;
             });
-        }
-    }
+        },
+    },
 });

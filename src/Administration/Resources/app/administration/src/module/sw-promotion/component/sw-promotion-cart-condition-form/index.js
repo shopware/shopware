@@ -17,15 +17,15 @@ Component.register('sw-promotion-cart-condition-form', {
         promotion: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
     data() {
         return {
             syncService: null,
             httpClient: null,
             packagerKeys: [],
-            sorterKeys: []
+            sorterKeys: [],
         };
     },
     computed: {
@@ -37,7 +37,7 @@ Component.register('sw-promotion-cart-condition-form', {
             const criteria = new Criteria();
 
             criteria.addFilter(
-                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
+                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
             );
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
@@ -52,8 +52,8 @@ Component.register('sw-promotion-cart-condition-form', {
                 result.push(
                     {
                         key: keyValue,
-                        name: this.$tc(`sw-promotion.setgroup.packager.${keyValue}`)
-                    }
+                        name: this.$tc(`sw-promotion.setgroup.packager.${keyValue}`),
+                    },
                 );
             });
             return result;
@@ -66,8 +66,8 @@ Component.register('sw-promotion-cart-condition-form', {
                 result.push(
                     {
                         key: keyValue,
-                        name: this.$tc(`sw-promotion.setgroup.sorter.${keyValue}`)
-                    }
+                        name: this.$tc(`sw-promotion.setgroup.sorter.${keyValue}`),
+                    },
                 );
             });
 
@@ -80,12 +80,12 @@ Component.register('sw-promotion-cart-condition-form', {
             }
 
             return !PromotionPermissions.isEditingAllowed(this.promotion);
-        }
+        },
     },
     watch: {
         promotion() {
             this.loadSetGroups();
-        }
+        },
     },
     created() {
         this.createdComponent();
@@ -111,7 +111,7 @@ Component.register('sw-promotion-cart-condition-form', {
         loadSetGroups() {
             const criteria = new Criteria();
             criteria.addFilter(
-                Criteria.equals('promotionId', this.promotion.id)
+                Criteria.equals('promotionId', this.promotion.id),
             );
 
             this.repositoryGroups.search(criteria).then((groups) => {
@@ -155,8 +155,8 @@ Component.register('sw-promotion-cart-condition-form', {
             return this.httpClient.get(
                 '/_action/promotion/setgroup/packager',
                 {
-                    headers: this.syncService.getBasicHeaders()
-                }
+                    headers: this.syncService.getBasicHeaders(),
+                },
             ).then((response) => {
                 return response.data;
             });
@@ -165,11 +165,11 @@ Component.register('sw-promotion-cart-condition-form', {
             return this.httpClient.get(
                 '/_action/promotion/setgroup/sorter',
                 {
-                    headers: this.syncService.getBasicHeaders()
-                }
+                    headers: this.syncService.getBasicHeaders(),
+                },
             ).then((response) => {
                 return response.data;
             });
-        }
-    }
+        },
+    },
 });

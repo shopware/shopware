@@ -18,7 +18,7 @@ Component.register('sw-simple-search-field', {
 
     model: {
         prop: 'searchTerm',
-        event: 'search-term-change'
+        event: 'search-term-change',
     },
 
     props: {
@@ -32,32 +32,32 @@ Component.register('sw-simple-search-field', {
                     return true;
                 }
                 return ['default', 'inverted', 'form'].includes(value);
-            }
+            },
         },
 
         searchTerm: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         delay: {
             type: Number,
             required: false,
-            default: 400
+            default: 400,
         },
 
         icon: {
             type: String,
             required: false,
-            default: 'small-search'
-        }
+            default: 'small-search',
+        },
     },
 
     computed: {
         fieldClasses() {
             return [
-                `sw-simple-search-field--${this.variant}`
+                `sw-simple-search-field--${this.variant}`,
             ];
         },
 
@@ -70,6 +70,6 @@ Component.register('sw-simple-search-field', {
                 const validInput = input || '';
                 this.$emit('search-term-change', validInput.trim());
             }, this.delay);
-        }
-    }
+        },
+    },
 });

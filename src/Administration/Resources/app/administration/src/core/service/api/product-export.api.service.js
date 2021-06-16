@@ -18,8 +18,8 @@ class ProductExportApiService extends ApiService {
             apiRoute,
             productExport,
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -32,8 +32,8 @@ class ProductExportApiService extends ApiService {
             apiRoute,
             productExport,
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -53,7 +53,7 @@ class ProductExportApiService extends ApiService {
         return this.httpClient
             .get('/_action/access-key/product-export', {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

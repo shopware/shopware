@@ -25,23 +25,23 @@ Module.register('sw-settings-shopware-updates', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.core_update'
-            }
+                privilege: 'system.core_update',
+            },
         },
         wizard: {
             component: 'sw-settings-shopware-updates-wizard',
             path: 'wizard',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.core_update'
-            }
-        }
+                privilege: 'system.core_update',
+            },
+        },
     },
 
     settingsItem: {
         privilege: 'system.core_update',
         group: 'system',
         to: 'sw.settings.shopware.updates.index',
-        icon: 'default-arrow-360-full'
-    }
+        icon: 'default-arrow-360-full',
+    },
 });

@@ -22,12 +22,12 @@ export default class PersonaCustomerGridService {
             property: 'fullName',
             dataIndex: 'fullName',
             label: this.component.$tc('sw-promotion.detail.main.preconditions.persona.customers.grid.headerName'),
-            allowResize: false
+            allowResize: false,
         }, {
             property: 'customerNumber',
             dataIndex: 'customerNumber',
             label: this.component.$tc('sw-promotion.detail.main.preconditions.persona.customers.grid.headerCustomerNumber'),
-            allowResize: false
+            allowResize: false,
         }];
     }
 

@@ -8,25 +8,25 @@ Component.register('sw-newsletter-recipient-filter-switch', {
     props: {
         id: {
             type: String,
-            required: true
+            required: true,
         },
 
         label: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         group: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     methods: {
         onChange(value) {
             this.$emit('change', { id: this.id, group: this.group, value });
-        }
-    }
+        },
+    },
 });

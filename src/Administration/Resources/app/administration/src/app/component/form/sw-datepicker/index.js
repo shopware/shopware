@@ -37,7 +37,7 @@ const allEvents = [
     'onParseConfig',
     'onReady',
     'onPreCalendarPosition',
-    'onKeyDown'
+    'onKeyDown',
 ];
 
 Component.register('sw-datepicker', {
@@ -46,21 +46,21 @@ Component.register('sw-datepicker', {
 
     mixins: [
         Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     props: {
         value: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         config: {
             type: Object,
             default() {
                 return {};
-            }
+            },
         },
 
         dateType: {
@@ -69,27 +69,27 @@ Component.register('sw-datepicker', {
             validValues: ['time', 'date', 'datetime', 'datetime-local'],
             validator(value) {
                 return ['time', 'date', 'datetime', 'datetime-local'].includes(value);
-            }
+            },
         },
 
         placeholderText: {
             type: String,
             default: '',
-            required: false
+            required: false,
         },
 
         required: {
             type: Boolean,
             default: false,
-            required: false
-        }
+            required: false,
+        },
     },
 
     data() {
         return {
             flatpickrInstance: null,
             isDatepickerOpen: false,
-            defaultConfig: {}
+            defaultConfig: {},
         };
     },
 
@@ -153,7 +153,7 @@ Component.register('sw-datepicker', {
             });
 
             return listeners;
-        }
+        },
     },
 
     watch: {
@@ -161,7 +161,7 @@ Component.register('sw-datepicker', {
             deep: true,
             handler() {
                 this.updateFlatpickrInstance();
-            }
+            },
         },
 
         dateType() {
@@ -174,7 +174,7 @@ Component.register('sw-datepicker', {
             handler() {
                 this.defaultConfig.locale = this.locale;
                 this.updateFlatpickrInstance(this.config);
-            }
+            },
         },
 
         /**
@@ -184,7 +184,7 @@ Component.register('sw-datepicker', {
          */
         value(newValue) {
             this.setDatepickerValue(newValue);
-        }
+        },
     },
 
     created() {
@@ -249,7 +249,7 @@ Component.register('sw-datepicker', {
                 console.warn(
                     '[sw-datepicker] The only allowed mode is the default \'single\' mode ' +
                     '(the specified mode will be ignored!). ' +
-                    'The modes \'multiple\' or \'range\' are currently not supported'
+                    'The modes \'multiple\' or \'range\' are currently not supported',
                 );
             }
 
@@ -258,12 +258,12 @@ Component.register('sw-datepicker', {
                 this.defaultConfig,
                 {
                     enableTime: this.enableTime,
-                    noCalendar: this.noCalendar
+                    noCalendar: this.noCalendar,
                 },
                 newConfig,
                 {
-                    mode: 'single'
-                }
+                    mode: 'single',
+                },
             );
         },
 
@@ -352,7 +352,7 @@ Component.register('sw-datepicker', {
             Object.keys(this.additionalEventListeners).forEach((event) => {
                 events.push({
                     kebabCase: event,
-                    camelCase: this.kebabToCamel(event)
+                    camelCase: this.kebabToCamel(event),
                 });
             });
 
@@ -422,8 +422,8 @@ Component.register('sw-datepicker', {
                 dateFormat,
                 altInput: true,
                 altFormat,
-                allowInput: true
+                allowInput: true,
             };
-        }
-    }
+        },
+    },
 });

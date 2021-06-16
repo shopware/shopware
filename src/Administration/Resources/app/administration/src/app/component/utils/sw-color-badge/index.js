@@ -26,18 +26,18 @@ Component.register('sw-color-badge', {
         variant: {
             type: String,
             required: false,
-            default: 'default'
+            default: 'default',
         },
         color: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         rounded: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -50,8 +50,8 @@ Component.register('sw-color-badge', {
         variantClass() {
             return {
                 [`is--${this.variant}`]: true,
-                'is--rounded': this.rounded
+                'is--rounded': this.rounded,
             };
-        }
-    }
+        },
+    },
 });

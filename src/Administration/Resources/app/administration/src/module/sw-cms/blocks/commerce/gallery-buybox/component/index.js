@@ -17,6 +17,6 @@ Component.register('sw-cms-block-gallery-buybox', {
             }
 
             return null;
-        }
-    }
+        },
+    },
 });

@@ -9,11 +9,11 @@ Component.register('sw-customer-create', {
         'repositoryFactory',
         'numberRangeService',
         'systemConfigApiService',
-        'customerValidationService'
+        'customerValidationService',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -24,14 +24,14 @@ Component.register('sw-customer-create', {
             isSaveSuccessful: false,
             salesChannels: null,
             isLoading: false,
-            errorEmailCustomer: null
+            errorEmailCustomer: null,
         };
     },
 
     computed: {
         customerRepository() {
             return this.repositoryFactory.create('customer');
-        }
+        },
     },
 
     watch: {
@@ -42,7 +42,7 @@ Component.register('sw-customer-create', {
                         this.customer.boundSalesChannelId = salesChannelId;
                     }
                 });
-        }
+        },
     },
 
     created() {
@@ -57,7 +57,7 @@ Component.register('sw-customer-create', {
 
             const addressRepository = this.repositoryFactory.create(
                 this.customer.addresses.entity,
-                this.customer.addresses.source
+                this.customer.addresses.source,
             );
 
             this.address = addressRepository.create();
@@ -84,13 +84,13 @@ Component.register('sw-customer-create', {
             return this.customerValidationService.checkCustomerEmail({
                 id,
                 email,
-                boundSalesChannelId
+                boundSalesChannelId,
             }).then((emailIsValid) => {
                 if (this.errorEmailCustomer) {
                     Shopware.State.dispatch('error/addApiError',
                         {
                             expression: `customer.${this.customer.id}.email`,
-                            error: null
+                            error: null,
                         });
                 }
 
@@ -99,7 +99,7 @@ Component.register('sw-customer-create', {
                 Shopware.State.dispatch('error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
-                        error: exception.response.data.errors[0]
+                        error: exception.response.data.errors[0],
                     });
             });
         },
@@ -110,7 +110,7 @@ Component.register('sw-customer-create', {
             return this.validateEmail().then((res) => {
                 if (!res || !res.isValid) {
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.messageSaveError')
+                        message: this.$tc('sw-customer.detail.messageSaveError'),
                     });
                     this.isLoading = false;
 
@@ -133,7 +133,7 @@ Component.register('sw-customer-create', {
                         this.isSaveSuccessful = true;
                     }).catch(() => {
                         this.createNotificationError({
-                            message: this.$tc('sw-customer.detail.messageSaveError')
+                            message: this.$tc('sw-customer.detail.messageSaveError'),
                         });
                         this.isLoading = false;
                     });
@@ -147,6 +147,6 @@ Component.register('sw-customer-create', {
                 this.customerNumberPreview = response.number;
                 this.customer.customerNumber = response.number;
             });
-        }
-    }
+        },
+    },
 });

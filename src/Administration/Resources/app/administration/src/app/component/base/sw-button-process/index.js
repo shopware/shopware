@@ -19,28 +19,28 @@ Component.register('sw-button-process', {
 
     model: {
         prop: 'processSuccess',
-        event: 'process-finish'
+        event: 'process-finish',
     },
 
     props: {
         processSuccess: {
             type: Boolean,
-            required: true
+            required: true,
         },
 
         animationTimeout: {
             type: Number,
             required: false,
-            default: 1250
-        }
+            default: 1250,
+        },
     },
 
     computed: {
         contentVisibilityClass() {
             return {
-                'is--hidden': this.processSuccess
+                'is--hidden': this.processSuccess,
             };
-        }
+        },
     },
 
     watch: {
@@ -52,6 +52,6 @@ Component.register('sw-button-process', {
             setTimeout(() => {
                 this.$emit('process-finish', false);
             }, this.animationTimeout);
-        }
-    }
+        },
+    },
 });

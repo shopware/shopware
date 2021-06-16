@@ -7,20 +7,20 @@ Component.register('sw-promotion-v2-sales-channel-select', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     props: {
         promotion: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            salesChannels: []
+            salesChannels: [],
         };
     },
 
@@ -33,7 +33,7 @@ Component.register('sw-promotion-v2-sales-channel-select', {
             if (this.promotion) {
                 return this.repositoryFactory.create(
                     this.promotion.salesChannels.entity,
-                    this.promotion.salesChannels.source
+                    this.promotion.salesChannels.source,
                 );
             }
 
@@ -61,8 +61,8 @@ Component.register('sw-promotion-v2-sales-channel-select', {
                 }
 
                 this.handleWithRepository(deleted, added);
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -135,6 +135,6 @@ Component.register('sw-promotion-v2-sales-channel-select', {
                 newAssociation.priority = 1;
                 this.promotion.salesChannels.add(newAssociation);
             });
-        }
-    }
+        },
+    },
 });

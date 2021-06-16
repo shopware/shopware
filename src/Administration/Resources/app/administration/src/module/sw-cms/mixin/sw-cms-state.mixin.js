@@ -13,7 +13,7 @@ Mixin.register('cms-state', {
 
             set(block) {
                 this.$store.commit('cmsPageState/setSelectedBlock', block);
-            }
+            },
         },
 
         selectedSection: {
@@ -23,7 +23,7 @@ Mixin.register('cms-state', {
 
             set(section) {
                 this.$store.commit('cmsPageState/setSelectedSection', section);
-            }
+            },
         },
 
         currentDeviceView() {
@@ -32,6 +32,6 @@ Mixin.register('cms-state', {
 
         isSystemDefaultLanguage() {
             return this.cmsPageState.isSystemDefaultLanguage;
-        }
-    }
+        },
+    },
 });

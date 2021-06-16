@@ -8,18 +8,18 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
     template,
 
     inject: [
-        'promotionCodeApiService'
+        'promotionCodeApiService',
     ],
 
     mixins: [
-        'notification'
+        'notification',
     ],
 
     props: {
         promotion: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -31,8 +31,8 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
             pattern: {
                 prefix: '',
                 suffix: '',
-                codeLength: 5
-            }
+                codeLength: 5,
+            },
         };
     },
 
@@ -45,7 +45,7 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
                 }
 
                 this.updatePreview();
-            }
+            },
         },
 
         'promotion.individualCodePattern'() {
@@ -58,7 +58,7 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
             }
 
             this.updatePreview();
-        }
+        },
     },
 
     created() {
@@ -73,7 +73,7 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
                 this.pattern = {
                     prefix: '',
                     suffix: '',
-                    codeLength: 5
+                    codeLength: 5,
                 };
 
                 return;
@@ -87,7 +87,7 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
 
             this.pattern = {
                 ...groups,
-                codeLength: groups.replacement.length / 2 || 1
+                codeLength: groups.replacement.length / 2 || 1,
             };
 
             this.updatePreview();
@@ -111,7 +111,7 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
             this.promotionCodeApiService.replaceIndividualCodes(
                 this.promotion.id,
                 this.promotion.individualCodePattern,
-                this.codeAmount
+                this.codeAmount,
             ).then(() => {
                 this.isGenerating = false;
                 this.$emit('generate-finish');
@@ -134,8 +134,8 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
                     this.createNotificationError({
                         autoClose: false,
                         message: this.$tc(
-                            `sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`
-                        )
+                            `sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`,
+                        ),
                     });
                 });
             });
@@ -143,7 +143,7 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
 
         onClose() {
             this.$emit('close');
-        }
-    }
+        },
+    },
 });
 

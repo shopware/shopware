@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
     template,
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     computed: {
@@ -20,9 +20,9 @@ Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
                 'min-height': displayMode.value === 'cover' && minHeight.value && minHeight.value !== 0
                     ? minHeight.value
                     : '40px',
-                'align-self': verticalAlign.value || null
+                'align-self': verticalAlign.value || null,
             };
-        }
+        },
     },
 
     methods: {
@@ -36,6 +36,6 @@ Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
                 this.element.config.media.source = 'mapped';
                 this.element.config.media.value = 'product.manufacturer.media';
             }
-        }
-    }
+        },
+    },
 });

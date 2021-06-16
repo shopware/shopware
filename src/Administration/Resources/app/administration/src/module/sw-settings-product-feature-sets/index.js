@@ -23,8 +23,8 @@ Module.register('sw-settings-product-feature-sets', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'product_feature_sets.viewer'
-            }
+                privilege: 'product_feature_sets.viewer',
+            },
         },
 
         detail: {
@@ -32,15 +32,15 @@ Module.register('sw-settings-product-feature-sets', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.product.feature.sets.index',
-                privilege: 'product_feature_sets.viewer'
+                privilege: 'product_feature_sets.viewer',
             },
             props: {
                 default(route) {
                     return {
-                        productFeatureSetId: route.params.id
+                        productFeatureSetId: route.params.id,
                     };
-                }
-            }
+                },
+            },
         },
 
         create: {
@@ -48,15 +48,15 @@ Module.register('sw-settings-product-feature-sets', {
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.product.feature.sets.index',
-                privilege: 'product_feature_sets.creator'
-            }
-        }
+                privilege: 'product_feature_sets.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.product.feature.sets.index',
         icon: 'default-basic-checkmark-block',
-        privilege: 'product_feature_sets.viewer'
-    }
+        privilege: 'product_feature_sets.viewer',
+    },
 });

@@ -10,14 +10,14 @@ Component.register('sw-landing-page-detail-base', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -32,7 +32,7 @@ Component.register('sw-landing-page-detail-base', {
         ...mapPropertyErrors('landingPage', [
             'name',
             'url',
-            'salesChannels'
+            'salesChannels',
         ]),
 
         ...mapState('swCategoryDetail', {
@@ -42,7 +42,7 @@ Component.register('sw-landing-page-detail-base', {
                 }
 
                 return state.customFieldSets;
-            }
-        })
-    }
+            },
+        }),
+    },
 });

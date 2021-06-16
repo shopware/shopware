@@ -8,7 +8,7 @@ Shopware.Component.register('sw-media-entity-mapper', {
         function mapEntity() {
             const entityMapping = {
                 media: 'sw-media-media-item',
-                media_folder: 'sw-media-folder-item'
+                media_folder: 'sw-media-folder-item',
             };
             return entityMapping[context.props.item.getEntityName()];
         }
@@ -17,7 +17,7 @@ Shopware.Component.register('sw-media-entity-mapper', {
         return createElement(
             mapEntity(),
             context.data,
-            context.slots().default
+            context.slots().default,
         );
     },
 
@@ -27,7 +27,7 @@ Shopware.Component.register('sw-media-entity-mapper', {
             required: true,
             validator(value) {
                 return !!value.getEntityName();
-            }
-        }
-    }
+            },
+        },
+    },
 });

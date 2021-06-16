@@ -68,7 +68,7 @@ export default class CmsSlotReloadService {
         const url = this._getUrl();
 
         let data = {
-            slots: Object.keys(this._options.elements)
+            slots: Object.keys(this._options.elements),
         };
 
         if (this._data) {
@@ -142,7 +142,7 @@ export default class CmsSlotReloadService {
         HistoryUtil.pushParams(params.visibleParams, {
             cmsPageLoader: true,
             options: this._options,
-            hiddenParams: params.hiddenParams
+            hiddenParams: params.hiddenParams,
         });
 
         document.$emitter.publish('CmsSlot/updateHistory');
@@ -160,7 +160,7 @@ export default class CmsSlotReloadService {
         HistoryUtil.replaceParams(params.visibleParams, {
             cmsPageLoader: true,
             options: this._options,
-            hiddenParams: params.hiddenParams
+            hiddenParams: params.hiddenParams,
         });
         this._historyChanged = true;
     }
@@ -176,7 +176,7 @@ export default class CmsSlotReloadService {
     _prepareParams(data) {
         const params = {
             visibleParams: {},
-            hiddenParams: {}
+            hiddenParams: {},
         };
 
         Iterator.iterate(data, (value, name) => {

@@ -26,7 +26,7 @@ class ConfigApiService extends ApiService {
             this.httpClient
                 .get('/_info/config', {
                     params,
-                    headers
+                    headers,
                 })
                 .then((response) => {
                     resolve(ApiService.handleResponse(response));

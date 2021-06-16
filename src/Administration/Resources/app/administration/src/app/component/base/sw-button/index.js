@@ -20,7 +20,7 @@ Component.register('sw-button', {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         variant: {
             type: String,
@@ -32,7 +32,7 @@ Component.register('sw-button', {
                     return true;
                 }
                 return ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'].includes(value);
-            }
+            },
         },
         size: {
             type: String,
@@ -44,34 +44,34 @@ Component.register('sw-button', {
                     return true;
                 }
                 return ['x-small', 'small', 'large'].includes(value);
-            }
+            },
         },
         square: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         block: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         // FIXME: add required flag
         // eslint-disable-next-line vue/require-default-prop
         routerLink: {
             type: Object,
-            required: false
+            required: false,
         },
         link: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         isLoading: {
             type: Boolean,
             default: false,
-            required: false
-        }
+            required: false,
+        },
     },
 
     computed: {
@@ -81,14 +81,14 @@ Component.register('sw-button', {
                 [`sw-button--${this.size}`]: this.size,
                 'sw-button--block': this.block,
                 'sw-button--disabled': this.disabled,
-                'sw-button--square': this.square
+                'sw-button--square': this.square,
             };
         },
 
         contentVisibilityClass() {
             return {
-                'is--hidden': this.isLoading
+                'is--hidden': this.isLoading,
             };
-        }
-    }
+        },
+    },
 });

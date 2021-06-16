@@ -12,13 +12,13 @@ Component.register('sw-settings-country-detail', {
         'repositoryFactory',
         'acl',
         'feature',
-        'customFieldDataProviderService'
+        'customFieldDataProviderService',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('country')
+        Mixin.getByName('discard-detail-page-changes')('country'),
     ],
 
     shortcuts: {
@@ -26,9 +26,9 @@ Component.register('sw-settings-country-detail', {
             active() {
                 return this.allowSave;
             },
-            method: 'onSave'
+            method: 'onSave',
         },
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
@@ -36,11 +36,11 @@ Component.register('sw-settings-country-detail', {
             return {
                 country: {
                     customerTax: {
-                        enabled: false
+                        enabled: false,
                     },
                     companyTax: {
-                        enabled: false
-                    }
+                        enabled: false,
+                    },
                 },
                 countryId: null,
                 isLoading: false,
@@ -48,9 +48,9 @@ Component.register('sw-settings-country-detail', {
                 isSaveSuccessful: false,
                 customFieldSets: null,
                 userConfig: {
-                    value: {}
+                    value: {},
                 },
-                userConfigValues: {}
+                userConfigValues: {},
             };
         }
 
@@ -68,13 +68,13 @@ Component.register('sw-settings-country-detail', {
              * @feature-deprecated (flag:FEATURE_NEXT_14114)
              * */
             systemCurrency: {},
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -123,7 +123,7 @@ Component.register('sw-settings-country-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -131,7 +131,7 @@ Component.register('sw-settings-country-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -143,8 +143,8 @@ Component.register('sw-settings-country-detail', {
                 'AND',
                 [
                     Criteria.equals('userId', this.currentUserId),
-                    Criteria.equals('key', 'setting-country')
-                ]
+                    Criteria.equals('key', 'setting-country'),
+                ],
             ));
         },
 
@@ -153,7 +153,7 @@ Component.register('sw-settings-country-detail', {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     created() {
@@ -170,13 +170,13 @@ Component.register('sw-settings-country-detail', {
                 Promise.all([
                     this.loadEntityData(),
                     this.loadCustomFieldSets(),
-                    this.loadUserConfig()
+                    this.loadUserConfig(),
                 ]);
             }
 
             Promise.all([
                 this.loadEntityData(),
-                this.loadCustomFieldSets()
+                this.loadCustomFieldSets(),
             ]);
         },
 
@@ -189,7 +189,7 @@ Component.register('sw-settings-country-detail', {
 
                 this.countryStateRepository = this.repositoryFactory.create(
                     this.country.states.entity,
-                    this.country.states.source
+                    this.country.states.source,
                 );
             });
         },
@@ -334,16 +334,16 @@ Component.register('sw-settings-country-detail', {
                 property: 'name',
                 label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
                 inlineEdit: 'string',
-                primary: true
+                primary: true,
             }, {
                 property: 'shortCode',
                 label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }];
         },
 
         onSaveModal() {
             return this.onSave();
-        }
-    }
+        },
+    },
 });

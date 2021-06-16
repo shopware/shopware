@@ -11,7 +11,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     computed: {
@@ -44,7 +44,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             set(operator) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, operator };
-            }
+            },
         },
 
         renderedField: {
@@ -55,7 +55,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             set(renderedField) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, renderedField };
-            }
+            },
         },
 
         selectedField: {
@@ -66,7 +66,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             set(selectedField) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, selectedField };
-            }
+            },
         },
 
         selectedFieldSet: {
@@ -77,7 +77,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             set(selectedFieldSet) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, selectedFieldSet };
-            }
+            },
         },
 
         renderedFieldValue: {
@@ -88,7 +88,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             set(renderedFieldValue) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, renderedFieldValue };
-            }
+            },
         },
 
         operators() {
@@ -100,7 +100,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             'value.selectedField',
             'value.selectedFieldSet',
             'value.operator',
-            'value.renderedFieldValue'
+            'value.renderedFieldValue',
         ]),
 
         currentError() {
@@ -109,7 +109,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
                 || this.conditionValueSelectedFieldSetError
                 || this.conditionValueOperatorError
                 || this.conditionValueRenderedFieldValueError;
-        }
+        },
     },
 
     methods: {
@@ -136,6 +136,6 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             this.selectedField = null;
             this.operator = null;
             this.renderedField = null;
-        }
-    }
+        },
+    },
 });

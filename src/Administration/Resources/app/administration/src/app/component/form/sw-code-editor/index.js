@@ -24,19 +24,19 @@ Component.register('sw-code-editor', {
         value: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         label: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         completerFunction: {
             type: Function,
             required: false,
-            default: null
+            default: null,
         },
 
         editorConfig: {
@@ -44,7 +44,7 @@ Component.register('sw-code-editor', {
             required: false,
             default() {
                 return {};
-            }
+            },
         },
 
         completionMode: {
@@ -57,7 +57,7 @@ Component.register('sw-code-editor', {
                     return true;
                 }
                 return ['entity', 'text'].includes(value);
-            }
+            },
         },
 
         mode: {
@@ -70,33 +70,33 @@ Component.register('sw-code-editor', {
                     return true;
                 }
                 return ['twig', 'text'].includes(value);
-            }
+            },
         },
 
         softWraps: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         // set focus to the component when initially mounted
         setFocus: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             editor: {},
-            editorId: utils.createId()
+            editorId: utils.createId(),
         };
     },
 
@@ -107,11 +107,11 @@ Component.register('sw-code-editor', {
                     mode: `ace/mode/${this.mode}`,
                     showPrintMargin: false,
                     wrap: this.softWraps,
-                    readOnly: this.disabled
+                    readOnly: this.disabled,
                 },
-                ...this.editorConfig
+                ...this.editorConfig,
             };
-        }
+        },
     },
 
     watch: {
@@ -123,7 +123,7 @@ Component.register('sw-code-editor', {
 
         softWraps() {
             this.editor.session.setOption('wrap', this.softWraps);
-        }
+        },
     },
 
     mounted() {
@@ -212,6 +212,6 @@ Component.register('sw-code-editor', {
             } else {
                 this.editor.completers = [];
             }
-        }
-    }
+        },
+    },
 });

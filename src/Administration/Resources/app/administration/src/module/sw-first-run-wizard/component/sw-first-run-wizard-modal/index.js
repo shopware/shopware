@@ -16,76 +16,76 @@ Component.register('sw-first-run-wizard-modal', {
             currentStep: {
                 name: '',
                 variant: 'large',
-                navigationIndex: 0
+                navigationIndex: 0,
             },
             stepper: {
                 welcome: {
                     name: 'sw.first.run.wizard.index.welcome',
                     variant: 'large',
-                    navigationIndex: 0
+                    navigationIndex: 0,
                 },
                 'data-import': {
                     name: 'sw.first.run.wizard.index.data-import',
                     variant: 'large',
-                    navigationIndex: 1
+                    navigationIndex: 1,
                 },
                 'mailer.selection': {
                     name: 'sw.first.run.wizard.index.mailer.selection',
                     variant: 'large',
-                    navigationIndex: 2
+                    navigationIndex: 2,
                 },
                 'mailer.smtp': {
                     name: 'sw.first.run.wizard.index.mailer.setup',
                     variant: 'large',
-                    navigationIndex: 2
+                    navigationIndex: 2,
                 },
                 'paypal.info': {
                     name: 'sw.first.run.wizard.index.paypal.info',
                     variant: 'large',
-                    navigationIndex: 3
+                    navigationIndex: 3,
                 },
                 'paypal.credentials': {
                     name: 'sw.first.run.wizard.index.paypal.credentials',
                     variant: 'large',
-                    navigationIndex: 3
+                    navigationIndex: 3,
                 },
                 markets: {
                     name: 'sw.first.run.wizard.index.markets',
                     variant: 'large',
-                    navigationIndex: 4
+                    navigationIndex: 4,
                 },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
                     variant: 'large',
-                    navigationIndex: 5
+                    navigationIndex: 5,
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
                     variant: 'large',
-                    navigationIndex: 6
+                    navigationIndex: 6,
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
                     variant: 'large',
-                    navigationIndex: 6
+                    navigationIndex: 6,
                 },
                 store: {
                     name: 'sw.first.run.wizard.index.store',
                     variant: 'large',
-                    navigationIndex: 7
+                    navigationIndex: 7,
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
                     variant: 'large',
-                    navigationIndex: 8
-                }
-            }
+                    navigationIndex: 8,
+                },
+            },
         };
     },
 
     metaInfo() {
         return {
-            title: this.title
+            title: this.title,
         };
     },
 
@@ -113,7 +113,7 @@ Component.register('sw-first-run-wizard-modal', {
         buttons() {
             return {
                 right: this.buttonConfig.filter((button) => button.position === 'right'),
-                left: this.buttonConfig.filter((button) => button.position === 'left')
+                left: this.buttonConfig.filter((button) => button.position === 'left'),
             };
         },
 
@@ -137,12 +137,12 @@ Component.register('sw-first-run-wizard-modal', {
                 ['success', 'success', 'success', 'success', 'info', 'disabled', 'disabled'],
                 ['success', 'success', 'success', 'success', 'success', 'info', 'disabled'],
                 ['success', 'success', 'success', 'success', 'success', 'success', 'info'],
-                ['success', 'success', 'success', 'success', 'success', 'success', 'success']
+                ['success', 'success', 'success', 'success', 'success', 'success', 'success'],
             ];
             const { navigationIndex } = this.currentStep;
 
             return navigationSteps[navigationIndex];
-        }
+        },
     },
 
     watch: {
@@ -150,7 +150,7 @@ Component.register('sw-first-run-wizard-modal', {
             const toName = to.name.replace('sw.first.run.wizard.index.', '');
 
             this.currentStep = this.stepper[toName];
-        }
+        },
     },
 
     mounted() {
@@ -198,7 +198,7 @@ Component.register('sw-first-run-wizard-modal', {
                 .then(() => {
                     document.location.href = document.location.origin + document.location.pathname;
                 });
-        }
-    }
+        },
+    },
 });
 

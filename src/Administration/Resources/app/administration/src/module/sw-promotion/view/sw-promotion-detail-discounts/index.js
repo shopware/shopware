@@ -14,7 +14,7 @@ Component.register('sw-promotion-detail-discounts', {
     data() {
         return {
             deleteDiscountId: null,
-            repository: null
+            repository: null,
         };
     },
 
@@ -29,13 +29,13 @@ Component.register('sw-promotion-detail-discounts', {
             },
             set(isLoading) {
                 Shopware.State.commit('swPromotionDetail/setIsLoading', isLoading);
-            }
+            },
         },
 
         discounts() {
             return Shopware.State.get('swPromotionDetail').promotion &&
                 Shopware.State.get('swPromotionDetail').promotion.discounts;
-        }
+        },
 
     },
 
@@ -46,7 +46,7 @@ Component.register('sw-promotion-detail-discounts', {
         onAddDiscount() {
             const promotionDiscountRepository = this.repositoryFactory.create(
                 this.discounts.entity,
-                this.discounts.source
+                this.discounts.source,
             );
             const newDiscount = promotionDiscountRepository.create();
             newDiscount.promotionId = this.promotion.id;
@@ -70,13 +70,13 @@ Component.register('sw-promotion-detail-discounts', {
             this.isLoading = true;
             const promotionDiscountRepository = this.repositoryFactory.create(
                 this.discounts.entity,
-                this.discounts.source
+                this.discounts.source,
             );
 
             promotionDiscountRepository.delete(discount.id, this.discounts.context).then(() => {
                 this.discounts.remove(discount.id);
                 this.isLoading = false;
             });
-        }
-    }
+        },
+    },
 });

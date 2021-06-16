@@ -16,7 +16,7 @@ export default {
     getComponentHelper,
     registerComponentHelper,
     resolveComponentTemplates,
-    markComponentTemplatesAsNotResolved
+    markComponentTemplatesAsNotResolved,
 };
 
 /**
@@ -107,7 +107,7 @@ function register(componentName, componentConfiguration = {}) {
         warn(
             'ComponentFactory',
             'A component always needs a name.',
-            componentConfiguration
+            componentConfiguration,
         );
         return false;
     }
@@ -116,7 +116,7 @@ function register(componentName, componentConfiguration = {}) {
         warn(
             'ComponentFactory',
             `The component "${componentName}" is already registered. Please select a unique name for your component.`,
-            config
+            config,
         );
         return false;
     }
@@ -139,7 +139,7 @@ function register(componentName, componentConfiguration = {}) {
             'ComponentFactory',
             `The component "${config.name}" needs a template to be functional.`,
             'Please add a "template" property to your component definition',
-            config
+            config,
         );
         return false;
     }
@@ -249,7 +249,7 @@ function build(componentName, skipTemplate = false) {
 
     if (!componentRegistry.has(componentName)) {
         throw new Error(
-            `The component registry has not found a component with the name "${componentName}".`
+            `The component registry has not found a component with the name "${componentName}".`,
         );
     }
 
@@ -463,7 +463,7 @@ function addSuperBehaviour(inheritedFrom, superRegistry) {
         },
         _inheritedFrom() {
             return inheritedFrom;
-        }
+        },
     };
 }
 
@@ -498,14 +498,14 @@ function resolveSuperCallChain(config, methodName, methodsOrComputed = 'methods'
     const parentBlock = {};
     parentBlock[parentName] = {
         parent: parentsParentName,
-        func: methodFunction
+        func: methodFunction,
     };
 
     const resolvedParent = resolveSuperCallChain(extension, methodName, methodsOrComputed, overridePrefix);
 
     const result = {
         ...resolvedParent,
-        ...parentBlock
+        ...parentBlock,
     };
 
     return result;

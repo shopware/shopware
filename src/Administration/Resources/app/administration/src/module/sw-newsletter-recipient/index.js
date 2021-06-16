@@ -22,8 +22,8 @@ Module.register('sw-newsletter-recipient', {
             component: 'sw-newsletter-recipient-list',
             path: 'index',
             meta: {
-                privilege: 'newsletter_recipient.viewer'
-            }
+                privilege: 'newsletter_recipient.viewer',
+            },
 
         },
 
@@ -32,9 +32,9 @@ Module.register('sw-newsletter-recipient', {
             path: 'detail/:id',
             meta: {
                 privilege: 'newsletter_recipient.viewer',
-                parentPath: 'sw.newsletter.recipient.index'
-            }
-        }
+                parentPath: 'sw.newsletter.recipient.index',
+            },
+        },
     },
 
     navigation: [{
@@ -44,6 +44,6 @@ Module.register('sw-newsletter-recipient', {
         path: 'sw.newsletter.recipient.index',
         privilege: 'newsletter_recipient.viewer',
         label: 'sw-newsletter-recipient.general.mainMenuItemGeneral',
-        parent: 'sw-marketing'
-    }]
+        parent: 'sw-marketing',
+    }],
 });

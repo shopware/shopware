@@ -12,6 +12,6 @@ Component.extend('sw-extension-rating-modal', 'sw-extension-review-creation', {
     methods: {
         emitClose() {
             this.$emit('modal-close');
-        }
-    }
+        },
+    },
 });

@@ -10,7 +10,7 @@ Component.register('sw-bulk-edit-modal', {
         selection: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         steps: {
@@ -18,13 +18,13 @@ Component.register('sw-bulk-edit-modal', {
             required: false,
             default() {
                 return [10, 25, 50];
-            }
+            },
         },
 
         bulkGridEditColumns: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -32,7 +32,7 @@ Component.register('sw-bulk-edit-modal', {
             records: [],
             bulkEditSelection: null,
             limit: 10,
-            page: 1
+            page: 1,
         };
     },
 
@@ -47,7 +47,7 @@ Component.register('sw-bulk-edit-modal', {
 
         paginateRecords() {
             return this.records.slice((this.page - 1) * this.limit, this.page * this.limit);
-        }
+        },
     },
 
     created() {
@@ -82,6 +82,6 @@ Component.register('sw-bulk-edit-modal', {
         editItems() {
             // TODO: NEXT-14946 - Navigate to bulk edit detail page
             this.$emit('modal-close');
-        }
-    }
+        },
+    },
 });

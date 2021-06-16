@@ -20,28 +20,28 @@ Component.register('sw-card', {
         title: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         subtitle: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         hero: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         large: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -51,8 +51,8 @@ Component.register('sw-card', {
                 'sw-card--grid': !!this.$slots.grid || !!this.$scopedSlots.grid,
                 'sw-card--hero': !!this.hero,
                 'sw-card--large': this.large,
-                'has--header': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar
+                'has--header': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
             };
-        }
-    }
+        },
+    },
 });

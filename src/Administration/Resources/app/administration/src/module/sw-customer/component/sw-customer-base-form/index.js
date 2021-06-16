@@ -13,12 +13,12 @@ Component.register('sw-customer-base-form', {
     props: {
         customer: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
-        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer)
+        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer),
     },
 
     watch: {
@@ -26,12 +26,12 @@ Component.register('sw-customer-base-form', {
             if (newVal) {
                 this.customer.password = null;
             }
-        }
+        },
     },
 
     methods: {
         onSalesChannelChange(salesChannelId) {
             this.$emit('sales-channel-change', salesChannelId);
-        }
-    }
+        },
+    },
 });

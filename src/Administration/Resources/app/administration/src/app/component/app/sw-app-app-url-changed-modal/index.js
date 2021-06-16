@@ -16,15 +16,15 @@ Component.register('sw-app-app-url-changed-modal', {
          */
         urlDiff: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             strategies: [],
             selectedStrategy: null,
-            isLoading: true
+            isLoading: true,
         };
     },
 
@@ -63,7 +63,7 @@ Component.register('sw-app-app-url-changed-modal', {
 
         getActiveStyle({ name }) {
             return {
-                'sw-app-app-url-changed-modal__content-migration-strategy--active': name === this.selectedStrategy.name
+                'sw-app-app-url-changed-modal__content-migration-strategy--active': name === this.selectedStrategy.name,
             };
         },
 
@@ -71,15 +71,15 @@ Component.register('sw-app-app-url-changed-modal', {
             this.appUrlChangeService.resolveUrlChange(this.selectedStrategy)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.success')
+                        message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.success'),
                     });
                 })
                 .then(this.closeModal)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.error')
+                        message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.error'),
                     });
                 });
-        }
-    }
+        },
+    },
 });

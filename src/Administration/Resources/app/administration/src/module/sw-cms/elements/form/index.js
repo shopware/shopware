@@ -11,23 +11,23 @@ Shopware.Service('cmsService').registerCmsElement({
     defaultConfig: {
         type: {
             source: 'static',
-            value: 'contact'
+            value: 'contact',
         },
         title: {
             source: 'static',
-            value: ''
+            value: '',
         },
         mailReceiver: {
             source: 'static',
-            value: []
+            value: [],
         },
         defaultMailReceiver: {
             source: 'static',
-            value: true
+            value: true,
         },
         confirmationText: {
             source: 'static',
-            value: ''
-        }
-    }
+            value: '',
+        },
+    },
 });

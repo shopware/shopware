@@ -12,33 +12,33 @@ Component.register('sw-text-editor-toolbar-button', {
     props: {
         buttonConfig: {
             type: Object,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         isInlineEdit: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         classes() {
             return {
                 'is--active': !!this.buttonConfig.active || this.buttonConfig.expanded,
-                'is--disabled': !!this.disabled
+                'is--disabled': !!this.disabled,
             };
         },
 
         tooltipAppearance() {
             return this.isInlineEdit ? 'light' : 'dark';
-        }
+        },
     },
 
     methods: {
@@ -54,7 +54,7 @@ Component.register('sw-text-editor-toolbar-button', {
 
         childActive(child) {
             return {
-                'is--active': !!child.active
+                'is--active': !!child.active,
             };
         },
 
@@ -104,8 +104,8 @@ Component.register('sw-text-editor-toolbar-button', {
                 width: 'auto',
                 message: child.title,
                 showDelay: buttonConfig.tooltipShowDelay || 100,
-                hideDelay: buttonConfig.tooltipHideDelay || 100
+                hideDelay: buttonConfig.tooltipHideDelay || 100,
             };
-        }
-    }
+        },
+    },
 });

@@ -10,9 +10,9 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
         countSelector: '.filter-multi-select-count',
         listItemSelector: '.filter-multi-select-list-item',
         snippets: {
-            disabledFilterText: 'Filter not active'
+            disabledFilterText: 'Filter not active',
         },
-        mainFilterButtonSelector: '.filter-panel-item-toggle'
+        mainFilterButtonSelector: '.filter-panel-item-toggle',
     });
 
     init() {
@@ -74,7 +74,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
             Iterator.iterate(activeCheckboxes, (checkbox) => {
                 labels.push({
                     label: checkbox.dataset.label,
-                    id: checkbox.id
+                    id: checkbox.id,
                 });
             });
         } else {

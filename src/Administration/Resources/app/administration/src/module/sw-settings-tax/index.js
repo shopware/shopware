@@ -29,38 +29,38 @@ Module.register('sw-settings-tax', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'tax.viewer'
-            }
+                privilege: 'tax.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-tax-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.tax.index',
-                privilege: 'tax.viewer'
+                privilege: 'tax.viewer',
             },
             props: {
                 default(route) {
                     return {
-                        taxId: route.params.id
+                        taxId: route.params.id,
                     };
-                }
-            }
+                },
+            },
         },
         create: {
             component: 'sw-settings-tax-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.tax.index',
-                privilege: 'tax.creator'
-            }
-        }
+                privilege: 'tax.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.tax.index',
         icon: 'default-chart-pie',
-        privilege: 'tax.viewer'
-    }
+        privilege: 'tax.viewer',
+    },
 });

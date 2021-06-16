@@ -8,7 +8,7 @@ Component.extend('sw-property-create', 'sw-property-detail', {
 
     data() {
         return {
-            newId: null
+            newId: null,
         };
     },
 
@@ -36,6 +36,6 @@ Component.extend('sw-property-create', 'sw-property-detail', {
 
         onSave() {
             this.$super('onSave');
-        }
-    }
+        },
+    },
 });

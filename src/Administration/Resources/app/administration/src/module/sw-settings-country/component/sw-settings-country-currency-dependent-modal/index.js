@@ -11,46 +11,46 @@ Component.register('sw-settings-country-currency-dependent-modal', {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature'
+        'feature',
     ],
 
     props: {
         currencyDependsValue: {
             type: Array,
-            required: true
+            required: true,
         },
         countryId: {
             type: String,
-            required: true
+            required: true,
         },
         userConfig: {
             type: Object,
-            required: true
+            required: true,
         },
         userConfigValues: {
             type: Object,
-            required: true
+            required: true,
         },
         menuOptions: {
             type: Array,
-            required: true
+            required: true,
         },
         taxFreeType: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             inputId: utils.createId(),
             checkBox: true,
-            basedItem: {}
+            basedItem: {},
         };
     },
 
@@ -72,18 +72,18 @@ Component.register('sw-settings-country-currency-dependent-modal', {
                 property: 'currencyId',
                 label: '',
                 inlineEdit: 'string',
-                primary: true
+                primary: true,
             }, {
                 property: 'amount',
                 label: this.$tc('sw-settings-country.detail.taxFreeFrom'),
                 inlineEdit: 'string',
-                primary: true
+                primary: true,
             }, {
                 property: 'enabled',
                 label: this.$tc('sw-settings-country.detail.baseCurrency'),
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }];
-        }
+        },
     },
 
     methods: {
@@ -109,7 +109,7 @@ Component.register('sw-settings-country-currency-dependent-modal', {
             const taxFreeDependent = {
                 amount: this.calculateInheritedPrice(currencyId),
                 enabled: false,
-                currencyId: currencyId
+                currencyId: currencyId,
             };
 
             this.currencyDependsValue.push(taxFreeDependent);
@@ -203,8 +203,8 @@ Component.register('sw-settings-country-currency-dependent-modal', {
             this.userConfig.value = {
                 [this.countryId]:
                     {
-                        [this.taxFreeType]: []
-                    }
+                        [this.taxFreeType]: [],
+                    },
             };
 
             this.currencyDependsValue.forEach(value => {
@@ -244,6 +244,6 @@ Component.register('sw-settings-country-currency-dependent-modal', {
             });
 
             return currency || {};
-        }
-    }
+        },
+    },
 });

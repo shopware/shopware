@@ -8,7 +8,7 @@ Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', {
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         variant: {
@@ -18,31 +18,31 @@ Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', {
             validator(value) {
                 return ['compact', 'regular'].includes(value);
             },
-            default: 'regular'
+            default: 'regular',
         },
 
         source: {
             type: [String, Object],
             required: false,
-            default: ''
+            default: '',
         },
 
         fileAccept: {
             type: String,
             required: false,
-            default: 'image/*'
-        }
+            default: 'image/*',
+        },
     },
 
     data() {
         return {
-            mediaModalIsOpen: false
+            mediaModalIsOpen: false,
         };
     },
 
     methods: {
         onModalClosed(selection) {
             this.$emit('selection-change', selection, this.uploadTag);
-        }
-    }
+        },
+    },
 });

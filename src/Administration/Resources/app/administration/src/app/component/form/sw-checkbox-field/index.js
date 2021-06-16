@@ -18,56 +18,56 @@ Component.register('sw-checkbox-field', {
 
     mixins: [
         Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         value: {
             type: Boolean,
             required: false,
-            default: null
+            default: null,
         },
 
         inheritedValue: {
             type: Boolean,
             required: false,
-            default: null
+            default: null,
         },
 
         ghostValue: {
             type: Boolean,
             required: false,
-            default: null
+            default: null,
         },
 
         error: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         bordered: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             currentValue: this.value,
-            id: utils.createId()
+            id: utils.createId(),
         };
     },
 
@@ -78,7 +78,7 @@ Component.register('sw-checkbox-field', {
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
                 'sw-field__checkbox--ghost': this.ghostValue,
-                'is--bordered': this.bordered
+                'is--bordered': this.bordered,
             };
         },
 
@@ -106,16 +106,16 @@ Component.register('sw-checkbox-field', {
                 return true;
             }
             return this.isInheritanceField && this.currentValue === null;
-        }
+        },
     },
 
     watch: {
-        value() { this.currentValue = this.value; }
+        value() { this.currentValue = this.value; },
     },
 
     methods: {
         onChange(changeEvent) {
             this.$emit('change', changeEvent.target.checked);
-        }
-    }
+        },
+    },
 });

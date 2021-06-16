@@ -25,34 +25,34 @@ Module.register('sw-settings-shipping', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'shipping.viewer'
-            }
+                privilege: 'shipping.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-shipping-detail',
             path: 'detail/:id?',
             meta: {
                 parentPath: 'sw.settings.shipping.index',
-                privilege: 'shipping.viewer'
+                privilege: 'shipping.viewer',
             },
             props: {
-                default: (route) => ({ shippingMethodId: route.params.id })
-            }
+                default: (route) => ({ shippingMethodId: route.params.id }),
+            },
         },
         create: {
             component: 'sw-settings-shipping-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.shipping.index',
-                privilege: 'shipping.creator'
-            }
-        }
+                privilege: 'shipping.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.shipping.index',
         icon: 'default-package-open',
-        privilege: 'shipping.viewer'
-    }
+        privilege: 'shipping.viewer',
+    },
 });

@@ -9,7 +9,7 @@ Component.register('sw-newsletter-recipient-list', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
     ],
 
     data() {
@@ -25,13 +25,13 @@ Component.register('sw-newsletter-recipient-list', {
             salesChannelFilters: [],
             tagFilters: [],
             internalFilters: {},
-            tagCollection: null
+            tagCollection: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -46,7 +46,7 @@ Component.register('sw-newsletter-recipient-list', {
 
         tagRepository() {
             return this.repositoryFactory.create('tag');
-        }
+        },
     },
 
     created() {
@@ -156,49 +156,49 @@ Component.register('sw-newsletter-recipient-list', {
                 label: 'sw-newsletter-recipient.list.email',
                 routerLink: 'sw.newsletter.recipient.detail',
                 allowResize: true,
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }, {
                 property: 'firstName',
                 dataIndex: 'firstName,lastName',
                 inlineEdit: 'string',
                 label: 'sw-newsletter-recipient.list.name',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'salesChannel.name',
                 label: 'sw-newsletter-recipient.list.salesChannel',
                 allowResize: true,
                 primary: false,
-                visible: false
+                visible: false,
             }, {
                 property: 'status',
                 label: 'sw-newsletter-recipient.list.status',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'zipCode',
                 label: 'sw-newsletter-recipient.list.zipCode',
                 allowResize: true,
-                align: 'right'
+                align: 'right',
             }, {
                 property: 'city',
                 label: 'sw-newsletter-recipient.list.city',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'street',
                 label: 'sw-newsletter-recipient.list.street',
                 allowResize: true,
-                visible: false
+                visible: false,
             }, {
                 property: 'updatedAt',
                 label: 'sw-newsletter-recipient.list.updatedAt',
                 allowResize: true,
-                visible: false
+                visible: false,
             }, {
                 property: 'createdAt',
                 label: 'sw-newsletter-recipient.list.createdAt',
                 allowResize: true,
-                visible: false
+                visible: false,
             }];
-        }
-    }
+        },
+    },
 });

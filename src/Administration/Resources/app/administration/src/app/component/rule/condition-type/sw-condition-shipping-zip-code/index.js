@@ -37,7 +37,7 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
                 }
 
                 this.condition.value = { ...this.condition.value, zipCodes };
-            }
+            },
         },
 
         isMultipleValues() {
@@ -49,6 +49,6 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueZipCodesError;
-        }
-    }
+        },
+    },
 });

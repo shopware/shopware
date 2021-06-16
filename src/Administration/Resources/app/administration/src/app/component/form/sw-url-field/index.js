@@ -21,15 +21,15 @@ Component.extend('sw-url-field', 'sw-text-field', {
         error: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             sslActive: true,
             currentValue: this.value || '',
-            errorUrl: null
+            errorUrl: null,
         };
     },
 
@@ -61,13 +61,13 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
         combinedError() {
             return this.errorUrl || this.error;
-        }
+        },
     },
 
     watch: {
         value() {
             this.checkInput(this.value || '');
-        }
+        },
     },
 
     created() {
@@ -106,7 +106,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
                     this.errorUrl = null;
                 } catch {
                     this.errorUrl = new ShopwareError({
-                        code: 'INVALID_URL'
+                        code: 'INVALID_URL',
                     });
                 }
             }
@@ -119,6 +119,6 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
             this.sslActive = !this.sslActive;
             this.$emit('input', this.url);
-        }
-    }
+        },
+    },
 });

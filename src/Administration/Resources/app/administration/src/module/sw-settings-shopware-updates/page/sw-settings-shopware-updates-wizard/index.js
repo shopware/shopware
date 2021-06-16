@@ -8,14 +8,14 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
     inject: ['updateService'],
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
         return {
             updateInfo: {
                 version: null,
-                changelog: null
+                changelog: null,
             },
             requirements: [],
             plugins: [],
@@ -26,13 +26,13 @@ Component.register('sw-settings-shopware-updates-wizard', {
             step: 'download',
             updaterIsRunning: false,
             updateModalShown: false,
-            chosenPluginBehaviour: ''
+            chosenPluginBehaviour: '',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
     computed: {
@@ -45,13 +45,13 @@ Component.register('sw-settings-shopware-updates-wizard', {
             if (this.updatePossible) {
                 return {
                     message: '',
-                    disabled: true
+                    disabled: true,
                 };
             }
 
             return {
                 message: this.$tc('sw-settings-shopware-updates.infos.requirementsNotMet'),
-                position: 'bottom'
+                position: 'bottom',
             };
         },
 
@@ -97,7 +97,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 this.$tc('sw-settings-shopware-updates.plugins.actions.recommended') : '';
 
             return `${deactiveAllTrans} ${isRecommended}`;
-        }
+        },
     },
 
     created() {
@@ -139,7 +139,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
             this.$emit('update-started');
             this.updaterIsRunning = true;
             this.createNotificationSuccess({
-                message: this.$tc('sw-settings-shopware-updates.notifications.updateStarted')
+                message: this.$tc('sw-settings-shopware-updates.notifications.updateStarted'),
             });
 
             this.downloadUpdate(0);
@@ -150,7 +150,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
             this.$emit('update-stopped');
             this.updaterIsRunning = false;
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-shopware-updates.notifications.updateStopped')
+                message: this.$tc('sw-settings-shopware-updates.notifications.updateStopped'),
             });
         },
 
@@ -165,12 +165,12 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     this.downloadUpdate(response.offset);
                 } else {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed')
+                        message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed'),
                     });
                 }
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed')
+                    message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed'),
                 });
             });
         },
@@ -187,7 +187,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     this.deactivatePlugins(response.offset);
                 } else {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
+                        message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed'),
                     });
                 }
             }).catch((e) => {
@@ -195,26 +195,26 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
                 const context = {
                     code: e.response.data.errors[0].code,
-                    meta: e.response.data.errors[0].meta
+                    meta: e.response.data.errors[0].meta,
                 };
 
                 if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
                     this.createNotificationWarning({
                         message: this.$tc('sw-extension.errors.messageDeactivationFailedDependencies', null, null, {
                             dependency: context.meta.parameters.dependency,
-                            dependantNames: context.meta.parameters.dependantNames
-                        })
+                            dependantNames: context.meta.parameters.dependantNames,
+                        }),
                     });
                 } else if (context.code === 'THEME__THEME_ASSIGNMENT') {
                     this.createNotificationWarning({
                         message: this.$tc('sw-extension.errors.messageDeactivationFailedThemeAssignment', null, null, {
                             themeName: context.meta.parameters.themeName,
-                            assignments: context.meta.parameters.assignments
-                        })
+                            assignments: context.meta.parameters.assignments,
+                        }),
                     });
                 } else {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
+                        message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed'),
                     });
                 }
             });
@@ -231,10 +231,10 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     this.unpackUpdate(response.offset);
                 } else {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.unpackFailed')
+                        message: this.$tc('sw-settings-shopware-updates.notifications.unpackFailed'),
                     });
                 }
             });
-        }
-    }
+        },
+    },
 });

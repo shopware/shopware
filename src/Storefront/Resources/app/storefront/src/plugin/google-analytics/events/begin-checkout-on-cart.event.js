@@ -24,7 +24,7 @@ export default class BeginCheckoutOnCartEvent extends AnalyticsEvent
         }
 
         gtag('event', 'begin_checkout', {
-            'items': LineItemHelper.getLineItems()
+            'items': LineItemHelper.getLineItems(),
         });
     }
 }

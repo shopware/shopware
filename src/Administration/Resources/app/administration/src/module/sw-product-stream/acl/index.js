@@ -19,28 +19,28 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'currency:read',
                 'user_config:read',
                 'user_config:create',
-                'user_config:update'
+                'user_config:update',
             ],
-            dependencies: []
+            dependencies: [],
         },
         editor: {
             privileges: [
                 'product_stream:update',
                 'product_stream_filter:update',
                 'product_stream_filter:delete',
-                'product_stream_filter:create'
+                'product_stream_filter:create',
             ],
-            dependencies: ['product_stream.viewer']
+            dependencies: ['product_stream.viewer'],
         },
         creator: {
             privileges: ['product_stream:create'],
-            dependencies: ['product_stream.viewer', 'product_stream.editor']
+            dependencies: ['product_stream.viewer', 'product_stream.editor'],
         },
         deleter: {
             privileges: [
-                'product_stream:delete'
+                'product_stream:delete',
             ],
-            dependencies: ['product_stream.viewer']
-        }
-    }
+            dependencies: ['product_stream.viewer'],
+        },
+    },
 });

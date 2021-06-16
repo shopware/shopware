@@ -19,7 +19,7 @@ export default class Repository {
         changesetGenerator,
         entityFactory,
         errorResolver,
-        options
+        options,
     ) {
         this.route = route;
         this.entityName = entityName;
@@ -67,7 +67,7 @@ export default class Repository {
         return this.httpClient
             .post(url, criteria.parse(), {
                 headers,
-                version: this.options.version
+                version: this.options.version,
             })
             .then((response) => {
                 return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
@@ -123,7 +123,7 @@ export default class Repository {
         return this.httpClient
             .post(`/_action/clone${this.route}/${entityId}`, behavior, {
                 headers: this.buildHeaders(context),
-                version: this.options.version
+                version: this.options.version,
             })
             .then((response) => {
                 return response.data;
@@ -219,10 +219,10 @@ export default class Repository {
                 [this.entityName]: {
                     entity: this.entityName,
                     action: 'upsert',
-                    payload
-                }
+                    payload,
+                },
             },
-            { headers, version: this.options.version }
+            { headers, version: this.options.version },
         ).then(({ data }) => {
             if (data.success === false) {
                 throw data;
@@ -232,7 +232,7 @@ export default class Repository {
             const errors = this.getSyncErrors(errorResponse);
             this.errorResolver.handleWriteErrors(
                 { errors },
-                changeset
+                changeset,
             );
             throw errorResponse;
         });
@@ -331,10 +331,10 @@ export default class Repository {
                 [this.entityName]: {
                     entity: this.entityName,
                     action: 'delete',
-                    payload
-                }
+                    payload,
+                },
             },
-            { headers, version: this.options.version }
+            { headers, version: this.options.version },
         ).then(({ data }) => {
             if (data.success === false) {
                 throw data;
@@ -491,34 +491,34 @@ export default class Repository {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${context.authToken.access}`,
             'Content-Type': 'application/json',
-            'sw-api-compatibility': compatibility
+            'sw-api-compatibility': compatibility,
         };
 
         if (context.languageId) {
             headers = Object.assign(
                 { 'sw-language-id': context.languageId },
-                headers
+                headers,
             );
         }
 
         if (context.currencyId) {
             headers = Object.assign(
                 { 'sw-currency-id': context.currencyId },
-                headers
+                headers,
             );
         }
 
         if (context.versionId) {
             headers = Object.assign(
                 { 'sw-version-id': context.versionId },
-                headers
+                headers,
             );
         }
 
         if (context.inheritance) {
             headers = Object.assign(
                 { 'sw-inheritance': context.inheritance },
-                headers
+                headers,
             );
         }
 

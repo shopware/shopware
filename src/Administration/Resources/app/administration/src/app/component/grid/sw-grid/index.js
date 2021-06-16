@@ -33,56 +33,56 @@ Component.register('sw-grid', {
         items: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         selectable: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         variant: {
             type: String,
             required: false,
-            default: 'normal'
+            default: 'normal',
         },
 
         header: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         sortBy: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         sortDirection: {
             type: String,
             required: false,
-            default: 'ASC'
+            default: 'ASC',
         },
 
         isFullpage: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         table: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         allowInlineEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -91,7 +91,7 @@ Component.register('sw-grid', {
             selection: {},
             scrollbarOffset: 0,
             editing: null,
-            allSelectedChecked: false
+            allSelectedChecked: false,
         };
     },
 
@@ -116,14 +116,14 @@ Component.register('sw-grid', {
             return {
                 'sw-grid--fullpage': this.isFullpage,
                 'sw-grid--table': this.table,
-                [this.sizeClass]: true
+                [this.sizeClass]: true,
             };
         },
 
         gridContentClasses() {
             return {
                 'sw-grid__content--header': this.header,
-                'sw-grid__content--pagination': this.hasPaginationSlot
+                'sw-grid__content--pagination': this.hasPaginationSlot,
             };
         },
 
@@ -139,9 +139,9 @@ Component.register('sw-grid', {
             });
 
             return {
-                'grid-template-columns': flex.trim()
+                'grid-template-columns': flex.trim(),
             };
-        }
+        },
     },
 
     updated() {
@@ -162,7 +162,7 @@ Component.register('sw-grid', {
                 listener() {
                     that.setScrollbarOffset();
                 },
-                component: this
+                component: this,
             });
         },
 
@@ -264,6 +264,6 @@ Component.register('sw-grid', {
 
         setScrollbarOffset() {
             this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swGridBody);
-        }
-    }
+        },
+    },
 });

@@ -244,7 +244,7 @@ export default class Criteria {
             if (!criteria.hasAssociation(part)) {
                 criteria.associations.push({
                     association: part,
-                    criteria: new Criteria(null, null)
+                    criteria: new Criteria(null, null),
                 });
             }
 

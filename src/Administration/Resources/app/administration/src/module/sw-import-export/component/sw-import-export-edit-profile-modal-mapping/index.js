@@ -13,15 +13,15 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Shopware.Mixin.getByName('notification')
+        Shopware.Mixin.getByName('notification'),
     ],
 
     props: {
         profile: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -30,7 +30,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             mappings: [],
             currencies: [],
             languages: [],
-            addMappingEnabled: false
+            addMappingEnabled: false,
         };
     },
 
@@ -59,16 +59,16 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                     property: 'csvName',
                     label: 'sw-import-export.profile.mapping.fileValueLabel',
                     allowResize: true,
-                    primary: true
+                    primary: true,
                 },
                 {
                     property: 'entry',
                     label: 'sw-import-export.profile.mapping.entityLabel',
                     allowResize: true,
-                    width: '300px'
-                }
+                    width: '300px',
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -76,8 +76,8 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             handler(profile) {
                 this.toggleAddMappingActionState(profile.sourceEntity);
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     created() {
@@ -150,6 +150,6 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
 
         debouncedSearch: debounce(function updateSearchTerm() {
             this.loadMappings();
-        }, 100)
-    }
+        }, 100),
+    },
 });

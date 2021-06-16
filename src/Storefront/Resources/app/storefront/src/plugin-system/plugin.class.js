@@ -89,7 +89,7 @@ export default class Plugin {
         const merge = [
             this.constructor.options,
             this.options,
-            options
+            options,
         ];
 
         // options which are set via data-plugin-name-config="config name"

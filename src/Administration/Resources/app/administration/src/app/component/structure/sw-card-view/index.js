@@ -20,5 +20,5 @@ const { Component } = Shopware;
  * </sw-card-view>
  */
 Component.register('sw-card-view', {
-    template
+    template,
 });

@@ -18,16 +18,16 @@ Component.register('sw-loader', {
         size: {
             type: String,
             required: false,
-            default: '50px'
-        }
+            default: '50px',
+        },
     },
 
     computed: {
         loaderSize() {
             return {
                 width: this.size,
-                height: this.size
+                height: this.size,
             };
-        }
-    }
+        },
+    },
 });

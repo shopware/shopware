@@ -18,63 +18,63 @@ Component.register('sw-product-variant-info', {
         variations: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         highlighted: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         searchTerm: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         titleTerm: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         showTooltip: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         ommitParenthesis: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         seperator: {
             type: String,
             required: false,
-            default: ' | '
-        }
+            default: ' | ',
+        },
     },
 
     data() {
         return {
             helpText: '',
-            tooltipWidth: 200
+            tooltipWidth: 200,
         };
     },
 
     computed: {
         productName() {
             return this.$slots.default[0].text;
-        }
+        },
     },
 
     watch: {
         titleTerm() {
             this.setHelpText();
-        }
+        },
     },
 
     mounted() {
@@ -105,6 +105,6 @@ Component.register('sw-product-variant-info', {
                 });
                 this.helpText += ') ';
             }
-        }
-    }
+        },
+    },
 });

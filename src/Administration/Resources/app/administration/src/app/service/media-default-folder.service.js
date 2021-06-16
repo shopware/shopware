@@ -8,7 +8,7 @@ export default function createMediaDefaultFolderService() {
             const criteria = new Criteria(1, 1);
             criteria.addAssociation('folder');
             criteria.addFilter(
-                Criteria.equals('entity', entityName)
+                Criteria.equals('entity', entityName),
             );
 
             return repository.search(criteria, Shopware.Context.api)
@@ -18,6 +18,6 @@ export default function createMediaDefaultFolderService() {
                 .catch(() => {
                     return null;
                 });
-        }
+        },
     };
 }

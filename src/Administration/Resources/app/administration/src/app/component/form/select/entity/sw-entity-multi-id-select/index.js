@@ -8,12 +8,12 @@ Component.register('sw-entity-multi-id-select', {
     inheritAttrs: false,
 
     mixins: [
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'ids',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
@@ -22,12 +22,12 @@ Component.register('sw-entity-multi-id-select', {
             required: false,
             default() {
                 return [];
-            }
+            },
         },
 
         repository: {
             type: Object,
-            required: true
+            required: true,
         },
 
         criteria: {
@@ -35,7 +35,7 @@ Component.register('sw-entity-multi-id-select', {
             required: false,
             default() {
                 return new Criteria();
-            }
+            },
         },
 
         context: {
@@ -43,19 +43,19 @@ Component.register('sw-entity-multi-id-select', {
             required: false,
             default() {
                 return Context.api;
-            }
+            },
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            collection: null
+            collection: null,
         };
     },
 
@@ -70,7 +70,7 @@ Component.register('sw-entity-multi-id-select', {
             });
 
             return listeners;
-        }
+        },
     },
 
     watch: {
@@ -85,7 +85,7 @@ Component.register('sw-entity-multi-id-select', {
             }
 
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -97,7 +97,7 @@ Component.register('sw-entity-multi-id-select', {
             const collection = new EntityCollection(
                 this.repository.route,
                 this.repository.entityName,
-                this.context
+                this.context,
             );
 
             if (this.collection === null) {
@@ -121,6 +121,6 @@ Component.register('sw-entity-multi-id-select', {
         updateIds(collection) {
             this.collection = collection;
             this.$emit('change', collection.getIds());
-        }
-    }
+        },
+    },
 });

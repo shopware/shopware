@@ -17,15 +17,15 @@ Module.register('sw-settings-store', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
-        }
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.settings.store.index',
         icon: 'default-device-laptop',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

@@ -13,26 +13,26 @@ Component.register('sw-plugin-card', {
     props: {
         plugin: {
             type: Object,
-            required: true
+            required: true,
         },
         showDescription: {
             type: Boolean,
             default: true,
-            required: false
-        }
+            required: false,
+        },
     },
 
     data() {
         return {
             pluginIsLoading: false,
-            pluginIsSaveSuccessful: false
+            pluginIsSaveSuccessful: false,
         };
     },
 
     computed: {
         pluginIsNotActive() {
             return !this.plugin.active;
-        }
+        },
     },
 
     methods: {
@@ -59,6 +59,6 @@ Component.register('sw-plugin-card', {
 
                     this.$emit('onPluginInstalled', pluginName);
                 });
-        }
-    }
+        },
+    },
 });

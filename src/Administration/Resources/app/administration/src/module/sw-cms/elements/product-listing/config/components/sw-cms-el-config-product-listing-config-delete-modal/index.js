@@ -7,8 +7,8 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-delete-moda
     props: {
         productSorting: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     methods: {
@@ -18,6 +18,6 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-delete-moda
 
         onCancel() {
             this.$emit('cancel');
-        }
-    }
+        },
+    },
 });

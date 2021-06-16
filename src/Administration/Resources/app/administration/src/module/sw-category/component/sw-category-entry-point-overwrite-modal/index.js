@@ -12,8 +12,8 @@ Component.register('sw-category-entry-point-overwrite-modal', {
             required: false,
             default: () => {
                 return [];
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -23,6 +23,6 @@ Component.register('sw-category-entry-point-overwrite-modal', {
 
         onConfirm() {
             this.$emit('confirm');
-        }
-    }
+        },
+    },
 });

@@ -9,12 +9,12 @@ Component.register('sw-cms-el-product-listing', {
     inject: ['feature'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     data() {
         return {
-            demoProductCount: 8
+            demoProductCount: 8,
         };
     },
 
@@ -24,16 +24,16 @@ Component.register('sw-cms-el-product-listing', {
                 config: {
                     boxLayout: {
                         source: 'static',
-                        value: this.element.config.boxLayout.value
+                        value: this.element.config.boxLayout.value,
                     },
                     displayMode: {
                         source: 'static',
-                        value: 'standard'
-                    }
+                        value: 'standard',
+                    },
                 },
-                data: null
+                data: null,
             };
-        }
+        },
     },
 
     created() {
@@ -55,6 +55,6 @@ Component.register('sw-cms-el-product-listing', {
             if (section.classList.contains('is--sidebar')) {
                 this.demoProductCount = 6;
             }
-        }
-    }
+        },
+    },
 });

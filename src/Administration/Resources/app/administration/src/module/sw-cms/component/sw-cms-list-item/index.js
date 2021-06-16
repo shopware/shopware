@@ -10,20 +10,20 @@ Component.register('sw-cms-list-item', {
         page: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         active: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -31,20 +31,20 @@ Component.register('sw-cms-list-item', {
             if (this.page.previewMedia && this.page.previewMedia.id && this.page.previewMedia.url) {
                 return {
                     'background-image': `url(${this.page.previewMedia.url})`,
-                    'background-size': 'cover'
+                    'background-size': 'cover',
                 };
             }
 
             if (this.page.locked && this.page.type !== 'page') {
                 return {
-                    'background-image': this.defaultLayoutAsset
+                    'background-image': this.defaultLayoutAsset,
                 };
             }
 
             if (this.defaultItemLayoutAssetBackground) {
                 return {
                     'background-image': this.defaultItemLayoutAssetBackground,
-                    'background-size': 'cover'
+                    'background-size': 'cover',
                 };
             }
 
@@ -68,19 +68,19 @@ Component.register('sw-cms-list-item', {
         componentClasses() {
             return {
                 'is--active': this.active,
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
         },
 
         statusClasses() {
             return {
-                'is--active': this.active
+                'is--active': this.active,
             };
         },
 
         assetFilter() {
             return Filter.getByName('asset');
-        }
+        },
     },
 
     methods: {
@@ -117,6 +117,6 @@ Component.register('sw-cms-list-item', {
 
         onDelete(page) {
             this.$emit('cms-page-delete', page);
-        }
-    }
+        },
+    },
 });

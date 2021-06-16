@@ -16,7 +16,7 @@ export default {
         parent: 'sw-catalogue',
         position: 10,
         children: [],
-        level: 2
+        level: 2,
     }, {
         id: 'sw-review',
         moduleType: 'core',
@@ -27,7 +27,7 @@ export default {
         parent: 'sw-catalogue',
         position: 20,
         children: [],
-        level: 2
+        level: 2,
     }, {
         id: 'sw-category',
         moduleType: 'core',
@@ -36,7 +36,7 @@ export default {
         parent: 'sw-catalogue',
         position: 20,
         children: [],
-        level: 2
+        level: 2,
     }, {
         path: 'sw.product.stream.index',
         label: 'sw-product-stream.general.mainMenuItemGeneral',
@@ -46,7 +46,7 @@ export default {
         color: '#57D9A3',
         position: 30,
         children: [],
-        level: 2
+        level: 2,
     }, {
         id: 'sw-property',
         moduleType: 'core',
@@ -55,7 +55,7 @@ export default {
         path: 'sw.property.index',
         position: 40,
         children: [],
-        level: 2
+        level: 2,
     }, {
         path: 'sw.manufacturer.index',
         label: 'sw-manufacturer.general.mainMenuItemList',
@@ -65,7 +65,7 @@ export default {
         color: '#57D9A3',
         position: 50,
         children: [],
-        level: 2
+        level: 2,
     }, {
         path: 'sw.foo.index',
         label: 'sw-foo.general.mainMenuItemList',
@@ -74,7 +74,7 @@ export default {
         parent: 'sw-catalogue',
         position: 1010,
         children: [],
-        level: 2
+        level: 2,
     }, {
         path: 'sw.bar.index',
         label: 'sw-bar.general.mainMenuItemList',
@@ -83,6 +83,6 @@ export default {
         parent: 'sw-catalogue',
         position: 1010,
         children: [],
-        level: 2
-    }]
+        level: 2,
+    }],
 };

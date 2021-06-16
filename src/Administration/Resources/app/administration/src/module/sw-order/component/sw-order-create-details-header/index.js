@@ -10,30 +10,30 @@ Component.register('sw-order-create-details-header', {
         // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         customer: {
-            type: Object
+            type: Object,
         },
 
         orderDate: {
             type: String,
-            required: true
+            required: true,
         },
 
         // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         cartPrice: {
-            type: Object
+            type: Object,
         },
 
         // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         currency: {
-            type: Object
-        }
+            type: Object,
+        },
     },
 
     data() {
         return {
-            showNewCustomerModal: false
+            showNewCustomerModal: false,
         };
     },
 
@@ -45,7 +45,7 @@ Component.register('sw-order-create-details-header', {
 
             set(customerId) {
                 if (this.customer) this.customer.id = customerId;
-            }
+            },
         },
         customerCriteria() {
             const criteria = new Criteria(1, 25);
@@ -53,7 +53,7 @@ Component.register('sw-order-create-details-header', {
             criteria.addAssociation('defaultBillingAddress.country');
 
             return criteria;
-        }
+        },
     },
 
     methods: {
@@ -72,6 +72,6 @@ Component.register('sw-order-create-details-header', {
 
         onCloseNewCustomerModal() {
             this.showNewCustomerModal = false;
-        }
-    }
+        },
+    },
 });

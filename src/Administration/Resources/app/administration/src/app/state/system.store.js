@@ -1,6 +1,6 @@
 export default {
     state: {
-        locales: []
+        locales: [],
     },
 
     mutations: {
@@ -10,6 +10,6 @@ export default {
             }
 
             state.locales.push(locale);
-        }
-    }
+        },
+    },
 };

@@ -15,6 +15,6 @@ Component.extend('sw-sales-channel-create-base', 'sw-sales-channel-detail-base',
             if (this.isProductComparison) {
                 this.onGenerateProductExportKey(false);
             }
-        }
-    }
+        },
+    },
 });

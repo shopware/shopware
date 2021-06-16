@@ -10,25 +10,25 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
     inject: ['repositoryFactory', 'mediaDefaultFolderService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         source: {
             type: Object,
-            required: true
+            required: true,
         },
 
         parentProduct: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isInherited: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -36,7 +36,7 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
             showMediaModal: false,
             mediaDefaultFolderId: null,
             showPreviewModal: false,
-            activeItemId: null
+            activeItemId: null,
         };
     },
 
@@ -67,7 +67,7 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
             }
             const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
             return this.product.media.find(media => media.id === coverId);
-        }
+        },
     },
 
     created() {
@@ -125,7 +125,7 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
             media.forEach((item) => {
                 this.addMedia(item).catch(({ fileName }) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', 0, { fileName })
+                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', 0, { fileName }),
                     });
                 });
             });
@@ -204,6 +204,6 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
         onClosePreviewModal() {
             this.activeItemId = null;
             this.showPreviewModal = false;
-        }
-    }
+        },
+    },
 });

@@ -9,8 +9,8 @@ export default function initializeRepositoryFactory(container) {
 
     return httpClient.get('_info/entity-schema.json', {
         headers: {
-            Authorization: `Bearer ${serviceContainer.loginService.getToken()}`
-        }
+            Authorization: `Bearer ${serviceContainer.loginService.getToken()}`,
+        },
     }).then(({ data }) => {
         const entityDefinitionFactory = factoryContainer.entityDefinition;
         Object.keys(data).forEach((entityName) => {
@@ -28,7 +28,7 @@ export default function initializeRepositoryFactory(container) {
                 changesetGenerator,
                 entityFactory,
                 httpClient,
-                errorResolver
+                errorResolver,
             );
         });
         this.addServiceProvider('entityHydrator', () => {

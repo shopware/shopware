@@ -8,8 +8,8 @@ Component.extend('sw-users-permissions-user-create', 'sw-users-permissions-user-
 
     computed: {
         ...mapPropertyErrors('user', [
-            'password'
-        ])
+            'password',
+        ]),
     },
 
     methods: {
@@ -35,6 +35,6 @@ Component.extend('sw-users-permissions-user-create', 'sw-users-permissions-user-
                 this.user.localeId = this.currentUser.localeId;
             }
             this.$super('onSave');
-        }
-    }
+        },
+    },
 });

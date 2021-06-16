@@ -16,7 +16,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             newShopDomain: '',
             testEnvironment: false,
             domainError: null,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -29,13 +29,13 @@ Component.register('sw-first-run-wizard-shopware-domain', {
 
         isDomainEmpty() {
             return this.domainToVerify.length <= 0;
-        }
+        },
     },
 
     watch: {
         isDomainEmpty() {
             this.updateButtons();
-        }
+        },
     },
 
     created() {
@@ -51,7 +51,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             const language = Shopware.State.get('session').currentLocale;
 
             this.firstRunWizardService.getLicenseDomains({
-                language
+                language,
             }).then((response) => {
                 const { items } = response;
 
@@ -81,7 +81,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.shopware.account',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'next',
@@ -89,8 +89,8 @@ Component.register('sw-first-run-wizard-shopware-domain', {
                     position: 'right',
                     variant: 'primary',
                     action: this.verifyDomain.bind(this),
-                    disabled: this.isDomainEmpty
-                }
+                    disabled: this.isDomainEmpty,
+                },
             ];
 
             this.$emit('buttons-update', buttonConfig);
@@ -104,7 +104,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
 
             return this.firstRunWizardService.verifyLicenseDomain({
                 domain,
-                testEnvironment
+                testEnvironment,
             }).then(() => {
                 this.$emit('frw-redirect', 'sw.first.run.wizard.index.store');
                 return false;
@@ -115,6 +115,6 @@ Component.register('sw-first-run-wizard-shopware-domain', {
 
                 return true;
             });
-        }
-    }
+        },
+    },
 });

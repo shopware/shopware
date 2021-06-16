@@ -15,36 +15,36 @@ Component.register('sw-data-grid-inline-edit', {
             required: true,
             default() {
                 return {};
-            }
+            },
         },
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
-            required: true
+            required: true,
         },
         compact: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            currentValue: null
+            currentValue: null,
         };
     },
 
     computed: {
         classes() {
             return {
-                'is--compact': this.compact
+                'is--compact': this.compact,
             };
         },
 
         inputFieldSize() {
             return this.compact ? 'small' : 'default';
-        }
+        },
     },
 
     created() {
@@ -68,6 +68,6 @@ Component.register('sw-data-grid-inline-edit', {
 
         emitInput() {
             this.$emit('input', this.currentValue);
-        }
-    }
+        },
+    },
 });

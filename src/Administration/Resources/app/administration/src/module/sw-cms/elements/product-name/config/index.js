@@ -4,7 +4,7 @@ Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', {
     computed: {
         isProductPage() {
             return this.cmsPageState?.currentPage?.type ?? '' === 'product_detail';
-        }
+        },
     },
 
     methods: {
@@ -21,6 +21,6 @@ Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', {
 
             this.element.config.content.source = 'mapped';
             this.element.config.content.value = 'product.name';
-        }
-    }
+        },
+    },
 });

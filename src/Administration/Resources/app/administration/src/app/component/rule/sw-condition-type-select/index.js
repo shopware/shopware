@@ -11,30 +11,30 @@ Component.register('sw-condition-type-select', {
     props: {
         availableTypes: {
             type: Array,
-            required: true
+            required: true,
         },
 
         condition: {
             type: Object,
-            required: true
+            required: true,
         },
 
         hasError: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            typeSearchTerm: ''
+            typeSearchTerm: '',
         };
     },
 
@@ -47,7 +47,7 @@ Component.register('sw-condition-type-select', {
             return this.availableTypes.map(({ type, label }) => {
                 return {
                     type,
-                    label: this.$tc(label)
+                    label: this.$tc(label),
                 };
             });
         },
@@ -67,7 +67,7 @@ Component.register('sw-condition-type-select', {
 
         typeSelectClasses() {
             return {
-                'has--error': this.hasError
+                'has--error': this.hasError,
             };
         },
 
@@ -75,22 +75,22 @@ Component.register('sw-condition-type-select', {
             if (this.disabled) {
                 return {
                     primary: '#d1d9e0',
-                    secondary: '#d1d9e0'
+                    secondary: '#d1d9e0',
                 };
             }
 
             if (this.hasError) {
                 return {
                     primary: '#DE294C',
-                    secondary: '#ffffff'
+                    secondary: '#ffffff',
                 };
             }
 
             return {
                 primary: '#758CA3',
-                secondary: '#ffffff'
+                secondary: '#ffffff',
             };
-        }
+        },
     },
 
     methods: {
@@ -102,6 +102,6 @@ Component.register('sw-condition-type-select', {
                 });
             }
             this.condition.type = type;
-        }
-    }
+        },
+    },
 });

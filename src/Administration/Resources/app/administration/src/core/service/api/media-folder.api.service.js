@@ -18,8 +18,8 @@ class MediaFolderApiService extends ApiService {
             '',
             {
                 params: {},
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -35,8 +35,8 @@ class MediaFolderApiService extends ApiService {
             '',
             {
                 params: {},
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

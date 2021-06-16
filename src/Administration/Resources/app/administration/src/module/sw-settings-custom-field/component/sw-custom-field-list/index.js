@@ -10,25 +10,25 @@ Component.register('sw-custom-field-list', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     provide() {
         return {
-            SwCustomFieldListIsCustomFieldNameUnique: this.isCustomFieldNameUnique
+            SwCustomFieldListIsCustomFieldNameUnique: this.isCustomFieldNameUnique,
         };
     },
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         set: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -42,7 +42,7 @@ Component.register('sw-custom-field-list', {
             customFields: null,
             page: 1,
             total: 0,
-            limit: 10
+            limit: 10,
         };
     },
 
@@ -50,19 +50,19 @@ Component.register('sw-custom-field-list', {
         customFieldRepository() {
             return this.repositoryFactory.create(
                 this.set.customFields.entity,
-                this.set.customFields.source
+                this.set.customFields.source,
             );
         },
 
         globalCustomFieldRepository() {
             return this.repositoryFactory.create('custom_field');
-        }
+        },
     },
 
     watch: {
         term() {
             this.loadCustomFields();
-        }
+        },
     },
 
     created() {
@@ -200,6 +200,6 @@ Component.register('sw-custom-field-list', {
                     this.loadCustomFields();
                 });
             });
-        }
-    }
+        },
+    },
 });

@@ -26,7 +26,7 @@ Component.register('sw-label', {
                     return true;
                 }
                 return ['info', 'danger', 'success', 'warning', 'neutral', 'primary'].includes(value);
-            }
+            },
         },
         size: {
             type: String,
@@ -35,7 +35,7 @@ Component.register('sw-label', {
             validValues: ['small', 'medium', 'default'],
             validator(value) {
                 return ['small', 'medium', 'default'].includes(value);
-            }
+            },
         },
         appearance: {
             type: String,
@@ -44,23 +44,23 @@ Component.register('sw-label', {
             validValues: ['default', 'pill', 'circle'],
             validator(value) {
                 return ['default', 'pill', 'circle'].includes(value);
-            }
+            },
         },
         ghost: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         caps: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         dismissable: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     computed: {
@@ -73,12 +73,12 @@ Component.register('sw-label', {
                     'sw-label--dismissable': this.showDismissable,
                     'sw-label--ghost': this.ghost,
                     'sw-label--caps': this.caps,
-                    'sw-label--light': this.light
-                }
+                    'sw-label--light': this.light,
+                },
             ];
         },
         showDismissable() {
             return !!this.$listeners.dismiss && this.dismissable;
-        }
-    }
+        },
+    },
 });

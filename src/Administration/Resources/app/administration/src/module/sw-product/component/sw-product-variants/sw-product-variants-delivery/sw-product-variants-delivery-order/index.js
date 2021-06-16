@@ -9,19 +9,19 @@ Component.register('sw-product-variants-delivery-order', {
     props: {
         product: {
             type: Object,
-            required: true
+            required: true,
         },
 
         selectedGroups: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             groups: [],
-            orderObjects: []
+            orderObjects: [],
         };
     },
 
@@ -69,7 +69,7 @@ Component.register('sw-product-variants-delivery-order', {
                     childCount: children.length,
                     parentId: null,
                     afterId: index > 0 ? sortedGroups[index - 1].id : null,
-                    storeObject: group
+                    storeObject: group,
                 };
             });
 
@@ -95,7 +95,7 @@ Component.register('sw-product-variants-delivery-order', {
                         childCount: 0,
                         parentId: option.groupId,
                         afterId,
-                        storeObject: element
+                        storeObject: element,
                     };
                 });
 
@@ -144,7 +144,7 @@ Component.register('sw-product-variants-delivery-order', {
                     newConfiguratorGroupConfig.push({
                         id: groupId,
                         expressionForListings: false,
-                        representation: 'box'
+                        representation: 'box',
                     });
                 }
             });
@@ -166,6 +166,6 @@ Component.register('sw-product-variants-delivery-order', {
                     }
                 });
             });
-        }
-    }
+        },
+    },
 });

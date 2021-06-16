@@ -12,7 +12,7 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginTop: '20px',
         marginLeft: '20px',
         marginRight: '20px',
-        sizingMode: 'boxed'
+        sizingMode: 'boxed',
     },
     slots: {
         content: {
@@ -25,10 +25,10 @@ Shopware.Service('cmsService').registerCmsBlock({
                         <h2 style="text-align: center;">Lorem Ipsum dolor sit amet</h2>
                         <p style="text-align: center;"><i>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
                         sed diam nonumy eirmod tempor invidunt ut labore</i></p>
-                        `.trim()
-                    }
-                }
-            }
-        }
-    }
+                        `.trim(),
+                    },
+                },
+            },
+        },
+    },
 });

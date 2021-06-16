@@ -11,13 +11,13 @@ Component.register('sw-category-detail-seo', {
     props: {
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         category() {
             return Shopware.State.get('swCategoryDetail').category;
-        }
-    }
+        },
+    },
 });

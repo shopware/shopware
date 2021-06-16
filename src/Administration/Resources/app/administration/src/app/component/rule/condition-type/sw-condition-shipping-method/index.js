@@ -18,7 +18,7 @@ Component.extend('sw-condition-shipping-method', 'sw-condition-base', {
 
     data() {
         return {
-            shippingMethods: null
+            shippingMethods: null,
         };
     },
 
@@ -39,14 +39,14 @@ Component.extend('sw-condition-shipping-method', 'sw-condition-base', {
             set(shippingMethodIds) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, shippingMethodIds };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.shippingMethodIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueShippingMethodIdsError;
-        }
+        },
     },
 
     created() {
@@ -58,7 +58,7 @@ Component.extend('sw-condition-shipping-method', 'sw-condition-base', {
             this.shippingMethods = new EntityCollection(
                 this.shippingMethodRepository.route,
                 this.shippingMethodRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.shippingMethodIds.length <= 0) {
@@ -76,6 +76,6 @@ Component.extend('sw-condition-shipping-method', 'sw-condition-base', {
         setShippingMethodIds(shippingMethods) {
             this.shippingMethodIds = shippingMethods.getIds();
             this.shippingMethods = shippingMethods;
-        }
-    }
+        },
+    },
 });

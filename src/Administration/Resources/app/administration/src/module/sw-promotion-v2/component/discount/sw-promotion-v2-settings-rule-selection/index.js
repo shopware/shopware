@@ -7,20 +7,20 @@ Component.register('sw-promotion-v2-settings-rule-selection', {
     template,
 
     inject: [
-        'acl'
+        'acl',
     ],
 
     props: {
         discount: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         ruleCriteria() {
             return (new Criteria())
                 .addSorting(Criteria.sort('name', 'ASC', false));
-        }
-    }
+        },
+    },
 });

@@ -7,12 +7,12 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     data() {
         return {
-            wizardComplete: false
+            wizardComplete: false,
         };
     },
 
@@ -27,7 +27,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
     computed: {
         pageHasSections() {
             return this.page.sections.length > 0 && this.wizardComplete;
-        }
+        },
     },
 
     methods: {
@@ -50,7 +50,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingFields');
                 this.createNotificationWarning({
-                    message: warningMessage
+                    message: warningMessage,
                 });
 
                 return Promise.reject();
@@ -69,7 +69,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
                 this.isLoading = false;
 
                 this.createNotificationError({
-                    message: exception.message
+                    message: exception.message,
                 });
 
                 return Promise.reject(exception);
@@ -83,6 +83,6 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
             this.wizardComplete = true;
             this.onSave();
-        }
-    }
+        },
+    },
 });

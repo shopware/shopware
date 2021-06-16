@@ -85,7 +85,7 @@ export default class MagnifierPlugin extends Plugin {
          *
          * @type string
          */
-        cursorType: 'none'
+        cursorType: 'none',
     };
 
     init() {
@@ -122,7 +122,7 @@ export default class MagnifierPlugin extends Plugin {
     _isActive() {
         const allowedViewports = [
             ViewportDetection.isLG(),
-            ViewportDetection.isXL()
+            ViewportDetection.isXL(),
         ];
 
         return allowedViewports.indexOf(true) !== -1;

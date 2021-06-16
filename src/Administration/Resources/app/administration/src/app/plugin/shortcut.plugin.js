@@ -30,14 +30,14 @@ export default {
                             key: key,
                             functionName: value.method,
                             instance: this,
-                            active: activeFunction.bind(this)
+                            active: activeFunction.bind(this),
                         });
                     } else {
                         activeShortcuts.push({
                             key: key,
                             functionName: value,
                             instance: this,
-                            active: () => true
+                            active: () => true,
                         });
                     }
                 });
@@ -126,12 +126,12 @@ export default {
                     }
 
                     return true;
-                }, 200)
-            }
+                }, 200),
+            },
         });
 
         pluginInstalled = true;
 
         return true;
-    }
+    },
 };

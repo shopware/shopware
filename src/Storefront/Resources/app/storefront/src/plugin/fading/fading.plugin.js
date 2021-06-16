@@ -4,7 +4,7 @@ import Debouncer from 'src/helper/debouncer.helper';
 
 export default class FadingPlugin extends Plugin {
     static options = {
-        resizeDebounceTime: 200
+        resizeDebounceTime: 200,
     };
 
     init() {

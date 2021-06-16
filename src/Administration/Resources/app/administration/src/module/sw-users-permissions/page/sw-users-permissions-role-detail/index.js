@@ -10,17 +10,17 @@ Component.register('sw-users-permissions-role-detail', {
         'privileges',
         'userService',
         'loginService',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
@@ -29,13 +29,13 @@ Component.register('sw-users-permissions-role-detail', {
             isSaveSuccessful: false,
             role: null,
             confirmPasswordModal: false,
-            detailedPrivileges: []
+            detailedPrivileges: [],
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -45,14 +45,14 @@ Component.register('sw-users-permissions-role-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -66,13 +66,13 @@ Component.register('sw-users-permissions-role-detail', {
 
         roleId() {
             return this.$route.params.id;
-        }
+        },
     },
 
     watch: {
         languageId() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -131,7 +131,7 @@ Component.register('sw-users-permissions-role-detail', {
 
             this.role.privileges = [
                 ...this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges),
-                ...this.detailedPrivileges
+                ...this.detailedPrivileges,
             ].sort();
 
             this.confirmPasswordModal = false;
@@ -152,8 +152,8 @@ Component.register('sw-users-permissions-role-detail', {
                         message: this.$tc(
                             'global.notification.notificationSaveErrorMessage',
                             0,
-                            { entityName: this.role.name }
-                        )
+                            { entityName: this.role.name },
+                        ),
                     });
 
                     this.role.privileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
@@ -182,6 +182,6 @@ Component.register('sw-users-permissions-role-detail', {
 
         onCancel() {
             this.$router.push({ name: 'sw.users.permissions.index' });
-        }
-    }
+        },
+    },
 });

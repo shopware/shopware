@@ -17,7 +17,7 @@ Component.register('sw-inheritance-warning', {
     props: {
         name: {
             type: String,
-            required: true
-        }
-    }
+            required: true,
+        },
+    },
 });

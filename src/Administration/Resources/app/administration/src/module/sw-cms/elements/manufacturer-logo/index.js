@@ -12,28 +12,28 @@ Shopware.Service('cmsService').registerCmsElement({
             value: null,
             required: true,
             entity: {
-                name: 'media'
-            }
+                name: 'media',
+            },
         },
         displayMode: {
             source: 'static',
-            value: 'standard'
+            value: 'standard',
         },
         url: {
             source: 'static',
-            value: null
+            value: null,
         },
         newTab: {
             source: 'static',
-            value: true
+            value: true,
         },
         minHeight: {
             source: 'static',
-            value: null
+            value: null,
         },
         verticalAlign: {
             source: 'static',
-            value: null
-        }
-    }
+            value: null,
+        },
+    },
 });

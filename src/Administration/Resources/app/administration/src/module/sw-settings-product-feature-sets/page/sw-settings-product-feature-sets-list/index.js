@@ -12,7 +12,7 @@ Component.register('sw-settings-product-feature-sets-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -24,13 +24,13 @@ Component.register('sw-settings-product-feature-sets-list', {
             sortDirection: 'ASC',
             naturalSorting: true,
             showDeleteModal: false,
-            translationService: null
+            translationService: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -53,18 +53,18 @@ Component.register('sw-settings-product-feature-sets-list', {
                 this.translationService = new FeatureGridTranslationService(
                     this,
                     this.propertyGroupRepository,
-                    this.customFieldRepository
+                    this.customFieldRepository,
                 );
             }
 
             return this.translationService;
-        }
+        },
     },
 
     methods: {
         metaInfo() {
             return {
-                title: this.$createTitle()
+                title: this.$createTitle(),
             };
         },
 
@@ -89,7 +89,7 @@ Component.register('sw-settings-product-feature-sets-list', {
 
                 return Promise.all([
                     this.featureGridTranslationService.fetchPropertyGroupEntities(allFeatures),
-                    this.featureGridTranslationService.fetchCustomFieldEntities(allFeatures)
+                    this.featureGridTranslationService.fetchCustomFieldEntities(allFeatures),
                 ]);
             }).then(() => {
                 this.isLoading = false;
@@ -107,13 +107,13 @@ Component.register('sw-settings-product-feature-sets-list', {
                     message: this.$tc(
                         'sw-settings-product-feature-sets.detail.messageSaveSuccess',
                         0,
-                        { name: productFeatureSets.name }
-                    )
+                        { name: productFeatureSets.name },
+                    ),
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveError')
+                    message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveError'),
                 });
             });
         },
@@ -141,18 +141,18 @@ Component.register('sw-settings-product-feature-sets-list', {
                 label: 'sw-settings-product-feature-sets.list.columnTemplate',
                 routerLink: 'sw.settings.product.feature.sets.detail',
                 allowResize: true,
-                primary: true
+                primary: true,
             },
             {
                 property: 'description',
                 inlineEdit: 'string',
                 label: 'sw-settings-product-feature-sets.list.columnDescription',
-                allowResize: true
+                allowResize: true,
             },
             {
                 property: 'features',
                 label: 'sw-settings-product-feature-sets.list.columnValues',
-                allowResize: true
+                allowResize: true,
             }];
         },
 
@@ -163,7 +163,7 @@ Component.register('sw-settings-product-feature-sets-list', {
                 .join(', ');
 
             return features.length > 4 ? `${preview}, ...` : preview;
-        }
-    }
+        },
+    },
 });
 

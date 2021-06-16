@@ -9,12 +9,12 @@ Component.register('sw-settings-shopware-updates-plugins', {
 
     props: {
         isLoading: {
-            type: Boolean
+            type: Boolean,
         },
         plugins: {
             type: Array,
-            default: () => []
-        }
+            default: () => [],
+        },
     },
     computed: {
         columns() {
@@ -22,13 +22,13 @@ Component.register('sw-settings-shopware-updates-plugins', {
                 {
                     property: 'name',
                     label: this.$tc('sw-settings-shopware-updates.plugins.columns.name'),
-                    rawData: true
+                    rawData: true,
                 },
                 {
                     property: 'icon',
                     label: this.$tc('sw-settings-shopware-updates.plugins.columns.available'),
-                    rawData: true
-                }
+                    rawData: true,
+                },
             ];
         },
 
@@ -38,7 +38,7 @@ Component.register('sw-settings-shopware-updates-plugins', {
             }
 
             return this.$tc('sw-settings-shopware-updates.cards.plugins');
-        }
+        },
     },
 
     methods: {
@@ -47,6 +47,6 @@ Component.register('sw-settings-shopware-updates-plugins', {
         },
         openMyExtensions() {
             this.$router.push({ name: 'sw.extension.my-extensions.listing.app' });
-        }
-    }
+        },
+    },
 });

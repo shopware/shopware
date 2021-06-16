@@ -13,15 +13,15 @@ Shopware.Component.register('sw-import-export-importer', {
     inject: ['importExport', 'repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         sourceEntity: {
             type: String,
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     data() {
@@ -36,7 +36,7 @@ Shopware.Component.register('sw-import-export-importer', {
             progressLogEntry: null,
             isLoading: false,
             importFile: null,
-            importModalProfile: null
+            importModalProfile: null,
         };
     },
 
@@ -46,7 +46,7 @@ Shopware.Component.register('sw-import-export-importer', {
 
             if (this.sourceEntity.length > 0) {
                 criteria.addFilter(
-                    Criteria.equals('sourceEntity', this.sourceEntity)
+                    Criteria.equals('sourceEntity', this.sourceEntity),
                 );
             }
 
@@ -75,7 +75,7 @@ Shopware.Component.register('sw-import-export-importer', {
             criteria.addAssociation('file');
 
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -84,8 +84,8 @@ Shopware.Component.register('sw-import-export-importer', {
                 if (newValue) {
                     this.resetProgressStats();
                 }
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -121,12 +121,12 @@ Shopware.Component.register('sw-import-export-importer', {
             }).catch((error) => {
                 if (!error.response || !error.response.data || !error.response.data.errors) {
                     this.createNotificationError({
-                        message: error.message
+                        message: error.message,
                     });
                 } else {
                     error.response.data.errors.forEach((singleError) => {
                         this.createNotificationError({
-                            message: `${singleError.code}: ${singleError.detail}`
+                            message: `${singleError.code}: ${singleError.detail}`,
                         });
                     });
                 }
@@ -143,12 +143,12 @@ Shopware.Component.register('sw-import-export-importer', {
 
             if (progress.state === 'succeeded') {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-import-export.importer.messageImportSuccess', 0)
+                    message: this.$tc('sw-import-export.importer.messageImportSuccess', 0),
                 });
                 this.onProgressFinished();
             } else if (progress.state === 'failed') {
                 this.createNotificationError({
-                    message: this.$tc('sw-import-export.importer.messageImportError', 0)
+                    message: this.$tc('sw-import-export.importer.messageImportError', 0),
                 });
                 this.onProgressFinished();
             }
@@ -161,6 +161,6 @@ Shopware.Component.register('sw-import-export-importer', {
 
         setImportModalProfile(profileName) {
             this.importModalProfile = profileName;
-        }
-    }
+        },
+    },
 });

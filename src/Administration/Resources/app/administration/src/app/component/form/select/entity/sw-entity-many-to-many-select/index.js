@@ -13,59 +13,59 @@ Component.register('sw-entity-many-to-many-select', {
 
     model: {
         prop: 'entityCollection',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         labelProperty: {
             type: String,
             required: false,
-            default: 'name'
+            default: 'name',
         },
         resultLimit: {
             type: Number,
             required: false,
-            default: 25
+            default: 25,
         },
         valueLimit: {
             type: Number,
             required: false,
-            default: 5
+            default: 5,
         },
         // Should be used when creating new entities.
         // Prevents delete or create requests.
         localMode: {
             type: Boolean,
-            default: false
+            default: false,
         },
         criteria: {
             type: Object,
             required: false,
             default() {
                 return new Criteria(1, this.resultLimit);
-            }
+            },
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         entityCollection: {
             type: Array,
-            required: true
+            required: true,
         },
         context: {
             type: Object,
             required: false,
             default() {
                 return Shopware.Context.api;
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -76,7 +76,7 @@ Component.register('sw-entity-many-to-many-select', {
             resultCollection: null,
             displayItemsResultCollection: null,
             totalAssigned: 0,
-            displayItemLimit: this.valueLimit
+            displayItemLimit: this.valueLimit,
         };
     },
 
@@ -97,7 +97,7 @@ Component.register('sw-entity-many-to-many-select', {
             },
             set(newIds) {
                 this.emitChanges(newIds);
-            }
+            },
         },
 
         visibleValues() {
@@ -118,7 +118,7 @@ Component.register('sw-entity-many-to-many-select', {
             }
 
             return Math.max(0, this.totalAssigned - this.displayItemLimit);
-        }
+        },
     },
 
     watch: {
@@ -127,7 +127,7 @@ Component.register('sw-entity-many-to-many-select', {
             if (newVal.length <= 0 && this.totalAssigned > 0) {
                 this.initData();
             }
-        }
+        },
     },
 
     created() {
@@ -278,7 +278,7 @@ Component.register('sw-entity-many-to-many-select', {
                 this.entityCollection.source,
                 this.entityCollection.entity,
                 this.entityCollection.context,
-                this.entityCollection.criteria
+                this.entityCollection.criteria,
             );
 
             ids.forEach((id) => {
@@ -391,6 +391,6 @@ Component.register('sw-entity-many-to-many-select', {
 
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
-        }
-    }
+        },
+    },
 });

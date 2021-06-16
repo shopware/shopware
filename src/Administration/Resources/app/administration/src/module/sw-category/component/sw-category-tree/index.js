@@ -16,31 +16,31 @@ Component.register('sw-category-tree', {
         categoryId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         currentLanguageId: {
             type: String,
-            required: true
+            required: true,
         },
 
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowCreate: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -49,13 +49,13 @@ Component.register('sw-category-tree', {
             translationContext: 'sw-category',
             linkContext: 'sw.category.detail',
             isLoadingInitialData: true,
-            loadedParentIds: []
+            loadedParentIds: [],
         };
     },
 
     computed: {
         ...mapState('swCategoryDetail', [
-            'categoriesToDelete'
+            'categoriesToDelete',
         ]),
 
         categoryRepository() {
@@ -97,7 +97,7 @@ Component.register('sw-category-tree', {
             const parentCriteria = Criteria.fromCriteria(this.criteria).setLimit(1);
             parentCriteria.associations.push({
                 association: 'children',
-                criteria: Criteria.fromCriteria(this.criteria)
+                criteria: Criteria.fromCriteria(this.criteria),
             });
 
             return parentCriteria;
@@ -119,12 +119,12 @@ Component.register('sw-category-tree', {
                     'AND',
                     [
                         Criteria.equals('type', 'product_list'),
-                        Criteria.equals('locked', true)
-                    ]
+                        Criteria.equals('locked', true),
+                    ],
                 ));
 
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -136,7 +136,7 @@ Component.register('sw-category-tree', {
             this.$refs.categoryTree.onDeleteElements(value);
 
             Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
-                categoriesToDelete: undefined
+                categoriesToDelete: undefined,
             });
         },
 
@@ -158,7 +158,7 @@ Component.register('sw-category-tree', {
                     newVal.id,
                     ...oldVal.navigationSalesChannels.map(salesChannel => salesChannel.navigationCategoryId),
                     ...oldVal.footerSalesChannels.map(salesChannel => salesChannel.footerCategoryId),
-                    ...oldVal.serviceSalesChannels.map(salesChannel => salesChannel.serviceCategoryId)
+                    ...oldVal.serviceSalesChannels.map(salesChannel => salesChannel.serviceCategoryId),
                 ];
 
                 const criteria = Criteria.fromCriteria(this.criteria)
@@ -174,7 +174,7 @@ Component.register('sw-category-tree', {
 
         currentLanguageId() {
             this.openInitialTree();
-        }
+        },
     },
 
     created() {
@@ -254,7 +254,7 @@ Component.register('sw-category-tree', {
 
             if (hasNavigationCategories) {
                 this.createNotificationError({
-                    message: this.$tc('sw-category.general.errorNavigationEntryPointMultiple')
+                    message: this.$tc('sw-category.general.errorNavigationEntryPointMultiple'),
                 });
 
                 const categories = ids.map((id) => {
@@ -312,7 +312,11 @@ Component.register('sw-category-tree', {
                 this.removeFromStore(category.id);
 
                 if (category.parentId !== null) {
-                    this.categoryRepository.get(category.parentId, Shopware.Context.api, this.criteria).then((updatedParent) => {
+                    this.categoryRepository.get(
+                        category.parentId,
+                        Shopware.Context.api,
+                        this.criteria,
+                    ).then((updatedParent) => {
                         this.addCategory(updatedParent);
                     });
                 }
@@ -449,7 +453,7 @@ Component.register('sw-category-tree', {
         getCategoryUrl(category) {
             return this.$router.resolve({
                 name: this.linkContext,
-                params: { id: category.id }
+                params: { id: category.id },
             }).href;
         },
 
@@ -463,6 +467,6 @@ Component.register('sw-category-tree', {
             return this.cmsPageRepository.search(this.defaultLayoutCriteria).then((response) => {
                 Shopware.State.commit('swCategoryDetail/setDefaultLayout', response[0]);
             });
-        }
-    }
+        },
+    },
 });

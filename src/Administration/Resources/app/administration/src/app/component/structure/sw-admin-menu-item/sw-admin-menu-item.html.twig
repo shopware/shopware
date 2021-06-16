@@ -44,7 +44,7 @@
         />
         {% endblock %}
 
-        <slot name="additional-text" />
+        <slot name="additional-text"></slot>
     </router-link>
     {% endblock %}
 
@@ -85,7 +85,7 @@
         />
         {% endblock %}
 
-        <slot name="additional-text" />
+        <slot name="additional-text"></slot>
     </a>
     {% endblock %}
 
@@ -115,7 +115,7 @@
         </span>
         {% endblock %}
 
-        <slot name="additional-text" />
+        <slot name="additional-text"></slot>
 
         {% block sw_admin_menu_item_arrow_indicator %}
         <sw-icon
@@ -140,7 +140,7 @@
                 :style="{ 'border-color': borderColor }"
                 class="sw-admin-menu__separator"
             >
-                <span class="sw-admin-menu__separator-line" />
+                <span class="sw-admin-menu__separator-line"></span>
             </li>
 
             <sw-admin-menu-item

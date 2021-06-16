@@ -12,7 +12,7 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginTop: '20px',
         marginLeft: '20px',
         marginRight: '20px',
-        sizingMode: 'boxed'
+        sizingMode: 'boxed',
     },
     slots: {
         left: {
@@ -24,10 +24,10 @@ Shopware.Service('cmsService').registerCmsBlock({
                         value: `
                         <h2>Lorem ipsum dolor</h2>
                         <p><i>Sit amet, consetetur sadipscing elitr</i></p>
-                        `.trim()
-                    }
-                }
-            }
+                        `.trim(),
+                    },
+                },
+            },
         },
         right: {
             type: 'text',
@@ -43,10 +43,10 @@ Shopware.Service('cmsService').registerCmsBlock({
                         nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. 
                         At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, 
                         no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-                        `.trim()
-                    }
-                }
-            }
-        }
-    }
+                        `.trim(),
+                    },
+                },
+            },
+        },
+    },
 });

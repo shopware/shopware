@@ -10,7 +10,7 @@ const aclService = {
         if (!key) { return true; }
 
         return global.activeAclRoles.includes(key);
-    }
+    },
 };
 
 export default aclService;

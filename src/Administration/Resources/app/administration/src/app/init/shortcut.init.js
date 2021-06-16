@@ -57,6 +57,6 @@ function defaultShortcutMap() {
         { combination: 'GSP', path: '/sw/settings/payment/index' },
         { combination: 'GSS', path: '/sw/settings/shipping/index' },
         { combination: 'GSR', path: '/sw/settings/rule/index' },
-        { combination: 'GA', path: '/sw/extension/my-extensions/listing/app' }
+        { combination: 'GA', path: '/sw/extension/my-extensions/listing/app' },
     ];
 }

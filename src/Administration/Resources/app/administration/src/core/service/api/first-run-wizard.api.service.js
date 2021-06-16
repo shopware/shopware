@@ -26,7 +26,7 @@ class FirstRunWizardApiService extends ApiService {
         return this.httpClient
             .post(`/_action/store/${this.apiEndpoint}/login`, payload, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -47,7 +47,7 @@ class FirstRunWizardApiService extends ApiService {
         return this.httpClient
             .get('/_action/store/license-domains', {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -68,7 +68,7 @@ class FirstRunWizardApiService extends ApiService {
         return this.httpClient
             .post('/_action/store/verify-license-domain', {}, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -89,7 +89,7 @@ class FirstRunWizardApiService extends ApiService {
         return this.httpClient
             .post('/_action/store/frw/start', {}, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -110,7 +110,7 @@ class FirstRunWizardApiService extends ApiService {
         return this.httpClient
             .post('/_action/store/frw/finish', {}, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

@@ -9,13 +9,13 @@ Component.register('sw-settings-number-range-list', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('listing'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     data() {
@@ -26,13 +26,13 @@ Component.register('sw-settings-number-range-list', {
             isLoading: false,
             sortDirection: 'DESC',
             naturalSorting: true,
-            showDeleteModal: false
+            showDeleteModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -43,19 +43,19 @@ Component.register('sw-settings-number-range-list', {
 
         expandButtonClass() {
             return {
-                'is--hidden': this.expanded
+                'is--hidden': this.expanded,
             };
         },
 
         collapseButtonClass() {
             return {
-                'is--hidden': !this.expanded
+                'is--hidden': !this.expanded,
             };
         },
 
         numberRangeRepository() {
             return this.repositoryFactory.create('number_range');
-        }
+        },
     },
 
     methods: {
@@ -88,13 +88,13 @@ Component.register('sw-settings-number-range-list', {
                 label: 'sw-settings-number-range.list.columnName',
                 routerLink: 'sw.settings.number.range.detail',
                 primary: true,
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }, {
                 property: 'type.typeName',
-                label: 'sw-settings-number-range.list.columnUsedIn'
+                label: 'sw-settings-number-range.list.columnUsedIn',
             }, {
                 property: 'global',
-                label: 'sw-settings-number-range.list.columnAssignment'
+                label: 'sw-settings-number-range.list.columnAssignment',
             }];
         },
 
@@ -121,14 +121,14 @@ Component.register('sw-settings-number-range-list', {
         onInlineEditSave(promise, numberRange) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-number-range.detail.messageSaveSuccess', 0, { name: numberRange.name })
+                    message: this.$tc('sw-settings-number-range.detail.messageSaveSuccess', 0, { name: numberRange.name }),
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-number-range.detail.messageSaveError')
+                    message: this.$tc('sw-settings-number-range.detail.messageSaveError'),
                 });
             });
-        }
-    }
+        },
+    },
 });

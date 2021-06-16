@@ -6,13 +6,13 @@ Shopware.Component.register('sw-privilege-error', {
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
     methods: {
         routerGoBack() {
             this.$router.go(-1);
-        }
-    }
+        },
+    },
 });

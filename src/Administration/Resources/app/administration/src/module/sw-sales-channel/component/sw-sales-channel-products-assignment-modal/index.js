@@ -10,28 +10,28 @@ Component.register('sw-sales-channel-products-assignment-modal', {
     props: {
         salesChannel: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isAssignProductLoading: {
             type: Boolean,
             default: false,
-            required: false
-        }
+            required: false,
+        },
     },
 
     data() {
         return {
             singleProducts: [],
             categoryProducts: [],
-            groupProducts: []
+            groupProducts: [],
         };
     },
 
     computed: {
         products() {
             return uniqBy([...this.singleProducts, ...this.categoryProducts, ...this.groupProducts], 'id');
-        }
+        },
     },
 
     methods: {
@@ -45,6 +45,6 @@ Component.register('sw-sales-channel-products-assignment-modal', {
 
         onAddProducts() {
             this.$emit('products-add', this.products);
-        }
-    }
+        },
+    },
 });

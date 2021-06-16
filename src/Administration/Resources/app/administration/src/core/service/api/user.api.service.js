@@ -25,7 +25,7 @@ class UserApiService extends ApiService {
         return this.httpClient
             .get('/_info/me', {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -46,7 +46,7 @@ class UserApiService extends ApiService {
         return this.httpClient
             .patch('/_info/me', data,
                 {
-                    headers
+                    headers,
                 })
             .then((response) => {
                 return ApiService.handleResponse(response);

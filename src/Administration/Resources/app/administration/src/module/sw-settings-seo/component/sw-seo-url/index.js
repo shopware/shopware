@@ -16,7 +16,7 @@ Component.register('sw-seo-url', {
         salesChannelId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         urls: {
@@ -24,32 +24,32 @@ Component.register('sw-seo-url', {
             required: false,
             default() {
                 return [];
-            }
+            },
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         hasDefaultTemplate: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             currentSalesChannelId: this.salesChannelId,
-            showEmptySeoUrlError: false
+            showEmptySeoUrlError: false,
         };
     },
 
@@ -105,14 +105,14 @@ Component.register('sw-seo-url', {
 
         allowInput() {
             return this.hasDefaultTemplate || this.currentSalesChannelId !== null;
-        }
+        },
     },
 
     watch: {
         urls() {
             this.initSeoUrlCollection();
             this.refreshCurrentSeoUrl();
-        }
+        },
     },
 
     beforeCreate() {
@@ -157,7 +157,7 @@ Component.register('sw-seo-url', {
                 this.seoUrlRepository.route,
                 this.seoUrlRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria()
+                new Criteria(),
             );
 
             const defaultSeoUrlData = this.urls.find((entityData) => {
@@ -235,6 +235,6 @@ Component.register('sw-seo-url', {
             this.currentSalesChannelId = salesChannelId;
             this.$emit('on-change-sales-channel', salesChannelId);
             this.refreshCurrentSeoUrl();
-        }
-    }
+        },
+    },
 });

@@ -18,8 +18,8 @@ Module.register('sw-profile', {
             component: 'sw-profile-index',
             path: 'index',
             meta: {
-                privilege: 'user.update_profile'
-            }
-        }
-    }
+                privilege: 'user.update_profile',
+            },
+        },
+    },
 });

@@ -20,12 +20,12 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             return [
                 {
                     label: this.$tc('global.sw-condition.condition.withTime'),
-                    value: true
+                    value: true,
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.withoutTime'),
-                    value: false
-                }
+                    value: false,
+                },
             ];
         },
 
@@ -36,7 +36,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
                     // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.condition.value = {
                         ...this.condition.value,
-                        useTime: false
+                        useTime: false,
                     };
                 }
 
@@ -45,7 +45,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             set(useTime) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, useTime };
-            }
+            },
         },
 
         fromDate: {
@@ -58,7 +58,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
 
                 const date = (fromDate && this.isDateTime) ? fromDate.replace('.000Z', '+00:00') : fromDate;
                 this.condition.value = { ...this.condition.value, fromDate: date };
-            }
+            },
         },
 
         toDate: {
@@ -71,7 +71,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
 
                 const date = (toDate && this.isDateTime) ? toDate.replace('.000Z', '+00:00') : toDate;
                 this.condition.value = { ...this.condition.value, toDate: date };
-            }
+            },
         },
 
         isDateTime() {
@@ -82,6 +82,6 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueUseTimeError || this.conditionValueFromDateError || this.conditionValueToDateError;
-        }
-    }
+        },
+    },
 });

@@ -17,8 +17,8 @@ Component.register('sw-extension-review-creation', {
     props: {
         extension: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -31,8 +31,8 @@ Component.register('sw-extension-review-creation', {
             text: null,
             errors: {
                 headlineError: null,
-                ratingError: null
-            }
+                ratingError: null,
+            },
         };
     },
 
@@ -51,7 +51,7 @@ Component.register('sw-extension-review-creation', {
 
         installedVersion() {
             const installedExtension = Shopware.State.get('shopwareExtensions').myExtensions.data.find(
-                (extension) => extension.name === this.extension.name
+                (extension) => extension.name === this.extension.name,
             );
 
             return installedExtension.version;
@@ -64,7 +64,7 @@ Component.register('sw-extension-review-creation', {
 
         disabled() {
             return this.hasError || !this.tocAccepted;
-        }
+        },
     },
 
     watch: {
@@ -74,7 +74,7 @@ Component.register('sw-extension-review-creation', {
 
         rating() {
             this.validateRating();
-        }
+        },
     },
 
     methods: {
@@ -94,7 +94,7 @@ Component.register('sw-extension-review-creation', {
                 rating: this.rating,
                 text: this.text,
                 tocAccepted: this.tocAccepted,
-                version: this.installedVersion
+                version: this.installedVersion,
             };
 
             await this.createReview(review);
@@ -130,7 +130,7 @@ Component.register('sw-extension-review-creation', {
         validateHeadline() {
             if (this.headline === null || this.headline === '') {
                 this.errors.headlineError = new ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3'
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
 
                 return;
@@ -142,7 +142,7 @@ Component.register('sw-extension-review-creation', {
         validateRating() {
             if (this.rating === null || this.rating === 0) {
                 this.errors.ratingError = new ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3'
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
 
                 return;
@@ -158,6 +158,6 @@ Component.register('sw-extension-review-creation', {
         emitCreated() {
             this.$emit('created');
             this.isCreatedSuccessful = false;
-        }
-    }
+        },
+    },
 });

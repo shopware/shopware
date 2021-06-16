@@ -40,14 +40,14 @@ export default class ExtensionHelperService {
             return {
                 downloaded: false,
                 installedAt: false,
-                active: false
+                active: false,
             };
         }
 
         return {
             downloaded: extension.source === 'local',
             installedAt: extension.installedAt,
-            active: extension.active
+            active: extension.active,
         };
     }
 }

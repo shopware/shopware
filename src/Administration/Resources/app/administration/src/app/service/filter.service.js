@@ -128,8 +128,8 @@ export default class FilterService {
             name: route.name,
             query: {
                 ...query,
-                [this._filterEntity.key]: urlEncodedValue
-            }
+                [this._filterEntity.key]: urlEncodedValue,
+            },
         });
     }
 

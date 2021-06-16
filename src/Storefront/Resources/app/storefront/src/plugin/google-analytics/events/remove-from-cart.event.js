@@ -23,8 +23,8 @@ export default class RemoveFromCart extends AnalyticsEvent
 
         gtag('event', 'remove_from_cart', {
             'items': [{
-                'id': DomAccessHelper.getDataAttribute(closest, 'product-id')
-            }]
+                'id': DomAccessHelper.getDataAttribute(closest, 'product-id'),
+            }],
         });
     }
 }

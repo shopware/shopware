@@ -22,17 +22,17 @@ Component.register('sw-container', {
         columns: {
             type: String,
             default: '',
-            required: false
+            required: false,
         },
         rows: {
             type: String,
             default: '',
-            required: false
+            required: false,
         },
         gap: {
             type: String,
             default: '',
-            required: false
+            required: false,
         },
         justify: {
             type: String,
@@ -41,7 +41,7 @@ Component.register('sw-container', {
             validValues: ['start', 'end', 'center', 'stretch', 'left', 'right'],
             validator(value) {
                 return ['start', 'end', 'center', 'stretch', 'left', 'right'].includes(value);
-            }
+            },
         },
         align: {
             type: String,
@@ -50,20 +50,20 @@ Component.register('sw-container', {
             validValues: ['start', 'end', 'center', 'stretch'],
             validator(value) {
                 return ['start', 'end', 'center', 'stretch'].includes(value);
-            }
+            },
         },
         breakpoints: {
             type: Object,
             default() {
                 return {};
             },
-            required: false
-        }
+            required: false,
+        },
     },
 
     data() {
         return {
-            currentCssGrid: this.buildCssGrid()
+            currentCssGrid: this.buildCssGrid(),
         };
     },
 
@@ -83,7 +83,7 @@ Component.register('sw-container', {
                 listener() {
                     that.updateCssGrid();
                 },
-                component: this
+                component: this,
             });
         },
 
@@ -107,7 +107,7 @@ Component.register('sw-container', {
                         this.$options.name,
                         `Unable to register breakpoint "${breakpoint}".
                         The breakpoint key has to be a number equal to your desired pixel value.`,
-                        currentBreakpoint
+                        currentBreakpoint,
                     );
                 }
 
@@ -127,7 +127,7 @@ Component.register('sw-container', {
                 rows: this.rows,
                 gap: this.gap,
                 justify: this.justify,
-                align: this.align
+                align: this.align,
             };
         },
 
@@ -139,8 +139,8 @@ Component.register('sw-container', {
                 'grid-template-rows': grid.rows,
                 'grid-gap': grid.gap,
                 'justify-items': grid.justify,
-                'align-items': grid.align
+                'align-items': grid.align,
             };
-        }
-    }
+        },
+    },
 });

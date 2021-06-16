@@ -15,16 +15,16 @@ Component.register('sw-extension-review-creation-inputs', {
             required: false,
             default: () => ({
                 headlineError: null,
-                ratingError: null
-            })
-        }
+                ratingError: null,
+            }),
+        },
     },
 
     data() {
         return {
             headline: null,
             rating: null,
-            text: null
+            text: null,
         };
     },
 
@@ -39,6 +39,6 @@ Component.register('sw-extension-review-creation-inputs', {
 
         text(text) {
             this.$emit('changed', 'text', text);
-        }
-    }
+        },
+    },
 });

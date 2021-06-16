@@ -10,14 +10,14 @@ Component.register('sw-sales-channel-product-assignment-categories', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         salesChannel: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -27,7 +27,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             searchTerm: '',
             isFetching: false,
             isComponentReady: false,
-            categoriesCollection: []
+            categoriesCollection: [],
         };
     },
 
@@ -52,7 +52,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                 // add parent id to accumulator
                 return [...acc, ...pathIds];
             }, []);
-        }
+        },
     },
 
     watch: {
@@ -67,10 +67,10 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                     this.$emit('selection-change', products, 'categoryProducts');
                 }).catch(err => {
                     this.createNotificationError({
-                        message: err.message
+                        message: err.message,
                     });
                 });
-            }
+            },
         },
 
         searchTerm: {
@@ -82,8 +82,8 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                 this.searchCategories(newTerm).then((response) => {
                     this.searchResult = response;
                 });
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -95,7 +95,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             this.categoriesCollection = new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             this.getTreeItems().then(() => {
@@ -111,9 +111,9 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                     'AND',
                     [
                         Criteria.equals('parentId', parentId),
-                        Criteria.equals('type', 'page')
-                    ]
-                )
+                        Criteria.equals('type', 'page'),
+                    ],
+                ),
             );
 
             return categoryCriteria;
@@ -146,7 +146,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                 return Promise.resolve();
             }).catch(err => {
                 this.createNotificationError({
-                    message: err.message
+                    message: err.message,
                 });
             }).finally(() => {
                 this.isFetching = false;
@@ -195,7 +195,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             this.onCheckItem({
                 checked: shouldBeChecked,
                 id: item.id,
-                data: item
+                data: item,
             });
         },
 
@@ -215,10 +215,10 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                         Criteria.equalsAny('categoryIds', categories),
                         Criteria.equals('parentId', null),
                         Criteria.not('and', [
-                            Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)
-                        ])
-                    ]
-                )
+                            Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
+                        ]),
+                    ],
+                ),
             );
 
             return productCriteria;
@@ -226,6 +226,6 @@ Component.register('sw-sales-channel-product-assignment-categories', {
 
         getProductFromCategories(categories) {
             return this.productRepository.search(this.productCriteria(categories), Shopware.Context.api);
-        }
-    }
+        },
+    },
 });

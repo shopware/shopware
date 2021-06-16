@@ -5,7 +5,7 @@ Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-
         saveFinish() {
             this.isSaveSuccessful = false;
             this.$router.push({
-                name: 'sw.settings.delivery.time.detail', params: { id: this.deliveryTime.id }
+                name: 'sw.settings.delivery.time.detail', params: { id: this.deliveryTime.id },
             });
         },
 
@@ -13,6 +13,6 @@ Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-
             Shopware.State.commit('context/resetLanguageToDefault');
 
             this.deliveryTime = this.deliveryTimeRepository.create();
-        }
-    }
+        },
+    },
 });

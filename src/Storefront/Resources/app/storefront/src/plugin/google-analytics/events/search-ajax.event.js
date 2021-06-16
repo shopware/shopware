@@ -12,7 +12,7 @@ export default class SearchAjaxEvent extends EventAwareAnalyticsEvent
 
     getEvents() {
         return {
-            'handleInputEvent':  this._onSearch.bind(this)
+            'handleInputEvent':  this._onSearch.bind(this),
         };
     }
 
@@ -22,7 +22,7 @@ export default class SearchAjaxEvent extends EventAwareAnalyticsEvent
         }
 
         gtag('event', 'search', {
-            'search_term': event.detail.value
+            'search_term': event.detail.value,
         });
     }
 }

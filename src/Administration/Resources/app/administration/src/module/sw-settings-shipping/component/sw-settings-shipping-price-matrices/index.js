@@ -12,27 +12,27 @@ Component.register('sw-settings-shipping-price-matrices', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         ...mapState('swShippingDetail', [
-            'shippingMethod'
+            'shippingMethod',
         ]),
 
         ...mapGetters('swShippingDetail', [
             'shippingPriceGroups',
             'usedRules',
             'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists'
+            'newPriceMatrixExists',
         ]),
 
         ruleRepository() {
@@ -43,7 +43,7 @@ Component.register('sw-settings-shipping-price-matrices', {
             const criteria = new Criteria(1, 500);
             criteria.addFilter(Criteria.multi('OR', [
                 Criteria.contains('rule.moduleTypes.types', 'price'),
-                Criteria.equals('rule.moduleTypes', null)
+                Criteria.equals('rule.moduleTypes', null),
             ]));
             return criteria;
         },
@@ -54,7 +54,7 @@ Component.register('sw-settings-shipping-price-matrices', {
 
         isLoaded() {
             return this.currencies.length && this.shippingMethod;
-        }
+        },
     },
 
     methods: {
@@ -110,6 +110,6 @@ Component.register('sw-settings-shipping-price-matrices', {
             });
 
             this.shippingMethod.prices.push(...newPrices);
-        }
-    }
+        },
+    },
 });

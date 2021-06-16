@@ -10,28 +10,28 @@ Component.register('sw-product-media-form', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         isInherited: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             isMediaLoading: false,
             columnCount: 5,
-            columnWidth: 90
+            columnWidth: 90,
         };
     },
 
@@ -69,7 +69,7 @@ Component.register('sw-product-media-form', {
         },
 
         ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading'
+            isStoreLoading: 'isLoading',
         }),
 
         isLoading() {
@@ -99,7 +99,7 @@ Component.register('sw-product-media-form', {
             const coverMediaItem = this.productMedia.find(coverMedium => coverMedium.media.id === this.product.coverId);
 
             return coverMediaItem.id;
-        }
+        },
     },
 
     methods: {
@@ -154,9 +154,9 @@ Component.register('sw-product-media-form', {
                 isCover: mediaItems.length === 0,
                 media: {
                     isPlaceholder: true,
-                    name: ''
+                    name: '',
                 },
-                mediaId: mediaItems.length.toString()
+                mediaId: mediaItems.length.toString(),
             };
         },
 
@@ -279,6 +279,6 @@ Component.register('sw-product-media-form', {
             this.productMedia.forEach((medium, index) => {
                 medium.position = index;
             });
-        }
-    }
+        },
+    },
 });

@@ -10,39 +10,39 @@ Component.register('sw-extension-config', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         namespace: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            salesChannelId: null
+            salesChannelId: null,
         };
     },
 
     computed: {
         domain() {
             return `${this.namespace}.config`;
-        }
+        },
     },
 
     methods: {
         onSave() {
             this.$refs.systemConfig.saveAll().then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess')
+                    message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
                 });
             }).catch((err) => {
                 this.createNotificationError({
-                    message: err
+                    message: err,
                 });
             });
-        }
-    }
+        },
+    },
 });

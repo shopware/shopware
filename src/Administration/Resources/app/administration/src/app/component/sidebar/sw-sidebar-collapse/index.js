@@ -9,21 +9,21 @@ Component.extend('sw-sidebar-collapse', 'sw-collapse', {
     computed: {
         expandButtonClass() {
             return {
-                'is--hidden': this.expanded
+                'is--hidden': this.expanded,
             };
         },
 
         collapseButtonClass() {
             return {
-                'is--hidden': !this.expanded
+                'is--hidden': !this.expanded,
             };
-        }
+        },
     },
 
     methods: {
         collapseItem() {
             this.$super('collapseItem');
             this.$emit('change-expanded', { isExpanded: this.expanded });
-        }
-    }
+        },
+    },
 });

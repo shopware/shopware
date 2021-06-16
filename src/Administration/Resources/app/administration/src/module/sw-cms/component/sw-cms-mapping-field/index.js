@@ -10,7 +10,7 @@ Component.register('sw-cms-mapping-field', {
 
     model: {
         prop: 'config',
-        event: 'config-update'
+        event: 'config-update',
     },
 
     props: {
@@ -20,28 +20,28 @@ Component.register('sw-cms-mapping-field', {
             default() {
                 return {
                     source: 'static',
-                    value: null
+                    value: null,
                 };
-            }
+            },
         },
 
         valueTypes: {
             type: [String, Array],
             required: false,
-            default: 'string'
+            default: 'string',
         },
 
         entity: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         label: {
             type: String,
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     data() {
@@ -49,7 +49,7 @@ Component.register('sw-cms-mapping-field', {
             cmsPageState: Shopware.State.get('cmsPageState'),
             mappingTypes: {},
             allowedMappingTypes: [],
-            demoValue: null
+            demoValue: null,
         };
     },
 
@@ -60,7 +60,7 @@ Component.register('sw-cms-mapping-field', {
 
         hasPreview() {
             return typeof this.$scopedSlots.preview !== 'undefined';
-        }
+        },
     },
 
     watch: {
@@ -69,8 +69,8 @@ Component.register('sw-cms-mapping-field', {
             handler() {
                 this.updateMappingTypes();
                 this.updateDemoValue();
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -137,8 +137,8 @@ Component.register('sw-cms-mapping-field', {
         getDemoValue(mappingPath) {
             return this.cmsService.getPropertyByMappingPath(
                 this.cmsPageState.currentDemoEntity,
-                mappingPath
+                mappingPath,
             );
-        }
-    }
+        },
+    },
 });

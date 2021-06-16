@@ -2,7 +2,7 @@ import ApiService from '../api.service';
 
 const DocumentEvents = {
     DOCUMENT_FAILED: 'create-document-fail',
-    DOCUMENT_FINISHED: 'create-document-finished'
+    DOCUMENT_FINISHED: 'create-document-finished',
 };
 
 /**
@@ -29,7 +29,7 @@ class DocumentApiService extends ApiService {
 
         const params = {
             config: documentConfig,
-            referenced_document_id: referencedDocumentId
+            referenced_document_id: referencedDocumentId,
         };
 
         if (file) {
@@ -39,7 +39,7 @@ class DocumentApiService extends ApiService {
         let docCreated = this.httpClient
             .post(route, params, {
                 additionalParams,
-                headers
+                headers,
             }).then((response) => {
                 if (file && response.data.documentId) {
                     const fileName = file.name.split('.').shift();
@@ -49,7 +49,7 @@ class DocumentApiService extends ApiService {
                     headers['Content-Type'] = file.type;
                     docCreated = this.httpClient.post(route, file, {
                         additionalParams,
-                        headers
+                        headers,
                     });
                 }
 
@@ -59,7 +59,7 @@ class DocumentApiService extends ApiService {
             }).catch((error) => {
                 if (error.response?.data?.errors) {
                     this.$listener(
-                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop())
+                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
                     );
                 }
             });
@@ -74,8 +74,8 @@ class DocumentApiService extends ApiService {
                 {
                     params: { config },
                     responseType: 'blob',
-                    headers: this.getBasicHeaders()
-                }
+                    headers: this.getBasicHeaders(),
+                },
             );
     }
 
@@ -85,8 +85,8 @@ class DocumentApiService extends ApiService {
                 `/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`,
                 {
                     responseType: 'blob',
-                    headers: this.getBasicHeaders()
-                }
+                    headers: this.getBasicHeaders(),
+                },
             );
     }
 

@@ -10,14 +10,14 @@ Component.register('sw-notification-center-item', {
     props: {
         notification: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         itemHeaderClass() {
             return {
-                'sw-notification-center-item__header--is-new': !this.notification.visited
+                'sw-notification-center-item__header--is-new': !this.notification.visited,
             };
         },
         dateFormatted() {
@@ -29,8 +29,8 @@ Component.register('sw-notification-center-item', {
                         month: undefined,
                         year: undefined,
                         hour: '2-digit',
-                        minute: '2-digit'
-                    }
+                        minute: '2-digit',
+                    },
                 );
             }
 
@@ -38,15 +38,15 @@ Component.register('sw-notification-center-item', {
                 this.notification.timestamp,
                 {
                     hour: '2-digit',
-                    minute: '2-digit'
-                }
+                    minute: '2-digit',
+                },
             );
         },
         notificationActions() {
             return this.notification.actions.filter((action) => {
                 return action.route;
             });
-        }
+        },
     },
 
     methods: {
@@ -71,6 +71,6 @@ Component.register('sw-notification-center-item', {
 
             this.$router.push(action.route);
             this.$emit('center-close');
-        }
-    }
+        },
+    },
 });

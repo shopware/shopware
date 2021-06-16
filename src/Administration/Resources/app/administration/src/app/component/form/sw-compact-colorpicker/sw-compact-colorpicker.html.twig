@@ -9,11 +9,11 @@
             <div
                 class="sw-colorpicker__previewColor"
                 :style="{ background: previewColorValue }"
-            />
+            ></div>
             <div
                 class="sw-colorpicker__previewBackground"
                 :class="{'sw-colorpicker__previewBackground--empty': !isColorValid}"
-            />
+            ></div>
         </div>
     </div>
 </div>
@@ -37,7 +37,7 @@
         <div
             class="sw-colorpicker__colorpicker-selector"
             :style="selectorStyles"
-        />
+        ></div>
         {% endblock %}
     </div>
     {% endblock %}
@@ -76,11 +76,11 @@
             <div
                 class="sw-colorpicker__colorpicker-previewColor"
                 :style="{ background: previewColorValue}"
-            />
+            ></div>
             <div
                 class="sw-colorpicker__colorpicker-previewBackground"
                 :class="{ 'is--invalid': !isColorValid }"
-            />
+            ></div>
         </div>
         {% endblock %}
     </div>

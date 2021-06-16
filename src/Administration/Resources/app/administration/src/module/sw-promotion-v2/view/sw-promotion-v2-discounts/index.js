@@ -9,18 +9,18 @@ Component.register('sw-promotion-v2-discounts', {
 
     inject: [
         'acl',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     mixins: [
-        'notification'
+        'notification',
     ],
 
     props: {
         promotion: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -28,14 +28,14 @@ Component.register('sw-promotion-v2-discounts', {
             isActive: false,
             newDiscount: null,
             selectedDiscountType: 'basic',
-            showDiscountModal: false
+            showDiscountModal: false,
         };
     },
 
     computed: {
         promotionDiscountRepository() {
             return this.repositoryFactory.create('promotion_discount');
-        }
+        },
     },
 
     methods: {
@@ -78,7 +78,7 @@ Component.register('sw-promotion-v2-discounts', {
                 value: 0,
                 considerAdvancedRules: false,
                 sorterKey: 'PRICE_ASC',
-                usageKey: 'ALL'
+                usageKey: 'ALL',
             });
 
             return discount;
@@ -89,7 +89,7 @@ Component.register('sw-promotion-v2-discounts', {
                 cart: 'basic',
                 delivery: 'shipping-discount',
                 set: 'buy-x-get-y',
-                setgroup: 'buy-x-get-y'
+                setgroup: 'buy-x-get-y',
             };
 
             return typeMapping[discount.scope.split('-')[0]];
@@ -97,8 +97,8 @@ Component.register('sw-promotion-v2-discounts', {
 
         getTitle(type, pageTitle) {
             return this.$tc(`sw-promotion-v2.detail.discounts.wizard.${type}.prefixTitle`, 0, {
-                title: this.$tc(`sw-promotion-v2.detail.discounts.wizard.${type}.title${pageTitle}`)
+                title: this.$tc(`sw-promotion-v2.detail.discounts.wizard.${type}.title${pageTitle}`),
             });
-        }
-    }
+        },
+    },
 });

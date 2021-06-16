@@ -120,5 +120,5 @@ export default {
     removeApiError,
     resetApiErrors,
     addSystemError,
-    removeSystemError
+    removeSystemError,
 };

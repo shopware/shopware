@@ -22,15 +22,15 @@ Module.register('sw-settings-logging', {
             path: 'list',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.logging'
-            }
-        }
+                privilege: 'system.logging',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.settings.logging.index',
         icon: 'default-device-server',
-        privilege: 'system.logging'
-    }
+        privilege: 'system.logging',
+    },
 });

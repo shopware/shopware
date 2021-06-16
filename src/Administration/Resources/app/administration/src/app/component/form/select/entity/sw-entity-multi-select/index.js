@@ -11,37 +11,37 @@ Component.register('sw-entity-multi-select', {
     inject: { repositoryFactory: 'repositoryFactory' },
 
     mixins: [
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'entityCollection',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         labelProperty: {
             type: [String, Array],
             required: false,
-            default: 'name'
+            default: 'name',
         },
 
         resultLimit: {
             type: Number,
             required: false,
-            default: 25
+            default: 25,
         },
 
         valueLimit: {
             type: Number,
             required: false,
-            default: 5
+            default: 5,
         },
 
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         criteria: {
@@ -49,24 +49,24 @@ Component.register('sw-entity-multi-select', {
             required: false,
             default() {
                 return new Criteria(1, this.resultLimit);
-            }
+            },
         },
 
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         entityCollection: {
             type: Array,
-            required: true
+            required: true,
         },
 
         entityName: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         context: {
@@ -74,13 +74,13 @@ Component.register('sw-entity-multi-select', {
             required: false,
             default() {
                 return Shopware.Context.api;
-            }
+            },
         },
         hideLabels: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -90,7 +90,7 @@ Component.register('sw-entity-multi-select', {
             searchCriteria: null,
             isLoading: false,
             currentCollection: null,
-            resultCollection: null
+            resultCollection: null,
         };
     },
 
@@ -122,13 +122,13 @@ Component.register('sw-entity-multi-select', {
             }
 
             return Math.max(0, this.totalValuesCount - this.limit);
-        }
+        },
     },
 
     watch: {
         entityCollection() {
             this.refreshCurrentCollection();
-        }
+        },
     },
 
     created() {
@@ -149,7 +149,7 @@ Component.register('sw-entity-multi-select', {
                 this.entityCollection.source,
                 this.entityCollection.entity,
                 this.entityCollection.context,
-                this.entityCollection.criteria
+                this.entityCollection.criteria,
             );
         },
 
@@ -320,6 +320,6 @@ Component.register('sw-entity-multi-select', {
 
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
-        }
-    }
+        },
+    },
 });

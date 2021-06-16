@@ -21,9 +21,9 @@ Component.extend('sw-condition-not-found', 'sw-condition-base', {
             return [
                 {
                     label: this.condition.type,
-                    type: this.condition.type
+                    type: this.condition.type,
                 },
-                ...this.availableTypes
+                ...this.availableTypes,
             ];
         },
 
@@ -38,7 +38,7 @@ Component.extend('sw-condition-not-found', 'sw-condition-base', {
                 } catch (e) {
                     /* eslint-ignore-line */
                 }
-            }, 300)
-        }
-    }
+            }, 300),
+        },
+    },
 });

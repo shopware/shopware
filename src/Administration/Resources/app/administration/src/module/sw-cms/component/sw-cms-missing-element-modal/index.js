@@ -12,8 +12,8 @@ Component.register('sw-cms-missing-element-modal', {
             required: true,
             default() {
                 return [];
-            }
-        }
+            },
+        },
     },
 
     computed: {
@@ -25,9 +25,9 @@ Component.register('sw-cms-missing-element-modal', {
 
         title() {
             return this.$tc('sw-cms.components.cmsMissingElementModal.title', this.missingElements.length, {
-                element: this.element
+                element: this.element,
             });
-        }
+        },
     },
 
     methods: {
@@ -37,6 +37,6 @@ Component.register('sw-cms-missing-element-modal', {
 
         onSave() {
             this.$emit('modal-save');
-        }
-    }
+        },
+    },
 });

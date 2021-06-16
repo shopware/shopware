@@ -12,7 +12,7 @@ Component.extend('sw-condition-line-item-taxation', 'sw-condition-base', {
 
     data() {
         return {
-            taxes: null
+            taxes: null,
         };
     },
 
@@ -33,14 +33,14 @@ Component.extend('sw-condition-line-item-taxation', 'sw-condition-base', {
             set(taxIds) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, taxIds };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.taxIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueTaxIdsError;
-        }
+        },
     },
 
     created() {
@@ -52,7 +52,7 @@ Component.extend('sw-condition-line-item-taxation', 'sw-condition-base', {
             this.taxes = new EntityCollection(
                 this.taxRepository.route,
                 this.taxRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.taxIds.length <= 0) {
@@ -70,6 +70,6 @@ Component.extend('sw-condition-line-item-taxation', 'sw-condition-base', {
         setTaxIds(taxes) {
             this.taxIds = taxes.getIds();
             this.taxes = taxes;
-        }
-    }
+        },
+    },
 });

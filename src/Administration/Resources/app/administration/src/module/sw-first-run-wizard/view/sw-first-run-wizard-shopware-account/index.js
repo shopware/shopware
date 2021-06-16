@@ -12,7 +12,7 @@ Component.register('sw-first-run-wizard-shopware-account', {
         return {
             shopwareId: '',
             password: '',
-            accountError: false
+            accountError: false,
         };
     },
 
@@ -38,7 +38,7 @@ Component.register('sw-first-run-wizard-shopware-account', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.plugins',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'skip',
@@ -46,7 +46,7 @@ Component.register('sw-first-run-wizard-shopware-account', {
                     position: 'right',
                     variant: null,
                     action: 'sw.first.run.wizard.index.store',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'next',
@@ -54,8 +54,8 @@ Component.register('sw-first-run-wizard-shopware-account', {
                     position: 'right',
                     variant: 'primary',
                     action: this.testCredentials.bind(this),
-                    disabled: false
-                }
+                    disabled: false,
+                },
             ];
 
             this.$emit('buttons-update', buttonConfig);
@@ -68,7 +68,7 @@ Component.register('sw-first-run-wizard-shopware-account', {
             return this.firstRunWizardService.checkShopwareId({
                 language,
                 shopwareId,
-                password
+                password,
             }).then(() => {
                 this.accountError = false;
 
@@ -80,6 +80,6 @@ Component.register('sw-first-run-wizard-shopware-account', {
 
                 return true;
             });
-        }
-    }
+        },
+    },
 });

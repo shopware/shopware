@@ -10,20 +10,20 @@ Component.register('sw-settings-search-live-search-keyword', {
         text: {
             type: String,
             required: true,
-            default: null
+            default: null,
         },
 
         searchTerm: {
             type: String,
             required: true,
-            default: null
+            default: null,
         },
 
         highlightClass: {
             type: String,
             required: false,
-            default: 'sw-settings-search-live-search-keyword__highlight'
-        }
+            default: 'sw-settings-search-live-search-keyword__highlight',
+        },
     },
 
     computed: {
@@ -33,14 +33,14 @@ Component.register('sw-settings-search-live-search-keyword', {
 
         parsedMsg() {
             return this.text.split(
-                new RegExp(this.parsedSearch, 'gi')
+                new RegExp(this.parsedSearch, 'gi'),
             );
-        }
+        },
     },
 
     methods: {
         getClass(index) {
             return index ? this.highlightClass : {};
-        }
-    }
+        },
+    },
 });

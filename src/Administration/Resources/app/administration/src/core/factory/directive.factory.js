@@ -6,7 +6,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 export default {
     registerDirective,
     getDirectiveByName,
-    getDirectiveRegistry
+    getDirectiveRegistry,
 };
 
 /**

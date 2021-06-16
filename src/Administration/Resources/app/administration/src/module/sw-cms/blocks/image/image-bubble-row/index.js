@@ -12,7 +12,7 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginTop: '20px',
         marginLeft: '20px',
         marginRight: '20px',
-        sizingMode: 'boxed'
+        sizingMode: 'boxed',
     },
     slots: {
         left: {
@@ -20,42 +20,42 @@ Shopware.Service('cmsService').registerCmsBlock({
             default: {
                 config: {
                     displayMode: { source: 'static', value: 'cover' },
-                    minHeight: { source: 'static', value: '300px' }
+                    minHeight: { source: 'static', value: '300px' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_camera_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_camera_large.jpg',
+                    },
+                },
+            },
         },
         center: {
             type: 'image',
             default: {
                 config: {
                     displayMode: { source: 'static', value: 'cover' },
-                    minHeight: { source: 'static', value: '300px' }
+                    minHeight: { source: 'static', value: '300px' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_plant_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_plant_large.jpg',
+                    },
+                },
+            },
         },
         right: {
             type: 'image',
             default: {
                 config: {
                     displayMode: { source: 'static', value: 'cover' },
-                    minHeight: { source: 'static', value: '300px' }
+                    minHeight: { source: 'static', value: '300px' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_glasses_large.jpg'
-                    }
-                }
-            }
-        }
-    }
+                        url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                    },
+                },
+            },
+        },
+    },
 });

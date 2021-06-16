@@ -13,9 +13,9 @@ Shopware.Service('privileges')
                     'mail_template_type:read',
                     'custom_field_set:read',
                     'custom_field:read',
-                    'custom_field_set_relation:read'
+                    'custom_field_set_relation:read',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
@@ -23,28 +23,28 @@ Shopware.Service('privileges')
                     'event_action_rule:delete',
                     'event_action_sales_channel:delete',
                     'event_action_sales_channel:create',
-                    'event_action_rule:create'
-                ],
-                dependencies: [
-                    'customer.viewer'
-                ]
-            },
-            creator: {
-                privileges: [
-                    'event_action:create'
+                    'event_action_rule:create',
                 ],
                 dependencies: [
                     'customer.viewer',
-                    'customer.editor'
-                ]
+                ],
+            },
+            creator: {
+                privileges: [
+                    'event_action:create',
+                ],
+                dependencies: [
+                    'customer.viewer',
+                    'customer.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'event_action:delete'
+                    'event_action:delete',
                 ],
                 dependencies: [
-                    'customer.viewer'
-                ]
-            }
-        }
+                    'customer.viewer',
+                ],
+            },
+        },
     });

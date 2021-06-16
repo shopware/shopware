@@ -109,6 +109,8 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-card-section--secondary').contains('English');
+        cy.contains('Account').click();
+        cy.get('.sw-tooltip').should('not.exist');
         cy.takeSnapshot('[Customer] Detail', '.sw-customer-card');
     });
 

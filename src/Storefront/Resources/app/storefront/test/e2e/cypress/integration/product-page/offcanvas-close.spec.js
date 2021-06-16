@@ -4,15 +4,13 @@ let product = {};
 
 describe('Test if the offcanvas menus could be closed with the browser back button', () => {
     beforeEach(() => {
-        cy.setToInitialState().then(() => {
-            cy.createProductFixture().then(() => {
-                return cy.createDefaultFixture('category');
-            }).then(() => {
-                return cy.fixture('product');
-            }).then((result) => {
-                product = result;
-                cy.visit('/');
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createDefaultFixture('category');
+        }).then(() => {
+            return cy.fixture('product');
+        }).then((result) => {
+            product = result;
+            cy.visit('/');
         });
     });
 
@@ -68,13 +66,15 @@ describe('Test if the offcanvas menus could be closed with the browser back butt
 
         // close offcanvas with backdrop click
         cy.get('.modal-backdrop').click();
+        cy.get('.offcanvas.is-open').should('not.exist');
+        cy.get('.modal-backdrop').should('not.exist');
 
         // ensure, it is still the product detail page
         cy.get('.product-detail-name').contains(product.name);
 
         // ensure normal closing via click still works
         cy.get('.header-cart').click();
-        cy.get('.offcanvas.is-open').should('be.exist');
+        cy.get('.offcanvas.is-open').should('be.visible');
         cy.get('.offcanvas .offcanvas-cart-header').contains('Shopping cart');
         cy.get('.offcanvas.is-open .offcanvas-close').click();
         cy.get('.offcanvas').should('not.exist');

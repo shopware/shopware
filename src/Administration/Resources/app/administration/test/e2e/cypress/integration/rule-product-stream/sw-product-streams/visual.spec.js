@@ -61,6 +61,7 @@ describe('Dynamic product groups: Visual tests', () => {
         );
 
         cy.get('button.sw-button').contains('Preview').click();
+
         // Take snapshot for visual testing
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -68,6 +69,7 @@ describe('Dynamic product groups: Visual tests', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
+        cy.get('.sw-data-grid .sw-data-grid__row--0').should('be.visible');
         cy.takeSnapshot('[Product groups] Detail, preview', '.sw-product-stream-modal-preview');
 
         cy.get('.sw-product-stream-modal-preview').within(() => {
@@ -86,6 +88,7 @@ describe('Dynamic product groups: Visual tests', () => {
         );
 
         // Take snapshot for visual testing
+        cy.get('.sw-select-selection-list__input').type('{esc}');
         cy.takeSnapshot('[Product groups] Detail, with conditions', '.sw-product-stream-detail');
     });
 });

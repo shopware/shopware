@@ -136,8 +136,6 @@ describe('Rule builder: Visual tests', () => {
 
             cy.get('button.sw-button').contains('Subcondition').click();
             cy.get('.sw-condition').should('have.length', 2);
-
-            cy.get('.sw-condition .sw-condition__context-button').first().click();
         });
 
         // Take snapshot for visual testing

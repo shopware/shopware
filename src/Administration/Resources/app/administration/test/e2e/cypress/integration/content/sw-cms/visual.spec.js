@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('CMS: Visual tests', () => {
     // eslint-disable-next-line no-undef
@@ -58,6 +58,8 @@ describe('CMS: Visual tests', () => {
 
             // Take snapshot for visual testing
             cy.get('.sw-loader').should('not.exist');
+            cy.contains('Vierte Wand').click();
+            cy.get('.sw-tooltip').should('not.exist');
             cy.takeSnapshot('[CMS] Detail, Layout with text', '.sw-cms-detail__stage');
         });
         cy.get('.sw-cms-detail__back-btn').click();

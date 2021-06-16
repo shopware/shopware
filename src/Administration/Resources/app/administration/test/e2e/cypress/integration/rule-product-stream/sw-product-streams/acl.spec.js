@@ -234,9 +234,12 @@ describe('Dynamic product group: Test ACL privileges', () => {
             });
 
             // select all entities
+            cy.get('.sw-data-grid-skeleton').should('not.exist');
             cy.get('.sw-data-grid__cell--header.sw-data-grid__cell--selection input').check();
 
             // delete product stream via bulk
+            cy.get('.sw-data-grid__row.is--selected').should('be.visible');
+            cy.get('.sw-data-grid__bulk a.link.link-danger').should('be.visible');
             cy.get('.sw-data-grid__bulk a.link.link-danger').click();
 
             cy.get('.sw-modal').should('be.visible');

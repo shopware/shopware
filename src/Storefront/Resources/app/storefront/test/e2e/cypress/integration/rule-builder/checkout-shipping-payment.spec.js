@@ -3,6 +3,7 @@ import AccountPageObject from "../../support/pages/account.page-object";
 import createId from 'uuid/v4';
 
 let product = {};
+const blockedSnippet = 'The shipping method "Standard" is blocked for your current shopping cart.';
 
 describe('Checkout rule builder handling for shipping and payment methods', () => {
     beforeEach(() => {
@@ -31,7 +32,7 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
                             ruleId: ruleId,
                             parentId: andContainerId,
                             id: paymentMethodRuleId,
-                            value: { paymentMethodIds: [paymentMethodId] }
+                            value: {paymentMethodIds: [paymentMethodId]}
                         }]
                     }]
                 }]
@@ -50,8 +51,10 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         });
     });
 
-    // TODO: Unskip with NEXT-15497
-    it.skip('@cart @payment @shipping: Check rule conditions in cart', () => {
+    it('@cart @payment @shipping: Check rule conditions in cart', () => {
+        // Scenario: The shipping method "Standard" has a custom availability rule. This rules only allows "Standard"
+        // shipping, if the payment method "invoice" is selected.
+
         const page = new CheckoutPageObject();
 
         // Product detail
@@ -66,35 +69,58 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
         cy.get(`${page.elements.cartItem}-label`).contains(product.name);
 
-        // Check if we're getting a message in the offcanvas cart
-        cy.get(`${page.elements.offCanvasCart} .alert-danger .alert-content`)
-            .contains('The shipping method Standard is blocked for your current shopping cart.');
-
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
 
         // Cart page
         cy.get('.cart-main-header').should('be.visible').contains('Shopping cart');
 
-        // Check if we're getting a message that the current shipping method is not available
-        cy.get('.alert-content-container .alert-content')
-            .contains('Shipping method Standard not available.');
-
-        // Next open up the shipping calc precalucation and check what happens when we're switching to invoice as
-        // payment method
+        // Collapse shipping costs menu
         cy.get('.cart-shipping-costs-container .cart-shipping-costs-btn').click();
         cy.get('#collapseShippingCost').should('be.visible');
-
-        cy.get('#collapseShippingCost select[name="paymentMethodId"]').select('Invoice');
-
-        // Check if we don't have a warning message anymore
+        // Select the payment method invoice
+        cy.get('#collapseShippingCost select[id="paymentMethodId"]').select('Invoice');
+        // Page is reloading
+        // Waits until the page is reloaded, since the shipping menu is collapsed again
+        cy.get('#shippingMethodId').should('not.be.visible');
         cy.get('.cart-main-header').should('be.visible').contains('Shopping cart');
 
+        // Collapse shipping costs menu
+        cy.get('.cart-shipping-costs-container .cart-shipping-costs-btn').click();
+        cy.get('#collapseShippingCost').should('be.visible');
+        // Select the shipping method "Standard"
+        cy.get('#collapseShippingCost select[id="shippingMethodId"]').select('Standard');
+        // Page is reloading
+        // Waits until the page is reloaded, since the shipping menu is collapsed again
+        cy.get('#shippingMethodId').should('not.be.visible');
+        cy.get('.cart-main-header').should('be.visible').contains('Shopping cart');
+
+        // Check if we don't have a warning message anymore
         // The alert should be gone by now and the element isn't visible cause it's empty
         cy.get('.checkout-main .flashbags').should('not.be.visible');
+
+        // Now switch the payment method and verify that "Standard" shipping is blocked
+        // Collapse shipping costs menu
+        cy.get('.cart-shipping-costs-container .cart-shipping-costs-btn').click();
+        cy.get('#collapseShippingCost').should('be.visible');
+        // Select the payment method invoice
+        cy.get('#collapseShippingCost select[id="paymentMethodId"]').select('Cash on delivery');
+        // Page is reloading
+
+        cy.get('.cart-main-header').should('be.visible').contains('Shopping cart');
+
+        // Check if we're getting a message that the current shipping method is not available
+        cy.get('.alert-content-container .alert-content')
+            .contains(blockedSnippet);
+
+        // Also check that message in the offcanvas cart
+        cy.get('.header-cart').click();
+        // Check if we're getting a message in the offcanvas cart
+        cy.get(`${page.elements.offCanvasCart} .alert-warning .alert-content`)
+            .contains(blockedSnippet);
     });
 
-    it.skip('@checkout @payment @shipping: Check rule conditions in checkout', () => {
+    it('@checkout @payment @shipping: Check rule conditions in checkout', () => {
         const accountPage = new AccountPageObject();
         const page = new CheckoutPageObject();
 
@@ -110,10 +136,6 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
         cy.get(`${page.elements.cartItem}-label`).contains(product.name);
 
-        // Check if we're getting a message in the offcanvas cart
-        cy.get(`${page.elements.offCanvasCart} .alert-danger .alert-content`)
-            .contains('The shipping method Standard is blocked for your current shopping cart.');
-
         // Go to checkout
         cy.get('.offcanvas-cart-actions .btn-primary').click();
         cy.get('.checkout-main').should('be.visible');
@@ -126,26 +148,50 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
         // Check if we're on the confirm page
-        cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
 
-        // Flash message should be empty
-        cy.get('.checkout-main .flashbags').should('not.be.visible');
-
-        // Change payment to Cash on delivery
-        cy.get('.confirm-payment .btn-light[data-target="#confirmPaymentModal"]').click();
-        cy.get('.modal-title.h5').contains('Change payment');
-        cy.get('.payment-method-label[for="paymentMethod1"]').click();
-        cy.get('form[name=confirmPaymentForm] .btn-primary').click();
+        // Change payment to "Invoice"
+        cy.get(`${page.elements.paymentMethodsContainer} .payment-method-label`)
+            .should('exist')
+            .contains('Invoice')
+            .click(1, 1);
 
         // Page should reload
-        cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+
+        // Change shipping method to "Standard"
+        cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
+            .should('exist')
+            .contains('Standard')
+            .click(1, 1);
+
+        // Page should reload
+        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+
+        // Reload the page to prevent flakiness with the flashbacks
+        cy.reload();
+
+        // There should be no alert
+        cy.contains(blockedSnippet).should('not.exist');
+
+        // Confirm TOS checkbox
+        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+
+        // Change payment to Cash on delivery
+        cy.get(`${page.elements.paymentMethodsContainer} .payment-method-label`)
+            .should('exist')
+            .contains('Cash on delivery')
+            .click(1, 1);
+
+        // Page should reload
+        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
 
         // Validate that the shipping method is not available
-        cy.get('.alert-content-container .alert-content')
-            .contains('Shipping method Standard not available.');
+        cy.get('.alert  .alert-content')
+            .contains(blockedSnippet);
 
         // Check if the label is marked as invalid
-        cy.get('.confirm-shipping-current.is-invalid').contains('Standard');
-        cy.get('.confirm-method-tooltip').should('be.visible');
+        cy.get('#confirmFormSubmit').should('be.disabled');
     });
 });

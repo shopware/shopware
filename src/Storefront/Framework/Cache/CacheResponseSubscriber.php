@@ -9,6 +9,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,11 +33,18 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private bool $httpCacheEnabled;
 
-    public function __construct(CartService $cartService, int $defaultTtl, bool $httpCacheEnabled)
-    {
+    private MaintenanceModeResolver $maintenanceResolver;
+
+    public function __construct(
+        CartService $cartService,
+        int $defaultTtl,
+        bool $httpCacheEnabled,
+        MaintenanceModeResolver $maintenanceModeResolver
+    ) {
         $this->cartService = $cartService;
         $this->defaultTtl = $defaultTtl;
         $this->httpCacheEnabled = $httpCacheEnabled;
+        $this->maintenanceResolver = $maintenanceModeResolver;
     }
 
     public static function getSubscribedEvents()
@@ -57,6 +65,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response = $event->getResponse();
 
         $request = $event->getRequest();
+
+        if ($this->maintenanceResolver->isMaintenanceRequest($request)) {
+            return;
+        }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 

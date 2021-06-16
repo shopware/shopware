@@ -17,6 +17,8 @@ const { Component } = Shopware;
 Component.register('sw-context-button', {
     template,
 
+    inject: ['feature'],
+
     props: {
         showMenuOnStartup: {
             type: Boolean,
@@ -70,6 +72,12 @@ Component.register('sw-context-button', {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        autoCloseOutsideClick: {
+            type: Boolean,
+            required: false,
+            default: false
         },
 
         additionalContextMenuClasses: {
@@ -157,6 +165,16 @@ Component.register('sw-context-button', {
 
             // check if the user clicked inside the context menu
             const clickedInside = contextButton ? contextButton.contains(event.target) : false;
+            if (this.feature.isActive('FEATURE_NEXT_14114')) {
+                if (this.autoCloseOutsideClick && this.showMenu && !clickedInside) {
+                    const contextMenu = this.$refs.swContextMenu.$el;
+                    const clickedOutside = contextMenu?.contains(event.target) ?? false;
+
+                    if (!event?.target || !clickedOutside) {
+                        return this.closeMenu();
+                    }
+                }
+            }
 
             // only close the menu on inside clicks if autoclose is active
             const shouldCloseOnInsideClick = (this.autoClose && !clickedInside);

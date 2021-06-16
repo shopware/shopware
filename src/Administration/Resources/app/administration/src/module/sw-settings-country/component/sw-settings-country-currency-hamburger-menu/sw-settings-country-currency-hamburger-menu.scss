@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-settings-country-currency-hamburger-menu {
+    &__button.sw-button.sw-button--x-small.sw-button--square {
+        width: 36px;
+    }
+}
+
+.sw-settings-country-currency-hamburger-menu__wrapper {
+    padding: 15px 0 0 15px;
+    max-height: 225px;
+    overflow-y: scroll;
+}

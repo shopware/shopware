@@ -221,8 +221,16 @@ describe('Country: Test acl privileges', () => {
         // choose "Germany"
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
 
-        // assert that there is an available list of Germany's states
-        cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
+        cy.onlyOnFeature('FEATURE_NEXT_14114', () => {
+            // choose "state tab"
+            cy.get('.sw-settings-country__state-tab').click();
+            cy.get('.sw-settings-country-state-list__content').should('be.visible');
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_14114', () => {
+            // assert that there is an available list of Germany's states
+            cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
+        });
     });
 
     it('@settings: can edit a state', () => {
@@ -254,12 +262,26 @@ describe('Country: Test acl privileges', () => {
         // choose "Germany"
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
 
-        // click on the first element in grid
-        cy.get(`
-            ${page.elements.countryStateListContent}
-            ${page.elements.dataGridRow}--0
-            ${page.elements.countryStateColumnName}
-        `).click();
+        cy.skipOnFeature('FEATURE_NEXT_14114', () => {
+            // click on the first element in grid
+            cy.get(`
+                ${page.elements.countryStateListContent}
+                ${page.elements.dataGridRow}--0
+                ${page.elements.countryStateColumnName}
+            `).click();
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_14114', () => {
+            // choose "state tab"
+            cy.get('.sw-settings-country__state-tab').click();
+
+            // click on the first element in grid
+            cy.get(`
+                .sw-settings-country-state-list__content
+                ${page.elements.dataGridRow}--0
+                .sw-settings-country-state__link
+            `).click();
+        });
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
@@ -284,13 +306,26 @@ describe('Country: Test acl privileges', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        // assert that state is updated successfully
-        cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
-        cy.get(`
-            ${page.elements.countryStateListContent}
-            ${page.elements.dataGridRow}--0
-            ${page.elements.countryStateColumnName}
-        `).should('be.visible').contains('000');
+        cy.skipOnFeature('FEATURE_NEXT_14114', () => {
+            // assert that state is updated successfully
+            cy.get(`
+                ${page.elements.countryStateListContent}`).should('be.visible');
+            cy.get(`
+                ${page.elements.countryStateListContent}
+                ${page.elements.dataGridRow}--0
+                ${page.elements.countryStateColumnName}
+            `).should('be.visible').contains('000');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_14114', () => {
+            // assert that state is updated successfully
+            cy.get('.sw-settings-country-state-list__content').should('be.visible');
+            cy.get(`
+                .sw-settings-country-state-list__content
+                ${page.elements.dataGridRow}--0
+                .sw-settings-country-state__link
+            `).should('be.visible').contains('000');
+        });
     });
 
     it('@settings: can create a state', () => {
@@ -326,8 +361,17 @@ describe('Country: Test acl privileges', () => {
         // choose "Germany"
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
 
-        // click on "add state" button
-        cy.get(`${page.elements.countryStateAddAction}`).click();
+        cy.skipOnFeature('FEATURE_NEXT_14114', () => {
+            // click on "add state" button
+            cy.get(`${page.elements.countryStateAddAction}`).click();
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_14114', () => {
+            // choose "state tab"
+            cy.get('.sw-settings-country__state-tab').click();
+            // click on "add state" button
+            cy.get('.sw-settings-country-state__add-country-state-button').click();
+        });
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
@@ -346,11 +390,57 @@ describe('Country: Test acl privileges', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        // assert that state is created successfully
-        cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
-        cy.get(`
-            ${page.elements.countryStateListContent}
-            ${page.elements.countryStateColumnName}
-        `).should('be.visible').contains('000');
+        cy.skipOnFeature('FEATURE_NEXT_14114', () => {
+            // assert that state is created successfully
+            cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
+            cy.get(`
+                ${page.elements.countryStateListContent}
+                ${page.elements.countryStateColumnName}
+            `).should('be.visible').contains('000');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_14114', () => {
+            // assert that state is created successfully
+            cy.get('.sw-settings-country-state-list__content').should('be.visible');
+            cy.get('.sw-settings-country-state-list__content .sw-settings-country-state__link')
+                .should('be.visible').contains('000');
+        });
+    });
+
+    it('@settings: can delete multiple countries', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_14114');
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
+            },
+            {
+                key: 'country',
+                role: 'deleter'
+            }
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
+
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('deleteCountry');
+
+        // click on first checkbox in grid
+        cy.get(`${page.elements.dataGridRow}--0 .sw-field--checkbox`).click();
+        cy.get(`${page.elements.dataGridRow}--1 .sw-field--checkbox`).click();
+        cy.get('.sw-data-grid__bulk .bulk-link').click();
+        cy.get('.sw-modal__dialog .sw-button--danger').click();
+
+        // assert that there is an available list of countries
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
+
+        cy.wait('@deleteCountry').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
     });
 });

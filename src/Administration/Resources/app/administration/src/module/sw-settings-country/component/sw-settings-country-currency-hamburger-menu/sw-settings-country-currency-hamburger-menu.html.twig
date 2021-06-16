@@ -1,0 +1,58 @@
+{% block sw_settings_country_currency_hamburger_menu %}
+<sw-context-button
+    :menu-width="300"
+    :auto-close="false"
+    :auto-close-outside-click="true"
+>
+    <template #button>
+
+        {% block sw_settings_country_currency_hamburger_menu_trigger %}
+        <sw-button
+            class="sw-settings-country-currency-hamburger-menu__button"
+            size="x-small"
+            square
+        >
+
+            {% block sw_country_currency_hamburger_menu_icon %}
+            <sw-icon
+                name="small-default-stack-line"
+                small
+            />
+            {% endblock %}
+
+        </sw-button>
+        {% endblock %}
+
+    </template>
+
+    {% block sw_country_currency_hamburger_menu_list %}
+    <div class="sw-settings-country-currency-hamburger-menu__wrapper">
+
+        {% block sw_country_currency_hamburger_menu_item %}
+        <div
+            v-for="(item) in options"
+            :key="item.key"
+            class="sw-settings-country-currency-hamburger-menu__item"
+        >
+
+            {% block sw_country_currency_hamburger_menu_item_visibility_checkbox %}
+            <sw-checkbox-field
+                v-model="item.checked"
+                :label="item.name"
+                :disabled="item.disabled || !acl.can('country.editor')"
+                @change="onCheckCurrency(item.id, item.checked)"
+            />
+            {% endblock %}
+
+        </div>
+        {% endblock %}
+
+    </div>
+    {% endblock %}
+
+    {% block sw_settings_country_currency_hamburger_menu_loader %}
+    <sw-loader v-if="isLoading" />
+    {% endblock %}
+
+</sw-context-button>
+{% endblock %}

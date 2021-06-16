@@ -37,11 +37,11 @@ describe('Country: Test can setting VAT id field required', () => {
         cy.get('#sw-settings-country').click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
         cy.get(`${settingPage.elements.dataGridRow}--0 ${settingPage.elements.countryColumnName}`).click();
-        cy.get('.sw-settings-country-detail__vat-id-required').click();
+        cy.get('.sw-settings-country-general__vat-id-required .sw-field--switch__input').click();
         cy.get(settingPage.elements.countrySaveAction).click();
 
         cy.visit('/account/login');
-        const accountTypeSelector = `.register-form select[name="accountType"]`;
+        const accountTypeSelector = '.register-form select[name="accountType"]';
 
         cy.get(accountTypeSelector).should('be.visible');
         cy.get(accountTypeSelector).select('Commercial');
@@ -50,7 +50,7 @@ describe('Country: Test can setting VAT id field required', () => {
         cy.get('select[name="billingAddress[countryId]"]').select('Germany');
         cy.get('.form-label[for="vatIds"]').contains('*');
 
-        cy.get(`.register-submit [type="submit"]`).click();
+        cy.get('.register-submit [type="submit"]').click();
         cy.get('[name="vatIds[]"]:invalid').should('be.visible');
     });
 });

@@ -1,0 +1,51 @@
+@import "~scss/variables";
+
+.sw-settings-country-currency-dependent-modal {
+    &.sw-modal .sw-modal__body {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    &__inheritance-wrapper {
+        width: 100%;
+        display: flex;
+        align-items: center;
+
+        .sw-icon {
+            margin-right: 10px;
+        }
+    }
+
+    &__input input {
+        height: 30px;
+    }
+
+    &__grid {
+        .sw-data-grid__cell--actions .sw-country-currency-hamburger-menu__button.sw-button:not(:last-child) {
+            margin-right: 0;
+        }
+
+        &.sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+            padding: 0 20px;
+            height: 40px;
+        }
+
+        &.sw-data-grid.sw-data-grid--plain-appearance .sw-data-grid__body .sw-data-grid__row:last-child .sw-data-grid__cell {
+            border-bottom: 1px solid $color-gray-300;
+        }
+
+        .sw-data-grid__row .sw-data-grid__cell {
+            .sw-field--radio .group-bordered {
+                margin-bottom: 0;
+            }
+        }
+
+        &.sw-data-grid .sw-data-grid__cell-content .sw-field--radio {
+            margin: 0 auto;
+        }
+
+        &.sw-data-grid .sw-data-grid__cell--sortable:hover {
+            background-color: transparent;
+        }
+    }
+}

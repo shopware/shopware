@@ -3,11 +3,17 @@ import './sw-settings-country-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-country-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+        'customFieldDataProviderService'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -26,6 +32,28 @@ Component.register('sw-settings-country-detail', {
     },
 
     data() {
+        if (this.feature.isActive('FEATURE_NEXT_14114')) {
+            return {
+                country: {
+                    customerTax: {
+                        enabled: false
+                    },
+                    companyTax: {
+                        enabled: false
+                    }
+                },
+                countryId: null,
+                isLoading: false,
+                countryStateRepository: null,
+                isSaveSuccessful: false,
+                customFieldSets: null,
+                userConfig: {
+                    value: {}
+                },
+                userConfigValues: {}
+            };
+        }
+
         return {
             country: {},
             term: null,
@@ -36,6 +64,9 @@ Component.register('sw-settings-country-detail', {
             countryStateLoading: false,
             isSaveSuccessful: false,
             deleteButtonDisabled: true,
+            /**
+             * @feature-deprecated (flag:FEATURE_NEXT_14114)
+             * */
             systemCurrency: {},
             customFieldSets: null
         };
@@ -48,10 +79,21 @@ Component.register('sw-settings-country-detail', {
     },
 
     computed: {
+        currentUserId() {
+            return Shopware.State.get('session').currentUser.id;
+        },
+
         countryRepository() {
             return this.repositoryFactory.create('country');
         },
 
+        userConfigRepository() {
+            return this.repositoryFactory.create('user_config');
+        },
+
+        /**
+         * @feature-deprecated (flag:FEATURE_NEXT_14114)
+         * */
         currencyRepository() {
             return this.repositoryFactory.create('currency');
         },
@@ -93,6 +135,20 @@ Component.register('sw-settings-country-detail', {
             };
         },
 
+        userConfigCriteria() {
+            if (!this.feature.isActive('FEATURE_NEXT_14114')) {
+                return null;
+            }
+            return new Criteria().addFilter(Criteria.multi(
+                'AND',
+                [
+                    Criteria.equals('userId', this.currentUserId),
+                    Criteria.equals('key', 'setting-country')
+                ]
+            ));
+        },
+
+
         ...mapPropertyErrors('country', ['name']),
 
         showCustomFields() {
@@ -106,16 +162,27 @@ Component.register('sw-settings-country-detail', {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                this.countryId = this.$route.params.id;
-                this.loadEntityData();
-                this.loadCustomFieldSets();
+            if (!this.$route.params.id) { return; }
+
+            this.countryId = this.$route.params.id;
+
+            if (this.feature.isActive('FEATURE_NEXT_14114')) {
+                Promise.all([
+                    this.loadEntityData(),
+                    this.loadCustomFieldSets(),
+                    this.loadUserConfig()
+                ]);
             }
+
+            Promise.all([
+                this.loadEntityData(),
+                this.loadCustomFieldSets()
+            ]);
         },
 
         loadEntityData() {
             this.isLoading = true;
-            this.countryRepository.get(this.countryId).then(country => {
+            return this.countryRepository.get(this.countryId).then(country => {
                 this.country = country;
 
                 this.isLoading = false;
@@ -125,15 +192,30 @@ Component.register('sw-settings-country-detail', {
                     this.country.states.source
                 );
             });
-
-            this.currencyRepository.get(Shopware.Context.app.systemCurrencyId).then(currency => {
-                this.systemCurrency = currency;
-            });
         },
 
         loadCustomFieldSets() {
             this.customFieldDataProviderService.getCustomFieldSets('country').then((sets) => {
                 this.customFieldSets = sets;
+            });
+        },
+
+        loadUserConfig() {
+            return this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then((userConfigs) => {
+                if (userConfigs.length === 0) {
+                    this.userConfig = this.userConfigRepository.create(Shopware.Context.api);
+                    this.userConfig.userId = this.currentUserId;
+                    this.userConfig.key = 'setting-country';
+                    this.userConfig.value = [];
+                    return;
+                }
+                this.userConfig = userConfigs.first();
+                this.userConfigValues = this.userConfig.value[this.countryId];
+
+                if (!this.userConfigValues) {
+                    this.userConfig.value[this.countryId] = {};
+                    this.userConfigValues = this.userConfig.value[this.countryId];
+                }
             });
         },
 
@@ -145,10 +227,23 @@ Component.register('sw-settings-country-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.countryRepository.save(this.country).then(() => {
-                this.countryRepository.get(this.countryId).then(country => {
-                    this.country = country;
-                });
+            let userConfigValue = {};
+            if (this.feature.isActive('FEATURE_NEXT_14114')) {
+                userConfigValue = this.userConfig.value[this.countryId];
+            }
+
+            return this.countryRepository.save(this.country, Shopware.Context.api).then(() => {
+                if (
+                    this.feature.isActive('FEATURE_NEXT_14114')
+                    && userConfigValue
+                    && Object.keys(userConfigValue).length > 0) {
+                    this.userConfigRepository.save(this.userConfig, Shopware.Context.api)
+                        .then(() => {
+                            this.loadUserConfig();
+                        });
+                }
+
+                this.loadEntityData();
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch(() => {
@@ -245,6 +340,10 @@ Component.register('sw-settings-country-detail', {
                 label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
                 inlineEdit: 'string'
             }];
+        },
+
+        onSaveModal() {
+            return this.onSave();
         }
     }
 });

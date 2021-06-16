@@ -1,0 +1,120 @@
+{% block sw_settings_country_state_list_card %}
+<sw-card v-if="!isLoading">
+    <template #toolbar>
+        <sw-container
+            columns="1fr 32px minmax(100px, 200px)"
+            gap="0 10px"
+        >
+
+            {% block sw_attribute_list_toolbar_searchfield %}
+            <sw-simple-search-field
+                v-model="term"
+                size="small"
+                variant="form"
+                @search-term-change="onSearchCountryState"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_state_list_toolbar_delete %}
+            <sw-button
+                v-tooltip.bottom="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('country.editor'),
+                    showOnDisabledElements: true
+                }"
+                square
+                size="small"
+                class="sw-settings-country-state-list__delete-button"
+                :disabled="deleteButtonDisabled || !acl.can('country.editor')"
+                @click="onDeleteCountryStates"
+            >
+                <sw-icon
+                    name="default-action-trash"
+                    small
+                />
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_settings_country_state_list_toolbar_add %}
+            <sw-button
+                v-tooltip.bottom="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('country.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-settings-country-state__add-country-state-button"
+                size="x-small"
+                variant="primary"
+                :disabled="!acl.can('country.editor')"
+                @click="onAddCountryState"
+            >
+                {{ $tc('sw-settings-country.detail.buttonAddCountryState') }}
+            </sw-button>
+            {% endblock %}
+
+        </sw-container>
+    </template>
+
+    <template #grid>
+
+        {% block sw_settings_country_state_list_listing %}
+        <sw-one-to-many-grid
+            ref="countryStateGrid"
+            class="sw-settings-country-state-list__content"
+            :is-loading="countryStateLoading"
+            :collection="country.states"
+            :full-page="false"
+            :local-mode="country.isNew()"
+            :columns="stateColumns"
+            :allow-delete="acl.can('country.editor')"
+            :tooltip-delete="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('country.editor'),
+                showOnDisabledElements: true
+            }"
+            @selection-change="countryStateSelectionChanged"
+        >
+
+            <template #column-name="{ item }">
+
+                {% block sw_settings_country_state_list_listing_column_name %}
+                <a
+                    class="sw-settings-country-state__link"
+                    @click="onClickCountryState(item)"
+                >
+                    {{ item.name }}
+                </a>
+                {% endblock %}
+
+            </template>
+
+            <template #more-actions="{ item }">
+                {% block sw_settings_country_state_list_listing_action_edit %}
+                <sw-context-menu-item
+                    v-tooltip.top="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('country.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-settings-country-state__edit-country-state-action"
+                    :disabled="!acl.can('country.editor')"
+                    @click="onClickCountryState(item)"
+                >
+                    {{ $tc('sw-settings-country.detail.editAction') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+        </sw-one-to-many-grid>
+        {% endblock %}
+    </template>
+    {% block sw_settings_country_state_detail %}
+    <sw-country-state-detail
+        v-if="currentCountryState"
+        :country-state="currentCountryState"
+        @attribute-edit-save="onSaveCountryState"
+        @attribute-edit-cancel="onCancelCountryState"
+    />
+    {% endblock %}
+</sw-card>
+{% endblock %}
+

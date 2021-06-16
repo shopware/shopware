@@ -2,6 +2,10 @@ import './page/sw-settings-country-list';
 import './page/sw-settings-country-detail';
 import './page/sw-settings-country-create';
 import './component/sw-country-state-detail';
+import './component/sw-settings-country-general';
+import './component/sw-settings-country-state';
+import './component/sw-settings-country-currency-dependent-modal';
+import './component/sw-settings-country-currency-hamburger-menu';
 
 import './acl';
 
@@ -31,7 +35,32 @@ Module.register('sw-settings-country', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.country.index',
-                privilege: 'country.viewer'
+                privileges: ['country.viewer', 'country.editor']
+            },
+
+            redirect: {
+                name: 'sw.settings.country.detail.general'
+            },
+
+            children: {
+                general: {
+                    component: 'sw-settings-country-general',
+                    path: 'general',
+                    meta: {
+                        parentPath: 'sw.settings.country.index',
+                        privileges: ['country.editor', 'country.creator']
+                    }
+                },
+
+                state: {
+                    component: 'sw-settings-country-state',
+                    path: 'state',
+                    meta: {
+                        parentPath: 'sw.settings.country.index',
+                        privileges: ['country.editor', 'country.creator']
+                    }
+                }
+
             }
         },
         create: {
@@ -40,6 +69,31 @@ Module.register('sw-settings-country', {
             meta: {
                 parentPath: 'sw.settings.country.index',
                 privilege: 'country.creator'
+            },
+
+            redirect: {
+                name: 'sw.settings.country.create.general'
+            },
+
+            children: {
+                general: {
+                    component: 'sw-settings-country-general',
+                    path: 'general',
+                    meta: {
+                        parentPath: 'sw.settings.country.index',
+                        privilege: 'country.creator'
+                    }
+                },
+
+                state: {
+                    component: 'sw-settings-country-state',
+                    path: 'state',
+                    meta: {
+                        parentPath: 'sw.settings.country.index',
+                        privilege: 'country.creator'
+                    }
+                }
+
             }
         }
     },

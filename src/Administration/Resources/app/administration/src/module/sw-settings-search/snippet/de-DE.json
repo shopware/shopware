@@ -106,7 +106,8 @@
       "labelName": "Suchergebnis",
       "labelScore": "Rangpunktzahl",
       "textNoResult": "Keine Ergebnisse gefunden. Versuche es noch einmal mit einem anderen Suchbegriff."
-    }
+    },
+    "textLeaveConfirm": "Du hast Änderungen an dieser Seite vorgenommen. Falls Du die Seite verlässt, ohne zu speichern, gehen Deine Änderungen verloren."
   },
   "sw-privileges": {
     "permissions": {

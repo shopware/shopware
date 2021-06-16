@@ -106,6 +106,8 @@ Component.register('sw-settings-search-excluded-search-terms', {
             this.renderComponent();
 
             this.items.unshift({ id: null, value: '' });
+            this.$refs.dataGrid.onDbClickCell(this.items[0]);
+            this.$emit('edit-change', true);
         },
 
         renderComponent() {
@@ -229,6 +231,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
 
         onCancelEdit() {
             this.renderComponent();
+            this.$emit('edit-change', false);
         },
 
         onBulkDeleteExcludedTerm() {
@@ -245,6 +248,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
                     });
                     this.isAddingItem = false;
                     this.renderComponent();
+                    this.$emit('edit-change', false);
                 })
                 .catch((error) => {
                     this.createNotificationError({

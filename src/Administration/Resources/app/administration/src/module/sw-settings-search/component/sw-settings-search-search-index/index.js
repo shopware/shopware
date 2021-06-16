@@ -160,8 +160,9 @@ Component.register('sw-settings-search-search-index', {
             this.isRebuildInProgress = true;
             this.progressBarValue = 1;
             this.offset = 0;
-            this.pollData();
 
+            this.$emit('edit-change', this.isRebuildInProgress);
+            this.pollData();
             this.createNotificationInfo({
                 message: this.$tc('sw-settings-search.notification.index.started')
             });
@@ -171,6 +172,7 @@ Component.register('sw-settings-search-search-index', {
             this.isRebuildSuccess = false;
             this.isRebuildInProgress = false;
             this.progressBarValue = 0;
+            this.$emit('edit-change', this.isRebuildInProgress);
         }
     }
 });

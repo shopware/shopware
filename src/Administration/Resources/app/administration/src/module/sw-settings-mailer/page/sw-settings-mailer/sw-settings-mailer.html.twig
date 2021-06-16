@@ -93,7 +93,7 @@
                     {% endblock %}
                 </div>
 
-                <p v-html="$tc('sw-settings-mailer.helpText')" />
+                <p v-html="$tc('sw-settings-mailer.helpText')"></p>
                 <sw-switch-field
                     v-if="!isSmtpMode"
                     v-model="mailerSettings['core.mailerSettings.disableDelivery']"

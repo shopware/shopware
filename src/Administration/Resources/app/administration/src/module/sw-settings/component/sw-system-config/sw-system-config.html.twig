@@ -20,7 +20,7 @@
         <slot
             name="beforeElements"
             v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"
-        />
+        ></slot>
         <template
             v-if="salesChannelSwitchable && config.length === 1"
             #toolbar
@@ -58,12 +58,12 @@
                     {% endblock %}
                 </slot>
             </template>
-            <slot name="card-element-last" />
+            <slot name="card-element-last"></slot>
         </template>
         <slot
             name="afterElements"
             v-bind="{ card, config: actualConfigData[currentSalesChannelId], index }"
-        />
+        ></slot>
     </sw-card>
     {% endblock %}
 </div>

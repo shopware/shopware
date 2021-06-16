@@ -77,7 +77,7 @@ Component.register('sw-context-button', {
         autoCloseOutsideClick: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         additionalContextMenuClasses: {

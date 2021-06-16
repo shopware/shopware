@@ -3,11 +3,11 @@ const path = require('path');
 module.exports = {
     root: true,
     extends: [
-        '@shopware-ag/eslint-config-base'
+        '@shopware-ag/eslint-config-base',
     ],
     env: {
         browser: true,
-        'jest/globals': true
+        'jest/globals': true,
     },
 
     globals: {
@@ -15,12 +15,12 @@ module.exports = {
         VueJS: true,
         Cypress: true,
         cy: true,
-        autoStub: true
+        autoStub: true,
     },
 
     plugins: [
         'jest',
-        'twig-vue'
+        'twig-vue',
     ],
 
     settings: {
@@ -36,12 +36,12 @@ module.exports = {
                             src: path.join(__dirname, 'src'),
                             module: path.join(__dirname, 'src/module'),
                             scss: path.join(__dirname, 'src/app/assets/scss'),
-                            assets: path.join(__dirname, 'static')
-                        }
-                    }
-                }
-            }
-        }
+                            assets: path.join(__dirname, 'static'),
+                        },
+                    },
+                },
+            },
+        },
     },
 
     rules: {
@@ -52,21 +52,21 @@ module.exports = {
         // don't require .vue and .js extensions
         'import/extensions': ['error', 'always', {
             js: 'never',
-            vue: 'never'
+            vue: 'never',
         }],
-        'no-console': ['error', { allow: ['warn', 'error'] }]
+        'no-console': ['error', { allow: ['warn', 'error'] }],
     },
 
     overrides: [
         {
             files: ['**/*.spec.js'],
             rules: {
-                'max-len': 0
-            }
+                'max-len': 0,
+            },
         }, {
             extends: [
                 'plugin:vue/recommended',
-                '@shopware-ag/eslint-config-base'
+                '@shopware-ag/eslint-config-base',
             ],
             files: ['**/*.js'],
             excludedFiles: '*.spec.js',
@@ -97,32 +97,40 @@ module.exports = {
                         'LIFECYCLE_HOOKS',
                         'methods',
                         ['delimiters', 'comments'],
-                        'renderError'
-                    ]
-                }]
-            }
+                        'renderError',
+                    ],
+                }],
+            },
         }, {
             extends: [
                 'plugin:vue/essential',
                 'plugin:vue/recommended',
-                'eslint:recommended'
+                'eslint:recommended',
             ],
             processor: 'twig-vue/twig-vue',
             files: ['**/*.html.twig'],
             rules: {
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,
-                    ignores: []
+                    ignores: [],
                 }],
                 'vue/html-indent': ['error', 4, {
-                    baseIndent: 0
+                    baseIndent: 0,
                 }],
                 'eol-last': 'off', // no newline required at the end of file
                 'no-multiple-empty-lines': ['error', { max: 1 }],
                 'max-len': 'off',
                 'vue/attribute-hyphenation': 'error',
                 'vue/multiline-html-element-content-newline': 'off', // allow more spacy templates
-                'vue/html-self-closing': 'warn',
+                'vue/html-self-closing': ['error', {
+                    html: {
+                        void: 'never',
+                        normal: 'never',
+                        component: 'always',
+                    },
+                    svg: 'always',
+                    math: 'always',
+                }],
                 'vue/no-multiple-template-root': 'off',
                 'vue/no-unused-vars': 'off',
                 'vue/no-template-shadow': 'off',
@@ -130,12 +138,12 @@ module.exports = {
                 'vue/no-v-html': 'off',
                 'vue/valid-template-root': 'off',
                 'vue/no-parsing-error': ['error', {
-                    'nested-comment': false
+                    'nested-comment': false,
                 }],
                 'vue/valid-v-slot': ['error', {
-                    allowModifiers: true
-                }]
-            }
-        }
-    ]
+                    allowModifiers: true,
+                }],
+            },
+        },
+    ],
 };

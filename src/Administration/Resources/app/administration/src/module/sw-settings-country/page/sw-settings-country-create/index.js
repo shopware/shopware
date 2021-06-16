@@ -26,12 +26,12 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
                     this.country.customerTax = {
                         amount: 0,
                         currencyId: Shopware.Context.app.systemCurrencyId,
-                        enabled: false
+                        enabled: false,
                     };
                     this.country.companyTax = {
                         amount: 0,
                         currencyId: Shopware.Context.app.systemCurrencyId,
-                        enabled: false
+                        enabled: false,
                     };
                 }
                 this.countryId = this.country.id;

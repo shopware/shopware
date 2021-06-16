@@ -102,7 +102,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
                 this.$refs.customGrid.enableInlineEdit();
                 this.$refs.customGrid.onDbClickCell(this.$refs.customGrid.records[0]);
             }
-        }
+        },
     },
 
     created() {

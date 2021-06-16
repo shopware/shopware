@@ -160,7 +160,7 @@
                             v-if="column.allowResize"
                             class="sw-data-grid__cell-resize"
                             @mousedown="onStartResize($event, column, columnIndex)"
-                        />
+                        ></span>
                         {% endblock %}
                     </th>
                     {% endblock %}
@@ -171,7 +171,7 @@
                         aria-hidden="true"
                         class="sw-data-grid__cell sw-data-grid__cell--header sw-data-grid__cell-spacer"
                     >
-                        <div class="sw-data-grid__cell-content" />
+                        <div class="sw-data-grid__cell-content"></div>
                     </th>
                     {% endblock %}
 
@@ -199,14 +199,17 @@
                                 {% block sw_data_grid_settings_additional_settings %}
                                 <template #additionalSettings>
                                     {% block sw_data_grid_settings_additional_settings_inner %}
-                                    <slot name="additionalSettings" />
+                                    <slot name="additionalSettings"></slot>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
                             </sw-data-grid-settings>
 
                             {% block sw_data_grid_settings_custom_settings %}
-                            <slot v-if="feature.isActive('FEATURE_NEXT_14114')" name="customSettings">
+                            <slot
+                                v-if="feature.isActive('FEATURE_NEXT_14114')"
+                                name="customSettings"
+                            >
                                 {% block sw_data_grid_settings_custom_settings_slot %}{% endblock %}
                             </slot>
                             {% endblock %}
@@ -271,7 +274,7 @@
                                 v-if="previews && !isInlineEdit(item)"
                                 :name="`preview-${column.property}`"
                                 v-bind="{ item, column, compact }"
-                            />
+                            ></slot>
                             {% endblock %}
 
                             {% block sw_data_grid_columns_slot %}
@@ -337,7 +340,7 @@
                         class="sw-data-grid__cell sw-data-grid__cell-spacer"
                         @dblclick="onDbClickCell(item)"
                     >
-                        <div class="sw-data-grid__cell-content" />
+                        <div class="sw-data-grid__cell-content"></div>
                     </td>
                     {% endblock %}
 

@@ -66,12 +66,12 @@
                 @blur="emitContent"
                 @input="onContentChange"
                 v-html="$sanitize(content, { ADD_ATTR: ['target'] })"
-            />
+            ></div>
             <div
                 v-if="placeholderVisible"
                 class="sw-text-editor__content-placeholder"
                 v-html="$sanitize(placeholder)"
-            />
+            ></div>
         </div>
         {% endblock %}
 

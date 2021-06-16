@@ -16,7 +16,7 @@
             <p
                 class="sw-first-run-wizard-data-import__message"
                 v-html="$tc('sw-first-run-wizard.dataImport.messageDemoData')"
-            />
+            ></p>
 
             <sw-button-process
                 v-if="notInstalled('demodata')"
@@ -55,7 +55,7 @@
             <p
                 class="sw-first-run-wizard-data-import__message"
                 v-html="$tc('sw-first-run-wizard.dataImport.messageMigration')"
-            />
+            ></p>
 
             <sw-button-process
                 v-if="notInstalled('migration')"
@@ -92,7 +92,7 @@
         <p
             class="sw-loader-info-text"
             v-html="$tc('sw-first-run-wizard.dataImport.loadingMessage')"
-        />
+        ></p>
     </div>
 
     <div

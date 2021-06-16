@@ -14,13 +14,13 @@
         <slot
             name="selection-label-property"
             v-bind="{ item, index, labelProperty, valueProperty }"
-        />
+        ></slot>
     </template>
     {% endblock %}
 
     {% block sw_entity_multi_id_select_results_list_before %}
     <template #before-item-list>
-        <slot name="before-item-list" />
+        <slot name="before-item-list"></slot>
     </template>
     {% endblock %}
 
@@ -29,13 +29,13 @@
         <slot
             name="result-label-property"
             v-bind="{ item, index, labelProperty, valueProperty, searchTerm, getKey, highlightSearchTerm }"
-        />
+        ></slot>
     </template>
     {% endblock %}
 
     {% block sw_entity_multi_id_select_results_list_after %}
     <template #after-item-list>
-        <slot name="after-item-list" />
+        <slot name="after-item-list"></slot>
     </template>
     {% endblock %}
 </sw-entity-multi-select>

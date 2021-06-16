@@ -10,28 +10,28 @@ Component.register('sw-settings-country-state', {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature'
+        'feature',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         country: {
             type: Object,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         countryStateRepository: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -39,14 +39,14 @@ Component.register('sw-settings-country-state', {
             deleteButtonDisabled: true,
             term: null,
             currentCountryState: null,
-            countryStateLoading: false
+            countryStateLoading: false,
         };
     },
 
     computed: {
         stateColumns() {
             return this.getStateColumns();
-        }
+        },
     },
 
     methods: {
@@ -55,11 +55,11 @@ Component.register('sw-settings-country-state', {
                 property: 'name',
                 label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
                 inlineEdit: 'string',
-                primary: true
+                primary: true,
             }, {
                 property: 'shortCode',
                 label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }];
         },
 
@@ -124,6 +124,6 @@ Component.register('sw-settings-country-state', {
             this.$refs.countryStateGrid.load().then(() => {
                 this.countryStateLoading = false;
             });
-        }
-    }
+        },
+    },
 });

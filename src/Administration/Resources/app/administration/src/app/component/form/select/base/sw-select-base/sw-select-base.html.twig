@@ -18,7 +18,7 @@
             <slot
                 name="sw-select-selection"
                 v-bind="{ identification, error, disabled, size, expand, collapse }"
-            />
+            ></slot>
             <div class="sw-select__selection-indicators">
                 <sw-loader
                     v-if="isLoading"
@@ -38,7 +38,7 @@
                 <slot
                     name="results-list"
                     v-bind="{ collapse }"
-                />
+                ></slot>
             </transition>
         </template>
     </template>

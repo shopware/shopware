@@ -42,7 +42,7 @@
         <slot
             name="name"
             v-bind="{ item, isInlineEdit, startInlineEdit, endInlineEdit }"
-        />
+        ></slot>
     </div>
     {% endblock %}
 
@@ -108,6 +108,6 @@
     <slot
         name="modal-windows"
         v-bind="{ item, allowEdit, allowDelete }"
-    />
+    ></slot>
 </div>
 {% endblock %}

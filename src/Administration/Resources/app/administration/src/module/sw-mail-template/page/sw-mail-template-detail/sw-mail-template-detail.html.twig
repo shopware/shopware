@@ -244,7 +244,7 @@
                 @modal-close="onCancelShowPreview"
             >
                 <template v-if="!isLoading">
-                    <span v-html="mailPreview" />
+                    <span v-html="mailPreview"></span>
                 </template>
                 {% block sw_mail_template_detail_preview_modal_footer %}
                 <template slot="modal-footer">
@@ -323,7 +323,7 @@
                         @get-tree-items="onGetTreeItems"
                     >
                         <template slot="headline">
-                            <span /></template>
+                            <span></span></template>
                         <template
                             slot="items"
                             slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
@@ -338,7 +338,7 @@
                                 :display-checkbox="false"
                             >
                                 <template slot="grip">
-                                    <span /></template>
+                                    <span></span></template>
                                 <template #actions="{ item }">
                                     <sw-icon
                                         v-tooltip="{message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),

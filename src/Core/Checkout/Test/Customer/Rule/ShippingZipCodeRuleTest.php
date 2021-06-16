@@ -155,4 +155,51 @@ class ShippingZipCodeRuleTest extends TestCase
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
+
+    public function testValidateWithInvalidGreaterThanCondition(): void
+    {
+        try {
+            $this->conditionRepository->create([
+                [
+                    'type' => (new ShippingZipCodeRule())->getName(),
+                    'ruleId' => Uuid::randomHex(),
+                    'value' => [
+                        'zipCodes' => 12345,
+                        'operator' => ShippingZipCodeRule::OPERATOR_GT,
+                    ],
+                ],
+            ], $this->context);
+            static::fail('Exception was not thrown');
+        } catch (WriteException $stackException) {
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(1, $exceptions);
+            static::assertSame('/0/value/zipCodes', $exceptions[0]['source']['pointer']);
+
+            static::assertSame('This value should be of type array.', $exceptions[0]['detail']);
+        }
+    }
+
+    public function testValidateWithValidGreaterThanCondition(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $this->ruleRepository->create(
+            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
+            Context::createDefaultContext()
+        );
+
+        $id = Uuid::randomHex();
+        $this->conditionRepository->create([
+            [
+                'id' => $id,
+                'type' => (new ShippingZipCodeRule())->getName(),
+                'ruleId' => $ruleId,
+                'value' => [
+                    'zipCodes' => ['12345'],
+                    'operator' => ShippingZipCodeRule::OPERATOR_GT,
+                ],
+            ],
+        ], $this->context);
+
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+    }
 }

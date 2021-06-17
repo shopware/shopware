@@ -51,13 +51,15 @@ describe('Checkout: Visual tests', () => {
 
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
+        cy.get('.loader').should('not.exist');
         cy.wait('@cartInfo').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            cy.get('.loader').should('not.exist');
-            cy.get('.cart-item-price').contains('64');
         });
 
         // Take snapshot for visual testing on desktop
+        cy.contains('.header-cart-total', '64').should('exist');
+        cy.contains('.cart-item-price', '64').should('be.visible');
+        cy.get('.loader').should('not.exist');
         cy.takeSnapshot('Checkout - Offcanvas',
             `${page.elements.offCanvasCart}.is-open`,
             { widths: [375, 1920] });

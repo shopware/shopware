@@ -41,6 +41,9 @@ describe('Rule builder: Visual tests', () => {
         );
 
         // Take snapshot for visual testing
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-card__content').should('not.exist');
         cy.takeSnapshot('[Rule builder] Listing', '.sw-rule-list-grid');
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
@@ -144,6 +147,7 @@ describe('Rule builder: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-condition-tree').scrollIntoView();
+        cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-condition').should('be.visible');
         cy.takeSnapshot('[Rule builder] Detail, rule with conditions', '.sw-condition');
     });

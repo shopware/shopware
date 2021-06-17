@@ -136,7 +136,7 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-product-properties').should('be.visible');
     });
 
-    it('@visual: check appearance of product variant workflow', () => {
+    it.only('@visual: check appearance of product variant workflow', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -165,12 +165,14 @@ describe('Product: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-modal').should('be.visible');
         cy.contains('.group_grid__column-name', 'Color').should('be.visible');
+        cy.contains('.sw-modal__header', 'Generate variants').should('be.visible');
         cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation');
 
         // Create and verify one-dimensional variant
         page.generateVariants('Color', [0], 1);
 
         // Take snapshot for visual testing
+        cy.get('.sw-modal').should('not.exist');
         cy.takeSnapshot('Product - Variants in admin', '.sw-product-variants-overview');
 
         // Verify in storefront

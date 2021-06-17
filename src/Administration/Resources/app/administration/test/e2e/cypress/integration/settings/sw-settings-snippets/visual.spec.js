@@ -38,7 +38,7 @@ describe('Snippets: Visual testing', () => {
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
-            '.sw-settings-snippet-set-file__column-changed-at',
+            '.sw-settings-snippet-set-file__column-changed-at .sw-grid__cell-content div',
             'color: #fff'
         );
 

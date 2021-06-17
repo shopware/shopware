@@ -53,6 +53,10 @@ describe('Rule builder: Visual tests', () => {
             `${page.elements.dataGridRow}--0`
         );
 
+        // Take snapshot
+        cy.get('.sw-settings-rule-detail-base').should('be.visible');
+        cy.takeSnapshot('[Rule builder] Detail', '.sw-settings-rule-detail-base');
+
         cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
             .first()
             .as('first-and-container');
@@ -139,7 +143,8 @@ describe('Rule builder: Visual tests', () => {
         });
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Rule builder] Detail, rule with conditions', '.sw-condition');
+        cy.get('.sw-condition-tree').scrollIntoView();
         cy.get('.sw-condition').should('be.visible');
+        cy.takeSnapshot('[Rule builder] Detail, rule with conditions', '.sw-condition');
     });
 });

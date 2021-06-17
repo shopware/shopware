@@ -11,17 +11,25 @@ describe('Checkout: Visual tests', () => {
             return cy.createProductFixture();
         }).then(() => {
             return cy.fixture('product');
-        }).then((result) => {
-            product = result;
-            return cy.createCustomerFixture();
-        }).then(() => {
-            cy.visit('/');
-        });
+        })
+            .then((result) => {
+                product = result;
+                return cy.createCustomerFixture();
+            })
+            .then(() => {
+                cy.visit('/');
+            });
     });
 
     it('@visual: check appearance of basic checkout workflow', () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
+
+        cy.server();
+        cy.route({
+            url: '/widgets/checkout/info',
+            method: 'get'
+        }).as('cartInfo');
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot('Checkout - Search product',
@@ -43,13 +51,11 @@ describe('Checkout: Visual tests', () => {
 
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
-        cy.get('.cart-item-price').contains('64');
-        cy.get('.offcanvas').should('be.visible');
-        cy.contains('Continue shopping').should('be.visible');
-        cy.contains('Continue shopping').click();
-        cy.get('.header-cart-total').contains('64');
-        cy.get('.header-cart-total').click();
-        cy.get('.offcanvas').should('be.visible');
+        cy.wait('@cartInfo').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            cy.get('.loader').should('not.exist');
+            cy.get('.cart-item-price').contains('64');
+        });
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot('Checkout - Offcanvas',
@@ -64,6 +70,7 @@ describe('Checkout: Visual tests', () => {
         // Login
         cy.get('.checkout-main').should('be.visible');
         cy.get('.login-collapse-toggle').click();
+        cy.get('#loginMail').should('be.visible');
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot('Checkout - Login', accountPage.elements.loginCard, { widths: [375, 1920] });

@@ -48,7 +48,7 @@
 
         {% block base_offcanvas_navigation %}
             {% if page.header.navigation %}
-                <div class="d-none js-navigation-offcanvas-initial-content">
+                <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
                     {% block base_offcanvas_navigation_inner %}
                         {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
                     {% endblock %}

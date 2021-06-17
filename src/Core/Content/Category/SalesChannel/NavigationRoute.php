@@ -5,10 +5,15 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -176,6 +181,52 @@ Instead of passing uuids, you can also use one of the following aliases for the 
 
         /** @var CategoryCollection $levels */
         $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
+
+        // Count visible children that are already included in the original query
+        foreach ($levels as $level) {
+            $count = $levels->filter(function (CategoryEntity $category) use ($level) {
+                return $category->getParentId() === $level->getId() && $category->getVisible() && $category->getActive();
+            })->count();
+            $level->setVisibleChildCount($count);
+        }
+
+        // Fetch additional level of categories for counting visible children that are NOT included in the original query
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new ContainsFilter('path', '|' . $rootId . '|'),
+            new EqualsFilter('level', $rootLevel + $depth + 1),
+            new EqualsFilter('active', true),
+            new EqualsFilter('visible', true)
+        )->addAggregation(
+            new TermsAggregation(
+                'category-ids',
+                'parentId',
+                null,
+                null,
+                new CountAggregation('visible-children-count', 'id')
+            )
+        );
+
+        $termsResult = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getAggregations()
+            ->get('category-ids');
+
+        if ($termsResult instanceof TermsResult) {
+            foreach ($termsResult->getBuckets() as $bucket) {
+                $key = $bucket->getKey();
+
+                if ($key === null) {
+                    continue;
+                }
+
+                $parent = $levels->get($key);
+
+                if ($parent instanceof CategoryEntity) {
+                    $parent->setVisibleChildCount($bucket->getCount());
+                }
+            }
+        }
 
         return $levels;
     }

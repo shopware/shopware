@@ -1,5 +1,11 @@
+{% if item.parentId == context.salesChannel.navigationCategoryId %}
+    {% set url = path('frontend.menu.offcanvas') %}
+{% else %}
+    {% set url = path('frontend.menu.offcanvas', { 'navigationId': item.parentId }) %}
+{% endif %}
+
 <a class="nav-item nav-link is-back-link navigation-offcanvas-link js-navigation-offcanvas-link"
-   href="{{ path('frontend.menu.offcanvas', { 'navigationId': item.parentId}) }}"
+   href="{{ url }}"
    itemprop="url"
    title="{{ "general.back"|trans|striptags }}">
     {% block layout_navigation_offcanvas_navigation_category_back_link_text %}

@@ -216,10 +216,16 @@ Component.register('sw-tree-item', {
 
         parentScope() {
             let parentNode = this.$parent;
+
             // eslint-disable-next-line
             while (parentNode.$options._componentTag !== 'sw-tree') {
-                parentNode = parentNode.$parent;
+                if (parentNode.$parent) {
+                    parentNode = parentNode.$parent;
+                }
+
+                break;
             }
+
             return parentNode;
         },
 

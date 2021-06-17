@@ -80,6 +80,9 @@
                     :item="item"
                     :translation-context="translationContext"
                     :dragged-item="draggedItem"
+                    :active-parent-ids="selectedItemsPathIds"
+                    :active-item-ids="checkedItemIds"
+                    @check-item="checkItem"
                 />
                 {% endblock %}
 

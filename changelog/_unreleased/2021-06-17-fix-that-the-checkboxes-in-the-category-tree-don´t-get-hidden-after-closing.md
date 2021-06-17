@@ -7,6 +7,6 @@ author_github: @jleifeld
 ---
 # Administration
 * Added computed properties `selectedItemsPathIds` and `checkedItemIds` to the `sw-tree` component
-* Added binded properties `selectedItemsPathIds` and `checkedItemIds` to the `items` slot in the `sw-tree` component
+* Added bound properties `selectedItemsPathIds` and `checkedItemIds` to the `items` slot in the `sw-tree` component
 * Changed the data value `checked` to a computed value with getter and setter
 * Added `selectedItemsPathIds` and `checkedItemIds` to the `sw-tree-item` in the category tree

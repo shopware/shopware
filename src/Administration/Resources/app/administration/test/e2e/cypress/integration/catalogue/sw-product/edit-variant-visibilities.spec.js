@@ -9,8 +9,19 @@ describe('Product: Test variants visibilities', () => {
                 cy.loginViaApi();
             })
             .then(() => {
+                cy.createDefaultFixture('tax', {
+                    id: '91b5324352dc4ee58ec320df5dcf2bf4'
+                });
+            })
+            .then(() => {
                 return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+                    options: [{
+                        id: '15532b3fd3ea4c1dbef6e9e9816e0715',
+                        name: 'Red'
+                    }, {
+                        id: '98432def39fc4624b33213a56b8c944d',
+                        name: 'Green'
+                    }]
                 });
             })
             .then(() => {
@@ -20,7 +31,21 @@ describe('Product: Test variants visibilities', () => {
                 });
             })
             .then(() => {
-                return cy.createProductFixture();
+                return cy.searchViaAdminApi({
+                    data: {
+                        field: 'name',
+                        value: 'Storefront'
+                    },
+                    endpoint: 'sales-channel'
+                });
+            })
+            .then((saleschannel) => {
+                cy.createDefaultFixture('product', {
+                    visibilities: [{
+                        visibility: 30,
+                        salesChannelId: saleschannel.id
+                    }]
+                }, 'product-variants.json');
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -62,17 +87,10 @@ describe('Product: Test variants visibilities', () => {
         // switch variants tab
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
-            .should('be.visible')
-            .click();
-        cy.get('.sw-product-modal-variant-generation').should('be.visible');
-
-        // Create and verify one-dimensional variant
-        page.generateVariants('Color', [0, 1, 2], 3);
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Yellow');
-        cy.get('.sw-data-grid__body').contains('Yellow').click();
+        cy.get('.sw-data-grid__body').contains('Green');
+        cy.get('.sw-data-grid__body').contains('Green').click();
 
         // remove inherited
         cy.get('.sw-product-detail__select-visibility')
@@ -83,7 +101,7 @@ describe('Product: Test variants visibilities', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@productCall').then((xhr) => {
+        cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
 
             cy.get('.sw-product-detail__select-visibility')

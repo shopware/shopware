@@ -294,7 +294,7 @@ Cypress.Commands.add('setShippingMethodInSalesChannel', (name, salesChannel = 'S
 /**
  * Updates an existing entity using Shopware API at the given endpoint
  * @memberOf Cypress.Chainable#
- * @name updateViaAdminApi2
+ * @name updateViaAdminApi
  * @function
  * @param {String} endpoint - API endpoint for the request
  * @param {String} id - Id of the entity to be updated
@@ -539,4 +539,48 @@ Cypress.Commands.add('setToInitialState', () => {
     }).then(() => {
         return cy.setLocaleToEnGb();
     });
+});
+
+/**
+ * Creates a variant product based on given fixtures "product-variants.json", 'tax,json" and "property.json"
+ * with minor customisation
+ * @memberOf Cypress.Chainable#
+ * @name createProductVariantFixture
+ * @function
+ */
+Cypress.Commands.add('createProductVariantFixture', () => {
+    return cy.createDefaultFixture('tax', {
+        id: '91b5324352dc4ee58ec320df5dcf2bf4'
+    }).then(() => {
+        return cy.createPropertyFixture({
+            options: [{
+                id: '15532b3fd3ea4c1dbef6e9e9816e0715',
+                name: 'Red'
+            }, {
+                id: '98432def39fc4624b33213a56b8c944d',
+                name: 'Green'
+            }]
+        });
+    }).then(() => {
+        return cy.createPropertyFixture({
+            name: 'Size',
+            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
+        });
+    }).then(() => {
+        return cy.searchViaAdminApi({
+            data: {
+                field: 'name',
+                value: 'Storefront'
+            },
+            endpoint: 'sales-channel'
+        });
+    })
+        .then((saleschannel) => {
+            cy.createDefaultFixture('product', {
+                visibilities: [{
+                    visibility: 30,
+                    salesChannelId: saleschannel.id
+                }]
+            }, 'product-variants.json');
+        });
 });

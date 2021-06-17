@@ -1,7 +1,6 @@
 // / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
-import PropertyPageObject from '../../../support/pages/module/sw-property.page-object';
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
@@ -15,89 +14,6 @@ describe('Product: Test variants', () => {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             });
-    });
-
-    it('@base @catalogue: variants display corresponding name based on specific language', () => {
-        const page = new PropertyPageObject();
-
-        cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
-
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
-        }).as('searchUserConfig');
-
-        // Add option to property group
-        cy.wait('@searchUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.clickContextMenuItem(
-                '.sw-property-list__edit-action',
-                page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
-            );
-        });
-
-        cy.get(page.elements.cardTitle).contains('Basic information');
-
-        // Switch language to Deutsch
-        cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
-        cy.get('.smart-bar__content .sw-language-switch__select').click();
-        cy.get('.sw-select-result-list__item-list').should('be.visible');
-        // poor assertion to check if there is more than 1 language
-        cy.get('.sw-select-result-list__item-list .sw-select-result')
-            .should('have.length.greaterThan', 1);
-        cy.get('.sw-select-result-list__item-list .sw-select-result')
-            .contains('Deutsch').click();
-
-        // Edit and update property option's name for Deutsch
-        cy.get('.sw-property-option-list').scrollIntoView();
-
-        const redOption = cy.get('.sw-property-option-list').contains('Red').parents('tr');
-        redOption.dblclick();
-        redOption.get('#sw-field--item-name').typeAndCheck('Rot');
-        redOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
-
-        const greenOption = cy.get('.sw-property-option-list').contains('Green').parents('tr');
-        greenOption.dblclick();
-        greenOption.get('#sw-field--item-name').typeAndCheck('Grün');
-        greenOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
-
-        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
-
-        const productPage = new ProductPageObject();
-
-        // Navigate to variant generator listing and start
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            productPage.elements.contextMenuButton,
-            `${productPage.elements.dataGridRow}--0`
-        );
-        cy.get('.sw-product-detail__tab-variants').click();
-
-        cy.get(productPage.elements.loader).should('not.exist');
-        cy.get('.sw-product-variants-overview').should('be.visible');
-
-        cy.get('.sw-data-grid__body').contains('Rot');
-        cy.get('.sw-data-grid__body').contains('Grün');
-
-        // Switch to English
-        cy.get('.smart-bar__content .sw-language-switch__select').click();
-        cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--1').contains('English');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
-
-        cy.get(productPage.elements.loader).should('not.exist');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
-
-        cy.get('.sw-data-grid__body').contains('Red');
-        cy.get('.sw-data-grid__body').contains('Green');
-
-        cy.reload();
-
-        cy.get('.sw-product-variants-overview').should('be.visible');
-
-        cy.get('.sw-data-grid__body').contains('Red');
-        cy.get('.sw-data-grid__body').contains('Green');
     });
 
     it('@base @catalogue: add multidimensional variant to product', () => {
@@ -146,50 +62,6 @@ describe('Product: Test variants', () => {
         cy.get('.product-detail-configurator-option-label[title="M"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="L"]')
-            .should('be.visible');
-    });
-
-    it('@catalogue: check fields in inheritance', () => {
-        const page = new ProductPageObject();
-
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
-        }).as('saveData');
-
-        // Navigate to variant generator listing and start
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
-
-        cy.get('.sw-product-detail__tab-variants').click();
-        cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-product-variants__generate-action').should('be.visible');
-
-        // Check field inheritance in variant
-        cy.get('.sw-product-variants-overview__single-variation').contains('Red').click();
-        cy.get('.sw-product-variant-info__product-name').contains('Variant product name');
-
-        cy.get('.sw-product-basic-form__inheritance-wrapper-description')
-            .find('.sw-inheritance-switch--is-inherited')
-            .scrollIntoView()
-            .should('be.visible');
-
-        // remove inheritance
-        cy.get('.sw-product-basic-form__inheritance-wrapper-description')
-            .find('.sw-inheritance-switch--is-inherited')
-            .scrollIntoView()
-            .click();
-
-
-        // check if inheritance is removed
-        cy.get('.sw-product-basic-form__inheritance-wrapper-description')
-            .find('.sw-inheritance-switch--is-not-inherited')
-            .scrollIntoView()
             .should('be.visible');
     });
 
@@ -295,12 +167,28 @@ describe('Product: Test variants', () => {
         cy.get('.product-variant-characteristics').contains('Color: Green | Size: L');
     });
 
-    // TODO: Unskip with NEXT-15469, the restriction must be configured while creating the variants and not afterwards
-    it.skip('@base @catalogue: test multidimensional variant with restrictions', () => {
+    it.only('@base @catalogue: test multidimensional variant with restrictions', () => {
         const page = new ProductPageObject();
+        const optionsIndicator = '' +
+            '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
+        const optionString = 'values';
+        const multiSelect = '.sw-multi-select';
+        const restrictionSelection =
+            '.sw-product-restriction-selection:nth-of-type(2) .sw-product-restriction-selection__select-option-wrapper';
+
+        const propertyName = 'Size';
+        const optionPosition = [0, 1, 2];
 
         // Request we want to wait for later
         cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/product/**/combinations`,
+            method: 'get'
+        }).as('combinationCall');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/product`,
+            method: 'post'
+        }).as('searchCall');
         cy.route({
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
@@ -315,41 +203,67 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
+        cy.contains('.sw-button', 'Generate variants')
             .should('be.visible')
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
 
         // Create and verify multi-dimensional variant
-        page.generateVariants('Color', [0, 1, 2], 3);
-        cy.get('.sw-product-variants__generate-action').should('be.visible');
-        cy.get('.sw-product-variants__generate-action').click();
-        cy.get('.sw-product-modal-variant-generation').should('be.visible');
-        page.generateVariants('Size', [0, 1, 2], 9);
-        cy.get('.sw-product-modal-variant-generation').should('not.exist');
-
-        // Create and verify multi-dimensional variant
-        cy.contains('.sw-button', 'Generate variants').click();
-        cy.get('.sw-product-modal-variant-generation').should('be.visible');
+        cy.contains('.group_grid__column-name', propertyName).click();
+        for (const entry in Object.values(optionPosition)) { // eslint-disable-line
+            if (optionPosition.hasOwnProperty(entry)) {
+                cy.get(
+                    `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`
+                ).click();
+            }
+        }
+        cy.get(`.sw-grid ${optionsIndicator}`)
+            .contains(`${optionPosition.length} ${optionString} selected`);
+        cy.get('.sw-variant-modal__restriction-configuration').should('be.visible');
         cy.get('.sw-variant-modal__restriction-configuration').click();
-        cy.contains('.sw-button', 'Exclude values').click();
-        cy.get('.sw-product-variants-configurator-restrictions__modal-main').should('be.visible');
 
+        // Set two variant restrictions
+        cy.get('.sw-product-variants-configurator-restrictions').should('be.visible');
+        cy.contains('.sw-button--ghost', 'Exclude values').click();
+        cy.get('.sw-product-variants-configurator-restrictions__modal').should('be.visible');
+
+        cy.get('.sw-product-variants-configurator-restrictions__modal').should('be.visible');
         cy.get('#sw-field--selectedGroup').select('Size');
-        cy.get('.sw-product-restriction-selection__select-option-wrapper .sw-multi-select')
-            .typeMultiSelectAndCheck('M');
+        cy.get('.sw-product-restriction-selection__select-option-wrapper .sw-multi-select').typeMultiSelectAndCheck('L');
         cy.contains('.sw-product-variants-configurator-restrictions__modal-main > .sw-button', 'And').click();
 
         cy.get('.sw-product-restriction-selection:nth-of-type(2)').should('be.visible');
         cy.get('.sw-product-restriction-selection:nth-of-type(2) #sw-field--selectedGroup').select('Color');
-        cy.get('.sw-product-restriction-selection:nth-of-type(2) .sw-product-restriction-selection__select-option-wrapper .sw-multi-select')
+        cy.get(`${restrictionSelection} ${multiSelect}`)
             .typeMultiSelectAndCheck('Red');
 
-        cy.get('.sw-product-variants-configurator-restrictions__modal .sw-button--primary').click();
+        // Save restrictions
+        cy.get('.sw-product-variants-configurator-restrictions__modal .sw-modal__footer .sw-button--primary').click();
+        cy.get('.sw-product-variants-configurator-restrictions__modal').should('not.exist');
+        cy.contains('.sw-data-grid__cell-content', 'Excluded property values').should('be.visible');
+        cy.contains('.sw-product-variants-configurator-restrictions .sw-label', 'L').should('be.visible');
 
-        cy.get('.sw-data-grid__row--0').should('be.visible');
-        cy.get('.sw-label:nth-of-type(1)').contains('Red');
-        cy.get('.sw-label:nth-of-type(2)').contains('M');
+        // Generate variants with restrictions
         cy.get('.sw-product-variant-generation__generate-action').click();
+        cy.get('.sw-product-modal-variant-generation__notification-modal').should('be.visible');
+        cy.get('.sw-product-modal-variant-generation__notification-modal .sw-modal__body')
+            .contains('5 variants will be added');
+        cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
+            .click();
+
+        cy.wait('@combinationCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // Inspect variant generation
+        cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
+        cy.wait('@searchCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-product-modal-variant-generation').should('not.exist');
+
+        // Verify variant restrictions
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+        cy.get('.sw-data-grid__body .sw-data-grid__row').should('have.length', 5);
     });
 });

@@ -3,6 +3,22 @@ import 'src/module/sw-order/page/sw-order-detail';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-order-detail'), {
+        mocks: {
+            $route: {
+                meta: {
+                    $module: {
+                        routes: {
+                            detail: {
+                                children: {
+                                    base: {},
+                                    other: {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         stubs: {
             'sw-page': {
                 template: `

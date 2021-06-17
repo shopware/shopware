@@ -29,6 +29,10 @@ Component.register('sw-sales-channel-products-assignment-modal', {
     },
 
     computed: {
+        productCount() {
+            return this.products.length;
+        },
+
         products() {
             return uniqBy([...this.singleProducts, ...this.categoryProducts, ...this.groupProducts], 'id');
         },

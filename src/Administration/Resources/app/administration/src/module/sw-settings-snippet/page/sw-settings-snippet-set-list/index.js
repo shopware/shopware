@@ -189,7 +189,7 @@ Component.register('sw-settings-snippet-set-list', {
             this.isLoading = true;
 
             try {
-                const clone = await this.snippetSetService.clone(id);
+                const clone = await this.snippetSetRepository.clone(id);
                 const set = await this.snippetSetRepository.get(clone.id);
 
                 if (!set) {

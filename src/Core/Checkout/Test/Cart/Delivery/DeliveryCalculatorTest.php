@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -1301,10 +1303,16 @@ class DeliveryCalculatorTest extends TestCase
         $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
-        $customerGroup = new CustomerGroupEntity();
-        $customerGroup->setDisplayGross(true);
 
-        $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        } else {
+            $customerGroup = new CustomerGroupEntity();
+            $customerGroup->setDisplayGross(true);
+
+            $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
+        }
+
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
@@ -1355,13 +1363,20 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $customerGroup = new CustomerGroupEntity();
-        $customerGroup->setDisplayGross(false);
+
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
+        } else {
+            $customerGroup = new CustomerGroupEntity();
+            $customerGroup->setDisplayGross(false);
+
+            $context->expects(static::atLeastOnce())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
+        }
+
         $baseContext = $this->createMock(Context::class);
         $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
-        $context->expects(static::atLeastOnce())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));

@@ -156,7 +156,13 @@ class CartRuleLoader
         } while ($recalculate);
 
         if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $taxState = $this->detectTaxType($context, $cart->getPrice()->getNetPrice());
+            $totalCartNetAmount = $cart->getPrice()->getPositionPrice();
+
+            if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+                $totalCartNetAmount = $totalCartNetAmount - $cart->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
+            }
+
+            $taxState = $this->detectTaxType($context, $totalCartNetAmount);
             $previous = $context->getTaxState();
 
             $context->setTaxState($taxState);

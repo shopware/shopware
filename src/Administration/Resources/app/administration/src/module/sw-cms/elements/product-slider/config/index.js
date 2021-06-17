@@ -198,6 +198,10 @@ Component.register('sw-cms-el-config-product-slider', {
         onProductsChange() {
             this.element.config.products.value = this.productCollection.getIds();
 
+            if (!this.element?.data) {
+                return;
+            }
+
             this.$set(this.element.data, 'products', this.productCollection);
         },
     },

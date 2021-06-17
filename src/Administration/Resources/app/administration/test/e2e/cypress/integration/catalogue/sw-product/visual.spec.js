@@ -164,6 +164,7 @@ describe('Product: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-modal').should('be.visible');
+        cy.contains('.group_grid__column-name', 'Color').should('be.visible');
         cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation');
 
         // Create and verify one-dimensional variant

@@ -34,7 +34,9 @@
                 checkItem,
                 translationContext,
                 onChangeRoute,
-                disableContextMenu
+                disableContextMenu,
+                selectedItemsPathIds,
+                checkedItemIds,
             }"
         >
             <sw-tree-item
@@ -56,6 +58,8 @@
                 :new-element-id="newElementId"
                 :get-item-url="getCategoryUrl"
                 :get-is-highlighted="isHighlighted"
+                :active-parent-ids="selectedItemsPathIds"
+                :active-item-ids="checkedItemIds"
                 @check-item="checkItem"
             />
         </template>

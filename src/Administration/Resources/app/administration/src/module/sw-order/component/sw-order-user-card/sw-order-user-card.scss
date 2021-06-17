@@ -69,6 +69,11 @@ $sw-order-user-card-link: $color-shopware-brand-500;
             vertical-align: top;
         }
 
+        .sw-order-user-card__address-phone-label {
+            margin: 0;
+            vertical-align: text-bottom;
+        }
+
         .sw-order-user-card__address-add-button {
             margin-top: 5px;
             padding-top: 12px;

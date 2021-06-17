@@ -227,4 +227,23 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
             expect(columnPosition.props().disabled).toBe(true);
         });
     });
+
+    it('should load feature listing as empty if there are no features', () => {
+        wrapper = valuesCard({
+            propsData: {
+                isLoading: false,
+                productFeatureSet: {
+                    id: '21605c15655f441f9e1275e2a2f2e1d1',
+                    name: '4d4c4b4e-a52a-4756-a93b-2c5345224389',
+                    description: 'c67c181d-f883-4e3d-bce0-97ed913927fe',
+                    features: []
+                }
+            }
+        });
+
+        const rootEmpty = wrapper.get(`.${classes.componentRoot}.is--empty`);
+
+        expect(wrapper.vm).toBeTruthy();
+        expect(rootEmpty.exists()).toBeTruthy();
+    });
 });

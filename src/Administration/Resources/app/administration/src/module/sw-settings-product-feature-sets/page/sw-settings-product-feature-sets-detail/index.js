@@ -99,6 +99,10 @@ Component.register('sw-settings-product-feature-sets-detail', {
                 this.productFeatureSetId = this.$route.params.id;
                 this.productFeatureSetsRepository.get(this.productFeatureSetId)
                     .then((productFeatureSet) => {
+                        if (productFeatureSet.features && !productFeatureSet.features.length) {
+                            productFeatureSet.features = [];
+                        }
+
                         this.productFeatureSet = productFeatureSet;
                         this.isLoading = false;
                     });
@@ -112,6 +116,10 @@ Component.register('sw-settings-product-feature-sets-detail', {
         loadEntityData() {
             this.productFeatureSetsRepository.get(this.productFeatureSetId)
                 .then((productFeatureSet) => {
+                    if (productFeatureSet.features && !productFeatureSet.features.length) {
+                        productFeatureSet.features = [];
+                    }
+
                     this.productFeatureSet = productFeatureSet;
                 });
         },

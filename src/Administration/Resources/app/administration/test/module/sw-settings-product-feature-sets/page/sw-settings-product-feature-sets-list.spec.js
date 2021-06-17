@@ -278,4 +278,61 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             message: 'sw-settings-product-feature-sets.detail.messageSaveError'
         });
     });
+
+    it('should load listing if there are templates with empty features', () => {
+        const wrapper = createWrapper({
+            data() {
+                return {
+                    productFeatureSets: new EntityCollection(
+                        null,
+                        'product_feature_set',
+                        Shopware.Context.api,
+                        {
+                            page: {}
+                        },
+                        [
+                            {
+                                id: '3d14420686274551bdfdc88ea9672cde',
+                                name: `${text.featureSetName} in false-empty`,
+                                description: 'This empty feature set is created by deleting all features',
+                                features: {}
+                            },
+                            {
+                                id: 'd3fdf1478e314d809463260517ef64f0',
+                                name: `${text.featureSetName} in empty`,
+                                description: 'This empty feature set is created by being empty from the start',
+                                features: []
+                            }
+                        ]
+                    )
+                };
+            }
+        });
+
+        const root = wrapper.get('.sw-settings-product-feature-sets-list');
+        const listBody = root.get('.sw-data-grid__body');
+        const firstRow = listBody.get('.sw-data-grid__row--0');
+        const secondRow = listBody.get('.sw-data-grid__row--1');
+
+        const firstRowContent = firstRow.findAll('.sw-data-grid__cell-content').wrappers
+            .slice(0, 4)
+            .map(cell => cell.text())
+            .filter(val => val !== '');
+        const secondRowContent = secondRow.findAll('.sw-data-grid__cell-content').wrappers
+            .slice(0, 4)
+            .map(cell => cell.text())
+            .filter(val => val !== '');
+
+        // Assert that the template is rendered correctly
+        expect(firstRowContent).toEqual([
+            `${text.featureSetName} in false-empty`,
+            'This empty feature set is created by deleting all features'
+        ]);
+        expect(secondRowContent).toEqual([
+            `${text.featureSetName} in empty`,
+            'This empty feature set is created by being empty from the start'
+        ]);
+
+        expect(wrapper.vm).toBeTruthy();
+    });
 });

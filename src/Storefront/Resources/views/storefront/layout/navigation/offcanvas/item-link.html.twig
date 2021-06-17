@@ -1,5 +1,5 @@
 {% set isActive = item.category.id == activeId %}
-{% set hasChildren = item.category.childCount > 0 %}
+{% set hasChildren = item.category.visibleChildCount > 0 %}
 {% set url = category_url(item.category) %}
 {% set name = item.category.translated.name %}
 

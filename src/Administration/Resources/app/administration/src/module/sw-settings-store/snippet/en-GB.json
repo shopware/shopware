@@ -9,8 +9,8 @@
     },
     "detail": {
       "titleCard": "Settings",
-      "labelHost": "License domain",
-      "placeholderHost": "Enter the license domain (shop domain), specified in your Shopware Account."
+      "labelHost": "Licence domain",
+      "placeholderHost": "Enter the licence domain (shop domain), specified in your Shopware Account."
     }
   }
 }

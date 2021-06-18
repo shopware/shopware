@@ -313,6 +313,14 @@ Component.register('sw-settings-number-range-detail', {
                 return false;
             }
 
+            if (this.state > 1 && this.state >= this.numberRange.start) {
+                this.createNotificationInfo(
+                    {
+                        message: this.$tc('sw-settings-number-range.detail.infoStartDecrementMessage'),
+                    },
+                );
+            }
+
             this.isLoading = true;
 
             return this.numberRangeRepository.save(this.numberRange).then(() => {
@@ -329,6 +337,7 @@ Component.register('sw-settings-number-range-detail', {
                 })
                 .finally(() => {
                     this.isLoading = false;
+                    this.getState();
                 });
         },
 

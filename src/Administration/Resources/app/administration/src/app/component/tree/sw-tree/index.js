@@ -181,6 +181,22 @@ Component.register('sw-tree', {
             }
             return this.items.length < 1;
         },
+
+        selectedItemsPathIds() {
+            return Object.keys(this.checkedElements).reduce((acc, itemId) => {
+                const item = this.findById(itemId);
+
+                // get each parent id
+                const pathIds = item?.data?.path?.split('|').filter((pathId) => pathId.length > 0) ?? '';
+
+                // add parent id to accumulator
+                return [...acc, ...pathIds];
+            }, []);
+        },
+
+        checkedItemIds() {
+            return Object.keys(this.checkedElements);
+        },
     },
 
     watch: {
@@ -240,6 +256,8 @@ Component.register('sw-tree', {
                 const hasChildCountProperty = item.hasOwnProperty(this.childCountProperty);
                 const childCount = hasChildCountProperty ? item[this.childCountProperty] : 0;
 
+                const alreadyLoadedTreeItem = this.findById(item.id);
+
                 treeItems.push({
                     data: item,
                     id: item.id,
@@ -249,7 +267,7 @@ Component.register('sw-tree', {
                     initialOpened: false,
                     active: false,
                     activeElementId: this.routeParamsActiveElementId,
-                    checked: !!this.checkItemsInitial,
+                    checked: alreadyLoadedTreeItem?.checked ?? !!this.checkItemsInitial,
                     [this.afterIdProperty]: item[this.afterIdProperty],
                 });
             });
@@ -583,13 +601,13 @@ Component.register('sw-tree', {
                 if (item.childCount > 0) {
                     this.checkedElementsChildCount += 1;
                 }
-                this.checkedElements[item.id] = item.id;
+                this.$set(this.checkedElements, item.id, item.id);
                 this.checkedElementsCount += 1;
             } else {
                 if (item.childCount > 0) {
                     this.checkedElementsChildCount -= 1;
                 }
-                delete this.checkedElements[item.id];
+                this.$delete(this.checkedElements, item.id);
                 this.checkedElementsCount -= 1;
             }
 

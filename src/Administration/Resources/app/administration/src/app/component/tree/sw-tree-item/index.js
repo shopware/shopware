@@ -151,13 +151,21 @@ Component.register('sw-tree-item', {
             mouseStartX: 0,
             mouseStartY: 0,
             rootParent: null,
-            checked: false,
             checkedGhost: false,
             currentEditElement: null,
         };
     },
 
     computed: {
+        checked: {
+            get() {
+                return this.item.checked;
+            },
+            set(isChecked) {
+                this.item.checked = isChecked;
+            },
+        },
+
         activeElementId() {
             return this.$route.params[this.item.activeElementId] || null;
         },
@@ -208,10 +216,16 @@ Component.register('sw-tree-item', {
 
         parentScope() {
             let parentNode = this.$parent;
+
             // eslint-disable-next-line
             while (parentNode.$options._componentTag !== 'sw-tree') {
-                parentNode = parentNode.$parent;
+                if (parentNode.$parent) {
+                    parentNode = parentNode.$parent;
+                }
+
+                break;
             }
+
             return parentNode;
         },
 

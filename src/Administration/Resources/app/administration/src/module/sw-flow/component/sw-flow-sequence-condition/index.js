@@ -15,21 +15,21 @@ Component.register('sw-flow-sequence-condition', {
             required: true,
             default() {
                 return {};
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             showRuleModal: false,
-            showRuleSelection: false
+            showRuleSelection: false,
         };
     },
 
     computed: {
         ruleCriteria() {
             return new Criteria();
-        }
+        },
     },
 
     methods: {
@@ -43,7 +43,7 @@ Component.register('sw-flow-sequence-condition', {
             this.sequence.ruleId = id;
             this.sequence.rule = {
                 name,
-                description
+                description,
             };
 
             this.showRuleSelection = false;
@@ -52,6 +52,6 @@ Component.register('sw-flow-sequence-condition', {
         deleteRule() {
             this.sequence.ruleId = '';
             this.sequence.rule = {};
-        }
-    }
+        },
+    },
 });

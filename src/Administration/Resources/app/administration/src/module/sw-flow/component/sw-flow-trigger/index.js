@@ -12,31 +12,31 @@ Component.register('sw-flow-trigger', {
         collapsible: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         overlay: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         eventName: {
             type: String,
             required: true,
             default() {
                 return '';
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             events: [],
-            displayTree: false
+            displayTree: false,
         };
     },
 
@@ -56,8 +56,8 @@ Component.register('sw-flow-trigger', {
 
             set(newValue) {
                 return newValue;
-            }
-        }
+            },
+        },
     },
 
     watch: {
@@ -67,7 +67,7 @@ Component.register('sw-flow-trigger', {
             }
 
             this.$route.params.eventName = value;
-        }
+        },
     },
 
     created() {
@@ -175,7 +175,7 @@ Component.register('sw-flow-trigger', {
                     currentObj[currentPart] = currentObj[currentPart] || {
                         id: currentPart,
                         parentId: null,
-                        children: {}
+                        children: {},
                     };
 
                     currentObj[currentPart].name = nextPart ? null : event.name;
@@ -187,7 +187,7 @@ Component.register('sw-flow-trigger', {
                     currentObj[currentPart].children[nextPart] = currentObj[currentPart].children[nextPart] || {
                         id: `${currentObj[currentPart].id}.${nextPart}`,
                         parentId: currentObj[currentPart].id,
-                        children: {}
+                        children: {},
                     };
 
                     recursive(nextIndex, recursiveParts, currentObj[currentPart].children);
@@ -204,7 +204,7 @@ Component.register('sw-flow-trigger', {
                         id: node.id,
                         name: this.getLastEventName(node),
                         childCount: children.length,
-                        parentId: node.parentId
+                        parentId: node.parentId,
                     });
                     if (children.length > 0) {
                         output = treeToArray(children, output);
@@ -214,6 +214,6 @@ Component.register('sw-flow-trigger', {
             };
 
             return treeToArray(Object.values(mappedObj));
-        }
-    }
+        },
+    },
 });

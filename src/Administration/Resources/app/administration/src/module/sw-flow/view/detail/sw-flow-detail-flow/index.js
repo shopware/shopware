@@ -10,14 +10,14 @@ Component.register('sw-flow-detail-flow', {
 
     data() {
         return {
-            flow: {}
+            flow: {},
         };
     },
 
     computed: {
         getParentSequences() {
             return this.flow.flowSequences.filter(item => !item.parentId);
-        }
+        },
     },
 
     methods: {
@@ -36,8 +36,8 @@ Component.register('sw-flow-detail-flow', {
                     ruleId: null,
                     actionName: null,
                     position: 0,
-                    config: {}
-                }]
+                    config: {},
+                }],
             };
         },
 
@@ -48,7 +48,7 @@ Component.register('sw-flow-detail-flow', {
                 ruleId: null,
                 actionName: null,
                 position: this.getParentSequences.length + 1,
-                config: {}
+                config: {},
             };
 
             this.flow.flowSequences = [...this.flow.flowSequences, sequence];
@@ -69,8 +69,8 @@ Component.register('sw-flow-detail-flow', {
                 'grid-template-columns': columns.length > 1
                     ? `repeat(${columns.length}, minmax(324px, 1fr))`
                     : '1fr auto',
-                gap: '72px'
+                gap: '72px',
             };
-        }
-    }
+        },
+    },
 });

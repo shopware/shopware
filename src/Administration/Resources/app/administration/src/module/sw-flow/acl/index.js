@@ -7,6 +7,7 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'flow:read',
+                    'flow_sequence:read',
                 ],
                 dependencies: [],
             },

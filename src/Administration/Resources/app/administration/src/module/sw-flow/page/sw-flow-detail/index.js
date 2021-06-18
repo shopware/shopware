@@ -7,27 +7,27 @@ Component.register('sw-flow-detail', {
 
     inject: [
         'acl',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     mixins: [
         Mixin.getByName('placeholder'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         flowId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             isLoading: false,
             isSaveSuccessful: false,
-            flow: {}
+            flow: {},
         };
     },
 
@@ -38,13 +38,13 @@ Component.register('sw-flow-detail', {
 
         isNewFlow() {
             return !this.flowId;
-        }
+        },
     },
 
     watch: {
         flowId() {
             this.getDetailFlow();
-        }
+        },
     },
 
     created() {
@@ -84,7 +84,7 @@ Component.register('sw-flow-detail', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError')
+                        message: this.$tc('sw-flow.flowNotification.messageError'),
                     });
                 })
                 .finally(() => {
@@ -95,7 +95,7 @@ Component.register('sw-flow-detail', {
         onSave() {
             if (!this.flow.eventName) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.messageRequiredEventName')
+                    message: this.$tc('sw-flow.flowNotification.messageRequiredEventName'),
                 });
 
                 return;
@@ -107,12 +107,12 @@ Component.register('sw-flow-detail', {
                 .then(() => {
                     this.isSaveSuccessful = true;
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-flow.flowNotification.messageSaveSuccess')
+                        message: this.$tc('sw-flow.flowNotification.messageSaveSuccess'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageSaveError')
+                        message: this.$tc('sw-flow.flowNotification.messageSaveError'),
                     });
                 })
                 .finally(() => {
@@ -126,8 +126,8 @@ Component.register('sw-flow-detail', {
 
             this.$router.push({
                 name: 'sw.flow.detail',
-                params: { id: this.flow.id }
+                params: { id: this.flow.id },
             });
-        }
-    }
+        },
+    },
 });

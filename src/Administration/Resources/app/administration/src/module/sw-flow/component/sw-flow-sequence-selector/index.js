@@ -12,8 +12,8 @@ Component.register('sw-flow-sequence-selector', {
             required: true,
             default() {
                 return {};
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -23,6 +23,6 @@ Component.register('sw-flow-sequence-selector', {
 
         addThenAction() {
             this.$emit('add-then-action', this.sequence);
-        }
-    }
+        },
+    },
 });

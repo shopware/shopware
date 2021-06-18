@@ -33,25 +33,25 @@ Module.register('sw-flow', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'flow.viewer'
-            }
+                privilege: 'flow.viewer',
+            },
         },
         detail: {
             component: 'sw-flow-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.flow.index',
-                privilege: 'flow.viewer'
+                privilege: 'flow.viewer',
             },
             props: {
                 default(route) {
                     return {
-                        flowId: route.params.id
+                        flowId: route.params.id,
                     };
-                }
+                },
             },
             redirect: {
-                name: 'sw.flow.detail.general'
+                name: 'sw.flow.detail.general',
             },
             children: {
                 general: {
@@ -59,28 +59,28 @@ Module.register('sw-flow', {
                     path: 'general',
                     meta: {
                         parentPath: 'sw.flow.index',
-                        privilege: 'flow.viewer'
-                    }
+                        privilege: 'flow.viewer',
+                    },
                 },
                 flow: {
                     component: 'sw-flow-detail-flow',
                     path: 'flow',
                     meta: {
                         parentPath: 'sw.flow.index',
-                        privilege: 'flow.viewer'
-                    }
-                }
-            }
+                        privilege: 'flow.viewer',
+                    },
+                },
+            },
         },
         create: {
             component: 'sw-flow-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.flow.index',
-                privilege: 'flow.creator'
+                privilege: 'flow.creator',
             },
             redirect: {
-                name: 'sw.flow.create.general'
+                name: 'sw.flow.create.general',
             },
             children: {
                 general: {
@@ -88,25 +88,25 @@ Module.register('sw-flow', {
                     path: 'general',
                     meta: {
                         parentPath: 'sw.flow.index',
-                        privilege: 'flow.viewer'
-                    }
+                        privilege: 'flow.viewer',
+                    },
                 },
                 flow: {
                     component: 'sw-flow-detail-flow',
                     path: 'flow',
                     meta: {
                         parentPath: 'sw.flow.index',
-                        privilege: 'flow.viewer'
-                    }
-                }
-            }
-        }
+                        privilege: 'flow.viewer',
+                    },
+                },
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.flow.index',
         icon: 'default-symbol-flow',
-        privilege: 'flow.viewer'
-    }
+        privilege: 'flow.viewer',
+    },
 });

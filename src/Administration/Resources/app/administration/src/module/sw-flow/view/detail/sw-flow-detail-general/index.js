@@ -12,18 +12,18 @@ Component.register('sw-flow-detail-general', {
     props: {
         flow: {
             type: Object,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         isNewFlow: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -33,31 +33,31 @@ Component.register('sw-flow-detail-general', {
                     property: 'dataExecuted',
                     label: this.$tc('sw-flow.detail.labelLogDateExecuted'),
                     naturalSorting: true,
-                    primary: true
+                    primary: true,
                 },
                 {
                     property: 'trigger',
                     label: this.$tc('sw-flow.detail.labelLogTrigger'),
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     property: 'triggerValue',
                     label: this.$tc('sw-flow.detail.labelLogTriggerValue'),
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     property: 'actions',
                     label: this.$tc('sw-flow.detail.labelLogActions'),
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     property: 'success',
                     label: this.$tc('sw-flow.detail.labelLogSuccess'),
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ];
         },
 
-        ...mapPropertyErrors('flow', ['name'])
-    }
+        ...mapPropertyErrors('flow', ['name']),
+    },
 });

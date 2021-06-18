@@ -8,7 +8,7 @@ Component.register('sw-flow-list', {
     inject: ['acl', 'repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -16,7 +16,7 @@ Component.register('sw-flow-list', {
             total: 0,
             isLoading: false,
             flows: null,
-            currentFlow: {}
+            currentFlow: {},
         };
     },
 
@@ -36,7 +36,7 @@ Component.register('sw-flow-list', {
                     property: 'active',
                     label: this.$tc('sw-flow.list.labelColumnActive'),
                     sortable: false,
-                    width: '80px'
+                    width: '80px',
                 },
                 {
                     property: 'name',
@@ -44,20 +44,20 @@ Component.register('sw-flow-list', {
                     sortable: false,
                     allowResize: true,
                     routerLink: 'sw.flow.detail',
-                    primary: true
+                    primary: true,
                 },
                 {
                     property: 'trigger',
                     label: this.$tc('sw-flow.list.labelColumnTrigger'),
                     sortable: false,
-                    allowResize: true
+                    allowResize: true,
                 },
                 {
                     property: 'description',
                     label: this.$tc('sw-flow.list.labelColumnDescription'),
                     sortable: false,
-                    allowResize: true
-                }
+                    allowResize: true,
+                },
             ];
         },
 
@@ -71,7 +71,7 @@ Component.register('sw-flow-list', {
 
         showListing() {
             return this.flows?.length;
-        }
+        },
     },
 
     created() {
@@ -101,8 +101,8 @@ Component.register('sw-flow-list', {
                 this.$router.push({
                     name: 'sw.flow.detail',
                     params: {
-                        id: item.id
-                    }
+                        id: item.id,
+                    },
                 });
             }
         },
@@ -121,15 +121,15 @@ Component.register('sw-flow-list', {
             return this.flowRepository.delete(item.id)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-flow.flowNotification.messageDeleteSuccess')
+                        message: this.$tc('sw-flow.flowNotification.messageDeleteSuccess'),
                     });
                     this.getList();
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageDeleteError')
+                        message: this.$tc('sw-flow.flowNotification.messageDeleteError'),
                     });
                 });
-        }
-    }
+        },
+    },
 });

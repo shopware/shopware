@@ -22,6 +22,19 @@
         font-weight: $font-weight-semibold;
     }
 
+    .cart-aside-item-change-button {
+        width: fit-content;
+        margin: 0 12px;
+        font-size: 12px;
+        text-decoration: underline;
+        background-color: transparent;
+        border-style: none;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
     .cart-aside-item-collapse {
         margin: 0;
     }

@@ -106,14 +106,17 @@ final class FirstRunWizardClient
         return $accessTokenStruct;
     }
 
-    public function upgradeAccessToken(string $storeToken, string $language): ?AccessTokenStruct
+    public function upgradeAccessToken(string $storeToken, string $language, string $userId): ?AccessTokenStruct
     {
         $headers = $this->client->getConfig('headers');
         $headers[self::SHOPWARE_TOKEN_HEADER] = $storeToken;
 
-        $response = $this->client->get(
+        $response = $this->client->post(
             '/swplatform/login/upgrade',
             [
+                'json' => [
+                    'shopwareUserId' => $userId,
+                ],
                 'query' => $this->storeService->getDefaultQueryParameters($language),
                 'headers' => $headers,
             ]

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,14 +30,18 @@ class FirstRunWizardController extends AbstractStoreController
 
     private EntityRepositoryInterface $pluginRepo;
 
+    private SystemConfigService $configService;
+
     public function __construct(
         FirstRunWizardClient $frwClient,
         EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $userRepository
+        EntityRepositoryInterface $userRepository,
+        SystemConfigService $configService
     ) {
         $this->frwClient = $frwClient;
         $this->pluginRepo = $pluginRepo;
         parent::__construct($userRepository);
+        $this->configService = $configService;
     }
 
     /**
@@ -167,6 +172,8 @@ class FirstRunWizardController extends AbstractStoreController
             throw new StoreApiException($exception);
         }
 
+        $this->configService->set('core.store.shopwareId', $shopwareId);
+
         $newStoreToken = $accessTokenStruct->getShopUserToken()->getToken();
 
         $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($newStoreToken): void {
@@ -227,20 +234,24 @@ class FirstRunWizardController extends AbstractStoreController
         $failed = $params->getBoolean('failed');
         $this->frwClient->finishFrw($failed, $context);
 
-        $newStoreToken = '';
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource || $source->getUserId() === null) {
+            throw new \RuntimeException('First run wizard requires a logged in user');
+        }
+
+        $userId = $source->getUserId();
+
+        $accessToken = null;
 
         try {
             $storeToken = $this->getUserStoreToken($context);
-            $accessToken = $this->frwClient->upgradeAccessToken($storeToken, $language);
-            if ($accessToken !== null) {
-                $newStoreToken = $accessToken->getShopUserToken()->getToken();
-            }
+            $accessToken = $this->frwClient->upgradeAccessToken($storeToken, $language, $userId);
         } catch (\Exception $e) {
         }
 
-        $contextSource = $context->getSource();
-        $userId = $contextSource instanceof AdminApiSource ? $contextSource->getUserId() : null;
-        if ($userId) {
+        if ($accessToken !== null) {
+            $newStoreToken = $accessToken->getShopUserToken()->getToken();
+
             $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $newStoreToken): void {
                 $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
             });

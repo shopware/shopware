@@ -306,7 +306,16 @@
       "titleEmptyState": "No properties assigned to this product yet.",
       "titleEmptyStateList": "No matching properties found.",
       "columnProperty": "Property",
-      "columnValue": "Property value"
+      "columnValue": "Property value",
+      "placeholderSearchAddedProperties": "Search added properties...",
+      "placeholderSearchProperties": "Search properties...",
+      "addPropertiesModal": {
+        "title": "Add properties",
+        "titleEmptyState": "Create properties and property values first, then return here to assign them.",
+        "selectedProperties": "{count} value selected | {count} values selected",
+        "titleEmptyPropertyValues": "No property values available.",
+        "titleNoPropertySelected": "No property selected."
+      }
     },
     "variations": {
       "emptyStateDescription": "This product has no variants yet.",

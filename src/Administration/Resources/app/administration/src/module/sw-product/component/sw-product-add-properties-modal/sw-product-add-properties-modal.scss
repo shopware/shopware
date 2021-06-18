@@ -1,0 +1,56 @@
+@import "~scss/variables";
+
+$min-height-empty-state: 250px;
+
+.sw-product-add-properties-modal {
+    &.sw-modal .sw-modal__body {
+        padding: 0;
+    }
+
+    &__content .sw-card-section {
+        position: relative;
+        min-height: $min-height-empty-state;
+        padding: 0;
+    }
+
+    &__content .sw-grid {
+        height: 100%;
+    }
+
+    &__content .sw-grid .sw-grid-row {
+        border-bottom: 0;
+    }
+
+    &__content .sw-grid .sw-grid__cell-content {
+        min-height: 0;
+        line-height: 20px;
+        padding: 10px 30px;
+    }
+
+    &__content .sw-grid.sw-grid--table .sw-grid-row.is--selected {
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    &__property-name {
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    &__property-selected {
+        font-size: $font-size-small;
+    }
+
+    &__property-values .sw-grid__cell .sw-grid__cell-content {
+        padding-left: 5px;
+    }
+
+    .sw-empty-state {
+        min-height: $min-height-empty-state;
+    }
+
+    .sw-empty-state .sw-empty-state__title {
+        margin-bottom: 0;
+        font-size: $font-size-default;
+    }
+}

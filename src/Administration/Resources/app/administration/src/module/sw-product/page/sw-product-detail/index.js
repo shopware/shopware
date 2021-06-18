@@ -147,7 +147,7 @@ Component.register('sw-product-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'));
 
             criteria.getAssociation('properties')
-                .addSorting(Criteria.sort('name', 'ASC'));
+                .addSorting(Criteria.sort('name', 'ASC', true));
 
             criteria.getAssociation('prices')
                 .addSorting(Criteria.sort('quantityStart', 'ASC', true));

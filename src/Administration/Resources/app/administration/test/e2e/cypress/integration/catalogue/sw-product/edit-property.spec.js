@@ -157,6 +157,7 @@ describe('Product: Edit property assignment', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-button--danger').click();
+        cy.get('.sw-modal').should('not.be.visible');
 
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
@@ -183,6 +184,7 @@ describe('Product: Edit property assignment', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-button--danger').click();
+        cy.get('.sw-modal').should('not.be.visible');
 
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
@@ -216,7 +218,47 @@ describe('Product: Edit property assignment', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-button--danger').click();
+        cy.get('.sw-modal').should('not.be.visible');
 
+        cy.get(page.elements.productSaveAction).click();
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+    });
+
+    it('@base @catalogue: add properties', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12437');
+
+        const page = new ProductPageObject();
+
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
+
+        cy.get('.sw-product-properties').should('be.visible');
+
+        // delete all property values
+        cy.get('.sw-product-properties .sw-data-grid__cell--selection input').check();
+        cy.get('.sw-product-properties .sw-data-grid__bulk-selected.bulk-link a').click();
+        cy.get('.sw-modal').should('be.visible');
+        cy.get('.sw-button--danger').click();
+        cy.get('.sw-modal').should('not.be.visible');
+        cy.get('.sw-product-properties .sw-empty-state').should('be.visible');
+
+        // start adding new ones
+        cy.get('.sw-product-properties .sw-empty-state .sw-button--ghost').click();
+        cy.get('.sw-product-add-properties-modal').should('be.visible');
+        cy.contains('.sw-product-add-properties-modal__properties .sw-grid__row--0 .sw-grid__cell-content', 'Color').click();
+        cy.contains('.sw-product-add-properties-modal__property-values .sw-grid__row--0', 'red').should('be.visible');
+        cy.get('.sw-product-add-properties-modal__property-values .sw-grid__row--0 input').click();
+        cy.get('.sw-product-add-properties-modal__button-save').click();
+
+        // assert new properties have added successful
+        cy.get('.sw-product-add-properties-modal').should('not.be.visible');
+        cy.contains('.sw-data-grid__cell--values', 'red').should('be.visible');
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
     });

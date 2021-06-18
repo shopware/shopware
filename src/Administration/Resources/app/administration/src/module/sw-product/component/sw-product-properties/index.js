@@ -16,6 +16,8 @@ Component.register('sw-product-properties', {
             properties: [],
             isPropertiesLoading: false,
             searchTerm: null,
+            showAddPropertiesModal: false,
+            newProperties: [],
         };
     },
 
@@ -27,6 +29,9 @@ Component.register('sw-product-properties', {
         propertyGroupCriteria() {
             const criteria = new Criteria(1, 10);
 
+            criteria.addSorting(
+                Criteria.sort('name', 'ASC', false),
+            );
             criteria.addFilter(
                 Criteria.equalsAny('id', this.groupIds),
             );
@@ -166,7 +171,55 @@ Component.register('sw-product-properties', {
         },
 
         turnOnAddPropertiesModal() {
-            // TODO - Handle in NEXT-14021
+            this.updateNewProperties();
+            this.showAddPropertiesModal = true;
+        },
+
+        turnOffAddPropertiesModal() {
+            this.showAddPropertiesModal = false;
+            this.updateNewProperties();
+        },
+
+        updateNewProperties() {
+            this.newProperties = this.productProperties.map((productProperty) => {
+                return {
+                    property: productProperty,
+                    selected: true,
+                };
+            });
+        },
+
+        updateNewPropertiesItem({ index, selected }) {
+            this.newProperties[index].selected = selected;
+        },
+
+        addNewPropertiesItem({ property, selected }) {
+            this.newProperties.push({ property, selected });
+        },
+
+        onCancelAddPropertiesModal() {
+            this.turnOffAddPropertiesModal();
+        },
+
+        onSaveAddPropertiesModal(newProperties) {
+            this.turnOffAddPropertiesModal();
+
+            if (newProperties.length <= 0) {
+                return;
+            }
+
+            newProperties.forEach(({ property, selected }) => {
+                if (selected === true && this.productProperties.has(property.id)) {
+                    return;
+                }
+
+                if (selected === true && !this.productProperties.has(property.id)) {
+                    this.productProperties.add(property);
+                    return;
+                }
+
+                this.productProperties.remove(property.id);
+            });
         },
     },
 });

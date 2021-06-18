@@ -1,4 +1,5 @@
 {% block page_checkout_aside_item_children %}
+    {% set isChangeable = false %}
     {% set nestingLevel = 0 %}
 
     <div class="cart-aside-item-children" data-fading="true">
@@ -14,6 +15,14 @@
                                 <span class="cart-aside-item-headline-text">
                                     {{ 'checkout.lineItemContainerHeadline'|trans }}
                                 </span>
+                            {% endblock %}
+
+                            {% block page_checkout_aside_item_children_header_content_change_button %}
+                                {% if isChangeable %}
+                                    <button class="cart-aside-item-change-button">
+                                        {{ 'checkout.lineItemContainerChangeLink'|trans }}
+                                    </button>
+                                {% endif %}
                             {% endblock %}
 
                         </div>

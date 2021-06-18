@@ -86,6 +86,10 @@ Component.register('sw-product-detail', {
                 return this.getInheritTitle();
             }
 
+            if (!this.$i18n) {
+                return '';
+            }
+
             // return name
             return this.placeholder(this.product, 'name', this.$tc('sw-product.detail.textHeadline'));
         },

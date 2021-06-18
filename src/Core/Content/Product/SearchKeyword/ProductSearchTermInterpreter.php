@@ -218,7 +218,12 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
-                $levenshtein = levenshtein($match, (string) $token);
+                if (\PHP_VERSION_ID < 80000) {
+                    $levenshtein = levenshtein(substr($match, 0, 255), substr((string) $token, 0, 255));
+                } else {
+                    $levenshtein = levenshtein($match, (string) $token);
+                }
+
                 if ($levenshtein === 0) {
                     $score += 6;
 

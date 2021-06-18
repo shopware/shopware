@@ -1,7 +1,6 @@
 ---
 title: Handling tax-free in storefront
 issue: NEXT-14117
-flag: FEATURE_NEXT_14114
 ---
 # Core
 * Changed the way to get `taxState` in function `calculate` at `Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator` class.

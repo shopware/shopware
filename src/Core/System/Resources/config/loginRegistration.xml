@@ -138,15 +138,6 @@
             <label lang="de-DE">Datenschutzbestimmungen müssen über eine Checkbox akzeptiert werden</label>
         </input-field>
 
-        <!-- @internal (FEATURE_NEXT_14114) remove this entry -->
-        <input-field type="bool">
-            <name>vatIdFieldRequired</name>
-            <label>VAT Reg.No. required</label>
-            <label lang="de-DE">Umsatzsteuer-ID ist Pflichtfeld</label>
-            <helpText>Please keep in mind, there are similar switches for every individual country. (Settings > Countries).</helpText>
-            <helpText lang="de-DE">Bitte beachte, dass es die gleichen Schalter auch für jedes individuelle Land gibt.(Einstellungen > Länder).</helpText>
-        </input-field>
-
         <input-field type="text">
             <name>pwdRecoverUrl</name>
             <label>Password recovery URL</label>

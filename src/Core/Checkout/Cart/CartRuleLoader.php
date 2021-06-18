@@ -13,7 +13,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -38,21 +37,12 @@ class CartRuleLoader
 
     private AbstractRuleLoader $ruleLoader;
 
-    /**
-     * @internal (FEATURE_NEXT_14114)
-     */
     private TaxDetector $taxDetector;
 
     private EventDispatcherInterface $dispatcher;
 
-    /**
-     * @internal (FEATURE_NEXT_14114)
-     */
     private Connection $connection;
 
-    /**
-     * @internal (FEATURE_NEXT_14114)
-     */
     private array $currencyFactor = [];
 
     public function __construct(
@@ -155,24 +145,7 @@ class CartRuleLoader
             ++$iteration;
         } while ($recalculate);
 
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $totalCartNetAmount = $cart->getPrice()->getPositionPrice();
-
-            if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-                $totalCartNetAmount = $totalCartNetAmount - $cart->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
-            }
-
-            $taxState = $this->detectTaxType($context, $totalCartNetAmount);
-            $previous = $context->getTaxState();
-
-            $context->setTaxState($taxState);
-            $cart->setData(null);
-
-            $cart = $this->processor->process($cart, $context, $behaviorContext);
-            if ($previous !== CartPrice::TAX_STATE_FREE) {
-                $context->setTaxState($previous);
-            }
-        }
+        $cart = $this->validateTaxFree($context, $cart, $behaviorContext);
 
         $index = 0;
         foreach ($rules as $rule) {
@@ -213,9 +186,6 @@ class CartRuleLoader
         ;
     }
 
-    /**
-     * @internal (FEATURE_NEXT_14114)
-     */
     private function detectTaxType(SalesChannelContext $context, float $cartNetAmount = 0): string
     {
         $currency = $context->getCurrency();
@@ -263,9 +233,6 @@ class CartRuleLoader
         return \count($timestamps) !== $cart->getLineItems()->count();
     }
 
-    /**
-     * @internal (FEATURE_NEXT_14114)
-     */
     private function isReachedCountryTaxFreeAmount(
         SalesChannelContext $context,
         CountryEntity $country,
@@ -287,9 +254,6 @@ class CartRuleLoader
         return $currency->getTaxFreeFrom() === 0.0 && FloatComparator::greaterThanOrEquals($cartNetAmount, $countryTaxFreeLimitAmount);
     }
 
-    /**
-     * @internal (FEATURE_NEXT_14114)
-     */
     private function fetchCurrencyFactor(string $currencyId, SalesChannelContext $context): float
     {
         if ($currencyId === Defaults::CURRENCY) {
@@ -315,5 +279,27 @@ class CartRuleLoader
         }
 
         return $this->currencyFactor[$currencyId] = (float) $currencyFactor;
+    }
+
+    private function validateTaxFree(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): Cart
+    {
+        $totalCartNetAmount = $cart->getPrice()->getPositionPrice();
+        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+            $totalCartNetAmount = $totalCartNetAmount - $cart->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
+        }
+        $taxState = $this->detectTaxType($context, $totalCartNetAmount);
+        $previous = $context->getTaxState();
+        if ($taxState === $previous) {
+            return $cart;
+        }
+
+        $context->setTaxState($taxState);
+        $cart->setData(null);
+        $cart = $this->processor->process($cart, $context, $behaviorContext);
+        if ($previous !== CartPrice::TAX_STATE_FREE) {
+            $context->setTaxState($previous);
+        }
+
+        return $cart;
     }
 }

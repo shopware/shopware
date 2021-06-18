@@ -1388,5 +1388,9 @@
     "theme_translation.createdAt",
     "theme_translation.updatedAt",
     "theme_translation.themeId",
-    "theme_translation.languageId"
+    "theme_translation.languageId",
+    "country.vatIdRequired",
+    "country.customerTax",
+    "country.companyTax",
+    "currency.taxFreeFrom"
 ]

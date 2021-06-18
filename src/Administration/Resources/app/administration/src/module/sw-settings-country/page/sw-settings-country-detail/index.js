@@ -11,7 +11,6 @@ Component.register('sw-settings-country-detail', {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
         'customFieldDataProviderService',
     ],
 
@@ -32,43 +31,24 @@ Component.register('sw-settings-country-detail', {
     },
 
     data() {
-        if (this.feature.isActive('FEATURE_NEXT_14114')) {
-            return {
-                country: {
-                    customerTax: {
-                        enabled: false,
-                    },
-                    companyTax: {
-                        enabled: false,
-                    },
-                },
-                countryId: null,
-                isLoading: false,
-                countryStateRepository: null,
-                isSaveSuccessful: false,
-                customFieldSets: null,
-                userConfig: {
-                    value: {},
-                },
-                userConfigValues: {},
-            };
-        }
-
         return {
-            country: {},
-            term: null,
+            country: {
+                customerTax: {
+                    enabled: false,
+                },
+                companyTax: {
+                    enabled: false,
+                },
+            },
             countryId: null,
             isLoading: false,
-            currentCountryState: null,
             countryStateRepository: null,
-            countryStateLoading: false,
             isSaveSuccessful: false,
-            deleteButtonDisabled: true,
-            /**
-             * @feature-deprecated (flag:FEATURE_NEXT_14114)
-             * */
-            systemCurrency: {},
             customFieldSets: null,
+            userConfig: {
+                value: {},
+            },
+            userConfigValues: {},
         };
     },
 
@@ -92,7 +72,7 @@ Component.register('sw-settings-country-detail', {
         },
 
         /**
-         * @feature-deprecated (flag:FEATURE_NEXT_14114)
+         * @deprecated 6.5.0: Will be removed
          * */
         currencyRepository() {
             return this.repositoryFactory.create('currency');
@@ -136,9 +116,6 @@ Component.register('sw-settings-country-detail', {
         },
 
         userConfigCriteria() {
-            if (!this.feature.isActive('FEATURE_NEXT_14114')) {
-                return null;
-            }
             return new Criteria().addFilter(Criteria.multi(
                 'AND',
                 [
@@ -166,17 +143,10 @@ Component.register('sw-settings-country-detail', {
 
             this.countryId = this.$route.params.id;
 
-            if (this.feature.isActive('FEATURE_NEXT_14114')) {
-                Promise.all([
-                    this.loadEntityData(),
-                    this.loadCustomFieldSets(),
-                    this.loadUserConfig(),
-                ]);
-            }
-
             Promise.all([
                 this.loadEntityData(),
                 this.loadCustomFieldSets(),
+                this.loadUserConfig(),
             ]);
         },
 
@@ -227,15 +197,10 @@ Component.register('sw-settings-country-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            let userConfigValue = {};
-            if (this.feature.isActive('FEATURE_NEXT_14114')) {
-                userConfigValue = this.userConfig.value[this.countryId];
-            }
+            const userConfigValue = this.userConfig.value[this.countryId];
 
             return this.countryRepository.save(this.country, Shopware.Context.api).then(() => {
-                if (
-                    this.feature.isActive('FEATURE_NEXT_14114')
-                    && userConfigValue
+                if (userConfigValue
                     && Object.keys(userConfigValue).length > 0) {
                     this.userConfigRepository.save(this.userConfig, Shopware.Context.api)
                         .then(() => {
@@ -255,10 +220,16 @@ Component.register('sw-settings-country-detail', {
             this.$router.push({ name: 'sw.settings.country.index' });
         },
 
+        /**
+         * @deprecated 6.5.0: Will be removed
+         * */
         countryStateSelectionChanged(selection, selectionCount) {
             this.deleteButtonDisabled = selectionCount <= 0;
         },
 
+        /**
+         * @deprecated 6.5.0: Will be removed
+         * */
         onDeleteCountryStates() {
             const selection = this.$refs.countryStateGrid.selection;
 
@@ -275,15 +246,24 @@ Component.register('sw-settings-country-detail', {
                 });
         },
 
+        /**
+         * @deprecated 6.5.0: Will be removed
+         * */
         onAddCountryState() {
             this.currentCountryState = this.countryStateRepository.create();
         },
 
+        /**
+         * @deprecated 6.5.0: Will be removed
+         * */
         onSearchCountryState() {
             this.country.states.criteria.setTerm(this.term);
             this.refreshCountryStateList();
         },
 
+        /**
+         * @deprecated 6.5.0: Will be removed
+         * */
         refreshCountryStateList() {
             this.countryStateLoading = true;
 
@@ -292,6 +272,9 @@ Component.register('sw-settings-country-detail', {
             });
         },
 
+        /**
+         * @deprecated 6.5.0: Will be removed
+         * */
         onSaveCountryState() {
             // dont send requests if we are on local mode(creating a new country)
             if (this.country.isNew()) {
@@ -305,10 +288,16 @@ Component.register('sw-settings-country-detail', {
             this.currentCountryState = null;
         },
 
+        /**
+         * @deprecated 6.5.0: Will be removed
+         * */
         onCancelCountryState() {
             this.currentCountryState = null;
         },
 
+        /**
+         * @deprecated 6.5.0: Will be removed
+         * */
         onClickCountryState(item) {
             // Create a copy with the same id which will be edited
             const copy = this.countryStateRepository.create(Shopware.Context.api, item.id);

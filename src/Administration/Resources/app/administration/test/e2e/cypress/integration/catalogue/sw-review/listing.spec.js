@@ -124,7 +124,8 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
             })
     });
 
-    it('@catalogue: check that the url parameters get set', () => {
+    // TODO: E2E will be fixed and removed skip in NEXT-16286
+    it.skip('@catalogue: check that the url parameters get set', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index`);

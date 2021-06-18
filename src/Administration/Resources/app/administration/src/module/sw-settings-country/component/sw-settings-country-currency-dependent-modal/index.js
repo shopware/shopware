@@ -6,12 +6,10 @@ const utils = Shopware.Utils;
 
 Component.register('sw-settings-country-currency-dependent-modal', {
     template,
-    flag: 'FEATURE_NEXT_14114',
 
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     props: {

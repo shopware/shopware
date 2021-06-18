@@ -51,13 +51,6 @@ class ApiAwareTest extends TestCase
 
         $expected = json_decode($expected, true);
 
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $expected[] = 'country.vatIdRequired';
-            $expected[] = 'country.customerTax';
-            $expected[] = 'country.companyTax';
-            $expected[] = 'currency.taxFreeFrom';
-        }
-
         if (Feature::isActive('FEATURE_NEXT_14408')) {
             $expected[] = 'app_cms_block.createdAt';
             $expected[] = 'app_cms_block.updatedAt';

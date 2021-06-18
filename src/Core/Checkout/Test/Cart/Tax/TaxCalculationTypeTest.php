@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -34,8 +33,6 @@ class TaxCalculationTypeTest extends TestCase
         CalculatedTaxCollection $vertical,
         bool $useNet = false
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);

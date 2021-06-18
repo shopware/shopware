@@ -109,11 +109,6 @@ shopware:
               major: false
               description: "Captcha Integration"
               # issue: NEXT-12455
-            - name: FEATURE_NEXT_12635
-              default: false
-              major: false
-              description: "Improve nested LineItem support"
-              # issue: NEXT-12635
             - name: FEATURE_NEXT_14363
               default: false
               major: false

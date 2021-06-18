@@ -337,4 +337,22 @@ describe('app/adapter/view/vue.adapter.js', () => {
 
         expect(lifecycleSpy).toBeCalledTimes(1);
     });
+
+    it('should build & create a vue.js component', () => {
+        const componentDefinition = {
+            name: 'sw-foo',
+
+            render(h) {
+                return h('div', {
+                    class: {
+                        'sw-foo': true
+                    }
+                }, ['Some text']);
+            }
+        };
+
+        const component = vueAdapter.buildAndCreateComponent(componentDefinition);
+        const mountedComponent = shallowMount(component);
+        expect(mountedComponent.vm).toBeTruthy();
+    });
 });

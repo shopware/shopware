@@ -149,6 +149,23 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     /**
+     * Builds and creates a Vue component using the provided component configuration.
+     *
+     * @param {Object }componentConfig
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Function}
+     */
+    buildAndCreateComponent(componentConfig) {
+        const componentName = componentConfig.name;
+        this.resolveMixins(componentConfig);
+
+        const vueComponent = Vue.component(componentConfig.name, componentConfig);
+        this.vueComponents[componentName] = vueComponent;
+
+        return vueComponent;
+    }
+
+    /**
      * Returns a final Vue component by its name.
      *
      * @param componentName

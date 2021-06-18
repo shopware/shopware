@@ -30,6 +30,7 @@ import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listen
 import addCustomerGroupRegistrationListener from 'src/core/service/customer-group-registration-listener.service';
 import LocaleHelperService from 'src/app/service/locale-helper.service';
 import FilterService from 'src/app/service/filter.service';
+import AppCmsService from 'src/app/service/app-cms.service';
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 
 /** Import Feature */
@@ -143,4 +144,8 @@ Application
     })
     .addServiceProvider('mediaDefaultFolderService', () => {
         return MediaDefaultFolderService();
+    })
+    .addServiceProvider('appCmsService', (container) => {
+        const appCmsBlocksService = container.appCmsBlocks;
+        return new AppCmsService(appCmsBlocksService, adapter);
     });

@@ -18,7 +18,7 @@ const ids = {
     '3': uuid().replace(/-/g, ''),
 };
 
-function getLineItem(id, children = []) {
+function getLineItem(id, children = [], position = 0) {
     const mockNumber = parseInt(id.replace(/\./g, ''));
     return {
         id: ids[id],
@@ -28,6 +28,7 @@ function getLineItem(id, children = []) {
         stackable: true,
         quantity: mockNumber * 10,
         label: `LineItem ${id}`,
+        position,
         children,
         price: {
             quantity: 2,
@@ -73,14 +74,14 @@ describe('Order: Visual tests', () => {
                             getLineItem('1.1.2'),
                             getLineItem('1.1.3'),
                         ])
-                    ]),
+                    ], 1),
                     getLineItem('2', [
                         getLineItem('2.1'),
                         getLineItem('2.2', [
                             getLineItem('2.2.1')
                         ])
-                    ]),
-                    getLineItem('3')
+                    ], 2),
+                    getLineItem('3', [], 3)
                 ]
             });
         }).then(() => {

@@ -2,32 +2,23 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
-
-    public function __construct(EntityRepositoryInterface $orderRepository, EntityRepositoryInterface $customerRepository)
+    public function __construct(Connection $connection)
     {
-        $this->orderRepository = $orderRepository;
-        $this->customerRepository = $customerRepository;
+        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -43,69 +34,62 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $context = $event->getContext();
+        $ids = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
             if ($writeResult->getExistence() !== null && $writeResult->getExistence()->exists()) {
                 break;
             }
 
-            $payload = $writeResult->getPayload();
-            if (empty($payload)) {
-                continue;
-            }
-
-            /** @var \DateTimeInterface $orderDate */
-            $orderDate = $payload['orderDateTime'];
-
-            $orderResult = $this->orderRepository->search(
-                (new Criteria([$payload['id']]))->addAssociation('orderCustomer'),
-                $context
-            );
-
-            /** @var OrderEntity|null $order */
-            $order = $orderResult->first();
-
-            if (!($order instanceof OrderEntity)) {
-                continue;
-            }
-
-            $orderCustomer = $order->getOrderCustomer();
-            if ($orderCustomer === null) {
-                continue;
-            }
-            $customerId = $orderCustomer->getCustomerId();
-
-            // happens if the customer was deleted
-            if (!$customerId) {
-                continue;
-            }
-
-            $orderCount = 0;
-
-            $customerResult = $this->customerRepository->search(
-                (new Criteria([$customerId]))->addAssociation('orderCustomers'),
-                $context
-            );
-
-            /** @var CustomerEntity $customer */
-            $customer = $customerResult->first();
-
-            if ($customer !== null && $customer->getOrderCustomers()) {
-                $orderCount = $customer->getOrderCustomers()->count();
-            }
-
-            $data = [
-                [
-                    'id' => $customerId,
-                    'orderCount' => $orderCount,
-                    'lastOrderDate' => $orderDate->format('Y-m-d H:i:s.v'),
-                ],
-            ];
-
-            $context->scope(Context::SYSTEM_SCOPE, function () use ($data, $context): void {
-                $this->customerRepository->update($data, $context);
-            });
+            $ids[] = $writeResult->getPrimaryKey();
         }
+
+        if (empty($ids)) {
+            return;
+        }
+
+        $sql = '
+UPDATE `customer`
+SET order_count = (
+        SELECT COUNT(order.id) AS order_count
+        FROM `order`
+            INNER JOIN `order_customer` ON `order`.id = `order_customer`.order_id
+            INNER JOIN `state_machine_state` ON `state_machine_state`.id = `order`.state_id AND `state_machine_state`.technical_name <> :cancelled_state
+        WHERE `order_customer`.customer_id = `customer`.id AND `order`.version_id = :version_id
+    ),
+    order_total_amount = (
+        SELECT SUM(`order`.amount_total) as total_amount
+        FROM `order`
+            INNER JOIN `order_customer` ON `order`.id = `order_customer`.order_id
+            INNER JOIN `state_machine_state` ON `state_machine_state`.id = `order`.state_id AND `state_machine_state`.technical_name <> :cancelled_state
+        WHERE `order_customer`.customer_id = `customer`.id AND `order`.version_id = :version_id
+    ),
+    last_order_date = (
+        SELECT order_date_time
+        FROM `order`
+            INNER JOIN `order_customer` ON `order`.id = `order_customer`.order_id
+            INNER JOIN `state_machine_state` ON `state_machine_state`.id = `order`.state_id AND `state_machine_state`.technical_name <> :cancelled_state
+        WHERE `order_customer`.customer_id = `customer`.id AND `order`.version_id = :version_id
+        ORDER BY order_date_time DESC
+        LIMIT 1
+    )
+WHERE id IN (
+    SELECT customer_id
+    FROM `order_customer`
+    WHERE order_id IN (:ids)
+)
+        ';
+
+        RetryableQuery::retryable(function () use ($ids, $sql): void {
+            $this->connection->executeStatement(
+                $sql,
+                [
+                    'ids' => Uuid::fromHexToBytesList($ids),
+                    'cancelled_state' => OrderStates::STATE_CANCELLED,
+                    'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                ],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        });
     }
 }

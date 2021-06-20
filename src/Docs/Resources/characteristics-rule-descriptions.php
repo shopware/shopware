@@ -237,4 +237,8 @@ EOD
 Matches a total number of products in cart.
 EOD
     ,
+    Shopware\Core\Checkout\Customer\Rule\OrderTotalAmountRule::class => <<<'EOD'
+Matches a total amount of orders of the current customer.
+EOD
+    ,
 ];

@@ -1021,6 +1021,7 @@
     "customer.tagIds",
     "customer.createdAt",
     "customer.updatedAt",
+    "customer.orderTotalAmount",
     "customer_group_translation.name",
     "customer_group_translation.registrationTitle",
     "customer_group_translation.registrationIntroduction",

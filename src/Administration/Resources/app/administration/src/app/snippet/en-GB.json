@@ -614,6 +614,7 @@
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method",
         "lineItemGoodsTotalRule": "Total number of products in cart",
+        "orderTotalAmountRule": "Value of orders",
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {

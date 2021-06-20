@@ -85,8 +85,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber">
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

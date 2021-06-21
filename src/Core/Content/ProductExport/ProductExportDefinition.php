@@ -44,6 +44,11 @@ class ProductExportDefinition extends EntityDefinition
         return '6.1.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductExportHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

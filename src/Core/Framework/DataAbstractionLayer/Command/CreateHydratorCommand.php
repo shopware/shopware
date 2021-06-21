@@ -379,7 +379,9 @@ EOF;
         $template = "if (isset(\$row[\$root . '.#property#'])) {
             #inner#
         }";
-
+        $arrayKeyExists = "if (\array_key_exists(\$root . '.#property#', \$row)) {
+            #inner#
+        }";
         switch (true) {
             case $field instanceof IdField:
             case $field instanceof FkField:
@@ -410,12 +412,10 @@ EOF;
 
                 break;
             default:
-                $template = "if (array_key_exists(\$root . '.#property#', \$row)) {
-                    #inner#
-                }";
+                $template = $arrayKeyExists;
                 $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = \$definition->decode('#property#', self::value(\$row, \$root, '#property#'));");
 
-                break;
+                return str_replace(['#property#', '#inner#'], [$field->getPropertyName(), $inner], $template);
         }
 
         return str_replace(['#property#', '#inner#'], [$field->getPropertyName(), $inner], $template);

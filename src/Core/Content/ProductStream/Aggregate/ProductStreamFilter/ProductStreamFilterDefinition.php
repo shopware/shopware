@@ -43,6 +43,11 @@ class ProductStreamFilterDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductStreamFilterHydrator::class;
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return ProductStreamDefinition::class;

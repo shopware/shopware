@@ -51,6 +51,11 @@ class PropertyGroupOptionDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return PropertyGroupOptionHydrator::class;
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return PropertyGroupDefinition::class;

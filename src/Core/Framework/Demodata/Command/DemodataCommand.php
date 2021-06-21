@@ -52,7 +52,7 @@ class DemodataCommand extends Command
     protected function configure(): void
     {
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', '1000');
-        $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', '15');
+        $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', '10');
         $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', '60');
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', '60');
         $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', '60');

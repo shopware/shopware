@@ -51,6 +51,11 @@ class ProductSearchConfigDefinition extends EntityDefinition
         ];
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductSearchConfigHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

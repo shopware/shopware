@@ -163,7 +163,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->appStateService->deactivateApp($appEntity->getId(), $context);
         }
 
-        $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
+        $this->removeAppAndRole($appEntity, $context, $keepUserData);
     }
 
     private function updateApp(

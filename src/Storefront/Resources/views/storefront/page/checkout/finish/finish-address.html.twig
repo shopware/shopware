@@ -1,6 +1,13 @@
 {% block page_checkout_finish_address_inner %}
-    {% set billingAddress = context.customer.defaultBillingAddress %}
-    {% set shippingAddress = context.customer.defaultShippingAddress %}
+    {% set order = page.order %}
+    {% set deliveries = order.deliveries.elements %}
+    {% set billingAddress = order.billingAddress %}
+
+    {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
+        {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+    {% else %}
+        {% set shippingAddress = billingAddress %}
+    {% endif %}
     <div class="row">
         {% block page_checkout_finish_address_billing %}
             <div class="col-sm-6">

@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Acl;
 
+use Shopware\Core\Framework\Api\Acl\Event\CommandAclValidationEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
@@ -11,9 +13,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AclWriteValidator implements EventSubscriberInterface
 {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     public static function getSubscribedEvents()
     {
         return [PreWriteValidationEvent::class => 'preValidate'];
@@ -21,16 +34,18 @@ class AclWriteValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        if ($event->getContext()->getScope() === Context::SYSTEM_SCOPE) {
+        $context = $event->getContext();
+        $source = $event->getContext()->getSource();
+        if ($source instanceof AdminSalesChannelApiSource) {
+            $context = $source->getOriginalContext();
+            $source = $context->getSource();
+        }
+
+        if ($context->getScope() === Context::SYSTEM_SCOPE || !$source instanceof AdminApiSource || $source->isAdmin()) {
             return;
         }
 
         $commands = $event->getCommands();
-        $source = $event->getContext()->getSource();
-        if (!$source instanceof AdminApiSource || $source->isAdmin()) {
-            return;
-        }
-
         $missingPrivileges = [];
 
         foreach ($commands as $command) {
@@ -52,6 +67,10 @@ class AclWriteValidator implements EventSubscriberInterface
             if (!$source->isAllowed($resource . ':' . $privilege)) {
                 $missingPrivileges[] = $resource . ':' . $privilege;
             }
+
+            $event = new CommandAclValidationEvent($missingPrivileges, $source, $command);
+            $this->eventDispatcher->dispatch($event);
+            $missingPrivileges = $event->getMissingPrivileges();
         }
 
         $this->tryToThrow($missingPrivileges);

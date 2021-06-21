@@ -83,7 +83,7 @@
                         v-model="currentIntegration.admin"
                         class="sw-settings-user-detail__grid-is-admin"
                         :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
-                        :disabled="!acl.can('integration.editor')"
+                        :disabled="!acl.can('admin')"
                     />
                     {% endblock %}
                 </sw-container>

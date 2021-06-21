@@ -6,4 +6,5 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../Api/Controller/UserController.php" type="annotation" />
+    <import resource="../../Api/Controller/IntegrationController.php" type="annotation" />
 </routes>

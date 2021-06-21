@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -376,7 +377,11 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             throw new \RuntimeException(sprintf('No context data found for SalesChannel "%s"', $salesChannelId));
         }
 
-        $origin = new SalesChannelApiSource($salesChannelId);
+        if (isset($session[SalesChannelContextService::ORIGINAL_CONTEXT])) {
+            $origin = new AdminSalesChannelApiSource($salesChannelId, $session[SalesChannelContextService::ORIGINAL_CONTEXT]);
+        } else {
+            $origin = new SalesChannelApiSource($salesChannelId);
+        }
 
         //explode all available languages for the provided sales channel
         $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : [];

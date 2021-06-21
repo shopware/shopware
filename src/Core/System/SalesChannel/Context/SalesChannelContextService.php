@@ -35,6 +35,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     public const DOMAIN_ID = 'domainId';
 
+    public const ORIGINAL_CONTEXT = 'originalContext';
+
     /**
      * @var AbstractSalesChannelContextFactory
      */
@@ -87,6 +89,10 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
         if ($parameters->getDomainId() !== null) {
             $session[self::DOMAIN_ID] = $parameters->getDomainId();
+        }
+
+        if ($parameters->getOriginalContext() !== null) {
+            $session[self::ORIGINAL_CONTEXT] = $parameters->getOriginalContext();
         }
 
         $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);

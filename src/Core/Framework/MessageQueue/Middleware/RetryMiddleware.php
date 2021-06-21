@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\MessageQueue\Middleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
@@ -52,10 +51,7 @@ class RetryMiddleware implements MiddlewareInterface
                 }
                 if ($deadMessage) {
                     $this->handleExistingDeadMessage($deadMessage, $nestedException);
-
-                    if (Feature::isActive('FEATURE_NEXT_14363')) {
-                        $this->handleRetryWebhookMessageFailed($deadMessage);
-                    }
+                    $this->handleRetryWebhookMessageFailed($deadMessage);
                 } else {
                     $this->createDeadMessageFromEnvelope($envelope, $nestedException);
                 }

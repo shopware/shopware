@@ -30,14 +30,8 @@ class WebhookEntity extends Entity
      */
     protected $appId;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14363)
-     */
     protected bool $active;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14363)
-     */
     protected int $errorCount;
 
     /**
@@ -95,33 +89,21 @@ class WebhookEntity extends Entity
         $this->app = $app;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14363)
-     */
     public function isActive(): bool
     {
         return $this->active;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14363)
-     */
     public function setActive(bool $active): void
     {
         $this->active = $active;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14363)
-     */
     public function getErrorCount(): int
     {
         return $this->errorCount;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14363)
-     */
     public function setErrorCount(int $errorCount): void
     {
         $this->errorCount = $errorCount;

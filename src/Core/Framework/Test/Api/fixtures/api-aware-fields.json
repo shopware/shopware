@@ -90,6 +90,8 @@
     "main_category.updatedAt",
     "webhook.createdAt",
     "webhook.updatedAt",
+    "webhook_event_log.createdAt",
+    "webhook_event_log.updatedAt",
     "named.id",
     "named.name",
     "named.createdAt",

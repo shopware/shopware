@@ -27,5 +27,6 @@
         "symfony/http-foundation": "~5.2.3",
         "symfony/routing": "~5.2.3",
         "symfony/mime": "~5.2.3"
-    }
+    },
+    "version": "6.4.2.0"
 }

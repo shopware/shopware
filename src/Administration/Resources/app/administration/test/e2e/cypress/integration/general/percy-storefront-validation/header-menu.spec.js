@@ -16,7 +16,7 @@ describe('Header menu:Visual tests', () => {
             cy.get('.nav-main-toggle').should('not.be.visible');
 
             // Take snapshot for visual testing
-            cy.takeSnapshot('[Header] Deskop', '.nav.main-navigation-menu', { widths: [720] });
+            cy.takeSnapshot('[Header] Deskop', '.nav.main-navigation-menu');
         });
     });
 

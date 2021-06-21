@@ -76,6 +76,7 @@ describe('Property: Visual tests', () => {
         cy.get('.sw-property-option-list__add-button').click();
 
         // Take snapshot for visual testing
+        cy.contains('.sw-modal__header', 'New value').should('be.visible');
         cy.takeSnapshot('[Property] Detail, Option modal', '.sw-modal');
     });
 });

@@ -48,9 +48,11 @@ describe('Category: Visual tests', () => {
         );
         cy.takeSnapshot('[Category] Listing', '.sw-card');
 
-        cy.contains('.sw-category-detail__tab-products', 'Products');
+        cy.contains('.sw-category-detail__tab-products', 'Products').click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__skeleton').should('not.exist');
+
+        cy.get('.sw-many-to-many-assignment-card__select-container').should('be.visible');
         cy.takeSnapshot('[Category] Detail, Products', '.sw-card');
 
         cy.contains('.sw-category-detail__tab-cms', 'Layout').click();

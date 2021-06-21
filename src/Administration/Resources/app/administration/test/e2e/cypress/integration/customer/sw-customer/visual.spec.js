@@ -114,7 +114,8 @@ describe('Customer:  Visual test', () => {
         cy.takeSnapshot('[Customer] Detail', '.sw-customer-card');
     });
 
-    it('@visual: check appearance of customer address workflow', () => {
+
+    it.only('@visual: check appearance of customer address workflow', () => {
         const page = new CustomerPageObject();
 
         // Open customer
@@ -139,6 +140,7 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
 
         // Take snapshot for visual testing
+        cy.contains('.sw-modal__header', 'Address').should('be.visible');
         cy.takeSnapshot('[Customer] Detail, address modal', '.sw-modal');
     });
 

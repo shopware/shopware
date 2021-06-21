@@ -85,7 +85,8 @@ class SqlQueryParser
         Filter $query,
         EntityDefinition $definition,
         Context $context,
-        ?string $root = null
+        ?string $root = null,
+        bool $negated = false
     ): ParseResult {
         if ($root === null) {
             $root = $definition->getEntityName();
@@ -100,7 +101,7 @@ class SqlQueryParser
 
         switch (true) {
             case $query instanceof EqualsFilter:
-                return $this->parseEqualsFilter($query, $definition, $root, $context);
+                return $this->parseEqualsFilter($query, $definition, $root, $context, $negated);
             case $query instanceof EqualsAnyFilter:
                 return $this->parseEqualsAnyFilter($query, $definition, $root, $context);
             case $query instanceof ContainsFilter:
@@ -114,7 +115,7 @@ class SqlQueryParser
             case $query instanceof NotFilter:
                 return $this->parseNotFilter($query, $definition, $root, $context);
             case $query instanceof MultiFilter:
-                return $this->parseMultiFilter($query, $definition, $root, $context);
+                return $this->parseMultiFilter($query, $definition, $root, $context, $negated);
             default:
                 throw new \RuntimeException(sprintf('Unsupported query %s', \get_class($query)));
         }
@@ -244,7 +245,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseEqualsFilter(EqualsFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    private function parseEqualsFilter(EqualsFilter $query, EntityDefinition $definition, string $root, Context $context, bool $negated): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -259,7 +260,11 @@ class SqlQueryParser
             return $result;
         }
 
-        $result->addWhere($select . ' <=> :' . $key);
+        if ($negated || $query->getValue() === null) {
+            $result->addWhere($select . ' <=> :' . $key);
+        } else {
+            $result->addWhere($select . ' = :' . $key);
+        }
 
         $value = $query->getValue();
         if ($value === null) {
@@ -277,9 +282,9 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseMultiFilter(MultiFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    private function parseMultiFilter(MultiFilter $query, EntityDefinition $definition, string $root, Context $context, bool $negated): ParseResult
     {
-        $result = $this->iterateNested($query, $definition, $root, $context);
+        $result = $this->iterateNested($query, $definition, $root, $context, $negated);
 
         $wheres = $result->getWheres();
 
@@ -295,7 +300,7 @@ class SqlQueryParser
 
     private function parseNotFilter(NotFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
-        $result = $this->iterateNested($query, $definition, $root, $context);
+        $result = $this->iterateNested($query, $definition, $root, $context, true);
 
         $wheres = $result->getWheres();
 
@@ -310,12 +315,12 @@ class SqlQueryParser
         return $result;
     }
 
-    private function iterateNested(MultiFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    private function iterateNested(MultiFilter $query, EntityDefinition $definition, string $root, Context $context, bool $negated): ParseResult
     {
         $result = new ParseResult();
         foreach ($query->getQueries() as $multiFilter) {
             $result = $result->merge(
-                $this->parse($multiFilter, $definition, $context, $root)
+                $this->parse($multiFilter, $definition, $context, $root, $negated)
             );
         }
 

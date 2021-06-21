@@ -111,6 +111,7 @@
             <argument type="service" id="security.csrf.token_manager"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">
@@ -152,7 +153,6 @@
             <argument type="service" id="security.csrf.token_manager"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
-            <argument type="service" id="session"/>
             <argument type="service" id="translator"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -562,8 +562,8 @@
         </service>
 
         <service id="Shopware\Storefront\Event\CartMergedSubscriber">
-            <argument type="service" id="session"/>
             <argument type="service" id="translator"/>
+            <argument type="service" id="request_stack"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

@@ -368,7 +368,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $requestStackBackup = [];
 
-        while ($requestStack->getMasterRequest()) {
+        while ($requestStack->getMainRequest()) {
             $requestStackBackup[] = $requestStack->pop();
         }
 

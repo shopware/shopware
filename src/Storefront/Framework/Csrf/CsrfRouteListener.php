@@ -9,7 +9,6 @@ use Shopware\Storefront\Framework\Csrf\Exception\InvalidCsrfTokenException;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Csrf\CsrfToken;
@@ -28,22 +27,12 @@ class CsrfRouteListener implements EventSubscriberInterface
      */
     protected $csrfMode;
 
-    /**
-     * @var CsrfTokenManagerInterface
-     */
-    private $csrfTokenManager;
+    private CsrfTokenManagerInterface $csrfTokenManager;
 
     /**
      * Used to track if the csrf token has already been check for the request
-     *
-     * @var bool
      */
-    private $csrfChecked = false;
-
-    /**
-     * @var Session
-     */
-    private $session;
+    private bool $csrfChecked = false;
 
     /**
      * @var TranslatorInterface
@@ -54,12 +43,10 @@ class CsrfRouteListener implements EventSubscriberInterface
         CsrfTokenManagerInterface $csrfTokenManager,
         bool $csrfEnabled,
         string $csrfMode,
-        Session $session,
         TranslatorInterface $translator
     ) {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfEnabled = $csrfEnabled;
-        $this->session = $session;
         $this->translator = $translator;
         $this->csrfMode = $csrfMode;
     }
@@ -117,9 +104,9 @@ class CsrfRouteListener implements EventSubscriberInterface
             && !$this->csrfTokenManager->isTokenValid(new CsrfToken($intent, $submittedCSRFToken))
         ) {
             if ($request->isXmlHttpRequest()) {
-                $this->session->getFlashBag()->add('danger', $this->translator->trans('error.message-403-ajax'));
+                $request->getSession()->getFlashBag()->add('danger', $this->translator->trans('error.message-403-ajax'));
             } else {
-                $this->session->getFlashBag()->add('danger', $this->translator->trans('error.message-403'));
+                $request->getSession()->getFlashBag()->add('danger', $this->translator->trans('error.message-403'));
             }
 
             throw new InvalidCsrfTokenException();

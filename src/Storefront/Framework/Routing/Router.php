@@ -158,7 +158,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function getSalesChannelBaseUrl(): string
     {
-        $request = $this->requestStack->getMasterRequest();
+        $request = $this->requestStack->getMainRequest();
         if (!$request) {
             return '';
         }
@@ -174,7 +174,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function getBasePath(): string
     {
-        $request = $this->requestStack->getMasterRequest();
+        $request = $this->requestStack->getMainRequest();
         if (!$request) {
             return '';
         }

@@ -13,12 +13,11 @@ class AssetRegistrationCompilerPass implements CompilerPassInterface
     {
         $assets = [];
         foreach ($container->findTaggedServiceIds('shopware.asset') as $id => $config) {
+            $container->getDefinition($id)->addTag('assets.package', ['package' => $config[0]['asset']]);
             $assets[$config[0]['asset']] = new Reference($id);
         }
 
         $assetService = $container->getDefinition('assets.packages');
-        $args = array_merge($assets, $assetService->getArgument(1));
-        $assetService->replaceArgument(1, $args);
         $assetService->addMethodCall('setDefaultPackage', [$assets['asset']]);
 
         if ($container->hasDefinition(ThemeCompiler::class)) {

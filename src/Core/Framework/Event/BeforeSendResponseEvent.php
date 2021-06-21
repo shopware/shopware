@@ -6,17 +6,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * This event is also called on cached responses.
+ */
 class BeforeSendResponseEvent extends Event
 {
-    /**
-     * @var Request
-     */
-    protected $request;
+    protected Request $request;
 
-    /**
-     * @var Response
-     */
-    protected $response;
+    protected Response $response;
 
     public function __construct(Request $request, Response $response)
     {

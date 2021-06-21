@@ -6,7 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -117,10 +120,16 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
     private function createCsrfPlaceholderHandler(bool $csrfEnabled = true, string $csrfMode = 'twig')
     {
+        $stack = new RequestStack();
+        $request = new Request();
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $stack->push($request);
+
         return new CsrfPlaceholderHandler(
             $this->getContainer()->get('security.csrf.token_manager'),
             $csrfEnabled,
-            $csrfMode
+            $csrfMode,
+            $stack
         );
     }
 

@@ -96,10 +96,10 @@ class DefaultApiConverter
     protected function ignoreDeprecations(): bool
     {
         // We don't have a request
-        if ($this->requestStack->getMasterRequest() === null) {
+        if ($this->requestStack->getMainRequest() === null) {
             return false;
         }
 
-        return $this->requestStack->getMasterRequest()->headers->get(PlatformRequest::HEADER_IGNORE_DEPRECATIONS) === 'true';
+        return $this->requestStack->getMainRequest()->headers->get(PlatformRequest::HEADER_IGNORE_DEPRECATIONS) === 'true';
     }
 }

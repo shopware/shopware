@@ -138,7 +138,12 @@ abstract class StorefrontController extends AbstractController
             'danger' => $errors->getErrors(),
         ];
 
-        $exists = $this->container->get('session')->getFlashBag()->peekAll();
+        $request = $this->container->get('request_stack')->getMainRequest();
+        $exists = [];
+
+        if ($request && $request->hasSession() && method_exists($session = $request->getSession(), 'getFlashBag')) {
+            $exists = $session->getFlashBag()->peekAll();
+        }
 
         $flat = [];
         foreach ($exists as $messages) {

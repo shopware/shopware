@@ -4,34 +4,30 @@ namespace Shopware\Storefront\Framework\Csrf;
 
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CsrfPlaceholderHandler
 {
     public const CSRF_PLACEHOLDER = '1b4dfebfc2584cf58b63c72c20d521d0';
 
-    /**
-     * @var CsrfTokenManagerInterface
-     */
-    private $csrfTokenManager;
+    private CsrfTokenManager $csrfTokenManager;
 
-    /**
-     * @var bool
-     */
-    private $csrfEnabled;
+    private bool $csrfEnabled;
 
-    /**
-     * @var string
-     */
-    private $csrfMode;
+    private string $csrfMode;
 
-    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, bool $csrfEnabled, string $csrfMode)
+    private RequestStack $requestStack;
+
+    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, bool $csrfEnabled, string $csrfMode, RequestStack $requestStack)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfEnabled = $csrfEnabled;
         $this->csrfMode = $csrfMode;
+        $this->requestStack = $requestStack;
     }
 
     public function replaceCsrfToken(Response $response, Request $request): Response
@@ -49,6 +45,23 @@ class CsrfPlaceholderHandler
         }
 
         $content = $response->getContent();
+
+        // Early return if the placeholder is not present in body to save cpu cycles with the regex
+        if (!\str_contains($content, self::CSRF_PLACEHOLDER)) {
+            return $response;
+        }
+
+        $session = $request->hasSession() ? $request->getSession() : null;
+
+        if ($session !== null) {
+            // StorefrontSubscriber did not run and set the session name. This can happen when the page is fully cached in the http cache
+            if (!$session->isStarted()) {
+                $session->setName('session-');
+            }
+
+            // The SessionTokenStorage gets the session from the RequestStack. This is at this moment empty as the Symfony request cycle did run already
+            $this->requestStack->push($request);
+        }
 
         // https://regex101.com/r/fefx3V/1
         $content = preg_replace_callback(
@@ -68,6 +81,11 @@ class CsrfPlaceholderHandler
         );
 
         $response->setContent($content);
+
+        if ($session !== null) {
+            // Pop out the request injected some lines above. This is important for long running applications with roadrunner or swoole
+            $this->requestStack->pop();
+        }
 
         return $response;
     }

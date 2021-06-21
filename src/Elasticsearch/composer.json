@@ -31,8 +31,8 @@
         "elasticsearch/elasticsearch": "7.11.0",
         "ongr/elasticsearch-dsl": "7.2.1",
         "shopware/core": "*",
-        "symfony/http-foundation": "~5.2.3",
-        "symfony/messenger": "~5.2.3"
+        "symfony/http-foundation": "~5.3.0",
+        "symfony/messenger": "~5.3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "9.5.2"

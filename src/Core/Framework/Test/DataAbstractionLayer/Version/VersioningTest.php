@@ -1920,7 +1920,7 @@ class VersioningTest extends TestCase
             $commits[$row['version_commit_id']]['data'][] = $row;
         }
 
-        dump($commits);
+        var_dump($commits);
     }
 
     private function getCommits(string $entity, string $id, string $versionId): array

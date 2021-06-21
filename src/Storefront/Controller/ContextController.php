@@ -150,7 +150,7 @@ class ContextController extends StorefrontController
         $routerContext->setHost($parsedUrl['host']);
         $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
 
-        $this->requestStack->getMasterRequest()
+        $this->requestStack->getMainRequest()
             ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');
 
         $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);

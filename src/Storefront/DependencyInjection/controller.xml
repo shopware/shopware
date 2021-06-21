@@ -146,7 +146,6 @@
 
         <service id="Shopware\Storefront\Controller\ErrorController" lazy="true">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
-            <argument type="service" id="session"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader"/>

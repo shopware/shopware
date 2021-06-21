@@ -16,26 +16,20 @@ use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class StorefrontCartSubscriber implements EventSubscriberInterface
 {
     public const SESSION_KEY_PROMOTION_CODES = 'cart-promotion-codes';
 
-    /**
-     * @var Session
-     */
-    private $session;
+    private CartService $cartService;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private RequestStack $requestStack;
 
-    public function __construct(Session $session, CartService $cartService)
+    public function __construct(CartService $cartService, RequestStack $requestStack)
     {
-        $this->session = $session;
         $this->cartService = $cartService;
+        $this->requestStack = $requestStack;
     }
 
     public static function getSubscribedEvents(): array
@@ -49,7 +43,17 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
     public function resetCodes(): void
     {
-        $this->session->set(self::SESSION_KEY_PROMOTION_CODES, []);
+        $mainRequest = $this->requestStack->getMainRequest();
+
+        if ($mainRequest === null) {
+            return;
+        }
+
+        if (!$mainRequest->hasSession()) {
+            return;
+        }
+
+        $mainRequest->getSession()->set(self::SESSION_KEY_PROMOTION_CODES, []);
     }
 
     /**

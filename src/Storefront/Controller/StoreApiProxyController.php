@@ -120,7 +120,7 @@ class StoreApiProxyController
     {
         $requestStackBackup = [];
 
-        while ($requestStack->getMasterRequest()) {
+        while ($requestStack->getMainRequest()) {
             $requestStackBackup[] = $requestStack->pop();
         }
 

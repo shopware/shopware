@@ -27,21 +27,18 @@ class IndexCreator
             $this->client->indices()->delete(['index' => $index]);
         }
 
-        $this->client->indices()->create([
-            'index' => $index,
-            'body' => $this->config,
-        ]);
-
         $mapping = $definition->getMapping($context);
 
         $mapping = $this->addFullText($mapping);
 
         $mapping = array_merge_recursive($mapping, $this->mapping);
 
-        $this->client->indices()->putMapping([
+        $this->client->indices()->create([
             'index' => $index,
-            'body' => $mapping,
-        ]);
+            'body' => array_merge(
+                $this->config,
+                ['mappings' => $mapping]
+            ), ]);
 
         $this->createAliasIfNotExisting($index, $alias);
     }
@@ -83,6 +80,10 @@ class IndexCreator
         if ($exist) {
             return;
         }
+
+        $this->client->indices()->refresh([
+            'index' => $index,
+        ]);
 
         $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]);
     }

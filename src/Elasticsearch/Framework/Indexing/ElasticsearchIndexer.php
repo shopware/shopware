@@ -217,10 +217,6 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
             throw new ElasticsearchIndexingException($errors);
         }
-
-        $this->client->indices()->refresh([
-            'index' => $index,
-        ]);
     }
 
     public static function getHandledMessages(): iterable

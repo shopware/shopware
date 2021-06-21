@@ -109,6 +109,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>
+            <argument type="service" id="event_dispatcher"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

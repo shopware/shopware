@@ -32,7 +32,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', $data);
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
 
         $response = $client->getResponse();
 
@@ -50,7 +50,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => true,
         ];
 
-        $client->request('POST', '/api/integration', $data);
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
 
         $response = $client->getResponse();
 
@@ -78,9 +78,12 @@ class IntegrationControllerTest extends TestCase
         $client->request(
             'PATCH',
             '/api/integration/' . $ids->get('integration'),
-            [
+            [],
+            [],
+            [],
+            \json_encode([
                 'admin' => true,
-            ]
+            ])
         );
 
         $response = $client->getResponse();
@@ -105,7 +108,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', $data);
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
 
         $response = $client->getResponse();
 
@@ -123,7 +126,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', $data);
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
 
         $response = $client->getResponse();
 
@@ -142,7 +145,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => true,
         ];
 
-        $client->request('POST', '/api/integration', $data);
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
 
         $response = $client->getResponse();
 
@@ -171,12 +174,15 @@ class IntegrationControllerTest extends TestCase
         $client->request(
             'PATCH',
             '/api/integration/' . $ids->get('integration'),
-            [
+            [],
+            [],
+            [],
+            \json_encode([
                 'aclRoles' => [
                     ['id' => $ids->get('role-1'), 'name' => 'role-1'],
                     ['id' => $ids->get('role-2'), 'name' => 'role-2'],
                 ],
-            ]
+            ])
         );
 
         $response = $client->getResponse();
@@ -218,9 +224,12 @@ class IntegrationControllerTest extends TestCase
         $client->request(
             'PATCH',
             '/api/integration/' . $ids->get('integration'),
-            [
+            [],
+            [],
+            [],
+            \json_encode([
                 'admin' => true,
-            ]
+            ])
         );
 
         $response = $client->getResponse();

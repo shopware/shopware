@@ -137,10 +137,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'email' => $this->email,
                     'password' => $this->password,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -282,10 +285,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $this->defaultPaymentMethodId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -325,10 +331,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $newPaymentMethodId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -359,10 +368,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $this->defaultPaymentMethodId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -381,10 +393,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => Uuid::randomHex(),
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -398,9 +413,12 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/state/cancel',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -478,7 +496,10 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/checkout/cart/line-item',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
                     'items' => [
                         [
                             'id' => $ids->get('1000'),
@@ -487,7 +508,7 @@ class OrderRouteTest extends TestCase
                             'type' => 'product',
                         ],
                     ],
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -498,7 +519,10 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/checkout/order',
-                []
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -534,10 +558,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $orderId,
                     'paymentMethodId' => $paymentId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);

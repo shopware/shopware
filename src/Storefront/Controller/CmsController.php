@@ -15,9 +15,11 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,13 +61,16 @@ class CmsController extends StorefrontController
      */
     private $combinationFinder;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         AbstractCmsRoute $cmsRoute,
         AbstractCategoryRoute $categoryRoute,
         AbstractProductListingRoute $listingRoute,
         AbstractProductDetailRoute $productRoute,
         ProductReviewLoader $productReviewLoader,
-        ProductCombinationFinder $combinationFinder
+        ProductCombinationFinder $combinationFinder,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->cmsRoute = $cmsRoute;
         $this->categoryRoute = $categoryRoute;
@@ -73,6 +78,7 @@ class CmsController extends StorefrontController
         $this->productRoute = $productRoute;
         $this->productReviewLoader = $productReviewLoader;
         $this->combinationFinder = $combinationFinder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -203,6 +209,9 @@ class CmsController extends StorefrontController
         $request->request->set('productId', $product->getId());
         $reviews = $this->productReviewLoader->load($request, $context);
         $reviews->setParentId($product->getParentId() ?? $product->getId());
+
+        $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
+        $this->eventDispatcher->dispatch($event);
 
         return $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
             'product' => $product,

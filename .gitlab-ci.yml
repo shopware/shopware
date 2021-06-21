@@ -356,8 +356,12 @@ Jest (Storefront):
         - npm --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/ run unit
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
+        when: always
+        paths:
+            - development/build/artifacts/jest
         reports:
             junit: development/build/artifacts/storefront.junit.xml
+            cobertura: development/build/artifacts/jest/cobertura-coverage.xml
 
 # Stage: E2E
 

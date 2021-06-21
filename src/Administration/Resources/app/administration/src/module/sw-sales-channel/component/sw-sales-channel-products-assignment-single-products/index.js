@@ -56,7 +56,6 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
                     property: 'name',
                     label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
-                    primary: true,
                 },
                 {
                     property: 'productNumber',
@@ -95,7 +94,8 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         },
 
         onSelectionChange(selection) {
-            this.$emit('selection-change', selection, 'singleProducts');
+            const products = Object.values(selection);
+            this.$emit('selection-change', products, 'singleProducts');
         },
     },
 });

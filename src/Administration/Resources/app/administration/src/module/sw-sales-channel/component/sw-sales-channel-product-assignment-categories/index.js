@@ -26,6 +26,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             searchResult: [],
             searchTerm: '',
             isFetching: false,
+            isProductLoading: false,
             isComponentReady: false,
             categoriesCollection: [],
         };
@@ -63,13 +64,20 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                     return;
                 }
 
-                this.getProductFromCategories(value.getIds()).then(products => {
-                    this.$emit('selection-change', products, 'categoryProducts');
-                }).catch(err => {
-                    this.createNotificationError({
-                        message: err.message,
+                this.$emit('product-loading', true);
+                this.isProductLoading = true;
+
+                this.getProductFromCategories(value.getIds())
+                    .then((products) => {
+                        this.$emit('selection-change', products, 'categoryProducts');
+                    })
+                    .catch((error) => {
+                        this.createNotificationError({ message: error.message });
+                    })
+                    .finally(() => {
+                        this.$emit('product-loading', false);
+                        this.isProductLoading = false;
                     });
-                });
             },
         },
 

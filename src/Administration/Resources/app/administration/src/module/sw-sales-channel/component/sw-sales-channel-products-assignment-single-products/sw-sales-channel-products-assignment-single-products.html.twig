@@ -24,17 +24,18 @@
                 {% block sw_sales_channel_products_assignment_single_products_primary_listing %}
                 <sw-entity-listing
                     v-if="products.length > 0"
-                    ref="entityListing"
-                    identifier="sw-sales-channel-detail-products-list"
+                    identifier="sw-sales-channel-products-assignment-single-products-list"
                     :repository="productRepository"
                     :items="products"
                     :columns="productColumns"
                     :plain-appearance="true"
                     :skeleton-item-amount="skeletonItemAmount"
                     :is-loading="isLoading"
+                    :allow-column-edit="false"
                     :allow-inline-edit="false"
                     :allow-delete="false"
                     :show-actions="false"
+                    :show-settings="false"
                     @selection-change="onSelectionChange"
                 />
                 {% endblock %}

@@ -1,31 +1,107 @@
 {% block sw_sales_channel_products_assignment_dynamic_product_groups %}
-<div class="sw-sales-channel-products-assignment-dynamic-product-groups">
-    {% block sw_sales_channel_products_assignment_dynamic_product_groups_info_text%}
+<div
+    v-if="productStreams"
+    class="sw-sales-channel-products-assignment-dynamic-product-groups"
+>
+    {% block sw_sales_channel_products_assignment_dynamic_product_groups_info_text %}
     <sw-alert variant="info">
         {{ $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.infoText') }}
     </sw-alert>
     {% endblock %}
 
-    {% block sw_sales_channel_products_assignment_dynamic_product_groups_select %}
-    <sw-entity-single-select
-        v-model="productStreamId"
-        class="sw-sales-channel-products-assignment-dynamic-product-groups__product-stream-select"
-        entity="product_stream"
-        :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"
-        :error="productStreamInvalidError"
-        :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')"
-    />
-    {% endblock %}
+    {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing %}
+    <sw-card :is-loading="isProductLoading">
+        <template #grid>
+            {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_container %}
+            <sw-container rows="auto auto">
+                {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_section %}
+                <sw-card-section
+                    secondary
+                    divider="bottom"
+                >
+                    {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_search %}
+                    <sw-simple-search-field
+                        v-model="term"
+                        variant="form"
+                        size="small"
+                        :placeholder="$tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.searchFieldPlaceholder')"
+                        @search-term-change="onSearch"
+                    />
+                    {% endblock %}
+                </sw-card-section>
+                {% endblock %}
 
-    {% block sw_sales_channel_products_assignment_dynamic_product_groups_result %}
-    <sw-card>
-        <sw-product-stream-grid-preview
-            :show-selection="true"
-            :filters="productStreamFilter"
-            :criteria="productStreamCriteria"
-            :columns="productColumns"
-            @selection-change="onSelectionChange"
-        />
+                {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_entity %}
+                <sw-entity-listing
+                    v-if="productStreams.length > 0"
+                    ref="productStreamListing"
+                    identifier="sw-sales-channel-products-assignment-dynamic-product-groups-listing"
+                    :items="productStreams"
+                    :data-source="productStreams"
+                    :columns="productStreamColumns"
+                    :repository="productStreamRepository"
+                    :is-loading="isProductStreamsLoading"
+                    :skeleton-item-amount="limit"
+                    :plain-appearance="true"
+                    :full-page="false"
+                    :show-settings="false"
+                    :allow-column-edit="false"
+                    :allow-inline-edit="false"
+                    @selection-change="onSelect"
+                >
+                    <template #bulk>
+                        {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_bulk %}
+                        <span></span>
+                        {% endblock %}
+                    </template>
+
+                    <template #delete-action="{ item }">
+                        {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_delete_action %}
+                        <span
+                            class="sw-sales-channel-products-assignment-dynamic-product-groups__link-open"
+                            @click="onOpen(item)"
+                        >
+                            {{ $tc('global.default.open') }}
+                        </span>
+                        {% endblock %}
+                    </template>
+
+                    <template #pagination>
+                        {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_pagination %}
+                        <sw-pagination
+                            :page="page"
+                            :limit="limit"
+                            :total="total"
+                            :total-visible="7"
+                            :auto-hide="false"
+                            :steps="[10]"
+                            @page-change="onPaginate"
+                        />
+                        {% endblock %}
+                    </template>
+                </sw-entity-listing>
+                {% endblock %}
+
+                {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty %}
+                <sw-empty-state
+                    v-if="productStreams.length <= 0"
+                    :absolute="false"
+                    :show-description="false"
+                    :title="productStreams.length <= 0 && term
+                        ? $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
+                        : $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
+                    "
+                >
+                    <template #icon>
+                        {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon %}
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                        {% endblock %}
+                    </template>
+                </sw-empty-state>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+        </template>
     </sw-card>
     {% endblock %}
 </div>

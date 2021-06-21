@@ -213,7 +213,10 @@ Component.register('sw-sales-channel-detail-products', {
         },
 
         onAddProducts(products) {
-            this.isAssignProductLoading = true;
+            if (products.length <= 0) {
+                this.showProductsModal = false;
+                return Promise.reject();
+            }
 
             const visibilities = new EntityCollection(
                 this.productVisibilityRepository.route,
@@ -237,12 +240,20 @@ Component.register('sw-sales-channel-detail-products', {
                 visibilities.add(visibility);
             });
 
+            this.isAssignProductLoading = true;
+
             return this.saveProductVisibilities(visibilities)
-                .then(() => this.getProducts())
+                .then(() => {
+                    this.getProducts();
+                })
+                .catch((error) => {
+                    this.createNotificationError({
+                        message: error,
+                    });
+                })
                 .finally(() => {
                     this.showProductsModal = false;
                     this.isAssignProductLoading = false;
-                    this.isLoading = false;
                 });
         },
 
@@ -250,8 +261,6 @@ Component.register('sw-sales-channel-detail-products', {
             if (data.length <= 0) {
                 return Promise.resolve();
             }
-
-            this.isLoading = true;
 
             return this.productVisibilityRepository.saveAll(data, Context.api);
         },

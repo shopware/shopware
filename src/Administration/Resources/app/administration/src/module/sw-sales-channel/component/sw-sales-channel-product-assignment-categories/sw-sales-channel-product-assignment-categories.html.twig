@@ -7,7 +7,7 @@
     {% endblock %}
 
     {% block sw_sales_channel_product_assignment_categories_content %}
-    <sw-card :is-loading="!isComponentReady">
+    <sw-card :is-loading="!isComponentReady || isProductLoading">
         <sw-container>
             {% block sw_sales_channel_products_assignment_single_products_secondary %}
             <sw-card-section secondary>

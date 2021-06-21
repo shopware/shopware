@@ -105,7 +105,9 @@ class CheckoutFinishPageLoader
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
             ->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('deliveries.shippingMethod');
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('billingAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.country');
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 

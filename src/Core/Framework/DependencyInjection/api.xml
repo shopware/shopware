@@ -314,6 +314,13 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Controller\IntegrationController" public="true">
+            <argument type="service" id="integration.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver">
             <tag name="controller.argument_value_resolver" priority="50"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry"/>

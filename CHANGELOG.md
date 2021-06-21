@@ -1,6 +1,17 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.4.1.1
+*  [NEXT-14744 - fix visibility setting in s3 storage fs](/changelog/release-6-4-1-1/2021-05-10-fix-visibility-setting-in-s3-storage-fs.md)
+*  [NEXT-15171 - validate order create discount privilege and generally in proxy endpoints](/changelog/release-6-4-1-1/2021-05-10-validate-order-create-discount-privilege-and-generally-in-proxy-endpoints.md)
+*  [NEXT-15022 - Added test for validation of non-entity privileges in Core](/changelog/release-6-4-1-1/2021-05-11-added-test-for-validation-of-non-entity-privileges-in-core.md)
+*  [NEXT-14883 - Preventing non-admin users from creating integrations with administrator role](/changelog/release-6-4-1-1/2021-05-17-preventing-non-admin-users-from-creating-integrations-with-administrator-role.md)
+*  [NEXT-14672 - Prevent after order address manipulation](/changelog/release-6-4-1-1/2021-05-25-prevent-after-order-address-manipulation.md)
+*  [NEXT-15461 - Update composer lcobucci/jwt](/changelog/release-6-4-1-1/2021-05-26-update-lcobucci-jwt.md)
+*  [NEXT-15503 - Fix elasticsearch update error](/changelog/release-6-4-1-1/2021-05-31-fix-elasticsearch-update-error.md)
+*  [NEXT-14585 - Allow address management for guest users](/changelog/release-6-4-1-1/2021-06-07-allow-address-managment-for-guest-users.md)
+*  [NEXT-15688 - Fix app signature generation during app install](/changelog/release-6-4-1-1/2021-06-10-fix-app-signature-generation.md)
+
 ## 6.4.1.0
 *  [NEXT-13686 - Fix sorting with custom fields](/changelog/release-6-4-1-0/2021-03-09-fix-sorting-with-custom-fields.md)
 *  [NEXT-14399 - Minify svg assets](/changelog/release-6-4-1-0/2021-03-13-minify-svg-assets.md.md) ([Sebastian König](https://github.com/tinect))

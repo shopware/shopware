@@ -519,6 +519,42 @@ describe('components/data-grid/sw-data-grid', () => {
             }
             expect(result).toBe(testCase.expected);
         });
+
+        it(`should render different columns dynamically with ${key}`, async () => {
+            const wrapper = createWrapper();
+            const grid = wrapper.vm;
+
+            const data = {
+                name: 'original',
+                translated: {
+                    name: 'translated'
+                },
+                manufacturer: new Entity('test', 'product_manufacturer', {
+                    description: 'manufacturer-description',
+                    name: 'manufacturer',
+                    translated: { name: 'manufacturer-translated' }
+                }),
+                plainObject: {
+                    name: 'object'
+                },
+                transactions: new EntityCollection('', 'order_transaction', { }, { }, [
+                    { name: 'first' },
+                    { name: 'second' },
+                    { name: 'last' }
+                ], 1, null),
+                arrayField: [1, 2, 3],
+                payload: null,
+                customer: { type: null }
+            };
+
+            const entity = new Entity('123', 'test', data);
+
+            const column = { property: testCase.accessor };
+
+            const result = grid.renderColumn(entity, column);
+
+            expect(result).toBe(testCase.expected);
+        });
     });
 });
 

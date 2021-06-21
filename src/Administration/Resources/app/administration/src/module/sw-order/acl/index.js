@@ -78,6 +78,14 @@ Shopware.Service('privileges')
             creator: {
                 privileges: [
                     'customer_group:read',
+                    'order:create',
+                    'order_customer:create',
+                    'order_delivery:create',
+                    'order_line_item:create',
+                    'order_transaction:create',
+                    'order_delivery_position:create',
+                    'mail_template_type:update',
+                    'customer:update',
                 ],
                 dependencies: [
                     'order.viewer',

@@ -245,4 +245,20 @@ describe('when has not privilege', () => {
         const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
+
+    it('should not be able add an integration with admin-role as a non-admin', async () => {
+        const wrapper = await createWrapper([
+            'integration.viewer',
+            'integration.editor',
+            'integration.deleter'
+        ]);
+        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            currentIntegration: true
+        });
+
+        const adminRoleSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
+
+        expect(adminRoleSwitch.attributes().disabled).toBeTruthy();
+    });
 });

@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,16 +40,20 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
     private OrderService $orderService;
 
+    private OrderConverter $orderConverter;
+
     public function __construct(
         OrderService $orderService,
         EntityRepositoryInterface $orderRepository,
         AbstractPaymentMethodRoute $paymentRoute,
-        StateMachineRegistry $stateMachineRegistry
+        StateMachineRegistry $stateMachineRegistry,
+        OrderConverter $orderConverter
     ) {
         $this->orderService = $orderService;
         $this->orderRepository = $orderRepository;
         $this->paymentRoute = $paymentRoute;
         $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->orderConverter = $orderConverter;
     }
 
     public function getDecorated(): AbstractSetPaymentOrderRoute
@@ -94,26 +101,11 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     {
         $paymentMethodId = $request->get('paymentMethodId');
 
-        $this->validateRequest($context, $paymentMethodId);
-
-        $this->setPaymentMethod($paymentMethodId, $request->get('orderId'), $context);
-
-        return new SetPaymentOrderRouteResponse();
-    }
-
-    private function setPaymentMethod(string $paymentMethodId, string $orderId, SalesChannelContext $salesChannelContext): void
-    {
-        $context = $salesChannelContext->getContext();
-        $initialState = $this->stateMachineRegistry->getInitialState(
-            OrderTransactionStates::STATE_MACHINE,
-            $context
-        );
-
-        $criteria = new Criteria([$orderId]);
+        $criteria = new Criteria([$request->get('orderId')]);
         $criteria->addAssociation('transactions');
 
         /** @var CustomerEntity $customer */
-        $customer = $salesChannelContext->getCustomer();
+        $customer = $context->getCustomer();
 
         $criteria->addFilter(
             new EqualsFilter(
@@ -123,60 +115,53 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         );
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $context)->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+
+        $context = $this->orderConverter->assembleSalesChannelContext($order, $context->getContext());
+
+        $this->validateRequest($context, $paymentMethodId);
+
+        $this->setPaymentMethod($paymentMethodId, $order, $context);
+
+        return new SetPaymentOrderRouteResponse();
+    }
+
+    private function setPaymentMethod(string $paymentMethodId, OrderEntity $order, SalesChannelContext $salesChannelContext): void
+    {
+        $context = $salesChannelContext->getContext();
+
+        if ($this->tryTransition($order, $paymentMethodId, $context)) {
+            return;
+        }
+
+        $initialState = $this->stateMachineRegistry->getInitialState(
+            OrderTransactionStates::STATE_MACHINE,
+            $context
+        );
+
+        $transactionAmount = new CalculatedPrice(
+            $order->getPrice()->getTotalPrice(),
+            $order->getPrice()->getTotalPrice(),
+            $order->getPrice()->getCalculatedTaxes(),
+            $order->getPrice()->getTaxRules()
+        );
+
+        $payload = [
+            'id' => $order->getId(),
+            'transactions' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'paymentMethodId' => $paymentMethodId,
+                    'stateId' => $initialState->getId(),
+                    'amount' => $transactionAmount,
+                ],
+            ],
+        ];
 
         $context->scope(
             Context::SYSTEM_SCOPE,
-            function () use ($order, $initialState, $orderId, $paymentMethodId, $context): void {
-                $isSamePaymentMethod = false;
-                if ($order->getTransactions() !== null && $order->getTransactions()->count() >= 1) {
-                    foreach ($order->getTransactions() as $transaction) {
-                        if ($transaction->getStateMachineState() !== null
-                            && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
-                        ) {
-                            if ($transaction->getPaymentMethodId() === $paymentMethodId) {
-                                $isSamePaymentMethod = true;
-
-                                break;
-                            }
-
-                            $this->orderService->orderTransactionStateTransition(
-                                $transaction->getId(),
-                                'cancel',
-                                new ParameterBag(),
-                                $context
-                            );
-
-                            break;
-                        }
-                    }
-                }
-
-                if ($isSamePaymentMethod) {
-                    return;
-                }
-
-                $transactionId = Uuid::randomHex();
-                $transactionAmount = new CalculatedPrice(
-                    $order->getPrice()->getTotalPrice(),
-                    $order->getPrice()->getTotalPrice(),
-                    $order->getPrice()->getCalculatedTaxes(),
-                    $order->getPrice()->getTaxRules()
-                );
-
-                $this->orderRepository->update([
-                    [
-                        'id' => $orderId,
-                        'transactions' => [
-                            [
-                                'id' => $transactionId,
-                                'paymentMethodId' => $paymentMethodId,
-                                'stateId' => $initialState->getId(),
-                                'amount' => $transactionAmount,
-                            ],
-                        ],
-                    ],
-                ], $context);
+            function () use ($payload, $context): void {
+                $this->orderRepository->update([$payload], $context);
             }
         );
     }
@@ -191,5 +176,44 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         if ($availablePayments->getPaymentMethods()->get($paymentMethodId) === null) {
             throw new UnknownPaymentMethodException($paymentMethodId);
         }
+    }
+
+    private function isSamePaymentMethod(OrderTransactionEntity $transaction, string $paymentMethodId): bool
+    {
+        if ($transaction->getStateMachineState() === null
+            || $transaction->getStateMachineState()->getTechnicalName() === OrderTransactionStates::STATE_CANCELLED
+        ) {
+            return false;
+        }
+
+        return $transaction->getPaymentMethodId() === $paymentMethodId;
+    }
+
+    private function tryTransition(OrderEntity $order, string $paymentMethodId, Context $context): bool
+    {
+        $transactions = $order->getTransactions();
+        if ($transactions === null || $transactions->count() < 1) {
+            return false;
+        }
+
+        foreach ($transactions as $transaction) {
+            if ($this->isSamePaymentMethod($transaction, $paymentMethodId)) {
+                return true;
+            }
+
+            $context->scope(
+                Context::SYSTEM_SCOPE,
+                function () use ($transaction, $context): void {
+                    $this->orderService->orderTransactionStateTransition(
+                        $transaction->getId(),
+                        StateMachineTransitionActions::ACTION_CANCEL,
+                        new ParameterBag(),
+                        $context
+                    );
+                }
+            );
+        }
+
+        return false;
     }
 }

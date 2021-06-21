@@ -315,14 +315,16 @@ class OrderConverter
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
 
-        $itemRounding = $order->getItemRounding();
-        if ($itemRounding !== null) {
-            $salesChannelContext->setItemRounding($itemRounding);
+        if ($order->getItemRounding() !== null) {
+            $salesChannelContext->setItemRounding($order->getItemRounding());
         }
 
-        $totalRounding = $order->getTotalRounding();
-        if ($totalRounding !== null) {
-            $salesChannelContext->setTotalRounding($totalRounding);
+        if ($order->getTotalRounding() !== null) {
+            $salesChannelContext->setTotalRounding($order->getTotalRounding());
+        }
+
+        if ($order->getRuleIds() !== null) {
+            $salesChannelContext->setRuleIds($order->getRuleIds());
         }
 
         return $salesChannelContext;

@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -52,11 +54,6 @@ class OrderRouteTest extends TestCase
     private $browser;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
-
-    /**
      * @var EntityRepositoryInterface|null
      */
     private $orderRepository;
@@ -70,11 +67,6 @@ class OrderRouteTest extends TestCase
      * @var object|null
      */
     private $processor;
-
-    /**
-     * @var object|null
-     */
-    private $salesChannelContextFactory;
 
     /**
      * @var object|null
@@ -145,10 +137,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/login',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'email' => $this->email,
                     'password' => $this->password,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -290,10 +285,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $this->defaultPaymentMethodId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -333,10 +331,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $newPaymentMethodId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -367,10 +368,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $this->defaultPaymentMethodId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -389,10 +393,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/payment',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => Uuid::randomHex(),
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -406,9 +413,12 @@ class OrderRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/order/state/cancel',
-                [
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
                     'orderId' => $this->orderId,
-                ]
+                ])
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -431,7 +441,7 @@ class OrderRouteTest extends TestCase
         ]);
         $testOrder = $this->createOrder($this->customerId, $this->email, $this->password);
 
-        $this->getContainer()->get('order.repository')->update([
+        $this->orderRepository->update([
             [
                 'id' => $testOrder,
                 'salesChannelId' => $testChannel['id'],
@@ -454,6 +464,113 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
         static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
         static::assertEquals(Defaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
+    }
+
+    public function testPaymentOrderNotManipulable(): void
+    {
+        $ruleRepository = $this->getContainer()->get('rule.repository');
+
+        // Get customer from USA rule
+        $ruleCriteria = new Criteria();
+        $ruleCriteria->addFilter(new EqualsFilter('name', 'Customers from USA'));
+
+        $ruleId = $ruleRepository->search($ruleCriteria, $this->context)->first()->getId();
+
+        $paymentId = $this->createCustomPaymentWithRule($ruleId);
+
+        $ids = new IdsCollection();
+
+        $this->getContainer()->get('product.repository')->create(
+            [
+                (new ProductBuilder($ids, '1000'))
+                    ->price(10)
+                    ->name('Test product')
+                    ->active(true)
+                    ->visibility()
+                    ->build(),
+            ],
+            $ids->getContext()
+        );
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
+                    'items' => [
+                        [
+                            'id' => $ids->get('1000'),
+                            'referencedId' => $ids->get('1000'),
+                            'quantity' => 1,
+                            'type' => 'product',
+                        ],
+                    ],
+                ])
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertCount(0, $response['errors']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/order',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([])
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayNotHasKey('errors', $response);
+
+        $orderId = $response['id'];
+
+        // Get USA country id
+        $countryCriteria = new Criteria();
+        $countryCriteria->addFilter(new EqualsFilter('iso3', 'USA'));
+
+        $countryId = $this->getContainer()->get('country.repository')->search($countryCriteria, $this->context)->first()->getId();
+
+        // Set customer country to USA
+        $this->getContainer()->get('customer.repository')->update([
+            [
+                'id' => $this->customerId,
+                'defaultBillingAddress' => [
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Musterstraße 1',
+                    'city' => 'Schöppingen',
+                    'zipcode' => '12345',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'countryId' => $countryId,
+                ],
+            ],
+        ], $this->context);
+
+        // Request payment change
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/order/payment',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode([
+                    'orderId' => $orderId,
+                    'paymentMethodId' => $paymentId,
+                ])
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertEquals('CHECKOUT__UNKNOWN_PAYMENT_METHOD', $response['errors'][0]['code']);
     }
 
     protected function getValidPaymentMethods(): EntitySearchResult
@@ -483,7 +600,7 @@ class OrderRouteTest extends TestCase
         $orderLineItemId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
-        $order = [
+        return [
             [
                 'id' => $orderId,
                 'orderNumber' => Uuid::randomHex(),
@@ -622,8 +739,6 @@ class OrderRouteTest extends TestCase
                 ],
             ],
         ];
-
-        return $order;
     }
 
     private function createDocument(string $orderId, bool $showInCustomerAccount = true, bool $sent = true): void
@@ -653,5 +768,28 @@ class OrderRouteTest extends TestCase
             ],
             $this->context
         );
+    }
+
+    private function createCustomPaymentWithRule(string $ruleId): string
+    {
+        $paymentId = Uuid::randomHex();
+
+        $this->getContainer()->get('payment_method.repository')->create([
+            [
+                'id' => $paymentId,
+                'name' => 'Test Payment with Rule',
+                'description' => 'Payment rule test',
+                'active' => true,
+                'afterOrderEnabled' => true,
+                'availabilityRuleId' => $ruleId,
+                'salesChannels' => [
+                    [
+                        'id' => Defaults::SALES_CHANNEL,
+                    ],
+                ],
+            ],
+        ], $this->context);
+
+        return $paymentId;
     }
 }

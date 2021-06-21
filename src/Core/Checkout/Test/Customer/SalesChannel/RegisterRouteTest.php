@@ -427,6 +427,8 @@ class RegisterRouteTest extends TestCase
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertTrue($response['active']);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser

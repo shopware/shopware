@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
@@ -155,8 +156,6 @@ Learn more about double opt-in registration in our guide ""Register a customer""
             $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customer));
         }
 
-        $response = new CustomerResponse($customer);
-
         $newToken = $this->contextPersister->replace($context->getToken(), $context);
 
         $this->contextPersister->save(
@@ -169,6 +168,19 @@ Learn more about double opt-in registration in our guide ""Register a customer""
             $context->getSalesChannel()->getId(),
             $customer->getId()
         );
+
+        $criteria = new Criteria([$customer->getId()]);
+        $criteria->addAssociation('addresses');
+        $criteria->addAssociation('salutation');
+        $criteria->setLimit(1);
+
+        $customer = $this->customerRepository
+            ->search($criteria, $context->getContext())
+            ->first();
+
+        \assert($customer instanceof CustomerEntity);
+
+        $response = new CustomerResponse($customer);
 
         $event = new CustomerLoginEvent($context, $customer, $newToken);
         $this->eventDispatcher->dispatch($event);

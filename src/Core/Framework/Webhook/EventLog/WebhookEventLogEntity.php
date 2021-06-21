@@ -35,7 +35,10 @@ class WebhookEventLogEntity extends Entity
 
     protected string $url;
 
-    protected object $serializedWebhookMessage;
+    /**
+     * @var string|object
+     */
+    protected $serializedWebhookMessage;
 
     public function getAppName(): ?string
     {
@@ -157,12 +160,18 @@ class WebhookEventLogEntity extends Entity
         $this->url = $url;
     }
 
-    public function getSerializedWebhookMessage(): object
+    /**
+     * @return object|string
+     */
+    public function getSerializedWebhookMessage()
     {
         return $this->serializedWebhookMessage;
     }
 
-    public function setSerializedWebhookMessage(object $serializedWebhookMessage): void
+    /**
+     * @param string|object $serializedWebhookMessage
+     */
+    public function setSerializedWebhookMessage($serializedWebhookMessage): void
     {
         $this->serializedWebhookMessage = $serializedWebhookMessage;
     }

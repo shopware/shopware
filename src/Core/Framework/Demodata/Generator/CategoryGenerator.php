@@ -9,8 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,16 +30,10 @@ class CategoryGenerator implements DemodataGeneratorInterface
      */
     private $cmsPageRepository;
 
-    /**
-     * @var EntityWriter
-     */
-    private $writer;
-
-    public function __construct(EntityWriter $writer, EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $cmsPageRepository)
+    public function __construct(EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $cmsPageRepository)
     {
         $this->categoryRepository = $categoryRepository;
         $this->cmsPageRepository = $cmsPageRepository;
-        $this->writer = $writer;
     }
 
     public function getDefinition(): string
@@ -51,61 +43,51 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $numberOfSubCategories = 0;
         $rootCategoryId = $this->getRootCategoryId($context->getContext());
         $pageIds = $this->getCmsPageIds($context->getContext());
 
         $payload = [];
         $lastId = null;
         for ($i = 0; $i < $numberOfItems; ++$i) {
-            $id = Uuid::randomHex();
-
-            $payload[] = [
-                'id' => $id,
-                'parentId' => $rootCategoryId,
-                'name' => $this->randomDepartment($context->getFaker()),
-                'afterCategoryId' => $lastId,
-                'active' => true,
-                'cmsPageId' => $context->getFaker()->randomElement($pageIds),
-                'mediaId' => $context->getRandomId('media'),
-                'description' => $context->getFaker()->text(),
-            ];
-
-            $lastId = $id;
-        }
-
-        foreach ($payload as $category) {
-            $lastId = null;
-            $randSubCategories = random_int(5, 12);
-            $numberOfSubCategories += $randSubCategories;
-            for ($x = 0; $x < $randSubCategories; ++$x) {
-                $id = Uuid::randomHex();
-
-                $payload[] = [
-                    'id' => $id,
-                    'name' => $this->randomDepartment($context->getFaker()),
-                    'parentId' => $category['id'],
-                    'afterCategoryId' => $lastId,
-                    'active' => true,
-                    'cmsPageId' => $context->getFaker()->randomElement($pageIds),
-                    'mediaId' => $context->getRandomId('media'),
-                    'description' => $context->getFaker()->text(),
-                ];
-
-                $lastId = $id;
-            }
+            $cat = $this->createCategory($context, $pageIds, $rootCategoryId, $lastId, random_int(2, 5), 1);
+            $payload[] = $cat;
+            $lastId = $cat['id'];
         }
 
         $console = $context->getConsole();
-        $console->comment('Generated sub-categories: ' . $numberOfSubCategories);
-        $console->progressStart($numberOfItems + $numberOfSubCategories);
+        $console->progressStart($numberOfItems);
 
-        foreach (array_chunk($payload, 100) as $chunk) {
-            $this->writer->upsert($this->categoryRepository->getDefinition(), $chunk, WriteContext::createFromContext($context->getContext()));
-            $context->getConsole()->progressAdvance(\count($chunk));
+        foreach ($payload as $cat) {
+            $this->categoryRepository->create([$cat], $context->getContext());
+
+            $context->getConsole()->progressAdvance();
         }
 
         $context->getConsole()->progressFinish();
+    }
+
+    private function createCategory(DemodataContext $context, array $pageIds, string $parentId, ?string $afterId, int $max, int $current): array
+    {
+        $id = Uuid::randomHex();
+
+        $cat = [
+            'id' => $id,
+            'parentId' => $parentId,
+            'afterCategoryId' => $afterId,
+            'name' => $this->randomDepartment($context->getFaker()),
+            'active' => true,
+            'cmsPageId' => $context->getFaker()->randomElement($pageIds),
+            'mediaId' => $context->getRandomId('media'),
+            'description' => $context->getFaker()->text(),
+        ];
+
+        if ($current >= $max) {
+            return $cat;
+        }
+
+        $cat['children'] = $this->createCategories($context, $pageIds, random_int(2, 5), $id, $max, $current);
+
+        return array_filter($cat);
     }
 
     private function randomDepartment(Generator $faker, int $max = 3, bool $fixedAmount = false, bool $unique = true)
@@ -158,5 +140,19 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $criteria->setLimit(500);
 
         return $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
+    }
+
+    private function createCategories(DemodataContext $context, array $pageIds, int $count, string $id, int $max, int $current): array
+    {
+        $children = [];
+        $prev = null;
+
+        for ($i = 1; $i <= $count; ++$i) {
+            $child = $this->createCategory($context, $pageIds, $id, $prev, $max, $current + 1);
+            $prev = $child['id'];
+            $children[] = $child;
+        }
+
+        return $children;
     }
 }

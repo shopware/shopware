@@ -38,6 +38,21 @@ class Entity extends Struct
      */
     private $_entityName;
 
+    public function __get($name)
+    {
+        return $this->$name;
+    }
+
+    public function __set($name, $value): void
+    {
+        $this->$name = $value;
+    }
+
+    public function __isset($name)
+    {
+        return isset($this->$name);
+    }
+
     public function setUniqueIdentifier(string $identifier): void
     {
         $this->_uniqueIdentifier = $identifier;

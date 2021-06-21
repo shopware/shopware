@@ -435,6 +435,11 @@ class EntityDefinitionQueryHelper
     public static function getTranslatedField(EntityDefinition $definition, TranslatedField $translatedField): Field
     {
         $translationDefinition = $definition->getTranslationDefinition();
+
+        if ($translationDefinition === null) {
+            throw new \RuntimeException(sprintf('Entity %s has no translation definition', $definition->getEntityName()));
+        }
+
         $field = $translationDefinition->getFields()->get($translatedField->getPropertyName());
 
         if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {

@@ -4,9 +4,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
 {
@@ -18,20 +22,17 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
      */
     private $indexer;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
-    /**
-     * @var bool
-     */
-    private $working = false;
+    private bool $working = false;
 
-    public function __construct(iterable $indexer, MessageBusInterface $messageBus)
+    private EventDispatcherInterface $dispatcher;
+
+    public function __construct(iterable $indexer, MessageBusInterface $messageBus, EventDispatcherInterface $dispatcher)
     {
         $this->indexer = $indexer;
         $this->messageBus = $messageBus;
+        $this->dispatcher = $dispatcher;
     }
 
     public static function getSubscribedEvents(): array
@@ -56,13 +57,23 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         foreach ($this->indexer as $indexer) {
             $offset = null;
 
+            $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $indexer->getTotal()));
+
             while ($message = $indexer->iterate($offset)) {
                 $message->setIndexer($indexer->getName());
 
                 $this->sendOrHandle($message, $useQueue);
 
                 $offset = $message->getOffset();
+
+                try {
+                    $count = \is_array($message->getData()) ? \count($message->getData()) : 1;
+                    $this->dispatcher->dispatch(new ProgressAdvancedEvent($count));
+                } catch (\Exception $e) {
+                }
             }
+
+            $this->dispatcher->dispatch(new ProgressFinishedEvent($indexer->getName()));
         }
     }
 

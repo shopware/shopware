@@ -96,7 +96,19 @@ parameters:
         -
             message: '#Dead catch - Error\|Exception is never thrown in the try block\.#'
             path: src/Core/Framework/Struct/AssignArrayTrait.php
-
+        # dynamic hydrator performance
+        -
+            message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
+            path: src/*/*Hydrator.php
+        -
+            message: '#Access to protected property *#'
+            path: src/*/*Hydrator.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityDefinition::decode\(\) has no return typehint specified\.#'
+            path: src/Core/Framework/DataAbstractionLayer/EntityDefinition.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
+            path: src/Core/Framework/DataAbstractionLayer/Entity.php
 services:
     -
         class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

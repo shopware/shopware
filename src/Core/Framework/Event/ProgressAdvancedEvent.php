@@ -6,7 +6,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class ProgressAdvancedEvent extends Event
 {
-    public const NAME = 'indexing.progress.advanced';
+    public const NAME = self::class;
 
     /**
      * @var int

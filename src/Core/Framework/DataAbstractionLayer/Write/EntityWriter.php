@@ -42,7 +42,7 @@ class EntityWriter implements EntityWriterInterface
 
     private DefinitionInstanceRegistry $registry;
 
-    private EntityWriteResultFactory $writeResultFactory;
+    private EntityWriteResultFactory $factory;
 
     public function __construct(
         WriteCommandExtractor $writeResource,
@@ -50,14 +50,14 @@ class EntityWriter implements EntityWriterInterface
         EntityWriteGatewayInterface $gateway,
         LanguageLoaderInterface $languageLoader,
         DefinitionInstanceRegistry $registry,
-        EntityWriteResultFactory $writeResultFactory
+        EntityWriteResultFactory $factory
     ) {
         $this->foreignKeyResolver = $foreignKeyResolver;
         $this->commandExtractor = $writeResource;
         $this->gateway = $gateway;
         $this->languageLoader = $languageLoader;
         $this->registry = $registry;
-        $this->writeResultFactory = $writeResultFactory;
+        $this->factory = $factory;
     }
 
     // TODO: prefetch
@@ -102,7 +102,7 @@ class EntityWriter implements EntityWriterInterface
 
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $context);
 
-        return $this->writeResultFactory->build($commandQueue);
+        return $this->factory->build($commandQueue);
     }
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
@@ -128,17 +128,32 @@ class EntityWriter implements EntityWriterInterface
     {
         $this->validateWriteInput($ids);
 
+        $parents = $this->factory->resolveParents($definition, $ids);
+
         $commandQueue = new WriteCommandQueue();
         $skipped = $this->extractDeleteCommands($definition, $ids, $writeContext, $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
-        $identifiers = $this->writeResultFactory->build($commandQueue);
+        $identifiers = $this->factory->build($commandQueue);
 
         $results = $this->splitResultsByOperation($identifiers);
 
-        return new DeleteResult($results['deleted'], $skipped, $results['updated']);
+        $result = new DeleteResult($results['deleted'], $skipped, $results['updated']);
+
+        $deleted = $this->factory->addParentResults($result->getDeleted(), $parents);
+        $updates = [];
+
+        foreach ($deleted as $entity => $nested) {
+            $updates[$entity] = array_filter($nested, function (EntityWriteResult $single) {
+                return $single->getOperation() === EntityWriteResult::OPERATION_UPDATE;
+            });
+        }
+
+        $result->addUpdated(array_filter($updates));
+
+        return $result;
     }
 
     private function write(EntityDefinition $definition, array $rawData, WriteContext $writeContext, ?string $ensure = null): array
@@ -173,7 +188,11 @@ class EntityWriter implements EntityWriterInterface
 
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
-        return $this->writeResultFactory->build($commandQueue);
+        $result = $this->factory->build($commandQueue);
+
+        $mappings = $this->factory->resolveRelations($definition, $rawData, $result);
+
+        return $this->factory->addParentResults($result, $mappings);
     }
 
     /**

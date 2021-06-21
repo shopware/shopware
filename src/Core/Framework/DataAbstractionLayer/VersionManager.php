@@ -38,7 +38,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DeleteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -102,8 +101,6 @@ class VersionManager
      */
     private $registry;
 
-    private EntityWriteResultFactory $factory;
-
     public function __construct(
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
@@ -114,8 +111,7 @@ class VersionManager
         DefinitionInstanceRegistry $registry,
         VersionCommitDefinition $versionCommitDefinition,
         VersionCommitDataDefinition $versionCommitDataDefinition,
-        VersionDefinition $versionDefinition,
-        EntityWriteResultFactory $factory
+        VersionDefinition $versionDefinition
     ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
@@ -127,16 +123,11 @@ class VersionManager
         $this->versionCommitDataDefinition = $versionCommitDataDefinition;
         $this->versionDefinition = $versionDefinition;
         $this->registry = $registry;
-        $this->factory = $factory;
     }
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
         $writeResults = $this->entityWriter->upsert($definition, $rawData, $writeContext);
-
-        $mappings = $this->factory->resolveRelations($definition, $rawData, $writeResults);
-
-        $writeResults = $this->factory->addParentResults($writeResults, $mappings);
 
         $this->writeAuditLog($writeResults, $writeContext);
 
@@ -148,10 +139,6 @@ class VersionManager
         /** @var EntityWriteResult[] $writeResults */
         $writeResults = $this->entityWriter->insert($definition, $rawData, $writeContext);
 
-        $mappings = $this->factory->resolveRelations($definition, $rawData, $writeResults);
-
-        $writeResults = $this->factory->addParentResults($writeResults, $mappings);
-
         $this->writeAuditLog($writeResults, $writeContext);
 
         return $writeResults;
@@ -161,10 +148,6 @@ class VersionManager
     {
         $writeResults = $this->entityWriter->update($definition, $rawData, $writeContext);
 
-        $mappings = $this->factory->resolveRelations($definition, $rawData, $writeResults);
-
-        $writeResults = $this->factory->addParentResults($writeResults, $mappings);
-
         $this->writeAuditLog($writeResults, $writeContext);
 
         return $writeResults;
@@ -172,31 +155,11 @@ class VersionManager
 
     public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
-        $parents = $this->factory->resolveParents($definition, $ids);
+        $result = $this->entityWriter->delete($definition, $ids, $writeContext);
 
-        $deleteEvent = $this->entityWriter->delete($definition, $ids, $writeContext);
+        $this->writeAuditLog($result->getDeleted(), $writeContext);
 
-        $deleted = $deleteEvent->getDeleted();
-
-        $deleted = $this->factory->addParentResults($deleted, $parents);
-
-        $this->writeAuditLog($deleted, $writeContext);
-
-        if (!$parents) {
-            return $deleteEvent;
-        }
-
-        $updates = [];
-
-        foreach ($deleted as $entity => $results) {
-            $updates[$entity] = array_filter($results, function (EntityWriteResult $result) {
-                return $result->getOperation() === EntityWriteResult::OPERATION_UPDATE;
-            });
-        }
-
-        $deleteEvent->addUpdated(array_filter($updates));
-
-        return $deleteEvent;
+        return $result;
     }
 
     public function createVersion(EntityDefinition $definition, string $id, WriteContext $context, ?string $name = null, ?string $versionId = null): string

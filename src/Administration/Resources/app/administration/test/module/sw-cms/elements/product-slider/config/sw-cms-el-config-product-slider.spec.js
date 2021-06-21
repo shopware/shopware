@@ -1,18 +1,33 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/product-slider/config';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/select/entity/sw-entity-multi-select';
+import 'src/app/component/form/select/base/sw-select-selection-list';
+import 'src/app/component/form/select/base/sw-select-result-list';
+
+
+const productMock = [{
+    id: 'de8de156da134dabac24257f81ff282f',
+    name: 'Translated',
+    translated: {
+        name: 'Übersetzt'
+    }
+}, {
+    id: 'c336e6ad6a174c76bb201ce7ba0e2ab3',
+    name: 'Test',
+    translated: {}
+}];
+
+
+const productStreamMock = {
+    name: 'Cheap pc parts',
+    apiFilter: ['foo', 'bar'],
+    invalid: false
+};
+
 
 function createWrapper(customCmsElementConfig) {
-    const productStreamMock = {
-        name: 'Cheap pc parts',
-        apiFilter: ['foo', 'bar'],
-        invalid: false
-    };
-
-    const productMock = {
-        name: 'Small Silk Heart Worms'
-    };
-
     return shallowMount(Shopware.Component.build('sw-cms-el-config-product-slider'), {
         propsData: {
             element: {
@@ -43,13 +58,22 @@ function createWrapper(customCmsElementConfig) {
             'sw-container': true,
             'sw-field': true,
             'sw-single-select': true,
-            'sw-entity-multi-select': true,
+            'sw-select-base': Shopware.Component.build('sw-select-base'),
+            'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
+            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
+            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+            'sw-select-result': true,
+            'sw-product-variant-info': true,
+            'sw-label': true,
             'sw-modal': true,
+            'sw-block-field': true,
             'sw-product-stream-grid-preview': true,
             'sw-entity-single-select': true,
             'sw-alert': true,
             'sw-number-field': true,
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-loader': true,
+            'sw-popover': true
         },
         provide: {
             cmsService: {
@@ -64,7 +88,13 @@ function createWrapper(customCmsElementConfig) {
                 create: () => {
                     return {
                         get: () => Promise.resolve(productStreamMock),
-                        search: () => Promise.resolve(productMock)
+                        search: (criteria) => {
+                            const products = criteria.ids.length ? productMock.slice(0, 1) : productMock;
+
+                            products.has = id => products.some(i => i.id === id);
+
+                            return Promise.resolve(products);
+                        }
                     };
                 }
             }
@@ -92,15 +122,24 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         expect(wrapper.find('.sw-cms-el-config-product-slider__products').exists()).toBeTruthy();
     });
 
-    it('should fetch manual assigned products', async () => {
+    it('should display check marks for manually selected products', async () => {
         const wrapper = createWrapper();
-        const productMock = {
-            name: 'Small Silk Heart Worms'
-        };
 
+
+        expect(wrapper.find('.sw-cms-el-config-product-slider__products').exists()).toBeTruthy();
+
+        wrapper.vm.element.config.products.source = 'manual';
+
+        await wrapper.get('.sw-select-selection-list__input').trigger('click');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.productCollection).toEqual(productMock);
+        const selectResults = wrapper.findAll('.sw-select-result-list__item-list > sw-select-result-stub');
+
+        expect(selectResults.at(0).attributes().selected).toBe('true');
+        expect(selectResults.at(0).text()).toBe(productMock[0].translated.name);
+
+        expect(selectResults.at(1).attributes().selected).toBeFalsy();
+        expect(selectResults.at(1).text()).toBe(productMock[1].name);
     });
 
     it('should fetch product stream when assignment type is "product_stream"', async () => {
@@ -113,13 +152,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        const expectedProductStream = {
-            name: 'Cheap pc parts',
-            apiFilter: ['foo', 'bar'],
-            invalid: false
-        };
-
-        expect(wrapper.vm.productStream).toEqual(expectedProductStream);
+        expect(wrapper.vm.productStream).toEqual(productStreamMock);
     });
 
     it('should fetch product stream when changing product stream via select', async () => {
@@ -129,13 +162,8 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        const expectedProductStream = {
-            name: 'Cheap pc parts',
-            apiFilter: ['foo', 'bar'],
-            invalid: false
-        };
 
-        expect(wrapper.vm.productStream).toEqual(expectedProductStream);
+        expect(wrapper.vm.productStream).toEqual(productStreamMock);
     });
 
     it('should set product stream to null when changing product stream via select and no stream is given', async () => {
@@ -227,6 +255,8 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         await wrapper.setData({
             showProductStreamPreview: true
         });
+
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-preview-modal')
             .exists()).toBeTruthy();

@@ -3,6 +3,11 @@ import './component/sw-bulk-edit-custom-fields';
 import './component/sw-bulk-edit-change-type';
 import './component/sw-bulk-edit-change-type-field-renderer';
 import './component/sw-bulk-edit-form-field-renderer';
+import './component/sw-bulk-edit-save-modal';
+import './component/sw-bulk-edit-save-modal-confirm';
+import './component/sw-bulk-edit-save-modal-process';
+import './component/sw-bulk-edit-save-modal-success';
+import './component/sw-bulk-edit-save-modal-error';
 import './init/services.init';
 
 const { Module } = Shopware;
@@ -25,6 +30,33 @@ Module.register('sw-bulk-edit', {
             path: 'product',
             meta: {
                 parentPath: 'sw.product.index',
+            },
+            children: {
+                save: {
+                    component: 'sw-bulk-edit-save-modal',
+                    path: 'save',
+                    redirect: {
+                        name: 'sw.bulk.edit.product.save.confirm',
+                    },
+                    children: {
+                        confirm: {
+                            component: 'sw-bulk-edit-save-modal-confirm',
+                            path: 'confirm',
+                        },
+                        process: {
+                            component: 'sw-bulk-edit-save-modal-process',
+                            path: 'process',
+                        },
+                        success: {
+                            component: 'sw-bulk-edit-save-modal-success',
+                            path: 'success',
+                        },
+                        error: {
+                            component: 'sw-bulk-edit-save-modal-error',
+                            path: 'error',
+                        },
+                    },
+                },
             },
         },
     },

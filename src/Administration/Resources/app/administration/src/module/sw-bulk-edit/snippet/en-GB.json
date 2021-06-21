@@ -128,6 +128,35 @@
         "cardTitle": "Custom fields",
         "changeLabel": "Change: {name}"
       }
+    },
+    "modal": {
+      "confirm": {
+        "title": "Bulk edit - Apply changes?",
+        "description": "Are you sure you want to apply these changes to the selected {itemCount} entity? This action cannot be undone. | Are you sure you want to apply these changes to the selected {itemCount} entities? This action cannot be undone.",
+        "buttons": {
+          "applyChanges": "Apply changes"
+        }
+      },
+      "process": {
+        "title": "Bulk edit - In process",
+        "description": "Depending on the number of items and the selected changes this may take a while.",
+        "helpText": "Please be aware that manual changes to one of the selected entities during the bulk edit process may yield unwanted results.",
+        "buttons": {
+          "cancel": "Cancel"
+        }
+      },
+      "success": {
+        "title": "Bulk edit - Finished",
+        "description": "Bulk edit for the selected entities finished successfully!"
+      },
+      "error": {
+        "title": "Bulk edit - Error",
+        "description": "Bulk edit for the selected entities finished, but one or more errors occurred. Please see the log file for details.",
+        "buttons": {
+          "openLog": "Open log file"
+        }
+      },
+      "warningText": "Canceling the bulk edit or closing the browser tab during the process will result in partly processed changes that cannot be undone."
     }
   }
 }

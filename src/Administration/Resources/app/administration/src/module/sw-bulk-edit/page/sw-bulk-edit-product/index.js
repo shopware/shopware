@@ -3,6 +3,7 @@ import './sw-bulk-edit-product.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { chunk } = Shopware.Utils.array;
 
 Component.register('sw-bulk-edit-product', {
     template,
@@ -22,6 +23,8 @@ Component.register('sw-bulk-edit-product', {
             isSaveSuccessful: false,
             bulkEditProduct: {},
             customFieldSets: [],
+            showModal: false,
+            processStatus: '',
         };
     },
 
@@ -379,25 +382,34 @@ Component.register('sw-bulk-edit-product', {
             return data;
         },
 
+        openModal() {
+            this.$router.push({ name: 'sw.bulk.edit.product.save' });
+        },
+
         async onSave() {
             this.isLoading = true;
 
             const data = this.onProcessData();
-            await this.bulkEditService.bulkEdit(this.selectedIds, data).then(() => {
-                this.isLoading = false;
 
-                // TODO NEXT-15507 - Product bulk edit processing
-                this.createNotificationSuccess({
-                    message: 'Edit successful',
-                });
-            }).catch(() => {
-                this.isLoading = false;
+            const payloadChunks = chunk(this.selectedIds, 50);
 
-                // TODO NEXT-15507 - Product bulk edit processing
-                this.createNotificationError({
-                    message: 'Error',
-                });
+            const requests = payloadChunks.map(payload => {
+                return this.bulkEditService.bulkEdit(payload, data);
             });
+
+            return Promise.all(requests)
+                .then(response => {
+                    const isSuccessful = response.every(item => item.success === true);
+                    this.processStatus = isSuccessful ? 'success' : 'fail';
+                }).catch(() => {
+                    this.processStatus = 'fail';
+                }).finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        closeModal() {
+            this.$router.push({ name: 'sw.bulk.edit.product' });
         },
 
         onChangeLanguage(languageId) {

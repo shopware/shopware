@@ -12,7 +12,7 @@
             <!--
                 DO NOT change this to a more generic structure.
                 The phpunit file traversal is really inefficient for our test structure. A naive definition results in
-                more that 70000 files being traversed, which has to be done for each thread/process.
+                more than 70000 files being traversed, which has to be done for each thread/process.
             -->
             <directory suffix=".php">src/Core/Framework</directory>
             <directory suffix=".php">src/Core/Content</directory>

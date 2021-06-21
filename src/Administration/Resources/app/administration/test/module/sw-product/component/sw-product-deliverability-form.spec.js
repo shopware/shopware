@@ -73,7 +73,8 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                 },
                 'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-field': true,
-                'sw-entity-single-select': true
+                'sw-entity-single-select': true,
+                'sw-inheritance-switch': true
             }
         });
     }

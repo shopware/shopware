@@ -12,7 +12,7 @@ exports[`components/form/sw-radio-field should renders correctly with children s
     class="sw-field__radio-group"
   >
     <div
-      class="sw-field__radio-option group-bordered"
+      class="sw-field__radio-option group-bordered sw-field__radio-option-checked"
     >
       <div
         class="sw-field__radio-input"
@@ -42,7 +42,6 @@ exports[`components/form/sw-radio-field should renders correctly with children s
       </label>
        
       <input
-        disabled="disabled"
         id="custom-slot"
         type="text"
       />

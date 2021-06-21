@@ -18,7 +18,9 @@ function createWrapper(privileges = []) {
             },
             'sw-category-tree': true,
             'sw-button': true,
-            'sw-button-process': true
+            'sw-button-process': true,
+            'sw-sidebar-collapse': true,
+            'sw-landing-page-tree': true
         },
         provide: {
             acl: {

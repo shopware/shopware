@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, config } from '@vue/test-utils';
 import AppCmsService from 'src/app/service/app-cms.service';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import fixtures from './_mocks/appBlocks.json';
@@ -120,6 +120,10 @@ describe('src/app/service/app-cms.service', () => {
     });
 
     it('should create a vue.js component for the block component', () => {
+        // delete global $router and $routes mocks
+        delete config.mocks.$router;
+        delete config.mocks.$route;
+
         const blockDefinition = fixtures.blocks[0];
         const component = service.createBlockPreviewComponent(blockDefinition);
 
@@ -128,17 +132,6 @@ describe('src/app/service/app-cms.service', () => {
                 'sw-cms-el-preview-manufacturer-logo': true,
                 'sw-cms-el-preview-image-gallery': true,
                 'sw-cms-el-preview-buy-box': true
-            },
-            mocks: {
-                $router: {
-                    replace: jest.fn(),
-                    push: jest.fn(),
-                    go: jest.fn(),
-                    resolve: jest.fn()
-                },
-                $route: {
-                    params: {}
-                }
             }
         });
 

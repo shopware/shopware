@@ -9,6 +9,12 @@ import 'src/app/component/grid/sw-grid-column';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-radio-field';
 
+// Turn off known errors
+import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
+
+global.allowedErrors = [unknownOptionError];
+
+
 let config = [];
 
 function createEntityCollection(entities = []) {

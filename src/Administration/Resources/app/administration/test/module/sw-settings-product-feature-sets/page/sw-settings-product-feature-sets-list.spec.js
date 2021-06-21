@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, Wrapper } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 import 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list';
@@ -7,15 +7,6 @@ import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 
 const { Mixin } = Shopware;
-
-const classes = {
-    componentRoot: 'sw-settings-product-feature-sets-list',
-    featureSetList: 'sw-settings-product-feature-sets-list-grid',
-    featureSetListHeader: 'sw-data-grid__header',
-    featureSetListBody: 'sw-data-grid__body',
-    featureSetListRow: 'sw-data-grid__row ',
-    featureSetListCellContent: 'sw-data-grid__cell-content'
-};
 
 const text = {
     columnLabelTemplate: 'sw-settings-product-feature-sets.list.columnTemplate',
@@ -27,7 +18,7 @@ const text = {
     featureSetDescription: '71aa7417-717a-4f8d-ad37-7cff58f81f58'
 };
 
-const listPage = (additionalOptions = {}, privileges = []) => {
+function createWrapper(additionalOptions = {}, privileges = []) {
     const localVue = createLocalVue();
 
     localVue.directive('tooltip', {});
@@ -51,7 +42,8 @@ const listPage = (additionalOptions = {}, privileges = []) => {
             'router-link': true,
             'sw-loader': true,
             'sw-data-grid-skeleton': true,
-            i18n: true
+            i18n: true,
+            'sw-app-actions': true
         },
         mocks: {
             $route: {
@@ -112,47 +104,28 @@ const listPage = (additionalOptions = {}, privileges = []) => {
         },
         ...additionalOptions
     });
-};
+}
 
 describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list', () => {
-    let wrapper;
+    it('should be able to instantiate', () => {
+        const wrapper = createWrapper();
 
-    /*
-     * Workaround, since the current vue-test-utils version doesn't support get()
-     *
-     * @see https://vue-test-utils.vuejs.org/api/wrapper/#get
-     */
-    const findSecure = (wrapperEl, findArg) => {
-        const el = wrapperEl.find(findArg);
-
-        if (el instanceof Wrapper) {
-            return el;
-        }
-
-        throw new Error(`Could not find element ${findArg}.`);
-    };
-
-    beforeEach(() => {
-        wrapper = listPage();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be able to instantiate', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('has the correct class', async () => {
-        expect(wrapper.classes()).toContain(classes.componentRoot);
+    it('has the correct class', () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.classes()).toContain('sw-settings-product-feature-sets-list');
     });
 
-    it('should show a list of featuresets', async () => {
-        const root = findSecure(wrapper, `.${classes.componentRoot}`);
-        const list = findSecure(root, `.${classes.featureSetList}`);
-        const listBody = findSecure(root, `.${classes.featureSetListBody}`);
-        const firstRow = findSecure(listBody, `.${classes.featureSetListRow}`);
+    it('should show a list of featuresets', () => {
+        const wrapper = createWrapper();
+
+        const root = wrapper.get('.sw-settings-product-feature-sets-list');
+        const list = root.get('.sw-settings-product-feature-sets-list-grid');
+        const listBody = root.get('.sw-data-grid__body');
+        const firstRow = listBody.get('.sw-data-grid__row');
 
         // Assert that all column labels are correct
         expect(list.props().columns.map(column => column.label)).toEqual([
@@ -171,7 +144,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         // Assert that the template's name links to the detail page
         expect(list.props().columns.shift().routerLink).toEqual(text.featureSetDetailRouterLink);
 
-        const firstRowContent = firstRow.findAll(`.${classes.featureSetListCellContent}`).wrappers
+        const firstRowContent = firstRow.findAll('.sw-data-grid__cell-content').wrappers
             .slice(0, 4)
             .map(cell => cell.text())
             .filter(val => val !== '');
@@ -184,7 +157,9 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         ]);
     });
 
-    it('should disable all fields when acl privileges are missing', async () => {
+    it('should disable all fields when acl privileges are missing', () => {
+        const wrapper = createWrapper();
+
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
         expect(createButton.attributes().disabled).toBe('true');
@@ -202,8 +177,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });
 
-    it('should enable some fields when user has view and edit acl privileges', async () => {
-        wrapper = await listPage({}, [
+    it('should enable some fields when user has view and edit acl privileges', () => {
+        const wrapper = createWrapper({}, [
             'product_feature_sets.viewer',
             'product_feature_sets.editor'
         ]);
@@ -224,8 +199,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });
 
-    it('should enable some fields when user has create acl privileges', async () => {
-        wrapper = await listPage({}, [
+    it('should enable some fields when user has create acl privileges', () => {
+        const wrapper = createWrapper({}, [
             'product_feature_sets.creator'
         ]);
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
@@ -245,8 +220,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });
 
-    it('should enable some fields when user has delete acl privileges', async () => {
-        wrapper = await listPage({}, [
+    it('should enable some fields when user has delete acl privileges', () => {
+        const wrapper = createWrapper({}, [
             'product_feature_sets.deleter'
         ]);
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
@@ -267,12 +242,14 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should throw an success notification after saving in inline editing', async () => {
+        const wrapper = createWrapper();
+
         const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
         const successNotificationSpy = jest.spyOn(wrapper.vm, 'createNotificationSuccess');
 
         expect(successNotificationSpy).not.toHaveBeenCalled();
 
-        await entityListing.vm.$emit('inline-edit-save', new Promise(resolve => {
+        entityListing.vm.$emit('inline-edit-save', new Promise(resolve => {
             resolve();
         }), { name: 'fooBar' });
 
@@ -282,17 +259,23 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should throw an error notification after saving in inline editing', async () => {
+        const wrapper = createWrapper();
+
         const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
         const errorNotificationSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
 
         expect(errorNotificationSpy).not.toHaveBeenCalled();
 
-        await entityListing.vm.$emit('inline-edit-save', new Promise((resolve, reject) => {
+        entityListing.vm.$emit('inline-edit-save', new Promise((resolve, reject) => {
             reject();
         }), { name: 'fooBar' });
 
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
-        expect(errorNotificationSpy).toHaveBeenCalled();
+
+        expect(errorNotificationSpy).toHaveBeenCalledWith({
+            message: 'sw-settings-product-feature-sets.detail.messageSaveError'
+        });
     });
 });

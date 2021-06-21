@@ -45,11 +45,11 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     it('the footer should not contain buttons', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
 
-        const footerLeft = firstRunWizardModal.find('.footer-left');
-        const footerRight = firstRunWizardModal.find('.footer-right');
+        const footerLeft = firstRunWizardModal.get('.footer-left');
+        const footerRight = firstRunWizardModal.get('.footer-right');
 
-        expect(footerLeft.isEmpty()).toBeTruthy();
-        expect(footerRight.isEmpty()).toBeTruthy();
+        expect(footerLeft.element).toBeEmptyDOMElement();
+        expect(footerRight.element).toBeEmptyDOMElement();
     });
 
     it('the button config should have the same config which are emitted by an event', async () => {
@@ -97,8 +97,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         let footerLeft = firstRunWizardModal.find('.footer-left');
         let footerRight = firstRunWizardModal.find('.footer-right');
 
-        expect(footerLeft.isEmpty()).toBeTruthy();
-        expect(footerRight.isEmpty()).toBeTruthy();
+        expect(footerLeft.element).toBeEmptyDOMElement();
+        expect(footerRight.element).toBeEmptyDOMElement();
 
         const newButtonConfig = [
             {
@@ -132,8 +132,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         footerLeft = firstRunWizardModal.find('.footer-left');
         footerRight = firstRunWizardModal.find('.footer-right');
 
-        expect(footerLeft.isEmpty()).toBeFalsy();
-        expect(footerRight.isEmpty()).toBeFalsy();
+        expect(footerLeft.element).not.toBeEmptyDOMElement();
+        expect(footerRight.element).not.toBeEmptyDOMElement();
     });
 
     it('the buttonConfig should push a button in the left footer', async () => {
@@ -156,8 +156,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         const footerLeft = firstRunWizardModal.find('.footer-left');
         const footerRight = firstRunWizardModal.find('.footer-right');
 
-        expect(footerLeft.isEmpty()).toBeFalsy();
-        expect(footerRight.isEmpty()).toBeTruthy();
+        expect(footerLeft.element).not.toBeEmptyDOMElement();
+        expect(footerRight.element).toBeEmptyDOMElement();
     });
 
     it('the buttonConfig should push a button in the right footer', async () => {
@@ -180,8 +180,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         const footerLeft = firstRunWizardModal.find('.footer-left');
         const footerRight = firstRunWizardModal.find('.footer-right');
 
-        expect(footerLeft.isEmpty()).toBeTruthy();
-        expect(footerRight.isEmpty()).toBeFalsy();
+        expect(footerLeft.element).toBeEmptyDOMElement();
+        expect(footerRight.element).not.toBeEmptyDOMElement();
     });
 
     it('the buttonConfig should overwrite the previous one', async () => {
@@ -206,8 +206,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         footerLeft = firstRunWizardModal.find('.footer-left');
         footerRight = firstRunWizardModal.find('.footer-right');
 
-        expect(footerLeft.isEmpty()).toBeTruthy();
-        expect(footerRight.isEmpty()).toBeFalsy();
+        expect(footerLeft.element).toBeEmptyDOMElement();
+        expect(footerRight.element).not.toBeEmptyDOMElement();
 
         const secondButtonConfig = [
             {
@@ -225,8 +225,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         footerLeft = firstRunWizardModal.find('.footer-left');
         footerRight = firstRunWizardModal.find('.footer-right');
 
-        expect(footerLeft.isEmpty()).toBeFalsy();
-        expect(footerRight.isEmpty()).toBeTruthy();
+        expect(footerLeft.element).not.toBeEmptyDOMElement();
+        expect(footerRight.element).toBeEmptyDOMElement();
     });
 
     it('the title should show an warning when not defined', async () => {

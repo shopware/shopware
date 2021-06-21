@@ -215,7 +215,7 @@ describe('components/sw-import-export-importer', () => {
         );
         await variantsWarningLink.trigger('click');
 
-        const modalExporter = wrapper.findAll({ name: 'sw-import-export-importer' }).at(1);
+        const modalExporter = wrapper.findAllComponents({ name: 'sw-import-export-importer' }).at(1);
 
         expect(modalExporter.exists()).toBeTruthy();
     });
@@ -237,7 +237,7 @@ describe('components/sw-import-export-importer', () => {
         );
         await variantsWarningLink.trigger('click');
 
-        const modalExporter = wrapper.findAll({ name: 'sw-import-export-importer' }).at(1);
+        const modalExporter = wrapper.findAllComponents({ name: 'sw-import-export-importer' }).at(1);
 
         expect(modalExporter.props().sourceEntity).toBe('product_configurator_setting');
     });

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, Wrapper } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail';
 import 'src/app/component/base/sw-card';
@@ -90,21 +90,6 @@ const detailPage = (additionalOptions = {}, privileges = []) => {
 describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail', () => {
     let wrapper;
 
-    /*
-     * Workaround, since the current vue-test-utils version doesn't support get()
-     *
-     * @see https://vue-test-utils.vuejs.org/api/wrapper/#get
-     */
-    const findSecure = (wrapperEl, findArg) => {
-        const el = wrapperEl.find(findArg);
-
-        if (el instanceof Wrapper) {
-            return el;
-        }
-
-        throw new Error(`Could not find element ${findArg}.`);
-    };
-
     beforeEach(() => {
         wrapper = detailPage();
     });
@@ -122,18 +107,18 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should show the name field', async () => {
-        const root = findSecure(wrapper, `.${classes.componentRoot}`);
-        const nameField = findSecure(root, { name: components.nameField });
-        const nameFieldLabel = findSecure(nameField, `.${classes.fieldLabel}`);
+        const root = wrapper.get(`.${classes.componentRoot}`);
+        const nameField = root.findComponent({ name: components.nameField });
+        const nameFieldLabel = nameField.get(`.${classes.fieldLabel}`);
 
         expect(nameFieldLabel.text()).toEqual(text.labelNameField);
         expect(nameField.props().placeholder).toEqual(text.placeholderNameField);
     });
 
     it('should show the description field', async () => {
-        const root = findSecure(wrapper, `.${classes.componentRoot}`);
-        const descriptionField = findSecure(root, { name: components.descriptionField });
-        const descriptionFieldLabel = findSecure(descriptionField, `.${classes.fieldLabel}`);
+        const root = wrapper.get(`.${classes.componentRoot}`);
+        const descriptionField = root.findComponent({ name: components.descriptionField });
+        const descriptionFieldLabel = descriptionField.get(`.${classes.fieldLabel}`);
 
         expect(descriptionFieldLabel.text()).toEqual(text.labelDescriptionField);
         expect(descriptionField.props().placeholder).toEqual(text.placeholderDescriptionField);
@@ -151,10 +136,10 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             }
         });
 
-        const saveButton = wrapper.find('.sw-settings-currency-detail__save-action');
-        const fieldName = wrapper.find('.sw-settings-product-feature-sets-detail__name');
-        const fieldDescription = wrapper.find('.sw-settings-product-feature-sets-detail__description');
-        const productFeatureSetsValuesCard = wrapper.find('.sw-settings-product-feature-sets-detail__tax-rule-grid');
+        const saveButton = wrapper.get('.sw-settings-currency-detail__save-action');
+        const fieldName = wrapper.get('.sw-settings-product-feature-sets-detail__name');
+        const fieldDescription = wrapper.get('.sw-settings-product-feature-sets-detail__description');
+        const productFeatureSetsValuesCard = wrapper.get('.sw-settings-product-feature-sets-detail__tax-rule-grid');
 
         expect(saveButton.attributes().disabled).toBe('true');
         expect(fieldName.vm.$attrs.disabled).toBe(true);
@@ -163,7 +148,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should have all fields enabled when user has acl rights', async () => {
-        wrapper = await detailPage({}, [
+        wrapper = detailPage({}, [
             'product_feature_sets.editor'
         ]);
 
@@ -178,10 +163,10 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             }
         });
 
-        const saveButton = wrapper.find('.sw-settings-currency-detail__save-action');
-        const fieldName = wrapper.find('.sw-settings-product-feature-sets-detail__name');
-        const fieldDescription = wrapper.find('.sw-settings-product-feature-sets-detail__description');
-        const productFeatureSetsValuesCard = wrapper.find('.sw-settings-product-feature-sets-detail__tax-rule-grid');
+        const saveButton = wrapper.get('.sw-settings-currency-detail__save-action');
+        const fieldName = wrapper.get('.sw-settings-product-feature-sets-detail__name');
+        const fieldDescription = wrapper.get('.sw-settings-product-feature-sets-detail__description');
+        const productFeatureSetsValuesCard = wrapper.get('.sw-settings-product-feature-sets-detail__tax-rule-grid');
 
         expect(saveButton.attributes().disabled).toBeUndefined();
         expect(fieldName.vm.$attrs.disabled).toBe(false);

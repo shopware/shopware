@@ -27,34 +27,18 @@ function mockCustomFieldData() {
     return _customFields;
 }
 
-function mockCustomFieldRepository() {
-    class Repository {
-        constructor() {
-            this._customFields = customFields;
-        }
+const responses = global.repositoryFactoryMock.responses;
 
-        search() {
-            const response = this._customFields;
-            response.total = this._customFields.length;
-
-            response.sort((a, b) => a.config.customFieldPosition - b.config.customFieldPosition);
-
-            return Promise.resolve(this._customFields);
-        }
-
-        save(field) {
-            if (field.id === 'id1337') {
-                this._customFields.push(field);
-            }
-
-            return Promise.resolve();
-        }
+responses.addResponse({
+    method: 'Post',
+    url: '/search/custom-field',
+    status: 200,
+    response: {
+        data: customFields
     }
+});
 
-    return new Repository();
-}
-
-function createWrapper(privileges = []) {
+function createWrapper() {
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-settings-search-searchable-content-customfields'), {
@@ -67,24 +51,6 @@ function createWrapper(privileges = []) {
                     limit: 25
                 }
             }
-        },
-
-        provide: {
-            repositoryFactory: {
-                create() {
-                    return mockCustomFieldRepository();
-                }
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                }
-            }
-
         },
 
         stubs: {
@@ -107,19 +73,23 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-customfields', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.viewer'
-        ]);
+        global.activeAclRoles = ['product_search_config.viewer'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render empty state when isEmpty variable is true', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.viewer'
-        ]);
+        global.activeAclRoles = ['product_search_config.viewer'];
+
+        const wrapper = createWrapper();
 
         await wrapper.setProps({
             isEmpty: true
@@ -129,26 +99,28 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should not able to remove item without editor privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.viewer'
-        ]);
+        global.activeAclRoles = ['product_search_config.viewer'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.onRemove = jest.fn();
+        const searchConfigs = [
+            {
+                apiAlias: null,
+                createdAt: '2021-01-29T02:18:11.171+00:00',
+                customFieldId: '123456',
+                field: 'categories.customFields',
+                id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                ranking: 0,
+                searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                searchable: false,
+                tokenize: false
+            }
+        ];
+        searchConfigs.criteria = { page: 1, limit: 25 };
 
         await wrapper.setProps({
-            searchConfigs: [
-                {
-                    apiAlias: null,
-                    createdAt: '2021-01-29T02:18:11.171+00:00',
-                    customFieldId: '123456',
-                    field: 'categories.customFields',
-                    id: '8bafeb17b2494781ac44dce2d3ecfae5',
-                    ranking: 0,
-                    searchConfigId: '61168b0c1f97454cbee670b12d045d32',
-                    searchable: false,
-                    tokenize: false
-                }
-            ],
+            searchConfigs,
             isLoading: false
         });
 
@@ -159,31 +131,34 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         const buttonContext = await firstRow.find(
             '.sw-settings-search__searchable-content-list-remove'
         );
-        expect(buttonContext.isVisible()).toBeTruthy();
+        expect(buttonContext.isVisible()).toBe(true);
         expect(buttonContext.classes()).toContain('is--disabled');
     });
 
     it('Should able to remove item when click to remove action if having deleter privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.deleter'
-        ]);
+        global.activeAclRoles = ['product_search_config.deleter'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.onRemove = jest.fn();
 
+        const searchConfigs = [
+            {
+                apiAlias: null,
+                createdAt: '2021-01-29T02:18:11.171+00:00',
+                customFieldId: '123456',
+                field: 'categories.customFields',
+                id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                ranking: 0,
+                searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                searchable: false,
+                tokenize: false
+            }
+        ];
+        searchConfigs.criteria = { page: 1, limit: 25 };
+
         await wrapper.setProps({
-            searchConfigs: [
-                {
-                    apiAlias: null,
-                    createdAt: '2021-01-29T02:18:11.171+00:00',
-                    customFieldId: '123456',
-                    field: 'categories.customFields',
-                    id: '8bafeb17b2494781ac44dce2d3ecfae5',
-                    ranking: 0,
-                    searchConfigId: '61168b0c1f97454cbee670b12d045d32',
-                    searchable: false,
-                    tokenize: false
-                }
-            ],
+            searchConfigs,
             isLoading: false
         });
 
@@ -199,25 +174,28 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should emitted to delete-config when call the remove function if having deleter privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.deleter'
-        ]);
+        global.activeAclRoles = ['product_search_config.deleter'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
+        const searchConfigs = [
+            {
+                apiAlias: null,
+                createdAt: '2021-01-29T02:18:11.171+00:00',
+                customFieldId: '8bafeb17b2494781ac44dce2d3ecfae2',
+                field: 'categories.customFields',
+                id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                ranking: 0,
+                searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                searchable: false,
+                tokenize: false
+            }
+        ];
+        searchConfigs.criteria = { page: 1, limit: 25 };
+
         await wrapper.setProps({
-            searchConfigs: [
-                {
-                    apiAlias: null,
-                    createdAt: '2021-01-29T02:18:11.171+00:00',
-                    customFieldId: '8bafeb17b2494781ac44dce2d3ecfae2',
-                    field: 'categories.customFields',
-                    id: '8bafeb17b2494781ac44dce2d3ecfae5',
-                    ranking: 0,
-                    searchConfigId: '61168b0c1f97454cbee670b12d045d32',
-                    searchable: false,
-                    tokenize: false
-                }
-            ],
+            searchConfigs,
             isLoading: false
         });
 
@@ -229,26 +207,28 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should call to reset ranking function when click to reset ranking action if having editor privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.onResetRanking = jest.fn();
+        const searchConfigs = [
+            {
+                apiAlias: null,
+                createdAt: '2021-01-29T02:18:11.171+00:00',
+                customFieldId: '3bafeb17b2494781ac44dce2d3ecfae4',
+                field: 'categories.customFields',
+                id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                ranking: 0,
+                searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                searchable: false,
+                tokenize: false
+            }
+        ];
+        searchConfigs.criteria = { page: 1, limit: 25 };
 
         await wrapper.setProps({
-            searchConfigs: [
-                {
-                    apiAlias: null,
-                    createdAt: '2021-01-29T02:18:11.171+00:00',
-                    customFieldId: '3bafeb17b2494781ac44dce2d3ecfae4',
-                    field: 'categories.customFields',
-                    id: '8bafeb17b2494781ac44dce2d3ecfae5',
-                    ranking: 0,
-                    searchConfigId: '61168b0c1f97454cbee670b12d045d32',
-                    searchable: false,
-                    tokenize: false
-                }
-            ],
+            searchConfigs,
             isLoading: false
         });
         const firstRow = wrapper.find(
@@ -263,25 +243,28 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should emitted to save-config when call the reset ranking function if having the editor privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.editor'
-        ]);
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
+        const searchConfigs = [
+            {
+                apiAlias: null,
+                createdAt: '2021-01-29T02:18:11.171+00:00',
+                customFieldId: '23168b0c1f97454cbee670b12d045d32',
+                field: 'categories.customFields',
+                id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                ranking: 0,
+                searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                searchable: false,
+                tokenize: false
+            }
+        ];
+        searchConfigs.criteria = { page: 1, limit: 25 };
+
         await wrapper.setProps({
-            searchConfigs: [
-                {
-                    apiAlias: null,
-                    createdAt: '2021-01-29T02:18:11.171+00:00',
-                    customFieldId: '23168b0c1f97454cbee670b12d045d32',
-                    field: 'categories.customFields',
-                    id: '8bafeb17b2494781ac44dce2d3ecfae5',
-                    ranking: 0,
-                    searchConfigId: '61168b0c1f97454cbee670b12d045d32',
-                    searchable: false,
-                    tokenize: false
-                }
-            ],
+            searchConfigs,
             isLoading: false
         });
 

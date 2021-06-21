@@ -82,6 +82,17 @@ const mockItems = [
     }
 ];
 
+const responses = global.repositoryFactoryMock.responses;
+
+responses.addResponse({
+    method: 'Post',
+    url: '/search/user-config',
+    status: 200,
+    response: {
+        data: []
+    }
+});
+
 const mockMultipleTaxesItem = {
     ...mockItems[2],
     price: {
@@ -138,7 +149,8 @@ function createWrapper() {
             currency: {
                 shortName: 'EUR',
                 symbol: '€'
-            }
+            },
+            salesChannelId: ''
         },
         stubs: {
             'sw-container': true,

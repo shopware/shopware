@@ -1,27 +1,27 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { config, mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
 const componentWithTabs = {
     name: 'componentWithTabs',
-    template:
-
-`
-<div class="component-with-tabs">
-    <sw-tabs>
-        <template v-for="(route, index) in routes">
-            <sw-tabs-item :route="route" :key="index">
-                {{route.name}}
-            </sw-tabs-item>
-        </template>
-    </sw-tabs>
-</div>
-`,
+    template: `<div class="component-with-tabs">
+        <sw-tabs>
+            <template v-for="(route, index) in routes">
+                <sw-tabs-item :route="route" :key="index">
+                    {{route.name}}
+                </sw-tabs-item>
+            </template>
+        </sw-tabs>
+    </div>`,
     props: ['routes']
 };
 
 function mountSwTabs(routes) {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
 
     localVue.use(VueRouter);

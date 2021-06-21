@@ -33,6 +33,10 @@ describe('src/app/component/structure/sw-language-switch', () => {
         });
     });
 
+    afterEach(() => {
+        wrapper.destroy();
+    });
+
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });

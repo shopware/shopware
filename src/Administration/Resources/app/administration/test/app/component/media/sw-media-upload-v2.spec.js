@@ -1,12 +1,16 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
+import 'src/app/component/context-menu/sw-context-menu-item';
 
 function createWrapper(customOptions = {}, privileges = []) {
     return shallowMount(Shopware.Component.build('sw-media-upload-v2'), {
         stubs: {
             'sw-icon': true,
             'sw-button': true,
-            'sw-context-button': true
+            'sw-context-button': true,
+            'sw-button-group': true,
+            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
+            'sw-media-url-form': true
         },
         provide: {
             repositoryFactory: {},

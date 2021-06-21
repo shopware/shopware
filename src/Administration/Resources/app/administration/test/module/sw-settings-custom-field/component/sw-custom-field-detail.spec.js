@@ -58,7 +58,8 @@ function createWrapper(privileges = []) {
             'sw-custom-field-type-checkbox': true,
             'sw-field': true,
             'sw-button': true,
-            'sw-loader': true
+            'sw-loader': true,
+            'sw-alert': true
         }
     });
 }

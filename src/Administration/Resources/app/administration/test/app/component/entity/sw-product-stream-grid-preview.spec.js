@@ -10,13 +10,28 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     const localVue = createLocalVue();
 
     const mockFilter = [{ type: 'equals', field: 'parentId', value: null }];
+    const mockProducts = [{
+        id: 1,
+        name: 'Product 1',
+        price: [{ currencyId: 'uuid1337', gross: 444 }],
+        manufacturer: { name: 'Test' }
+    }, {
+        id: 2,
+        name: 'Product 2',
+        price: [{ currencyId: 'uuid1337', gross: 25 }],
+        manufacturer: { name: 'Test' }
+    }, {
+        id: 3,
+        name: 'Product 3',
+        price: [{ currencyId: 'uuid1337', gross: 36 }],
+        manufacturer: { name: 'Test' }
+    }, {
+        id: 4,
+        name: 'Product 4',
+        price: [{ currencyId: 'uuid1337', gross: 1258 }],
+        manufacturer: { name: 'Test' }
+    }];
 
-    const mockProducts = [
-        { id: 1, name: 'Product 1', price: [{ currencyId: 'uuid1337', gross: 444 }] },
-        { id: 2, name: 'Product 2', price: [{ currencyId: 'uuid1337', gross: 25 }] },
-        { id: 3, name: 'Product 3', price: [{ currencyId: 'uuid1337', gross: 36 }] },
-        { id: 4, name: 'Product 4', price: [{ currencyId: 'uuid1337', gross: 1258 }] }
-    ];
     mockProducts.total = 4;
     mockProducts.criteria = {
         page: 1,
@@ -219,12 +234,8 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
                 1: {
                     id: 1,
                     name: 'Product 1',
-                    price: [
-                        {
-                            currencyId: 'uuid1337',
-                            gross: 444
-                        }
-                    ]
+                    price: [{ currencyId: 'uuid1337', gross: 444 }],
+                    manufacturer: { name: 'Test' }
                 }
             }
         ]);

@@ -3,9 +3,6 @@ import 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summar
 import 'src/app/component/utils/sw-progress-bar';
 
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-extension-ratings-summary'), {
             propsData: {
@@ -29,17 +26,13 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
         });
     }
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
     it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should display amount of ratings correctly', () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
 
         const amounts = wrapper.findAll('.sw-extension-ratings-summary__progress-bars >:first-child span');
 
@@ -51,7 +44,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
     });
 
     it('should display with of progress bars correctly', () => {
-        wrapper = createWrapper();
+        const wrapper = createWrapper();
 
         const progressBarValues = wrapper.findAll('.sw-progress-bar__value');
 

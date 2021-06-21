@@ -7,7 +7,7 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
     beforeEach(() => {
         wrapper = shallowMount(Shopware.Component.build('sw-import-export-progress'), {
             stubs: [
-                'sw-progress-bar', 'sw-button', 'sw-import-export-activity-detail-modal'
+                'sw-progress-bar', 'sw-button', 'sw-import-export-activity-detail-modal', 'sw-icon'
             ],
             provide: {
                 importExport: { getDownloadUrl: () => { return ''; } }

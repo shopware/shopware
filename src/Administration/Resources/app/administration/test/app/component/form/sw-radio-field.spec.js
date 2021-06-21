@@ -20,7 +20,7 @@ const createWrapper = () => {
                     { value: 2, name: 'option 2' },
                     { value: 3, name: 'option 3' }
                 ],
-                currentValue: null,
+                currentValue: 1,
                 block: false,
                 description: null
             };

@@ -13,6 +13,15 @@ const store = new Vuex.Store({
             state: {
                 product: product
             }
+        },
+        context: {
+            namespaced: true,
+
+            getters: {
+                isSystemDefaultLanguage() {
+                    return true;
+                }
+            }
         }
     }
 });

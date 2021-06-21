@@ -18,7 +18,7 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
     it('should be a Vue.JS component', () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show info message when total rounding or item rounding interval is unequal to 0.01 or decimals are unequal', async () => {

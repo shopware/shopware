@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import 'src/module/sw-product/view/sw-product-detail-context-prices';
@@ -18,8 +18,21 @@ import Vuex from 'vuex';
 
 describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
     Shopware.State.registerModule('swProductDetail', productStore);
+    Shopware.State.registerModule('context', {
+        namespaced: true,
+
+        getters: {
+            isSystemDefaultLanguage() {
+                return true;
+            }
+        }
+    });
 
     const createWrapper = () => {
+        // delete global $router and $routes mocks
+        delete config.mocks.$router;
+        delete config.mocks.$route;
+
         const localVue = createLocalVue();
 
         localVue.use(VueRouter);

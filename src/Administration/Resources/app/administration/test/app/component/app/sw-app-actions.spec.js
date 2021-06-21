@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { config, createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import flushPromises from 'flush-promises';
@@ -27,6 +27,10 @@ const stubs = {
 };
 
 function createWrapper(router) {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.use(VueRouter);

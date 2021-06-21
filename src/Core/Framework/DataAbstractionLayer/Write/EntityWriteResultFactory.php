@@ -281,12 +281,15 @@ class EntityWriteResultFactory
                     $payload = $writeResults[$uniqueId]->getPayload();
                 }
 
-                /** @var Field&StorageAware $field */
                 $field = $command->getDefinition()->getFields()->getByStorageName($command->getStorageName());
+
+                if (!$field instanceof Field) {
+                    throw new \RuntimeException(sprintf('Field by storage name %s not found', $command->getStorageName()));
+                }
 
                 $decodedPayload = $field->getSerializer()->decode(
                     $field,
-                    json_encode($command->getPayload(), JSON_PRESERVE_ZERO_FRACTION)
+                    json_encode($command->getPayload(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR)
                 );
                 $mergedPayload = array_merge($payload, [$field->getPropertyName() => $decodedPayload]);
 

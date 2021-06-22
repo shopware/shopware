@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\LandingPage;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Storefront\Page\Page;
 
 class LandingPage extends Page
@@ -32,5 +33,10 @@ class LandingPage extends Page
     public function setNavigationId(?string $navigationId): void
     {
         $this->navigationId = $navigationId;
+    }
+
+    public function getEntityName(): string
+    {
+        return LandingPageDefinition::ENTITY_NAME;
     }
 }

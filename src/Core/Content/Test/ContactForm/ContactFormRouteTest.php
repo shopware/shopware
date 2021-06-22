@@ -3,7 +3,10 @@
 namespace Shopware\Core\Content\Test\ContactForm;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -81,14 +84,14 @@ class ContactFormRouteTest extends TestCase
     /**
      * @dataProvider navigationProvider
      */
-    public function testContactFormSendMailWithNavigationIdAndSlotId(string $cmsPageType): void
+    public function testContactFormSendMailWithNavigationIdAndSlotId(string $entityName): void
     {
-        switch ($cmsPageType) {
-            case 'landingpage':
+        switch ($entityName) {
+            case LandingPageDefinition::ENTITY_NAME:
                 list($navigationId, $slotId) = $this->createLandingPageData();
 
                 break;
-            case 'product_detail':
+            case ProductDefinition::ENTITY_NAME:
                 list($navigationId, $slotId) = $this->createProductData();
 
                 break;
@@ -119,7 +122,7 @@ class ContactFormRouteTest extends TestCase
                     'salutationId' => $this->getValidSalutationId(),
                     'navigationId' => $navigationId,
                     'slotId' => $slotId,
-                    'cmsPageType' => $cmsPageType,
+                    'entityName' => $entityName,
                     'firstName' => 'Firstname',
                     'lastName' => 'Lastname',
                     'email' => 'test@shopware.com',
@@ -141,9 +144,9 @@ class ContactFormRouteTest extends TestCase
 
     public function navigationProvider(): \Generator
     {
-        yield 'Category with Slot Config' => ['product_list'];
-        yield 'Landing Page with Slot Config' => ['landingpage'];
-        yield 'Product Page with Slot Config' => ['product_detail'];
+        yield 'Category with Slot Config' => [CategoryDefinition::ENTITY_NAME];
+        yield 'Landing Page with Slot Config' => [LandingPageDefinition::ENTITY_NAME];
+        yield 'Product Page with Slot Config' => [ProductDefinition::ENTITY_NAME];
     }
 
     public function testContactFormSendMailWithSlotId(): void

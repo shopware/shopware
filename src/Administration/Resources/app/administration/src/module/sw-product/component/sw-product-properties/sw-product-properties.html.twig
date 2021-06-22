@@ -7,7 +7,6 @@
     :inherited-value="parentProduct.properties"
 >
     <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
-        {# currentValue and updateCurrentValue provided by sw-inherit-wrapper are useless in this content slot because the data we use to pass down into the sw-entity-listing component must be the combination between product's properties and property group. The getGroupIds and getProperties methods help us to create this combination out. #}
         {% block sw_product_properties_card %}
         <sw-card
             class="sw-product-properties__card"
@@ -107,16 +106,16 @@
                         <template #column-values="{ item }">
                             {% block sw_product_properties_filled_state_body_filled_state_column_values %}
                             <div
-                                v-for="value in item.values"
-                                :key="value.id"
+                                v-for="option in item.options"
+                                :key="option.id"
                                 class="sw-product-properties-list__column-values"
                             >
                                 <sw-label
                                     size="medium"
                                     :dismissable="acl.can('product.deleter')"
-                                    @dismiss="onDeletePropertyValue(value)"
+                                    @dismiss="onDeletePropertyValue(option)"
                                 >
-                                    {{ value.translated.name }}
+                                    {{ option.translated.name }}
                                 </sw-label>
                             </div>
                             {% endblock %}

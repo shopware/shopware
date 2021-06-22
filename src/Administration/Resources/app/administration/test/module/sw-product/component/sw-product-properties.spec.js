@@ -10,6 +10,13 @@ let productPropertiesMock = [
     { id: '03', groupId: 'colorId', name: 'white' },
     { id: '04', groupId: 'colorId', name: 'black' }
 ];
+
+productPropertiesMock.getIds = () => {
+    return productPropertiesMock.map(property => {
+        return property.id;
+    });
+};
+
 productPropertiesMock.remove = (id) => {
     productPropertiesMock = productPropertiesMock.filter((item) => {
         return item.id !== id;
@@ -31,7 +38,7 @@ const propertiesMock = [
         translated: {
             name: 'size'
         },
-        values: productPropertiesMock.filter((item) => {
+        options: productPropertiesMock.filter((item) => {
             return item.groupId === 'sizeId';
         })
     },
@@ -41,7 +48,7 @@ const propertiesMock = [
         translated: {
             name: 'color'
         },
-        values: productPropertiesMock.filter((item) => {
+        options: productPropertiesMock.filter((item) => {
             return item.groupId === 'colorId';
         })
     }
@@ -565,6 +572,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.setData({ properties: [], searchTerm: null });
 
         const createButton = wrapper.find('sw-button-stub');
+
         expect(createButton.attributes().disabled).toBe(undefined);
     });
 
@@ -582,11 +590,13 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = createWrapper([
             'product.editor'
         ]);
+
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({ searchTerm: 'Size' });
+        await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
 
         const createButton = wrapper.find('sw-button-stub');
+
         expect(createButton.attributes().disabled).toBe(undefined);
     });
 
@@ -594,7 +604,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({ searchTerm: 'Size' });
+        await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
 
         const createButton = wrapper.find('sw-button-stub');
         expect(createButton.attributes().disabled).toBe('true');

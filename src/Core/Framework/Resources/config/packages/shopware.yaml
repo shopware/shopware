@@ -64,6 +64,9 @@ shopware:
     cart:
         expire_days: 120
 
+    sales_channel_context:
+        expire_days: 120
+
     feature:
         flags:
             - name: FEATURE_NEXT_1797

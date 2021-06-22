@@ -10,9 +10,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @internal (flag:FEATURE_NEXT_12455)
- */
 class BasicCaptcha extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'basicCaptcha';
@@ -62,7 +59,7 @@ class BasicCaptcha extends AbstractCaptcha
         }
 
         $captchaSession = $this->session->get($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
-        $this->session->remove(self::BASIC_CAPTCHA_SESSION);
+        $this->session->remove($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
 
         if ($captchaSession === null) {
             return false;

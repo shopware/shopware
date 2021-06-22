@@ -162,9 +162,7 @@ PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
-if (Feature.isActive('FEATURE_NEXT_12455')) {
-    PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
-}
+PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
 
 if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {
@@ -186,11 +184,11 @@ if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);
 }
 
-if (Feature.isActive('FEATURE_NEXT_12455') && window.googleReCaptchaV2Active) {
+if (window.googleReCaptchaV2Active) {
     PluginManager.register('GoogleReCaptchaV2', GoogleReCaptchaV2Plugin, '[data-google-re-captcha-v2]');
 }
 
-if (Feature.isActive('FEATURE_NEXT_12455') && window.googleReCaptchaV3Active) {
+if (window.googleReCaptchaV3Active) {
     PluginManager.register('GoogleReCaptchaV3', GoogleReCaptchaV3Plugin, '[data-google-re-captcha-v3]');
 }
 

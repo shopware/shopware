@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -50,9 +49,7 @@ class CookieController extends StorefrontController
 
         $cookieGroups = $this->filterComfortFeaturesCookie($context->getSalesChannelId(), $cookieGroups);
 
-        if (Feature::isActive('FEATURE_NEXT_12455')) {
-            $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
-        }
+        $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
 
         return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', ['cookieGroups' => $cookieGroups]);
     }
@@ -68,9 +65,7 @@ class CookieController extends StorefrontController
 
         $cookieGroups = $this->filterComfortFeaturesCookie($context->getSalesChannelId(), $cookieGroups);
 
-        if (Feature::isActive('FEATURE_NEXT_12455')) {
-            $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
-        }
+        $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
 
         return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', ['cookieGroups' => $cookieGroups]);
     }

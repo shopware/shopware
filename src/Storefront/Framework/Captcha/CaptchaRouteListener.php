@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -60,30 +59,19 @@ class CaptchaRouteListener implements EventSubscriberInterface
             return;
         }
 
-        $activeCaptchas = [];
+        /** @var SalesChannelContext|null $context */
+        $context = $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        if (Feature::isActive('FEATURE_NEXT_12455')) {
-            /** @var SalesChannelContext|null $context */
-            $context = $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $salesChannelId = $context ? $context->getSalesChannelId() : null;
 
-            $salesChannelId = $context ? $context->getSalesChannelId() : null;
-
-            $activeCaptchas = (array) ($this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId) ?? []);
-        }
+        $activeCaptchas = (array) ($this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId) ?? []);
 
         foreach ($this->captchas as $captcha) {
-            $captchaConfig = [];
-            if (Feature::isActive('FEATURE_NEXT_12455')) {
-                $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
-            }
+            $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
 
             if (
                 $captcha->supports($event->getRequest(), $captchaConfig) && !$captcha->isValid($event->getRequest(), $captchaConfig)
             ) {
-                if (!Feature::isActive('FEATURE_NEXT_12455')) {
-                    throw new CaptchaInvalidException($captcha);
-                }
-
                 if ($captcha->shouldBreak()) {
                     throw new CaptchaInvalidException($captcha);
                 }

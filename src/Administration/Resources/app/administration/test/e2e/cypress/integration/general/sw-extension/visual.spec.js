@@ -17,7 +17,8 @@ describe('Dashboard:  Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of my extension overview', () => {
+    // skipped because it has a dependency to the sbp, see NEXT-15818
+    it.skip('@visual: check appearance of my extension overview', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/extension/installed`,

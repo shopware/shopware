@@ -104,17 +104,13 @@
         {% endblock %}
 
         {% block cms_form_contact_captcha %}
-            {% if feature('FEATURE_NEXT_12455') %}
-                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
-                    with {
-                    'captchas': config('core.basicInformation.activeCaptchasV2'),
-                    'additionalClass' : 'col-md-12',
-                    'formId': 'contact-form'
-                    }
-                %}
-            {% else %}
-                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
-            {% endif %}
+            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
+                with {
+                'captchas': config('core.basicInformation.activeCaptchasV2'),
+                'additionalClass' : 'col-md-12',
+                'formId': 'contact-form'
+                }
+            %}
         {% endblock %}
 
         {% block cms_form_contact_privacy %}

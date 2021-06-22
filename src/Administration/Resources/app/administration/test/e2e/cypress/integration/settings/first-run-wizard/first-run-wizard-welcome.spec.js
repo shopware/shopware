@@ -15,7 +15,8 @@ describe('FirstRunWizard Test language Auto-Install', () => {
             });
     });
 
-    it('@frw: Tests the auto-install of the first run wizard with dutch', () => {
+    // skipped because it has a dependency to the sbp, see NEXT-15818
+    it.skip('@frw: Tests the auto-install of the first run wizard with dutch', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`);
 
         cy.server();

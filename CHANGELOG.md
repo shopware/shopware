@@ -120,6 +120,13 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-15728 - Add change button to aside checkout page](/changelog/release-6-4-2-0/2021-06-18-add-change-button-to-aside-checkout.md)
 *  [NEXT-15601 - Add event for buybox extensions](/changelog/release-6-4-2-0/2021-06-21-add-event-for-buybox-extensions.md)
 *  [NEXT-15751 - Respond with updated customer on registration confirm](/changelog/release-6-4-2-0/2021-06-21-respond-with-updated-customer-on-registration-confirm.md)
+*  [NEXT-14137 - Implement a new cookie entry for Google reCAPTACHAv3 in Cookie Manager](/changelog/release-6-4-2-0/2021-03-11-implement-new-cookie-for-google-re-captcha-v3-in-cookie-manager.md)
+*  [NEXT-14111 - Implement basic captcha](/changelog/release-6-4-2-0/2021-03-19-implement-basic-captcha.md)
+*  [NEXT-14136 - Implement show google key inputs in admin setting basic information](/changelog/release-6-4-2-0/2021-04-06-implement-show-google-key-inputs-in-admin-setting-basic-information.md)
+*  [NEXT-14110 - Integrate google recaptcha client side](/changelog/release-6-4-2-0/2021-04-09-integrate-google-re-captcha-client-side.md)
+*  [NEXT-14133 - Integrate Google ReCaptcha Server side validation](/changelog/release-6-4-2-0/2021-04-16-integrate-google-recaptcha-server-side-validation.md)
+*  [NEXT-15346 - Create api to prevalidate basic captcha](/changelog/release-6-4-2-0/2021-06-09-create-api-to-prevalidate-basic-captcha.md)
+*  [NEXT-15345 - Add hint description for google reCAPTCHA](/changelog/release-6-4-2-0/2021-06-10-add-hint-description-for-google-recaptcha.md)
 
 ## 6.4.1.1
 *  [NEXT-14744 - fix visibility setting in s3 storage fs](/changelog/release-6-4-1-1/2021-05-10-fix-visibility-setting-in-s3-storage-fs.md)

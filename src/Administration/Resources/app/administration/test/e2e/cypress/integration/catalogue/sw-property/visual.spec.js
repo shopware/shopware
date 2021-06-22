@@ -70,6 +70,8 @@ describe('Property: Visual tests', () => {
         // Take snapshot for visual testing
         cy.sortListingViaColumn('Position', '1', '.sw-data-grid__cell--position');
         cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--position', '1').should('be.visible');
+        cy.contains('.sw-data-grid__row--1 .sw-data-grid__cell--position', '2').should('be.visible');
+        cy.contains('.sw-data-grid__row--2 .sw-data-grid__cell--position', '3').should('be.visible');
         cy.takeSnapshot('[Property] Detail, Group', '.sw-property-option-list');
 
         cy.get('.sw-property-option-list').scrollIntoView();

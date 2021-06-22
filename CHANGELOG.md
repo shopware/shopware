@@ -127,6 +127,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14133 - Integrate Google ReCaptcha Server side validation](/changelog/release-6-4-2-0/2021-04-16-integrate-google-recaptcha-server-side-validation.md)
 *  [NEXT-15346 - Create api to prevalidate basic captcha](/changelog/release-6-4-2-0/2021-06-09-create-api-to-prevalidate-basic-captcha.md)
 *  [NEXT-15345 - Add hint description for google reCAPTCHA](/changelog/release-6-4-2-0/2021-06-10-add-hint-description-for-google-recaptcha.md)
+*  [NEXT-15703 - Use entity name to determine source of slot config in contact form submit](/changelog/release-6-4-2-0/2021-06-22-use-entity-name-to-determine-source-of-slot-config-in-contact-form-submit.md)
 
 ## 6.4.1.1
 *  [NEXT-14744 - fix visibility setting in s3 storage fs](/changelog/release-6-4-1-1/2021-05-10-fix-visibility-setting-in-s3-storage-fs.md)

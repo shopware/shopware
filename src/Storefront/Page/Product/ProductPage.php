@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -112,5 +113,10 @@ class ProductPage extends Page
     public function setCrossSellings(CrossSellingElementCollection $crossSellings): void
     {
         $this->crossSellings = $crossSellings;
+    }
+
+    public function getEntityName(): string
+    {
+        return ProductDefinition::ENTITY_NAME;
     }
 }

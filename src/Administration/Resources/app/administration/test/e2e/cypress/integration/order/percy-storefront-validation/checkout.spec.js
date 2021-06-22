@@ -60,6 +60,16 @@ describe('Checkout: Visual tests', () => {
         cy.contains('.header-cart-total', '64').should('exist');
         cy.contains('.cart-item-price', '64').should('be.visible');
         cy.get('.loader').should('not.exist');
+
+        cy.changeElementStyling(
+            '.header-search',
+            'visibility: hidden'
+        );
+        cy.changeElementStyling(
+            '#accountWidget',
+            'visibility: hidden'
+        );
+
         cy.takeSnapshot('Checkout - Offcanvas',
             `${page.elements.offCanvasCart}.is-open`,
             { widths: [375, 1920] });

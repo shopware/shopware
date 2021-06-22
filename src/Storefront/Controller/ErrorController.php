@@ -129,9 +129,14 @@ class ErrorController extends StorefrontController
         $response = [];
         $response[] = [
             'type' => 'danger',
+            'error' => 'invalid_captcha',
             'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
                 'type' => 'danger',
                 'list' => [$this->trans('error.' . $formViolations->getViolations()->get(0)->getCode())],
+            ]),
+            'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
+                'formId' => $request->get('formId'),
+                'formViolations' => $formViolations,
             ]),
         ];
 

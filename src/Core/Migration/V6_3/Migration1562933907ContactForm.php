@@ -94,7 +94,7 @@ class Migration1562933907ContactForm extends MigrationStep
 
     private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT `language`.`id`
 FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`

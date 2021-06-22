@@ -15,7 +15,7 @@ class Migration1585056571AddLanguageToMailTemplateMedia extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate(
-            <<<SQL
+            <<<'SQL'
             ALTER TABLE `mail_template_media` ADD `language_id` BINARY(16) NULL AFTER `mail_template_id`,
             ADD CONSTRAINT `fk.mail_template_media.language_id` FOREIGN KEY (`language_id`)
              REFERENCES `language` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE

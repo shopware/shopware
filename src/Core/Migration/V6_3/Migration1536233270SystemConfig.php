@@ -14,7 +14,7 @@ class Migration1536233270SystemConfig extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $query = <<<SQL
+        $query = <<<'SQL'
             CREATE TABLE IF NOT EXISTS `system_config` (
                 `id` BINARY(16) NOT NULL,
                 `configuration_key` VARCHAR(255) NOT NULL,

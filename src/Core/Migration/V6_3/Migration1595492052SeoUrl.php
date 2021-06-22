@@ -14,7 +14,7 @@ class Migration1595492052SeoUrl extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE IF NOT EXISTS `seo_url` (
                 `id` BINARY(16) NOT NULL,
                 `language_id` BINARY(16) NOT NULL,

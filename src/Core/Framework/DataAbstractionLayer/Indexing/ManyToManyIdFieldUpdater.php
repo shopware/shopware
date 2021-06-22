@@ -60,7 +60,7 @@ class ManyToManyIdFieldUpdater
             return;
         }
 
-        $template = <<<SQL
+        $template = <<<'SQL'
 UPDATE #table#, #mapping_table# SET #table#.#storage_name# = (
     SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(#mapping_table#.#reference_column#)))), ']')
     FROM #mapping_table#
@@ -72,7 +72,7 @@ AND #table#.id IN (:ids)
 #version_aware#
 SQL;
 
-        $resetTemplate = <<<SQL
+        $resetTemplate = <<<'SQL'
 UPDATE #table# SET #table#.#storage_name# = NULL
 WHERE #table#.id IN (:ids)
 SQL;

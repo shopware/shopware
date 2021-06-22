@@ -169,7 +169,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     private function setupDatabase(): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             DELETE FROM `number_range_state`;
 SQL;
         $this->connection->executeUpdate($sql);

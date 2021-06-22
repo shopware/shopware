@@ -276,7 +276,7 @@ class ProductRatingAverageIndexerTest extends TestCase
         $this->createReview($reviewAId, $pointsOnAReview, $productId, true);
         $this->createReview($reviewBId, $pointsOnBReview, $productId, true);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             UPDATE product SET product.rating_average = 0;
 SQL;
         $this->connection->exec($sql);

@@ -14,7 +14,7 @@ class Migration1612980753AddLinkSettingsToCategory extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 ALTER TABLE `category_translation`
     ADD COLUMN `link_type`      VARCHAR(255)   NULL AFTER `breadcrumb`,
     ADD COLUMN `link_new_tab`   TINYINT        NULL AFTER `breadcrumb`,

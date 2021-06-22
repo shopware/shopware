@@ -81,6 +81,30 @@ return (new Config())
             $context->failure('Please add tests for your new Migration file');
         }
     })
+    ->useRule(function (Context $context) {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $newSqlHeredocs = $files->filterStatus(File::STATUS_MODIFIED)->matchesContent('/<<<SQL/');
+
+        if ($newSqlHeredocs->count() > 0) {
+            $errorFiles = [];
+            foreach ($newSqlHeredocs as $file) {
+                if ($file->name !== '.danger.php') {
+                    $errorFiles[] = $file->name . '<br/>';
+                }
+            }
+
+            if (count($errorFiles) === 0) {
+                return;
+            }
+
+            $context->failure(
+                'Please use [Nowdoc](https://www.php.net/manual/de/language.types.string.php#language.types.string.syntax.nowdoc)' .
+                ' for SQL (&lt;&lt;&lt;\'SQL\') instead of Heredoc (&lt;&lt;&lt;SQL)<br/>' .
+                print_r($errorFiles, true)
+            );
+        }
+    })
     ->after(function (Context $context) {
         if ($context->platform instanceof Github && $context->hasFailures()) {
             $context->platform->addLabels('Incomplete');

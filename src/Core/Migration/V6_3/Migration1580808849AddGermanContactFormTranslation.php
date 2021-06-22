@@ -71,7 +71,7 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
 
     private function getContactMailTemplateId(Connection $connection): ?string
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
     SELECT `mail_template`.`id`
     FROM `mail_template` LEFT JOIN `mail_template_type` ON `mail_template`.`mail_template_type_id` = `mail_template_type`.`id`
     WHERE `mail_template_type`.`technical_name` = :technical_name

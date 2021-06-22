@@ -21,7 +21,7 @@ class DbalKernelPluginLoader extends KernelPluginLoader
 
     protected function loadPluginInfos(): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             # dbal-plugin-loader
             SELECT
                    `name`,

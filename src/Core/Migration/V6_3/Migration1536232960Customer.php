@@ -14,7 +14,7 @@ class Migration1536232960Customer extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
         CREATE TABLE `customer` (
               `id` BINARY(16) NOT NULL,
               `auto_increment` BIGINT unsigned NOT NULL AUTO_INCREMENT,

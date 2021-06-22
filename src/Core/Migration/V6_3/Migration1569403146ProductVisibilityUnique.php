@@ -14,7 +14,7 @@ class Migration1569403146ProductVisibilityUnique extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $removeDuplicatesSql = <<<SQL
+        $removeDuplicatesSql = <<<'SQL'
 DELETE t1 FROM product_visibility t1
 INNER JOIN product_visibility t2
 WHERE

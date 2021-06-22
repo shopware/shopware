@@ -14,7 +14,7 @@ class Migration1536232940SalesChannel extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `sales_channel` (
               `id` BINARY(16) NOT NULL,
               `type_id` BINARY(16) NOT NULL,

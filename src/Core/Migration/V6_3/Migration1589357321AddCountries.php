@@ -81,7 +81,7 @@ class Migration1589357321AddCountries extends MigrationStep
 
     private function getLanguageId(Connection $connection, string $code): string
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT id
             FROM `language`
             WHERE translation_code_id = (

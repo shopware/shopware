@@ -14,7 +14,7 @@ class Migration1614691876AddMainModuleToApp extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 ALTER TABLE `app`
     ADD COLUMN `main_module` JSON NULL AFTER `modules`,
     ADD CONSTRAINT `json.app.main_module` CHECK (JSON_VALID(`main_module`));

@@ -74,7 +74,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT LOWER(HEX(product.id)) AS id, product.price, trans.name
 FROM product
 LEFT JOIN product_translation trans ON product.id = trans.product_id

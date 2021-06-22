@@ -39,7 +39,7 @@ class BlueGreenDeploymentService
 
     private function getCreateTableQuery(): string
     {
-        return <<<SQL
+        return <<<'SQL'
             CREATE TABLE IF NOT EXISTS `example` (
               `id` int NOT NULL
             );
@@ -48,7 +48,7 @@ SQL;
 
     private function getTriggerQuery(): string
     {
-        return <<<SQL
+        return <<<'SQL'
             CREATE TRIGGER example_trigger BEFORE UPDATE ON `example`
                 FOR EACH ROW
                 BEGIN

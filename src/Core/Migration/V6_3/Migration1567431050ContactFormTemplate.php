@@ -79,7 +79,7 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
 
     private function getContactMailEventConfig(Connection $connection): string
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT `event_action`.`config`
 FROM `event_action`
 WHERE `event_action`.`event_name` = :event_name AND `event_action`.`action_name` = :action_name
@@ -98,7 +98,7 @@ SQL;
 
     private function getContactMailTemplateId(Connection $connection): ?string
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
     SELECT `mail_template`.`id`
     FROM `mail_template` LEFT JOIN `mail_template_type` ON `mail_template`.`mail_template_type_id` = `mail_template_type`.id
     WHERE `mail_template_type`.`technical_name` = :technical_name

@@ -128,9 +128,9 @@
                     {{ sw_csrf(action) }}
                 {% endblock %}
 
-                {% if page.navigationId and page.cmsPage %}
+                {% if page.navigationId and page.entityName %}
                     <input type="hidden" name="navigationId" value="{{ page.navigationId }}"/>
-                    <input type="hidden" name="cmsPageType" value="{{ page.cmsPage.type }}"/>
+                    <input type="hidden" name="entityName" value="{{ page.entityName }}"/>
                 {% else %}
                     <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}"/>
                 {% endif %}

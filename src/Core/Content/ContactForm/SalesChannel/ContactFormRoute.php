@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\ContactForm\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -108,7 +110,7 @@ class ContactFormRoute extends AbstractContactFormRoute
      *              @OA\Property(property="comment", description="Message", type="string"),
      *              @OA\Property(property="navigationId", description="Navigation ID", type="string"),
      *              @OA\Property(property="slotId", description="CMS element ID", type="string"),
-     *              @OA\Property(property="cmsPageType", description="CMS page type", type="string"),
+     *              @OA\Property(property="entityName", description="Entity name for slot config", type="string"),
      *          )
      *      ),
      *      @OA\Response(
@@ -121,7 +123,7 @@ class ContactFormRoute extends AbstractContactFormRoute
     public function load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
     {
         $this->validateContactForm($data, $context);
-        $mailConfigs = $this->getMailConfigs($context, $data->get('slotId'), $data->get('navigationId'), $data->get('cmsPageType'));
+        $mailConfigs = $this->getMailConfigs($context, $data->get('slotId'), $data->get('navigationId'), $data->get('entityName'));
 
         $salutationCriteria = new Criteria([$data->get('salutationId')]);
         $salutationSearchResult = $this->salutationRepository->search($salutationCriteria, $context->getContext());
@@ -169,19 +171,19 @@ class ContactFormRoute extends AbstractContactFormRoute
         }
     }
 
-    private function getSlotConfig(string $slotId, string $navigationId, SalesChannelContext $context, ?string $cmsPageType = null): array
+    private function getSlotConfig(string $slotId, string $navigationId, SalesChannelContext $context, ?string $entityName = null): array
     {
         $mailConfigs['receivers'] = [];
         $mailConfigs['message'] = '';
 
         $criteria = new Criteria([$navigationId]);
 
-        switch ($cmsPageType) {
-            case 'product_detail':
+        switch ($entityName) {
+            case ProductDefinition::ENTITY_NAME:
                 $entity = $this->productRepository->search($criteria, $context->getContext())->first();
 
                 break;
-            case 'landingpage':
+            case LandingPageDefinition::ENTITY_NAME:
                 $entity = $this->landingPageRepository->search($criteria, $context->getContext())->first();
 
                 break;
@@ -203,7 +205,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         return $mailConfigs;
     }
 
-    private function getMailConfigs(SalesChannelContext $context, ?string $slotId = null, ?string $navigationId = null, ?string $cmsPageType = null): array
+    private function getMailConfigs(SalesChannelContext $context, ?string $slotId = null, ?string $navigationId = null, ?string $entityName = null): array
     {
         $mailConfigs['receivers'] = [];
         $mailConfigs['message'] = '';
@@ -213,7 +215,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         }
 
         if ($navigationId) {
-            $mailConfigs = $this->getSlotConfig($slotId, $navigationId, $context, $cmsPageType);
+            $mailConfigs = $this->getSlotConfig($slotId, $navigationId, $context, $entityName);
             if (!empty($mailConfigs['receivers'])) {
                 return $mailConfigs;
             }

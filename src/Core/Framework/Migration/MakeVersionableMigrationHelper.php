@@ -196,7 +196,9 @@ EOD;
         $pk = $this->schemaManager->listTableIndexes($tableName)['primary'];
 
         if (\count($pk->getColumns()) !== 1) {
-            throw new \RuntimeException('Tables with multi column primary keys not supported');
+            throw new \RuntimeException(
+                'Tables with multi column primary keys not supported. Maybe this migration did already run.'
+            );
         }
         $pkName = current($pk->getColumns());
 

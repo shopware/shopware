@@ -15,7 +15,7 @@ class Migration1615366708AddProductStreamMapping extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeStatement('
-            CREATE TABLE `product_stream_mapping` (
+            CREATE TABLE IF NOT EXISTS `product_stream_mapping` (
               `product_id` binary(16) NOT NULL,
               `product_version_id` binary(16) NOT NULL,
               `product_stream_id` binary(16) NOT NULL,

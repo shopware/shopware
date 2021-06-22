@@ -2,7 +2,6 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 import Iterator from 'src/helper/iterator.helper';
-import Feature from 'src/helper/feature.helper';
 
 /**
  * This plugin validates fields of a form.
@@ -140,15 +139,11 @@ export default class FormValidation extends Plugin {
 
         this.el.classList.add(this.options.styleCls);
 
-        if (!Feature.isActive('FEATURE_NEXT_12455')) {
-            this.$emitter.publish('onFormSubmit', { validity });
-        } else {
-            /**
-             * @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455) - onFormSubmit event will be removed, use beforeSubmit instead
-             */
-            this.$emitter.publish('onFormSubmit', { validity });
-            this.$emitter.publish('beforeSubmit', { validity });
-        }
+        /**
+         * @deprecated tag:v6.5.0- onFormSubmit event will be removed, use beforeSubmit instead
+         */
+        this.$emitter.publish('onFormSubmit', { validity });
+        this.$emitter.publish('beforeSubmit', { validity });
     }
 
     /**

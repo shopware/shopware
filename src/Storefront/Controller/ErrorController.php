@@ -114,9 +114,6 @@ class ErrorController extends StorefrontController
         return $response;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12455)
-     */
     public function onCaptchaFailure(
         ConstraintViolationList $violations,
         Request $request

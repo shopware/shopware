@@ -146,15 +146,6 @@
         <title>Security and Privacy</title>
         <title lang="de-DE">Sicherheit und Datenschutz</title>
 
-        <!-- @deprecated tag:v6.5.0 - The block "sw-settings-captcha-select" will be deleted and switch to use sw-settings-captcha-v2 -->
-        <component name="sw-settings-captcha-select">
-            <name>activeCaptchas</name>
-            <label>Active captchas</label>
-            <label lang="de-DE">Aktive Captchas</label>
-            <placeholder>None</placeholder>
-            <placeholder lang="de-DE">Keine</placeholder>
-        </component>
-
         <component name="sw-switch-field">
             <name>acceptAllCookies</name>
             <bordered>bordered</bordered>
@@ -202,10 +193,7 @@
             <label lang="de-DE">Aktive CAPTCHAS</label>
             <placeholder>None</placeholder>
             <placeholder lang="de-DE">Keine</placeholder>
-            <flag>FEATURE_NEXT_12455</flag>
         </component>
-
-        <flag>FEATURE_NEXT_12455</flag>
     </card>
 
 </config>

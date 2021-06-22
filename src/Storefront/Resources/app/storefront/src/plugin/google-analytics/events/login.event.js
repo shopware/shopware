@@ -1,5 +1,4 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
-import Feature from 'src/helper/feature.helper';
 
 export default class LoginEvent extends EventAwareAnalyticsEvent
 {
@@ -15,18 +14,12 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
     }
 
     getEvents() {
-        if (Feature.isActive('FEATURE_NEXT_12455')) {
-            return {
-                /**
-                 * @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455) - onFormSubmit event will be removed, use beforeSubmit instead
-                 */
-                'onFormSubmit': this._onFormSubmit.bind(this),
-                'beforeSubmit':  this._onFormSubmit.bind(this),
-            };
-        }
-
         return {
+            /**
+             * @deprecated tag:v6.5.0 - onFormSubmit event will be removed, use beforeSubmit instead
+             */
             'onFormSubmit': this._onFormSubmit.bind(this),
+            'beforeSubmit':  this._onFormSubmit.bind(this),
         };
     }
 

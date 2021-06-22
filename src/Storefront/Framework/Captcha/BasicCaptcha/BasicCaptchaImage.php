@@ -4,9 +4,6 @@ namespace Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @internal (flag:FEATURE_NEXT_12455)
- */
 class BasicCaptchaImage extends Struct
 {
     private string $code;

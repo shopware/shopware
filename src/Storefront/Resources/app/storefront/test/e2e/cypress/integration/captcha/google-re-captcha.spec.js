@@ -21,10 +21,6 @@ function setActiveCaptchas(value) {
 }
 
 describe('Captcha: Google ReCaptcha', () => {
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_12455');
-    });
-
     beforeEach(() => {
         cy.setCookie('_GRECAPTCHA', '1');
     });
@@ -204,38 +200,5 @@ describe('Captcha: Google ReCaptcha', () => {
             cy.get('.grecaptcha-protection-information').should('have.length', 1);
             cy.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google\nPrivacy Policy and\nTerms of Service apply.');
         })
-    });
-
-    it('@captcha: cookie consent manager offcanvas displays if cookie is not accepted', () => {
-        cy.clearCookie('_GRECAPTCHA');
-
-        setActiveCaptchas({
-            googleReCaptchaV2: {
-                name: 'googleReCaptchaV2',
-                isActive: true,
-                config: {
-                    siteKey: reCAPTCHA_TEST_SITEKEY,
-                    invisible: false
-                }
-            }
-        });
-
-        cy.visit('/account/login');
-
-        cy.window().then((win) => {
-            cy.get('.register-form .btn-primary').should('be.visible');
-            cy.get('.register-form .btn-primary').click();
-            cy.get('.offcanvas-cookie').should('be.visible');
-        });
-
-        cy.setCookie('_GRECAPTCHA', '1');
-
-        cy.visit('/account/login');
-
-        cy.window().then((win) => {
-            cy.get('.register-form .btn-primary').should('be.visible');
-            cy.get('.register-form .btn-primary').click();
-            cy.get('.offcanvas-cookie').should('be.not.visible');
-        });
     });
 });

@@ -102,7 +102,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             this.fields = fields;
         },
 
-        changeType({ type, parameters }) {
+        handleWrapForTypeNull(type, parameters) {
             if (type === null) {
                 if (this.condition.type === 'not') {
                     this.unwrapNot(this.condition, null);
@@ -113,20 +113,35 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 this.condition.type !== 'not'
             ) {
                 this.wrapInNot(this.condition, type, parameters);
-                return;
+                return false;
             }
 
             if (this.condition.type === 'not' &&
                 !this.conditionDataProviderService.isNegatedType(type)
             ) {
                 this.unwrapNot(this.condition, type, parameters);
-                return;
+                return false;
             }
 
-            // negation type stays the same
             this.actualCondition.type = type;
-            this.actualCondition.value = null;
-            this.actualCondition.parameters = parameters;
+
+            return true;
+        },
+
+        changeBooleanValue({ type, value }) {
+            this.handleWrapForTypeNull(type);
+            if (this.condition.type === 'not') {
+                this.condition.queries[0].value = '1';
+            }
+
+            this.condition.value = value;
+        },
+
+        changeType({ type, parameters }) {
+            if (this.handleWrapForTypeNull(type, parameters)) {
+                this.actualCondition.parameters = parameters;
+                this.actualCondition.value = null;
+            }
         },
 
         wrapInNot(condition, newType, parameters) {

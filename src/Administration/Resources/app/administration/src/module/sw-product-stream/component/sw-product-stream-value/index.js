@@ -312,8 +312,7 @@ Component.register('sw-product-stream-value', {
         },
 
         setBooleanValue(value) {
-            this.condition.value = value;
-            this.condition.type = 'equals';
+            this.$emit('boolean-change', { type: +value ? 'equals' : 'notEquals', value });
         },
 
         setSearchTerm(value) {

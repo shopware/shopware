@@ -26,6 +26,7 @@
                 v-bind="{ condition, ...lastField }"
                 :disabled="!acl.can('product_stream.editor')"
                 @type-change="changeType"
+                @boolean-change="changeBooleanValue"
             />
             {% endblock %}
         </div>

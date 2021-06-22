@@ -40,6 +40,12 @@ class CartMergedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $mainRequest->getSession()->getFlashBag()->add('info', $this->translator->trans('checkout.cart-merged-hint'));
+        $session = $mainRequest->getSession();
+
+        if (!method_exists($session, 'getFlashBag')) {
+            return;
+        }
+
+        $session->getFlashBag()->add('info', $this->translator->trans('checkout.cart-merged-hint'));
     }
 }

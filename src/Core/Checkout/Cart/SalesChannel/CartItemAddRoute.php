@@ -86,7 +86,8 @@ Example: [Working with the cart - Guide](https://developer.shopware.com/docs/gui
         if ($items === null) {
             $items = [];
 
-            foreach ($request->request->get('items', []) as $item) {
+            /** @var array $item */
+            foreach ($request->request->all('items') as $item) {
                 $items[] = $this->lineItemFactory->create($item, $context);
             }
         }

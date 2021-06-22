@@ -6,6 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Event\CartMergedSubscriber;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 class CartMergedSubscriberTest extends TestCase
 {
@@ -13,11 +17,17 @@ class CartMergedSubscriberTest extends TestCase
 
     public function testMergedHintIsAdded(): void
     {
-        $this->getContainer()->get(CartMergedSubscriber::class)->addCartMergedNoticeFlash($this->createMock(CartMergedEvent::class));
+        $session = new Session(new MockArraySessionStorage());
+        $request = new Request();
+        $request->setSession($session);
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
 
-        $flashBag = $this->getContainer()->get('session')->getFlashBag();
+        $subscriber = new CartMergedSubscriber($this->getContainer()->get('translator'), $requestStack);
 
-        static::assertNotEmpty($infoFlash = $flashBag->get('info'));
+        $subscriber->addCartMergedNoticeFlash($this->createMock(CartMergedEvent::class));
+
+        static::assertNotEmpty($infoFlash = $session->getFlashBag()->get('info'));
 
         static::assertEquals('checkout.cart-merged-hint', $infoFlash[0]);
     }

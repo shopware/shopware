@@ -44,8 +44,8 @@ class UserValidationController extends AbstractController
             throw new MissingRequestParameterException('id');
         }
 
-        $email = $request->request->get('email');
-        $id = $request->request->get('id');
+        $email = (string) $request->request->get('email');
+        $id = (string) $request->request->get('id');
 
         return new JsonResponse(
             ['emailIsUnique' => $this->userValidationService->checkEmailUnique($email, $id, $context)]
@@ -68,8 +68,8 @@ class UserValidationController extends AbstractController
             throw new MissingRequestParameterException('id');
         }
 
-        $username = $request->request->get('username');
-        $id = $request->request->get('id');
+        $username = (string) $request->request->get('username');
+        $id = (string) $request->request->get('id');
 
         return new JsonResponse(
             ['usernameIsUnique' => $this->userValidationService->checkUsernameUnique($username, $id, $context)]

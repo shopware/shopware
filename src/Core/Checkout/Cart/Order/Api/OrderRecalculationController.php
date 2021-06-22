@@ -96,17 +96,17 @@ class OrderRecalculationController extends AbstractController
      * */
     public function addCreditItemToOrder(string $orderId, Request $request, Context $context)
     {
-        $identifier = $request->request->get('identifier');
+        $identifier = (string) $request->request->get('identifier');
         $type = LineItem::CREDIT_LINE_ITEM_TYPE;
         $quantity = $request->request->getInt('quantity', 1);
 
         $lineItem = new LineItem($identifier, $type, null, $quantity);
-        $label = $request->request->get('label');
-        $description = $request->request->get('description');
-        $removeable = $request->request->get('removeable', true);
-        $stackable = $request->request->get('stackable', true);
-        $payload = $request->request->get('payload', []);
-        $priceDefinition = $request->request->get('priceDefinition');
+        $label = $request->request->has('label') ? (string) $request->request->get('label') : null;
+        $description = $request->request->has('description') ? (string) $request->request->get('description') : null;
+        $removeable = (bool) $request->request->get('removeable', true);
+        $stackable = (bool) $request->request->get('stackable', true);
+        $payload = $request->request->all('payload');
+        $priceDefinition = $request->request->all('priceDefinition');
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);
@@ -116,7 +116,7 @@ class OrderRecalculationController extends AbstractController
 
         $lineItem->setPriceDefinition(
             new AbsolutePriceDefinition(
-                $priceDefinition['price'],
+                (float) $priceDefinition['price'],
                 new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $type)
             )
         );
@@ -142,7 +142,7 @@ class OrderRecalculationController extends AbstractController
      */
     public function addCustomLineItemToOrder(string $orderId, Request $request, Context $context): Response
     {
-        $identifier = $request->request->get('identifier');
+        $identifier = (string) $request->request->get('identifier');
         $type = $request->request->get('type', LineItem::CUSTOM_LINE_ITEM_TYPE);
         $quantity = $request->request->getInt('quantity', 1);
 
@@ -175,12 +175,12 @@ class OrderRecalculationController extends AbstractController
      */
     private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
     {
-        $label = $request->request->get('label');
-        $description = $request->request->get('description');
-        $removeable = $request->request->get('removeable', true);
-        $stackable = $request->request->get('stackable', true);
-        $payload = $request->request->get('payload', []);
-        $priceDefinition = $request->request->get('priceDefinition');
+        $label = $request->request->has('label') ? (string) $request->request->get('label') : null;
+        $description = $request->request->has('description') ? (string) $request->request->get('description') : null;
+        $removeable = (bool) $request->request->get('removeable', true);
+        $stackable = (bool) $request->request->get('stackable', true);
+        $payload = $request->request->all('payload');
+        $priceDefinition = $request->request->all('priceDefinition');
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);

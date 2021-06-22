@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -45,6 +44,10 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
     public function testCsrfReplacement(): void
     {
+        $request = new Request();
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $this->getContainer()->get('request_stack')->push($request);
+
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
 
         $response = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
@@ -55,19 +58,11 @@ class CsrfPlaceholderHandlerTest extends TestCase
             $response->getContent()
         );
 
-        $response = $csrfPlaceholderHandler->replaceCsrfToken($response, new Request());
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($response, $request);
 
-        $expectedContent = file_get_contents(__DIR__ . '/fixtures/Storefront/Resources/views/csrfTest/csrfTestReplaced.html.twig');
-        $expectedContent = preg_replace(
-            ['/__token1__/', '/__token2__/', '/__token3__/'],
-            [$this->generateToken('token1'), $this->generateToken('token2'), $this->generateToken('token3')],
-            $expectedContent
-        );
-
-        static::assertEquals(
-            $expectedContent,
-            $response->getContent()
-        );
+        static::assertStringNotContainsString('__token1__', $response->getContent());
+        static::assertStringNotContainsString('__token2__', $response->getContent());
+        static::assertStringNotContainsString('__token3__', $response->getContent());
     }
 
     public function testReplaceWithCsrfDisabledShouldNotReplace(): void
@@ -120,16 +115,11 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
     private function createCsrfPlaceholderHandler(bool $csrfEnabled = true, string $csrfMode = 'twig')
     {
-        $stack = new RequestStack();
-        $request = new Request();
-        $request->setSession(new Session(new MockArraySessionStorage()));
-        $stack->push($request);
-
         return new CsrfPlaceholderHandler(
             $this->getContainer()->get('security.csrf.token_manager'),
             $csrfEnabled,
             $csrfMode,
-            $stack
+            $this->getContainer()->get('request_stack')
         );
     }
 

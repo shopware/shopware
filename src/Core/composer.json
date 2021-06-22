@@ -45,7 +45,7 @@
         "composer-runtime-api": "^2.0",
         "composer/composer": "~2.0.9",
         "composer/semver": "~3.2.4",
-        "doctrine/annotations": "1.11.1",
+        "doctrine/annotations": "1.13.1",
         "doctrine/dbal": "2.12.1",
         "doctrine/inflector": "~1.4.4",
         "dompdf/dompdf": "1.0.2",

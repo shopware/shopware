@@ -111,12 +111,15 @@ Note: If you choose a transition that is not available, you will get an error th
         Request $request,
         Context $context
     ): JsonResponse {
+        $documentIds = $request->request->all('documentIds');
+        $mediaIds = $request->request->all('mediaIds');
+
         $context->addExtension(
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('documentIds', []),
-                $request->request->get('mediaIds', [])
+                $documentIds,
+                $mediaIds
             )
         );
 
@@ -202,12 +205,15 @@ Note: If you choose a transition that is not available, you will get an error th
         Request $request,
         Context $context
     ): JsonResponse {
+        $documentIds = $request->request->all('documentIds');
+        $mediaIds = $request->request->all('mediaIds');
+
         $context->addExtension(
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('documentIds', []),
-                $request->request->get('mediaIds', [])
+                $documentIds,
+                $mediaIds
             )
         );
 
@@ -293,12 +299,15 @@ Note: If you choose a transition which is not possible, you will get an error th
         Request $request,
         Context $context
     ): JsonResponse {
+        $documentIds = $request->request->all('documentIds');
+        $mediaIds = $request->request->all('mediaIds');
+
         $context->addExtension(
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('documentIds', []),
-                $request->request->get('mediaIds', [])
+                $documentIds,
+                $mediaIds
             )
         );
 

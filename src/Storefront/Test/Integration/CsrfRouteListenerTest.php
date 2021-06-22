@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Kernel;
+use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +22,7 @@ class CsrfRouteListenerTest extends TestCase
 {
     use SalesChannelApiTestBehaviour;
     use BasicTestDataBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     /**
      * @var Kernel
@@ -66,12 +68,7 @@ class CsrfRouteListenerTest extends TestCase
 
     public function testPostRequestWithValidCsrfToken(): void
     {
-        $token = $this->getContainer()
-            ->get('security.csrf.token_manager')
-            ->getToken('frontend.account.newsletter')
-            ->getValue();
-
-        $this->client->request('POST', 'http://localhost/widgets/account/newsletter', ['_csrf_token' => $token]);
+        $this->client->request('POST', 'http://localhost/widgets/account/newsletter', $this->tokenize('frontend.account.newsletter', []));
         $statusCode = $this->client->getResponse()->getStatusCode();
 
         static::assertSame(Response::HTTP_FOUND, $statusCode);

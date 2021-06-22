@@ -60,7 +60,7 @@ class StoreApiProxyController
     private function setupStoreApiRequest(Request $request, SalesChannelContext $context): Request
     {
         $path = $request->query->get('path');
-        if ($path === null) {
+        if ($path === null || !\is_string($path)) {
             throw new MissingRequestParameterException('path');
         }
 

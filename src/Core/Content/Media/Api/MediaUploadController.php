@@ -147,8 +147,8 @@ To use file upload via url, the content type has to be `application/json` and th
      */
     public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
-        $destination = $request->request->get('fileName');
-        if ($destination === null) {
+        $destination = (string) $request->request->get('fileName');
+        if ($destination === '') {
             throw new EmptyMediaFilenameException();
         }
 
@@ -163,14 +163,14 @@ To use file upload via url, the content type has to be `application/json` and th
      */
     public function provideName(Request $request, Context $context): JsonResponse
     {
-        $fileName = $request->query->get('fileName');
-        $fileExtension = $request->query->get('extension');
-        $mediaId = $request->query->get('mediaId');
+        $fileName = (string) $request->query->get('fileName');
+        $fileExtension = (string) $request->query->get('extension');
+        $mediaId = $request->query->has('mediaId') ? (string) $request->query->get('mediaId') : null;
 
-        if ($fileName === null) {
+        if ($fileName === '') {
             throw new EmptyMediaFilenameException();
         }
-        if ($fileExtension === null) {
+        if ($fileExtension === '') {
             throw new MissingFileExtensionException();
         }
 

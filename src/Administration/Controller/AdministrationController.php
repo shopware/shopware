@@ -214,10 +214,10 @@ class AdministrationController extends AbstractController
             throw new \InvalidArgumentException('Parameter "email" is missing.');
         }
 
-        $email = $request->request->get('email');
-        $boundSalesChannelId = $request->request->get('bound_sales_channel_id');
+        $email = (string) $request->request->get('email');
+        $boundSalesChannelId = $request->request->has('bound_sales_channel_id') ? (string) $request->request->get('bound_sales_channel_id') : null;
 
-        if ($this->isEmailValid($request->request->get('id'), $email, $context, $boundSalesChannelId)) {
+        if ($this->isEmailValid((string) $request->request->get('id'), $email, $context, $boundSalesChannelId)) {
             return new JsonResponse(
                 ['isValid' => true]
             );

@@ -7,14 +7,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CsrfPlaceholderHandler
 {
     public const CSRF_PLACEHOLDER = '1b4dfebfc2584cf58b63c72c20d521d0';
 
-    private CsrfTokenManager $csrfTokenManager;
+    private CsrfTokenManagerInterface $csrfTokenManager;
 
     private bool $csrfEnabled;
 
@@ -45,6 +44,10 @@ class CsrfPlaceholderHandler
         }
 
         $content = $response->getContent();
+
+        if ($content === false) {
+            return $response;
+        }
 
         // Early return if the placeholder is not present in body to save cpu cycles with the regex
         if (!\str_contains($content, self::CSRF_PLACEHOLDER)) {

@@ -52,7 +52,7 @@ class ErrorController extends StorefrontController
             $is404StatusCode = $exception instanceof HttpException
                 && $exception->getStatusCode() === Response::HTTP_NOT_FOUND;
 
-            if (!$is404StatusCode && $session !== null && !$session->getFlashBag()->has('danger')) {
+            if (!$is404StatusCode && $session !== null && method_exists($session, 'getFlashBag') && !$session->getFlashBag()->has('danger')) {
                 $session->getFlashBag()->add('danger', $this->trans('error.message-default'));
             }
 
@@ -95,7 +95,7 @@ class ErrorController extends StorefrontController
         // After this controllers content is rendered (even if the flashbag was not used e.g. on a 404 page),
         // clear the existing flashbag messages
 
-        if ($session !== null) {
+        if ($session !== null && method_exists($session, 'getFlashBag')) {
             $session->getFlashBag()->clear();
         }
 

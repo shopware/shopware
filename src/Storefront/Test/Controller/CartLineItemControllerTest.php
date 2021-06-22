@@ -14,6 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\CartLineItemController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 class CartLineItemControllerTest extends TestCase
 {
@@ -81,7 +83,19 @@ class CartLineItemControllerTest extends TestCase
 
     private function getFlashBag(): FlashBagInterface
     {
-        return $this->getContainer()->get('session')->getFlashBag();
+        $request = $this->getContainer()->get('request_stack')->getMainRequest();
+        if ($request === null) {
+            $request = new Request();
+            $request->setSession(new Session(new MockArraySessionStorage()));
+
+            $this->getContainer()->get('request_stack')->push($request);
+        }
+
+        $session = $request->getSession();
+
+        \assert($session instanceof Session);
+
+        return $session->getFlashBag();
     }
 
     private function createProduct(string $productId, string $productNumber): void

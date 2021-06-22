@@ -181,8 +181,8 @@ class ApiController extends AbstractController
      */
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
-        $term = $request->query->get('term');
-        if ($term === null) {
+        $term = (string) $request->query->get('term');
+        if ($term === '') {
             throw new MissingRequestParameterException('term');
         }
         $limit = $request->query->getInt('limit', 5);
@@ -214,8 +214,8 @@ class ApiController extends AbstractController
     public function clone(Context $context, string $entity, string $id, Request $request): JsonResponse
     {
         $behavior = new CloneBehavior(
-            $request->request->get('overwrites', []),
-            $request->request->get('cloneChildren', true)
+            $request->request->all('overwrites'),
+            $request->request->getBoolean('cloneChildren', true)
         );
 
         $entity = $this->urlToSnakeCase($entity);
@@ -257,8 +257,8 @@ class ApiController extends AbstractController
     {
         $entity = $this->urlToSnakeCase($entity);
 
-        $versionId = $request->request->get('versionId');
-        $versionName = $request->request->get('versionName');
+        $versionId = $request->request->has('versionId') ? (string) $request->request->get('versionId') : null;
+        $versionName = $request->request->has('versionName') ? (string) $request->request->get('versionName') : null;
 
         if ($versionId !== null && !Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);

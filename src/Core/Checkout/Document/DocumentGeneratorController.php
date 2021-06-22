@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -110,8 +111,11 @@ class DocumentGeneratorController extends AbstractController
     public function createDocument(Request $request, string $orderId, string $documentTypeName, Context $context): JsonResponse
     {
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
-        $config = DocumentConfigurationFactory::createConfiguration($request->request->get('config', []));
-        $referencedDocumentId = $request->request->get('referenced_document_id', null);
+        $config = DocumentConfigurationFactory::createConfiguration($request->request->all('config'));
+        $referencedDocumentId = $request->request->get('referenced_document_id');
+        if ($referencedDocumentId !== null && !\is_string($referencedDocumentId)) {
+            throw new InvalidRequestParameterException('referenced_document_id');
+        }
 
         $documentIdStruct = $this->documentService->create(
             $orderId,
@@ -120,7 +124,7 @@ class DocumentGeneratorController extends AbstractController
             $config,
             $context,
             $referencedDocumentId,
-            $request->request->get('static', false)
+            (bool) $request->request->get('static', false)
         );
 
         return new JsonResponse(

@@ -36,7 +36,7 @@ class CountryStateController extends StorefrontController
      */
     public function getCountryData(Request $request, SalesChannelContext $context): Response
     {
-        $countryId = $request->request->get('countryId');
+        $countryId = (string) $request->request->get('countryId');
         $criteria = new Criteria([$countryId]);
         $criteria->addAssociation('states');
 

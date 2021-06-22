@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -87,16 +88,13 @@ class ImportExportActionController extends AbstractController
      */
     public function initiate(Request $request, Context $context): JsonResponse
     {
-        $params = $request->request->all();
-        $definition = new DataValidationDefinition();
-        $definition->add('profileId', new NotBlank(), new Type('string'));
-        $definition->add('expireDate', new NotBlank(), new Type('string'));
-        $this->dataValidator->validate($params, $definition);
+        $profileId = (string) $request->request->get('profileId');
+        $expireDate = (string) $request->request->get('expireDate');
 
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
-        $profile = $this->findProfile($context, $params['profileId']);
-        $expireDate = new \DateTimeImmutable($params['expireDate']);
+        $profile = $this->findProfile($context, $profileId);
+        $expireDate = new \DateTimeImmutable($expireDate);
 
         if ($file !== null) {
             $log = $this->importExportService->prepareImport(
@@ -104,7 +102,7 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 $file,
-                $params['config'] ?? []
+                $request->request->all('config')
             );
 
             unlink($file->getPathname());
@@ -114,7 +112,7 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 null,
-                $params['config'] ?? []
+                $request->request->all('config')
             );
         }
 
@@ -127,14 +125,8 @@ class ImportExportActionController extends AbstractController
      */
     public function process(Request $request, Context $context): JsonResponse
     {
-        $params = $request->request->all();
-        $definition = new DataValidationDefinition();
-        $definition->add('logId', new NotBlank(), new Type('string'));
-        $definition->add('offset', new NotBlank(), new Type('int'));
-        $this->dataValidator->validate($params, $definition);
-
-        $logId = mb_strtolower($params['logId']);
-        $offset = $params['offset'];
+        $logId = strtolower((string) $request->request->get('logId'));
+        $offset = $request->request->getInt('offset');
 
         $importExport = $this->importExportFactory->create($logId, 50, 50);
         $logEntity = $importExport->getLogEntity();
@@ -172,12 +164,13 @@ class ImportExportActionController extends AbstractController
      */
     public function cancel(Request $request, Context $context): Response
     {
-        $params = $request->request->all();
-        $definition = new DataValidationDefinition();
-        $definition->add('logId', new NotBlank(), new Type('string'));
-        $this->dataValidator->validate($params, $definition);
+        $logId = $request->request->get('logId');
 
-        $this->importExportService->cancel($context, $params['logId']);
+        if (!\is_string($logId)) {
+            throw new InvalidRequestParameterException('logId');
+        }
+
+        $this->importExportService->cancel($context, $logId);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

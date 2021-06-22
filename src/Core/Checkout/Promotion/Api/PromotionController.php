@@ -51,11 +51,11 @@ class PromotionController extends AbstractController
      */
     public function generateIndividualCodes(Request $request): Response
     {
-        $codePattern = $request->query->get('codePattern');
-        if ($codePattern === null) {
+        $codePattern = (string) $request->query->get('codePattern');
+        if ($codePattern === '') {
             throw new MissingRequestParameterException('codePattern');
         }
-        $amount = (int) $request->query->get('amount');
+        $amount = $request->query->getInt('amount');
 
         return new JsonResponse($this->codeService->generateIndividualCodes($codePattern, $amount));
     }
@@ -69,9 +69,9 @@ class PromotionController extends AbstractController
      */
     public function replaceIndividualCodes(Request $request, Context $context): Response
     {
-        $promotionId = $request->request->get('promotionId');
-        $codePattern = $request->request->get('codePattern');
-        $amount = $request->request->get('amount');
+        $promotionId = (string) $request->request->get('promotionId');
+        $codePattern = (string) $request->request->get('codePattern');
+        $amount = $request->request->getInt('amount');
 
         $this->codeService->replaceIndividualCodes($promotionId, $codePattern, $amount, $context);
 
@@ -87,7 +87,7 @@ class PromotionController extends AbstractController
      */
     public function addIndividualCodes(Request $request, Context $context): Response
     {
-        $promotionId = $request->request->get('promotionId');
+        $promotionId = (string) $request->request->get('promotionId');
         $amount = $request->request->getInt('amount');
 
         $this->codeService->addIndividualCodes($promotionId, $amount, $context);
@@ -104,8 +104,8 @@ class PromotionController extends AbstractController
      */
     public function getCodePreview(Request $request): Response
     {
-        $codePattern = $request->query->get('codePattern');
-        if ($codePattern === null) {
+        $codePattern = (string) $request->query->get('codePattern');
+        if ($codePattern === '') {
             throw new MissingRequestParameterException('codePattern');
         }
 

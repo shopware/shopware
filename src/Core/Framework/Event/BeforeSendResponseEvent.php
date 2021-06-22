@@ -11,9 +11,15 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class BeforeSendResponseEvent extends Event
 {
-    protected Request $request;
+    /**
+     * @var Request
+     */
+    protected $request;
 
-    protected Response $response;
+    /**
+     * @var Response
+     */
+    protected $response;
 
     public function __construct(Request $request, Response $response)
     {

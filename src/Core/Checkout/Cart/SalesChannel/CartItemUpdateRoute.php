@@ -78,7 +78,9 @@ Example: [Working with the cart - Guide](https://developer.shopware.com/docs/gui
      */
     public function change(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
-        $itemsToUpdate = $request->request->get('items', []);
+        $itemsToUpdate = $request->request->all('items');
+
+        /** @var array $item */
         foreach ($itemsToUpdate as $item) {
             $this->lineItemFactory->update($cart, $item, $context);
         }

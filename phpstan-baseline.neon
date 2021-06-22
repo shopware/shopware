@@ -3546,11 +3546,6 @@ parameters:
 			path: src/Core/System/StateMachine/Util/StateMachineGraphvizDumper.php
 
 		-
-			message: "#^Parameter \\#1 \\$salesChannelId of method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Api\\\\SystemConfigController\\:\\:saveKeyValues\\(\\) expects string\\|null, int\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Api/SystemConfigController.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Service\\\\ConfigurationService\\:\\:\\$bundles \\(array\\) does not accept iterable\\<Symfony\\\\Component\\\\HttpKernel\\\\Bundle\\\\BundleInterface\\>\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/Service/ConfigurationService.php
@@ -3824,11 +3819,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheWarmer\\:\\:handle\\(\\) has parameter \\$message with no typehint specified\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheWarmer/CacheWarmer.php
-
-		-
-			message: "#^Parameter \\#3 \\$subject of function preg_replace_callback expects array\\|string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Csrf/CsrfPlaceholderHandler.php
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"

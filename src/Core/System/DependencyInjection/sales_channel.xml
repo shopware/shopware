@@ -176,5 +176,16 @@
             <tag name="shopware.entity_indexer"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.sales_channel_context.expire_days%</argument>
+            <tag name="messenger.message_handler"/>
+        </service>
+
     </services>
 </container>

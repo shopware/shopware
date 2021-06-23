@@ -168,8 +168,18 @@ Component.register('sw-settings-listing-option-base', {
             }
 
             this.productSortingEntity.fields.push(newCriteria);
+        },
 
-            this.saveProductSorting();
+        onCancelEditCriteria(item) {
+            if (this.getProductSortingEntityId()) {
+                this.fetchProductSortingEntity();
+
+                return;
+            }
+
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(currentCriteria => {
+                return currentCriteria.field !== item.field;
+            });
         },
 
         isCriteriaACustomField(technicalName) {

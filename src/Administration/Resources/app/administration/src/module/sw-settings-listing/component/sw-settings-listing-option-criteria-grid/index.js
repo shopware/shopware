@@ -260,9 +260,11 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 this.$emit('criteria-add', fieldName);
 
                 const record = this.productSortingEntity.fields.find(field => field.field === fieldName);
-                if (record && this.$refs.dataGrid) {
-                    this.$refs.dataGrid.onDbClickCell(record);
-                }
+                this.$nextTick().then(() => {
+                    if (record && this.$refs.dataGrid) {
+                        this.$refs.dataGrid.onDbClickCell(record);
+                    }
+                });
 
                 return;
             }
@@ -325,6 +327,8 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         onCancelInlineEdit(item) {
             if (item && item.field === 'customField') {
                 this.filterEmptyCustomFields(item);
+            } else {
+                this.$emit('inline-edit-cancel', item);
             }
         },
 
@@ -404,6 +408,8 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             customField.field = `customFields.${field.name}`;
 
             await this.fetchCustomFields();
+
+            this.onSaveInlineEdit(customField.field);
         },
 
         getProductSortingFieldsByName(customField = null) {

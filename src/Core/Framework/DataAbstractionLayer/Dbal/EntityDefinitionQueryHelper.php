@@ -356,15 +356,7 @@ class EntityDefinitionQueryHelper
 
         $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
 
-        $alias = $root . '.' . $translationDefinition->getEntityName();
-        $query->addSelect(self::escape($alias) . '.*');
-
-        if ($inherited) {
-            $alias = $root . '.' . $translationDefinition->getEntityName() . '.parent';
-            $query->addSelect(self::escape($alias) . '.*');
-        }
-
-        $chain = self::buildTranslationChain($root, $context, $inherited);
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
 
         /** @var TranslatedField $field */
         foreach ($fields as $field) {
@@ -378,6 +370,12 @@ class EntityDefinitionQueryHelper
                     '#root#' => $select,
                     '#field#' => $field->getPropertyName(),
                 ];
+
+                $query->addSelect(str_replace(
+                    array_keys($vars),
+                    array_values($vars),
+                    EntityDefinitionQueryHelper::escape('#root#.#field#')
+                ));
 
                 $selects[] = str_replace(
                     array_keys($vars),

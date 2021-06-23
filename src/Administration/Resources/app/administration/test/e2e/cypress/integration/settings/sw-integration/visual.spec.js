@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Integration: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -8,8 +8,8 @@ describe('Integration: Visual testing', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createDefaultFixture('integration');
-            })
+                return cy.createDefaultFixture('integration', { admin: true });
+            });
     });
 
     beforeEach(() => {
@@ -18,7 +18,7 @@ describe('Integration: Visual testing', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createDefaultFixture('integration');
+                return cy.createDefaultFixture('integration', { admin: true });
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

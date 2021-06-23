@@ -526,4 +526,77 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             .toBe('The download of the extension is not allowed, please purchase a corresponding license or contact the customer service');
         expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal p > a').text()).toBe('https://docs.shopware.com/en/shopware-6-en');
     });
+
+    describe('test display of rent and trail phase information', () => {
+        const testCases = {
+            'should display when a rent will expire': {
+                storeLicense: {
+                    variant: 'rent',
+                    expirationDate: '2021-06-08T00:00:00+02:00',
+                    expired: false
+                },
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt'
+            },
+            'should display when a rent is already expired': {
+                storeLicense: {
+                    variant: 'rent',
+                    expirationDate: '2021-06-08T00:00:00+02:00',
+                    expired: true
+                },
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
+                expectedIcon: 'default-badge-warning'
+            },
+            'should display when a test phase will expire': {
+                storeLicense: {
+                    variant: 'test',
+                    expirationDate: '2021-06-08T00:00:00+02:00',
+                    expired: false
+                },
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt'
+            },
+            'should display when a test phase is already expired': {
+                storeLicense: {
+                    variant: 'test',
+                    expirationDate: '2021-06-08T00:00:00+02:00',
+                    expired: true
+                },
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
+                expectedIcon: 'default-badge-alert'
+            }
+        };
+
+        Object.entries(testCases).forEach(([testCaseName, testData]) => {
+            it(testCaseName, () => {
+                wrapper = createWrapper({
+                    id: 555,
+                    name: 'Test extension',
+                    label: 'Test extension label',
+                    shortDescription: 'Test extension description',
+                    languages: [],
+                    rating: null,
+                    numberOfRatings: 0,
+                    installedAt: null,
+                    storeLicense: testData.storeLicense,
+                    storeExtension: null,
+                    permissions: {},
+                    images: [],
+                    icon: null,
+                    iconRaw: null,
+                    active: false,
+                    source: 'store',
+                    type: 'app'
+                });
+
+                // Ensure the correct message is rendered
+                expect(wrapper.get('.sw-extension-card-bought__info-subscription-expiry').text()).toBe(testData.expectedTextSnippet);
+
+                // Ensure the correct icon is rendered
+                if (testData.expectedIcon) {
+                    expect(wrapper.find('.sw-extension-card-bought__info-subscription-expiry sw-icon-stub').attributes().name).toBe(testData.expectedIcon);
+                } else {
+                    expect(wrapper.find('.sw-extension-card-bought__info-subscription-expiry sw-icon-stub').exists()).toBe(false);
+                }
+            });
+        });
+    });
 });

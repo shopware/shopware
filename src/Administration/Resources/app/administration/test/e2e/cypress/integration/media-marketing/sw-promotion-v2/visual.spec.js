@@ -42,6 +42,10 @@ describe('Promotion v2: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/search/promotion`,
             method: 'post'
         }).as('getData');
+        cy.route({
+            url: '/widgets/checkout/info',
+            method: 'get'
+        }).as('cartInfo');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/promotion/v2/index',
@@ -112,6 +116,25 @@ describe('Promotion v2: Visual tests', () => {
         cy.visit('/');
         cy.get('.product-box').should('be.visible');
         cy.get('.btn-buy').click();
+
+        cy.get('.offcanvas').should('be.visible');
+        cy.wait('@cartInfo').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.loader').should('not.exist');
+
+        cy.changeElementStyling(
+            '.header-search',
+            'visibility: hidden'
+        );
+        cy.get('.header-search')
+            .should('have.css', 'visibility', 'hidden');
+        cy.changeElementStyling(
+            '#accountWidget',
+            'visibility: hidden'
+        );
+        cy.get('#accountWidget')
+            .should('have.css', 'visibility', 'hidden');
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas.is-open');

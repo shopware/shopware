@@ -115,8 +115,15 @@ describe('Customer:  Visual test', () => {
     });
 
 
-    it.only('@visual: check appearance of customer address workflow', () => {
+    it('@visual: check appearance of customer address workflow', () => {
         const page = new CustomerPageObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/country`,
+            method: 'post'
+        }).as('getCountries');
 
         // Open customer
         cy.clickContextMenuItem(
@@ -139,9 +146,14 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
 
+        cy.get('.sw-modal').should('be.visible');
+        cy.wait('@getCountries').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         // Take snapshot for visual testing
         cy.contains('.sw-modal__header', 'Address').should('be.visible');
-        cy.takeSnapshot('[Customer] Detail, address modal', '.sw-modal');
+        cy.takeSnapshot('[Customer] Detail, address modal', '#sw-field--address-company');
     });
 
     it('@visual: check appearance of customer edit workflow', () => {

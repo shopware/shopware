@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -50,7 +50,7 @@ describe('Promotion: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.takeSnapshot('Promotion listing', '.sw-promotion-list');
+        cy.takeSnapshot('[Promotion] listing', '.sw-promotion-list');
 
         cy.get('a[href="#/sw/promotion/create"]').click();
 
@@ -68,7 +68,7 @@ describe('Promotion: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('Promotion detail', '.sw-promotion-detail');
+        cy.takeSnapshot('[Promotion] detail', '.sw-promotion-detail');
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -97,7 +97,7 @@ describe('Promotion: Visual tests', () => {
         cy.get('#sw-field--discount-type').select('Fixed item price');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Promotion detail - discounts', '.sw-promotion-discount-component');
+        cy.takeSnapshot('[Promotion] detail - discounts', '.sw-promotion-discount-component');
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
@@ -111,6 +111,6 @@ describe('Promotion: Visual tests', () => {
         cy.get('.btn-buy').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Promotion in Storefront checkout', '.offcanvas.is-open');
+        cy.takeSnapshot('[Promotion] In Storefront checkout', '.offcanvas.is-open');
     });
 });

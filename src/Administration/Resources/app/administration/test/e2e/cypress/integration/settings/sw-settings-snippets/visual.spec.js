@@ -41,6 +41,8 @@ describe('Snippets: Visual testing', () => {
             '.sw-settings-snippet-set-file__column-changed-at .sw-grid__cell-content div',
             'color: #fff'
         );
+        cy.get('.sw-settings-snippet-set-file__column-changed-at .sw-grid__cell-content div')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
 
         cy.takeSnapshot('[Snippets] Listing of snippet sets',
             '.sw-settings-snippet-set-list');

@@ -32,7 +32,7 @@ describe('Checkout: Visual tests', () => {
         }).as('cartInfo');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot('Checkout - Search product',
+        cy.takeSnapshot('[Checkout] Search product',
             '.header-search-input',
             { widths: [375, 1920] });
 
@@ -43,7 +43,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.search-suggest-product-name').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Checkout - See product',
+        cy.takeSnapshot('[Checkout] See product',
             '.product-detail-buy',
             { widths: [375, 1920] });
 
@@ -51,10 +51,10 @@ describe('Checkout: Visual tests', () => {
 
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
-        cy.get('.loader').should('not.exist');
         cy.wait('@cartInfo').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.loader').should('not.exist');
 
         // Take snapshot for visual testing on desktop
         cy.contains('.header-cart-total', '64').should('exist');
@@ -65,12 +65,16 @@ describe('Checkout: Visual tests', () => {
             '.header-search',
             'visibility: hidden'
         );
+        cy.get('.header-search')
+            .should('have.css', 'visibility', 'hidden');
         cy.changeElementStyling(
             '#accountWidget',
             'visibility: hidden'
         );
+        cy.get('#accountWidget')
+            .should('have.css', 'visibility', 'hidden');
 
-        cy.takeSnapshot('Checkout - Offcanvas',
+        cy.takeSnapshot('[Checkout] Offcanvas',
             `${page.elements.offCanvasCart}.is-open`,
             { widths: [375, 1920] });
 

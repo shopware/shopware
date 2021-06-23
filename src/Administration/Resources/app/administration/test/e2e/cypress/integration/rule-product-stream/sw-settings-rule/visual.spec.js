@@ -39,6 +39,8 @@ describe('Rule builder: Visual tests', () => {
             '.sw-data-grid__cell--updatedAt',
             'color: #fff'
         );
+        cy.get('.sw-data-grid__cell--updatedAt')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
 
         // Take snapshot for visual testing
         cy.get(page.elements.loader).should('not.exist');

@@ -50,7 +50,8 @@ describe('Integration: Visual testing', () => {
         cy.takeSnapshot('[Integration] Listing', '.sw-integration-list__overview');
 
         cy.contains('.sw-data-grid__cell-content a', 'chat-key').click();
+        cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Integration] Detail', '.sw-integration-list__detail');
+        cy.takeSnapshot('[Integration] Detail', '#sw-field--currentIntegration-label');
     });
 });

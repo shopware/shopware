@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Custom fields: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -46,6 +46,13 @@ describe('Custom fields: Visual testing', () => {
         cy.takeSnapshot('[Custom fields] Detail', '.sw-custom-field-list__grid');
 
         cy.contains('.sw-custom-field-list__custom-field-label', 'custom_field_set_property').click();
-        cy.takeSnapshot('[Custom fields] Detail, Field modal', '.sw-custom-field-detail');
+
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-modal').should('be.visible');
+
+        cy.contains('.sw-modal__header', 'Edit custom field').should('be.visible');
+        cy.takeSnapshot('[Custom fields] Detail, Field modal', '#sw-field--currentCustomField-config-customFieldType');
     });
 });

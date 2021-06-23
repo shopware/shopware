@@ -41,6 +41,10 @@ describe('Property: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('getData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/media-default-folder`,
+            method: 'post'
+        }).as('getMediaFolder');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/property/index',
@@ -57,6 +61,9 @@ describe('Property: Visual tests', () => {
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--options', 'color: #fff');
+
+        cy.get('.sw-data-grid__cell--options')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
         cy.takeSnapshot('[Property] Listing', '.sw-property-list');
 
         // Add option to property group
@@ -77,8 +84,12 @@ describe('Property: Visual tests', () => {
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
 
+        cy.get('.sw-modal').should('be.visible');
+        cy.wait('@getMediaFolder').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         // Take snapshot for visual testing
         cy.contains('.sw-modal__header', 'New value').should('be.visible');
-        cy.takeSnapshot('[Property] Detail, Option modal', '.sw-modal');
+        cy.takeSnapshot('[Property] Detail, Option modal', '#sw-field--currentOption-name');
     });
 });

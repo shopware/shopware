@@ -21,10 +21,18 @@ Component.register('sw-app-action-button', {
             return this.action.label[currentLocale] || this.action.label[fallbackLocale] || '';
         },
 
+        /**
+         * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - The method "openInNewTab" will be removed because
+         * every action button route will be a post
+         */
         openInNewTab() {
             return !!this.action.openNewTab;
         },
 
+        /**
+         * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - The method "linkData" will be removed because
+         * every action button route will be a post
+         */
         linkData() {
             if (this.openInNewTab) {
                 return {
@@ -39,6 +47,10 @@ Component.register('sw-app-action-button', {
 
     methods: {
         runAction() {
+            /**
+             * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed because
+             * every action button route will be a post
+             */
             if (this.openInNewTab) {
                 return;
             }

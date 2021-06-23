@@ -69,7 +69,8 @@ class AppActionLoader
             $actionButton->getAction(),
             $ids,
             $secret,
-            $shopId
+            $shopId,
+            $actionId
         );
     }
 }

@@ -38,6 +38,11 @@ class ActionButtonDefinition extends EntityDefinition
         return ActionButtonEntity::class;
     }
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
+     */
     public function getDefaults(): array
     {
         return ['openNewTab' => false];
@@ -56,6 +61,11 @@ class ActionButtonDefinition extends EntityDefinition
             (new StringField('view', 'view'))->addFlags(new Required()),
             (new StringField('url', 'url'))->addFlags(new Required()),
             (new StringField('action', 'action'))->addFlags(new Required()),
+            /*
+             * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - openNewTab field will be remove on version 6.5.0.
+             * It will no longer be used in the manifest.xml file
+             * and will be processed in the Executor with an OpenNewTabResponse response instead.
+             */
             (new BoolField('open_new_tab', 'openNewTab'))->addFlags(new Required()),
             new TranslatedField('label'),
             (new TranslationsAssociationField(ActionButtonTranslationDefinition::class, 'app_action_button_id'))->addFlags(new Required()),

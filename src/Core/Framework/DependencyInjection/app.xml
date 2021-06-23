@@ -222,10 +222,14 @@
             <argument type="service" id="app_action_button.repository"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory">
+        </service>
+
         <service id="Shopware\Core\Framework\App\ActionButton\Executor">
             <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="logger"/>
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\AppActionLoader">

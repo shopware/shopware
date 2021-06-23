@@ -52,6 +52,11 @@ class ActionButtonLoader
                 'label' => $this->mapTranslatedLabels($button),
                 'action' => $button->getAction(),
                 'url' => $button->getUrl(),
+                /*
+                 * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "openNewTab" key will be removed.
+                 * It will no longer be used in the manifest.xml file
+                 * and will be processed in the Executor with an OpenNewTabResponse response instead.
+                 */
                 'openNewTab' => $button->isOpenNewTab(),
                 'icon' => $button->getApp()->getIcon(),
             ];

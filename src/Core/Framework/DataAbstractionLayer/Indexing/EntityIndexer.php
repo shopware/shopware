@@ -3,7 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @deprecated tag:v6.5.0 - getDecorated, getTotal will be abstract with 6.5.0 and has to be implemented in all implementations
+ */
 abstract class EntityIndexer
 {
     /**
@@ -33,4 +37,20 @@ abstract class EntityIndexer
      * of the `self::iterate` or `self::update` functions.
      */
     abstract public function handle(EntityIndexingMessage $message): void;
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be abstract with 6.5.0 and has to be implemented in all implementations
+     */
+    public function getTotal(): int
+    {
+        return 1;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be abstract with 6.5.0 and has to be implemented in all implementations
+     */
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
+    }
 }

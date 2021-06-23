@@ -1887,7 +1887,7 @@ parameters:
 
 		-
 			message: "#^Cannot call method getFields\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"
-			count: 3
+			count: 2
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
 
 		-
@@ -1902,11 +1902,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getStorageName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
-
-		-
-			message: "#^Cannot call method getClass\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
 
@@ -1927,11 +1922,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:createClass\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
 
@@ -2584,21 +2574,6 @@ parameters:
 			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/MediaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductGenerator\\:\\:getTaxes\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductGenerator\\:\\:getProperties\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductGenerator\\:\\:buildVisibilities\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\CompilerPass\\\\ActionEventCompilerPass\\:\\:getReflectionClass\\(\\) return type with generic class ReflectionClass does not specify its types\\: T$#"

@@ -42,6 +42,11 @@ class ProductPriceDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductPriceHydrator::class;
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return ProductDefinition::class;

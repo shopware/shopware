@@ -62,6 +62,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
                 ],
             ],
             'navigationCategoryId' => $this->getRootCategoryId(),
+            'navigationCategoryDepth' => 3,
             'name' => $input->getOption('name') ?? 'Storefront',
         ];
     }

@@ -1,0 +1,92 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Content\Category\CategoryHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ProductHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductStream\ProductStreamHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\ProductExportHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Property\PropertyGroupHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+    </services>
+</container>

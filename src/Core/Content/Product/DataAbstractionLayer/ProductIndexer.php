@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -91,7 +93,7 @@ class ProductIndexer extends EntityIndexer
      */
     public function iterate(/*?array */$offset): ?EntityIndexingMessage
     {
-        $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
+        $iterator = $this->getIterator($offset);
 
         $ids = $iterator->fetch();
 
@@ -115,6 +117,16 @@ class ProductIndexer extends EntityIndexer
         $this->stockUpdater->update($updates, $event->getContext());
 
         return new ProductIndexingMessage(array_values($updates), null, $event->getContext());
+    }
+
+    public function getTotal(): int
+    {
+        return $this->getIterator(null)->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -190,5 +202,10 @@ class ProductIndexer extends EntityIndexer
         );
 
         return array_unique(array_filter(array_column($parentIds, 'id')));
+    }
+
+    private function getIterator(?array $offset): IterableQuery
+    {
+        return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
     }
 }

@@ -46,6 +46,11 @@ class ProductManufacturerDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductManufacturerHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

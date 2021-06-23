@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -101,7 +102,8 @@ class PriceFieldSerializer extends AbstractFieldSerializer
             $value = json_decode($value, true);
         }
 
-        $prices = [];
+        $collection = EntityHydrator::createClass(PriceCollection::class);
+
         foreach ($value as $row) {
             $price = clone $this->blueprint;
             $price->setCurrencyId($row['currencyId']);
@@ -120,10 +122,10 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                 $price->setListPrice($listPrice);
             }
 
-            $prices[] = $price;
+            $collection->add($price);
         }
 
-        return new PriceCollection($prices);
+        return $collection;
     }
 
     protected function getConstraints(Field $field): array

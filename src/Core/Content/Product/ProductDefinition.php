@@ -110,6 +110,11 @@ class ProductDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([

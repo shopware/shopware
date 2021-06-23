@@ -24,6 +24,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateHydratorCommand">
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true" />
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper">
@@ -31,7 +37,9 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder" public="true"/>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator" public="true"/>
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -202,7 +210,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
-
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
@@ -535,6 +542,7 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry" public="true">
             <argument type="tagged" tag="shopware.entity_indexer"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="event_dispatcher"/>
             <tag name="messenger.message_handler" />
             <tag name="kernel.event_subscriber" />
         </service>

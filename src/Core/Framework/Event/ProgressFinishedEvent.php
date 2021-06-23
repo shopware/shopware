@@ -6,7 +6,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class ProgressFinishedEvent extends Event
 {
-    public const NAME = 'indexing.progress.finished';
+    public const NAME = self::class;
 
     /**
      * @var string

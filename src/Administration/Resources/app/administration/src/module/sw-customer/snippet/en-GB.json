@@ -8,7 +8,7 @@
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add customer",
       "descriptionTextModule": "Manage customers here.",
-      "placeholderSearchBar": "Search customers",
+      "placeholderSearchBar": "Search customers...",
       "newCustomer": "New Customer",
       "tooltipLanguageSwitch": "Language selection deactivated, since there are no translatable fields."
     },

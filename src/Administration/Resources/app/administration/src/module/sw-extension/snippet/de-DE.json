@@ -550,7 +550,7 @@
       "title": "Einstellungen",
       "entities": {
         "country": "Land",
-        "country_state": "Bundesland",
+        "country_state": "Land/Region",
         "currency": "Währung",
         "delivery_time": "Lieferzeit",
         "language": "Sprache",

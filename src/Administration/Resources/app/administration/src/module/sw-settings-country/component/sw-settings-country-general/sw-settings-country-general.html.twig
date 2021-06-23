@@ -57,14 +57,13 @@
         :title="$tc('sw-settings-country.detail.titleOptions')"
         :is-loading="isLoading"
     >
-        <sw-container
-            columns="repeat(1, minmax(300px, 350px))"
-            gap="0px 0px"
-        >
+        <sw-container class="sw-settings-country-general__options-container">
+
             {% block sw_settings_country_general_content_field_active %}
             <sw-switch-field
                 v-model="country.active"
                 class="sw-settings-country-general__option-items"
+                bordered
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelActive')"
             />
@@ -74,6 +73,7 @@
             <sw-switch-field
                 v-model="country.shippingAvailable"
                 class="sw-settings-country-general__option-items"
+                bordered
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelShippingAvailable')"
             />
@@ -83,6 +83,7 @@
             <sw-switch-field
                 v-model="country.customerTax.enabled"
                 class="sw-settings-country-general__option-items switch-field-customer-tax-free"
+                bordered
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelTaxFree')"
             />
@@ -94,7 +95,6 @@
             >
 
                 {% block sw_settings_country_general_content_field_tax_free_from_customer %}
-
                 {% block sw_settings_country_general_content_field_tax_free_from_customer_value %}
                 <sw-number-field
                     v-model="country.customerTax.amount"
@@ -107,15 +107,14 @@
                     <template #suffix>
                         <sw-entity-single-select
                             v-model="country.customerTax.currencyId"
+                            class="sw-settings-country-general__customer-select-currency sw-settings-country-general__select"
                             entity="currency"
-                            class="sw-settings-country-general__customer-select-currency
-                            sw-settings-country-general__select"
+                            bordered
                             :disabled="!acl.can('country.editor')"
                         />
                     </template>
                 </sw-number-field>
                 {% endblock %}
-
                 {% endblock %}
 
                 {% block sw_settings_country_general_content_show_tax_free_currency_dependent_values %}
@@ -142,6 +141,7 @@
             <sw-switch-field
                 v-model="country.companyTax.enabled"
                 class="sw-settings-country-general__option-items switch-field-company-tax-free"
+                bordered
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelCompanyTaxFree')"
             />
@@ -153,7 +153,6 @@
             >
 
                 {% block sw_settings_country_general_content_field_tax_free_from_companies %}
-
                 {% block sw_settings_country_general_content_field_tax_free_from_companies_value %}
                 <sw-number-field
                     v-model="country.companyTax.amount"
@@ -166,15 +165,13 @@
                     <template #suffix>
                         <sw-entity-single-select
                             v-model="country.companyTax.currencyId"
+                            class="sw-settings-country-general__company-select-currency sw-settings-country-general__select"
                             entity="currency"
-                            class="sw-settings-country-general__company-select-currency
-                            sw-settings-country-general__select"
                             :disabled="!acl.can('country.editor')"
                         />
                     </template>
                 </sw-number-field>
                 {% endblock %}
-
                 {% endblock %}
 
                 {% block sw_settings_country_general_content_show_company_tax_free_currency_dependent_values %}
@@ -215,8 +212,8 @@
             {% block sw_settings_country_general_content_field_check_vat_id_format %}
             <sw-switch-field
                 v-model="country.checkVatIdPattern"
-                class="sw-settings-country-general__field-check-vatid-format
-                sw-settings-country-general__option-items"
+                class="sw-settings-country-general__field-check-vatid-format sw-settings-country-general__option-items"
+                bordered
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelCheckVatIdFormat')"
                 :help-text="$tc('sw-settings-country.detail.helpTextCheckVatIdFormat')"
@@ -227,10 +224,11 @@
             <sw-switch-field
                 v-if="feature.isActive('FEATURE_NEXT_14114')"
                 v-model="country.vatIdRequired"
-                class="sw-settings-country-general__vat-id-required
-                sw-settings-country-general__option-items"
+                class="sw-settings-country-general__vat-id-required sw-settings-country-general__option-items"
+                bordered
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelVatIdRequired')"
+                :help-text="$tc('sw-settings-country.detail.helpTextLabelVatIdRequired')"
             />
             {% endblock %}
 
@@ -238,11 +236,11 @@
             <sw-switch-field
                 v-model="country.forceStateInRegistration"
                 class="sw-settings-country-general__option-items"
+                bordered
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
             />
             {% endblock %}
-
         </sw-container>
     </sw-card>
     {% endblock %}

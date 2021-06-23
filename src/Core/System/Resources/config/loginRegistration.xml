@@ -73,7 +73,7 @@
         <input-field type="bool">
             <name>phoneNumberFieldRequired</name>
             <label>Phone number field required</label>
-            <label lang="de-DE">Telefonnummer als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Telefonnummer ist Pflichtfeld</label>
         </input-field>
 
         <input-field type="bool">
@@ -85,7 +85,7 @@
         <input-field type="bool">
             <name>birthdayFieldRequired</name>
             <label>Birthday field required</label>
-            <label lang="de-DE">Geburtstag als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Geburtstag ist Pflichtfeld</label>
         </input-field>
 
         <input-field type="bool">
@@ -103,7 +103,7 @@
         <input-field type="bool">
             <name>additionalAddressField1Required</name>
             <label>Additional address 1 field required</label>
-            <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Adresszusatzzeile 1 ist Pflichtfeld</label>
         </input-field>
 
         <input-field type="bool">
@@ -115,7 +115,7 @@
         <input-field type="bool">
             <name>additionalAddressField2Required</name>
             <label>Additional address 2 field required</label>
-            <label lang="de-DE">Adresszusatzzeile 2 als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Adresszusatzzeile 2 ist Pflichtfeld</label>
         </input-field>
 
         <input-field type="bool">
@@ -129,7 +129,7 @@
         <input-field type="bool">
             <name>allowCustomerDeletion</name>
             <label>Allow customer deletion</label>
-            <label lang="de-DE">Löschen des Kunden zulassen</label>
+            <label lang="de-DE">Löschen von Kunden zulassen</label>
         </input-field>
 
         <input-field type="bool">
@@ -142,7 +142,9 @@
         <input-field type="bool">
             <name>vatIdFieldRequired</name>
             <label>VAT Reg.No. required</label>
-            <label lang="de-DE">Umsatzsteuer-ID als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Umsatzsteuer-ID ist Pflichtfeld</label>
+            <helpText>Please keep in mind there are similar switches for every individual country. (Settings > Countries).</helpText>
+            <helpText lang="de-DE">Bitte beachte, dass es die gleichen Schalter auch für jedes individuelle Land gibt.(Einstellungen > Länder).</helpText>
         </input-field>
 
         <input-field type="text">

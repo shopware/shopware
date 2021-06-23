@@ -20,6 +20,7 @@ use PhpCsFixer\Fixer\Phpdoc\PhpdocIndentFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocLineSpanFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocOrderFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer;
+use PhpCsFixer\Fixer\Phpdoc\PhpdocTrimConsecutiveBlankLineSeparationFixer;
 use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitConstructFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertFixer;
@@ -122,6 +123,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         // skip php files in node modules (stylelint ships both js and php)
         '**/node_modules',
         // would otherwise destroy markdown in the description of a route annotation, since markdown interpreted spaces/indents
-        PhpdocIndentFixer::class => null
+        PhpdocIndentFixer::class => [
+            'src/**/*Controller.php',
+            'src/**/*Route.php'
+        ],
+        // would otherwise remove lines in the description of route annotations
+        PhpdocTrimConsecutiveBlankLineSeparationFixer::class => [
+            'src/**/*Controller.php',
+            'src/**/*Route.php'
+        ],
     ]);
 };

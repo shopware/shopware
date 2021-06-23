@@ -181,11 +181,11 @@ See the Guide ""Register a customer"" for more information on customer registrat
      *                  description="URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel."),
      *              @OA\Property(
      *                  property="billingAddress",
-     *                  ref="#/components/schemas/customer_address_flat",
+     *                  ref="#/components/schemas/CustomerAddress",
      *                  description="Billing address of the customer. Values will be reused for shipping address if not provided explicitly."),
      *              @OA\Property(
      *                  property="shippingAddress",
-     *                  ref="#/components/schemas/customer_address_flat",
+     *                  ref="#/components/schemas/CustomerAddress",
      *                  description="Shipping address of the customer. If not set, billing address will be used."),
      *              @OA\Property(
      *                  property="accountType",
@@ -226,7 +226,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
      *      @OA\Response(
      *          response="200",
      *          description="Success",
-     *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/Customer")
      *     )
      * )
      * @Route("/store-api/account/register", name="store-api.account.register", methods={"POST"})

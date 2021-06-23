@@ -34,7 +34,7 @@ class DocumentGeneratorController extends AbstractController
      * @OA\Post(
      *     path="/_action/order/{orderId}/document/{documentTypeName}",
      *     summary="Create a document for an order",
-     *     description="Creates a document for an order. A Document can for example be an invoice or a delivery note.",
+     *     description="Creates a document for an order. A document can for example be an invoice or a delivery note.",
      *     operationId="createDocument",
      *     tags={"Admin API", "Document Management"},
      *     @OA\RequestBody(
@@ -55,12 +55,12 @@ class DocumentGeneratorController extends AbstractController
      *             ),
      *             @OA\Property(
      *                 property="referenced_document_id",
-     *                 description="",
+     *                 description="Identifier of the reverenced document.",
      *                 @OA\Schema(type="string", pattern="^[0-9a-f]{32}$", default="null")
      *             ),
      *             @OA\Property(
      *                 property="static",
-     *                 description="Stattic has to be set to `true` if a custom document is uploaded. This prevents the generation of a document and links to the uploaded media file",
+     *                 description="Static has to be set to `true` if a custom document is uploaded. This prevents the generation of a document and links to the uploaded media file",
      *                 @OA\Schema(type="boolean", default="false")
      *             )
      *         )
@@ -87,7 +87,7 @@ class DocumentGeneratorController extends AbstractController
      *     ),
      *      @OA\Response(
      *          response="200",
-     *          description="Document created successful. The `api.action.download.document` route can be used to download the document.",
+     *          description="Document created successfully. The `api/_action/document/{documentId}/{deepLinkCode}` route can be used to download the document.",
      *          @OA\JsonContent(
      *              @OA\Property(
      *                  property="documentId",

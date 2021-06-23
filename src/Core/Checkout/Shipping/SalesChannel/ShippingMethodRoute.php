@@ -70,7 +70,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      *              @OA\Property(
      *                  property="elements",
      *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/shipping_method_flat")
+     *                  @OA\Items(ref="#/components/schemas/ShippingMethod")
      *              )
      *          )
      *     )

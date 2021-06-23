@@ -96,7 +96,7 @@ class CachedCountryRoute extends AbstractCountryRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/country_flat")
+     *                          @OA\Items(ref="#/components/schemas/Country")
      *                      )
      *                  )
      *              }

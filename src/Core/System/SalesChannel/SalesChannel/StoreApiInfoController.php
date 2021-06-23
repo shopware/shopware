@@ -46,9 +46,10 @@ class StoreApiInfoController
      *
      * @throws \Exception
      */
-    public function info(): JsonResponse
+    public function info(Request $request): JsonResponse
     {
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::STORE_API);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::STORE_API, $apiType);
 
         return new JsonResponse($data);
     }
@@ -71,11 +72,13 @@ class StoreApiInfoController
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
         $response = new Response($this->twig->render(
             '@Framework/swagger.html.twig',
             [
                 'schemaUrl' => 'store-api.info.openapi3',
                 'cspNonce' => $nonce,
+                'apiType' => $apiType,
             ]
         ));
 

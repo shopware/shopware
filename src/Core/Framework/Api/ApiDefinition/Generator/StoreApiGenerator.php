@@ -73,7 +73,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generate(array $definitions, string $api, bool $forDocumentation = false): array
+    public function generate(array $definitions, string $api, string $apiType): array
     {
         $openApi = $this->openApiLoader->load($api);
         $this->openApiBuilder->enrich($openApi, $api);
@@ -103,7 +103,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         foreach ($finder as $item) {
             $name = str_replace('.json', '', $item->getFilename());
 
-            $readData = json_decode(file_get_contents($item->getPathname()), true);
+            $readData = json_decode((string) file_get_contents($item->getPathname()), true);
             $data['components']['schemas'][$name] = $readData;
         }
 

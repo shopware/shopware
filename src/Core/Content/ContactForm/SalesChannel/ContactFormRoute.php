@@ -91,7 +91,7 @@ class ContactFormRoute extends AbstractContactFormRoute
      *              },
      *              @OA\Property(
      *                  property="salutationId",
-     *                  description="Identifier of the salutation. Use `api/salutation` endpoint to fetch possible values.",
+     *                  description="Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values.",
      *                  type="string"
      *              ),
      *              @OA\Property(
@@ -122,10 +122,9 @@ class ContactFormRoute extends AbstractContactFormRoute
      *              ),
      *              @OA\Property(
      *                  property="navigationId",
-     *                  description="Identifier of the navigation page. Can be used to override the configuration. Take a look at the
-settings of a category containing a concact form in the administration.",
-     *                  type="string
-     *              "),
+     *                  description="Identifier of the navigation page. Can be used to override the configuration.
+Take a look at the settings of a category containing a concact form in the administration.",
+     *                  type="string"),
      *              @OA\Property(
      *                  property="slotId",
      *                  description="Identifier of the cms element",
@@ -136,7 +135,11 @@ settings of a category containing a concact form in the administration.",
      *                  description="Type of the content management page",
      *                  type="string"
      *              ),
-     *              @OA\Property(property="entityName", description="Entity name for slot config",
+     *              @OA\Property(
+     *                  property="entityName",
+     *                  description="Entity name for slot config",
+     *                  type="string"
+     *              ),
      *          )
      *      ),
      *      @OA\Response(

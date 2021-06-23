@@ -82,14 +82,31 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @OA\Get(
+     *     path="/_info/openapi3.json",
+     *     summary="Get OpenAPI Specification",
+     *     description="Get information about the API in OpenAPI format.",
+     *     operationId="api-info",
+     *     tags={"Admin API", "System Info & Healthcheck"},
+     *     @OA\Parameter(
+     *         name="type",
+     *         description="Type of the api",
+     *         @OA\Schema(type="string", enum={"jsonapi", "json"}),
+     *         in="query"
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Returns information about the API."
+     *     )
+     * )
      * @Route("/api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      */
     public function info(Request $request): JsonResponse
     {
-        $forDocumentation = (bool) $request->get('documentation', false);
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $forDocumentation);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
 
         return $this->json($data);
     }
@@ -134,13 +151,13 @@ class InfoController extends AbstractController
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-        $forDocumentation = (bool) $request->get('documentation', false);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJson);
         $response = $this->render(
             '@Framework/swagger.html.twig',
             [
                 'schemaUrl' => 'api.info.openapi3',
                 'cspNonce' => $nonce,
-                'documentation' => $forDocumentation,
+                'apiType' => $apiType,
             ]
         );
 

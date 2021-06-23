@@ -43,7 +43,7 @@ class MailActionController extends AbstractController
      * @OA\Post(
      *     path="/_action/mail-template/send",
      *     summary="Send a mail",
-     *     description="Generates a mail by a mail template and sends it to the customer.
+     *     description="Generates a mail from a mail template and sends it to the customer.
 
 Take a look at the `salesChannel` entity for possible values. For example `{{ salesChannel.name }}` can be used.",
      *     operationId="send",
@@ -105,7 +105,7 @@ Take a look at the `salesChannel` entity for possible values. For example `{{ sa
      *             ),
      *             @OA\Property(
      *                 property="binAttachments",
-     *                 description="A List of binary attachments which should be added to the mail.",
+     *                 description="A list of binary attachments which should be added to the mail.",
      *                 type="array",
      *                 required={"content", "fileName", "mimeType"},
      *                 @OA\Items(
@@ -159,7 +159,7 @@ Take a look at the `salesChannel` entity for possible values. For example `{{ sa
      *     ),
      *     @OA\Response(
      *         response="200",
-     *         description="The mail was send successful",
+     *         description="The mail was sent successful",
      *          @OA\JsonContent(
      *              @OA\Property(
      *                  property="size",
@@ -207,7 +207,7 @@ Take a look at the `salesChannel` entity for possible values. For example `{{ sa
      *     ),
      *     @OA\Response(
      *         response="204",
-     *         description="Returns a no content response indicating the mail content was rendered successful."
+     *         description="Returns a no content response indicating the mail content was rendered successfully."
      *     )
      * )
      * @Route("/api/_action/mail-template/validate", name="api.action.mail_template.validate", methods={"POST"})
@@ -257,7 +257,7 @@ Take a look at the `salesChannel` entity for possible values. For example `{{ sa
      *                 @OA\Property(
      *                     property="contentHtml",
      *                     description="The content of mail mail template in html format.",
-     *                     example="Hello {{ order.customerName }} is example mail content, the actual date is {{ 'now'|date('d/m/Y') }}",
+     *                     example="Hello {{ order.customerName }}, this is example mail content, the current date is {{ 'now'|date('d/m/Y') }}",
      *                     type="string"
      *                 )
      *             ),

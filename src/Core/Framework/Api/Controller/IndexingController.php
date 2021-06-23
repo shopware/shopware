@@ -37,7 +37,7 @@ class IndexingController extends AbstractController
      *     tags={"Admin API", "System Operations"},
      *     @OA\Response(
      *         response="200",
-     *         description="Return an empty response indicating that the indexing progress startet."
+     *         description="Returns an empty response indicating that the indexing process started."
      *     )
      * )
      * @Route("/api/_action/indexing", name="api.action.indexing", methods={"POST"})

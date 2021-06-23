@@ -57,7 +57,7 @@ class OrderActionController extends AbstractController
      *         @OA\JsonContent(
      *             @OA\Property(
      *                 property="sendMail",
-     *                 description="Controls if a mail should be send to the customer.",
+     *                 description="Controls if a mail should be sent to the customer.",
      *                 @OA\Schema(type="boolean", default=true)
      *             ),
      *             @OA\Property(
@@ -91,7 +91,7 @@ class OrderActionController extends AbstractController
      *         name="transition",
      *         description="The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.
 
-Note: If you choose a transition which is not possible, you will get an error that lists possible transition for the actual state.",
+Note: If you choose a transition that is not available, you will get an error that lists possible transitions for the current state.",
      *         @OA\Schema(type="string"),
      *         in="path",
      *         required=true
@@ -148,7 +148,7 @@ Note: If you choose a transition which is not possible, you will get an error th
      *         @OA\JsonContent(
      *             @OA\Property(
      *                 property="sendMail",
-     *                 description="Controls if a mail should be send to the customer.",
+     *                 description="Controls if a mail should be sent to the customer.",
      *                 @OA\Schema(type="boolean", default=true)
      *             ),
      *             @OA\Property(
@@ -182,14 +182,14 @@ Note: If you choose a transition which is not possible, you will get an error th
      *         name="transition",
      *         description="The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.
 
-Note: If you choose a transition which is not possible, you will get an error that lists possible transition for the actual state.",
+Note: If you choose a transition that is not available, you will get an error that lists possible transitions for the current state.",
      *         @OA\Schema(type="string"),
      *         in="path",
      *         required=true
      *     ),
      *     @OA\Response(
      *         response="200",
-     *         description="Todo: Use ref of `state_machine_transition` here"
+     *         description="Returns information about the transition that was made. `#/components/schemas/StateMachineTransition`"
      *     )
      * )
      * @Route("/api/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})

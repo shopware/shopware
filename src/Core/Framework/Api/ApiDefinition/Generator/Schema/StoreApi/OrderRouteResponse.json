@@ -4,7 +4,7 @@
     "orders": {
       "type": "object",
       "items": {
-        "$ref": "#/components/schemas/order_flat"
+        "$ref": "#/components/schemas/Order"
       }
     },
     "paymentChangeable": {

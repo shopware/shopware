@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
@@ -65,7 +66,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, string $api, bool $forDocumentation = false): array
+    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TypeJsonApi): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
@@ -79,21 +80,31 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if (!$forDocumentation) {
-                $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
-            } else {
-                $onlyReference = true;
+            switch ($apiType) {
+                case DefinitionService::TypeJson:
+                    $onlyFlat = true;
+
+                    break;
+                case DefinitionService::TypeJsonApi:
+                default:
+                    $onlyFlat = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
             }
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
+            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
+                $definition,
+                $this->getResourceUri($definition),
+                $forSalesChannel,
+                $onlyFlat,
+                $apiType
+            );
 
             $openApi->components->merge($schema);
 
-            if ($onlyReference) {
+            if ($onlyFlat) {
                 continue;
             }
 
-            if (!$forDocumentation) {
+            if ($apiType === DefinitionService::TypeJsonApi) {
                 $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
                 $openApi->merge([$this->pathBuilder->getTag($definition)]);
             }
@@ -106,7 +117,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         foreach ($finder as $item) {
             $name = str_replace('.json', '', $item->getFilename());
 
-            $readData = json_decode(file_get_contents($item->getPathname()), true);
+            $readData = json_decode((string) file_get_contents($item->getPathname()), true);
             $data['components']['schemas'][$name] = $readData;
         }
 

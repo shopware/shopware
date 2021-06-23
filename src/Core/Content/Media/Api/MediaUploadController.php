@@ -62,6 +62,7 @@ class MediaUploadController extends AbstractController
      *     path="/_action/media/{mediaId}/upload",
      *     summary="Upload a file to a media entity",
      *     description="Adds a new file to a media entity. If the entity has an existing file, it will be replaced.
+
 The are two methods of providing a file to this route:
  * Use a typical file upload and provide the file in the request
  * Fetch the file from an url. This only works if the `shopware.media.enable_url_upload_feature` variable is set to true in the shop environment.

@@ -80,9 +80,13 @@ to an asynchronous process in the background. You can control the behaviour with
      *                  required={"action", "entity", "payload"},
      *                  @OA\Property(
      *                      property="action",
-     *                      description="???",
+     *                      description="The action indicates what should happen with the provided payload.
+* `upsert`: The Sync API does not differ between create and update operations,
+but always performs an upsert operation. During an upsert, the system checks whether the entity already exists in the
+system and updates it if an identifier has been passed, otherwise a new entity is created with this identifier.
+* `delete`: Deletes entites with the provided identifiers",
      *                      type="string",
-     *                      enum={"upsert", "delete", "..."}
+     *                      enum={"upsert", "delete"}
      *                  ),
      *                  @OA\Property(
      *                      property="entity",
@@ -92,7 +96,8 @@ to an asynchronous process in the background. You can control the behaviour with
      *                  ),
      *                  @OA\Property(
      *                      property="payload",
-     *                      description="Contains a list of changesets for an entity",
+     *                      description="Contains a list of changesets for an entity. If the action type is `delete`,
+a list of identifiers can be provided.",
      *                      type="array",
      *                      @OA\Items(type="object")
      *                  ),

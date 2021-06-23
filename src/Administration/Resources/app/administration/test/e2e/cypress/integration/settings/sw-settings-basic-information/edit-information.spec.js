@@ -151,6 +151,8 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select')
             .typeMultiSelectAndCheck('Google reCAPTCHA v3');
 
+        cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3 input[name="googleReCaptchaV3ThresholdScore"]').clear().type('0.5');
+
         cy.get('.smart-bar__content .sw-button--primary').click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
@@ -159,6 +161,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-settings-captcha-select-v2 .sw-settings-captcha-select-v2__google-recaptcha-v3')
             .should('be.visible');
         cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3-description').should('be.visible');
-
+        cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3 input[name="googleReCaptchaV3ThresholdScore"]')
+            .should('have.value', '0.5');
     });
 });

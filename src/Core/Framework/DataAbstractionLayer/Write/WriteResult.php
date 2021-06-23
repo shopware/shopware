@@ -4,31 +4,29 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 
-/**
- * @deprecated tag:v6.5.0 - Use \Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult instead
- */
-class DeleteResult
+class WriteResult extends DeleteResult
 {
     /**
      * @var EntityWriteResult[]
      */
-    private $deleted;
+    protected array $deleted = [];
 
     /**
      * @var EntityWriteResult[]
      */
-    private $notFound;
+    protected array $notFound = [];
 
     /**
      * @var EntityWriteResult[]
      */
-    private $updated = [];
+    protected array $written = [];
 
     public function __construct(array $deleted, array $notFound = [], array $updated = [])
     {
+        parent::__construct($deleted, $notFound, $updated);
         $this->deleted = $deleted;
         $this->notFound = $notFound;
-        $this->updated = $updated;
+        $this->written = $updated;
     }
 
     public function getDeleted(): array
@@ -41,13 +39,13 @@ class DeleteResult
         return $this->notFound;
     }
 
-    public function addUpdated(array $updated): void
+    public function getWritten(): array
     {
-        $this->updated = array_merge_recursive($this->updated, $updated);
+        return $this->written;
     }
 
-    public function getUpdated(): array
+    public function getApiAlias(): string
     {
-        return $this->updated;
+        return 'write_result';
     }
 }

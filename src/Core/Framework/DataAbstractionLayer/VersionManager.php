@@ -35,11 +35,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DeleteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -127,33 +127,33 @@ class VersionManager
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        $writeResults = $this->entityWriter->upsert($definition, $rawData, $writeContext);
+        $result = $this->entityWriter->upsert($definition, $rawData, $writeContext);
 
-        $this->writeAuditLog($writeResults, $writeContext);
+        $this->writeAuditLog($result, $writeContext);
 
-        return $writeResults;
+        return $result;
     }
 
     public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        /** @var EntityWriteResult[] $writeResults */
-        $writeResults = $this->entityWriter->insert($definition, $rawData, $writeContext);
+        /** @var EntityWriteResult[] $result */
+        $result = $this->entityWriter->insert($definition, $rawData, $writeContext);
 
-        $this->writeAuditLog($writeResults, $writeContext);
+        $this->writeAuditLog($result, $writeContext);
 
-        return $writeResults;
+        return $result;
     }
 
     public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        $writeResults = $this->entityWriter->update($definition, $rawData, $writeContext);
+        $result = $this->entityWriter->update($definition, $rawData, $writeContext);
 
-        $this->writeAuditLog($writeResults, $writeContext);
+        $this->writeAuditLog($result, $writeContext);
 
-        return $writeResults;
+        return $result;
     }
 
-    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult
+    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): WriteResult
     {
         $result = $this->entityWriter->delete($definition, $ids, $writeContext);
 
@@ -304,6 +304,7 @@ class VersionManager
         // delete version
         $this->entityWriter->delete($this->versionDefinition, [['id' => $versionId]], $writeContext);
 
+        $versionContext->addState('merge-scope');
         foreach ($entities as $entity) {
             /** @var EntityDefinition|string $definition */
             $definition = $entity['definition'];
@@ -312,6 +313,7 @@ class VersionManager
 
             $this->entityWriter->delete($definition, [$primary], $versionContext);
         }
+        $versionContext->removeState('merge-scope');
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($writtenEvents, $liveContext->getContext(), []);
         $this->eventDispatcher->dispatch($event);

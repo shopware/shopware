@@ -106,6 +106,18 @@
             </errorLevel>
         </UndefinedClass>
 
+        <DuplicateClass>
+            <errorLevel type="info">
+                <file name="src/Core/Framework/Api/Sync/SyncBehavior.php"/>
+            </errorLevel>
+        </DuplicateClass>
+
+        <UndefinedMethod>
+            <errorLevel type="suppress">
+                <referencedMethod name="Shopware\Core\Framework\Api\Sync\SyncBehavior::failOnError" />
+            </errorLevel>
+        </UndefinedMethod>
+
         <InaccessibleMethod>
             <errorLevel type="info">
                 <file name="src/Core/Framework/Test/Update/UpdateControllerTest.php"/>

@@ -6,20 +6,20 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class SyncResult extends Struct
 {
-    /**
-     * @var bool
-     */
-    protected $success;
+    protected bool $success;
 
     /**
      * @var SyncOperationResult[]
      */
-    protected $data = [];
+    protected array $data = [];
 
-    public function __construct(array $data, bool $success)
+    protected array $notFound;
+
+    public function __construct(array $data, bool $success, array $notFound = [])
     {
         $this->data = $data;
         $this->success = $success;
+        $this->notFound = $notFound;
     }
 
     public function getData(): array
@@ -50,5 +50,10 @@ class SyncResult extends Struct
     public function getApiAlias(): string
     {
         return 'api_sync_result';
+    }
+
+    public function getNotFound(): array
+    {
+        return $this->notFound;
     }
 }

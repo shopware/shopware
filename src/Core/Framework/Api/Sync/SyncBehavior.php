@@ -2,45 +2,63 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
-class SyncBehavior
-{
-    /**
-     * @var bool
-     */
-    protected $failOnError;
+use Shopware\Core\Framework\Feature;
 
-    /**
-     * @var bool
-     */
-    protected $singleOperation;
-
-    /**
-     * @var string|null
-     */
-    protected $indexingBehavior;
-
-    public function __construct(
-        bool $failOnError,
-        bool $singleOperation = false,
-        ?string $indexingBehavior = null
-    ) {
-        $this->failOnError = $failOnError;
-        $this->singleOperation = $singleOperation;
-        $this->indexingBehavior = $indexingBehavior;
-    }
-
-    public function failOnError(): bool
+if (Feature::isActive('FEATURE_NEXT_15815')) {
+    class SyncBehavior
     {
-        return $this->failOnError;
-    }
+        protected ?string $indexingBehavior;
 
-    public function useSingleOperation(): bool
-    {
-        return $this->singleOperation;
-    }
+        public function __construct(?string $indexingBehavior = null)
+        {
+            $this->indexingBehavior = $indexingBehavior;
+        }
 
-    public function getIndexingBehavior(): ?string
+        /**
+         * @feature-deprecated (flag:FEATURE_NEXT_15815) tag:v6.5.0 - remove this function
+         */
+        public function useSingleOperation(): bool
+        {
+            return true;
+        }
+
+        public function getIndexingBehavior(): ?string
+        {
+            return $this->indexingBehavior;
+        }
+    }
+} else {
+    class SyncBehavior
     {
-        return $this->indexingBehavior;
+        protected bool $failOnError;
+
+        protected bool $singleOperation;
+
+        protected ?string $indexingBehavior;
+
+        public function __construct(
+            bool $failOnError,
+            bool $singleOperation = false,
+            ?string $indexingBehavior = null
+        ) {
+            $this->failOnError = $failOnError;
+            $this->singleOperation = $singleOperation;
+            $this->indexingBehavior = $indexingBehavior;
+        }
+
+        public function failOnError(): bool
+        {
+            return $this->failOnError;
+        }
+
+        public function useSingleOperation(): bool
+        {
+            return $this->singleOperation;
+        }
+
+        public function getIndexingBehavior(): ?string
+        {
+            return $this->indexingBehavior;
+        }
     }
 }

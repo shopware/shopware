@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -40,57 +41,26 @@ class EntityWriteResultFactory
         return $this->buildQueueResults($queue);
     }
 
-    public function resolveParents(EntityDefinition $definition, array $rawData): array
+    public function resolveDelete(EntityDefinition $definition, array $ids): array
     {
-        if ($definition instanceof MappingEntityDefinition) {
-            return $this->resolveMappingParents($definition, $rawData);
-        }
-
-        $parentIds = [];
-        if ($definition->isInheritanceAware()) {
-            $parentIds = $this->fetchParentIds($definition, $rawData);
-        }
-
-        $parent = $definition->getParentDefinition();
-
-        if (!$parent) {
-            return $parentIds;
-        }
-
-        $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
-            if (!$field instanceof FkField || $field instanceof ReferenceVersionField) {
-                return false;
-            }
-
-            return $field->getReferenceDefinition()->getClass() === $parent->getClass();
-        });
-
-        $fkField = $fkField->first();
-        if (!$fkField instanceof FkField) {
-            throw new \RuntimeException(sprintf('Can not detect foreign key for parent definition %s', $parent->getClass()));
-        }
-
-        $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $rawData, $fkField);
-
-        $mapped = array_map(function ($id) {
-            return ['id' => $id];
-        }, $primaryKeys);
-
-        $nested = $this->resolveParents($parent, $mapped);
-
-        $entity = $parent->getEntityName();
-
-        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys, $parentIds[$entity] ?? []);
-
-        return $nested;
+        // resolves mapping relations, inheritance and sub domain entities
+        return $this->resolveParents($definition, $ids);
     }
 
-    public function resolveRelations(EntityDefinition $definition, array $rawData, array $writeResults): array
+    public function resolveWrite(EntityDefinition $definition, array $rawData): array
     {
-        $parents = $this->resolveParents($definition, $rawData);
+        // resolve domain parent (order_delivery > order | product_price > product),
+        // relations for mapping entities (product_category)
+        // and product inheritance (product.parent_id)
+        return $this->resolveParents($definition, $rawData);
+    }
+
+    public function resolveMappings(array $results): array
+    {
+        $mappings = [];
 
         /** @var EntityWriteResult[] $result */
-        foreach ($writeResults as $entity => $result) {
+        foreach ($results as $entity => $result) {
             $definition = $this->registry->getByEntityName($entity);
 
             if (!$definition instanceof MappingEntityDefinition) {
@@ -115,11 +85,11 @@ class EntityWriteResultFactory
             foreach ($fkFields as $field) {
                 $reference = $field->getReferenceDefinition()->getEntityName();
 
-                $parents[$reference] = array_merge($parents[$reference] ?? [], array_column($ids, $field->getPropertyName()));
+                $mappings[$reference] = array_merge($mappings[$reference] ?? [], array_column($ids, $field->getPropertyName()));
             }
         }
 
-        return $parents;
+        return $mappings;
     }
 
     public function addParentResults(array $writeResults, array $parents): array
@@ -141,6 +111,98 @@ class EntityWriteResultFactory
         return $writeResults;
     }
 
+    public function addDeleteResults(array $identifiers, array $notFound, array $parents): WriteResult
+    {
+        $results = $this->splitResultsByOperation($identifiers);
+
+        $deleted = $this->addParentResults($results['deleted'], $parents);
+
+        $updates = [];
+        foreach ($deleted as $entity => $nested) {
+            $updates[$entity] = array_filter($nested, function (EntityWriteResult $single) {
+                return $single->getOperation() === EntityWriteResult::OPERATION_UPDATE;
+            });
+        }
+
+        $updates = array_merge_recursive($results['updated'], $updates);
+
+        return new WriteResult($deleted, $notFound, $updates);
+    }
+
+    private function resolveParents(EntityDefinition $definition, array $ids): array
+    {
+        if ($definition instanceof MappingEntityDefinition) {
+            // case for mapping entities like (product_category, etc), to trigger indexing for both entities (product and category)
+            return $this->resolveMappingParents($definition, $ids);
+        }
+
+        $parentIds = [];
+        if ($definition->isInheritanceAware()) {
+            // inheritance case for products (resolve product.parent_id here to trigger indexing for parent)
+            $parentIds = $this->fetchParentIds($definition, $ids);
+        }
+
+        $parent = $definition->getParentDefinition();
+
+        // is sub entity (like product_price, order_line_item, etc)
+        if (!$parent) {
+            return $parentIds;
+        }
+
+        $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
+            if (!$field instanceof FkField || $field instanceof ReferenceVersionField) {
+                return false;
+            }
+
+            return $field->getReferenceDefinition()->getClass() === $parent->getClass();
+        });
+
+        // find foreign key field for parent definition (product_price.product_id in case of product_price provided)
+        $fkField = $fkField->first();
+        if (!$fkField instanceof FkField) {
+            throw new \RuntimeException(sprintf('Can not detect foreign key for parent definition %s', $parent->getClass()));
+        }
+
+        $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $ids, $fkField);
+
+        $mapped = array_map(function ($id) {
+            return ['id' => $id];
+        }, $primaryKeys);
+
+        // recursion call for nested sub entities (order_delivery_position > order_delivery > order)
+        $nested = $this->resolveParents($parent, $mapped);
+
+        $entity = $parent->getEntityName();
+
+        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys, $parentIds[$entity] ?? []);
+
+        return $nested;
+    }
+
+    private function splitResultsByOperation(array $identifiers): array
+    {
+        $deleted = [];
+        $updated = [];
+        foreach ($identifiers as $entityName => $writeResults) {
+            $deletedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
+                return $result->getOperation() === EntityWriteResult::OPERATION_DELETE;
+            });
+            if (!empty($deletedEntities)) {
+                $deleted[$entityName] = $deletedEntities;
+            }
+
+            $updatedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
+                return \in_array($result->getOperation(), [EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE], true);
+            });
+
+            if (!empty($updatedEntities)) {
+                $updated[$entityName] = $updatedEntities;
+            }
+        }
+
+        return ['deleted' => $deleted, 'updated' => $updated];
+    }
+
     private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
     {
         $fkFields = $definition->getFields()->filter(function (Field $field) {
@@ -160,6 +222,7 @@ class EntityWriteResultFactory
                 return ['id' => $id];
             }, $primaryKeys);
 
+            // after resolving the mapping entities - we resolve the parent for related entity (maybe inherited for products, or sub domain entities)
             $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped);
 
             foreach ($nested as $entity => $primaryKeys) {
@@ -430,9 +493,11 @@ class EntityWriteResultFactory
 
             /* @var Field|StorageAware $primaryKey */
             if (!isset($rawData[$property])) {
-                throw new \RuntimeException(
-                    sprintf('Missing primary key %s for definition %s', $property, $definition->getClass())
-                );
+                $required = $definition->getPrimaryKeys()->filter(function (Field $field) {
+                    return !$field instanceof ReferenceVersionField && !$field instanceof VersionField;
+                });
+
+                throw new IncompletePrimaryKeyException($required->getKeys());
             }
             if (!$primaryKey instanceof StorageAware) {
                 continue;

@@ -131,6 +131,10 @@ shopware:
               major: false
               description: "Captcha Integration"
               # issue: NEXT-12455
+            - name: FEATURE_NEXT_15815
+              default: false
+              major: true
+              description: "Remove single record handling in sync service. Only single operation should be supported"
             - name: FEATURE_NEXT_8225
               default: false
               major: false

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
@@ -127,11 +128,17 @@ a list of identifiers can be provided.",
      */
     public function sync(Request $request, Context $context): JsonResponse
     {
-        $behavior = new SyncBehavior(
-            filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), \FILTER_VALIDATE_BOOLEAN),
-            filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), \FILTER_VALIDATE_BOOLEAN),
-            $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null)
-        );
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            $behavior = new SyncBehavior(
+                $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR)
+            );
+        } else {
+            $behavior = new SyncBehavior(
+                filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), \FILTER_VALIDATE_BOOLEAN),
+                filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), \FILTER_VALIDATE_BOOLEAN),
+                $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null)
+            );
+        }
 
         $payload = $this->serializer->decode($request->getContent(), 'json');
 

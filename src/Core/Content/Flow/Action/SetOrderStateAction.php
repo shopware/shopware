@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Flow\Action;
 
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Event\SalesChannelAware;
-use Shopware\Core\Framework\Event\WebhookAware;
 
 /**
  * @internal (FEATURE_NEXT_8225)
@@ -26,7 +24,7 @@ class SetOrderStateAction extends FlowAction
 
     public function requirements(): array
     {
-        return [OrderAware::class, WebhookAware::class, SalesChannelAware::class];
+        return [OrderAware::class];
     }
 
     public function handle(FlowEvent $event): void

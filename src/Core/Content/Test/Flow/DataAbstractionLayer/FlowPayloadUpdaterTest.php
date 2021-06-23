@@ -48,14 +48,14 @@ class FlowPayloadUpdaterTest extends TestCase
         $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
 
         $trueCaseNextAction = new Sequence();
-        $trueCaseNextAction->action = FlowAction::ADD_TAG;
+        $trueCaseNextAction->action = FlowAction::ADD_ORDER_TAG;
         $trueCaseNextAction->config = [
             'tagId' => $this->ids->get('tag_id2'),
             'entity' => OrderDefinition::ENTITY_NAME,
         ];
 
         $trueCase = new Sequence();
-        $trueCase->action = FlowAction::ADD_TAG;
+        $trueCase->action = FlowAction::ADD_ORDER_TAG;
         $trueCase->config = [
             'tagId' => $this->ids->get('tag_id'),
             'entity' => OrderDefinition::ENTITY_NAME,
@@ -81,7 +81,7 @@ class FlowPayloadUpdaterTest extends TestCase
                 'sequences' => [
                     [
                         'id' => $this->ids->create('flow_sequence_id1'),
-                        'actionName' => FlowAction::REMOVE_TAG,
+                        'actionName' => FlowAction::REMOVE_ORDER_TAG,
                     ],
                     [
                         'id' => $this->ids->create('flow_sequence_id2'),
@@ -95,14 +95,14 @@ class FlowPayloadUpdaterTest extends TestCase
         $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
 
         $falseCase = new Sequence();
-        $falseCase->action = FlowAction::ADD_TAG;
+        $falseCase->action = FlowAction::ADD_ORDER_TAG;
         $falseCase->config = [
             'tagId' => $this->ids->get('tag_id2'),
             'entity' => OrderDefinition::ENTITY_NAME,
         ];
 
         $trueCase = new Sequence();
-        $trueCase->action = FlowAction::REMOVE_TAG;
+        $trueCase->action = FlowAction::REMOVE_ORDER_TAG;
         $trueCase->config = [
             'tagId' => $this->ids->get('tag_id'),
             'entity' => OrderDefinition::ENTITY_NAME,
@@ -147,7 +147,7 @@ class FlowPayloadUpdaterTest extends TestCase
                     'id' => $this->ids->create('flow_sequence_id1'),
                     'parentId' => $this->ids->get('flow_sequence_id'),
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_TAG,
+                    'actionName' => FlowAction::ADD_ORDER_TAG,
                     'config' => [
                         'tagId' => $this->ids->get('tag_id'),
                         'entity' => OrderDefinition::ENTITY_NAME,
@@ -159,7 +159,7 @@ class FlowPayloadUpdaterTest extends TestCase
                     'id' => $this->ids->create('flow_sequence_id2'),
                     'parentId' => $this->ids->get('flow_sequence_id'),
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_TAG,
+                    'actionName' => FlowAction::ADD_ORDER_TAG,
                     'config' => [
                         'tagId' => $this->ids->get('tag_id2'),
                         'entity' => OrderDefinition::ENTITY_NAME,

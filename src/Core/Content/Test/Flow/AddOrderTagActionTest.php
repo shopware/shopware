@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Action\FlowAction;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -24,7 +23,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal (FEATURE_NEXT_8225)
  */
-class FlowDispatcherTest extends TestCase
+class AddOrderTagActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
@@ -62,7 +61,7 @@ class FlowDispatcherTest extends TestCase
         $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
-    public function testAddOrderTagActionDispatched(): void
+    public function testAddOrderTagAction(): void
     {
         $this->createDataTest();
 
@@ -98,8 +97,7 @@ class FlowDispatcherTest extends TestCase
                     'ruleId' => null,
                     'actionName' => FlowAction::ADD_ORDER_TAG,
                     'config' => [
-                        'tagIds' => [$this->ids->get('tag_id')],
-                        'entity' => OrderDefinition::ENTITY_NAME,
+                        'tagIds' => [$this->ids->get('tag_id'), $this->ids->get('tag_id2')],
                     ],
                     'position' => 1,
                     'trueCase' => true,
@@ -110,10 +108,9 @@ class FlowDispatcherTest extends TestCase
                     'ruleId' => null,
                     'actionName' => FlowAction::ADD_ORDER_TAG,
                     'config' => [
-                        'tagIds' => [$this->ids->get('tag_id2')],
-                        'entity' => OrderDefinition::ENTITY_NAME,
+                        'tagIds' => [$this->ids->get('tag_id3')],
                     ],
-                    'position' => 2,
+                    'position' => 1,
                     'trueCase' => true,
                 ],
             ],
@@ -149,114 +146,11 @@ class FlowDispatcherTest extends TestCase
 
         $orderTag = $this->connection->fetchAllAssociative(
             'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
-            ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2'))]],
+            ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2')), Uuid::fromHexToBytes($this->ids->get('tag_id3'))]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        static::assertCount(2, $orderTag);
-    }
-
-    public function testStopFlowActionDispatched(): void
-    {
-        $this->createDataTest();
-
-        $this->createCustomerAndLogin();
-
-        $sequenceId = Uuid::randomHex();
-        $ruleId = Uuid::randomHex();
-        $this->flowRepository->create([[
-            'name' => 'Create Order',
-            'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
-            'priority' => 1,
-            'active' => true,
-            'sequences' => [
-                [
-                    'id' => $sequenceId,
-                    'parentId' => null,
-                    'ruleId' => $ruleId,
-                    'actionName' => null,
-                    'config' => [],
-                    'position' => 1,
-                    'rule' => [
-                        'id' => $ruleId,
-                        'name' => 'Test rule',
-                        'priority' => 1,
-                        'conditions' => [
-                            ['type' => (new AlwaysValidRule())->getName()],
-                        ],
-                    ],
-                ],
-                [
-                    'id' => Uuid::randomHex(),
-                    'parentId' => $sequenceId,
-                    'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
-                    'config' => [
-                        'tagIds' => [$this->ids->get('tag_id')],
-                        'entity' => OrderDefinition::ENTITY_NAME,
-                    ],
-                    'position' => 1,
-                    'trueCase' => true,
-                ],
-                [
-                    'id' => Uuid::randomHex(),
-                    'parentId' => $sequenceId,
-                    'ruleId' => null,
-                    'actionName' => FlowAction::STOP_FLOW,
-                    'config' => [],
-                    'position' => 2,
-                    'trueCase' => true,
-                ],
-                [
-                    'id' => Uuid::randomHex(),
-                    'parentId' => $sequenceId,
-                    'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
-                    'config' => [
-                        'tagIds' => [$this->ids->get('tag_id2')],
-                        'entity' => OrderDefinition::ENTITY_NAME,
-                    ],
-                    'position' => 3,
-                    'trueCase' => true,
-                ],
-            ],
-        ]], Context::createDefaultContext());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/order',
-                [
-                    'affiliateCode' => 'test affiliate code',
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $orderTag = $this->connection->fetchAllAssociative(
-            'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
-            ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2'))]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        static::assertCount(1, $orderTag);
+        static::assertCount(3, $orderTag);
     }
 
     private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
@@ -346,6 +240,10 @@ class FlowDispatcherTest extends TestCase
             [
                 'id' => $this->ids->create('tag_id2'),
                 'name' => 'test tag2',
+            ],
+            [
+                'id' => $this->ids->create('tag_id3'),
+                'name' => 'test tag3',
             ],
         ], $this->ids->context);
     }

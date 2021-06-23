@@ -32,23 +32,25 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\AddTagAction">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        <service id="Shopware\Core\Content\Flow\Action\AddOrderTagAction">
+            <argument type="service" id="order.repository" />
             <tag name="kernel.event_subscriber" />
+            <tag name="flow.action" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
             <tag name="flow.action" priority="1000" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\RemoveTagAction">
+        <service id="Shopware\Core\Content\Flow\Action\AddCustomerTagAction">
+            <argument type="service" id="customer.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
             <tag name="flow.action" priority="999" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Action\SetOrderStateAction">
             <tag name="kernel.event_subscriber" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
-            <tag name="flow.action" priority="998" />
+            <tag name="flow.action" priority="997" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Action\StopFlowAction">

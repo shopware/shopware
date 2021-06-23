@@ -236,12 +236,9 @@ class InfoControllerTest extends TestCase
 
         $expected = [
             [
-                'name' => 'action.add.tag',
+                'name' => 'action.add.order.tag',
                 'requirements' => [
                     'orderAware' => "Shopware\Core\Framework\Event\OrderAware",
-                    'customerAware' => "Shopware\Core\Framework\Event\CustomerAware",
-                    'webhookAware' => "Shopware\Core\Framework\Event\WebhookAware",
-                    'salesChannelAware' => "Shopware\Core\Framework\Event\SalesChannelAware",
                 ],
                 'extensions' => [],
             ],

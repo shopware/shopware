@@ -16,7 +16,7 @@ class Migration1570622696CustomerPasswordRecovery extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $query = <<<SQL
+        $query = <<<'SQL'
             CREATE TABLE IF NOT EXISTS `customer_recovery` (
                 `id` BINARY(16) NOT NULL,
                 `customer_id` BINARY(16) NOT NULL,
@@ -45,7 +45,7 @@ SQL;
 
     private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT `language`.`id`
 FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`

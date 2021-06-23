@@ -14,7 +14,7 @@ class Migration1536232900CmsBlock extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `cms_block` (
               `id` BINARY(16) NOT NULL,
               `cms_page_id` BINARY(16) NOT NULL,

@@ -21,14 +21,14 @@ class Migration1600676671OrderLineItemCoverMedia extends MigrationStep
              WHERE media.id IS NULL'
         );
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             ALTER TABLE `order_line_item`
             DROP FOREIGN KEY `fk.order_line_item.cover_id`
 SQL;
 
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             ALTER TABLE `order_line_item`
             ADD CONSTRAINT `fk.order_line_item.cover_id`
             FOREIGN KEY (`cover_id`) REFERENCES `media` (`id`) ON DELETE SET NULL ON UPDATE CASCADE

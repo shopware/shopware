@@ -14,7 +14,7 @@ class Migration1536233510DocumentConfiguration extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
     CREATE TABLE `document_base_config` (
       `id` BINARY(16) NOT NULL,
       `name` VARCHAR(64) NOT NULL,
@@ -36,7 +36,7 @@ class Migration1536233510DocumentConfiguration extends MigrationStep
 SQL;
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
     CREATE TABLE `document_base_config_sales_channel` (
       `id` BINARY(16) NOT NULL,
       `document_base_config_id` BINARY(16) NOT NULL,

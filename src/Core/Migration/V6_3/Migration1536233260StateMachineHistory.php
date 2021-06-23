@@ -14,7 +14,7 @@ class Migration1536233260StateMachineHistory extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 CREATE TABLE `state_machine_history` (
   `id` BINARY(16) NOT NULL,
   `state_machine_id` BINARY(16) NOT NULL,

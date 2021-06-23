@@ -26,7 +26,7 @@ class Migration1536232760StateMachine extends MigrationStep
 
     private function createStateMachineTable(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `state_machine` (
               `id`                  BINARY(16)                              NOT NULL,
               `technical_name`      VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -40,7 +40,7 @@ SQL;
 
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `state_machine_translation` (
               `language_id`         BINARY(16)                              NOT NULL,
               `state_machine_id`    BINARY(16)                              NOT NULL,
@@ -60,7 +60,7 @@ SQL;
 
     private function createStateMachineStateTable(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `state_machine_state` (
               `id`                  BINARY(16)                              NOT NULL,
               `technical_name`      VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -75,7 +75,7 @@ SQL;
 
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `state_machine_state_translation` (
               `language_id`             BINARY(16)                              NOT NULL,
               `state_machine_state_id`  BINARY(16)                              NOT NULL,
@@ -95,7 +95,7 @@ SQL;
 
     private function createStateMachineTransitionTable(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `state_machine_transition` (
               `id`                  BINARY(16)                              NOT NULL,
               `action_name`         VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -118,13 +118,13 @@ SQL;
 
     private function createConstraints(Connection $connection): void
     {
-        $stateMachine = <<<SQL
+        $stateMachine = <<<'SQL'
             ALTER TABLE `state_machine`
               ADD CONSTRAINT `fk.state_machine.initial_state_id` FOREIGN KEY (`initial_state_id`)
                 REFERENCES `state_machine_state` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 SQL;
 
-        $stateMachineTranslation = <<<SQL
+        $stateMachineTranslation = <<<'SQL'
             ALTER TABLE `state_machine_translation`
               ADD CONSTRAINT `fk.state_machine_translation.state_machine_id` FOREIGN KEY (`state_machine_id`)
                 REFERENCES `state_machine` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -132,13 +132,13 @@ SQL;
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 SQL;
 
-        $stateMachineState = <<<SQL
+        $stateMachineState = <<<'SQL'
             ALTER TABLE `state_machine_state`
               ADD CONSTRAINT `fk.state_machine_state.state_machine_id` FOREIGN KEY (`state_machine_id`)
                 REFERENCES `state_machine` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 SQL;
 
-        $stateMachineStateTranslation = <<<SQL
+        $stateMachineStateTranslation = <<<'SQL'
             ALTER TABLE `state_machine_state_translation`
               ADD CONSTRAINT `fk.state_machine_state_translation.state_machine_state_id` FOREIGN KEY (`state_machine_state_id`)
                 REFERENCES `state_machine_state` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -146,7 +146,7 @@ SQL;
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 SQL;
 
-        $stateMachineTransition = <<<SQL
+        $stateMachineTransition = <<<'SQL'
             ALTER TABLE `state_machine_transition`
               ADD CONSTRAINT `fk.state_machine_transition.state_machine_id` FOREIGN KEY (`state_machine_id`)
                 REFERENCES `state_machine` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

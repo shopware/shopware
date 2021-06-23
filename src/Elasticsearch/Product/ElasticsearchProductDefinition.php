@@ -382,7 +382,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     private function fetchProducts(array $ids, Context $context): array
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(p.active, pp.active) AS active,

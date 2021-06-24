@@ -1,5 +1,21 @@
 // / <reference types="Cypress" />
 
+function checkOrderAccordingToSortIndicator() {
+    cy.get('.sw-data-grid__sort-indicator').should('be.visible');
+
+    cy.get('.sw-data-grid__sort-indicator').then(($indicator) => {
+        if ($indicator.find('.icon--small-arrow-small-up').length > 0) {
+            // Sorting has wrong direction while sorting after Pound. Fix with NEXT-15851
+            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Second product');
+            cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--name').contains('Original product');
+        } else {
+            // Sorting has wrong direction while sorting after Pound. Fix with NEXT-15851
+            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Original product');
+            cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--name').contains('Second product');
+        }
+    });
+}
+
 describe('Product: Sort grid', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -66,14 +82,13 @@ describe('Product: Sort grid', () => {
             });
     });
 
-    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15471
-    it.skip('@catalogue: sort product listing', () => {
+    it('@catalogue: sort product listing', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
-        }).as('saveData');
+        }).as('search');
 
         // open context menu and display pound
         cy.get('.sw-data-grid__cell-settings .sw-data-grid-settings__trigger').click();
@@ -82,24 +97,24 @@ describe('Product: Sort grid', () => {
         // close context menu
         cy.get('.sw-data-grid__cell-settings .sw-data-grid-settings__trigger').click();
 
+        // sort products by gbp - first
+        cy.get('.sw-data-grid__cell--9').click({ force: true });
+
         // check product order
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.contains('Pound');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-GBP').contains('232,00 £');
-        cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--price-GBP').contains('67,00 £');
+        checkOrderAccordingToSortIndicator();
 
         // sort products by gbp
         cy.get('.sw-data-grid__cell--9').click({ force: true });
 
         // Verify search result
-        cy.wait('@saveData').then((xhr) => {
+        cy.wait('@search').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.get('.sw-data-grid__sort-indicator').should('be.visible');
         cy.contains('Pound');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-GBP').contains('67,00 £');
-        cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--price-GBP').contains('232,00 £');
+        checkOrderAccordingToSortIndicator();
     });
 });

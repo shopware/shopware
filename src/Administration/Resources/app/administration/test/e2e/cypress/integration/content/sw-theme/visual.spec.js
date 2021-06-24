@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Theme: Visual tests', () => {
     beforeEach(() => {
@@ -46,6 +46,8 @@ describe('Theme: Visual tests', () => {
             ':nth-child(2) > .sw-theme-manager-detail__saleschannel-link > span',
             'color: #fff'
         );
+        cy.get(':nth-child(2) > .sw-theme-manager-detail__saleschannel-link > span')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(

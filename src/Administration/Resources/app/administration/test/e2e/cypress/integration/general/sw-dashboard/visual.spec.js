@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Dashboard:  Visual tests', () => {
     // eslint-disable-next-line no-undef
@@ -33,7 +33,6 @@ describe('Dashboard:  Visual tests', () => {
     });
 
     it('@visual: check appearance of basic dashboard workflow', () => {
-
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color : #fff');
         cy.get('.sw-dashboard-index__welcome-title')
@@ -42,6 +41,6 @@ describe('Dashboard:  Visual tests', () => {
             .invoke('prop', 'innerText', 'If it wasn\'t for you… This message would never happened.');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Dashboard overview', '.sw-dashboard-index__content');
+        cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content');
     });
 });

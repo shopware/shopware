@@ -167,7 +167,7 @@ describe('Product: Test variants', () => {
         cy.get('.product-variant-characteristics').contains('Color: Green | Size: L');
     });
 
-    it.only('@base @catalogue: test multidimensional variant with restrictions', () => {
+    it('@base @catalogue: test multidimensional variant with restrictions', () => {
         const page = new ProductPageObject();
         const optionsIndicator = '' +
             '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';

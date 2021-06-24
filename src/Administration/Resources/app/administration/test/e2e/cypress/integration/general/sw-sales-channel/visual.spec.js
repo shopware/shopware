@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Sales Channel: Visual tests', () => {
     beforeEach(() => {
@@ -43,6 +43,8 @@ describe('Sales Channel: Visual tests', () => {
             '.sw-entity-multi-select .sw-select-selection-list',
             'display: none'
         );
+        cy.get('.sw-entity-multi-select .sw-select-selection-list')
+            .should('have.css', 'display', 'none');
 
 
         // Change background-color of the element to ensure consistent snapshots
@@ -50,6 +52,9 @@ describe('Sales Channel: Visual tests', () => {
             '.sw-entity-multi-select .sw-select__selection',
             'background-color: #189EF'
         );
+
+        cy.get('.sw-entity-multi-select .sw-select__selection')
+            .should('have.css', 'color', 'rgb(82, 102, 122)');
         cy.takeSnapshot('[Sales channel] Detail', '.sw-sales-channel-detail-base');
     });
 });

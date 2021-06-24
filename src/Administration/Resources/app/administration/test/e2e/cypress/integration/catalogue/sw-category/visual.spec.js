@@ -46,6 +46,8 @@ describe('Category: Visual tests', () => {
             '.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry',
             'color: #fff'
         );
+        cy.get('.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
         cy.takeSnapshot('[Category] Listing', '.sw-card');
 
         cy.contains('.sw-category-detail__tab-products', 'Products').click();

@@ -15,7 +15,11 @@ describe('Product: Visual tests', () => {
             })
             .then(() => {
                 return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }]
+                    options: [{
+                        name: 'Red'
+                    }, {
+                        name: 'Green'
+                    }]
                 });
             });
     });
@@ -112,7 +116,7 @@ describe('Product: Visual tests', () => {
         cy.get('#sw-field--searchTerm').click();
         cy.get('.sw-property-search__tree-selection').should('be.visible');
         cy.contains('.sw-grid__cell-content', 'Color').click();
-        cy.contains('.sw-grid__row--0 .sw-grid__cell-content', 'Red').should('be.visible');
+        cy.contains('.sw-grid__cell-content', 'Red').should('be.visible');
         cy.get('.sw-grid__row--0 input').click();
 
         cy.takeSnapshot('[Product] Detail, Properties', '.sw-property-assignment__label-content');
@@ -136,7 +140,7 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-product-properties').should('be.visible');
     });
 
-    it.only('@visual: check appearance of product variant workflow', () => {
+    it('@visual: check appearance of product variant workflow', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -145,7 +149,10 @@ describe('Product: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
-
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/property-group`,
+            method: 'post'
+        }).as('getPropertyGroups');
 
         cy.get('.sw-product-list-grid').should('be.visible');
 
@@ -163,17 +170,23 @@ describe('Product: Visual tests', () => {
             .click();
 
         // Take snapshot for visual testing
+        cy.wait('@getPropertyGroups').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-modal').should('be.visible');
+
         cy.contains('.group_grid__column-name', 'Color').should('be.visible');
         cy.contains('.sw-modal__header', 'Generate variants').should('be.visible');
         cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation');
 
         // Create and verify one-dimensional variant
-        page.generateVariants('Color', [0], 1);
+        page.generateVariants('Color', [0, 1], 2);
 
         // Take snapshot for visual testing
         cy.get('.sw-modal').should('not.exist');
-        cy.takeSnapshot('Product - Variants in admin', '.sw-product-variants-overview');
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+        cy.get('.sw-product-variants-media-upload').should('be.visible');
+        cy.takeSnapshot('[Product] Variants in admin', '.sw-product-variants-overview');
 
         // Verify in storefront
         cy.visit('/');

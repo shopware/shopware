@@ -37,6 +37,8 @@ describe('Dynamic product groups: Visual tests', () => {
             '.sw-data-grid__cell--updatedAt',
             'color: #fff'
         );
+        cy.get('.sw-data-grid__cell--updatedAt')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
         cy.takeSnapshot('[Product groups] Listing', '.sw-product-stream-list');
 
         cy.get(page.elements.smartBarHeader).contains('Dynamic product groups');
@@ -63,6 +65,7 @@ describe('Dynamic product groups: Visual tests', () => {
         cy.get('button.sw-button').contains('Preview').click();
 
         // Take snapshot for visual testing
+        cy.get('.sw-product-stream-modal-preview').should('be.visible');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.wait('@searchProducts').then((xhr) => {
@@ -70,10 +73,12 @@ describe('Dynamic product groups: Visual tests', () => {
         });
 
         cy.get('.sw-data-grid .sw-data-grid__row--0').should('be.visible');
-        cy.takeSnapshot('[Product groups] Detail, preview', '.sw-product-stream-modal-preview');
+        cy.get('.sw-modal').should('be.visible');
+        cy.get('.sw-modal__header').contains('Preview (1)');
+
+        cy.takeSnapshot('[Product groups] Detail, preview', '.sw-product-stream-modal-preview .sw-data-grid__row--0');
 
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (1)');
             cy.get('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Product name');
             cy.get('.sw-modal__close').click();
         });

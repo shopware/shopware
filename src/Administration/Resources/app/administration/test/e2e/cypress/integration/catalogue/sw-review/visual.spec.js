@@ -41,6 +41,8 @@ describe('Administration: Check module navigation', () => {
             '.sw-data-grid__cell--createdAt',
             'color: #fff'
         );
+        cy.get('.sw-data-grid__cell--createdAt')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
 
         // Take snapshot
         cy.takeSnapshot('[Review] Listing', '.sw-review-list');
@@ -55,6 +57,8 @@ describe('Administration: Check module navigation', () => {
             ':nth-child(1) > :nth-child(1) > dd',
             'color: #F6F6F6'
         );
+        cy.get(':nth-child(1) > :nth-child(1) > dd')
+            .should('have.css', 'color', 'rgb(246, 246, 246)');
         // Take snapshot
         cy.takeSnapshot('[Review] Listing', '.sw-card-section--secondary');
     });

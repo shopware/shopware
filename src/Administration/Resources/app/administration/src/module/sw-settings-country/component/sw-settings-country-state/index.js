@@ -103,6 +103,13 @@ Component.register('sw-settings-country-state', {
             return this.countryStateRepository.save(this.currentCountryState).then(() => {
                 this.refreshCountryStateList();
                 this.currentCountryState = null;
+            }).catch(errors => {
+                if (this.feature.isActive('FEATURE_NEXT_14114')
+                    && errors.response.data.errors[0].code === 'MISSING-SYSTEM-TRANSLATION') {
+                    this.createNotificationError({
+                        message: this.$tc('sw-country-state-detail.createNewStateError'),
+                    });
+                }
             });
         },
 

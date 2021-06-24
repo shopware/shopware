@@ -65,7 +65,8 @@
     "labelName": "Name",
     "labelPosition": "Position",
     "labelShortCode": "ISO code",
-    "tooltipPosition": "Changes positioning of states/provinces in listings."
+    "tooltipPosition": "Changes positioning of states/provinces in listings.",
+    "createNewStateError": "Can not create a new state/region with the currently selected language. Please create a new state/region in the default system language first!"
   },
   "sw-privileges": {
     "permissions": {

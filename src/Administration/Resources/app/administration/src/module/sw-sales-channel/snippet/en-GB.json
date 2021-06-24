@@ -113,7 +113,7 @@
       "products": {
         "titleEmptyState": "No products added yet",
         "titleEmptyStateTable": "No matching products found",
-        "buttonAddProducts": "Add products | Add {productCount} product | Add {productCount} products",
+        "buttonAddProducts": "No products to add | Add {productCount} product | Add {productCount} products",
         "columnProductName": "Product name",
         "columnActive": "Active",
         "columnProductNumber": "Product number"
@@ -240,7 +240,7 @@
         "horizontalName": "Line by line (horizontal) calculation",
         "horizontalDescription": "VAT is calculated for each shopping cart position. During checkout each position's individual VAT is displayed. The total VAT amount is calculated by adding up all individual VAT values."
       },
-      "productAssigmentModal": {
+      "productAssignmentModal": {
         "title": "Add products",
         "singleProducts": "Individual products",
         "categories": {
@@ -259,7 +259,7 @@
         }
       }
     },
-     "sw-sales-channel-defaults-select": {
+    "sw-sales-channel-defaults-select": {
       "messageError": "The value is in use by this domain: \"%{url}\"."
     }
   },

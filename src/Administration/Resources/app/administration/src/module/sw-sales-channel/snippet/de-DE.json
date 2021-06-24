@@ -113,7 +113,7 @@
       "products": {
         "titleEmptyState": "Noch keine Produkte hinzugefügt",
         "titleEmptyStateTable": "Keine passenden Produkte gefunden",
-        "buttonAddProducts": "Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
+        "buttonAddProducts": "Keine Produkte hinzuzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
         "columnProductName": "Produktname",
         "columnActive": "Aktiv",
         "columnProductNumber": "Produktnummer"
@@ -240,7 +240,7 @@
         "horizontalName": "Zeilenweise (horizontale) Berechnung",
         "horizontalDescription": "Die Mehrwertsteuer wird pro Warenkorb-Position berechnet. Die Mehrwertsteueranteile jeder einzelnen Warenkorb-Position werden während des Bestellabschlusses angezeigt. Die Mehrwertsteuersumme berechnet sich aus den Mehrwertsteueranteilen der einzelnen Positionen."
       },
-      "productAssigmentModal": {
+      "productAssignmentModal": {
         "title": "Produkte hinzufügen",
         "singleProducts": "Einzelne Produkte",
         "categories": {

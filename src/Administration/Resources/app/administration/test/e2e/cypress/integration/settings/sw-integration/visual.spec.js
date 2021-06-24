@@ -13,10 +13,7 @@ describe('Integration: Visual testing', () => {
     });
 
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi();
-            })
+        cy.loginViaApi()
             .then(() => {
                 return cy.createDefaultFixture('integration', { admin: true });
             })
@@ -50,7 +47,8 @@ describe('Integration: Visual testing', () => {
         cy.takeSnapshot('[Integration] Listing', '.sw-integration-list__overview');
 
         cy.contains('.sw-data-grid__cell-content a', 'chat-key').click();
-        cy.get('.sw-modal').should('be.visible');
+        cy.handleModalSnapshot('Edit: chat-key');
+
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Integration] Detail', '#sw-field--currentIntegration-label');
     });

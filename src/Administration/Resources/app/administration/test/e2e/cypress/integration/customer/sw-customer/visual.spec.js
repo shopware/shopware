@@ -30,10 +30,7 @@ describe('Customer:  Visual test', () => {
     });
 
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi();
-            })
+        cy.loginViaApi()
             .then(() => {
                 cy.createReviewFixture();
             })
@@ -146,13 +143,12 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
 
-        cy.get('.sw-modal').should('be.visible');
         cy.wait('@getCountries').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
 
         // Take snapshot for visual testing
-        cy.contains('.sw-modal__header', 'Address').should('be.visible');
+        cy.handleModalSnapshot('Address');
         cy.takeSnapshot('[Customer] Detail, address modal', '#sw-field--address-company');
     });
 

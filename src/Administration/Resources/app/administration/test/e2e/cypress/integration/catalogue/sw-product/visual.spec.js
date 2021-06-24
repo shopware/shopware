@@ -173,10 +173,9 @@ describe('Product: Visual tests', () => {
         cy.wait('@getPropertyGroups').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-modal').should('be.visible');
 
+        cy.handleModalSnapshot('Generate variants');
         cy.contains('.group_grid__column-name', 'Color').should('be.visible');
-        cy.contains('.sw-modal__header', 'Generate variants').should('be.visible');
         cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation');
 
         // Create and verify one-dimensional variant
@@ -186,6 +185,7 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-modal').should('not.exist');
         cy.get('.sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-product-variants-media-upload').should('be.visible');
+        cy.sortListingViaColumn('Name', 'Green', '.sw-data-grid__cell--name');
         cy.takeSnapshot('[Product] Variants in admin', '.sw-product-variants-overview');
 
         // Verify in storefront

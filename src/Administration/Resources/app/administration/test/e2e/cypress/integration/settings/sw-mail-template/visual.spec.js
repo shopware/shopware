@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
@@ -36,10 +36,14 @@ describe('Mail templates: Check module navigation in settings', () => {
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-mail-templates-list-grid .sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.sortListingViaColumn('Type', 'Contact form', '.sw-data-grid__row--0')
-        cy.takeSnapshot('[Mail templates] Listing', '.sw-mail-templates-list-grid');
+        cy.sortListingViaColumn('Type', 'Contact form');
+
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-mail-templates-list-grid .sw-data-grid__row--0').should('be.visible');
 
         // Delete manufacturer
         cy.clickContextMenuItem(
@@ -49,6 +53,7 @@ describe('Mail templates: Check module navigation in settings', () => {
         );
 
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-media-upload-v2__dropzone').should('be.visible');
         cy.takeSnapshot('[Mail templates] Details', '.sw-mail-template-detail');
     });
 });

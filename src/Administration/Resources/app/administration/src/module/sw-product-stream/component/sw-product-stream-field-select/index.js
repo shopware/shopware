@@ -56,6 +56,13 @@ Component.register('sw-product-stream-field-select', {
             }).filter((option) => option !== null);
 
             if (this.definition.entity === 'product') {
+                Object.values(this.conditionDataProviderService.allowedJsonAccessors).forEach((field) => {
+                    entityFields.push({
+                        label: this.getPropertyTranslation(field.trans),
+                        value: field.value,
+                    });
+                });
+
                 Object.keys(this.productCustomFields).forEach((customField) => {
                     entityFields.push(this.productCustomFields[customField]);
                 });

@@ -107,7 +107,8 @@
         "properties": "Eigenschaften",
         "property_group": "Gruppe",
         "property_group_option": "Eigenschafts-Ausprägung",
-        "product_manufacturer": "Hersteller"
+        "product_manufacturer": "Hersteller",
+        "percentage": "Prozentuales Verhältnis Preis/Streichpreis"
       }
     },
     "detail": {

@@ -65,6 +65,14 @@ export default function conditionService() {
         ],
     };
 
+    const allowedJsonAccessors = {
+        'price.percentage': {
+            value: 'price.percentage',
+            type: 'float',
+            trans: 'percentage',
+        },
+    };
+
     const productFilterTypes = {
         equals: {
             identifier: 'equals',
@@ -213,6 +221,7 @@ export default function conditionService() {
         getOperator,
         isNegatedType,
         isRangeType,
+        allowedJsonAccessors,
     };
 
     /**

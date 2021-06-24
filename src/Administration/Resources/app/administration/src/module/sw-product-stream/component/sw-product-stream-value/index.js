@@ -102,6 +102,10 @@ Component.register('sw-product-stream-value', {
             const fieldDefinition = this.definition.getField(this.fieldName);
 
             if (!fieldDefinition && this.definition.entity === 'product' && this.fieldName) {
+                if (this.conditionDataProviderService.allowedJsonAccessors.hasOwnProperty(this.fieldName)) {
+                    return this.conditionDataProviderService.allowedJsonAccessors[this.fieldName];
+                }
+
                 return this.productCustomFields[this.fieldName.replace('customFields.', '')] || null;
             }
 

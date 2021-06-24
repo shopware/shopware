@@ -56,7 +56,13 @@ function createWrapper(privileges = [], fieldType = null, conditionType = '', en
                 })
             },
             conditionDataProviderService: {
-                getOperatorSet: () => []
+                getOperatorSet: () => [],
+                allowedJsonAccessors: {
+                    'json.test': {
+                        value: 'json.test',
+                        type: 'string'
+                    }
+                }
             },
             acl: {
                 can: identifier => {
@@ -177,6 +183,25 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
         expect(wrapper.emitted('boolean-change')[0][0].type).toEqual('notEquals');
         expect(wrapper.emitted('boolean-change')[0][0].value).toEqual('0');
+    });
+
+    it('should return correct fieldDefinition with json accessor', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'json.test',
+            definition: {
+                entity: 'product',
+                getField: () => undefined,
+                isJsonField: () => false
+            }
+        });
+        wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.fieldDefinition).toEqual({
+            value: 'json.test',
+            type: 'string'
+        });
     });
 });
 

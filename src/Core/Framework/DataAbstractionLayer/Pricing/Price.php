@@ -31,13 +31,19 @@ class Price extends Struct
      */
     protected $listPrice;
 
-    public function __construct(string $currencyId, float $net, float $gross, bool $linked, ?Price $listPrice = null)
+    /**
+     * @var array|null
+     */
+    protected $percentage;
+
+    public function __construct(string $currencyId, float $net, float $gross, bool $linked, ?Price $listPrice = null, ?array $percentage = null)
     {
         $this->net = $net;
         $this->gross = $gross;
         $this->linked = $linked;
         $this->currencyId = $currencyId;
         $this->listPrice = $listPrice;
+        $this->percentage = $percentage;
     }
 
     public function getNet(): float
@@ -94,6 +100,16 @@ class Price extends Struct
     public function getListPrice(): ?Price
     {
         return $this->listPrice;
+    }
+
+    public function getPercentage(): ?array
+    {
+        return $this->percentage;
+    }
+
+    public function setPercentage(?array $percentage): void
+    {
+        $this->percentage = $percentage;
     }
 
     public function getApiAlias(): string

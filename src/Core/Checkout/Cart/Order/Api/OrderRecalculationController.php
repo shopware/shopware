@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -101,12 +102,20 @@ class OrderRecalculationController extends AbstractController
         $quantity = $request->request->getInt('quantity', 1);
 
         $lineItem = new LineItem($identifier, $type, null, $quantity);
-        $label = $request->request->has('label') ? (string) $request->request->get('label') : null;
-        $description = $request->request->has('description') ? (string) $request->request->get('description') : null;
+        $label = $request->request->get('label');
+        $description = $request->request->get('description');
         $removeable = (bool) $request->request->get('removeable', true);
         $stackable = (bool) $request->request->get('stackable', true);
         $payload = $request->request->all('payload');
         $priceDefinition = $request->request->all('priceDefinition');
+
+        if ($label !== null && !\is_string($label)) {
+            throw new InvalidRequestParameterException('label');
+        }
+
+        if ($description !== null && !\is_string($description)) {
+            throw new InvalidRequestParameterException('description');
+        }
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);
@@ -175,12 +184,20 @@ class OrderRecalculationController extends AbstractController
      */
     private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
     {
-        $label = $request->request->has('label') ? (string) $request->request->get('label') : null;
-        $description = $request->request->has('description') ? (string) $request->request->get('description') : null;
+        $label = $request->request->get('label');
+        $description = $request->request->get('description');
         $removeable = (bool) $request->request->get('removeable', true);
         $stackable = (bool) $request->request->get('stackable', true);
         $payload = $request->request->all('payload');
         $priceDefinition = $request->request->all('priceDefinition');
+
+        if ($label !== null && !\is_string($label)) {
+            throw new InvalidRequestParameterException('label');
+        }
+
+        if ($description !== null && !\is_string($description)) {
+            throw new InvalidRequestParameterException('description');
+        }
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);

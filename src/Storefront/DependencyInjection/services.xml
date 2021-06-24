@@ -526,7 +526,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha">
-            <argument type="service" id="session"/>
+            <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="shopware.storefront.captcha"/>

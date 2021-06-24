@@ -16,12 +16,9 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"storefront"})
  */
-class CountryStateController extends StorefrontController
+class CountryStateController
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $countryRepository;
+    private SalesChannelRepositoryInterface $countryRepository;
 
     public function __construct(SalesChannelRepositoryInterface $countryRepository)
     {

@@ -71,7 +71,8 @@ Component.register('sw-newsletter-recipient-list', {
 
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit, this.term);
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
             criteria.addAssociation('salesChannel');
 

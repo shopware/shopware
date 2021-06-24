@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.4.1.2
+*  [NEXT-15858 - Update flysystem](/changelog/release-6-4-1-2/2021-06-24-update-flysystem.md)
+
 ## 6.4.1.1
 *  [NEXT-14744 - fix visibility setting in s3 storage fs](/changelog/release-6-4-1-1/2021-05-10-fix-visibility-setting-in-s3-storage-fs.md)
 *  [NEXT-15171 - validate order create discount privilege and generally in proxy endpoints](/changelog/release-6-4-1-1/2021-05-10-validate-order-create-discount-privilege-and-generally-in-proxy-endpoints.md)

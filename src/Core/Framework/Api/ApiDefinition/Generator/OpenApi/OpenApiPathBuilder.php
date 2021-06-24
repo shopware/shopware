@@ -53,7 +53,7 @@ class OpenApiPathBuilder
     {
         $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
 
-        $schemaName = $definition->getEntityName();
+        $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
         return new Get([
             'summary' => 'List with basic information of ' . $humanReadableName . ' resources',
@@ -111,7 +111,7 @@ class OpenApiPathBuilder
                                     'data' => [
                                         'type' => 'array',
                                         'items' => [
-                                            '$ref' => '#/components/schemas/' . $schemaName . '_flat',
+                                            '$ref' => '#/components/schemas/' . $schemaName,
                                         ],
                                     ],
                                 ],
@@ -126,6 +126,8 @@ class OpenApiPathBuilder
 
     private function getDetailPath(EntityDefinition $definition): Get
     {
+        $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+
         return new Get([
             'summary' => 'Detailed information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource',
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
@@ -133,7 +135,7 @@ class OpenApiPathBuilder
             'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
             'parameters' => [$this->getIdParameter($definition)],
             'responses' => [
-                Response::HTTP_OK => $this->getDetailResponse($definition->getEntityName()),
+                Response::HTTP_OK => $this->getDetailResponse($schemaName),
                 Response::HTTP_NOT_FOUND => $this->getResponseRef((string) Response::HTTP_NOT_FOUND),
                 Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
             ],
@@ -142,6 +144,8 @@ class OpenApiPathBuilder
 
     private function getCreatePath(EntityDefinition $definition): Post
     {
+        $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+
         return new Post([
             'summary' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources',
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
@@ -162,7 +166,7 @@ class OpenApiPathBuilder
                             'type' => 'object',
                             'properties' => [
                                 'data' => [
-                                    '$ref' => '#/components/schemas/' . $definition->getEntityName(),
+                                    '$ref' => '#/components/schemas/' . $schemaName,
                                 ],
                                 'included' => [
                                     'type' => 'array',
@@ -174,13 +178,13 @@ class OpenApiPathBuilder
                     ],
                     'application/json' => [
                         'schema' => [
-                            '$ref' => '#/components/schemas/' . $definition->getEntityName() . '_flat',
+                            '$ref' => '#/components/schemas/' . $schemaName,
                         ],
                     ],
                 ],
             ],
             'responses' => [
-                Response::HTTP_CREATED => $this->getDetailResponse($definition->getEntityName()),
+                Response::HTTP_CREATED => $this->getDetailResponse($schemaName),
                 Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
                 Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
             ],
@@ -189,6 +193,8 @@ class OpenApiPathBuilder
 
     private function getUpdatePath(EntityDefinition $definition): Patch
     {
+        $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+
         return new Patch([
             'summary' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource',
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
@@ -203,7 +209,7 @@ class OpenApiPathBuilder
                             'type' => 'object',
                             'properties' => [
                                 'data' => [
-                                    '$ref' => '#/components/schemas/' . $definition->getEntityName(),
+                                    '$ref' => '#/components/schemas/' . $schemaName,
                                 ],
                                 'included' => [
                                     'type' => 'array',
@@ -215,13 +221,13 @@ class OpenApiPathBuilder
                     ],
                     'application/json' => [
                         'schema' => [
-                            '$ref' => '#/components/schemas/' . $definition->getEntityName() . '_flat',
+                            '$ref' => '#/components/schemas/' . $schemaName,
                         ],
                     ],
                 ],
             ],
             'responses' => [
-                Response::HTTP_OK => $this->getDetailResponse($definition->getEntityName()),
+                Response::HTTP_OK => $this->getDetailResponse($schemaName),
                 Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
                 Response::HTTP_NOT_FOUND => $this->getResponseRef((string) Response::HTTP_NOT_FOUND),
                 Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
@@ -312,7 +318,7 @@ class OpenApiPathBuilder
                 ],
                 'application/json' => [
                     'schema' => [
-                        '$ref' => '#/components/schemas/' . $schemaName . '_flat',
+                        '$ref' => '#/components/schemas/' . $schemaName,
                     ],
                 ],
             ],
@@ -353,5 +359,10 @@ class OpenApiPathBuilder
         ]);
 
         return $idParameter;
+    }
+
+    private function snakeCaseToCamelCase(string $input): string
+    {
+        return str_replace('_', '', ucwords($input, '_'));
     }
 }

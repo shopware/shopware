@@ -57,7 +57,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, string $api): array
+    public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): array
     {
         return $this->getSchema($definitions);
     }

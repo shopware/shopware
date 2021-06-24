@@ -101,7 +101,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/product_review_flat")
+     *                          @OA\Items(ref="#/components/schemas/ProductReview")
      *                      )
      *                  )
      *              }

@@ -57,7 +57,7 @@
         "elements": {
           "type": "array",
           "items": {
-            "$ref": "#/components/schemas/product_flat"
+            "$ref": "#/components/schemas/Product"
           }
         }
       }

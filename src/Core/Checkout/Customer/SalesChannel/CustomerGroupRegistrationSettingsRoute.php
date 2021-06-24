@@ -50,7 +50,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
      *      @OA\Response(
      *          response="200",
      *          description="Returns the customer group including registration settings.",
-     *          @OA\JsonContent(ref="#/components/schemas/customer_group_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/CustomerGroup")
      *     )
      * )
      * @Route(path="/store-api/customer-group-registration/config/{customerGroupId}", name="store-api.customer-group-registration.config", methods={"GET"})

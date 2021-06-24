@@ -61,7 +61,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
      *          description="Returns the state of the state machine
 
 example: More information about the state machine can be found in the corresponding guide: [Using the state machine](https://developer.shopware.com/docs/guides/plugins/plugins/checkout/order/using-the-state-machine)",
-     *          @OA\JsonContent(ref="#/components/schemas/state_machine_state_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/StateMachineState")
      *     )
      * )
      * @LoginRequired(allowGuest=true)

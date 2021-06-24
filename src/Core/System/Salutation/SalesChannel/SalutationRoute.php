@@ -55,7 +55,7 @@ class SalutationRoute extends AbstractSalutationRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/salutation_flat")
+     *                          @OA\Items(ref="#/components/schemas/Salutation")
      *                      )
      *                  )
      *              }

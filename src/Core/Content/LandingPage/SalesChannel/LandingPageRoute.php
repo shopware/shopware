@@ -96,7 +96,7 @@ The criteria passed with this route also affects the listing, if there is one wi
      *      @OA\Response(
      *          response="200",
      *          description="The loaded landing page with cms page",
-     *          @OA\JsonContent(ref="#/components/schemas/landing_page_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/LandingPage")
      *     ),
      *     @OA\Response(
      *          response="404",

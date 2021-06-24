@@ -97,7 +97,7 @@ class CachedLanguageRoute extends AbstractLanguageRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/language_flat")
+     *                          @OA\Items(ref="#/components/schemas/Language")
      *                      )
      *                  )
      *              }

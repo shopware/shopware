@@ -60,7 +60,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *                          @OA\Items(ref="#/components/schemas/PaymentMethod")
      *                      )
      *                  )
      *              }

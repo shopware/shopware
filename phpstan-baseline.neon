@@ -1576,11 +1576,6 @@ parameters:
 			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-
-		-
 			message: "#^Parameter \\#1 \\$filePath of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Command\\\\DumpClassSchemaCommand\\:\\:parseFile\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Command/DumpClassSchemaCommand.php

@@ -53,7 +53,7 @@ class ProductListRoute extends AbstractProductListRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/product_flat")
+     *                          @OA\Items(ref="#/components/schemas/Product")
      *                      )
      *                  )
      *              }

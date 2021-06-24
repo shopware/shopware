@@ -97,7 +97,7 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/currency_flat")
+     *                          @OA\Items(ref="#/components/schemas/Currency")
      *                      )
      *                  )
      *              }

@@ -56,7 +56,7 @@ class ListAddressRoute extends AbstractListAddressRoute
      *      @OA\Response(
      *          response="200",
      *          description="",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/customer_address_flat"))
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/CustomerAddress"))
      *     )
      * )
      * @LoginRequired(allowGuest=true)

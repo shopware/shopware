@@ -49,7 +49,7 @@ class CustomerRoute extends AbstractCustomerRoute
      *      @OA\Response(
      *          response="200",
      *          description="Returns the logged in customer, also for guest sessions. Check for the value of `guest` field to see whether the customer is a guest.",
-     *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/Customer")
      *     )
      * )
      * @LoginRequired(allowGuest=true)

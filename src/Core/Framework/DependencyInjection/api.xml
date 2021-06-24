@@ -152,6 +152,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
+            <argument>%kernel.bundles_metadata%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator">

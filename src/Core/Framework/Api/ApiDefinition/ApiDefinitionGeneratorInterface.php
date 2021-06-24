@@ -15,7 +15,7 @@ interface ApiDefinitionGeneratorInterface
     /**
      * @param EntityDefinition[]|SalesChannelDefinitionInterface[] $definitions
      */
-    public function generate(array $definitions, string $api): array;
+    public function generate(array $definitions, string $api, string $apiType): array;
 
     /**
      * @param EntityDefinition[]|SalesChannelDefinitionInterface[] $definitions

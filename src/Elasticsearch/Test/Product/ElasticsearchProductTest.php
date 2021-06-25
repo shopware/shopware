@@ -2136,7 +2136,7 @@ class ElasticsearchProductTest extends TestCase
             ],
         ];
 
-        static::assertSame($expected, $mapping['properties']['customFields']);
+        static::assertEquals($expected, $mapping['properties']['customFields']);
     }
 
     /**
@@ -2355,6 +2355,7 @@ class ElasticsearchProductTest extends TestCase
                 ->customField('test_int', 19999)
                 ->customField('test_date', (new \DateTime())->format('Y-m-d H:i:s'))
                 ->customField('testFloatingField', 1.5)
+                ->customField('test_bool', true)
                 ->build(),
             (new ProductBuilder($this->ids, 'product-2'))
                 ->name('Rubber')

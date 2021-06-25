@@ -1,0 +1,41 @@
+name: Bug report 🐛
+description: Existing feature does not behave as expected.
+labels: [Bug]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for taking the time to fill out this bug report!
+    - type: input
+      id: php-version
+      attributes:
+          label: PHP Version
+      validations:
+          required: true
+    - type: input
+      id: shopware-version
+      attributes:
+          label: Shopware Version
+      validations:
+          required: true
+    - type: textarea
+      id: expected-behaviour
+      attributes:
+          label: Expected behaviour
+          description: What did you expect to happen?
+      validations:
+          required: true
+    - type: textarea
+      id: actual-behaviour
+      attributes:
+          label: Actual behaviour
+          description: Please describe the issue
+      validations:
+          required: true
+    - type: textarea
+      id: steps-to-reproduce
+      attributes:
+          label: How to reproduce
+          description: Tell us how the bug can be reproduced
+      validations:
+          required: true

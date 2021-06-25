@@ -17,6 +17,13 @@
         },
         "sort-packages": true
     },
+    "support": {
+        "issues": "https://issues.shopware.com",
+        "forum": "https://forum.shopware.com",
+        "wiki": "https://developer.shopware.com",
+        "docs": "https://developer.shopware.com",
+        "chat": "https://slack.shopware.com"
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "6.4.x-dev",

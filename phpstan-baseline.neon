@@ -3101,11 +3101,6 @@ parameters:
 			path: src/Core/Framework/Update/Checkers/WriteableCheck.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/ApiClient.php
-
-		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Adapter implements generic interface SeekableIterator but does not specify its types\\: TKey, TValue$#"
 			count: 1
 			path: src/Core/Framework/Update/Services/Archive/Adapter.php

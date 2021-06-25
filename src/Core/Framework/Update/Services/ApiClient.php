@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Update\VersionFactory;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 final class ApiClient
 {
@@ -25,11 +24,6 @@ final class ApiClient
      * @var string
      */
     private $shopwareVersion;
-
-    /**
-     * @var AdapterInterface
-     */
-    private $cacheAdapter;
 
     /**
      * @var SystemConfigService
@@ -48,29 +42,22 @@ final class ApiClient
 
     public function __construct(
         string $shopwareVersion,
-        AdapterInterface $cacheAdapter,
         SystemConfigService $systemConfigService,
         OpenSSLVerifier $openSSLVerifier,
+        Client $client,
         bool $shopwareUpdateEnabled
     ) {
         $this->shopwareVersion = $shopwareVersion;
         $this->systemConfigService = $systemConfigService;
-        $this->client = $this->getClient();
-        $this->cacheAdapter = $cacheAdapter;
         $this->openSSLVerifier = $openSSLVerifier;
         $this->shopwareUpdateEnabled = $shopwareUpdateEnabled;
+        $this->client = $client;
     }
 
     public function checkForUpdates(bool $testMode = false): Version
     {
         if (!$this->shopwareUpdateEnabled) {
             return new Version();
-        }
-
-        $cacheItem = $this->cacheAdapter->getItem($this->getCacheKey());
-
-        if ($cacheItem->isHit()) {
-            return $cacheItem->get();
         }
 
         if ($testMode === true) {
@@ -82,26 +69,7 @@ final class ApiClient
 
         $data = json_decode((string) $response->getBody(), true);
 
-        $version = VersionFactory::create($data);
-
-        $cacheItem->set($version);
-
-        $this->cacheAdapter->save($cacheItem);
-
-        return $version;
-    }
-
-    private function getClient(): Client
-    {
-        $config = [
-            'base_uri' => $this->systemConfigService->get('core.update.apiUri'),
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'ACCEPT' => 'application/json',
-            ],
-        ];
-
-        return new Client($config);
+        return VersionFactory::create($data);
     }
 
     private function getShopwareVersion(): string
@@ -121,11 +89,6 @@ final class ApiClient
             'major' => 6,
             'code' => $this->systemConfigService->get('core.update.code'),
         ];
-    }
-
-    private function getCacheKey(): string
-    {
-        return 'swUpdateCheck' . md5(json_encode($this->getUpdateOptions())) . date('YmdH');
     }
 
     private function verifyResponseSignature(ResponseInterface $response): void

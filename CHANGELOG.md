@@ -129,6 +129,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-15345 - Add hint description for google reCAPTCHA](/changelog/release-6-4-2-0/2021-06-10-add-hint-description-for-google-recaptcha.md)
 *  [NEXT-15703 - Use entity name to determine source of slot config in contact form submit](/changelog/release-6-4-2-0/2021-06-22-use-entity-name-to-determine-source-of-slot-config-in-contact-form-submit.md)
 
+## 6.4.1.2
+*  [NEXT-15858 - Update flysystem](/changelog/release-6-4-1-2/2021-06-24-update-flysystem.md)
+
 ## 6.4.1.1
 *  [NEXT-14744 - fix visibility setting in s3 storage fs](/changelog/release-6-4-1-1/2021-05-10-fix-visibility-setting-in-s3-storage-fs.md)
 *  [NEXT-15171 - validate order create discount privilege and generally in proxy endpoints](/changelog/release-6-4-1-1/2021-05-10-validate-order-create-discount-privilege-and-generally-in-proxy-endpoints.md)

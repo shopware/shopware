@@ -556,6 +556,10 @@ SQL;
 
     private function removeUnwantedCurrencies(Shop $shop): void
     {
+        // change default currency for dummy sales channel domain to the default currency to avoid foreign key constraints
+        $statement = $this->connection->prepare('UPDATE sales_channel_domain SET currency_id = ? WHERE 1');
+        $statement->execute([$this->getCurrencyId($shop->currency)]);
+
         // remove all currencies except the default currency when no additional currency is selected
         if ($shop->additionalCurrencies === null) {
             $statement = $this->connection->prepare('DELETE FROM currency WHERE iso_code != ?');

@@ -132,6 +132,8 @@
                     :label="$tc('sw-settings-customer-group.registration.introduction')"
                     :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
                     :disabled="!acl.can('customer_groups.editor')"
+                    sanitize-input
+                    sanitize-field-name="customer_group_translation.registrationIntroduction"
                 />
                 {% endblock %}
 

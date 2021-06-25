@@ -30,6 +30,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createFeatureSection())
                 ->append($this->createLoggerSection())
                 ->append($this->createCacheSection())
+                ->append($this->createHtmlSanitizerSection())
             ->end();
 
         return $treeBuilder;
@@ -411,6 +412,61 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createHtmlSanitizerSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('html_sanitizer');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->variableNode('cache_dir')
+                    ->defaultValue('%kernel.cache_dir%')
+                ->end()
+                ->booleanNode('cache_enabled')
+                    ->defaultTrue()
+                ->end()
+                ->arrayNode('sets')
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('name')->end()
+                            ->arrayNode('tags')
+                                ->defaultValue([])
+                                ->scalarPrototype()->end()
+                            ->end()
+                            ->arrayNode('attributes')
+                                ->defaultValue([])
+                                ->scalarPrototype()->end()
+                            ->end()
+                            ->arrayNode('options')
+                                ->useAttributeAsKey('key')
+                                ->defaultValue([])
+                                ->arrayPrototype()
+                                    ->children()
+                                        ->scalarNode('key')->end()
+                                        ->scalarNode('value')->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('fields')
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('name')->end()
+                            ->arrayNode('sets')
+                                ->scalarPrototype()->end()
+                            ->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 

@@ -613,5 +613,12 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
+
+        <service id="Shopware\Core\Framework\Util\HtmlSanitizer" public="true">
+            <argument>%shopware.html_sanitizer.cache_dir%</argument>
+            <argument>%shopware.html_sanitizer.cache_enabled%</argument>
+            <argument>%shopware.html_sanitizer.sets%</argument>
+            <argument>%shopware.html_sanitizer.fields%</argument>
+        </service>
     </services>
 </container>

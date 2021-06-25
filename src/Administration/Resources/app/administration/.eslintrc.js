@@ -59,11 +59,6 @@ module.exports = {
 
     overrides: [
         {
-            files: ['**/*.spec.js'],
-            rules: {
-                'max-len': 0,
-            },
-        }, {
             extends: [
                 'plugin:vue/recommended',
                 '@shopware-ag/eslint-config-base',
@@ -144,6 +139,12 @@ module.exports = {
                     allowModifiers: true,
                 }],
             },
+        }, {
+            files: ['**/*.spec.js', '**/fixtures/*.js'],
+            rules: {
+                'max-len': 0,
+            },
         },
+
     ],
 };

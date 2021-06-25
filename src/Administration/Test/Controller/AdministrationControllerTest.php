@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -158,6 +159,52 @@ class AdministrationControllerTest extends TestCase
         $response = json_decode($content, true);
         static::assertEquals(400, $browser->getResponse()->getStatusCode());
         static::assertSame('The email address ' . $email . ' is already in use', $response['errors'][0]['detail']);
+    }
+
+    public function testPreviewSanitizedHtml(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_15172')) {
+            static::markTestSkipped('NEXT-15172');
+        }
+
+        $html = '<img alt="" src="#" /><script type="text/javascript"></script><div>test</div>';
+        $browser = $this->createClient();
+
+        $browser->request(
+            'POST',
+            '/api/_admin/sanitize-html',
+            [
+                'html' => $html,
+                'field' => 'product_translation.description',
+            ]
+        );
+
+        $content = $this->getBrowser()->getResponse()->getContent();
+
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true);
+
+        static::assertEquals(200, $browser->getResponse()->getStatusCode());
+        static::assertSame('<img alt="" src="#" /><div>test</div>', $response['preview']);
+
+        $browser->request(
+            'POST',
+            '/api/_admin/sanitize-html',
+            [
+                'html' => $html,
+                'field' => 'mail_template_translation.contentHtml',
+            ]
+        );
+
+        $content = $this->getBrowser()->getResponse()->getContent();
+
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true);
+
+        static::assertEquals(200, $browser->getResponse()->getStatusCode());
+        static::assertSame($html, $response['preview']);
     }
 
     private function createCustomer(string $email): string

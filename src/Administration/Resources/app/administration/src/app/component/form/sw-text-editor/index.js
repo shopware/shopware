@@ -27,9 +27,10 @@ const { Component } = Shopware;
  *              <p>Furthermore you can pass the position prop [left (default), middle and right]
  *              to set the buttons position in the toolbar.</p>
  * @component-example
- *  <sw-text-editor value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" :isInlineEdit="true">
- *
- *  </sw-text-editor>
+ *  <sw-text-editor
+ *      value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr"
+ *      :is-inline-edit="true"
+ *  />
  */
 Component.register('sw-text-editor', {
     template,
@@ -81,6 +82,18 @@ Component.register('sw-text-editor', {
             type: Boolean,
             required: false,
             default: false,
+        },
+
+        sanitizeInput: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        sanitizeFieldName: {
+            type: String,
+            required: false,
+            default: null,
         },
 
         buttonConfig: {

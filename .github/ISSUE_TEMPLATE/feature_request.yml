@@ -1,0 +1,7 @@
+name: Feature request 🚀
+description: RFC and ideas for new features and improvements
+labels: [Feature Request]
+body:
+    - type: textarea
+      attributes:
+          label: Please describe the feature you would like to see implemented.

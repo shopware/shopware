@@ -6,11 +6,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -162,5 +164,26 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         return $this->cachedConstraints[$key] = $this->getConstraints($field);
+    }
+
+    protected function sanitize(HtmlSanitizer $sanitizer, KeyValuePair $data, Field $field, EntityExistence $existence): ?string
+    {
+        if ($data->getValue() === null) {
+            return null;
+        }
+
+        if (!$field->is(AllowHtml::class)) {
+            return strip_tags((string) $data->getValue());
+        }
+
+        $flag = $field->getFlag(AllowHtml::class);
+
+        if ($flag instanceof AllowHtml && $flag->isSanitized()) {
+            $fieldKey = sprintf('%s.%s', (string) $existence->getEntityName(), $field->getPropertyName());
+
+            return $sanitizer->sanitize((string) $data->getValue(), [], false, $fieldKey);
+        }
+
+        return (string) $data->getValue();
     }
 }

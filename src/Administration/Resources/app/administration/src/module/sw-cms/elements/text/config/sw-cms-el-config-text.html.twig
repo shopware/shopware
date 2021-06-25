@@ -42,6 +42,7 @@
                 <sw-text-editor
                     v-model="element.config.content.value"
                     :allow-inline-data-mapping="true"
+                    sanitize-input
                     @input="onInput"
                     @blur="onBlur"
                 />

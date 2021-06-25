@@ -3891,11 +3891,6 @@ parameters:
 			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/SwSanitizeTwigFilter.php
-
-		-
 			message: "#^Cannot access offset 'path' on array\\(\\?'scheme' \\=\\> string, \\?'host' \\=\\> string, \\?'port' \\=\\> int, \\?'user' \\=\\> string, \\?'pass' \\=\\> string, \\?'path' \\=\\> string, \\?'query' \\=\\> string, \\?'fragment' \\=\\> string\\)\\|false\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php

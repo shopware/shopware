@@ -20,4 +20,29 @@ $sw-text-editor-color-label: $color-darkgray-200;
         border: 1px solid $sw-text-editor-color-border;
         height: 260px;
     }
+
+    &__sanitize-bar {
+        position: relative;
+        width: 100%;
+        overflow: visible;
+    }
+
+    &__sanitize-info,
+    &__sanitized-hint {
+        display: flex;
+        font-size: calc(14 / 16 * 1rem);
+        padding: calc(4 / 16 * 1rem) 0;
+        position: absolute;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.16s ease;
+
+        &--visible {
+            opacity: 1;
+        }
+    }
+
+    &__sanitize-text {
+        margin-top: calc(6 / 16 * 1rem);
+    }
 }

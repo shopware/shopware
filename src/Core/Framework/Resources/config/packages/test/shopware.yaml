@@ -16,6 +16,21 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
 
+    html_sanitizer:
+        sets:
+            - name: custom
+              tags: ["input"]
+              options:
+                  - key: HTML.Trusted
+                    value: true
+        fields:
+            - name: test.media
+              sets: ["basic", "media"]
+            - name: test.script
+              sets: ["basic", "script"]
+            - name: test.custom
+              sets: ["basic", "custom"]
+
     feature:
         flags:
             - name: FEATURE_NEXT_12345

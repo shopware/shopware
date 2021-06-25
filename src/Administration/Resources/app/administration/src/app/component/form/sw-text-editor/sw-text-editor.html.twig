@@ -46,6 +46,8 @@
             v-if="isCodeEdit"
             ref="codeEditor"
             :value="value"
+            :sanitize-input="sanitizeInput"
+            :sanitize-field-name="sanitizeFieldName"
             set-focus
             @blur="emitHtmlContent"
         />
@@ -84,7 +86,9 @@
                 columns="1fr"
                 justify="right"
             >
-                <span class="sw-text-editor__text-length">{{ $tc('global.sw-text-editor.labelTextLength', textLength, { count: textLength }) }}</span>
+                <span class="sw-text-editor__text-length">
+                    {{ $tc('global.sw-text-editor.labelTextLength', textLength, { count: textLength }) }}
+                </span>
             </sw-container>
         </div>
         {% endblock %}

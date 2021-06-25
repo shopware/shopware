@@ -183,6 +183,10 @@
     "sw-text-editor": {
       "labelTextLength": "{count} character | {count} characters"
     },
+    "sw-code-editor": {
+      "sanitizeInfo": "Potentially harmful code will be sanitised and removed from the editor automatically.",
+      "sanitizedHint": "Some of your inputs have been sanitised. Please double check your content."
+    },
     "sw-tag-field": {
       "title": "Tags",
       "listItemAdd": "Add \"{term}\"",

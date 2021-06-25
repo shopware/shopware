@@ -7,9 +7,18 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
+    private HtmlSanitizer $sanitizer;
+
+    public function __construct(HtmlSanitizer $sanitizer)
+    {
+        $this->sanitizer = $sanitizer;
+    }
+
     public function getType(): string
     {
         return 'text';
@@ -30,19 +39,25 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
             return;
         }
 
+        $content = null;
+
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
             $content = $this->resolveEntityValueToString($resolverContext->getEntity(), $config->getStringValue(), $resolverContext);
-
-            $text->setContent($content);
         }
 
         if ($config->isStatic()) {
             if ($resolverContext instanceof EntityResolverContext) {
                 $content = (string) $this->resolveEntityValues($resolverContext, $config->getStringValue());
-
-                $text->setContent($content);
             } else {
-                $text->setContent($config->getStringValue());
+                $content = $config->getStringValue();
+            }
+        }
+
+        if ($content !== null) {
+            if (Feature::isActive('FEATURE_NEXT_15172')) {
+                $text->setContent($this->sanitizer->sanitize($content));
+            } else {
+                $text->setContent($content);
             }
         }
     }

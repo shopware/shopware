@@ -42,6 +42,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Cms\DataResolver\Element\TextCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <tag name="shopware.cms.data_resolver"/>
         </service>
 

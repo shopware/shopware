@@ -40,6 +40,8 @@
         class="sw-category-detail-base__description"
         type="textarea"
         :disabled="!acl.can('category.editor')"
+        sanitize-input
+        sanitize-field-name="category_translation.description"
         :label="$tc('sw-category.base.menu.descriptionLabel')"
         :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
     />

@@ -125,6 +125,8 @@
                     :label="$tc('sw-manufacturer.detail.labelDescription')"
                     :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
                     name="description"
+                    sanitize-input
+                    sanitize-field-name="product_manufacturer_translation.description"
                     :disabled="!acl.can('product_manufacturer.editor')"
                 />
                 {% endblock %}

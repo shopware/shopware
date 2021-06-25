@@ -93,6 +93,12 @@
             </errorLevel>
         </UndefinedConstant>
 
+        <DuplicateClass>
+            <errorLevel type="info">
+                <file name="src/Core/Framework/DataAbstractionLayer/Field/Flag/AllowHtml.php" />
+            </errorLevel>
+        </DuplicateClass>
+
         <UndefinedClass>
             <errorLevel type="info">
                 <referencedClass name="SwagTest\SwagTest"/>

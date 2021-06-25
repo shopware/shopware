@@ -13,11 +13,16 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class TextTypeDataResolverTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var TextCmsElementResolver
      */
@@ -25,7 +30,7 @@ class TextTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->textResolver = new TextCmsElementResolver();
+        $this->textResolver = new TextCmsElementResolver($this->getContainer()->get(HtmlSanitizer::class));
     }
 
     public function testType(): void
@@ -87,6 +92,32 @@ class TextTypeDataResolverTest extends TestCase
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('lorem ipsum dolor', $textStruct->getContent());
+    }
+
+    public function testWithUnsanitizedStaticContent(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_15172')) {
+            static::markTestSkipped('NEXT-15172');
+        }
+
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $result = new ElementDataCollection();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, 'lorem<script>console.log("ipsum dolor")</script>'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('text');
+        $slot->setConfig([]);
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->textResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertSame('lorem', $textStruct->getContent());
     }
 
     public function testWithMappedContent(): void

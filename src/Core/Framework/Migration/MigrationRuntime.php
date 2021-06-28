@@ -11,6 +11,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class MigrationRuntime
 {
+    public const TABLES_WITH_VIRTUAL_COLUMNS = [
+        'order',
+        'order_line_item',
+        'order_delivery_position',
+        'product_keyword_dictionary',
+    ];
+
     /**
      * @var Connection
      */
@@ -21,12 +28,16 @@ class MigrationRuntime
      */
     private $logger;
 
+    private iterable $tablesWithVirtualColumns;
+
     public function __construct(
         Connection $connection,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        iterable $tablesWithVirtualColumns = self::TABLES_WITH_VIRTUAL_COLUMNS
     ) {
         $this->connection = $connection;
         $this->logger = $logger;
+        $this->tablesWithVirtualColumns = $tablesWithVirtualColumns;
     }
 
     public function migrate(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
@@ -118,26 +129,14 @@ class MigrationRuntime
      */
     private function workaroundMariaDBBugMDEV25672(): void
     {
-        if (!$this->hasBugMDEV25672()) {
-            return;
-        }
-
         $nonExistingKey = '`' . Uuid::randomHex() . '`';
-        $tables = $this->connection->fetchFirstColumn('SHOW TABLES');
-        foreach ($tables as $table) {
+        foreach ($this->tablesWithVirtualColumns as $table) {
             try {
-                // this invalid insert commits/flushs the table so that the bug does not trigger
+                // this commits/flushs the table so that the bug does not trigger
                 $this->connection->insert($table, [$nonExistingKey => null]);
             } catch (\Throwable $_) {
             }
         }
-    }
-
-    private function hasBugMDEV25672(): bool
-    {
-        $version = (string) $this->connection->fetchOne('SELECT VERSION()');
-
-        return (bool) preg_match('/^10\.(2\.38|3\.29|4\.19|5\.10)/', $version);
     }
 
     private function getExecutableMigrationsBaseQuery(MigrationSource $source, ?int $until = null, ?int $limit = null): QueryBuilder

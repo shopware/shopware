@@ -44,7 +44,8 @@ class MDEV25672WorkaroundTest extends TestCase
 
         $runtime = new MigrationRuntime(
             $this->connection,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            ['t1']
         );
         $result = iterator_to_array($runtime->migrate($this->source));
 
@@ -57,7 +58,8 @@ class MDEV25672WorkaroundTest extends TestCase
 
         $runtime = new MigrationRuntime(
             $this->connection,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            ['t1']
         );
         $result = iterator_to_array($runtime->migrateDestructive($this->source));
 

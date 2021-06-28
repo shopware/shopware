@@ -236,11 +236,6 @@ shopware:
               major: false
               description: "Refactor Preview Mail Dummy Data"
               # issue: NEXT-15475
-            - name: FEATURE_NEXT_12437
-              default: false
-              major: false
-              description: "Improve Product UX 2.0"
-              # issue: NEXT-12437
             - name: FEATURE_NEXT_14360
               default: false
               major: true

@@ -35,7 +35,7 @@ function createWrapper(privileges = []) {
         stubs: {
             'sw-card': true,
             'sw-product-packaging-form': Component.build('sw-product-packaging-form'),
-            'sw-product-detail-properties': true,
+            'sw-product-properties': true,
             'sw-product-feature-set-form': true,
             'sw-custom-field-set-renderer': true,
             'sw-container': true,
@@ -188,7 +188,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             }
         });
 
-        expect(wrapper.find('sw-product-detail-properties-stub').attributes().style).toBeFalsy();
+        expect(wrapper.find('sw-product-properties-stub').attributes().style).toBeFalsy();
     });
 
     it('should hide Properties card when properties mode is unchecked', async () => {
@@ -199,7 +199,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             ...modeSettings.filter(item => item !== 'properties')
         ]);
 
-        expect(wrapper.find('sw-product-detail-properties-stub')
+        expect(wrapper.find('sw-product-properties-stub')
             .attributes().style).toBe('display: none;');
     });
 
@@ -258,7 +258,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             ...modeSettings.filter(item => item !== 'essential_characteristics')
         ]);
 
-        expect(wrapper.find('sw-product-detail-properties-stub')
+        expect(wrapper.find('sw-product-properties-stub')
             .attributes().style).toBe('display: none;');
     });
 

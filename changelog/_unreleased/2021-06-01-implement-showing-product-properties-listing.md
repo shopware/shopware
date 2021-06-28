@@ -1,7 +1,6 @@
 ---
 title: Implement showing product properties listing
 issue: NEXT-15102
-flag: FEATURE_NEXT_12437
 ---
 # Administration
 * Added `sw-product-properties` component in `product` module to replace `sw-product-detail-properties` component.

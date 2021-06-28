@@ -19,15 +19,10 @@
 
     {# @deprecated tag:v6.5.0 - Will be removed and has been replaced by sw-product-properties #}
     {% block sw_product_detail_specifications_properties %}
-    <sw-product-detail-properties
-        v-if="!feature.isActive('FEATURE_NEXT_12437')"
-        v-show="showProductCard('properties')"
-    />
     {% endblock %}
 
     {% block sw_product_detail_specifications_property %}
     <sw-product-properties
-        v-if="feature.isActive('FEATURE_NEXT_12437')"
         v-show="showProductCard('properties')"
     />
     {% endblock %}

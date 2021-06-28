@@ -1,7 +1,6 @@
 ---
 title: Implement showing products in sales channel
 issue: NEXT-14826
-flag: FEATURE_NEXT_12437
 ---
 # Administration
 * Added `sw.sales.channel.detail.products` route in `sw-sales-channel` module.

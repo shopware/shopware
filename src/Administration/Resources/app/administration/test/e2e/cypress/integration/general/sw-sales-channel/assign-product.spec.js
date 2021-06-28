@@ -32,7 +32,6 @@ describe('Sales Channel: Test product assignment operations', () => {
     });
 
     it('@general: assign individual products to sales channel', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12437');
         const salesChannelPage = new SalesChannelPageObject();
         const productPage = new ProductPageObject();
 
@@ -116,7 +115,6 @@ describe('Sales Channel: Test product assignment operations', () => {
     });
 
     it('@general: assign product from category to sales channel', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12437');
         const salesChannelPage = new SalesChannelPageObject();
         const productPage = new ProductPageObject();
 

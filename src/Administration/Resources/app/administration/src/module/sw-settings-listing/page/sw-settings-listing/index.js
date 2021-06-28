@@ -159,10 +159,7 @@ Component.register('sw-settings-listing', {
         createdComponent() {
             this.fetchProductSortingOptions();
             this.fetchCustomFields();
-
-            if (this.feature.isActive('FEATURE_NEXT_12437')) {
-                this.fetchSalesChannelsSystemConfig();
-            }
+            this.fetchSalesChannelsSystemConfig();
         },
 
         fetchProductSortingOptions() {

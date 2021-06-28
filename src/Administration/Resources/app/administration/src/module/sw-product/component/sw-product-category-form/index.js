@@ -78,9 +78,7 @@ Component.register('sw-product-category-form', {
                 new Criteria(),
             );
 
-            if (this.feature.isActive('FEATURE_NEXT_12437')) {
-                this.fetchSalesChannelSystemConfig();
-            }
+            this.fetchSalesChannelSystemConfig();
         },
 
         displayAdvancedVisibility() {

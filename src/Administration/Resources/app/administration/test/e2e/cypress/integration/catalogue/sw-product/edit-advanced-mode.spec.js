@@ -198,12 +198,7 @@ describe('Product: Mode advanced settings at product detail', () => {
 
         cy.get('.sw-product-detail-specification__measures-packaging').should('be.visible');
 
-        cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
-            cy.get('.sw-product-properties').should('be.visible');
-        });
-        cy.skipOnFeature('FEATURE_NEXT_12437', () => {
-            cy.get('.sw-product-detail-properties').should('be.visible');
-        });
+        cy.get('.sw-product-properties').should('be.visible');
 
         cy.get('.sw-product-detail-specification__essential-characteristics').should('be.visible');
 
@@ -224,13 +219,7 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-detail-specification__measures-packaging').should('be.visible');
 
-        cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
-            cy.get('.sw-product-properties').should('be.visible');
-        });
-        cy.skipOnFeature('FEATURE_NEXT_12437', () => {
-            cy.get('.sw-product-detail-properties').should('be.visible');
-            cy.get('.sw-product-detail-properties .sw-empty-state__element').should('be.visible');
-        });
+        cy.get('.sw-product-properties').should('be.visible');
 
         cy.get('.sw-product-detail-specification__essential-characteristics').should('not.be.visible');
 
@@ -257,13 +246,7 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(1).click();
         cy.wait('@saveUserConfig').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
-
-            cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
-                cy.get('.sw-product-properties').should('not.be.visible');
-            });
-            cy.skipOnFeature('FEATURE_NEXT_12437', () => {
-                cy.get('.sw-product-detail-properties').should('not.be.visible');
-            });
+            cy.get('.sw-product-properties').should('not.be.visible');
         });
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(2).click();

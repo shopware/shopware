@@ -1,7 +1,6 @@
 ---
 title: Change flow adding products via dynamic product groups
 issue: NEXT-15788
-flag: FEATURE_NEXT_12437
 ---
 # Administration
 * Changed `sw_sales_channel_product_assignment_categories_content` block in `sw-sales-channel-product-assignment-categories` component template.

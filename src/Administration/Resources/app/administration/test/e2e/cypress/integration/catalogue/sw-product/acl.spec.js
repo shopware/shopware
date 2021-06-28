@@ -50,12 +50,7 @@ describe('Product: Test ACL privileges', () => {
             .scrollIntoView()
             .click();
 
-        cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
-            cy.get('.sw-product-properties').should('be.visible');
-        });
-        cy.skipOnFeature('FEATURE_NEXT_12437', () => {
-            cy.get('.sw-empty-state').should('be.visible');
-        });
+        cy.get('.sw-product-properties').should('be.visible');
 
         cy.get('.sw-product-detail__tab-variants')
             .scrollIntoView()

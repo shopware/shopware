@@ -47,7 +47,7 @@
         {% block sw_category_detail_information_type %}
         <div class="sw-category-detail-base__type-container">
 
-            {% block sw_category_detail_information_type %}
+            {% block sw_category_detail_information_type_select %}
             <sw-single-select
                 v-model="category.type"
                 class="sw-category-detail-base__type-selection"
@@ -58,6 +58,7 @@
                 :options="categoryTypes"
             />
             {% endblock %}
+
         </div>
         {% endblock %}
 

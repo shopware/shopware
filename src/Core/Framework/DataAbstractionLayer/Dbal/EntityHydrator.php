@@ -52,12 +52,12 @@ class EntityHydrator
         $this->container = $container;
     }
 
-    final public function hydrate(EntityCollection $collection, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
+    public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
     {
         self::$hydrated = [];
 
         foreach ($rows as $row) {
-            $collection->add($this->hydrateEntity($definition, $row, $root, $context));
+            $collection->add($this->hydrateEntity($definition, $entityClass, $row, $root, $context));
         }
 
         return $collection;
@@ -117,35 +117,6 @@ class EntityHydrator
         }
 
         return $mapped;
-    }
-
-    final protected function hydrateEntity(EntityDefinition $definition, array $row, string $root, Context $context): Entity
-    {
-        $hydrator = $this->container->get($definition->getHydratorClass());
-
-        if (!$hydrator instanceof self) {
-            throw new \RuntimeException(sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));
-        }
-
-        $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
-
-        $cacheKey = $root . $definition->getEntityName() . '::' . $identifier;
-
-        if (isset(self::$hydrated[$cacheKey])) {
-            return self::$hydrated[$cacheKey];
-        }
-
-        $entity = self::createClass($definition->getEntityClass());
-
-        $entity->addExtension(EntityReader::FOREIGN_KEYS, self::createClass(ArrayStruct::class));
-        $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, self::createClass(ArrayStruct::class));
-
-        $entity->setUniqueIdentifier($identifier);
-        $entity->internalSetEntityName($definition->getEntityName());
-
-        $entity = $hydrator->assign($definition, $entity, $root, $row, $context);
-
-        return self::$hydrated[$cacheKey] = $entity;
     }
 
     /**
@@ -315,7 +286,7 @@ class EntityHydrator
             return null;
         }
 
-        return $this->hydrateEntity($field->getReferenceDefinition(), $row, $association, $context);
+        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context);
     }
 
     protected function customFields(EntityDefinition $definition, array $row, string $root, Entity $entity, ?Field $field, Context $context): void
@@ -447,5 +418,34 @@ class EntityHydrator
         }
 
         return json_encode($merged, \JSON_PRESERVE_ZERO_FRACTION);
+    }
+
+    private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context): Entity
+    {
+        $hydrator = $this->container->get($definition->getHydratorClass());
+
+        if (!$hydrator instanceof self) {
+            throw new \RuntimeException(sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));
+        }
+
+        $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
+
+        $cacheKey = $root . $definition->getEntityName() . '::' . $identifier;
+
+        if (isset(self::$hydrated[$cacheKey])) {
+            return self::$hydrated[$cacheKey];
+        }
+
+        $entity = self::createClass($entityClass);
+
+        $entity->addExtension(EntityReader::FOREIGN_KEYS, self::createClass(ArrayStruct::class));
+        $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, self::createClass(ArrayStruct::class));
+
+        $entity->setUniqueIdentifier($identifier);
+        $entity->internalSetEntityName($definition->getEntityName());
+
+        $entity = $hydrator->assign($definition, $entity, $root, $row, $context);
+
+        return self::$hydrated[$cacheKey] = $entity;
     }
 }

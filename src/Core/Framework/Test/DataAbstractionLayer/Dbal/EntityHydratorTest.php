@@ -61,7 +61,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition, $rows, 'test', Context::createDefaultContext());
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
         /** @var ArrayEntity|null $first */
@@ -100,7 +100,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition, $rows, 'test', Context::createDefaultContext());
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -133,7 +133,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition, $rows, 'test', $context);
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -153,7 +153,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition, $rows, 'test', $context);
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         $first = $structs->first();
 
         $customFields = $first->get('customTranslated');
@@ -172,7 +172,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition, $rows, 'test', $context);
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         $first = $structs->first();
 
         $customFields = $first->get('customTranslated');
@@ -199,7 +199,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition, $rows, 'test', $context);
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -226,7 +226,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition, $rows, 'test', $context);
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -243,7 +243,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition, $rows, 'test', $context);
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -303,12 +303,12 @@ class EntityHydratorTest extends TestCase
         ];
 
         $hydrator = new EntityHydrator($this->getContainer());
-        $structsWithoutWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), $definition, [$rowWithoutWarehouseZipcodeHydration], 'test', $context);
+        $structsWithoutWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutWarehouseZipcodeHydration], 'test', $context);
         static::assertNotNull($structsWithoutWarehouseZipcodeHydration->first()->get('zipcode')->get('country'));
         static::assertEquals(Uuid::fromBytesToHex($countryId), $structsWithoutWarehouseZipcodeHydration->first()->get('zipcode')->get('country')->get('id'));
 
         $hydrator = new EntityHydrator($this->getContainer());
-        $structsWithWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), $definition, [$rowWithWarehouseZipcodeHydration], 'test', $context);
+        $structsWithWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithWarehouseZipcodeHydration], 'test', $context);
         static::assertNotNull($structsWithWarehouseZipcodeHydration->first()->get('zipcode')->get('country'));
         static::assertEquals(Uuid::fromBytesToHex($countryId), $structsWithWarehouseZipcodeHydration->first()->get('zipcode')->get('country')->get('id'));
     }

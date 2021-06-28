@@ -7,6 +7,9 @@
         {% endif %}
     {% endblock %}
 
+    {# @deprecated tag:v6.5.0 - will be removed #}
+    {% set showVatIdField = false %}
+
     {% block component_address_form_company %}
         {% if showFormCompany %}
             {% if config('core.loginRegistration.showAccountTypeSelection') %}
@@ -18,7 +21,7 @@
                     {% block component_address_form_company_fields %}
                         <div class="form-row">
                             {% block component_address_form_company_name %}
-                                <div class="form-group{% if showVatIdField %} col-12{% else %} col-6{% endif %}">
+                                <div class="form-group col-6">
                                     {% if formViolations.getViolations("/company") is not empty %}
                                         {% set violationPath = "/company" %}
                                     {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
@@ -49,10 +52,7 @@
                                     {% endblock %}
                                 </div>
                             {% endblock %}
-                        {% if showVatIdField %}
-                            </div>
-                            <div class="form-row">
-                        {% endif %}
+
                             {% block component_address_form_company_department %}
                                 <div class="form-group col-md-6">
                                     {% if formViolations.getViolations("/department") is not empty %}
@@ -85,6 +85,7 @@
                                 </div>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
                             {% block component_address_form_company_vatId %}
                                 {% if showVatIdField %}
                                     <div class="form-group col-md-6">

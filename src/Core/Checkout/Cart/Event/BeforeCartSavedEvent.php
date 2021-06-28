@@ -10,20 +10,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class BeforeCartSavedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    protected $context;
+    protected SalesChannelContext $context;
 
-    /**
-     * @var Cart
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var bool
-     */
-    protected $save = false;
+    protected bool $save = false;
 
     public function __construct(SalesChannelContext $context, Cart $cart)
     {

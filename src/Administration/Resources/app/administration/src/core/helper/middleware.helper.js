@@ -36,17 +36,8 @@ export default class MiddlewareHelper {
      * @param {*} args
      */
     go(...args) {
-        let index = 0;
-        const next = () => {
-            if (index >= this.stack.length) {
-                return;
-            }
-
-            const layer = this.stack[index];
-            index += 1;
-
-            layer.apply(null, [next, ...args]);
-        };
-        next();
+        // @see NEXT-15358 change _recursive_ to iterative stack processing
+        // keeping function signature to stay compatible to existing code
+        this.stack.forEach(frame => frame(() => {}, ...args));
     }
 }

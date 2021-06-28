@@ -238,7 +238,7 @@ PHP Full:
             - '**/*.php'
     parallel:
         matrix:
-            # required until we fix NEXT-15370
+            # required until we fix NEXT-15275
             -   MYSQL_IMAGE: mariadb:10.4.18
                 DEV_IMAGE: shopware/development:8.0-composer-2
                 FEATURE_ALL: ["false", "minor"]

@@ -132,8 +132,8 @@ class FirstRunWizardController extends AbstractStoreController
     public function getRecommendations(Request $request, Context $context): JsonResponse
     {
         $language = $request->query->get('language', '');
-        $region = $request->query->get('region');
-        $category = $request->query->get('category');
+        $region = $request->query->has('region') ? (string) $request->query->get('region') : null;
+        $category = $request->query->has('category') ? (string) $request->query->get('category') : null;
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();

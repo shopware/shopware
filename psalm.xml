@@ -159,6 +159,13 @@
             </errorLevel>
         </InaccessibleProperty>
 
+        <!-- Remove when NEXT-15687 flag has been removed -->
+        <RedundantPropertyInitializationCheck>
+            <errorLevel type="suppress">
+                <file name="src/Storefront/Controller/StorefrontController.php"/>
+            </errorLevel>
+        </RedundantPropertyInitializationCheck>
+
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 
         <DeprecatedMethod errorLevel="info"/>

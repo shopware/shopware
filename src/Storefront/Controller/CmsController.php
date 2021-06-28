@@ -193,9 +193,9 @@ class CmsController extends StorefrontController
         /** @var string $elementId */
         $elementId = $request->query->get('elementId');
 
-        $options = $request->query->get('options');
+        $options = (string) $request->query->get('options');
         /** @var array $newOptions */
-        $newOptions = $options !== null ? json_decode($options, true) : [];
+        $newOptions = \strlen($options) ? json_decode($options, true) : [];
 
         $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
 

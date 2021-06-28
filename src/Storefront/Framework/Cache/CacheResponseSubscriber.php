@@ -168,7 +168,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     private function getSystemStates(Request $request, SalesChannelContext $context, Cart $cart): array
     {
         $states = [];
-        $swStates = $request->cookies->get(self::SYSTEM_STATE_COOKIE);
+        $swStates = (string) $request->cookies->get(self::SYSTEM_STATE_COOKIE);
         if ($swStates !== null) {
             $states = explode(',', $swStates);
             $states = array_flip($states);

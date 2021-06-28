@@ -106,10 +106,10 @@ class ProductController extends StorefrontController
      */
     public function switch(string $productId, Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-        $switchedOption = $request->query->get('switched');
+        $switchedOption = $request->query->has('switched') ? (string) $request->query->get('switched') : null;
 
-        $options = $request->query->get('options');
-        $newOptions = $options !== null ? json_decode($options, true) : [];
+        $options = (string) $request->query->get('options');
+        $newOptions = $options !== '' ? json_decode($options, true) : [];
 
         try {
             $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $salesChannelContext);

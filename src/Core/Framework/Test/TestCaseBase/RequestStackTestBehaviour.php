@@ -18,7 +18,7 @@ trait RequestStackTestBehaviour
 
         $requests = [];
 
-        while ($stack->getMasterRequest()) {
+        while ($stack->getMainRequest()) {
             $requests[] = $stack->pop();
         }
 

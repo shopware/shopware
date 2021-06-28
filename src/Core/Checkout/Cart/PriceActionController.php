@@ -62,7 +62,7 @@ class PriceActionController extends AbstractController
             throw new \InvalidArgumentException('Parameter taxId missing');
         }
 
-        $taxId = $request->request->get('taxId');
+        $taxId = (string) $request->request->get('taxId');
         $price = (float) $request->request->get('price');
         $quantity = $request->request->getInt('quantity', 1);
         $output = $request->request->get('output', 'gross');

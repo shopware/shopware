@@ -1910,19 +1910,6 @@ class VersioningTest extends TestCase
         return $customerId;
     }
 
-    private function dump(): void
-    {
-        $commits = $this->connection->fetchAllAssociativeIndexed('SELECT LOWER(HEX(id)) as array_key, LOWER(HEX(id)) as id, is_merge, message, LOWER(HEX(version_id)) as version_id FROM version_commit ORDER BY auto_increment');
-
-        $data = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, auto_increment, LOWER(HEX(version_commit_id)) as version_commit_id, action, entity_name, entity_id, payload FROM version_commit_data ORDER BY auto_increment');
-
-        foreach ($data as $row) {
-            $commits[$row['version_commit_id']]['data'][] = $row;
-        }
-
-        dump($commits);
-    }
-
     private function getCommits(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAll(

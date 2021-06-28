@@ -46,7 +46,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
 
     private function appendThemePath(): string
     {
-        $currentRequest = $this->requestStack->getMasterRequest();
+        $currentRequest = $this->requestStack->getMainRequest();
 
         if ($currentRequest === null) {
             return '';

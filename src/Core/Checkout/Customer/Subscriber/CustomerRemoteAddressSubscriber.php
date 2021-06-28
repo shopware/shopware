@@ -37,7 +37,7 @@ class CustomerRemoteAddressSubscriber implements EventSubscriberInterface
     public function updateRemoteAddressByLogin(CustomerLoginEvent $event): void
     {
         $request = $this->requestStack
-            ->getMasterRequest();
+            ->getMainRequest();
 
         if (!$request) {
             return;

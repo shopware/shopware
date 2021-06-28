@@ -111,8 +111,8 @@
 
         <!-- SUBSCRIBERS -->
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber">
-            <argument type="service" id="session"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="request_stack"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

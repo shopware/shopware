@@ -16,6 +16,7 @@ class CaptchaControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     private CaptchaController $controller;
 
@@ -56,18 +57,13 @@ class CaptchaControllerTest extends TestCase
         $basicCaptchaSession = 'kylnsession';
         $this->getContainer()->get('session')->set($formId . 'basic_captcha_session', 'kylnsession');
 
-        $token = $this->getContainer()
-            ->get('security.csrf.token_manager')
-            ->getToken('frontend.captcha.basic-captcha.validate')
-            ->getValue();
         $payload = [
             'formId' => $formId,
             'shopware_basic_captcha_confirm' => $basicCaptchaSession,
-            '_csrf_token' => $token,
         ];
 
         // Basic Captcha Valid
-        $browser->request('POST', $_SERVER['APP_URL'] . '/basic-captcha-validate', $payload);
+        $browser->request('POST', $_SERVER['APP_URL'] . '/basic-captcha-validate', $this->tokenize('frontend.captcha.basic-captcha.validate', $payload));
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());

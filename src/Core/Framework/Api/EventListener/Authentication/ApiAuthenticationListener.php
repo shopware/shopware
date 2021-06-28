@@ -83,7 +83,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
 
     public function setupOAuth(RequestEvent $event): void
     {
-        if (!$event->isMasterRequest()) {
+        if (!$event->isMainRequest()) {
             return;
         }
 

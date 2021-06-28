@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -214,10 +215,14 @@ class AdministrationController extends AbstractController
             throw new \InvalidArgumentException('Parameter "email" is missing.');
         }
 
-        $email = $request->request->get('email');
+        $email = (string) $request->request->get('email');
         $boundSalesChannelId = $request->request->get('bound_sales_channel_id');
 
-        if ($this->isEmailValid($request->request->get('id'), $email, $context, $boundSalesChannelId)) {
+        if ($boundSalesChannelId !== null && !\is_string($boundSalesChannelId)) {
+            throw new InvalidRequestParameterException('bound_sales_channel_id');
+        }
+
+        if ($this->isEmailValid((string) $request->request->get('id'), $email, $context, $boundSalesChannelId)) {
             return new JsonResponse(
                 ['isValid' => true]
             );
@@ -259,10 +264,10 @@ class AdministrationController extends AbstractController
             throw new \InvalidArgumentException('Parameter "html" is missing.');
         }
 
-        $html = $request->request->get('html');
-        $field = $request->request->get('field');
+        $html = (string) $request->request->get('html');
+        $field = (string) $request->request->get('field');
 
-        if ($field === null) {
+        if ($field === '') {
             return new JsonResponse(
                 ['preview' => $this->htmlSanitizer->sanitize($html)]
             );

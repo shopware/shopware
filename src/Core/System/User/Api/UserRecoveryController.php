@@ -32,7 +32,7 @@ class UserRecoveryController extends AbstractController
      */
     public function createUserRecovery(Request $request, Context $context): Response
     {
-        $email = $request->request->get('email');
+        $email = (string) $request->request->get('email');
         $this->userRecoveryService->generateUserRecovery($email, $context);
 
         return new Response();
@@ -44,9 +44,9 @@ class UserRecoveryController extends AbstractController
      */
     public function checkUserRecovery(Request $request, Context $context): Response
     {
-        $hash = $request->query->get('hash');
+        $hash = (string) $request->query->get('hash');
 
-        if ($hash !== null && $this->userRecoveryService->checkHash($hash, $context)) {
+        if ($hash !== '' && $this->userRecoveryService->checkHash($hash, $context)) {
             return new Response();
         }
 
@@ -59,9 +59,9 @@ class UserRecoveryController extends AbstractController
      */
     public function updateUserPassword(Request $request, Context $context): Response
     {
-        $hash = $request->request->get('hash');
-        $password = $request->request->get('password');
-        $passwordConfirm = $request->request->get('passwordConfirm');
+        $hash = (string) $request->request->get('hash');
+        $password = (string) $request->request->get('password');
+        $passwordConfirm = (string) $request->request->get('passwordConfirm');
 
         if ($passwordConfirm !== $password) {
             return $this->getErrorResponse();

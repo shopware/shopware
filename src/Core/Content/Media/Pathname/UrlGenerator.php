@@ -108,7 +108,7 @@ class UrlGenerator implements UrlGeneratorInterface
 
     private function createFallbackUrl(): string
     {
-        $request = $this->requestStack->getMasterRequest();
+        $request = $this->requestStack->getMainRequest();
         if ($request) {
             $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
 

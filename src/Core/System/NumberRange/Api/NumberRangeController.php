@@ -51,7 +51,7 @@ class NumberRangeController extends AbstractController
     {
         $generatedNumber = $this->valueGenerator->previewPattern(
             $type,
-            $request->query->get('pattern'),
+            $request->query->has('pattern') ? (string) $request->query->get('pattern') : null,
             (int) $request->query->get('start')
         );
 

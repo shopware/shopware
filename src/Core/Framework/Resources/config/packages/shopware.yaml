@@ -170,6 +170,11 @@ shopware:
               major: true
               description: "Sanitize html of fields with AllowHtml flag"
               # issue: NEXT-15172
+            - name: FEATURE_NEXT_15687
+              default: false
+              major: true
+              description: "Storefront Controller needs Twig injected"
+              # issue: NEXT-15687
 
     logger:
         file_rotation_count: 14

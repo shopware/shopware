@@ -11,7 +11,6 @@ use Shopware\Storefront\Pagelet\Captcha\AbstractBasicCaptchaPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -21,14 +20,10 @@ class CaptchaController extends StorefrontController
 {
     private AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader;
 
-    private SessionInterface $session;
-
     public function __construct(
-        AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader,
-        SessionInterface $session
+        AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader
     ) {
         $this->basicCaptchaPageletLoader = $basicCaptchaPageletLoader;
-        $this->session = $session;
     }
 
     /**
@@ -39,7 +34,7 @@ class CaptchaController extends StorefrontController
     {
         $formId = $request->get('formId');
         $page = $this->basicCaptchaPageletLoader->load($request, $context);
-        $this->session->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $page->getCaptcha()->getCode());
+        $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $page->getCaptcha()->getCode());
 
         return $this->renderStorefront('@Storefront/storefront/component/captcha/basicCaptchaImage.html.twig', [
             'page' => $page,
@@ -56,7 +51,7 @@ class CaptchaController extends StorefrontController
     {
         $formId = $request->get('formId');
         $fakeSession = (string) time();
-        $this->session->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
+        $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 
         return new JsonResponse(['session' => $fakeSession]);
     }

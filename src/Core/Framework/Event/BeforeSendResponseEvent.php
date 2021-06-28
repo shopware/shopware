@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * This event is also called on cached responses.
+ */
 class BeforeSendResponseEvent extends Event
 {
     /**

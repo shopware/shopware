@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -15,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
+use Twig\Environment;
 
 abstract class StorefrontController extends AbstractController
 {
@@ -22,6 +24,13 @@ abstract class StorefrontController extends AbstractController
     public const DANGER = 'danger';
     public const INFO = 'info';
     public const WARNING = 'warning';
+
+    private Environment $twig;
+
+    public function setTwig(Environment $twig): void
+    {
+        $this->twig = $twig;
+    }
 
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
@@ -138,7 +147,12 @@ abstract class StorefrontController extends AbstractController
             'danger' => $errors->getErrors(),
         ];
 
-        $exists = $this->container->get('session')->getFlashBag()->peekAll();
+        $request = $this->container->get('request_stack')->getMainRequest();
+        $exists = [];
+
+        if ($request && $request->hasSession() && method_exists($session = $request->getSession(), 'getFlashBag')) {
+            $exists = $session->getFlashBag()->peekAll();
+        }
 
         $flat = [];
         foreach ($exists as $messages) {
@@ -161,5 +175,21 @@ abstract class StorefrontController extends AbstractController
                 $this->addFlash($type, $message);
             }
         }
+    }
+
+    protected function renderView(string $view, array $parameters = []): string
+    {
+        if (isset($this->twig)) {
+            return $this->twig->render($view, $parameters);
+        }
+
+        $message = sprintf('Class %s does not have twig injected. Add to your service definition a method call to setTwig with the twig instance', static::class);
+
+        if (Feature::isActive('FEATURE_NEXT_15687')) {
+            throw new \LogicException($message);
+        }
+        Feature::triggerDeprecated('FEATURE_NEXT_15687', '6.4.3.0', '6.5.0.0', $message);
+
+        return parent::renderView($view, $parameters);
     }
 }

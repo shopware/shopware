@@ -12,7 +12,6 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -23,38 +22,22 @@ class ErrorController extends StorefrontController
      */
     protected $errorTemplateResolver;
 
-    /**
-     * @var Session
-     */
-    private $session;
+    private HeaderPageletLoaderInterface $headerPageletLoader;
 
-    /**
-     * @var HeaderPageletLoaderInterface
-     */
-    private $headerPageletLoader;
+    private ErrorPageLoaderInterface $errorPageLoader;
 
-    /**
-     * @var ErrorPageLoaderInterface
-     */
-    private $errorPageLoader;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
     private FooterPageletLoaderInterface $footerPageletLoader;
 
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
-        Session $session,
         HeaderPageletLoaderInterface $headerPageletLoader,
         SystemConfigService $systemConfigService,
         ErrorPageLoaderInterface $errorPageLoader,
         FooterPageletLoaderInterface $footerPageletLoader
     ) {
         $this->errorTemplateResolver = $errorTemplateResolver;
-        $this->session = $session;
         $this->headerPageletLoader = $headerPageletLoader;
         $this->errorPageLoader = $errorPageLoader;
         $this->systemConfigService = $systemConfigService;
@@ -63,12 +46,14 @@ class ErrorController extends StorefrontController
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
     {
+        $session = $request->hasSession() ? $request->getSession() : null;
+
         try {
             $is404StatusCode = $exception instanceof HttpException
                 && $exception->getStatusCode() === Response::HTTP_NOT_FOUND;
 
-            if (!$is404StatusCode && !$this->session->getFlashBag()->has('danger')) {
-                $this->session->getFlashBag()->add('danger', $this->trans('error.message-default'));
+            if (!$is404StatusCode && $session !== null && method_exists($session, 'getFlashBag') && !$session->getFlashBag()->has('danger')) {
+                $session->getFlashBag()->add('danger', $this->trans('error.message-default'));
             }
 
             $request->attributes->set('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
@@ -109,7 +94,10 @@ class ErrorController extends StorefrontController
 
         // After this controllers content is rendered (even if the flashbag was not used e.g. on a 404 page),
         // clear the existing flashbag messages
-        $this->session->getFlashBag()->clear();
+
+        if ($session !== null && method_exists($session, 'getFlashBag')) {
+            $session->getFlashBag()->clear();
+        }
 
         return $response;
     }

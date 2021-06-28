@@ -24,7 +24,11 @@ class BasicCaptchaTest extends TestCase
     public function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(BasicCaptcha::class);
-        $this->getContainer()->get('session')->set('basic_captcha_session', self::BASIC_CAPTCHA_SESSION);
+        $request = new Request();
+        $request->setSession($this->getContainer()->get('session'));
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $request->getSession()->set('basic_captcha_session', self::BASIC_CAPTCHA_SESSION);
     }
 
     public function testExtendsAbstractCaptcha(): void

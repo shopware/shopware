@@ -470,8 +470,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         if (!$request->request->get('property-filter', true)) {
             $filters->remove('properties');
 
-            if ($request->request->get('property-whitelist', null)) {
-                $filters->add($this->getPropertyFilter($request, $request->request->get('property-whitelist')));
+            if (\count($propertyWhitelist = $request->request->all('property-whitelist'))) {
+                $filters->add($this->getPropertyFilter($request, $propertyWhitelist));
             }
         }
 

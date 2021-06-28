@@ -98,9 +98,9 @@ class CartLineItemController extends StorefrontController
     public function addPromotion(Cart $cart, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         try {
-            $code = $request->request->get('code');
+            $code = (string) $request->request->get('code');
 
-            if ($code === null) {
+            if ($code === '') {
                 throw new \InvalidArgumentException('Code is required');
             }
 

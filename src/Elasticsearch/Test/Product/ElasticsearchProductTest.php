@@ -2103,6 +2103,11 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testCustomFieldsGetMapped(IdsCollection $ids): void
     {
+        $ref = new \ReflectionClass($this->definition);
+        $property = $ref->getProperty('customFieldsTypes');
+        $property->setAccessible(true);
+        $property->setValue($this->definition, null);
+
         $mapping = $this->definition->getMapping($ids->getContext());
 
         $expected = [

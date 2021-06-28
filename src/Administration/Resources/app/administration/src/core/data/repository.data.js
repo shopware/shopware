@@ -312,6 +312,38 @@ export default class Repository {
     }
 
     /**
+     * Allows to iterate all ids of the provided criteria.
+     * @param {Criteria} criteria
+     * @param {function} callback
+     * @param context
+     * @returns {Promise}
+     */
+    iterateIds(criteria, callback, context = Shopware.Context.api) {
+        if (criteria.limit == null) {
+            criteria.setLimit(50);
+        }
+        criteria.setTotalCountMode(1);
+
+        return this.searchIds(criteria, context).then((response) => {
+            const ids = response.data;
+
+            if (ids.length <= 0) {
+                return Promise.resolve();
+            }
+
+            return callback(ids).then(() => {
+                if (ids.length < criteria.limit) {
+                    return Promise.resolve();
+                }
+
+                criteria.setPage(criteria.page + 1);
+
+                return this.iterateIds(criteria, callback);
+            });
+        });
+    }
+
+    /**
      * Sends a delete request for a set of ids
      * @param {Array} ids
      * @param {Object} context

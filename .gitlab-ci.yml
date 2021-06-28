@@ -193,7 +193,7 @@ PHP Full:
         -   name: $MYSQL_IMAGE
             alias: mysql
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        -   name: elasticsearch:7.3.0
+        -   name: elasticsearch:7.8.0
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
         -   name: swaggerapi/swagger-validator-v2:v2.0.5

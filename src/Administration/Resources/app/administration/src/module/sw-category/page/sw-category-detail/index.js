@@ -206,6 +206,29 @@ Component.register('sw-category-detail', {
                 appearance: 'light',
             };
         },
+
+        categoryCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.getAssociation('seoUrls')
+                .addFilter(Criteria.equals('isCanonical', true));
+
+            criteria.addAssociation('tags')
+                .addAssociation('media')
+                .addAssociation('navigationSalesChannels.homeCmsPage.previewMedia')
+                .addAssociation('serviceSalesChannels')
+                .addAssociation('footerSalesChannels');
+
+            return criteria;
+        },
+
+        landingPageCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addAssociation('tags');
+            criteria.addAssociation('salesChannels');
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -432,6 +455,7 @@ Component.register('sw-category-detail', {
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
                     id: this.landingPageId,
+                    criteria: this.landingPageCriteria,
                 });
 
                 await Shopware.State.dispatch('cmsPageState/resetCmsPageState');
@@ -469,6 +493,7 @@ Component.register('sw-category-detail', {
                     repository: this.categoryRepository,
                     apiContext: Shopware.Context.api,
                     id: this.categoryId,
+                    criteria: this.categoryCriteria,
                 });
             }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)

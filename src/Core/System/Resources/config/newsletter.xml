@@ -4,5 +4,24 @@
     <card>
         <title>Newsletter configuration</title>
         <title lang="de-DE">Newsletter-Konfiguration</title>
+
+        <!-- @internal (FEATURE_NEXT_15252) remove this entry -->
+        <input-field type="text">
+            <name>subscribeUrl</name>
+            <label>Subscription url</label>
+            <label lang="de-DE">Anmelde-Url</label>
+            <placeholder><![CDATA[/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%]]></placeholder>
+            <helpText><![CDATA[Url to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Url um die Newsletteranmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+        </input-field>
+
+        <!-- @internal (FEATURE_NEXT_15252) remove this entry -->
+        <input-field type="bool">
+            <name>doubleOptIn</name>
+            <label>Double Opt-in</label>
+            <helpText>Use Double Opt-in for newsletter subscriptions</helpText>
+            <helpText lang="de-DE">Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen.</helpText>
+        </input-field>
+
     </card>
 </config>

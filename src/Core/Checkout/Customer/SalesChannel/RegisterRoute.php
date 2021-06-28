@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -323,7 +324,12 @@ See the Guide ""Register a customer"" for more information on customer registrat
 
     private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url, ?string $redirectTo = null): Event
     {
-        $url .= sprintf('/registration/confirm?em=%s&hash=%s', hash('sha1', $customer->getEmail()), $customer->getHash());
+        /* @feature-deprecated (flag:FEATURE_NEXT_15252) keeps the if branch */
+        if (Feature::isActive('FEATURE_NEXT_15252')) {
+            $url .= $this->getConfirmUrl($context, $customer);
+        } else {
+            $url .= sprintf('/registration/confirm?em=%s&hash=%s', hash('sha1', $customer->getEmail()), $customer->getHash());
+        }
 
         if ($redirectTo) {
             $url .= '&redirectTo=' . $redirectTo;
@@ -613,5 +619,27 @@ See the Guide ""Register a customer"" for more information on customer registrat
         }
 
         return $country->getVatIdRequired();
+    }
+
+    private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string
+    {
+        $urlTemplate = $this->systemConfigService->get(
+            'core.loginRegistration.confirmationUrl',
+            $context->getSalesChannelId()
+        );
+        if (!\is_string($urlTemplate)) {
+            $urlTemplate = '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
+        }
+
+        $emailHash = hash('sha1', $customer->getEmail());
+
+        $urlEvent = new CustomerConfirmRegisterUrlEvent($context, $urlTemplate, $emailHash, $customer->getHash(), $customer);
+        $this->eventDispatcher->dispatch($urlEvent);
+
+        return str_replace(
+            ['%%HASHEDEMAIL%%', '%%SUBSCRIBEHASH%%'],
+            [$emailHash, $customer->getHash()],
+            $urlEvent->getConfirmUrl()
+        );
     }
 }

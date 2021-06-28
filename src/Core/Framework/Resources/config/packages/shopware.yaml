@@ -175,6 +175,11 @@ shopware:
               major: true
               description: "Sanitize html of fields with AllowHtml flag"
               # issue: NEXT-15172
+            - name: FEATURE_NEXT_15252
+              default: true
+              major: true
+              description: "Configurable mail urls"
+              # issue: NEXT-15252
             - name: FEATURE_NEXT_15687
               default: false
               major: true

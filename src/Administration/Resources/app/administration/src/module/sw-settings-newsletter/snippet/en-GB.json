@@ -1,0 +1,11 @@
+{
+  "sw-settings-newsletter": {
+    "general": {
+      "mainMenuItemGeneral": "Newsletter",
+      "description": "Change Newsletter configuration here.",
+      "textHeadline": "Newsletter",
+      "buttonSave": "Save",
+      "messageSaveSuccess": "Configuration has been saved."
+    }
+  }
+}

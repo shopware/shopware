@@ -59,10 +59,50 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
 
             const localDateString = (new Date(expirationDate)).toLocaleDateString();
 
+            // Show different text when it's a test phase instead of a rent
+            if (this.extension?.storeLicense?.variant === 'test' && !this.extension?.storeLicense?.expired) {
+                return this.$t(
+                    'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt',
+                    { date: localDateString },
+                );
+            }
+
+            // Text when the test phase is expired
+            if (this.isExpiredTestPhase) {
+                return this.$t(
+                    'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
+                    { date: localDateString },
+                );
+            }
+
+            // Text for expired rent
+            if (this.isExpiredRent) {
+                return this.$t(
+                    'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
+                    { date: localDateString },
+                );
+            }
+
+            // Text for non-expired rent
             return this.$t(
-                'sw-extension-store.component.sw-extension-card-bought.subscriptionExpiredAt',
+                'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt',
                 { date: localDateString },
             );
+        },
+
+        isExpiredRent() {
+            return this.extension?.storeLicense?.variant === 'rent' && this.extension?.storeLicense?.expired;
+        },
+
+        isExpiredTestPhase() {
+            return this.extension?.storeLicense?.variant === 'test' && this.extension?.storeLicense?.expired;
+        },
+
+        subscriptionExpiredTextClasses() {
+            return {
+                'is--expired-test-phase': this.isExpiredTestPhase,
+                'is--expired-rent': this.isExpiredRent,
+            };
         },
     },
 

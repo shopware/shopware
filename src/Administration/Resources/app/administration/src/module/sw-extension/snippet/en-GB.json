@@ -247,7 +247,10 @@
         }
       },
       "sw-extension-card-bought": {
-        "subscriptionExpiredAt": "Subscription expires at {date}"
+        "rentWillExpireAt": "Rent expires at {date}",
+        "rentExpiredAt": "Rent expired at {date}",
+        "testPhaseWillExpireAt": "Test phase expires at {date}",
+        "testPhaseExpiredAt": "Test phase expired at {date}"
       },
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deactivate \"{extensionName}\"",

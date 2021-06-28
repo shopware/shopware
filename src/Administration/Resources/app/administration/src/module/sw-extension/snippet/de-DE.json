@@ -247,7 +247,10 @@
         }
       },
       "sw-extension-card-bought": {
-        "subscriptionExpiredAt": "Miete endet am {date}"
+        "rentWillExpireAt": "Miete endet am {date}",
+        "rentExpiredAt": "Miete endete am {date}",
+        "testPhaseWillExpireAt": "Testphase endet am {date}",
+        "testPhaseExpiredAt": "Testphase endete am {date}"
       },
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deaktiviere \"{extensionName}\"",

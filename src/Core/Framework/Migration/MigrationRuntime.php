@@ -7,17 +7,9 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class MigrationRuntime
 {
-    public const TABLES_WITH_VIRTUAL_COLUMNS = [
-        'order',
-        'order_line_item',
-        'order_delivery_position',
-        'product_keyword_dictionary',
-    ];
-
     /**
      * @var Connection
      */
@@ -28,16 +20,12 @@ class MigrationRuntime
      */
     private $logger;
 
-    private iterable $tablesWithVirtualColumns;
-
     public function __construct(
         Connection $connection,
-        LoggerInterface $logger,
-        iterable $tablesWithVirtualColumns = self::TABLES_WITH_VIRTUAL_COLUMNS
+        LoggerInterface $logger
     ) {
         $this->connection = $connection;
         $this->logger = $logger;
-        $this->tablesWithVirtualColumns = $tablesWithVirtualColumns;
     }
 
     public function migrate(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
@@ -58,7 +46,6 @@ class MigrationRuntime
 
             try {
                 $migration->update($this->connection);
-                $this->workaroundMariaDBBugMDEV25672();
             } catch (\Exception $e) {
                 $this->logError($migration, $e->getMessage());
 
@@ -90,7 +77,6 @@ class MigrationRuntime
 
             try {
                 $migration->updateDestructive($this->connection);
-                $this->workaroundMariaDBBugMDEV25672();
             } catch (\Exception $e) {
                 $this->logError($migration, $e->getMessage());
 
@@ -122,21 +108,6 @@ class MigrationRuntime
     protected function setDefaultStorageEngine(): void
     {
         $this->connection->exec('SET default_storage_engine=InnoDB');
-    }
-
-    /**
-     * @see https://jira.mariadb.org/browse/MDEV-25672
-     */
-    private function workaroundMariaDBBugMDEV25672(): void
-    {
-        $nonExistingKey = '`' . Uuid::randomHex() . '`';
-        foreach ($this->tablesWithVirtualColumns as $table) {
-            try {
-                // this commits/flushs the table so that the bug does not trigger
-                $this->connection->insert($table, [$nonExistingKey => null]);
-            } catch (\Throwable $_) {
-            }
-        }
     }
 
     private function getExecutableMigrationsBaseQuery(MigrationSource $source, ?int $until = null, ?int $limit = null): QueryBuilder

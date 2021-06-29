@@ -108,8 +108,6 @@
                         <sw-entity-single-select
                             v-model="country.customerTax.currencyId"
                             entity="currency"
-                            value-property="id"
-                            label-property="isoCode"
                             class="sw-settings-country-general__customer-select-currency
                             sw-settings-country-general__select"
                             :disabled="!acl.can('country.editor')"
@@ -169,8 +167,6 @@
                         <sw-entity-single-select
                             v-model="country.companyTax.currencyId"
                             entity="currency"
-                            value_property="id"
-                            label_property="isoCode"
                             class="sw-settings-country-general__company-select-currency
                             sw-settings-country-general__select"
                             :disabled="!acl.can('country.editor')"

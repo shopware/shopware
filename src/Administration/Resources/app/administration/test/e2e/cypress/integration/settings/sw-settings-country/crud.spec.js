@@ -182,7 +182,7 @@ describe('Country: Test crud operations', () => {
         cy.get('#sw-field--country-customerTax-amount').eq(0).should('have.value', '300');
         cy.get('.sw-settings-country-general__customer-select-currency .sw-entity-single-select__selection-text')
             .should($selected => {
-                expect($selected[0].outerText).to.contain('EUR');
+                expect($selected[0].outerText).to.contain('Euro');
             });
 
         cy.get('.sw-settings-country-general__currency-dependent-modal').should('be.visible');

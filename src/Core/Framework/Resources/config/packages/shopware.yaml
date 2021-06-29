@@ -175,6 +175,11 @@ shopware:
               major: true
               description: "Storefront Controller needs Twig injected"
               # issue: NEXT-15687
+            - name: FEATURE_NEXT_6040
+              default: false
+              major: false
+              description: "Admin search improvements"
+              # issue: NEXT-6040
 
     logger:
         file_rotation_count: 14

@@ -21,12 +21,15 @@ class CsrfPlaceholderHandler
 
     private RequestStack $requestStack;
 
-    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, bool $csrfEnabled, string $csrfMode, RequestStack $requestStack)
+    private SessionProvider $sessionProvider;
+
+    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, bool $csrfEnabled, string $csrfMode, RequestStack $requestStack, SessionProvider $sessionProvider)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfEnabled = $csrfEnabled;
         $this->csrfMode = $csrfMode;
         $this->requestStack = $requestStack;
+        $this->sessionProvider = $sessionProvider;
     }
 
     public function replaceCsrfToken(Response $response, Request $request): Response
@@ -54,7 +57,9 @@ class CsrfPlaceholderHandler
             return $response;
         }
 
-        $session = $request->hasSession() ? $request->getSession() : null;
+        // Get session from session provider if not provided in session. This happens when the page is fully cached
+        $session = $request->hasSession() ? $request->getSession() : $this->sessionProvider->getSession();
+        $request->setSession($session);
 
         if ($session !== null) {
             // StorefrontSubscriber did not run and set the session name. This can happen when the page is fully cached in the http cache

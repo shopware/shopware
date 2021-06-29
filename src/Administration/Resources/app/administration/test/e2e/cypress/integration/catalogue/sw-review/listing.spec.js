@@ -35,7 +35,14 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                             stock: i,
                             productNumber: uuid().replace(/-/g, ''),
                             taxId: tax.id,
-                            price: 1
+                            price: [
+                                {
+                                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                                    net: 1,
+                                    linked: false,
+                                    gross: 1
+                                }
+                            ]
                         }
                     );
                 }

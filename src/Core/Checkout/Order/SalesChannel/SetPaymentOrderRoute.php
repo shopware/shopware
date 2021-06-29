@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -42,18 +45,22 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
     private OrderConverter $orderConverter;
 
+    private CartRuleLoader $cartRuleLoader;
+
     public function __construct(
         OrderService $orderService,
         EntityRepositoryInterface $orderRepository,
         AbstractPaymentMethodRoute $paymentRoute,
         StateMachineRegistry $stateMachineRegistry,
-        OrderConverter $orderConverter
+        OrderConverter $orderConverter,
+        CartRuleLoader $cartRuleLoader
     ) {
         $this->orderService = $orderService;
         $this->orderRepository = $orderRepository;
         $this->paymentRoute = $paymentRoute;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->orderConverter = $orderConverter;
+        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     public function getDecorated(): AbstractSetPaymentOrderRoute
@@ -113,11 +120,13 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                 $customer->getId()
             )
         );
+        $criteria->addAssociations(['lineItems', 'deliveries']);
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $context->getContext())->first();
 
-        $context = $this->orderConverter->assembleSalesChannelContext($order, $context->getContext());
+        $overrideOptions = [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId];
+        $context = $this->orderConverter->assembleSalesChannelContext($order, $context->getContext(), $overrideOptions);
 
         $this->validateRequest($context, $paymentMethodId);
 
@@ -156,6 +165,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                     'amount' => $transactionAmount,
                 ],
             ],
+            'ruleIds' => $this->getOrderRules($order, $salesChannelContext),
         ];
 
         $context->scope(
@@ -215,5 +225,17 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         }
 
         return false;
+    }
+
+    private function getOrderRules(OrderEntity $order, SalesChannelContext $salesChannelContext): array
+    {
+        $convertedCart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+        $ruleIds = $this->cartRuleLoader->loadByCart(
+            $salesChannelContext,
+            $convertedCart,
+            new CartBehavior($salesChannelContext->getPermissions())
+        )->getMatchingRules()->getIds();
+
+        return array_values($ruleIds);
     }
 }

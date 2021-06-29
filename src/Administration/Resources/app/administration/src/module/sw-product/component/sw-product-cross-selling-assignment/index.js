@@ -59,7 +59,13 @@ Component.register('sw-product-cross-selling-assignment', {
 
         searchCriteria() {
             const criteria = new Criteria();
+
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.product.id)]));
+            criteria.addFilter(Criteria.multi('or', [
+                Criteria.equals('childCount', 0),
+                Criteria.not('and', [Criteria.equals('parentId', null)]),
+            ]));
+
             criteria.addAssociation('options.group');
 
             return criteria;
@@ -79,7 +85,6 @@ Component.register('sw-product-cross-selling-assignment', {
 
             return this.assignedProducts.length;
         },
-
 
         assignedProductColumns() {
             return [{

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
@@ -15,7 +16,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -81,42 +81,25 @@ class ProductPageLoader
             ->addAssociation('manufacturer.media')
             ->addAssociation('options.group')
             ->addAssociation('properties.group')
-            ->addAssociation('mainCategories.category');
-
-        $criteria
-            ->getAssociation('media')
-            ->addSorting(new FieldSorting('position'));
+            ->addAssociation('mainCategories.category')
+            ->addAssociation('media');
 
         $this->eventDispatcher->dispatch(new ProductPageCriteriaEvent($productId, $criteria, $context));
 
         $result = $this->productDetailRoute->load($productId, $request, $context, $criteria);
         $product = $result->getProduct();
 
-        $page->setProduct($product);
-        $page->setConfiguratorSettings($result->getConfigurator());
-
-        if ($cmsPage = $product->getCmsPage()) {
-            $page->setCmsPage($cmsPage);
-            $page->setNavigationId($product->getId());
-        } else {
-            $request->request->set('parentId', $product->getParentId());
-            $reviews = $this->productReviewLoader->load($request, $context);
-            $reviews->setParentId($product->getParentId() ?? $product->getId());
-
-            $page->setReviews($reviews);
-
-            $page->setCrossSellings($this->crossSellingRoute->load($productId, new Request(), $context, new Criteria())->getResult());
-
-            /** @var string $cmsPageId */
-            $cmsPageId = $product->getCmsPageId();
-
-            if ($cmsPageId !== null && $cmsPage = $this->getCmsPage($cmsPageId, $context)) {
-                $this->loadSlotData($cmsPage, $context, $product, $request);
-                $page->setCmsPage($cmsPage);
-                $page->setNavigationId($product->getId());
-            }
+        if ($product->getMedia() !== null) {
+            $product->getMedia()->sort(function (ProductMediaEntity $a, ProductMediaEntity $b) {
+                return $a->getPosition() <=> $b->getPosition();
+            });
         }
 
+        $page->setProduct($product);
+        $page->setConfiguratorSettings($result->getConfigurator());
+        $page->setNavigationId($product->getId());
+
+        $this->loadCmsPage($product, $page, $request, $context);
         $this->loadOptions($page);
         $this->loadMetaData($page);
 
@@ -151,6 +134,10 @@ class ProductPageLoader
     private function loadMetaData(ProductPage $page): void
     {
         $metaInformation = $page->getMetaInformation();
+
+        if (!$metaInformation) {
+            return;
+        }
 
         $metaDescription = $page->getProduct()->getTranslation('metaDescription')
             ?? $page->getProduct()->getTranslation('description');
@@ -201,5 +188,37 @@ class ProductPageLoader
         $page = $pages->first();
 
         return $page;
+    }
+
+    private function loadCmsPage(SalesChannelProductEntity $product, ProductPage $page, Request $request, SalesChannelContext $context): void
+    {
+        if ($cmsPage = $product->getCmsPage()) {
+            $page->setCmsPage($cmsPage);
+
+            return;
+        }
+
+        $request->request->set('parentId', $product->getParentId());
+        $reviews = $this->productReviewLoader->load($request, $context);
+        $reviews->setParentId($product->getParentId() ?? $product->getId());
+
+        $page->setReviews($reviews);
+
+        $crossSellings = $this->crossSellingRoute->load($product->getId(), new Request(), $context, new Criteria());
+
+        $page->setCrossSellings($crossSellings->getResult());
+
+        if ($product->getCmsPageId() === null) {
+            return;
+        }
+
+        $cmsPage = $this->getCmsPage($product->getCmsPageId(), $context);
+
+        if ($cmsPage === null) {
+            return;
+        }
+
+        $this->loadSlotData($cmsPage, $context, $product, $request);
+        $page->setCmsPage($cmsPage);
     }
 }

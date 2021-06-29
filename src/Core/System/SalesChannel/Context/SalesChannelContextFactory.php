@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
@@ -328,9 +329,15 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = (new Criteria([$id]))->addAssociation('media');
         $criteria->setTitle('context-factory::payment-method');
 
-        return $this->paymentMethodRepository
+        $paymentMethod = $this->paymentMethodRepository
             ->search($criteria, $context)
             ->get($id);
+
+        if (!$paymentMethod) {
+            throw new UnknownPaymentMethodException($id);
+        }
+
+        return $paymentMethod;
     }
 
     private function getShippingMethod(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingMethodEntity

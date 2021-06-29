@@ -257,7 +257,7 @@ class OrderConverter
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function assembleSalesChannelContext(OrderEntity $order, Context $context): SalesChannelContext
+    public function assembleSalesChannelContext(OrderEntity $order, Context $context, array $overrideOptions = []): SalesChannelContext
     {
         if ($order->getTransactions() === null) {
             throw new MissingOrderRelationException('transactions');
@@ -311,6 +311,8 @@ class OrderConverter
                 }
             }
         }
+
+        $options = array_merge($options, $overrideOptions);
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());

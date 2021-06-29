@@ -35,7 +35,7 @@ Component.register('sw-cms-el-config-product-slider', {
         },
 
         products() {
-            if (this.element.data && this.element.data.products && this.element.data.products.length > 0) {
+            if (this.element?.data?.products && this.element.data.products.length > 0) {
                 return this.element.data.products;
             }
 
@@ -150,7 +150,7 @@ Component.register('sw-cms-el-config-product-slider', {
 
                 this.productRepository
                     .search(criteria, Object.assign({}, Shopware.Context.api, { inheritance: true }))
-                    .then((result) => {
+                    .then(result => {
                         this.productCollection = result;
                     });
             }
@@ -203,6 +203,10 @@ Component.register('sw-cms-el-config-product-slider', {
             }
 
             this.$set(this.element.data, 'products', this.productCollection);
+        },
+
+        isSelected(itemId) {
+            return this.productCollection.has(itemId);
         },
     },
 });

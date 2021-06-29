@@ -3916,21 +3916,6 @@ parameters:
 			path: src/Storefront/Page/Product/ProductPageLoader.php
 
 		-
-			message: "#^Cannot call method setMetaDescription\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/ProductPageLoader.php
-
-		-
-			message: "#^Cannot call method setMetaKeywords\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/ProductPageLoader.php
-
-		-
-			message: "#^Cannot call method setMetaTitle\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Page/Product/ProductPageLoader.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Storefront/Page/Product/ProductPageLoader.php

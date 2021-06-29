@@ -77,10 +77,13 @@ class SystemConfigController extends AbstractController
     public function getConfigurationValues(Request $request): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
-        $salesChannelId = $request->query->has('salesChannelId') ? (string) $request->query->get('salesChannelId') : null;
-
         if ($domain === '') {
             throw new MissingRequestParameterException('domain');
+        }
+
+        $salesChannelId = $request->query->get('salesChannelId');
+        if (!\is_string($salesChannelId)) {
+            $salesChannelId = null;
         }
 
         $values = $this->systemConfig->getDomain($domain, $salesChannelId);
@@ -100,7 +103,11 @@ class SystemConfigController extends AbstractController
      */
     public function saveConfiguration(Request $request): JsonResponse
     {
-        $salesChannelId = $request->query->has('salesChannelId') ? (string) $request->query->get('salesChannelId') : null;
+        $salesChannelId = $request->query->get('salesChannelId');
+        if (!\is_string($salesChannelId)) {
+            $salesChannelId = null;
+        }
+
         $kvs = $request->request->all();
         $this->saveKeyValues($salesChannelId, $kvs);
 

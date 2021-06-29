@@ -64,11 +64,11 @@ Component.register('sw-product-price-form', {
                     purchasePrices: [],
                 };
 
-                if (this.product && this.product.price) {
+                if (this.product && Array.isArray(this.product.price)) {
                     prices.price = [...this.product.price];
                 }
 
-                if (this.product && this.product.purchasePrices) {
+                if (this.product && Array.isArray(this.product.purchasePrices)) {
                     prices.purchasePrices = [...this.product.purchasePrices];
                 }
 
@@ -91,25 +91,35 @@ Component.register('sw-product-price-form', {
 
     methods: {
         removePriceInheritation(refPrice) {
-            const defaultRefPrice = refPrice.price.find((price) => price.currencyId === this.defaultCurrency.id);
-            const defaultRefPurchasePrice = refPrice.purchasePrices.find(
+            const defaultRefPrice = refPrice.price?.find((price) => price.currencyId === this.defaultCurrency.id);
+            const defaultRefPurchasePrice = refPrice.purchasePrices?.find(
                 (price) => price.currencyId === this.defaultCurrency.id,
             );
 
-            return {
-                price: [{
+            const prices = {
+                price: [],
+                purchasePrices: [],
+            };
+
+            if (defaultRefPrice) {
+                prices.price.push({
                     currencyId: defaultRefPrice.currencyId,
                     gross: defaultRefPrice.gross,
                     net: defaultRefPrice.net,
                     linked: defaultRefPrice.linked,
-                }],
-                purchasePrices: [{
+                });
+            }
+
+            if (defaultRefPurchasePrice) {
+                prices.purchasePrices.push({
                     currencyId: defaultRefPurchasePrice.currencyId,
                     gross: defaultRefPurchasePrice.gross,
                     net: defaultRefPurchasePrice.net,
                     linked: defaultRefPurchasePrice.linked,
-                }],
-            };
+                });
+            }
+
+            return prices;
         },
 
         inheritationCheckFunction() {

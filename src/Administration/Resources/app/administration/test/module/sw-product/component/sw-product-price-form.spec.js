@@ -132,7 +132,14 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         });
     }
 
+    /** @type Wrapper */
     let wrapper;
+
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.destroy();
+        }
+    });
 
     // eslint-disable-next-line max-len
     it('should disable all price fields and toggle inheritance switch on if product price and purchase price are null', () => {
@@ -201,6 +208,33 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(wrapper.vm.prices).toEqual({
             price: parentProductData.price,
             purchasePrices: parentProductData.purchasePrices
+        });
+    });
+
+    // eslint-disable-next-line max-len
+    it('should enable all price fields and toggle inheritance switch off when user click on remove inheritance button (using empty purchasePrices)', async () => {
+        wrapper = createWrapper();
+
+        // remove purchasePrices of parent
+        wrapper.vm.parentProduct.purchasePrices = undefined;
+        await wrapper.vm.$nextTick();
+
+        const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
+        const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
+
+        await priceSwitchInheritance.find('.sw-inheritance-switch--is-inherited').trigger('click');
+
+        expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-inherited').exists()).toBeFalsy();
+        expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-not-inherited').exists()).toBeTruthy();
+
+        const priceFields = priceInheritance.findAll('sw-price-field-stub');
+        priceFields.wrappers.forEach(priceField => {
+            expect(priceField.attributes().disabled).toBeFalsy();
+        });
+
+        expect(wrapper.vm.prices).toEqual({
+            price: parentProductData.price,
+            purchasePrices: []
         });
     });
 

@@ -9,13 +9,6 @@ describe('Integration: Visual testing', () => {
             })
             .then(() => {
                 return cy.createDefaultFixture('integration', { admin: true });
-            });
-    });
-
-    beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('integration', { admin: true });
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

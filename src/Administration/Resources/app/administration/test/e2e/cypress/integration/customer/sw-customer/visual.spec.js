@@ -10,9 +10,14 @@ let customer = {
 };
 
 describe('Customer:  Visual test', () => {
-    // eslint-disable-next-line no-undef
-    before(() => {
+    beforeEach(() => {
         cy.setToInitialState()
+            .then(() => {
+                return cy.loginViaApi();
+            })
+            .then(() => {
+                cy.createReviewFixture();
+            })
             .then(() => {
                 return cy.createCustomerFixture();
             })
@@ -26,13 +31,6 @@ describe('Customer:  Visual test', () => {
             })
             .then((result) => {
                 customer = Cypress._.merge(customer, result);
-            });
-    });
-
-    beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createReviewFixture();
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -110,7 +108,6 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-tooltip').should('not.exist');
         cy.takeSnapshot('[Customer] Detail', '.sw-customer-card');
     });
-
 
     it('@visual: check appearance of customer address workflow', () => {
         const page = new CustomerPageObject();

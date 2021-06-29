@@ -244,6 +244,8 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
     }
 
     if (selectorToCheck) {
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
         cy.get(selectorToCheck).should('be.visible');
     }
 

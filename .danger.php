@@ -74,7 +74,7 @@ return (new Config())
     ->useRule(function (Context $context) {
         $files = $context->platform->pullRequest->getFiles();
 
-        $migrationFiles = $files->filterStatus(File::STATUS_ADDED)->matches('src/Core/Migration/*/Migration*.php');
+        $migrationFiles = $files->filterStatus(File::STATUS_ADDED)->matches('src/Core/Migration/V*/Migration*.php');
         $migrationTestFiles = $files->filterStatus(File::STATUS_ADDED)->matches('src/Core/Migration/Test/*.php');
 
         if ($migrationFiles->count() && !$migrationTestFiles->count()) {

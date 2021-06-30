@@ -14,7 +14,7 @@ class DateTimeTest extends TestCase
     public function testMigrationDoesntUseDate(): void
     {
         $errorTemplate = <<<'EOF'
-Attention: date(Defaults::(STORAGE_DATE_TIME_FORMAT|STORAGE_DATE_FORMAT)) has been used in "%s". 
+Attention: date(Defaults::(STORAGE_DATE_TIME_FORMAT|STORAGE_DATE_FORMAT)) has been used in "%s".
 Please be aware that date doesn't support microseconds and is therefore incompatible with our default datetime format.
 Please use (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead.
 EOF;

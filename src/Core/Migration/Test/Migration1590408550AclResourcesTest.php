@@ -31,16 +31,7 @@ class Migration1590408550AclResourcesTest extends TestCase
     public function restoreNewDatabase(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-
         $connection->rollBack();
-        $connection->executeUpdate('DROP TABLE IF EXISTS `acl_resource`;');
-
-        try {
-            $connection->executeUpdate('ALTER TABLE `acl_role` ADD `privileges` json NOT NULL AFTER `name`;');
-        } catch (DBALException $e) {
-        }
-
-        $connection->executeUpdate('DELETE FROM acl_role');
         $connection->beginTransaction();
     }
 

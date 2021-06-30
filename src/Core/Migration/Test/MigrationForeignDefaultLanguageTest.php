@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\Traits\MigrationUntouchedDbTestTrait;
 
 /**
  * @group slow
@@ -18,25 +19,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
-
-    private $databaseName = 'shopware';
-
-    public function setUp(): void
-    {
-        $this->databaseName = substr(parse_url($_SERVER['DATABASE_URL'])['path'], 1) . '_no_migrations';
-        $testDb = ($_SERVER['DATABASE_URL'] ?? '') . '_no_migrations';
-        putenv('DATABASE_URL=' . $testDb);
-        $_ENV['DATABASE_URL'] = $testDb;
-        $_SERVER['DATABASE_URL'] = $testDb;
-    }
-
-    public function tearDown(): void
-    {
-        $testDb = str_replace('_no_migrations', '', $_SERVER['DATABASE_URL']);
-        putenv('DATABASE_URL=' . $testDb);
-        $_ENV['DATABASE_URL'] = $testDb;
-        $_SERVER['DATABASE_URL'] = $testDb;
-    }
+    use MigrationUntouchedDbTestTrait;
 
     /**
      * No en-GB as language, de-LI as Default language and de-DE as second language

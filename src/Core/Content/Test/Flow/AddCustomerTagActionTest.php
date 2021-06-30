@@ -99,7 +99,10 @@ class AddCustomerTagActionTest extends TestCase
                     'ruleId' => null,
                     'actionName' => FlowAction::ADD_CUSTOMER_TAG,
                     'config' => [
-                        'tagIds' => [$this->ids->get('tag_id'), $this->ids->get('tag_id2')],
+                        'tagIds' => [
+                            $this->ids->get('tag_id') => 'test tag',
+                            $this->ids->get('tag_id2') => 'test tag2',
+                        ],
                     ],
                     'position' => 1,
                     'trueCase' => true,
@@ -110,7 +113,9 @@ class AddCustomerTagActionTest extends TestCase
                     'ruleId' => null,
                     'actionName' => FlowAction::ADD_CUSTOMER_TAG,
                     'config' => [
-                        'tagIds' => [$this->ids->get('tag_id3')],
+                        'tagIds' => [
+                            $this->ids->get('tag_id3') => 'test tag3',
+                        ],
                     ],
                     'position' => 1,
                     'trueCase' => true,

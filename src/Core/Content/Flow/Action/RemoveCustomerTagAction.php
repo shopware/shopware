@@ -9,24 +9,24 @@ use Shopware\Core\Framework\Event\FlowEvent;
 /**
  * @internal (FEATURE_NEXT_8225)
  */
-class AddCustomerTagAction extends FlowAction
+class RemoveCustomerTagAction extends FlowAction
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepositoryInterface $customerTagRepository;
 
-    public function __construct(EntityRepositoryInterface $customerRepository)
+    public function __construct(EntityRepositoryInterface $customerTagRepository)
     {
-        $this->customerRepository = $customerRepository;
+        $this->customerTagRepository = $customerTagRepository;
     }
 
     public function getName(): string
     {
-        return FlowAction::ADD_CUSTOMER_TAG;
+        return FlowAction::REMOVE_CUSTOMER_TAG;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            FlowAction::ADD_CUSTOMER_TAG => 'handle',
+            FlowAction::REMOVE_CUSTOMER_TAG => 'handle',
         ];
     }
 
@@ -49,15 +49,13 @@ class AddCustomerTagAction extends FlowAction
             return;
         }
 
-        $tags = array_map(static function ($tagId) {
-            return ['id' => $tagId];
+        $tags = array_map(static function ($tagId) use ($baseEvent) {
+            return [
+                'customerId' => $baseEvent->getCustomerId(),
+                'tagId' => $tagId,
+            ];
         }, $tagIds);
 
-        $this->customerRepository->update([
-            [
-                'id' => $baseEvent->getCustomerId(),
-                'tags' => $tags,
-            ],
-        ], $baseEvent->getContext());
+        $this->customerTagRepository->delete($tags, $baseEvent->getContext());
     }
 }

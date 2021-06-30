@@ -5,7 +5,12 @@ namespace Shopware\Core\Content\Test\Flow;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Action\FlowAction;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -18,12 +23,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal (FEATURE_NEXT_8225)
  */
-class AddOrderTagActionTest extends TestCase
+class RemoveOrderTagActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
@@ -61,16 +67,21 @@ class AddOrderTagActionTest extends TestCase
         $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
-    public function testAddOrderTagAction(): void
+    public function testRemoveCustomerTagAction(): void
     {
         $this->createDataTest();
 
-        $this->createCustomerAndLogin();
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+        $this->createCustomer($password, $email);
+        $this->login($email, $password);
+        $orderId = $this->createOrder($this->ids->context);
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
+
         $this->flowRepository->create([[
-            'name' => 'Create Order',
+            'name' => 'Create order',
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
             'priority' => 1,
             'active' => true,
@@ -95,7 +106,7 @@ class AddOrderTagActionTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => FlowAction::REMOVE_ORDER_TAG,
                     'config' => [
                         'tagIds' => [
                             $this->ids->get('tag_id') => 'test tag',
@@ -109,7 +120,7 @@ class AddOrderTagActionTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => FlowAction::REMOVE_ORDER_TAG,
                     'config' => [
                         'tagIds' => [
                             $this->ids->get('tag_id3') => 'test tag3',
@@ -120,6 +131,13 @@ class AddOrderTagActionTest extends TestCase
                 ],
             ],
         ]], Context::createDefaultContext());
+
+        $orderTag = $this->connection->fetchAllAssociative(
+            'SELECT lower(hex(tag_id)) FROM order_tag WHERE order_id = (:orderId)',
+            ['orderId' => Uuid::fromHexToBytes($orderId)]
+        );
+
+        static::assertCount(2, $orderTag);
 
         $this->browser
             ->request(
@@ -150,21 +168,11 @@ class AddOrderTagActionTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $orderTag = $this->connection->fetchAllAssociative(
-            'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
-            ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2')), Uuid::fromHexToBytes($this->ids->get('tag_id3'))]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            'SELECT * FROM order_tag WHERE order_id = (:orderId)',
+            ['orderId' => Uuid::fromHexToBytes($this->ids->get('tag_id'))]
         );
 
-        static::assertCount(3, $orderTag);
-    }
-
-    private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
-    {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
-        $this->createCustomer($password, $email);
-
-        $this->login($email, $password);
+        static::assertCount(0, $orderTag);
     }
 
     private function login(?string $email = null, ?string $password = null): void
@@ -251,5 +259,60 @@ class AddOrderTagActionTest extends TestCase
                 'name' => 'test tag3',
             ],
         ], $this->ids->context);
+    }
+
+    private function createOrder(Context $context): string
+    {
+        $orderId = Uuid::randomHex();
+        $stateId = $this->getContainer()->get(StateMachineRegistry::class)->getInitialState(OrderStates::STATE_MACHINE, $context)->getId();
+        $billingAddressId = Uuid::randomHex();
+
+        $order = [
+            'id' => $orderId,
+            'orderNumber' => Uuid::randomHex(),
+            'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'orderCustomer' => [
+                'customerId' => $this->ids->get('customer'),
+                'email' => 'test@example.com',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+            ],
+            'stateId' => $stateId,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1.0,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'billingAddressId' => $billingAddressId,
+            'addresses' => [
+                [
+                    'id' => $billingAddressId,
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+            ],
+            'lineItems' => [],
+            'deliveries' => [
+            ],
+            'context' => '{}',
+            'payload' => '{}',
+            'tags' => [
+                ['tagId' => $this->ids->get('tag_id'), 'name' => 'tag'],
+                ['tagId' => $this->ids->get('tag_id2'), 'name' => 'tag2'],
+            ],
+        ];
+
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $orderRepository->upsert([$order], $context);
+
+        return $orderId;
     }
 }

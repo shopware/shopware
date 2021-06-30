@@ -98,7 +98,9 @@ class FlowDispatcherTest extends TestCase
                     'ruleId' => null,
                     'actionName' => FlowAction::ADD_ORDER_TAG,
                     'config' => [
-                        'tagIds' => [$this->ids->get('tag_id')],
+                        'tagIds' => [
+                            $this->ids->get('tag_id') => 'test tag',
+                        ],
                         'entity' => OrderDefinition::ENTITY_NAME,
                     ],
                     'position' => 1,
@@ -110,7 +112,9 @@ class FlowDispatcherTest extends TestCase
                     'ruleId' => null,
                     'actionName' => FlowAction::ADD_ORDER_TAG,
                     'config' => [
-                        'tagIds' => [$this->ids->get('tag_id2')],
+                        'tagIds' => [
+                            $this->ids->get('tag_id2') => 'test tag2',
+                        ],
                         'entity' => OrderDefinition::ENTITY_NAME,
                     ],
                     'position' => 2,
@@ -192,7 +196,9 @@ class FlowDispatcherTest extends TestCase
                     'ruleId' => null,
                     'actionName' => FlowAction::ADD_ORDER_TAG,
                     'config' => [
-                        'tagIds' => [$this->ids->get('tag_id')],
+                        'tagIds' => [
+                            $this->ids->get('tag_id') => 'test tag',
+                        ],
                         'entity' => OrderDefinition::ENTITY_NAME,
                     ],
                     'position' => 1,
@@ -213,7 +219,9 @@ class FlowDispatcherTest extends TestCase
                     'ruleId' => null,
                     'actionName' => FlowAction::ADD_ORDER_TAG,
                     'config' => [
-                        'tagIds' => [$this->ids->get('tag_id2')],
+                        'tagIds' => [
+                            $this->ids->get('tag_id2') => 'test tag2',
+                        ],
                         'entity' => OrderDefinition::ENTITY_NAME,
                     ],
                     'position' => 3,

@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Test\Flow;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Action\FlowAction;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,7 +22,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal (FEATURE_NEXT_8225)
  */
-class AddOrderTagActionTest extends TestCase
+class RemoveCustomerTagActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
@@ -61,17 +60,20 @@ class AddOrderTagActionTest extends TestCase
         $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
-    public function testAddOrderTagAction(): void
+    public function testRemoveCustomerTagAction(): void
     {
         $this->createDataTest();
 
-        $this->createCustomerAndLogin();
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+        $this->createCustomer($password, $email);
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
+
         $this->flowRepository->create([[
-            'name' => 'Create Order',
-            'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
+            'name' => 'Customer login',
+            'eventName' => CustomerLoginEvent::EVENT_NAME,
             'priority' => 1,
             'active' => true,
             'sequences' => [
@@ -95,7 +97,7 @@ class AddOrderTagActionTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => FlowAction::REMOVE_CUSTOMER_TAG,
                     'config' => [
                         'tagIds' => [
                             $this->ids->get('tag_id') => 'test tag',
@@ -121,50 +123,21 @@ class AddOrderTagActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/order',
-                [
-                    'affiliateCode' => 'test affiliate code',
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $orderTag = $this->connection->fetchAllAssociative(
-            'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
-            ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2')), Uuid::fromHexToBytes($this->ids->get('tag_id3'))]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+        $customerTag = $this->connection->fetchAllAssociative(
+            'SELECT lower(hex(tag_id)) FROM customer_tag WHERE customer_id = (:customerId)',
+            ['customerId' => Uuid::fromHexToBytes($this->ids->get('customer'))]
         );
 
-        static::assertCount(3, $orderTag);
-    }
-
-    private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
-    {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
-        $this->createCustomer($password, $email);
+        static::assertCount(2, $customerTag);
 
         $this->login($email, $password);
+
+        $customerTag = $this->connection->fetchAllAssociative(
+            'SELECT * FROM customer_tag WHERE customer_id = (:customerId)',
+            ['customerId' => Uuid::fromHexToBytes($this->ids->get('tag_id'))]
+        );
+
+        static::assertCount(0, $customerTag);
     }
 
     private function login(?string $email = null, ?string $password = null): void
@@ -213,30 +186,16 @@ class AddOrderTagActionTest extends TestCase
                 'customerNumber' => '12345',
                 'vatIds' => ['DE123456789'],
                 'company' => 'Test',
+                'tags' => [
+                    ['tagId' => $this->ids->get('tag_id'), 'name' => 'tag'],
+                    ['tagId' => $this->ids->get('tag_id2'), 'name' => 'tag2'],
+                ],
             ],
         ], $this->ids->context);
     }
 
     private function createDataTest(): void
     {
-        $this->addCountriesToSalesChannel();
-
-        $this->getContainer()->get('product.repository')->create([
-            [
-                'id' => $this->ids->create('p1'),
-                'productNumber' => $this->ids->get('p1'),
-                'stock' => 10,
-                'name' => 'Test',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                'manufacturer' => ['id' => $this->ids->create('manufacturerId'), 'name' => 'test'],
-                'tax' => ['id' => $this->ids->create('tax'), 'taxRate' => 17, 'name' => 'with id'],
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-        ], $this->ids->context);
-
         $this->getContainer()->get('tag.repository')->create([
             [
                 'id' => $this->ids->create('tag_id'),

@@ -9,24 +9,24 @@ use Shopware\Core\Framework\Event\OrderAware;
 /**
  * @internal (FEATURE_NEXT_8225)
  */
-class AddOrderTagAction extends FlowAction
+class RemoveOrderTagAction extends FlowAction
 {
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepositoryInterface $orderTagRepository;
 
-    public function __construct(EntityRepositoryInterface $orderRepository)
+    public function __construct(EntityRepositoryInterface $orderTagRepository)
     {
-        $this->orderRepository = $orderRepository;
+        $this->orderTagRepository = $orderTagRepository;
     }
 
     public function getName(): string
     {
-        return FlowAction::ADD_ORDER_TAG;
+        return FlowAction::REMOVE_ORDER_TAG;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            FlowAction::ADD_ORDER_TAG => 'handle',
+            FlowAction::REMOVE_ORDER_TAG => 'handle',
         ];
     }
 
@@ -49,15 +49,13 @@ class AddOrderTagAction extends FlowAction
             return;
         }
 
-        $tags = array_map(static function ($tagId) {
-            return ['id' => $tagId];
+        $tags = array_map(static function ($tagId) use ($baseEvent) {
+            return [
+                'orderId' => $baseEvent->getOrderId(),
+                'tagId' => $tagId,
+            ];
         }, $tagIds);
 
-        $this->orderRepository->update([
-            [
-                'id' => $baseEvent->getOrderId(),
-                'tags' => $tags,
-            ],
-        ], $baseEvent->getContext());
+        $this->orderTagRepository->delete($tags, $baseEvent->getContext());
     }
 }

@@ -1,6 +1,8 @@
 import template from './sw-flow-detail.html.twig';
 import './sw-flow-detail.scss';
 
+import { ACTION } from '../../constant/flow.constant';
+
 const { Component, Mixin, Context, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
@@ -56,6 +58,24 @@ Component.register('sw-flow-detail', {
             return criteria;
         },
 
+        stateMachineStateRepository() {
+            return this.repositoryFactory.create('state_machine_state');
+        },
+
+        stateMachineStateCriteria() {
+            const criteria = new Criteria();
+            criteria.addSorting({ field: 'name', order: 'ASC' });
+            criteria.addAssociation('stateMachine');
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'state_machine_state.stateMachine.technicalName',
+                    ['order.state', 'order_transaction.state', 'order_delivery.state'],
+                ),
+            );
+
+            return criteria;
+        },
+
         ...mapState('swFlowState', ['flow']),
         ...mapGetters('swFlowState', ['sequences']),
     },
@@ -103,6 +123,7 @@ Component.register('sw-flow-detail', {
             return this.flowRepository.get(this.flowId, Context.api, this.flowCriteria)
                 .then((data) => {
                     State.commit('swFlowState/setFlow', data);
+                    this.getDataForActionDescription();
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -200,6 +221,25 @@ Component.register('sw-flow-detail', {
             State.commit('swFlowState/setInvalidSequences', invalidSequences);
 
             return invalidSequences;
+        },
+
+        getDataForActionDescription() {
+            if (!this.sequences) {
+                return null;
+            }
+
+            const promises = [];
+            const hasSetOrderStateAction = this.sequences.some(sequence => sequence.actionName === ACTION.SET_ORDER_STATE);
+
+            if (hasSetOrderStateAction) {
+                // get support information for set order state action.
+                promises.push(this.stateMachineStateRepository.search(this.stateMachineStateCriteria)
+                    .then(data => {
+                        State.commit('swFlowState/setStateMachineState', data);
+                    }));
+            }
+
+            return Promise.all(promises);
         },
     },
 });

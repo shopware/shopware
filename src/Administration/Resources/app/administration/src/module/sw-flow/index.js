@@ -10,6 +10,7 @@ import './component/sw-flow-sequence-condition';
 import './component/sw-flow-sequence-selector';
 import './component/modals/sw-flow-create-rule-modal';
 import './component/modals/sw-flow-tag-modal';
+import './component/modals/sw-flow-set-order-state-modal';
 
 import './service/flow-builder.service';
 import './acl';

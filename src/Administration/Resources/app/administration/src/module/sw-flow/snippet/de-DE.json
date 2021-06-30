@@ -118,11 +118,20 @@
       },
       "tag": {
         "labelAddTag": "Tag information",
-        "buttonApplyAction": "Add action",
         "labelToField": "To",
         "placeholderToField": "Select to to...",
         "labelTagsField": "Tags",
         "placeholderTagsField": "Enter tags..."
+      },
+      "status": {
+        "titleSetStatus": "Set status",
+        "labelOrderStatus": "Order status",
+        "labelPaymentStatus": "Payment status",
+        "labelDeliveryStatus": "Shipping status",
+        "placeholderOrderStatus": "Select order status...",
+        "placeholderPaymentStatus": "Select payment status...",
+        "placeholderDeliveryStatus": "Select shipping status...",
+        "messageNoStatusError": "At least one status should be selected"
       }
     }
   },

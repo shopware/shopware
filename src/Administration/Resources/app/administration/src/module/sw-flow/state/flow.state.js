@@ -11,6 +11,7 @@ export default {
         triggerEvent: {},
         triggerActions: [],
         invalidSequences: [],
+        stateMachineState: [],
     },
 
     mutations: {
@@ -66,6 +67,10 @@ export default {
                     ...sequences.slice(sequenceIndex + 1),
                 ],
             );
+        },
+
+        setStateMachineState(state, stateMachineState) {
+            state.stateMachineState = stateMachineState;
         },
 
         setInvalidSequences(state, invalidSequences) {

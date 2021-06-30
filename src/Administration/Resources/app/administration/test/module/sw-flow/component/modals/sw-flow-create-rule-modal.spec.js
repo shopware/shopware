@@ -2,7 +2,6 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/modals/sw-flow-create-rule-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
-import 'src/app/component/base/sw-button';
 
 function createRuleMock(isNew) {
     return {
@@ -15,35 +14,23 @@ function createRuleMock(isNew) {
     };
 }
 
-function createWrapper(privileges = []) {
+function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-flow-create-rule-modal'), {
-        provide: { repositoryFactory: {
-            create: () => {
-                return {
-                    create: () => {
-                        return createRuleMock(true);
-                    },
-                    get: () => Promise.resolve(createRuleMock(false))
-                };
-            }
-        },
-        ruleConditionDataProviderService: {
-            getModuleTypes: () => []
-        },
-        shortcutService: {
-            startEventListener: () => {},
-            stopEventListener: () => {}
-        },
-
-        acl: {
-            can: (identifier) => {
-                if (!identifier) {
-                    return true;
+        provide: {
+            repositoryFactory: {
+                create: () => {
+                    return {
+                        create: () => {
+                            return createRuleMock(true);
+                        },
+                        get: () => Promise.resolve(createRuleMock(false))
+                    };
                 }
-
-                return privileges.includes(identifier);
+            },
+            ruleConditionDataProviderService: {
+                getModuleTypes: () => []
             }
-        } },
+        },
 
         propsData: {
             sequence: {}
@@ -61,7 +48,7 @@ function createWrapper(privileges = []) {
                     </div>
                 `
             },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': true,
             'sw-icon': true,
             'sw-condition-tree': true,
             'sw-container': true,

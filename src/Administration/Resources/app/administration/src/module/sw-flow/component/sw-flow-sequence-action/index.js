@@ -26,7 +26,6 @@ Component.register('sw-flow-sequence-action', {
 
     data() {
         return {
-            showModal: false,
             showAddButton: true,
             fieldError: null,
             actionModal: '',
@@ -78,7 +77,7 @@ Component.register('sw-flow-sequence-action', {
             return this.flowBuilderService.getActionModalName(this.actionModal);
         },
 
-        ...mapState('swFlowState', ['invalidSequences']),
+        ...mapState('swFlowState', ['invalidSequences', 'stateMachineState']),
         ...mapGetters('swFlowState', ['availableActions']),
     },
 
@@ -114,6 +113,7 @@ Component.register('sw-flow-sequence-action', {
             const { config, id } = sequence;
             const entity = config?.entity;
             let actionName = this.actionModal;
+
             if (this.actionModal === ACTION.ADD_TAG && entity) {
                 actionName = `action.add.${entity}.tag`;
             }
@@ -247,13 +247,12 @@ Component.register('sw-flow-sequence-action', {
         },
 
         getActionDescription(sequence) {
-            const { actionName } = sequence;
+            const { actionName, config } = sequence;
 
             if (!actionName) return '';
 
             if (actionName.includes('tag') &&
                 (actionName.includes('add') || actionName.includes('remove'))) {
-                const { config } = sequence;
                 return this.$tc('sw-flow.actions.tagDescription', 0, {
                     entity: config.entity,
                     tagNames: this.convertTagString(Object.values(config.tagIds)),
@@ -263,6 +262,8 @@ Component.register('sw-flow-sequence-action', {
             switch (actionName) {
                 case ACTION.STOP_FLOW:
                     return this.$tc('sw-flow.actions.textStopFlowDescription');
+                case ACTION.SET_ORDER_STATE:
+                    return this.showSetOrderStateDescription(config);
                 default: {
                     return '';
                 }
@@ -292,6 +293,34 @@ Component.register('sw-flow-sequence-action', {
 
         isNotStopFlow(item) {
             return item.actionName !== ACTION.STOP_FLOW;
+        },
+
+        onCreateActionSuccess(actionSequence) {
+            this.addAction(actionSequence);
+            this.onCloseModal();
+        },
+
+        showSetOrderStateDescription(config) {
+            const description = [];
+            if (config.order) {
+                const orderStatus = this.stateMachineState.find(item => item.technicalName === config.order);
+                const orderStatusName = orderStatus?.translated?.name || '';
+                description.push(`${this.$tc('sw-flow.modals.status.labelOrderStatus')}: ${orderStatusName}`);
+            }
+
+            if (config.order_delivery) {
+                const deliveryStatus = this.stateMachineState.find(item => item.technicalName === config.order_delivery);
+                const deliveryStatusName = deliveryStatus?.translated?.name || '';
+                description.push(`${this.$tc('sw-flow.modals.status.labelDeliveryStatus')}: ${deliveryStatusName}`);
+            }
+
+            if (config.order_transaction) {
+                const paymentStatus = this.stateMachineState.find(item => item.technicalName === config.order_transaction);
+                const paymentStatusName = paymentStatus?.translated?.name || '';
+                description.push(`${this.$tc('sw-flow.modals.status.labelPaymentStatus')}: ${paymentStatusName}`);
+            }
+
+            return description.join('<br>');
         },
     },
 });

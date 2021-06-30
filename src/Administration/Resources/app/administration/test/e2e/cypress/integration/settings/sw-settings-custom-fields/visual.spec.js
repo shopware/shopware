@@ -50,9 +50,7 @@ describe('Custom fields: Visual testing', () => {
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-modal').should('be.visible');
-
-        cy.contains('.sw-modal__header', 'Edit custom field').should('be.visible');
+        cy.handleModalSnapshot('Edit custom field');
         cy.takeSnapshot('[Custom fields] Detail, Field modal', '#sw-field--currentCustomField-config-customFieldType');
     });
 });

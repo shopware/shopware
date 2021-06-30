@@ -60,22 +60,9 @@ describe('Import/Export:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.sortListingViaColumn('Name', 'Default category', '.sw-data-grid__row--0');
+        cy.sortListingViaColumn('Name', 'Default category');
         cy.takeSnapshot('[Import export] Profiles overview',
             '.sw-import-export-view-profiles__listing');
-
-        // Perform create new profile action
-        cy.get('.sw-import-export-view-profiles__create-action').click();
-
-
-        cy.wait('@getLanguages').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        // Take snapshot for visual testing
-        cy.get('.sw-modal').should('be.visible');
-        cy.contains('.sw-modal__header', 'New profile').should('be.visible');
-        cy.takeSnapshot('[Import export] Profile creation', '#sw-field--profile-label');
     });
 
     it('@visual: check appearance of basic export workflow', () => {

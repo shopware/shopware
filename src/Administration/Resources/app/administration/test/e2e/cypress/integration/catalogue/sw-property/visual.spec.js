@@ -84,12 +84,12 @@ describe('Property: Visual tests', () => {
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
 
-        cy.get('.sw-modal').should('be.visible');
         cy.wait('@getMediaFolder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
+
         // Take snapshot for visual testing
-        cy.contains('.sw-modal__header', 'New value').should('be.visible');
+        cy.handleModalSnapshot('New value');
         cy.takeSnapshot('[Property] Detail, Option modal', '#sw-field--currentOption-name');
     });
 });

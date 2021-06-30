@@ -185,11 +185,15 @@ class AccountOrderController extends StorefrontController
     {
         $page = $this->orderDetailPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/order-detail-list.html.twig', [
+        $response = $this->renderStorefront('@Storefront/storefront/page/account/order-history/order-detail-list.html.twig', [
             'orderDetails' => $page->getLineItems(),
             'orderId' => $page->getOrder()->getId(),
             'page' => $page,
         ]);
+
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     /**

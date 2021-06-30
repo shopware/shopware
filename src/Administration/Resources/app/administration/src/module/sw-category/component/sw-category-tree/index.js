@@ -107,6 +107,10 @@ Component.register('sw-category-tree', {
             return this.repositoryFactory.create('cms_page');
         },
 
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
         defaultLayout() {
             return Shopware.State.get('swCategoryDetail').defaultLayout;
         },
@@ -235,9 +239,30 @@ Component.register('sw-category-tree', {
 
             this.syncSiblings({ parentId: newParentId }).then(() => {
                 if (oldParentId !== newParentId) {
-                    this.syncSiblings({ parentId: oldParentId });
+                    this.syncSiblings({ parentId: oldParentId }).then(() => {
+                        this.syncProducts(draggedItem.id);
+                    });
                 }
             });
+        },
+
+        syncProducts(categoryId) {
+            const criteria = new Criteria(1, 50);
+            criteria.addFilter(Criteria.multi('or', [
+                Criteria.equals('categoriesRo.id', categoryId),
+                Criteria.equals('categories.id', categoryId),
+            ]));
+
+            return this.productRepository.iterateIds(criteria, this.indexProducts);
+        },
+
+        indexProducts(ids) {
+            const headers = this.productRepository.buildHeaders();
+
+            const initContainer = Shopware.Application.getContainer('init');
+            const httpClient = initContainer.httpClient;
+
+            return httpClient.post('/_action/index-products', { ids }, { headers });
         },
 
         checkedElementsCount(count) {

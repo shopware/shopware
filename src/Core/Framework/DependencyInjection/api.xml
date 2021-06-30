@@ -65,6 +65,7 @@
 
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <argument type="service" id="messenger.bus.shopware"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -46,7 +46,7 @@ class IndexingControllerTest extends TestCase
         }
         $registry = $this->getMockBuilder(EntityIndexerRegistry::class)->disableOriginalConstructor()->getMock();
         $registry->method('getIndexer')->willReturn($productIndexer);
-        $indexer = new IndexingController($registry);
+        $indexer = new IndexingController($registry, $this->getContainer()->get('messenger.bus.shopware'));
 
         $response = $indexer->iterate('product.indexer', new Request([], ['offset' => $offset]));
         $response = json_decode($response->getContent(), true);

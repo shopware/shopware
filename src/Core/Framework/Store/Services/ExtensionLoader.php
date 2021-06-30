@@ -48,33 +48,42 @@ class ExtensionLoader
 
     private EntityRepositoryInterface $languageRepository;
 
+    private StoreService $storeService;
+
     public function __construct(
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $themeRepository,
         AbstractAppLoader $appLoader,
-        ConfigurationService $configurationService
+        ConfigurationService $configurationService,
+        StoreService $storeService
     ) {
         $this->languageRepository = $languageRepository;
         $this->themeRepository = $themeRepository;
         $this->appLoader = $appLoader;
         $this->configurationService = $configurationService;
+        $this->storeService = $storeService;
     }
 
-    public function loadFromArray(Context $context, array $data): ExtensionStruct
+    public function loadFromArray(Context $context, array $data, ?string $locale = null): ExtensionStruct
     {
-        $locale = $this->getLocaleCodeFromLanguageId($context);
-        $data = $this->prepareArrayData($data, $locale);
+        if ($locale === null) {
+            $locale = $this->storeService->getLanguageByContext($context);
+        }
+
+        $localeWithUnderscore = str_replace('-', '_', $locale);
+        $data = $this->prepareArrayData($data, $localeWithUnderscore);
 
         return ExtensionStruct::fromArray($data);
     }
 
     public function loadFromListingArray(Context $context, array $data): ExtensionCollection
     {
-        $locale = $this->getLocaleCodeFromLanguageId($context);
+        $locale = $this->storeService->getLanguageByContext($context);
+        $localeWithUnderscore = str_replace('-', '_', $locale);
         $extensions = new ExtensionCollection();
 
         foreach ($data as $extension) {
-            $extension = ExtensionStruct::fromArray($this->prepareArrayData($extension, $locale));
+            $extension = ExtensionStruct::fromArray($this->prepareArrayData($extension, $localeWithUnderscore));
             $extensions->set($extension->getName(), $extension);
         }
 
@@ -171,9 +180,9 @@ class ExtensionLoader
 
         $data = [
             'localId' => $plugin->getId(),
-            'description' => $plugin->getDescription(),
+            'description' => $plugin->getTranslation('description'),
             'name' => $plugin->getName(),
-            'label' => $plugin->getLabel(),
+            'label' => $plugin->getTranslation('label'),
             'producerName' => $plugin->getAuthor(),
             'license' => $plugin->getLicense(),
             'version' => $plugin->getVersion(),
@@ -187,7 +196,7 @@ class ExtensionLoader
             'updatedAt' => $plugin->getUpgradedAt(),
         ];
 
-        return $this->loadFromArray($context, $data);
+        return ExtensionStruct::fromArray($this->replaceCollections($data));
     }
 
     /**
@@ -213,12 +222,10 @@ class ExtensionLoader
     {
         $apps = $this->appLoader->load();
         $collection = new ExtensionCollection();
+        $language = $this->storeService->getLanguageByContext($context);
 
         foreach ($apps as $name => $app) {
             $icon = $this->appLoader->getIcon($app);
-
-            $language = (string) $this->getLocaleCodeFromLanguageId($context);
-            $languageWithMinus = str_replace('_', '-', $language);
 
             $appArray = $app->getMetadata()->toArray($language);
 
@@ -235,11 +242,11 @@ class ExtensionLoader
                 'active' => false,
                 'type' => ExtensionStruct::EXTENSION_TYPE_APP,
                 'isTheme' => is_file($app->getPath() . '/Resources/theme.json'),
-                'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $languageWithMinus, 'en-GB') : '',
+                'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
             ];
 
-            $collection->set($name, $this->loadFromArray($context, $row));
+            $collection->set($name, $this->loadFromArray($context, $row, $language));
         }
 
         return $collection;
@@ -285,7 +292,7 @@ class ExtensionLoader
     }
 
     /**
-     * @param array<string, array<string>|null> $data
+     * @param array<string, mixed> $data
      *
      * @return array<string, StoreCollection|array<string>|null>
      */

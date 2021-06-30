@@ -2,9 +2,8 @@
 {% parent() %}
 
 {% block sw_custom_field_type_select_multi %}
-<sw-field
+<sw-switch-field
     v-model="multiSelectSwitch"
-    type="switch"
     class="sw-custom-field-detail__switch"
     :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
     @change="onChangeMultiSelectSwitch"
@@ -47,11 +46,11 @@
 
         {% block sw_custom_field_type_select_options_container_labels %}
         <div>
-            <sw-field
+            <sw-text-field
+                class="sw-custom-field-type-select__option-label"
                 v-for="locale in locales"
                 :key="locale"
                 v-model="option.label[locale]"
-                type="text"
                 :label="getLabel(locale)"
             />
         </div>

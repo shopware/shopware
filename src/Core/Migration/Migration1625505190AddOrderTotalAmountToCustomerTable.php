@@ -5,6 +5,6 @@ namespace Shopware\Core\Migration;
 /**
  * @deprecated tag:v6.5.0 - Will be deleted. Migrations are now namespaced by major version
  */
-class Migration1624202045AddValueOfOrdersToCustomerTable extends \Shopware\Core\Migration\V6_4\Migration1624202045AddValueOfOrdersToCustomerTable
+class Migration1625505190AddOrderTotalAmountToCustomerTable extends \Shopware\Core\Migration\V6_4\Migration1625505190AddOrderTotalAmountToCustomerTable
 {
 }

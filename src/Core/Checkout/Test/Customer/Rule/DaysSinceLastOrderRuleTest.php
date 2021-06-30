@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -41,11 +44,17 @@ class DaysSinceLastOrderRuleTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
     protected function setUp(): void
     {
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
+        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
 
     public function testValidateWithMissingValues(): void
@@ -291,6 +300,26 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $orderData = $this->getOrderData($orderId, $defaultContext);
 
         $orderRepository->create($orderData, $defaultContext);
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_PROCESS,
+                'stateId',
+            ),
+            Context::createDefaultContext()
+        );
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_COMPLETE,
+                'stateId',
+            ),
+            Context::createDefaultContext()
+        );
 
         /** @var CustomerCollection|CustomerEntity[] $result */
         $result = $customerRepository->search(

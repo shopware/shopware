@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Customer\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\OrderTotalAmountRule;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -18,6 +19,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -25,6 +29,7 @@ class OrderTotalAmountRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use OrderFixture;
 
     /**
      * @var EntityRepositoryInterface
@@ -41,11 +46,17 @@ class OrderTotalAmountRuleTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
     protected function setUp(): void
     {
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
+        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
 
     public function testValidateWithMissingValues(): void
@@ -205,6 +216,120 @@ class OrderTotalAmountRuleTest extends TestCase
         $scope = $this->createTestScope();
 
         static::assertTrue($rule->match($scope));
+    }
+
+    public function testCustomerMetaFieldSubscriberWithCompletedOrder(): void
+    {
+        /** @var EntityRepositoryInterface $orderRepository */
+        $orderRepository = $this->getContainer()->get('order.repository');
+        /** @var EntityRepositoryInterface $customerRepository */
+        $customerRepository = $this->getContainer()->get('customer.repository');
+        $defaultContext = Context::createDefaultContext();
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $defaultContext);
+
+        $orderRepository->create($orderData, $defaultContext);
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_PROCESS,
+                'stateId',
+            ),
+            $defaultContext
+        );
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_COMPLETE,
+                'stateId',
+            ),
+            $defaultContext
+        );
+
+        /** @var CustomerCollection|CustomerEntity[] $result */
+        $result = $customerRepository->search(
+            new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
+            $defaultContext
+        );
+
+        static::assertSame(1, $result->first()->getOrderCount());
+        static::assertSame(10, (int) $result->first()->getOrderTotalAmount());
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_REOPEN,
+                'stateId',
+            ),
+            $defaultContext
+        );
+
+        /** @var CustomerCollection|CustomerEntity[] $result */
+        $result = $customerRepository->search(
+            new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
+            $defaultContext
+        );
+        static::assertSame(0, $result->first()->getOrderCount());
+        static::assertSame(0, (int) $result->first()->getOrderTotalAmount());
+    }
+
+    public function testCustomerMetaFieldSubscriberWithDeletedOrder(): void
+    {
+        /** @var EntityRepositoryInterface $orderRepository */
+        $orderRepository = $this->getContainer()->get('order.repository');
+        /** @var EntityRepositoryInterface $customerRepository */
+        $customerRepository = $this->getContainer()->get('customer.repository');
+        $defaultContext = Context::createDefaultContext();
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $defaultContext);
+
+        $orderRepository->create($orderData, $defaultContext);
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_PROCESS,
+                'stateId',
+            ),
+            $defaultContext
+        );
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_COMPLETE,
+                'stateId',
+            ),
+            $defaultContext
+        );
+
+        /** @var CustomerCollection|CustomerEntity[] $result */
+        $result = $customerRepository->search(
+            new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
+            $defaultContext
+        );
+
+        static::assertSame(1, $result->first()->getOrderCount());
+        static::assertSame(10, (int) $result->first()->getOrderTotalAmount());
+
+        $orderRepository->delete([
+            ['id' => $orderId],
+        ], $defaultContext);
+
+        /** @var CustomerCollection|CustomerEntity[] $result */
+        $result = $customerRepository->search(
+            new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
+            $defaultContext
+        );
+        static::assertSame(0, $result->first()->getOrderCount());
+        static::assertSame(0, (int) $result->first()->getOrderTotalAmount());
     }
 
     private function createTestScope(): CheckoutRuleScope

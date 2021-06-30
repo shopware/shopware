@@ -614,7 +614,7 @@
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",
-        "orderTotalAmountRule": "Früherer Umsatz",
+        "orderTotalAmountRule": "Gesamtsumme aller abgeschlossenen Bestellungen",
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {

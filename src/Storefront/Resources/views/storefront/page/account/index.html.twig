@@ -3,6 +3,30 @@
 {% block page_account_main_content %}
     {% block page_account_overview %}
         <div class="account-overview">
+            {% if feature('FEATURE_NEXT_15707') %}
+                {% block page_account_overview_shipping_warning %}
+                    {% set ableToShipToShippingCountry = context.customer.defaultShippingAddress.country.shippingAvailable %}
+
+                    {% if not ableToShipToShippingCountry %}
+                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                            type: 'warning',
+                            content: 'account.overviewNotAbleToShip'|trans|sw_sanitize
+                        } %}
+                    {% endif %}
+                {% endblock %}
+
+                {% block page_account_overview_request_group_info %}
+                    {% if page.customer.requestedGroup %}
+                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                            type: 'info',
+                            content: 'account.overviewCustomerGroupRequest'|trans({
+                                '%group%': page.customer.requestedGroup.translated.name
+                            })
+                        } %}
+                    {% endif %}
+                {% endblock %}
+            {% endif %}
+
             {% block page_account_overview_welcome %}
                 <div class="account-welcome">
                     <h1>{{ "account.overviewTitle"|trans|sw_sanitize }}</h1>
@@ -10,7 +34,9 @@
                         <p>{{ "account.overviewInfo"|trans|sw_sanitize }}</p>
                     {% endblock %}
 
-                    {% if page.customer.requestedGroup %}
+                    {% if not feature('FEATURE_NEXT_15707') and page.customer.requestedGroup %}
+
+                        {# @deprecated tag:v6.5.0 - Alert will be removed use block "page_account_overview_request_group_info" instead #}
                         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                             type: 'info',
                             content: 'account.overviewCustomerGroupRequest'|trans({

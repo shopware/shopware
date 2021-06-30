@@ -109,6 +109,20 @@
                 </template>
             </sw-entity-single-select>
 
+            {% block sw_product_stream_value_entity_single_value_visibilities %}
+            <sw-entity-single-select
+                v-else-if="definition.entity === 'product_visibility' && actualCondition.type === 'equals'"
+                v-model="actualCondition.value"
+                size="medium"
+                :entity="definition.entity"
+                :criteria="visibilitiesCriteria"
+                :label-callback="visibilitiesLabelCallback"
+                :context="context"
+                :disabled="disabled"
+                @search-term-change="setSearchTerm"
+            />
+            {% endblock %}
+
             <sw-entity-single-select
                 v-else-if="actualCondition.type === 'equals'"
                 v-model="actualCondition.value"
@@ -189,6 +203,37 @@
                     </slot>
                 </template>
             </sw-entity-multi-id-select>
+
+            {% block sw_product_stream_value_entity_multi_value_visibilities %}
+            <sw-entity-multi-id-select
+                v-else-if="definition.entity === 'product_visibility' && actualCondition.type === 'equalsAny'"
+                v-model="multiValue"
+                size="medium"
+                :repository="repository"
+                :criteria="visibilitiesCriteria"
+                :context="context"
+                :disabled="disabled"
+                @search-term-change="setSearchTerm"
+            >
+                <template #selection-label-property="{ item }">
+                    <slot
+                        name="selection-label-property"
+                        v-bind="{ item }"
+                    >
+                        {{ item.salesChannel.translated.name }}: {{ item.product.translated.name }}
+                    </slot>
+                </template>
+
+                <template #result-label-property="{ item, searchTerm, highlightSearchTerm }">
+                    <slot
+                        name="result-label-property"
+                        v-bind="{ item, searchTerm, highlightSearchTerm }"
+                    >
+                        {{ item.salesChannel.translated.name }}: {{ item.product.translated.name }}
+                    </slot>
+                </template>
+            </sw-entity-multi-id-select>
+            {% endblock %}
 
             <sw-entity-multi-id-select
                 v-else-if="actualCondition.type === 'equalsAny'"

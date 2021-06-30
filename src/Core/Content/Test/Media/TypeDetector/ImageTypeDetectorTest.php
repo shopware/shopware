@@ -52,6 +52,8 @@ class ImageTypeDetectorTest extends TestCase
 
     public function testDetectAnimatedGifFromUrl(): void
     {
+        static::markTestSkipped('NEXT-15949 - Do not fetch external resources in unit tests');
+
         $type = $this->getImageTypeDetector()->detect(
             new MediaFile(
                 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Zipper_animated.gif',
@@ -95,6 +97,8 @@ class ImageTypeDetectorTest extends TestCase
 
     public function testDetectAnimatedWebpFromUrl(): void
     {
+        static::markTestSkipped('NEXT-15949 - Do not fetch external resources in unit tests');
+
         $type = $this->getImageTypeDetector()->detect(
             new MediaFile(
                 'https://upload.wikimedia.org/wikipedia/commons/f/f8/Simple_Animated_Clock.webp',

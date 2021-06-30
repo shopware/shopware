@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
@@ -15,10 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceFieldSerializer extends AbstractFieldSerializer
@@ -67,6 +71,8 @@ class PriceFieldSerializer extends AbstractFieldSerializer
             foreach ($data->getValue() as $index => $price) {
                 $this->validate($constraints, new KeyValuePair((string) $index, $price, true), $pricePath);
             }
+
+            $this->ensureDefaultPrice($parameters, $data->getValue());
 
             $converted = [];
 
@@ -157,5 +163,28 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         ];
 
         return $constraints;
+    }
+
+    private function ensureDefaultPrice(WriteParameterBag $parameters, array $prices): void
+    {
+        foreach ($prices as $price) {
+            if ($price['currencyId'] === Defaults::CURRENCY) {
+                return;
+            }
+        }
+
+        $violationList = new ConstraintViolationList();
+        $violationList->add(
+            new ConstraintViolation(
+                'No price for default currency defined',
+                'No price for default currency defined',
+                [],
+                '',
+                '/price',
+                $prices
+            )
+        );
+
+        throw new WriteConstraintViolationException($violationList, $parameters->getPath());
     }
 }

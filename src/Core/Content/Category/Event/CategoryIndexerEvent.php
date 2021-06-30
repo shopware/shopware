@@ -17,10 +17,13 @@ class CategoryIndexerEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $ids, Context $context)
+    private array $skip;
+
+    public function __construct(array $ids, Context $context, array $skip = [])
     {
         $this->ids = $ids;
         $this->context = $context;
+        $this->skip = $skip;
     }
 
     public function getIds(): array
@@ -31,5 +34,10 @@ class CategoryIndexerEvent extends NestedEvent
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function getSkip(): array
+    {
+        return $this->skip;
     }
 }

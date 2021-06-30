@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
@@ -105,6 +106,15 @@ class CacheController extends AbstractController
      *     description="Runs all registered indexer in the shop asynchronously.",
      *     operationId="index",
      *     tags={"Admin API", "System Operations"},
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="skip",
+     *                 description="Array of indexers/updaters to be skipped.",
+     *                 type="array"
+     *             )
+     *         )
+     *     ),
      *     @OA\Response(
      *         response="204",
      *         description="Returns a no content response indicating that the indexing progress startet."
@@ -113,9 +123,12 @@ class CacheController extends AbstractController
      * @Route("/api/_action/index", name="api.action.cache.index", methods={"POST"})
      * @Acl({"api_action_cache_index"})
      */
-    public function index(): Response
+    public function index(RequestDataBag $dataBag): Response
     {
-        $this->indexerRegistry->sendIndexingMessage();
+        $data = $dataBag->all();
+        $skip = !empty($data['skip']) && \is_array($data['skip']) ? $data['skip'] : [];
+
+        $this->indexerRegistry->sendIndexingMessage([], $skip);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

@@ -21,6 +21,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductIndexer extends EntityIndexer
 {
+    public const INHERITANCE_UPDATER = 'product.inheritance';
+    public const STOCK_UPDATER = 'product.stock';
+    public const VARIANT_LISTING_UPDATER = 'product.variant-listing';
+    public const CHILD_COUNT_UPDATER = 'product.child-count';
+    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'product.many-to-many-id-field';
+    public const CATEGORY_DENORMALIZER_UPDATER = 'product.category-denormalizer';
+    public const CHEAPEST_PRICE_UPDATER = 'product.cheapest-price';
+    public const RATING_AVERAGE_UPDATER = 'product.rating-average';
+    public const STREAM_UPDATER = 'product.stream';
+    public const SEARCH_KEYWORD_UPDATER = 'product.search-keyword';
+
     private IteratorFactory $iteratorFactory;
 
     private EntityRepositoryInterface $repository;
@@ -148,25 +159,45 @@ class ProductIndexer extends EntityIndexer
 
         $all = array_filter(array_unique(array_merge($ids, $parentIds, $childrenIds)));
 
-        $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
+        if ($message->allow(self::INHERITANCE_UPDATER)) {
+            $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
+        }
 
-        $this->stockUpdater->update($ids, $context);
+        if ($message->allow(self::STOCK_UPDATER)) {
+            $this->stockUpdater->update($ids, $context);
+        }
 
-        $this->variantListingUpdater->update($parentIds, $context);
+        if ($message->allow(self::VARIANT_LISTING_UPDATER)) {
+            $this->variantListingUpdater->update($parentIds, $context);
+        }
 
-        $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
+        if ($message->allow(self::CHILD_COUNT_UPDATER)) {
+            $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
+        }
 
-        $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
+            $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+        }
 
-        $this->categoryDenormalizer->update($ids, $context);
+        if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
+            $this->categoryDenormalizer->update($ids, $context);
+        }
 
-        $this->cheapestPriceUpdater->update($parentIds, $context);
+        if ($message->allow(self::CHEAPEST_PRICE_UPDATER)) {
+            $this->cheapestPriceUpdater->update($parentIds, $context);
+        }
 
-        $this->ratingAverageUpdater->update($parentIds, $context);
+        if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
+            $this->ratingAverageUpdater->update($parentIds, $context);
+        }
 
-        $this->streamUpdater->updateProducts($all, $context);
+        if ($message->allow(self::STREAM_UPDATER)) {
+            $this->streamUpdater->updateProducts($all, $context);
+        }
 
-        $this->searchKeywordUpdater->update(array_merge($ids, $childrenIds), $context);
+        if ($message->allow(self::SEARCH_KEYWORD_UPDATER)) {
+            $this->searchKeywordUpdater->update(array_merge($ids, $childrenIds), $context);
+        }
 
         $this->connection->executeStatement(
             'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
@@ -176,7 +207,7 @@ class ProductIndexer extends EntityIndexer
 
         $this->connection->commit();
 
-        $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context));
+        $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context, $message->getSkip()));
     }
 
     private function getChildrenIds(array $ids): array

@@ -21,7 +21,8 @@
       "clearAndWarmUpButton": "Clear and warm up caches",
       "indexesHeadline": "Indexes",
       "indexesText": "All indexes are updated asynchronously. Keep track of the progress by monitoring the notifications.",
-      "indexesButton": "Update indexes"
+      "indexesButton": "Update indexes",
+      "indexesSkipSelectPlaceholder": "Skip indexers and/or updaters"
     },
     "notifications": {
       "clearCache": {

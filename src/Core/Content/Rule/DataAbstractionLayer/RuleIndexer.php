@@ -24,6 +24,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
+    public const PAYLOAD_UPDATER = 'rule.payload';
+
     /**
      * @var IteratorFactory
      */
@@ -136,9 +138,11 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
             return;
         }
 
-        $this->payloadUpdater->update($ids);
+        if ($message->allow(self::PAYLOAD_UPDATER)) {
+            $this->payloadUpdater->update($ids);
+        }
 
-        $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext()));
+        $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
     public function onRuleWritten(EntityWrittenEvent $event): void

@@ -19,6 +19,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CategoryIndexer extends EntityIndexer
 {
+    public const CHILD_COUNT_UPDATER = 'category.child-count';
+    public const TREE_UPDATER = 'category.tree';
+    public const BREADCRUMB_UPDATER = 'category.breadcrumb';
+
     /**
      * @var IteratorFactory
      */
@@ -161,17 +165,23 @@ class CategoryIndexer extends EntityIndexer
 
         $this->connection->beginTransaction();
 
-        // listen to parent id changes
-        $this->childCountUpdater->update(CategoryDefinition::ENTITY_NAME, $ids, $context);
+        if ($message->allow(self::CHILD_COUNT_UPDATER)) {
+            // listen to parent id changes
+            $this->childCountUpdater->update(CategoryDefinition::ENTITY_NAME, $ids, $context);
+        }
 
-        $this->treeUpdater->batchUpdate($ids, CategoryDefinition::ENTITY_NAME, $context);
+        if ($message->allow(self::TREE_UPDATER)) {
+            $this->treeUpdater->batchUpdate($ids, CategoryDefinition::ENTITY_NAME, $context);
+        }
 
-        // listen to name changes
-        $this->breadcrumbUpdater->update($ids, $context);
+        if ($message->allow(self::BREADCRUMB_UPDATER)) {
+            // listen to name changes
+            $this->breadcrumbUpdater->update($ids, $context);
+        }
 
         $this->connection->commit();
 
-        $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context));
+        $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context, $message->getSkip()));
     }
 
     private function fetchChildren(array $categoryIds, string $versionId): array

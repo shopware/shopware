@@ -27,6 +27,7 @@
             <argument>%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Validation\TranslationValidator">

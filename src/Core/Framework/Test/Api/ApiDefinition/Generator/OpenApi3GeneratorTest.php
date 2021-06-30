@@ -158,7 +158,6 @@ class OpenApi3GeneratorTest extends TestCase
 
     private static function isFeatureAllTrue(): bool
     {
-        /* @var mixed $value */
         $value = $_SERVER['FEATURE_ALL'] ?? 'false';
 
         return $value

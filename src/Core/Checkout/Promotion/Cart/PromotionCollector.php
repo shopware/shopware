@@ -216,7 +216,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
         // let's find out what promotions we
         // really need to fetch from our database.
-        /* @var string $code */
+
         foreach ($allCodes as $code) {
             // check if promotion is already cached
             if ($promotionsList->hasCode($code)) {
@@ -355,7 +355,6 @@ class PromotionCollector implements CartDataCollectorInterface
                 $factor = $context->getCurrency()->getFactor();
             }
 
-            /* @var LineItem $discountItem */
             $discountItem = $this->itemBuilder->buildDiscountLineItem(
                 $code,
                 $promotion,

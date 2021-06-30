@@ -32,7 +32,6 @@ class ValueGeneratorPatternRegistry
         if ($this->mapped === null) {
             $this->mapped = [];
 
-            /* @var ValueGeneratorPatternInterface $singlePattern */
             foreach ($this->pattern as $singlePattern) {
                 $this->mapped[$singlePattern->getPatternId()] = $singlePattern;
             }

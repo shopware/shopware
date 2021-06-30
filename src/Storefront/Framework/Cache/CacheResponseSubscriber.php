@@ -83,7 +83,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        /* @var SalesChannelContext $context */
         $states = $this->updateSystemState($cart, $context, $request, $response);
 
         if ($request->getMethod() !== Request::METHOD_GET) {

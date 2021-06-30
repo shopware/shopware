@@ -74,7 +74,6 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
         $now = new \DateTime();
 
-        /* @var SalesChannelProductEntity $product */
         $product->setIsNew(
             $product->getReleaseDate() instanceof \DateTimeInterface
             && $product->getReleaseDate()->diff($now)->days <= $markAsNewDayRange

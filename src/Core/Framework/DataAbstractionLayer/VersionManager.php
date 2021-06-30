@@ -862,7 +862,6 @@ class VersionManager
                 continue;
             }
 
-            /* @var Field|StorageAware $primaryKey */
             if (!isset($rawData[$property])) {
                 throw new \RuntimeException(
                     sprintf('Missing primary key %s for definition %s', $property, $definition->getClass())

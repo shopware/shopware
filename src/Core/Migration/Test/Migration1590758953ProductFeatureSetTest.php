@@ -78,7 +78,6 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
 
     public function testProductTableExtensionIsComplete(): void
     {
-        /* @var Column[] $columns */
         $columns = array_filter(
             $this->connection->getSchemaManager()->listTableColumns('product'),
             static function (Column $column): bool {

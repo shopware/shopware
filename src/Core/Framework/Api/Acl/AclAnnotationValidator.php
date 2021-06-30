@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Acl;
 
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -39,7 +38,6 @@ class AclAnnotationValidator implements EventSubscriberInterface
             throw new MissingPrivilegeException([]);
         }
 
-        /* @var Context $context */
         foreach ($privileges as $privilege) {
             if (!$context->isAllowed($privilege)) {
                 throw new MissingPrivilegeException([$privilege]);

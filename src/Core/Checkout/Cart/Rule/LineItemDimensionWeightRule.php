@@ -85,7 +85,6 @@ class LineItemDimensionWeightRule extends Rule
 
         $this->amount = (float) $this->amount;
 
-        /* @var float $weight */
         switch ($this->operator) {
             case self::OPERATOR_GTE:
                 return FloatComparator::greaterThanOrEquals($weight, $this->amount);

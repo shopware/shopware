@@ -13,7 +13,6 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -2817,7 +2816,6 @@ class ElasticsearchProductTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /* @var EntityRepositoryInterface $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
 
         $languageRepository->create(

@@ -12,7 +12,7 @@ class EntityCollection extends Collection
 
         foreach ($elements as $element) {
             $this->validateType($element);
-            /* @var Entity $element */
+
             $this->set($element->getUniqueIdentifier(), $element);
         }
     }

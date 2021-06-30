@@ -126,7 +126,7 @@ class PromotionCalculator
         $exclusions = $this->buildExclusions($discountLineItems, $calculated, $context);
 
         // @todo order $discountLineItems by priority
-        /* @var LineItem $discountLineItem */
+
         foreach ($discountLineItems as $discountItem) {
             // if we dont have a scope
             // then skip it, it might not belong to us
@@ -204,7 +204,6 @@ class PromotionCalculator
         // if a promotion has exclusions they are added on the stack
         $exclusions = [];
 
-        /* @var LineItem $discountLineItem */
         foreach ($discountLineItems as $discountItem) {
             // if we dont have a scope
             // then skip it, it might not belong to us

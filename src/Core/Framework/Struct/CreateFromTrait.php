@@ -17,7 +17,6 @@ trait CreateFromTrait
             $self->$property = $value;
         }
 
-        /* @var static $self */
         return $self;
     }
 }

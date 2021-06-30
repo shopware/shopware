@@ -79,7 +79,6 @@ class OffcanvasCartPageLoader
         $request = new Request();
         $request->query->set('onlyAvailable', '1');
 
-        /* @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $this->shippingMethodRoute
             ->load($request, $context, new Criteria())
             ->getShippingMethods();

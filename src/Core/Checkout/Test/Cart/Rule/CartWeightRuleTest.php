@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\CartWeightRule;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
-use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Rule;
@@ -119,7 +118,6 @@ class CartWeightRuleTest extends TestCase
             ],
         ], $context);
 
-        /* @var RuleConditionEntity $result */
         $result = $conditionRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertNotNull($result);

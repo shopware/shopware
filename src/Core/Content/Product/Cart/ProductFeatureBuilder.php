@@ -7,13 +7,11 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
-use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -176,7 +174,6 @@ class ProductFeatureBuilder
 
         $customFields = $this->customFieldRepository->search($criteria, $context->getContext())->getEntities();
 
-        /* @var CustomFieldCollection $customFields */
         foreach ($customFields as $field) {
             $key = 'custom-field-' . $field->getName();
             $data->set($key, $field);
@@ -231,7 +228,6 @@ class ProductFeatureBuilder
             return null;
         }
 
-        /* @var PropertyGroupEntity $group */
         $group = $product->getProperties()->getGroups()->get($id);
 
         if ($group === null) {
@@ -283,7 +279,6 @@ class ProductFeatureBuilder
             return null;
         }
 
-        /* @var CustomFieldEntity $customField */
         $customField = $data->get($fieldKey);
         $label = $this->getCustomFieldLabel($customField, $data);
 

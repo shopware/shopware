@@ -208,7 +208,6 @@ class RegisterControllerTest extends TestCase
         $event = null;
         $this->catchEvent(CustomerDoubleOptInRegistrationEvent::class, $event);
 
-        /* @var RedirectResponse $response */
         $registerController->register($request, $data, $this->salesChannelContext);
 
         $customer = $customerRepository->search(new Criteria([$event->getCustomer()->getId()]), $this->salesChannelContext->getContext());

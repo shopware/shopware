@@ -267,7 +267,6 @@ See the Guide ""Register a customer"" for more information on customer registrat
             $customer['company'] = $billingAddress['company'];
 
             if ($data->get('vatIds')) {
-                /* @var array $vatIds */
                 $vatIds = $data->get('vatIds');
                 $customer['vatIds'] = empty($vatIds) ? null : $vatIds;
             }

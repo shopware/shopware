@@ -39,11 +39,11 @@ class CustomerGroupRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                /* @var CheckoutRuleScope $scope */
+
                 return $id !== null && \in_array($id, $this->customerGroupIds, true);
 
             case self::OPERATOR_NEQ:
-                /* @var CheckoutRuleScope $scope */
+
                 return $id !== null && !\in_array($id, $this->customerGroupIds, true);
 
             default:

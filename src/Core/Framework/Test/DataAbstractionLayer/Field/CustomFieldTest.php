@@ -958,7 +958,6 @@ class CustomFieldTest extends TestCase
 
         //#####
 
-        /* @var ArrayEntity $child */
         $context->setConsiderInheritance(false);
         $child = $repo->search(new Criteria([$childId]), $context)->first();
         static::assertNotNull($child);

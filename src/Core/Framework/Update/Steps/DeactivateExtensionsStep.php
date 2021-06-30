@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Update\Steps;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
-use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Struct\Version;
@@ -58,7 +57,6 @@ class DeactivateExtensionsStep
         foreach ($extensions as $extension) {
             ++$offset;
 
-            /* @var ExtensionStruct $extension */
             $this->extensionLifecycleService->deactivate($extension->getType(), $extension->getName(), $this->context);
 
             $deactivatedPlugins = (array) $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];

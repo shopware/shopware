@@ -467,7 +467,6 @@ class ApiController extends AbstractController
 
         $first = array_shift($pathSegments);
 
-        /* @var EntityDefinition $definition */
         if (\count($pathSegments) === 0) {
             //first api level call /product/{id}
             $definition = $first['definition'];
@@ -617,7 +616,6 @@ class ApiController extends AbstractController
                 throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
             }
 
-            /* @var ManyToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
@@ -671,7 +669,6 @@ class ApiController extends AbstractController
                 throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
             }
 
-            /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
                 //filter inverse association to parent value:  manufacturer.products.id = SW1
@@ -697,7 +694,6 @@ class ApiController extends AbstractController
                 throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
             }
 
-            /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
                 //filter inverse association to parent value:  order_customer.order_id = xxxx
@@ -807,7 +803,6 @@ class ApiController extends AbstractController
 
         $parentDefinition = $parent['definition'];
 
-        /* @var Entity $entity */
         if ($association instanceof OneToManyAssociationField) {
             $foreignKey = $definition->getFields()
                 ->getByStorageName($association->getReferenceField());

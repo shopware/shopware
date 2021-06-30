@@ -91,7 +91,6 @@ class LineItemDimensionWidthRule extends Rule
 
         $this->amount = (float) $this->amount;
 
-        /* @var float $width */
         switch ($this->operator) {
             case self::OPERATOR_GTE:
                 return FloatComparator::greaterThanOrEquals($width, $this->amount);

@@ -107,7 +107,6 @@ class SearchKeywordUpdater
 
         $iterator = $this->getIterator($ids, $context, $configFields);
 
-        /* @var ProductEntity $product */
         while ($products = $iterator->fetch()) {
             /** @var ProductEntity $product */
             foreach ($products as $product) {

@@ -89,7 +89,6 @@ class LineItemDimensionHeightRule extends Rule
 
         $this->amount = (float) $this->amount;
 
-        /* @var float $height */
         switch ($this->operator) {
             case self::OPERATOR_GTE:
                 return FloatComparator::greaterThanOrEquals($height, $this->amount);

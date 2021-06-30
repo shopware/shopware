@@ -471,7 +471,6 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($ids[0]);
 
-        /* @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(TaxEntity::class, $product->getTax());
         static::assertSame('without id', $product->getTax()->getName());
@@ -554,7 +553,6 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($ids[0]);
 
-        /* @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
         static::assertSame('without id', $product->getManufacturer()->getName());
@@ -684,7 +682,6 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($id);
 
-        /* @var ProductEntity $product */
         static::assertSame($id, $product->getId());
 
         static::assertEquals(new Price(Defaults::CURRENCY, 10, 15, false), $product->getCurrencyPrice(Defaults::CURRENCY));
@@ -1005,7 +1002,6 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->search($criteria, Context::createDefaultContext());
         $product = $products->get($child);
 
-        /* @var ProductEntity $product */
         static::assertSame('Child transformed to parent', $product->getName());
         static::assertSame(13.0, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertSame('test3', $product->getManufacturer()->getName());
@@ -1103,7 +1099,6 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->search($criteria, Context::createDefaultContext());
         $product = $products->get($child);
 
-        /* @var ProductEntity $product */
         static::assertSame('Child transformed to parent', $product->getName());
         static::assertSame(13.0, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertSame('test3', $product->getManufacturer()->getName());
@@ -2901,7 +2896,6 @@ class ProductRepositoryTest extends TestCase
 
     private function createLanguage(string $id, ?string $parentId = Defaults::LANGUAGE_SYSTEM): void
     {
-        /* @var EntityRepositoryInterface $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
 
         $languageRepository->upsert(

@@ -60,7 +60,6 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
 
             $data[$keyField->getPropertyName()] = $id;
         } else {
-            /* @var OneToOneAssociationField $field */
             $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getStorageName());
             $keyField = $reference->getFields()->getByStorageName($field->getReferenceField());
 

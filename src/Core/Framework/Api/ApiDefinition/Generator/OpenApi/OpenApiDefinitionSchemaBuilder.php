@@ -143,7 +143,6 @@ class OpenApiDefinitionSchemaBuilder
         $attributes = array_merge([new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], $attributes);
 
         if (!$onlyFlat && $apiType === 'jsonapi') {
-            /* @var Schema[] $schema */
             $schema[$schemaName . 'JsonApi'] = new Schema([
                 'schema' => $schemaName . 'JsonApi',
                 'allOf' => [
@@ -418,7 +417,6 @@ class OpenApiDefinitionSchemaBuilder
             $property->pattern = '^[0-9a-f]{32}$';
         }
 
-        /* @var Since|null $flag */
         $flag = $field->getFlag(Since::class);
         if ($flag instanceof Since) {
             $property->description = 'Added since version: ' . $flag->getSince();

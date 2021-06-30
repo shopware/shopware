@@ -186,7 +186,6 @@ class ConfigReader extends XmlReader
         $options = [];
 
         foreach ($element->getElementsByTagName('option') as $option) {
-            /* @var \DOMElement $option */
             $idTag = $option->getElementsByTagName('id')->item(0);
             if ($idTag === null) {
                 continue;

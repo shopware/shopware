@@ -107,7 +107,6 @@ EOF;
         $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data));
         $response = $this->getBrowser()->getResponse();
 
-        /* @var Response $response */
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         static::assertNotEmpty($response->headers->get('Location'));
@@ -136,7 +135,6 @@ EOF;
         $this->getBrowserAuthenticatedWithIntegration()->request('POST', '/api/product', [], [], [], json_encode($data));
         $response = $this->getBrowserAuthenticatedWithIntegration()->getResponse();
 
-        /* @var Response $response */
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         static::assertNotEmpty($response->headers->get('Location'));
@@ -1724,7 +1722,6 @@ EOF;
         $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($data));
         $response = $this->getBrowser()->getResponse();
 
-        /* @var Response $response */
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         static::assertNotEmpty($response->headers->get('Location'));

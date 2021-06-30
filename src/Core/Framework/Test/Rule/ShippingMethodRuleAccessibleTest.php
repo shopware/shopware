@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -80,7 +79,6 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $criteria = new Criteria([$this->ruleId]);
         $criteria->addAssociation('shippingMethods');
 
-        /* @var ShippingMethodCollection $searchResult */
         $searchResult = $this->ruleRepository->search($criteria, $defaultContext);
 
         static::assertCount(2, $searchResult->first()->getShippingMethods());

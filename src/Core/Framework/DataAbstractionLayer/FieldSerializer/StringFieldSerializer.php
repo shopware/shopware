@@ -52,7 +52,6 @@ class StringFieldSerializer extends AbstractFieldSerializer
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        /* @var StringField $field */
         yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
 

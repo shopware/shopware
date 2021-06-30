@@ -8,7 +8,6 @@ use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -297,7 +296,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
                     continue;
                 }
-                /* @var MediaEntity $media */
+
                 $variables[$key] = '\'' . $media->getUrl() . '\'';
             }
         }

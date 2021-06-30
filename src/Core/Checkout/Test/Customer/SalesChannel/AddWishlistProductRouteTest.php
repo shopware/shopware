@@ -64,7 +64,6 @@ class AddWishlistProductRouteTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $this->customerId = $this->createCustomer('shopware', $email);
 
-        /* @var SystemConfigService $systemConfigService */
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 

@@ -27,7 +27,6 @@ class SwagTestSkipRebuildSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /* @var SwagTestSkipRebuild $plugin */
         $plugin->preActivateContext = $event->getContext();
     }
 
@@ -38,7 +37,6 @@ class SwagTestSkipRebuildSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /* @var SwagTestSkipRebuild $plugin */
         $plugin->postActivateContext = $event->getContext();
     }
 
@@ -49,7 +47,6 @@ class SwagTestSkipRebuildSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /* @var SwagTestSkipRebuild $plugin */
         $plugin->preDeactivateContext = $event->getContext();
     }
 
@@ -60,7 +57,6 @@ class SwagTestSkipRebuildSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /* @var SwagTestSkipRebuild $plugin */
         $plugin->postDeactivateContext = $event->getContext();
     }
 }

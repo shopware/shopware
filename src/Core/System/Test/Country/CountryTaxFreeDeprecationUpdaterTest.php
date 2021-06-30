@@ -98,7 +98,6 @@ class CountryTaxFreeDeprecationUpdaterTest extends TestCase
 
         static::assertInstanceOf(CountryEntity::class, $country);
 
-        /* @var CountryEntity $country */
         static::assertSame($country->getTaxFree(), $country->getCustomerTax()->getEnabled());
         static::assertSame($customerTaxExpected['enabled'], $country->getCustomerTax()->getEnabled());
         static::assertSame($customerTaxExpected['currencyId'], $country->getCustomerTax()->getCurrencyId());
@@ -195,7 +194,6 @@ class CountryTaxFreeDeprecationUpdaterTest extends TestCase
 
         static::assertInstanceOf(CountryEntity::class, $country);
 
-        /* @var CountryEntity $country */
         static::assertSame($country->getTaxFree(), $country->getCustomerTax()->getEnabled());
         static::assertSame($customerTaxExpected['enabled'], $country->getCustomerTax()->getEnabled());
         static::assertSame($customerTaxExpected['currencyId'], $country->getCustomerTax()->getCurrencyId());

@@ -407,6 +407,91 @@ describe('Country: Test acl privileges', () => {
         });
     });
 
+    it('@settings: can not create a state', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_14114');
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
+            },
+            {
+                key: 'country',
+                role: 'creator'
+            },
+            {
+                key: 'country',
+                role: 'editor'
+            }
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        });
+
+        // prepare api to create a state
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/country/*/states`,
+            method: 'post'
+        }).as('saveCountryState');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/language`,
+            method: 'post'
+        }).as('searchLanguage');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/country`,
+            method: 'post'
+        }).as('searchCountry');
+
+        cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
+        cy.get('.smart-bar__content .sw-language-switch__select').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        // poor assertion to check if there is more than 1 language
+        cy.get('.sw-select-result-list__item-list .sw-select-result')
+            .should('have.length.greaterThan', 1);
+        cy.get('.sw-select-result-list__item-list .sw-select-result').contains('Deutsch').click();
+
+        cy.wait('@searchLanguage').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            // find a country with the name is "Germany"
+            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Vietnam');
+        });
+
+        cy.wait('@searchCountry').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            // choose "Germany"
+            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
+        });
+
+        // choose "state tab"
+        cy.get('.sw-settings-country__state-tab').click();
+        // click on "add state" button
+        cy.get('.sw-settings-country-state__add-country-state-button').click();
+
+        // assert that modal appears
+        cy.get('.sw-modal__body').should('be.visible');
+        cy.get('.sw-modal__title').contains('New state/province');
+
+        // enter name, shortCode, position
+        cy.get('#sw-field--countryState-name').typeAndCheck('000');
+        cy.get('#sw-field--countryState-shortCode').typeAndCheck('101');
+        cy.get('#sw-field--countryState-position').typeAndCheck('101');
+
+        // do saving action
+        cy.get(page.elements.countryStateSaveAction).click();
+
+        // call api to create state
+        cy.wait('@saveCountryState').then((xhr) => {
+            expect(xhr).to.have.property('status', 400);
+            cy.get('.sw-alert__body').should('be.visible');
+            cy.get('.sw-alert__body .sw-alert__message')
+                .should('be.visible')
+                .contains('Can not create a new state/region with the currently selected language. Please create a new state/region in the default system language first!');
+        });
+    });
+
     it('@settings: can delete multiple countries', () => {
         cy.onlyOnFeature('FEATURE_NEXT_14114');
         const page = new SettingsPageObject();

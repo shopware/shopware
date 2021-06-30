@@ -65,7 +65,8 @@
     "labelName": "Name",
     "labelPosition": "Position",
     "labelShortCode": "ISO-Code",
-    "tooltipPosition": "Steuert die Position des Bundeslandes bei der Ausgabe in Listen usw."
+    "tooltipPosition": "Steuert die Position des Bundeslandes bei der Ausgabe in Listen usw.",
+    "createNewStateError": "Erstellen einer neuen Region / eines neuen Landes in der ausgewählten Sprache nicht möglich. Bitte erstelle die Region / das Land erst in der Standardsprache!"
   },
   "sw-privileges": {
     "permissions": {

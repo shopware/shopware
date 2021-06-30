@@ -219,7 +219,10 @@ class AddressController extends StorefrontController
             return $this->createActionResponse($request);
         }
 
-        return $this->renderStorefront('@Storefront/storefront/component/address/address-editor-modal.html.twig', $viewData);
+        $response = $this->renderStorefront('@Storefront/storefront/component/address/address-editor-modal.html.twig', $viewData);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     private function handleAddressCreation(array $viewData, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): array

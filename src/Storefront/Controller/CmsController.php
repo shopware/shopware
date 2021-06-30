@@ -100,7 +100,10 @@ class CmsController extends StorefrontController
 
         $cmsPage = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     /**
@@ -127,7 +130,10 @@ class CmsController extends StorefrontController
             throw new PageNotFoundException('');
         }
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $category->getCmsPage()]);
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $category->getCmsPage()]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     /**
@@ -164,6 +170,7 @@ class CmsController extends StorefrontController
 
         $response = new JsonResponse($mapped);
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+        $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;
     }
@@ -213,11 +220,14 @@ class CmsController extends StorefrontController
         $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
         $this->eventDispatcher->dispatch($event);
 
-        return $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
+        $response = $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
             'product' => $product,
             'configuratorSettings' => $configurator,
             'totalReviews' => $reviews->getTotalReviews(),
             'elementId' => $elementId,
         ]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 }

@@ -187,6 +187,62 @@
                         </sw-button-process>
                         {% endblock %}
                     </sw-container>
+                    {% block sw_settings_cache_content_indexes_row_skip_select %}
+                    <sw-select-base
+                        class="sw-settings-cache__indexers-select"
+                        :disabled="processes.updateIndexes"
+                    >
+                        <template #sw-select-selection>
+                            <sw-label
+                                v-for="(selection, index) in skip"
+                                :key="index"
+                                @dismiss="changeSkip(false, selection)"
+                            >
+                                {{ selection }}
+                            </sw-label>
+                            <sw-label
+                                ghost
+                                class="sw-settings-cache__indexers-placeholder"
+                            >
+                                {{ $tc('sw-settings-cache.section.indexesSkipSelectPlaceholder') }}
+                            </sw-label>
+                        </template>
+                        <template #results-list>
+                            <sw-select-result-list :options="[indexers]">
+                                <template #result-item="{ item, index }">
+                                    <ul class="sw-settings-cache__indexers-list"
+                                        @click.stop
+                                    >
+                                        <li v-for="(updaters, indexer) in item"
+                                            :key="indexer"
+                                        >
+                                            <sw-checkbox-field
+                                                :value="skip.includes(indexer)"
+                                                :label="indexer"
+                                                size="small"
+                                                @change="changeSkip($event, indexer)"
+                                            />
+                                            <ul>
+                                                <li v-for="(updater, index) in updaters"
+                                                    :key="index"
+                                                >
+                                                    <sw-checkbox-field
+                                                        :value="skip.includes(updater) || skip.includes(indexer)"
+                                                        :label="updater"
+                                                        size="small"
+                                                        :disabled="skip.includes(indexer)"
+                                                        @click.prevent
+                                                        @change="changeSkip($event, updater)"
+                                                    />
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </template>
+                            </sw-select-result-list>
+                        </template>
+                    </sw-select-base>
+                    {% endblock %}
                 </sw-card-section>
                 {% endblock %}
             </sw-card>

@@ -21,7 +21,8 @@
       "clearAndWarmUpButton": "Leeren und Aufwärmen",
       "indexesHeadline": "Indizes",
       "indexesText": "Es werden alle Indizes asynchron aktualisiert. Der Fortschritt kann in den Mitteilungen eingesehen werden. Dies betrifft unter anderem die Produkt- und Kategorieindizes oder auch die SEO-URL's.",
-      "indexesButton": "Indizes aktualisieren"
+      "indexesButton": "Indizes aktualisieren",
+      "indexesSkipSelectPlaceholder": "Indexer und/oder Updater überspringen"
     },
     "notifications": {
       "clearCache": {

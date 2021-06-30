@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,6 +36,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
         $this
             ->setDescription('Refreshes the shop indices')
             ->addOption('use-queue', null, InputOption::VALUE_NONE, 'Ignore cache and force generation')
+            ->addOption('skip', null, InputArgument::OPTIONAL, 'Comma separated list of indexer names to be skipped')
         ;
     }
 
@@ -42,7 +44,9 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     {
         $this->io = new ShopwareStyle($input, $output);
 
-        $this->registry->index($input->getOption('use-queue'));
+        $skip = \is_string($input->getOption('skip')) ? explode(',', $input->getOption('skip')) : [];
+
+        $this->registry->index($input->getOption('use-queue'), $skip);
 
         return self::SUCCESS;
     }

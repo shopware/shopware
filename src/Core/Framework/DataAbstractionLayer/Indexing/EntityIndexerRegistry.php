@@ -52,15 +52,20 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         ];
     }
 
-    public function index(bool $useQueue): void
+    public function index(bool $useQueue, array $skip = []): void
     {
         foreach ($this->indexer as $indexer) {
+            if (\in_array($indexer->getName(), $skip, true)) {
+                continue;
+            }
+
             $offset = null;
 
             $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $indexer->getTotal()));
 
             while ($message = $indexer->iterate($offset)) {
                 $message->setIndexer($indexer->getName());
+                $message->setSkip($skip);
 
                 $this->sendOrHandle($message, $useQueue);
 
@@ -120,19 +125,19 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
 
         if ($message instanceof IterateEntityIndexerMessage) {
-            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true);
+            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
 
             if (!$next) {
                 return;
             }
 
-            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset()));
+            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
 
             return;
         }
     }
 
-    public function sendIndexingMessage(array $indexer = []): void
+    public function sendIndexingMessage(array $indexer = [], array $skip = []): void
     {
         if (empty($indexer)) {
             $indexer = [];
@@ -146,7 +151,11 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
 
         foreach ($indexer as $name) {
-            $this->messageBus->dispatch(new IterateEntityIndexerMessage($name, null));
+            if (\in_array($name, $skip, true)) {
+                continue;
+            }
+
+            $this->messageBus->dispatch(new IterateEntityIndexerMessage($name, null, $skip));
         }
     }
 
@@ -176,7 +185,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         $this->handle($message);
     }
 
-    private function iterateIndexer(string $name, $offset, bool $useQueue): ?EntityIndexingMessage
+    private function iterateIndexer(string $name, $offset, bool $useQueue, array $skip): ?EntityIndexingMessage
     {
         $indexer = $this->getIndexer($name);
 
@@ -190,6 +199,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
 
         $message->setIndexer($indexer->getName());
+        $message->setSkip($skip);
 
         $this->sendOrHandle($message, $useQueue);
 

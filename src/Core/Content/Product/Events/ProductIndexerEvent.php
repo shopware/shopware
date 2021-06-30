@@ -27,12 +27,15 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
      */
     private $parentIds;
 
-    public function __construct(array $ids, array $childrenIds, array $parentIds, Context $context)
+    private array $skip;
+
+    public function __construct(array $ids, array $childrenIds, array $parentIds, Context $context, array $skip = [])
     {
         $this->context = $context;
         $this->ids = $ids;
         $this->childrenIds = $childrenIds;
         $this->parentIds = $parentIds;
+        $this->skip = $skip;
     }
 
     public function getContext(): Context
@@ -53,5 +56,10 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     public function getParentIds(): array
     {
         return $this->parentIds;
+    }
+
+    public function getSkip(): array
+    {
+        return $this->skip;
     }
 }

@@ -112,6 +112,6 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
             ]);
         }
 
-        $this->eventDispatcher->dispatch(new MediaFolderConfigurationIndexerEvent($ids, $context));
+        $this->eventDispatcher->dispatch(new MediaFolderConfigurationIndexerEvent($ids, $context, $message->getSkip()));
     }
 }

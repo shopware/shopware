@@ -14,6 +14,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class LandingPageIndexer extends EntityIndexer
 {
+    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
+
     /**
      * @var IteratorFactory
      */
@@ -91,8 +93,10 @@ class LandingPageIndexer extends EntityIndexer
 
         $context = $message->getContext();
 
-        $this->manyToManyIdFieldUpdater->update(LandingPageDefinition::ENTITY_NAME, $ids, $context);
+        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
+            $this->manyToManyIdFieldUpdater->update(LandingPageDefinition::ENTITY_NAME, $ids, $context);
+        }
 
-        $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $context));
+        $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $context, $message->getSkip()));
     }
 }

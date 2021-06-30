@@ -107,6 +107,6 @@ class MediaIndexer extends EntityIndexer
             ]);
         }
 
-        $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context));
+        $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context, $message->getSkip()));
     }
 }

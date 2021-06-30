@@ -30,6 +30,53 @@ Component.register('sw-settings-cache-index', {
                 clearAndWarmUpCache: false,
                 updateIndexes: false,
             },
+            skip: [],
+            indexers: {
+                'category.indexer': [
+                    'category.child-count',
+                    'category.tree',
+                    'category.breadcrumb',
+                    'category.seo-url',
+                ],
+                'customer.indexer': [
+                    'customer.many-to-many-id-field',
+                ],
+                'landing_page.indexer': [
+                    'landing_page.many-to-many-id-field',
+                    'landing_page.seo-url',
+                ],
+                'media.indexer': [],
+                'media_folder.indexer': [
+                    'media_folder.child-count',
+                ],
+                'media_folder_configuration.indexer': [],
+                'payment_method.indexer': [],
+                'product.indexer': [
+                    'product.inheritance',
+                    'product.stock',
+                    'product.variant-listing',
+                    'product.child-count',
+                    'product.many-to-many-id-field',
+                    'product.category-denormalizer',
+                    'product.cheapest-price',
+                    'product.rating-averaget',
+                    'product.stream',
+                    'product.search-keyword',
+                    'product.seo-url',
+                ],
+                'product_stream.indexer': [],
+                'product_stream_mapping.indexer': [],
+                'promotion.indexer': [
+                    'promotion.exclusion',
+                    'promotion.redemption',
+                ],
+                'rule.indexer': [
+                    'rule.payload',
+                ],
+                'sales_channel.indexer': [
+                    'sales_channel.many-to-many',
+                ],
+            },
         };
     },
 
@@ -145,7 +192,7 @@ Component.register('sw-settings-cache-index', {
 
         updateIndexes() {
             this.processes.updateIndexes = true;
-            this.cacheApiService.index().then(() => {
+            this.cacheApiService.index(this.skip).then(() => {
                 this.decreaseWorkerPoll();
                 this.createNotificationInfo({
                     message: this.$tc('sw-settings-cache.notifications.index.started'),
@@ -156,6 +203,20 @@ Component.register('sw-settings-cache-index', {
             }).finally(() => {
                 this.processes.updateIndexes = false;
             });
+        },
+
+        changeSkip(selected, name) {
+            if (selected) {
+                this.skip.push(name);
+
+                return;
+            }
+
+            const index = this.skip.indexOf(name);
+
+            if (index > -1) {
+                this.skip.splice(index, 1);
+            }
         },
     },
 });

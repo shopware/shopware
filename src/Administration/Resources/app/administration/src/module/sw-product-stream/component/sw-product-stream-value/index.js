@@ -229,11 +229,38 @@ Component.register('sw-product-stream-value', {
             return criteria;
         },
 
+        visibilitiesCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('salesChannel');
+            criteria.addAssociation('product');
+
+            if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
+                criteria.addQuery(Criteria.contains('salesChannel.name', this.searchTerm), 400);
+                criteria.addQuery(Criteria.contains('product.name', this.searchTerm), 500);
+            }
+
+            return criteria;
+        },
+
         resultCriteria() {
             const criteria = new Criteria();
             criteria.addAssociation('options.group');
 
             return criteria;
+        },
+
+        visibilitiesLabelCallback() {
+            return (item) => {
+                if (!item) {
+                    return '';
+                }
+
+                if (!item.salesChannel || !item.product) {
+                    return item.id;
+                }
+
+                return `${item.salesChannel.translated.name}: ${item.product.translated.name}`;
+            };
         },
     },
 

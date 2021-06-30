@@ -19,8 +19,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         page = null;
     });
 
-    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15480
-    it.skip('@settings @base: Create and read profile', () => {
+
+    it('@settings @base: Create and read profile', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
@@ -79,15 +79,10 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         });
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
-
-        // Verify that created profile is inside profile listing
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('Basic');
-        cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Basic');
+        cy.get(`${page.elements.dataGridRow}`).should('contain', 'Basic');
     });
 
-    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15480
-    it.skip('@settings: Update and read profile', () => {
+    it('@settings: Update and read profile', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
@@ -125,24 +120,31 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // Verify updated profile is in listing
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('Updated E2E');
-        cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Updated E2E');
+        cy.get(`${page.elements.dataGridRow}`).should('contain', 'Updated E2E');
     });
 
-    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15480
-    it.skip('@settings: Delete profile', () => {
+    it('@settings: Delete profile', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'delete'
         }).as('deleteData');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/import-export-profile`,
+            method: 'post'
+        }).as('search');
+
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
 
         // Search for given profile
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
+        // wait for the search request before checking the search result
+        cy.wait('@search').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 
@@ -168,8 +170,16 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // Verify deleted item is not present
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
+        // Wait for the data grid to be fully loaded before entering something in the search bar, otherwise
+        // it can happen that the first characters of the search text are cut off, e.g. "2E" instead of "E2E"
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
+        // wait for the search request before checking the search result
+        cy.wait('@search').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-import-export-view-profiles__listing .sw-data-grid__body').should('not.contain', 'E2E');
     });
 });

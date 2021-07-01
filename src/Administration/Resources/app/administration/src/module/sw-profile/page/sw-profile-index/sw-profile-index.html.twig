@@ -25,9 +25,55 @@
 
     <template #content>
         <sw-card-view>
+            {% block sw_profile_index_tabs %}
+            <sw-tabs v-if="feature.isActive('FEATURE_NEXT_6040')">
+                {% block sw_profile_index_tabs_item_general %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.profile.index.general' }"
+                    :title="$tc('sw-profile.tabGeneral.title')"
+                >
+                    {{ $tc('sw-profile.tabGeneral.title') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_profile_index_tabs_item_search_preferences %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.profile.index.searchPreferences' }"
+                    :title="$tc('sw-profile.tabSearchPreferences.title')"
+                >
+                    {{ $tc('sw-profile.tabSearchPreferences.title') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </sw-tabs>
+            {% endblock %}
+
+            {% block sw_profile_index_router_view %}
+            <router-view
+                v-if="feature.isActive('FEATURE_NEXT_6040')"
+                v-bind="{
+                    user,
+                    languages,
+                    newPassword,
+                    newPasswordConfirm,
+                    avatarMediaItem,
+                    isUserLoading,
+                    languageId,
+                    isDisabled,
+                    userRepository,
+                }"
+                @new-password-change="onChangeNewPassword"
+                @new-password-confirm-change="onChangeNewPasswordConfirm"
+                @media-upload="setMediaItem"
+                @media-remove="onUnlinkAvatar"
+                @media-open="openMediaSidebar"
+            />
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - Will be removed and has been replaced by sw-profile-index-general #}
             {% block sw_profile_index_content %}
             {% block sw_profile_index_info_card %}
             <sw-card
+                v-if="!feature.isActive('FEATURE_NEXT_6040')"
                 class="sw-profile__card"
                 :title="$tc('sw-profile.index.titleInfoCard')"
                 :is-loading="isUserLoading || !languageId"
@@ -101,7 +147,7 @@
 
             {% block sw_profile_index_image_card %}
             <sw-card
-                v-if="acl.can('media.creator')"
+                v-if="!feature.isActive('FEATURE_NEXT_6040') && acl.can('media.creator')"
                 class="sw-profile__card"
                 :title="$tc('sw-profile.index.titleImageCard')"
                 :is-loading="isUserLoading || !languageId"
@@ -132,6 +178,7 @@
 
             {% block sw_profile_index_password_card %}
             <sw-card
+                v-if="!feature.isActive('FEATURE_NEXT_6040')"
                 class="sw-profile__card"
                 :title="$tc('sw-profile.index.titlePasswordCard')"
                 :is-loading="isUserLoading || !languageId"

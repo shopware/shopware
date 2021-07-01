@@ -8,7 +8,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-profile-index', {
     template,
 
-    inject: ['userService', 'loginService', 'repositoryFactory', 'acl'],
+    inject: ['userService', 'loginService', 'repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -327,6 +327,14 @@ Component.register('sw-profile-index', {
                 message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
             });
             this.isLoading = false;
+        },
+
+        onChangeNewPassword(newPassword) {
+            this.newPassword = newPassword;
+        },
+
+        onChangeNewPasswordConfirm(newPasswordConfirm) {
+            this.newPasswordConfirm = newPasswordConfirm;
         },
     },
 });

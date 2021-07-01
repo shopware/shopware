@@ -78,4 +78,20 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         expect(saveButton.attributes().disabled).toBeFalsy();
     });
+
+    it('should be able to change new password', () => {
+        const wrapper = createWrapper();
+
+        wrapper.vm.onChangeNewPassword('Shopware');
+
+        expect(wrapper.vm.newPassword).toBe('Shopware');
+    });
+
+    it('should be able to change new password confirm', () => {
+        const wrapper = createWrapper();
+
+        wrapper.vm.onChangeNewPasswordConfirm('Shopware');
+
+        expect(wrapper.vm.newPasswordConfirm).toBe('Shopware');
+    });
 });

@@ -33,6 +33,12 @@
       "placeholderConfirmPassword": "Please enter your current password.",
       "labelButtonCancel": "Cancel",
       "labelButtonConfirm": "Confirm"
+    },
+    "tabGeneral": {
+      "title": "General"
+    },
+    "tabSearchPreferences": {
+      "title": "Search preferences"
     }
   },
   "sw-privileges": {

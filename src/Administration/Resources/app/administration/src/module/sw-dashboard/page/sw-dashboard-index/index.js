@@ -63,7 +63,13 @@ Component.register('sw-dashboard-index', {
             return {
                 title: { text: this.$tc('sw-dashboard.monthStats.orderNumber') },
 
-                xaxis: { type: 'datetime', min: this.dateAgo.getTime() },
+                xaxis: {
+                    type: 'datetime',
+                    min: this.dateAgo.getTime(),
+                    labels: {
+                        datetimeUTC: false,
+                    },
+                },
                 yaxis: {
                     min: 0,
                     tickAmount: 3,
@@ -78,7 +84,13 @@ Component.register('sw-dashboard-index', {
             return {
                 title: { text: this.$tc('sw-dashboard.monthStats.turnover') },
 
-                xaxis: { type: 'datetime', min: this.dateAgo.getTime() },
+                xaxis: {
+                    type: 'datetime',
+                    min: this.dateAgo.getTime(),
+                    labels: {
+                        datetimeUTC: false,
+                    },
+                },
                 yaxis: {
                     min: 0,
                     tickAmount: 5,
@@ -221,6 +233,7 @@ Component.register('sw-dashboard-index', {
 
         fetchHistoryOrderData() {
             const criteria = new Criteria(1, 10);
+            criteria.setLimit(1);
 
             criteria.addAggregation(
                 Criteria.histogram(
@@ -229,6 +242,7 @@ Component.register('sw-dashboard-index', {
                     'day',
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
+                    Intl.DateTimeFormat().resolvedOptions().timeZone,
                 ),
             );
 

@@ -918,7 +918,7 @@ class EntityAggregatorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria(
-            $this->ids->getList(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+            $this->ids->getList(['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'])
         );
 
         $criteria->addAggregation(
@@ -928,7 +928,8 @@ class EntityAggregatorTest extends TestCase
                 $case->getInterval(),
                 null,
                 null,
-                $case->getFormat()
+                $case->getFormat(),
+                $case->getTimeZone()
             )
         );
 
@@ -945,7 +946,7 @@ class EntityAggregatorTest extends TestCase
         foreach ($case->getBuckets() as $key => $count) {
             static::assertTrue($histogram->has($key));
             $bucket = $histogram->get($key);
-            static::assertSame($count, $bucket->getCount());
+            static::assertSame($count, $bucket->getCount(), $key);
         }
     }
 
@@ -959,6 +960,7 @@ class EntityAggregatorTest extends TestCase
                     '2019-06-15 13:00:00' => 1,
                     '2020-09-30 15:00:00' => 1,
                     '2021-12-10 11:59:00' => 1,
+                    '2024-12-11 23:59:00' => 1,
                 ]),
             ],
             [
@@ -967,6 +969,7 @@ class EntityAggregatorTest extends TestCase
                     '2019-06-15 13:00:00' => 1,
                     '2020-09-30 15:00:00' => 1,
                     '2021-12-10 11:00:00' => 1,
+                    '2024-12-11 23:00:00' => 1,
                 ]),
             ],
             [
@@ -975,6 +978,7 @@ class EntityAggregatorTest extends TestCase
                     '2019-06-15 00:00:00' => 1,
                     '2020-09-30 00:00:00' => 1,
                     '2021-12-10 00:00:00' => 1,
+                    '2024-12-11 00:00:00' => 1,
                 ]),
             ],
             [
@@ -983,6 +987,7 @@ class EntityAggregatorTest extends TestCase
                     '2019 24' => 1,
                     '2020 40' => 1,
                     '2021 49' => 1,
+                    '2024 50' => 1,
                 ]),
             ],
             [
@@ -991,6 +996,7 @@ class EntityAggregatorTest extends TestCase
                     '2019-06-01 00:00:00' => 1,
                     '2020-09-01 00:00:00' => 1,
                     '2021-12-01 00:00:00' => 1,
+                    '2024-12-01 00:00:00' => 1,
                 ]),
             ],
             [
@@ -999,6 +1005,7 @@ class EntityAggregatorTest extends TestCase
                     '2019 2' => 1,
                     '2020 3' => 1,
                     '2021 4' => 1,
+                    '2024 4' => 1,
                 ]),
             ],
             [
@@ -1006,6 +1013,7 @@ class EntityAggregatorTest extends TestCase
                     '2019-01-01 00:00:00' => 3,
                     '2020-01-01 00:00:00' => 1,
                     '2021-01-01 00:00:00' => 1,
+                    '2024-01-01 00:00:00' => 1,
                 ]),
             ],
             [
@@ -1014,6 +1022,7 @@ class EntityAggregatorTest extends TestCase
                     '2019 June' => 1,
                     '2020 September' => 1,
                     '2021 December' => 1,
+                    '2024 December' => 1,
                 ], 'Y F'),
             ],
             [
@@ -1022,7 +1031,17 @@ class EntityAggregatorTest extends TestCase
                     'Saturday 15th Jun, 2019' => 1,
                     'Wednesday 30th Sep, 2020' => 1,
                     'Friday 10th Dec, 2021' => 1,
+                    'Wednesday 11th Dec, 2024' => 1,
                 ], 'l dS M, Y'),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-15 00:00:00' => 1,
+                    '2020-09-30 00:00:00' => 1,
+                    '2021-12-10 00:00:00' => 1,
+                    '2024-12-12 00:00:00' => 1,
+                ], null, 'Europe/Berlin'),
             ],
         ];
     }
@@ -1112,6 +1131,7 @@ class EntityAggregatorTest extends TestCase
             $this->getProduct('p-3', 't-2', 'm-2', 150, ['c-1', 'c-3'], '2019-06-15 13:00:00'),
             $this->getProduct('p-4', 't-2', 'm-2', 200, ['c-3'], '2020-09-30 15:00:00'),
             $this->getProduct('p-5', 't-3', 'm-3', 250, [], '2021-12-10 11:59:00'),
+            $this->getProduct('p-6', 't-3', 'm-3', 250, [], '2024-12-11 23:59:00'),
         ], Context::createDefaultContext());
     }
 

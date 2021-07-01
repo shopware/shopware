@@ -333,8 +333,8 @@ class ElasticsearchProductTest extends TestCase
             $criteria->addFilter(new RangeFilter('product.stock', [RangeFilter::GTE => 10]));
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-            static::assertCount(5, $products->getIds());
-            static::assertSame(5, $products->getTotal());
+            static::assertCount(6, $products->getIds());
+            static::assertSame(6, $products->getTotal());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -385,8 +385,8 @@ class ElasticsearchProductTest extends TestCase
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
-            static::assertCount(5, $products->getIds());
-            static::assertSame(5, $products->getTotal());
+            static::assertCount(6, $products->getIds());
+            static::assertSame(6, $products->getTotal());
             static::assertContains($data->get('product-2'), $products->getIds());
             static::assertContains($data->get('product-3'), $products->getIds());
             static::assertContains($data->get('product-4'), $products->getIds());
@@ -613,7 +613,7 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('avg-price');
             static::assertInstanceOf(AvgResult::class, $result);
 
-            static::assertEquals(175, $result->getAvg());
+            static::assertEquals(192.85714285714, $result->getAvg());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -656,7 +656,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(3, $bucket->getCount());
 
             $bucket = $result->get($data->get('m3'));
-            static::assertEquals(2, $bucket->getCount());
+            static::assertEquals(3, $bucket->getCount());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -710,11 +710,11 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(150, $price->getAvg());
 
             $bucket = $result->get($data->get('m3'));
-            static::assertEquals(2, $bucket->getCount());
+            static::assertEquals(3, $bucket->getCount());
 
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
-            static::assertEquals(275, $price->getAvg());
+            static::assertEquals(283.33333333333, $price->getAvg());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -757,7 +757,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(3, $bucket->getCount());
 
             $bucket = $result->get($data->get('m3'));
-            static::assertEquals(2, $bucket->getCount());
+            static::assertEquals(3, $bucket->getCount());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -787,7 +787,7 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('sum-price');
             static::assertInstanceOf(SumResult::class, $result);
 
-            static::assertEquals(1050, $result->getSum());
+            static::assertEquals(1350, $result->getSum());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -839,10 +839,10 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(450, $price->getSum());
 
             $bucket = $result->get($data->get('m3'));
-            static::assertEquals(2, $bucket->getCount());
+            static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
-            static::assertEquals(550, $price->getSum());
+            static::assertEquals(850, $price->getSum());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -924,7 +924,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(200, $price->getMax());
 
             $bucket = $result->get($data->get('m3'));
-            static::assertEquals(2, $bucket->getCount());
+            static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MaxResult::class, $price);
             static::assertEquals(300, $price->getMax());
@@ -1009,7 +1009,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(100, $price->getMin());
 
             $bucket = $result->get($data->get('m3'));
-            static::assertEquals(2, $bucket->getCount());
+            static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MinResult::class, $price);
             static::assertEquals(250, $price->getMin());
@@ -1042,7 +1042,7 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('manufacturer-count');
             static::assertInstanceOf(CountResult::class, $result);
 
-            static::assertEquals(6, $result->getCount());
+            static::assertEquals(7, $result->getCount());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1094,10 +1094,10 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(3, $price->getCount());
 
             $bucket = $result->get($data->get('m3'));
-            static::assertEquals(2, $bucket->getCount());
+            static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(CountResult::class, $price);
-            static::assertEquals(2, $price->getCount());
+            static::assertEquals(3, $price->getCount());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1129,8 +1129,8 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(50, $result->getMin());
             static::assertEquals(300, $result->getMax());
-            static::assertEquals(175, $result->getAvg());
-            static::assertEquals(1050, $result->getSum());
+            static::assertEquals(192.85714285714, $result->getAvg());
+            static::assertEquals(1350, $result->getSum());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1188,13 +1188,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(150, $price->getAvg());
 
             $bucket = $result->get($data->get('m3'));
-            static::assertEquals(2, $bucket->getCount());
+            static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(StatsResult::class, $price);
-            static::assertEquals(550, $price->getSum());
+            static::assertEquals(850, $price->getSum());
             static::assertEquals(300, $price->getMax());
             static::assertEquals(250, $price->getMin());
-            static::assertEquals(275, $price->getAvg());
+            static::assertEquals(283.33333333333, $price->getAvg());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1386,7 +1386,8 @@ class ElasticsearchProductTest extends TestCase
                     $case->getInterval(),
                     null,
                     null,
-                    $case->getFormat()
+                    $case->getFormat(),
+                    $case->getTimeZone()
                 )
             );
 
@@ -1422,6 +1423,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-06-15 13:00:00' => 1,
                     '2020-09-30 15:00:00' => 1,
                     '2021-12-10 11:59:00' => 2,
+                    '2024-12-11 23:59:00' => 1,
                 ]),
             ],
             [
@@ -1430,6 +1432,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-06-15 13:00:00' => 1,
                     '2020-09-30 15:00:00' => 1,
                     '2021-12-10 11:00:00' => 2,
+                    '2024-12-11 23:00:00' => 1,
                 ]),
             ],
             [
@@ -1438,6 +1441,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-06-15 00:00:00' => 1,
                     '2020-09-30 00:00:00' => 1,
                     '2021-12-10 00:00:00' => 2,
+                    '2024-12-11 00:00:00' => 1,
                 ]),
             ],
             [
@@ -1446,6 +1450,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019 24' => 1,
                     '2020 40' => 1,
                     '2021 49' => 2,
+                    '2024 50' => 1,
                 ]),
             ],
             [
@@ -1454,6 +1459,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-06-01 00:00:00' => 1,
                     '2020-09-01 00:00:00' => 1,
                     '2021-12-01 00:00:00' => 2,
+                    '2024-12-01 00:00:00' => 1,
                 ]),
             ],
             [
@@ -1462,6 +1468,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019 2' => 1,
                     '2020 3' => 1,
                     '2021 4' => 2,
+                    '2024 4' => 1,
                 ]),
             ],
             [
@@ -1469,6 +1476,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-01-01 00:00:00' => 3,
                     '2020-01-01 00:00:00' => 1,
                     '2021-01-01 00:00:00' => 2,
+                    '2024-01-01 00:00:00' => 1,
                 ]),
             ],
             [
@@ -1477,6 +1485,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019 June' => 1,
                     '2020 September' => 1,
                     '2021 December' => 2,
+                    '2024 December' => 1,
                 ], 'Y F'),
             ],
             [
@@ -1485,7 +1494,17 @@ class ElasticsearchProductTest extends TestCase
                     'Saturday 15th Jun, 2019' => 1,
                     'Wednesday 30th Sep, 2020' => 1,
                     'Friday 10th Dec, 2021' => 2,
+                    'Wednesday 11th Dec, 2024' => 1,
                 ], 'l dS M, Y'),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-15 00:00:00' => 1,
+                    '2020-09-30 00:00:00' => 1,
+                    '2021-12-10 00:00:00' => 2,
+                    '2024-12-12 00:00:00' => 1,
+                ], null, 'Europe/Berlin'),
             ],
         ];
     }
@@ -1519,7 +1538,7 @@ class ElasticsearchProductTest extends TestCase
             $histogram = $result->get('release-histogram');
             static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-            static::assertCount(4, $histogram->getBuckets());
+            static::assertCount(5, $histogram->getBuckets());
 
             $bucket = $histogram->get('2019-01-01 00:00:00');
             static::assertInstanceOf(Bucket::class, $bucket);
@@ -1719,6 +1738,7 @@ class ElasticsearchProductTest extends TestCase
             $expected = [
                 $data->get('product-4'),
                 $data->get('product-5'),
+                $data->get('product-7'),
                 $data->get('product-2'),
                 $data->get('product-1'),
                 $data->get('product-6'),
@@ -2428,6 +2448,18 @@ class ElasticsearchProductTest extends TestCase
                 ->manufacturer('m3')
                 ->price(300)
                 ->releaseDate('2021-12-10 11:59:00')
+                ->purchasePrice(200)
+                ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 'product-7'))
+                ->name('Other product')
+                ->category('navi')
+                ->customField('testField', 'Other product')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->manufacturer('m3')
+                ->price(300)
+                ->releaseDate('2024-12-11 23:59:00')
                 ->purchasePrice(200)
                 ->stock(300)
                 ->build(),

@@ -278,6 +278,11 @@ class CriteriaParser
             $aggregation->getInterval(),
             'yyyy-MM-dd HH:mm:ss'
         );
+
+        if ($aggregation->getTimeZone()) {
+            $histogram->addParameter('time_zone', $aggregation->getTimeZone());
+        }
+
         $composite->addSource($histogram);
 
         if ($nested = $aggregation->getAggregation()) {

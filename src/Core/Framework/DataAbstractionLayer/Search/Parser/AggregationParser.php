@@ -120,6 +120,7 @@ class AggregationParser
                 'interval' => $aggregation->getInterval(),
                 'format' => $aggregation->getFormat(),
                 'field' => $aggregation->getField(),
+                'timeZone' => $aggregation->getTimeZone(),
             ];
 
             if ($aggregation->getSorting()) {
@@ -255,6 +256,7 @@ class AggregationParser
 
                 $interval = $aggregation['interval'];
                 $format = $aggregation['format'] ?? null;
+                $timeZone = $aggregation['timeZone'] ?? null;
 
                 if (isset($aggregation['aggregation'])) {
                     $nested = $this->parseAggregation($index, $definition, $aggregation['aggregation'], $exceptions);
@@ -273,7 +275,7 @@ class AggregationParser
                     $sorting = new FieldSorting($sort['field'], $order, (bool) $naturalSorting);
                 }
 
-                return new DateHistogramAggregation($name, $field, $interval, $sorting, $nested, $format);
+                return new DateHistogramAggregation($name, $field, $interval, $sorting, $nested, $format, $timeZone);
 
             case 'terms':
                 $nested = null;

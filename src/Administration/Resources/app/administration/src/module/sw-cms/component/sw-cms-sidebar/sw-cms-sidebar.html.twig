@@ -279,6 +279,7 @@
         icon="default-os-layers"
         :title="$tc('sw-cms.detail.sidebar.titleNavigator')"
         :disabled="!page.sections.length === 0 || currentDeviceView === 'form' || page.locked || disabled"
+        @click="onSidebarNavigatorClick"
     >
         {% block sw_cms_sidebar_navigator_content %}
         <div class="sw-cms-sidebar__navigator">
@@ -422,6 +423,16 @@
         </div>
         {% endblock %}
     </sw-sidebar-item>
+
+    {% block sw_cms_sidebar_navigator_confirm_modal %}
+    <sw-confirm-modal
+        v-if="showSidebarNavigatorModal"
+        :text="$tc('sw-cms.detail.sidebar.confirmTextNavigator')"
+        @confirm="onSidebarNavigationConfirm"
+        @close="onSidebarNavigationCancel"
+        @cancel="onSidebarNavigationCancel"
+    />
+    {% endblock %}
     {% endblock %}
 
     {% block sw_cms_sidebar_layout_assignment %}

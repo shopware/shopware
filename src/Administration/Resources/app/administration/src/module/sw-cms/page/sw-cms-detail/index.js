@@ -340,6 +340,15 @@ Component.register('sw-cms-detail', {
             Shopware.State.commit('cmsPageState/removeSelectedSection');
         },
 
+        onBlockNavigatorSort(isCrossSectionMove = false) {
+            if (isCrossSectionMove) {
+                this.loadPage(this.pageId);
+                return;
+            }
+
+            this.onPageUpdate();
+        },
+
         loadPage(pageId) {
             this.isLoading = true;
 
@@ -637,6 +646,10 @@ Component.register('sw-cms-detail', {
 
         getMissingElements(elements) {
             return Object.keys(elements).filter((key) => elements[key] === 0);
+        },
+
+        onPageSave() {
+            this.onSaveEntity();
         },
 
         onSave() {

@@ -146,6 +146,7 @@
         "titleNavigator": "Navigator",
         "titleSectionSettings": "Section settings",
         "titleLayoutAssignment": "Layout assignment",
+        "confirmTextNavigator": "When entering the block navigator, your current page will be saved. Are you sure you want to proceed?",
         "mobile": "Mobile sidebar behaviour",
         "mobileOptionHidden": "Hidden",
         "mobileOptionWrap": "Wrap"

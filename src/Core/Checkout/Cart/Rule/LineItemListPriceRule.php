@@ -92,7 +92,6 @@ class LineItemListPriceRule extends Rule
 
         $this->amount = (float) $this->amount;
 
-        /* @var float $listPriceAmount */
         switch ($this->operator) {
             case self::OPERATOR_GTE:
                 return FloatComparator::greaterThanOrEquals($listPriceAmount, $this->amount);

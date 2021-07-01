@@ -85,7 +85,6 @@ class LineItemReleaseDateRule extends Rule
     private function matchesReleaseDate(LineItem $lineItem, \DateTime $ruleValue): bool
     {
         try {
-            /* @var string|null $releasedAtString */
             $releasedAtString = $lineItem->getPayloadValue('releaseDate');
 
             if ($releasedAtString === null) {

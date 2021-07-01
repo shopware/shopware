@@ -204,7 +204,7 @@ class ElasticsearchHelper
 
             if ($parsed instanceof MatchQuery) {
                 $score = (string) $query->getScore();
-                /* @var MatchQuery $parsed */
+
                 $parsed->addParameter('boost', $score);
                 $parsed->addParameter('fuzziness', '2');
             }

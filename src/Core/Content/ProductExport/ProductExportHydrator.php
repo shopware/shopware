@@ -12,7 +12,6 @@ class ProductExportHydrator extends EntityHydrator
 {
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity
     {
-        /* @var ProductExportEntity $entity */
         if (isset($row[$root . '.id'])) {
             $entity->id = Uuid::fromBytesToHex($row[$root . '.id']);
         }

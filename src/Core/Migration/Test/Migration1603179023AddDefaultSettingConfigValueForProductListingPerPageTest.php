@@ -28,7 +28,6 @@ class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPageTes
      */
     public function initialise(): void
     {
-        /* @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $this->removeConfig($connection);

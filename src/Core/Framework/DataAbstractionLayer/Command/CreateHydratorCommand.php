@@ -325,7 +325,7 @@ class #class# extends EntityHydrator
 {
     protected function assign(EntityDefinition \$definition, Entity \$entity, string \$root, array \$row, Context \$context): Entity
     {
-        /* @var #entity# \$entity */
+
         #fields#
 
         \$this->translate(\$definition, \$entity, \$row, \$root, \$context, \$definition->getTranslatedFields());

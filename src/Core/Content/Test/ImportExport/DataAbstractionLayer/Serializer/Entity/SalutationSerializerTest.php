@@ -32,7 +32,6 @@ class SalutationSerializerTest extends TestCase
 
     public function setUp(): void
     {
-        /* @var EntityRepositoryInterface $salutationRepository */
         $this->salutationRepository = $this->getContainer()->get('salutation.repository');
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
 

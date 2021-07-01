@@ -58,7 +58,6 @@ class CurrencyFilter extends AbstractExtension
             throw new \InvalidArgumentException('Error while processing Twig currency filter. Could not resolve currencyIsoCode.');
         }
 
-        /* @var Context $context */
         if ($twigContext['context'] instanceof Context) {
             $context = $twigContext['context'];
         } else {

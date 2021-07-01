@@ -30,7 +30,6 @@ class Migration1598885384RedirectToLatestSeoUrlTest extends TestCase
      */
     public function initialise(): void
     {
-        /* @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $this->removeConfig($connection);

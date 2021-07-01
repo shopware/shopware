@@ -239,7 +239,6 @@ class EntityReader implements EntityReaderInterface
 
             //all other StorageAware fields are stored inside the main entity
             if ($field instanceof StorageAware) {
-                /* @var StorageAware|Field $field */
                 $query->addSelect(
                     EntityDefinitionQueryHelper::escape($root) . '.'
                     . EntityDefinitionQueryHelper::escape($field->getStorageName()) . ' as '
@@ -444,8 +443,6 @@ class EntityReader implements EntityReaderInterface
 
         //assign loaded data to root entities
         foreach ($collection as $entity) {
-            /* @var Entity $entity */
-
             $structData = EntityHydrator::createClass($collectionClass);
             if (isset($grouped[$entity->getUniqueIdentifier()])) {
                 $structData->fill($grouped[$entity->getUniqueIdentifier()]);

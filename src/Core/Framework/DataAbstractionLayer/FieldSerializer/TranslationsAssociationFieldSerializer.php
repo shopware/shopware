@@ -146,8 +146,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
         $value = $data->getValue();
 
-        /* @var TranslationsAssociationField $field */
-
         if ($value === null) {
             $value = [
                 $parameters->getContext()->getContext()->getLanguageId() => [],

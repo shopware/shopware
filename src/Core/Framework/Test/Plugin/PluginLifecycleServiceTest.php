@@ -404,7 +404,6 @@ class PluginLifecycleServiceTest extends TestCase
             static::assertCount(1, $dependants);
             static::assertEquals(sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
 
-            /* @var PluginEntity $dependant */
             $dependant = array_pop($dependants);
 
             static::assertInstanceOf(PluginEntity::class, $dependant);

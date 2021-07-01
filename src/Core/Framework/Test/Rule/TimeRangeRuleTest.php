@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -100,7 +99,6 @@ class TimeRangeRuleTest extends TestCase
             ],
         ], $context);
 
-        /* @var RuleConditionEntity $result */
         $result = $conditionRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertNotNull($result);

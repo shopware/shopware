@@ -657,7 +657,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                 ['name' => 'translation without a language or languageId'],
             ],
         ];
-        /* @var WriteException|null $exception */
+
         $exception = null;
 
         try {

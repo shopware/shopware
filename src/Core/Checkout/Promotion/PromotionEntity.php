@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
@@ -516,7 +515,6 @@ class PromotionEntity extends Entity
             if ($this->getPersonaCustomers() !== null) {
                 $personaCustomerOR = new OrRule();
 
-                /* @var CustomerEntity $ruleEntity */
                 foreach ($this->getPersonaCustomers()->getElements() as $customer) {
                     // build our new rule for this
                     // customer and his/her customer number

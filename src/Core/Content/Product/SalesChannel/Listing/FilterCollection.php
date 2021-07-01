@@ -33,7 +33,6 @@ class FilterCollection extends Collection
     {
         $this->validateType($element);
 
-        /* @var Filter $element */
         $this->elements[$element->getName()] = $element;
     }
 

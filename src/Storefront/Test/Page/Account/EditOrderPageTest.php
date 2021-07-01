@@ -159,7 +159,6 @@ class EditOrderPageTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions');
 
-        /* @var OrderEntity $order */
         return $orderRepository->search($criteria, $context->getContext())->first();
     }
 

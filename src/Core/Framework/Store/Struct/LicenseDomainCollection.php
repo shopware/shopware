@@ -24,7 +24,6 @@ class LicenseDomainCollection extends Collection
     {
         $this->validateType($element);
 
-        /* @var LicenseDomainStruct $element */
         $this->elements[$element->getDomain()] = $element;
     }
 

@@ -187,7 +187,6 @@ class Feature
 
     private static function isTrue(string $value): bool
     {
-        /* @var mixed $value */
         return $value
             && $value !== 'false'
             && $value !== '0'

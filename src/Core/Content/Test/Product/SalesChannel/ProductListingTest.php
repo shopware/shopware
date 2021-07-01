@@ -368,7 +368,6 @@ class ProductListingTest extends TestCase
 
         $repo = $this->getContainer()->get('product.repository');
 
-        /* @var EntityRepositoryInterface $repo */
         $repo->create($data, Context::createDefaultContext());
     }
 

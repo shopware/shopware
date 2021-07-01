@@ -71,7 +71,6 @@ class PromotionDeliveryCalculator
 
         $exclusions = $this->buildExclusions($checkedDiscountLineItems);
 
-        /* @var LineItem $discountLineItem */
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
                 continue;
@@ -130,7 +129,6 @@ class PromotionDeliveryCalculator
         // if a promotion has exclusions they are added on the stack
         $exclusions = [];
 
-        /* @var LineItem $discountLineItem */
         foreach ($discountLineItems as $discountItem) {
             // if we dont have a scope
             // then skip it, it might not belong to us

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -60,7 +59,7 @@ class EntitySearcher implements EntitySearcherInterface
             if (!$field instanceof StorageAware) {
                 continue;
             }
-            /* @var StorageAware $field */
+
             $query->addSelect(
                 EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
             );
@@ -99,7 +98,6 @@ class EntitySearcher implements EntitySearcherInterface
 
         $converted = [];
 
-        /* @var FieldCollection $fields */
         foreach ($rows as $row) {
             $pk = [];
             $data = [];

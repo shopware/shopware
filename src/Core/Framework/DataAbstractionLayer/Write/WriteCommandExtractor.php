@@ -403,7 +403,6 @@ class WriteCommandExtractor
     ): void {
         $queue = $parameterBag->getCommandQueue();
 
-        /* @var EntityDefinition $definition */
         if ($existence->exists()) {
             $queue->add($definition, new UpdateCommand($definition, $data, $pkData, $existence, $parameterBag->getPath()));
 

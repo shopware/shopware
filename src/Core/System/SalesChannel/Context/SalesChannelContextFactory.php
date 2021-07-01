@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
@@ -497,7 +496,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $state = $this->countryStateRepository->search($criteria, $context)
                 ->get($options[SalesChannelContextService::COUNTRY_STATE_ID]);
 
-            /* @var CountryStateEntity $state */
             return new ShippingLocation($state->getCountry(), $state, null);
         }
 

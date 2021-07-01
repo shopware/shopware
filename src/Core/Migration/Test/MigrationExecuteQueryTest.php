@@ -23,7 +23,6 @@ class MigrationExecuteQueryTest extends TestCase
             foreach ($migrationCollection as $migrations) {
                 /** @var class-string<MigrationStep> $migrationClass */
                 foreach ($migrations->getMigrationSteps() as $migrationClass) {
-                    /* @var MigrationStep $migration */
                     $migration = new $migrationClass();
                     $migration->update($nullConnection);
                     $migration->updateDestructive($nullConnection);

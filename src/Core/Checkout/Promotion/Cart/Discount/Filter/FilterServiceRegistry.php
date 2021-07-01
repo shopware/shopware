@@ -67,7 +67,6 @@ class FilterServiceRegistry
      */
     public function getPicker(string $key): FilterPickerInterface
     {
-        /* @var FilterSorterInterface $sorter */
         foreach ($this->pickers as $picker) {
             if (mb_strtolower($picker->getKey()) === mb_strtolower($key)) {
                 return $picker;

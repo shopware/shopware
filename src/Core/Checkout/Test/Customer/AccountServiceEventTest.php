@@ -215,7 +215,6 @@ class AccountServiceEventTest extends TestCase
 
     private function getEmailListenerClosure(bool &$eventDidRun, self $phpunit)
     {
-        /* @var CustomerBeforeLoginEvent $event */
         return function ($event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertSame('info@example.com', $event->getEmail());
@@ -224,7 +223,6 @@ class AccountServiceEventTest extends TestCase
 
     private function getCustomerListenerClosure(bool &$eventDidRun, self $phpunit)
     {
-        /* @var CustomerLoginEvent $event */
         return function ($event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertSame('info@example.com', $event->getCustomer()->getEmail());

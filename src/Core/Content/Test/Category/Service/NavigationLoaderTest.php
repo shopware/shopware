@@ -60,7 +60,6 @@ class NavigationLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        /* @var EntityRepositoryInterface $repository */
         $this->repository = $this->getContainer()->get('category.repository');
 
         $this->rootId = Uuid::randomHex();

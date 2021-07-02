@@ -1,5 +1,12 @@
 {% block component_address %}
     <div class="address">
+        {% if feature('FEATURE_NEXT_15707') and showShippingWarning and not address.country.shippingAvailable %}
+            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                type: "warning",
+                content: "address.countryNoShippingAlert"|trans|sw_sanitize
+            } %}
+        {% endif %}
+
         {% if address.company or address.vatId %}
             {% block component_address_company %}
                 <p>

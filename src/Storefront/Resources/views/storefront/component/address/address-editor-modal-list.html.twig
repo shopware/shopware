@@ -26,7 +26,10 @@
                                                         {% block component_address_address_editor_modal_list_address_body %}
                                                             <div class="card-body">
                                                                 {% block component_address_address_editor_modal_list_address_include %}
-                                                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': address} %}
+                                                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                                                        'address': address,
+                                                                        'showShippingWarning': changeShipping
+                                                                    } %}
                                                                 {% endblock %}
                                                             </div>
                                                         {% endblock %}
@@ -117,7 +120,8 @@
                                                                                             {% block component_address_address_editor_modal_list_address_action_shipping_form_button %}
                                                                                                 <button type="submit"
                                                                                                         title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
-                                                                                                        class="btn btn-block btn-light btn-sm">
+                                                                                                        class="btn btn-block btn-light btn-sm"
+                                                                                                        {% if feature('FEATURE_NEXT_15707') and not address.country.shippingAvailable %} disabled="disabled"{% endif %}>
                                                                                                     {% block component_address_address_editor_modal_list_address_action_shipping_form_text %}
                                                                                                         {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
                                                                                                     {% endblock %}

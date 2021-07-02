@@ -263,6 +263,7 @@
                                             {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                                                 'prefix': 'billingAddress',
                                                 'data': data.get('billingAddress'),
+                                                'showNoShippingPostfix': true,
                                             } %}
                                         {% endblock %}
                                     </div>
@@ -323,7 +324,9 @@
                                                     {% block component_account_register_address_shipping_fields_address %}
                                                         {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                                                             'prefix': 'shippingAddress',
-                                                            'data': data.get('shippingAddress')
+                                                            'data': data.get('shippingAddress'),
+                                                            'showNoShippingPostfix': true,
+                                                            'disableNonShippableCountries': true,
                                                         } %}
                                                     {% endblock %}
                                                 {% endblock %}

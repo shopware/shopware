@@ -14,7 +14,7 @@
       "treeHeadline": "Categories",
       "treeHeadSelected": "{count} selected",
       "emptyStateHeadline": "No category selected",
-      "errorNavigationEntryPoint": "This category is defined as a main navigation of at least one Sales Channel and can therefore not be deleted.",
+      "errorNavigationEntryPoint": "This category is defined as a {entryPointLabel} of at least one Sales Channel and can therefore not be deleted.",
       "errorNavigationEntryPointMultiple": "One or more categories are defined as a main navigation of at least one Sales Channel and can therefore not be deleted.",
       "actions": {
         "actionsDisabledInLanguage": "Categories can only be created in the default language.",

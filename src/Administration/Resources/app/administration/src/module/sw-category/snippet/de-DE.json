@@ -14,7 +14,7 @@
       "treeHeadline": "Kategorien",
       "treeHeadSelected": "{count} ausgewählt",
       "emptyStateHeadline": "Keine Kategorie ausgewählt",
-      "errorNavigationEntryPoint": "Diese Kategorie ist als Hauptnavigation in mind. einem Verkaufskanal definiert und kann deshalb nicht gelöscht werden.",
+      "errorNavigationEntryPoint": "Diese Kategorie ist als {entryPointLabel} in mind. einem Verkaufskanal definiert und kann deshalb nicht gelöscht werden.",
       "errorNavigationEntryPointMultiple": "Eine oder mehrere Kategorien sind als Hauptnavigation in mind. einem Verkaufskanal definiert und können deshalb nicht gelöscht werden.",
       "actions": {
         "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden.",

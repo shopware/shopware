@@ -308,7 +308,7 @@ Component.register('sw-category-tree', {
                 return Promise.resolve();
             }
 
-            if (category.navigationSalesChannels !== null && category.navigationSalesChannels.length > 0) {
+            if (this.isErrorNavigationEntryPoint(category)) {
                 // remove delete flags
                 category.isDeleted = false;
                 if (children.length > 0) {
@@ -329,7 +329,7 @@ Component.register('sw-category-tree', {
                 // reload after changes
                 this.loadedCategories = { ...this.loadedCategories };
 
-                this.createNotificationError({ message: this.$tc('sw-category.general.errorNavigationEntryPoint') });
+                this.createNotificationError({ message: this.entryPointWarningMessage(category) });
                 return Promise.resolve();
             }
 
@@ -492,6 +492,42 @@ Component.register('sw-category-tree', {
             return this.cmsPageRepository.search(this.defaultLayoutCriteria).then((response) => {
                 Shopware.State.commit('swCategoryDetail/setDefaultLayout', response[0]);
             });
+        },
+
+        isErrorNavigationEntryPoint(category) {
+            const { navigationSalesChannels, serviceSalesChannels, footerSalesChannels } = category;
+
+            return [
+                navigationSalesChannels,
+                serviceSalesChannels,
+                footerSalesChannels,
+            ].some(navigation => navigation !== null && navigation?.length > 0);
+        },
+
+        entryPointWarningMessage(category) {
+            const { serviceSalesChannels, footerSalesChannels } = category;
+
+            if (serviceSalesChannels !== null && serviceSalesChannels?.length > 0) {
+                return this.$tc(
+                    'sw-category.general.errorNavigationEntryPoint',
+                    0,
+                    { entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelServiceNavigation') },
+                );
+            }
+
+            if (footerSalesChannels !== null && footerSalesChannels?.length > 0) {
+                return this.$tc(
+                    'sw-category.general.errorNavigationEntryPoint',
+                    0,
+                    { entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelFooterNavigation') },
+                );
+            }
+
+            return this.$tc(
+                'sw-category.general.errorNavigationEntryPoint',
+                0,
+                { entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelMainNavigation') },
+            );
         },
     },
 });

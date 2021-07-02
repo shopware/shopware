@@ -31,7 +31,8 @@
     {% block sw_extension_card_base_subscription_expired_info_text %}
     <span
         class="sw-extension-card-bought__info-subscription-expiry"
-        :class="subscriptionExpiredTextClasses">
+        :class="subscriptionExpiredTextClasses"
+    >
         <sw-icon
             v-if="isExpiredTestPhase"
             name="default-badge-alert"

@@ -54,7 +54,7 @@
                     href="#"
                     @click.prevent="onEditProfile(item.id)"
                 >
-                    {{ item.translated.label }}
+                    {{ item.translated.label || item.label }}
                 </a>
             </template>
             {% endblock %}

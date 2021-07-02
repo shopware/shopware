@@ -114,7 +114,8 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         onDuplicateProfile(item) {
             this.selectedProfile = this.profileRepository.create();
 
-            this.selectedProfile.label = `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || ''}`;
+            // eslint-disable-next-line max-len
+            this.selectedProfile.label = `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || item.translated.label}`;
             this.$set(this.selectedProfile, 'translated', {});
             this.selectedProfile.systemDefault = false;
             this.$set(this.selectedProfile, 'config', Array.isArray(item.config) ? {} : item.config);
@@ -135,7 +136,10 @@ Shopware.Component.register('sw-import-export-view-profiles', {
 
         saveSelectedProfile() {
             this.isLoading = true;
-            this.profileRepository.save(this.selectedProfile).then(() => {
+            this.profileRepository.save(this.selectedProfile, {
+                ...Shopware.Context.api,
+                languageId: Shopware.Context.api.systemLanguageId,
+            }).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
                     message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),

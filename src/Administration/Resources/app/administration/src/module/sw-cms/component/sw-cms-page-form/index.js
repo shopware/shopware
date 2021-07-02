@@ -25,6 +25,18 @@ Component.register('sw-cms-page-form', {
         },
     },
 
+    created() {
+        const twoColumnSorting = ['left', 'right'];
+
+        this.page.sections.forEach((section) => {
+            section.blocks.forEach((block) => {
+                if (block.type === 'text-two-column') {
+                    block.slots.sort((a, b) => twoColumnSorting.indexOf(a.slot) - twoColumnSorting.indexOf(b.slot));
+                }
+            });
+        });
+    },
+
     methods: {
         getBlockTitle(block) {
             if (block.config?.name) {

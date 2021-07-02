@@ -430,7 +430,7 @@ FROM product p
         :productTranslationQuery:
     ) product_translation_parent ON (product_translation_parent.product_id = p.parent_id)
 
-WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND p.child_count = 0 OR p.parent_id IS NOT NULL
+WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL)
 
 GROUP BY p.id
 SQL;

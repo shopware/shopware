@@ -24,7 +24,7 @@ jobs:
             MYSQL_ROOT_PASSWORD: shopware
             MYSQL_DATABASE: shopware
       elasticsearch:
-        image: elastic/elasticsearch:7.3.0
+        image: elasticsearch:7.8.0
         env:
           discovery.type: single-node
 

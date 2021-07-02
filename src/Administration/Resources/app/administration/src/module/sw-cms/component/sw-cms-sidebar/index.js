@@ -51,6 +51,7 @@ Component.register('sw-cms-sidebar', {
             currentBlockCategory: 'text',
             currentDragSectionIndex: null,
             showSidebarNavigatorModal: false,
+            navigatorDontRemind: false,
         };
     },
 
@@ -213,10 +214,21 @@ Component.register('sw-cms-sidebar', {
             if (!this.$refs.blockNavigator.isActive) {
                 return;
             }
+
+            if (localStorage.getItem('cmsNavigatorDontRemind') === 'true') {
+                this.onSidebarNavigationConfirm();
+                return;
+            }
+
+            this.navigatorDontRemind = false;
             this.showSidebarNavigatorModal = true;
         },
 
         onSidebarNavigationConfirm() {
+            if (this.navigatorDontRemind) {
+                localStorage.setItem('cmsNavigatorDontRemind', true);
+            }
+
             this.$emit('page-save');
             this.showSidebarNavigatorModal = false;
         },

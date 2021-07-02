@@ -24,7 +24,8 @@ function createWrapper(activeTab = 'singleProducts') {
             salesChannel: {
                 id: 1,
                 name: 'Headless'
-            }
+            },
+            isAssignProductLoading: false
         }
     });
 }
@@ -119,5 +120,41 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             }
         ]);
         expect(wrapper.vm.productCount).toBe(3);
+    });
+
+    it('should update the corresponding product successfully', () => {
+        const wrapper = createWrapper();
+        const groupProductsMock = [
+            {
+                id: 1,
+                name: 'Low prices'
+            },
+            {
+                id: 2,
+                name: 'Standard prices'
+            },
+            {
+                id: 3,
+                name: 'High prices'
+            }
+        ];
+
+        wrapper.vm.onChangeSelection(groupProductsMock, 'groupProducts');
+
+        expect(wrapper.vm.groupProducts).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: 'Low prices' }),
+                expect.objectContaining({ name: 'Standard prices' }),
+                expect.objectContaining({ name: 'High prices' })
+            ])
+        );
+    });
+
+    it('should update the product loading state correctly', () => {
+        const wrapper = createWrapper();
+
+        wrapper.vm.setProductLoading(true);
+
+        expect(wrapper.vm.isProductLoading).toBe(true);
     });
 });

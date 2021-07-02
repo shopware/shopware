@@ -15,8 +15,7 @@ Component.register('sw-sales-channel-products-assignment-modal', {
 
         isAssignProductLoading: {
             type: Boolean,
-            default: false,
-            required: false,
+            required: true,
         },
     },
 
@@ -25,6 +24,7 @@ Component.register('sw-sales-channel-products-assignment-modal', {
             singleProducts: [],
             categoryProducts: [],
             groupProducts: [],
+            isProductLoading: false,
         };
     },
 
@@ -40,7 +40,7 @@ Component.register('sw-sales-channel-products-assignment-modal', {
 
     methods: {
         onChangeSelection(products, type) {
-            this[type] = type === 'categoryProducts' ? products : Object.values(products);
+            this[type] = products;
         },
 
         onCloseModal() {
@@ -49,6 +49,10 @@ Component.register('sw-sales-channel-products-assignment-modal', {
 
         onAddProducts() {
             this.$emit('products-add', this.products);
+        },
+
+        setProductLoading(isProductLoading) {
+            this.isProductLoading = isProductLoading;
         },
     },
 });

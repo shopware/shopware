@@ -250,8 +250,12 @@
           "emptySearchResults": "Keine Kategorien gefunden."
         },
         "dynamicProductGroups": {
-          "title": "Nach Dynamischen Produktgruppen filtern",
-          "infoText": "Die hier gemachten Zuweisungen sind statisch und werden durch nachfolgende Änderungen der Dynamischen Produktgruppen nicht beeinflusst."
+          "title": "Dynamische Produktgruppen",
+          "infoText": "Its not possible to keep the dynamic groups dynamic. But you can use the dynamic product groups to add the products that currently are included in the group.",
+          "columnName": "Name",
+          "searchFieldPlaceholder": "Durchsuche alle dynamischen Produktgruppen ...",
+          "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
+          "titleNoProductStreamsAvailable": "No dynamic product groups available."
         }
       }
     },

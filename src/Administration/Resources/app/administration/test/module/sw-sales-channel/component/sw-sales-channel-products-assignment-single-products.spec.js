@@ -119,24 +119,24 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         await wrapper.vm.$nextTick();
 
         await wrapper.find('.sw-data-grid__select-all .sw-field__checkbox input').trigger('click');
-        expect(wrapper.emitted()['selection-change'][0]).toEqual([
-            {
-                1: {
+        expect(wrapper.emitted()['selection-change'][1]).toEqual([
+            [
+                {
                     id: 1,
                     name: 'Test product 1',
                     productNumber: '1'
                 },
-                2: {
+                {
                     id: 2,
                     name: 'Test product 2',
                     productNumber: '2'
                 },
-                3: {
+                {
                     id: 3,
                     name: 'Test product 3',
                     productNumber: '3'
                 }
-            },
+            ],
             'singleProducts'
         ]);
     });

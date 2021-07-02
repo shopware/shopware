@@ -40,6 +40,11 @@ Component.register('sw-product-properties', {
                 criteria.setTerm(this.searchTerm);
             }
 
+            const optionIds = this.productProperties.getIds();
+
+            criteria.getAssociation('options').addFilter(Criteria.equalsAny('id', optionIds));
+            criteria.addFilter(Criteria.equalsAny('options.id', optionIds));
+
             return criteria;
         },
 
@@ -116,15 +121,6 @@ Component.register('sw-product-properties', {
                 .then((properties) => {
                     this.properties = properties;
                 })
-                .then(() => {
-                    this.properties.forEach((property) => {
-                        const values = this.productProperties.filter(({ groupId }) => {
-                            return groupId === property.id;
-                        });
-
-                        this.$set(property, 'values', values);
-                    });
-                })
                 .catch(() => {
                     this.properties = [];
                 })
@@ -158,7 +154,7 @@ Component.register('sw-product-properties', {
                 const properties = { ...this.$refs.entityListing.selection };
 
                 Object.values(properties).forEach((property) => {
-                    property.values.forEach((value) => {
+                    property.options.forEach((value) => {
                         this.productProperties.remove(value.id);
                     });
                 });

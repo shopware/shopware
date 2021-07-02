@@ -4,26 +4,20 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util;
 
 class DateHistogramCase
 {
-    /**
-     * @var string
-     */
-    private $interval;
+    private string $interval;
 
-    /**
-     * @var array
-     */
-    private $buckets;
+    private array $buckets;
 
-    /**
-     * @var string|null
-     */
-    private $format;
+    private ?string $format;
 
-    public function __construct(string $interval, array $buckets, ?string $format = null)
+    private ?string $timeZone;
+
+    public function __construct(string $interval, array $buckets, ?string $format = null, ?string $timeZone = null)
     {
         $this->interval = $interval;
         $this->buckets = $buckets;
         $this->format = $format;
+        $this->timeZone = $timeZone;
     }
 
     public function getInterval(): string
@@ -39,5 +33,10 @@ class DateHistogramCase
     public function getFormat(): ?string
     {
         return $this->format;
+    }
+
+    public function getTimeZone(): ?string
+    {
+        return $this->timeZone;
     }
 }

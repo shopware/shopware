@@ -271,6 +271,10 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
+        if ($aggregation->getTimeZone()) {
+            $accessor = 'CONVERT_TZ(' . $accessor . ', "UTC", "' . $aggregation->getTimeZone() . '")';
+        }
+
         switch ($aggregation->getInterval()) {
             case DateHistogramAggregation::PER_MINUTE:
                 $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H:%i\')';

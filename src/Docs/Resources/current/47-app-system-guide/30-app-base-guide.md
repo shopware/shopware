@@ -73,28 +73,9 @@ The current shopware version will be sent as a `sw-version` header.
 You can verify the authenticity of the incoming request by checking the `shopware-shop-signature` every request should have a sha256 hmac of the 
 request body, that is signed with the secret your app assigned the shop during the registration.
 
-You can use a variety of events to react to changes in Shopware that way. See the table below for an overview of most
-important ones.
+You can use a variety of events to react to changes in Shopware that way. 
 
-| Event        | Description           | 
-| -------------- |-------------------- |
-| `contact_form.send` | Triggers if a contact form is send | 
-| `mail.sent` | Triggers if a mail is send from Shopware | 
-| `mail.after.create.message` | Triggers if a mail after creating a message is send | 
-| `mail.before.send` | Triggers before a mail is send | 
-| `checkout.order.placed` | Triggers if an order is placed checkout-wise | 
-| `checkout.customer.register` | Triggers if a new customer was registered yo| 
-| `checkout.customer.login` | Triggers as soon as a customer logs in | 
-| `checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | 
-| `checkout.customer.before.login` |  Triggers as soon as a customer logs in within the checkout process |
-| `checkout.customer.changed-payment-method` |  Triggers if a customer changes his payment method in checkout process |
-| `checkout.customer.logout` | Triggers if a customer logs out |
-| `checkout.customer.double_opt_in_registration` | Triggers if a customer commits to his registration via double opt in |
-| `customer.recovery.request` | Triggers if a customer recovers his password |
-| `user.recovery.request` | Triggers if a user recovers his password |
-| `product.written` | Triggers if a product is written |
-| `product_price.written` | Triggers if product price is written |
-| `category.written` | Triggers if a category is written |
+See that table [Webhook-Events-Reference](webhook-events-reference.md) for an overview.
 
 #### App lifecycle events
 

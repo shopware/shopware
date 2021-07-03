@@ -63,6 +63,36 @@ class HookableEventCollector
         return $this->hookableEventNamesWithPrivileges;
     }
 
+    public function getPrivilegesFromBusinessEventDefinition(BusinessEventDefinition $businessEventDefinition): array
+    {
+        $privileges = [];
+        foreach ($businessEventDefinition->getData() as $data) {
+            if ($data['type'] !== 'entity') {
+                continue;
+            }
+
+            $entityName = $this->definitionRegistry->get($data['entityClass'])->getEntityName();
+            $privileges[] = $entityName . ':' . AclRoleDefinition::PRIVILEGE_READ;
+        }
+
+        return $privileges;
+    }
+
+    public function getEntityWrittenEventNamesWithPrivileges(): array
+    {
+        $entityWrittenEventNames = [];
+        foreach (self::HOOKABLE_ENTITIES as $entity) {
+            $privileges = [
+                self::PRIVILEGES => [$entity . ':' . AclRoleDefinition::PRIVILEGE_READ],
+            ];
+
+            $entityWrittenEventNames[$entity . '.written'] = $privileges;
+            $entityWrittenEventNames[$entity . '.deleted'] = $privileges;
+        }
+
+        return $entityWrittenEventNames;
+    }
+
     private function getEventNamesWithPrivileges(Context $context): array
     {
         return array_merge(
@@ -92,35 +122,5 @@ class HookableEventCollector
                 self::PRIVILEGES => $privileges,
             ];
         }, $response->getElements());
-    }
-
-    private function getPrivilegesFromBusinessEventDefinition(BusinessEventDefinition $businessEventDefinition): array
-    {
-        $privileges = [];
-        foreach ($businessEventDefinition->getData() as $data) {
-            if ($data['type'] !== 'entity') {
-                continue;
-            }
-
-            $entityName = $this->definitionRegistry->get($data['entityClass'])->getEntityName();
-            $privileges[] = $entityName . ':' . AclRoleDefinition::PRIVILEGE_READ;
-        }
-
-        return $privileges;
-    }
-
-    private function getEntityWrittenEventNamesWithPrivileges(): array
-    {
-        $entityWrittenEventNames = [];
-        foreach (self::HOOKABLE_ENTITIES as $entity) {
-            $privileges = [
-                self::PRIVILEGES => [$entity . ':' . AclRoleDefinition::PRIVILEGE_READ],
-            ];
-
-            $entityWrittenEventNames[$entity . '.written'] = $privileges;
-            $entityWrittenEventNames[$entity . '.deleted'] = $privileges;
-        }
-
-        return $entityWrittenEventNames;
     }
 }

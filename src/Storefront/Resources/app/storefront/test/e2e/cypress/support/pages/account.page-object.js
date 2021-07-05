@@ -47,6 +47,7 @@ export default class AccountPageObject {
             registerCard: '.register-card',
             registerForm: '.register-form',
             registerSubmit: '.register-submit',
+            registerCheckbox: '.register-different-shipping input',
             loginCard: '.login-card',
             loginForm: '.login-form',
             loginSubmit: '.login-submit',

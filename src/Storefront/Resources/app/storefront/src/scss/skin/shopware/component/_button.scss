@@ -30,3 +30,11 @@ https://getbootstrap.com/docs/4.3/components/buttons/
         color: $gray-300;
     }
 }
+
+.btn-link {
+    &.disabled,
+    &:disabled {
+        border: 0 none;
+        background: transparent;
+    }
+}

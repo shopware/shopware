@@ -297,6 +297,8 @@
     "cityPlaceholder": "Enter city...",
     "countryLabel": "Country",
     "countryPlaceholder": "Select country...",
+    "countryPostfixNoShipping": "(Delivery not possible)",
+    "countryNoShippingAlert": "A delivery to this country is not possible.",
     "countryStateLabel": "State",
     "countryStatePlaceholder": "Select state...",
     "phoneNumberLabel": "Phone number",

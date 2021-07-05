@@ -351,8 +351,11 @@
                                         value="{{ country.id }}"
                                         {% if feature('FEATURE_NEXT_14114') %}
                                         data-vat-id-required="{{ country.vatIdRequired }}"
+                                        {% endif %}
+                                        {% if feature('FEATURE_NEXT_15707') and  not country.shippingAvailable and disableNonShippableCountries %}
+                                            disabled="disabled"
                                         {% endif %}>
-                                    {{ country.translated.name }}
+                                    {{ country.translated.name }}{% if feature('FEATURE_NEXT_15707') and showNoShippingPostfix and not country.shippingAvailable %} {{ "address.countryPostfixNoShipping"|trans|sw_sanitize }}{% endif %}
                                 </option>
                             {% endfor %}
                         </select>

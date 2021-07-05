@@ -131,7 +131,7 @@
                                         {% block page_account_address_overview_body %}
                                             <div class="address-item-body">
                                                 {% block page_account_address_overview_address %}
-                                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' %}
+                                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with { 'showShippingWarning': defaultShippingAddress.id != address.id } %}
                                                 {% endblock %}
 
                                                 {% block page_account_address_overview_actions %}

@@ -336,12 +336,7 @@
                     {% endblock %}
 
                     {% block component_account_register_captcha %}
-                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with {
-                            'captchas': config('core.basicInformation.activeCaptchasV2'),
-                            'formId': 'register-form',
-                            'preCheck': true
-                            }
-                        %}
+                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { preCheck: true } %}
                     {% endblock %}
 
                     {% block component_account_register_privacy %}

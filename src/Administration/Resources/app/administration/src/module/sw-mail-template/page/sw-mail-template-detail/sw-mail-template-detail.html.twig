@@ -268,7 +268,7 @@
     {% block sw_mail_template_detail_sidebar %}
     <template #sidebar>
         <sw-sidebar :propagate-width="true">
-            {% block sw_mail_template_detail_sidebar %}
+            {% block sw_mail_template_detail_sidebar_inner %}
             <sw-sidebar-item
                 icon="default-object-paperplane"
                 :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"

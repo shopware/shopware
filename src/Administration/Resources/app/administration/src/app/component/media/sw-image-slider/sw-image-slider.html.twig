@@ -26,7 +26,7 @@
                 :style="componentStyles"
             >
 
-                {% block sw_image_slider_image_container %}
+                {% block sw_image_slider_image_images_container %}
                 <div
                     class="sw-image-slider__element-container"
                     :class="elementClasses(index)"
@@ -34,16 +34,16 @@
                     @click="onSetCurrentItem(index)"
                 >
 
-                    {% block sw_image_slider_image %}
-                    <img
+                {% block sw_image_slider_image %}
+                        <img
                         class="sw-image-slider__element-image"
                         :class="imageClasses(index)"
                         :style="[borderStyles(image), imageStyles]"
                         :src="getImage(image)"
                         :alt="imageAlt(index)"
                     >
-                    {% endblock %}
-                </div>
+                {% endblock %}
+                    </div>
                 {% endblock %}
 
                 {% block sw_image_slider_element_description %}

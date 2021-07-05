@@ -97,6 +97,22 @@
         "editRule": "Edit rule",
         "deleteRule": "Delete rule"
       }
+    },
+    "modals": {
+      "rule": {
+        "labelAddNewRule": "Add new rule",
+        "tabRule": "Rule",
+        "detailsTab": "Details",
+        "buttonAddRule": "Save and apply",
+        "labelName": "Name",
+        "placeholderName": "Enter rule name...",
+        "labelPriority": "Priority",
+        "placeholderPriority": "Enter rule priority...",
+        "labelDescription": "Description",
+        "placeholderDescription": "Enter rule description...",
+        "labelType": "Type",
+        "placeholderType": "Select rule type..."
+      }
     }
   },
   "sw-privileges": {

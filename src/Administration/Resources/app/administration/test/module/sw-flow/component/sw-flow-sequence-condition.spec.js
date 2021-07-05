@@ -1,14 +1,11 @@
 import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-sequence-condition';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
+import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 
 const sequenceFixture = {
     id: '1',
@@ -72,22 +69,34 @@ function createWrapper(propsData = {}) {
             'sw-entity-single-select': {
                 props: ['value'],
                 template: `
+                    <div class="sw-entity-single-select">
                         <input
-                           value="value"
-                           @input="$emit('change', $event.target.value, { name: 'Rule name', id: $event.target.value })"
-                           class="sw-entity-single-select" />
-                      `
+                            class="sw-entity-single-select__selection-input"
+                            value="value"
+                            @input="$emit('change', $event.target.value, { name: 'Rule name', id: $event.target.value })"
+                        />
+                        <slot name="before-item-list"></slot>
+                        <slot></slot>
+                    </div>
+                `
             },
-            'sw-label': true
+            'sw-label': true,
+            'sw-flow-sequence-modal': true
         },
         propsData: {
             sequence: sequenceFixture,
             ...propsData
         },
         provide: {
+            flowService: {
+                getActionModalName: () => {}
+            },
             repositoryFactory: {
                 create: () => {
                     return {
+                        search: jest.fn(() => {
+                            return Promise.resolve([]);
+                        }),
                         get: (id) => Promise.resolve({
                             id,
                             name: 'Rule name'
@@ -279,7 +288,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const actionSelection = wrapper.find('.sw-flow-sequence-condition__selection-rule');
         expect(actionSelection.attributes('error')).toBeTruthy();
 
-        const ruleSelect = wrapper.find('.sw-entity-single-select');
+        const ruleSelect = wrapper.find('.sw-entity-single-select__selection-input');
         await ruleSelect.setValue('1');
         await ruleSelect.trigger('input');
 
@@ -408,7 +417,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const editButton = wrapper.find('.sw-flow-sequence-condition__rule-edit');
         await editButton.trigger('click');
 
-        const ruleSelect = wrapper.find('.sw-flow-sequence-condition__selection-rule');
+        const ruleSelect = wrapper.find('.sw-entity-single-select__selection-input');
         await ruleSelect.setValue('2222');
         await ruleSelect.trigger('input');
 
@@ -484,5 +493,25 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         components.forEach(component => {
             expect(wrapper.find(component).attributes().disabled).toBeTruthy();
         });
+    });
+
+    it('should assign actionModal value to action.add.rule', async () => {
+        const sequence = {
+            ...sequenceFixture,
+            ruleId: ''
+        };
+
+        Shopware.State.commit('swFlowState/setSequences',
+            getSequencesCollection([{ ...sequence }]));
+        const wrapper = createWrapper({
+            sequence
+        });
+
+        expect(wrapper.vm.actionModal).toEqual('');
+
+        const createRuleButton = wrapper.find('.sw-select-result__create-new-rule');
+        await createRuleButton.trigger('click');
+
+        expect(wrapper.vm.actionModal).toEqual(ACTION.ADD_RULE);
     });
 });

@@ -48,7 +48,8 @@
       "types": {
         "shipping": "Versandart",
         "payment": "Zahlungsart",
-        "price": "Preis"
+        "price": "Preis",
+        "flowBuilder": "Flow Builder"
       }
     },
     "conditionFilter": {

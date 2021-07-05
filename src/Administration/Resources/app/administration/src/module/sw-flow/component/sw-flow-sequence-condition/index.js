@@ -1,6 +1,8 @@
 import template from './sw-flow-sequence-condition.html.twig';
 import './sw-flow-sequence-condition.scss';
 
+import { ACTION } from '../../constant/flow.constant';
+
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
@@ -10,7 +12,11 @@ const { mapState } = Component.getComponentHelper();
 Component.register('sw-flow-sequence-condition', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'flowService',
+        'acl',
+    ],
 
     props: {
         sequence: {
@@ -26,11 +32,11 @@ Component.register('sw-flow-sequence-condition', {
 
     data() {
         return {
-            showRuleModal: false,
             showRuleSelection: false,
             isRuleLoading: false,
             fieldError: null,
             showAddButton: false,
+            actionModal: '',
         };
     },
 
@@ -50,6 +56,10 @@ Component.register('sw-flow-sequence-condition', {
         showHelpElement() {
             const { parentId, ruleId, trueBlock, falseBlock } = this.sequence;
             return !parentId && !ruleId && !(trueBlock || falseBlock);
+        },
+
+        modalName() {
+            return this.flowService.getActionModalName(this.actionModal);
         },
 
         ...mapState('swFlowState', ['invalidSequences']),
@@ -106,6 +116,19 @@ Component.register('sw-flow-sequence-condition', {
                 }).finally(() => {
                     this.isRuleLoading = false;
                 });
+        },
+
+        onCreateNewRule() {
+            this.actionModal = ACTION.ADD_RULE;
+        },
+
+        onCloseModal() {
+            this.actionModal = '';
+        },
+
+        onCreateRuleSuccess(sequence) {
+            const { rule } = sequence;
+            this.onRuleChange(rule);
         },
 
         onRuleChange(rule) {

@@ -276,7 +276,13 @@
                                 <ul class="sw-select-result__item-list">
                                     <li
                                         class="sw-select-result sw-select-result__create-new-rule"
-                                        @click="showRuleModal = true"
+                                        v-tooltip="{
+                                            message: $tc('sw-privileges.tooltip.warning'),
+                                            disabled: acl.can('rule.creator'),
+                                            showOnDisabledElements: true
+                                        }"
+                                        :disabled="!acl.can('rule.creator')"
+                                        @click="onCreateNewRule"
                                     >
                                         {{ $tc('sw-flow.rule.createNewRule') }}
                                     </li>
@@ -313,6 +319,15 @@
         </div>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_condition_create_rule_modal %}
+    <sw-flow-sequence-modal
+        :sequence="sequence"
+        :modal-name="modalName"
+        @process-finish="onCreateRuleSuccess"
+        @modal-close="onCloseModal"
+    />
     {% endblock %}
 </div>
 {% endblock %}

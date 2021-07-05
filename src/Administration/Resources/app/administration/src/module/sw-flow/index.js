@@ -8,7 +8,9 @@ import './component/sw-flow-sequence';
 import './component/sw-flow-sequence-action';
 import './component/sw-flow-sequence-condition';
 import './component/sw-flow-sequence-selector';
+import './component/modals/sw-flow-create-rule-modal';
 
+import './service/flow.service';
 import './acl';
 
 const { Module } = Shopware;

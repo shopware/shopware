@@ -312,6 +312,11 @@
         border-bottom: 1px solid $color-gray-300;
         padding-bottom: 5px;
         margin-bottom: 5px;
+
+        .sw-select-result__create-new-rule[disabled="disabled"] {
+            background: $color-gray-100;
+            pointer-events: none;
+        }
     }
 
     .sw-select-result:hover {

@@ -75,7 +75,7 @@ describe('Property: Visual tests', () => {
         cy.get(page.elements.cardTitle).contains('Basic information');
 
         // Take snapshot for visual testing
-        cy.sortListingViaColumn('Position', '1', '.sw-data-grid__cell--position');
+        cy.sortAndCheckListingAscViaColumn('Position', '1', '.sw-data-grid__cell--position');
         cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--position', '1').should('be.visible');
         cy.contains('.sw-data-grid__row--1 .sw-data-grid__cell--position', '2').should('be.visible');
         cy.contains('.sw-data-grid__row--2 .sw-data-grid__cell--position', '3').should('be.visible');

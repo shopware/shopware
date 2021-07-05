@@ -34,7 +34,7 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-settings-shipping-list__content').should('exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.sortListingViaColumn('Name', 'Express');
+        cy.sortAndCheckListingAscViaColumn('Name', 'Express');
         cy.takeSnapshot('[Shipping] Listing', '.sw-settings-shipping-list');
 
         cy.contains('.sw-data-grid__cell--name a', 'Express').click();

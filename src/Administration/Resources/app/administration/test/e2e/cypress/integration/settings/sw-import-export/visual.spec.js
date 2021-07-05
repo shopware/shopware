@@ -60,7 +60,7 @@ describe('Import/Export:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.sortListingViaColumn('Name', 'Default category');
+        cy.sortAndCheckListingAscViaColumn('Name', 'Default category');
         cy.takeSnapshot('[Import export] Profiles overview',
             '.sw-import-export-view-profiles__listing');
     });

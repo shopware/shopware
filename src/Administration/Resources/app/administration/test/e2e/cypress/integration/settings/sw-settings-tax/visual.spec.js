@@ -35,7 +35,7 @@ describe('Tax: Visual testing', () => {
         cy.get('.sw-page__main-content').should('be.visible');
 
         cy.get('.sw-loader').should('not.exist');
-        cy.sortListingViaColumn('Name', 'Reduced rate');
+        cy.sortAndCheckListingAscViaColumn('Name', 'Reduced rate');
         cy.takeSnapshot('[Tax] Listing', '.sw-settings-tax-list-grid');
 
         cy.contains('.sw-data-grid__cell--name', 'Reduced rate').should('be.visible');

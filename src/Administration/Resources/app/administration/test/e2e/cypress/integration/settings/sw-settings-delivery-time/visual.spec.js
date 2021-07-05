@@ -29,7 +29,7 @@ describe('Delivery times: Visual testing', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.sortListingViaColumn('Name', '1-2 weeks');
+        cy.sortAndCheckListingAscViaColumn('Name', '1-2 weeks');
         cy.takeSnapshot('[Delivery times] Listing', '.sw-settings-delivery-time-list-grid');
         cy.contains('.sw-data-grid__cell--name a', '1-3 days').click();
         cy.get('.sw-loader').should('not.exist');

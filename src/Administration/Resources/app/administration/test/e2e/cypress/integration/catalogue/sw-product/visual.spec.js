@@ -4,8 +4,7 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
 describe('Product: Visual tests', () => {
-    // eslint-disable-next-line no-undef
-    before(() => {
+    beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
                 return cy.createProductFixture();
@@ -17,15 +16,12 @@ describe('Product: Visual tests', () => {
                 return cy.createPropertyFixture({
                     options: [{
                         name: 'Red'
-                    }, {
-                        name: 'Green'
                     }]
                 });
-            });
-    });
-
-    beforeEach(() => {
-        cy.loginViaApi()
+            })
+            .then(() => {
+                cy.loginViaApi();
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             });
@@ -179,13 +175,12 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation');
 
         // Create and verify one-dimensional variant
-        page.generateVariants('Color', [0, 1], 2);
+        page.generateVariants('Color', [0], 1);
 
         // Take snapshot for visual testing
         cy.get('.sw-modal').should('not.exist');
         cy.get('.sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-product-variants-media-upload').should('be.visible');
-        cy.sortListingViaColumn('Name', 'Green', '.sw-data-grid__cell--name');
         cy.takeSnapshot('[Product] Variants in admin', '.sw-product-variants-overview');
 
         // Verify in storefront

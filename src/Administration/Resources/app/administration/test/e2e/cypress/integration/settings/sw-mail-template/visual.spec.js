@@ -37,7 +37,7 @@ describe('Mail templates: Check module navigation in settings', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.sortListingViaColumn('Type', 'Contact form');
+        cy.sortAndCheckListingAscViaColumn('Type', 'Contact form');
 
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

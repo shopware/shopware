@@ -133,7 +133,7 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.sortListingViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName');
+        cy.sortAndCheckListingAscViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName');
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('[Customer] Detail, address listing', '.sw-customer-detail-addresses');
 

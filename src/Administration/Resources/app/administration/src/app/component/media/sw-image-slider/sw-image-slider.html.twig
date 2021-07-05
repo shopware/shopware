@@ -34,8 +34,8 @@
                     @click="onSetCurrentItem(index)"
                 >
 
-                {% block sw_image_slider_image %}
-                        <img
+                    {% block sw_image_slider_image %}
+                    <img
                         class="sw-image-slider__element-image"
                         :class="imageClasses(index)"
                         :style="[borderStyles(image), imageStyles]"
@@ -43,7 +43,7 @@
                         :alt="imageAlt(index)"
                     >
                 {% endblock %}
-                    </div>
+                </div>
                 {% endblock %}
 
                 {% block sw_image_slider_element_description %}

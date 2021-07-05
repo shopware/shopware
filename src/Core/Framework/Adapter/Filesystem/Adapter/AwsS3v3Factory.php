@@ -15,7 +15,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
 
         $client = new S3Client($options);
 
-        return new AwsS3Adapter($client, $options['bucket'], $options['root'], $options['options']);
+        return new AwsS3Adapter($client, $options['bucket'], $options['root'], $options['options'], false);
     }
 
     public function getType(): string

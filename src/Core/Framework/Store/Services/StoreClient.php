@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
+use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
@@ -37,10 +39,13 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class StoreClient
 {
     private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
-    private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
-    private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
 
-    private Client $client;
+    protected Client $client;
+
+    /**
+     * @var array<string, string>
+     */
+    protected array $endpoints;
 
     private EntityRepositoryInterface $pluginRepo;
 
@@ -48,28 +53,38 @@ class StoreClient
 
     private StoreService $storeService;
 
-    private ?AbstractAuthenticationProvider $authenticationProvider;
+    /**
+     * @var AbstractAuthenticationProvider|AbstractStoreRequestOptionsProvider|null
+     */
+    private $optionsProvider;
 
     private ?ExtensionLoader $extensionLoader;
 
-    private array $endpoints;
+    private ?InstanceService $instanceService;
 
-    final public function __construct(
+    /**
+     * @param AbstractAuthenticationProvider|AbstractStoreRequestOptionsProvider|null $optionsProvider
+     *
+     * @deprecated tag:v6.5.0 - Parameter $optionsProvider will only accept a AbstractStoreRequestOptionsProvider object in future versions.
+     */
+    public function __construct(
         array $endpoints,
         StoreService $storeService,
         EntityRepositoryInterface $pluginRepo,
         SystemConfigService $configService,
-        ?AbstractAuthenticationProvider $authenticationProvider,
+        $optionsProvider,
         ?ExtensionLoader $extensionLoader,
-        Client $client
+        Client $client,
+        ?InstanceService $instanceService = null
     ) {
         $this->endpoints = $endpoints;
         $this->storeService = $storeService;
         $this->configService = $configService;
         $this->pluginRepo = $pluginRepo;
-        $this->authenticationProvider = $authenticationProvider;
+        $this->optionsProvider = $optionsProvider;
         $this->extensionLoader = $extensionLoader;
         $this->client = $client;
+        $this->instanceService = $instanceService;
     }
 
     public function ping(): void
@@ -77,25 +92,27 @@ class StoreClient
         $this->client->get($this->endpoints['ping']);
     }
 
-    public function loginWithShopwareId(string $shopwareId, string $password, string $language, Context $context): AccessTokenStruct
+    public function loginWithShopwareId(string $shopwareId, string $password, Context $context): void
     {
         if (!$context->getSource() instanceof AdminApiSource) {
             throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
+        $userId = $context->getSource()->getUserId();
+
         $response = $this->client->post(
             $this->endpoints['login'],
             [
-                'body' => json_encode([
+                'query' => $this->getQueries($context),
+                'json' => [
                     'shopwareId' => $shopwareId,
                     'password' => $password,
-                    'shopwareUserId' => $context->getSource()->getUserId(),
-                ]),
-                'query' => $this->storeService->getDefaultQueryParameters($language),
+                    'shopwareUserId' => $userId,
+                ],
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $userToken = new ShopUserTokenStruct();
         $userToken->assign($data['shopUserToken']);
@@ -104,23 +121,26 @@ class StoreClient
         $accessTokenStruct->assign($data);
         $accessTokenStruct->setShopUserToken($userToken);
 
-        return $accessTokenStruct;
+        $this->storeService->updateStoreToken($context, $accessTokenStruct);
+
+        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
+        $this->configService->set('core.store.shopwareId', $shopwareId);
     }
 
     /**
      * @return StoreLicenseStruct[]
      */
-    public function getLicenseList(string $storeToken, string $language, Context $context): array
+    public function getLicenseList(Context $context): array
     {
         $response = $this->client->get(
             $this->endpoints['my_plugin_licenses'],
             [
-                'query' => $this->storeService->getDefaultQueryParameters($language),
-                'headers' => $this->getHeaders($storeToken),
+                'query' => $this->getQueries($context),
+                'headers' => $this->getHeaders($context),
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $licenseList = [];
         $installedPlugins = [];
@@ -168,57 +188,26 @@ class StoreClient
      */
     public function getExtensionUpdateList(ExtensionCollection $extensionCollection, Context $context): array
     {
-        if ($this->authenticationProvider === null) {
+        if ($this->optionsProvider === null) {
             throw new \RuntimeException('App Store is not active');
         }
 
-        $list = [];
+        $extensionList = [];
 
         foreach ($extensionCollection as $extension) {
-            $list[] = [
+            $extensionList[] = [
                 'name' => $extension->getName(),
                 'version' => $extension->getVersion(),
             ];
         }
 
-        $query = $this->storeService->getDefaultQueryParameters('en-GB', false);
-
-        $token = null;
-
-        try {
-            $token = $this->authenticationProvider->getUserStoreToken($context);
-        } catch (StoreTokenMissingException $e) {
-        }
-
-        $response = $this->client->post(
-            $this->endpoints['my_plugin_updates'],
-            [
-                'query' => $query,
-                'body' => json_encode(['plugins' => $list]),
-                'headers' => $this->getHeaders($token),
-            ]
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true);
-
-        if (!\array_key_exists('data', $data)) {
-            return [];
-        }
-
-        $updateList = [];
-        foreach ($data['data'] as $update) {
-            $updateStruct = new StoreUpdateStruct();
-            $updateStruct->assign($update);
-            $updateList[] = $updateStruct;
-        }
-
-        return $updateList;
+        return $this->getUpdateListFromStore($extensionList, $context);
     }
 
     /**
      * @return StoreUpdateStruct[]
      */
-    public function getUpdatesList(?string $storeToken, PluginCollection $pluginCollection, string $language, string $hostName, Context $context): array
+    public function getUpdatesList(PluginCollection $pluginCollection, string $hostName, Context $context): array
     {
         $pluginArray = [];
 
@@ -229,34 +218,12 @@ class StoreClient
             ];
         }
 
-        $query = $this->storeService->getDefaultQueryParameters($language, false);
-        $query['hostName'] = $hostName;
-
-        $response = $this->client->post(
-            $this->endpoints['my_plugin_updates'],
-            [
-                'query' => $query,
-                'body' => json_encode(['plugins' => $pluginArray]),
-                'headers' => $this->getHeaders($storeToken),
-            ]
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true);
-
-        $updateList = [];
-        foreach ($data['data'] as $update) {
-            $updateStruct = new StoreUpdateStruct();
-            $updateStruct->assign($update);
-            $updateList[] = $updateStruct;
-        }
-
-        return $updateList;
+        return $this->getUpdateListFromStore($pluginArray, $context, $hostName);
     }
 
     public function checkForViolations(
-        ?string $storeToken,
+        Context $context,
         Collection $extensions,
-        string $language,
         string $hostName
     ): void {
         $indexedExtensions = [];
@@ -266,7 +233,7 @@ class StoreClient
             $indexedExtensions[$extension->getName()] = $extension->getVersion();
         }
 
-        $violations = $this->getLicenseViolations($storeToken, $indexedExtensions, $language, $hostName);
+        $violations = $this->getLicenseViolations($context, $indexedExtensions, $hostName);
         $indexed = [];
         /** @var StoreLicenseViolationStruct $violation */
         foreach ($violations as $violation) {
@@ -281,9 +248,8 @@ class StoreClient
     }
 
     public function getLicenseViolations(
-        ?string $storeToken,
+        Context $context,
         array $extensions,
-        string $language,
         string $hostName
     ): array {
         $pluginData = [];
@@ -295,41 +261,41 @@ class StoreClient
             ];
         }
 
-        $query = $this->storeService->getDefaultQueryParameters($language, false);
+        $query = $this->getQueries($context);
         $query['hostName'] = $hostName;
 
         $response = $this->client->post(
             $this->endpoints['environment_information'],
             [
                 'query' => $query,
-                'body' => json_encode(['plugins' => $pluginData]),
-                'headers' => $this->getHeaders($storeToken),
+                'headers' => $this->getHeaders($context),
+                'json' => ['plugins' => $pluginData],
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         return $this->getViolations($data['notices']);
     }
 
-    public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, bool $checkLicenseDomain = true): PluginDownloadDataStruct
+    public function getDownloadDataForPlugin(string $pluginName, Context $context): PluginDownloadDataStruct
     {
         $response = $this->client->get(
             str_replace('{pluginName}', $pluginName, $this->endpoints['plugin_download']),
             [
-                'query' => $this->storeService->getDefaultQueryParameters($language, $checkLicenseDomain),
-                'headers' => $this->getHeaders($storeToken),
+                'query' => $this->getQueries($context),
+                'headers' => $this->getHeaders($context),
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
         $dataStruct = new PluginDownloadDataStruct();
         $dataStruct->assign($data);
 
         return $dataStruct;
     }
 
-    public function getPluginCompatibilities(string $futureVersion, string $language, PluginCollection $pluginCollection): array
+    public function getPluginCompatibilities(Context $context, string $futureVersion, PluginCollection $pluginCollection): array
     {
         $pluginArray = [];
 
@@ -343,8 +309,8 @@ class StoreClient
         $response = $this->client->post(
             $this->endpoints['updater_extension_compatibility'],
             [
-                'query' => $this->storeService->getDefaultQueryParameters($language, false),
-                'headers' => $this->getHeaders(),
+                'query' => $this->getQueries($context),
+                'headers' => $this->getHeaders($context),
                 'json' => [
                     'futureShopwareVersion' => $futureVersion,
                     'plugins' => $pluginArray,
@@ -352,10 +318,10 @@ class StoreClient
             ]
         );
 
-        return json_decode((string) $response->getBody(), true);
+        return json_decode($response->getBody()->getContents(), true);
     }
 
-    public function getExtensionCompatibilities(string $futureVersion, string $language, ExtensionCollection $extensionCollection): array
+    public function getExtensionCompatibilities(Context $context, string $futureVersion, ExtensionCollection $extensionCollection): array
     {
         $pluginArray = [];
 
@@ -369,8 +335,8 @@ class StoreClient
         $response = $this->client->post(
             $this->endpoints['updater_extension_compatibility'],
             [
-                'query' => $this->storeService->getDefaultQueryParameters($language, false),
-                'headers' => $this->getHeaders(),
+                'query' => $this->getQueries($context),
+                'headers' => $this->getHeaders($context),
                 'json' => [
                     'futureShopwareVersion' => $futureVersion,
                     'plugins' => $pluginArray,
@@ -378,58 +344,58 @@ class StoreClient
             ]
         );
 
-        return json_decode((string) $response->getBody(), true);
+        return \json_decode($response->getBody()->getContents(), true);
     }
 
     public function isShopUpgradeable(): bool
     {
         $response = $this->client->get($this->endpoints['updater_permission'], [
-            'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
-            'headers' => $this->getHeaders(),
+            'query' => [
+                'language' => 'en_GB',
+                'shopwareVersion' => $this->getShopwareVersion(),
+            ],
         ]);
 
-        return json_decode((string) $response->getBody(), true)['updateAllowed'];
+        return \json_decode($response->getBody()->getContents(), true)['updateAllowed'];
     }
 
     public function signPayloadWithAppSecret(string $payload, string $appName): string
     {
+        // use system context here because in cli we do not have a context
+        $context = Context::createDefaultContext();
+
         $response = $this->client->post($this->endpoints['app_generate_signature'], [
-            'query' => $this->storeService->getDefaultQueryParameters('en-GB'),
-            'headers' => $this->getHeaders(),
+            'query' => $this->getQueries($context),
+            'headers' => $this->getHeaders($context),
             'json' => [
                 'payload' => $payload,
                 'appName' => $appName,
             ],
         ]);
 
-        return json_decode((string) $response->getBody(), true)['signature'];
+        return \json_decode((string) $response->getBody(), true)['signature'];
     }
 
     public function listMyExtensions(ExtensionCollection $extensions, Context $context): ExtensionCollection
     {
-        if ($this->authenticationProvider === null || $this->extensionLoader === null) {
+        if ($this->optionsProvider === null || $this->extensionLoader === null) {
             throw new \RuntimeException('App Store is not active');
         }
 
-        $language = $this->storeService->getLanguageByContext($context);
-        $storeToken = $this->authenticationProvider->getUserStoreToken($context);
-
         try {
-            $response = $this->client->post($this->endpoints['my_extensions'], [
-                'query' => $this->storeService->getDefaultQueryParameters($language, false),
-                'headers' => $this->getHeaders($storeToken),
-                'json' => ['plugins' => array_map(function (ExtensionStruct $e) {
-                    return [
-                        'name' => $e->getName(),
-                        'version' => $e->getVersion(),
-                    ];
-                }, $extensions->getElements())],
-            ]);
+            $payload = ['plugins' => array_map(function (ExtensionStruct $e) {
+                return [
+                    'name' => $e->getName(),
+                    'version' => $e->getVersion(),
+                ];
+            }, $extensions->getElements())];
+
+            $response = $this->fetchLicenses($payload, $context);
         } catch (ClientException $e) {
             throw new StoreApiException($e);
         }
 
-        $body = json_decode((string) $response->getBody(), true);
+        $body = \json_decode($response->getBody()->getContents(), true);
 
         $myExtensions = new ExtensionCollection();
 
@@ -454,18 +420,18 @@ class StoreClient
 
     public function cancelSubscription(int $licenseId, Context $context): void
     {
-        if ($this->authenticationProvider === null) {
+        if ($this->optionsProvider === null) {
             throw new \RuntimeException('App Store is not active');
         }
 
         try {
             $this->client->post(sprintf($this->endpoints['cancel_license'], $licenseId), [
-                'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
-                'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
+                'query' => $this->getQueries($context),
+                'headers' => $this->getHeaders($context),
             ]);
         } catch (ClientException $e) {
             if ($e->hasResponse() && $e->getResponse() !== null) {
-                $error = json_decode((string) $e->getResponse()->getBody(), true);
+                $error = \json_decode((string) $e->getResponse()->getBody(), true);
 
                 // It's okay when its already canceled
                 if (isset($error['type']) && $error['type'] === 'EXTENSION_LICENSE_IS_ALREADY_CANCELLED') {
@@ -479,7 +445,7 @@ class StoreClient
 
     public function createRating(ReviewStruct $rating, Context $context): void
     {
-        if ($this->authenticationProvider === null) {
+        if ($this->optionsProvider === null) {
             throw new \RuntimeException('App Store is not active');
         }
 
@@ -487,8 +453,8 @@ class StoreClient
             $this->client->post(
                 sprintf($this->endpoints['create_rating'], $rating->getExtensionId()),
                 [
-                    'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
-                    'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
+                    'query' => $this->getQueries($context),
+                    'headers' => $this->getHeaders($context),
                     'json' => $rating,
                 ]
             );
@@ -499,7 +465,7 @@ class StoreClient
 
     public function getLicenses(Context $context): array
     {
-        if ($this->authenticationProvider === null) {
+        if ($this->optionsProvider === null) {
             throw new \RuntimeException('App Store is not active');
         }
 
@@ -507,8 +473,8 @@ class StoreClient
             $response = $this->client->get(
                 $this->endpoints['my_licenses'],
                 [
-                    'query' => $this->storeService->getDefaultQueryParameters('en-GB'),
-                    'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
+                    'query' => $this->getHeaders($context),
+                    'headers' => $this->getHeaders($context),
                 ]
             );
         } catch (ClientException $e) {
@@ -521,6 +487,48 @@ class StoreClient
             'headers' => $response->getHeaders(),
             'data' => $body,
         ];
+    }
+
+    protected function fetchLicenses(array $payload, Context $context): ResponseInterface
+    {
+        return $this->client->post($this->endpoints['my_extensions'], [
+            'query' => $this->getQueries($context),
+            'headers' => $this->getHeaders($context),
+            'json' => $payload,
+        ]);
+    }
+
+    protected function getHeaders(Context $context): array
+    {
+        if ($this->optionsProvider === null) {
+            throw new \RuntimeException('App Store is not active');
+        }
+
+        return $this->optionsProvider->getAuthenticationHeader($context);
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 when AbstractStoreRequestDataProvider is required
+     */
+    protected function getQueries(Context $context): array
+    {
+        if ($this->optionsProvider instanceof AbstractStoreRequestOptionsProvider) {
+            return $this->optionsProvider->getDefaultQueryParameters($context);
+        }
+
+        return $this->storeService->getDefaultQueryParametersFromContext($context);
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 when AbstractStoreRequestDataProvider is required
+     */
+    protected function getShopwareVersion(): string
+    {
+        if ($this->instanceService !== null) {
+            return $this->instanceService->getShopwareVersion();
+        }
+
+        return $this->storeService->getShopwareVersion();
     }
 
     /**
@@ -555,19 +563,45 @@ class StoreClient
         return $actions;
     }
 
-    private function getHeaders(?string $storeToken = null): array
+    /**
+     * @return StoreUpdateStruct[]
+     */
+    private function getUpdateListFromStore(array $extensionList, Context $context, ?string $hostName = null): array
     {
-        $headers = $this->client->getConfig('headers');
+        $query = $this->getQueries($context);
 
-        if ($storeToken) {
-            $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;
+        if ($hostName) {
+            $query['hostName'] = $hostName;
         }
 
-        $shopSecret = $this->configService->get('core.store.shopSecret');
-        if ($shopSecret) {
-            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
+        try {
+            $headers = $this->getHeaders($context);
+        } catch (StoreTokenMissingException $e) {
+            $headers = [];
         }
 
-        return $headers;
+        $response = $this->client->post(
+            $this->endpoints['my_plugin_updates'],
+            [
+                'query' => $query,
+                'headers' => $headers,
+                'json' => ['plugins' => $extensionList],
+            ]
+        );
+
+        $data = \json_decode($response->getBody()->getContents(), true);
+
+        if (!\array_key_exists('data', $data) || !\is_array($data['data'])) {
+            return [];
+        }
+
+        $updateList = [];
+        foreach ($data['data'] as $update) {
+            $updateStruct = new StoreUpdateStruct();
+            $updateStruct->assign($update);
+            $updateList[] = $updateStruct;
+        }
+
+        return $updateList;
     }
 }

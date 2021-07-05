@@ -1,0 +1,16 @@
+[
+    {
+        "name": "dach",
+        "label": "Germany \/ Austria \/ Switzerland",
+        "categories": [
+            {
+                "name": "payment",
+                "label": "Payment"
+            },
+            {
+                "name": "shipping",
+                "label": "Shipping \u0026 Fulfillment"
+            }
+        ]
+    }
+]

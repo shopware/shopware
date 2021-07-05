@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Struct\Version;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class PluginCompatibility
 {
@@ -28,50 +27,29 @@ class PluginCompatibility
     public const PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE = 'notCompatible';
     public const PLUGIN_DEACTIVATION_FILTER_NONE = '';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepository;
+    private EntityRepositoryInterface $pluginRepository;
 
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
+    private StoreClient $storeClient;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
-     * @var AbstractExtensionDataProvider|null
-     */
-    private $extensionDataProvider;
+    private ?AbstractExtensionDataProvider $extensionDataProvider;
 
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepository,
-        RequestStack $requestStack,
         ?AbstractExtensionDataProvider $extensionDataProvider
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepository = $pluginRepository;
-        $this->requestStack = $requestStack;
         $this->extensionDataProvider = $extensionDataProvider;
     }
 
     public function getPluginCompatibilities(Version $update, Context $context, ?PluginCollection $plugins = null): array
     {
-        $currentLanguage = 'en-GB';
-
-        if ($request = $this->requestStack->getCurrentRequest()) {
-            $currentLanguage = $request->query->get('language', 'en-GB');
-        }
-
         if ($plugins === null) {
             $plugins = $this->fetchActivePlugins($context);
         }
-        $storeInfo = $this->storeClient->getPluginCompatibilities($update->version, $currentLanguage, $plugins);
+
+        $storeInfo = $this->storeClient->getPluginCompatibilities($context, $update->version, $plugins);
         $storeInfoValues = array_column($storeInfo, 'name');
         $me = $this;
 
@@ -105,16 +83,11 @@ class PluginCompatibility
 
     public function getExtensionCompatibilities(Version $update, Context $context, ?ExtensionCollection $extensions = null): array
     {
-        $currentLanguage = 'en-GB';
-        if ($request = $this->requestStack->getCurrentRequest()) {
-            $currentLanguage = $request->query->get('language', 'en-GB');
-        }
-
         if ($extensions === null) {
             $extensions = $this->fetchActiveExtensions($context);
         }
 
-        $storeInfo = $this->storeClient->getExtensionCompatibilities($update->version, $currentLanguage, $extensions);
+        $storeInfo = $this->storeClient->getExtensionCompatibilities($context, $update->version, $extensions);
         $storeInfoValues = array_column($storeInfo, 'name');
         $me = $this;
 

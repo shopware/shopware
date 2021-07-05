@@ -5,7 +5,11 @@ namespace Shopware\Core\Framework\Test\Store;
 use GuzzleHttp\Handler\MockHandler;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Kernel;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 trait StoreClientBehaviour
 {
@@ -23,7 +27,7 @@ trait StoreClientBehaviour
         $this->getRequestHandler()->reset();
     }
 
-    private function createAdminStoreContext(): Context
+    protected function createAdminStoreContext(): Context
     {
         $userId = Uuid::randomHex();
         $storeToken = Uuid::randomHex();
@@ -41,8 +45,49 @@ trait StoreClientBehaviour
             ],
         ];
 
-        $this->getContainer()->get('user.repository')->create($data, Context::createDefaultContext());
+        $this->getUserRepository()->create($data, Context::createDefaultContext());
 
         return Context::createDefaultContext(new AdminApiSource($userId));
+    }
+
+    protected function getStoreTokenFromContext(Context $context): string
+    {
+        /** @var AdminApiSource $source */
+        $source = $context->getSource();
+
+        return $this->getUserRepository()->search(new Criteria([$source->getUserId()]), $context)
+            ->first()->getStoreToken();
+    }
+
+    protected function setLicenseDomain(?string $licenseDomain): void
+    {
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfigService->set(
+            'core.store.licenseHost',
+            $licenseDomain
+        );
+    }
+
+    protected function setShopSecret(string $shopSecret): void
+    {
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfigService->set(
+            'core.store.shopSecret',
+            $shopSecret
+        );
+    }
+
+    protected function getShopwareVersion(): string
+    {
+        $version = $this->getContainer()->getParameter('kernel.shopware_version');
+
+        return $version === Kernel::SHOPWARE_FALLBACK_VERSION ? '___VERSION___' : $version;
+    }
+
+    protected function getUserRepository(): EntityRepositoryInterface
+    {
+        return $this->getContainer()->get('user.repository');
     }
 }

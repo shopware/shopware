@@ -2796,11 +2796,6 @@ parameters:
 			path: src/Core/Framework/ShopwareHttpException.php
 
 		-
-			message: "#^Parameter \\#4 \\$userId of method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\FirstRunWizardClient\\:\\:frwLogin\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Api/FirstRunWizardController.php
-
-		-
 			message: "#^Cannot call method format\\(\\) on DateTimeImmutable\\|null\\.$#"
 			count: 2
 			path: src/Core/Framework/Store/Services/FirstRunWizardClient.php

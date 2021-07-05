@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,7 +14,7 @@ use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,24 +23,18 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  * @RouteScope(scopes={"api"})
  */
-class FirstRunWizardController extends AbstractStoreController
+class FirstRunWizardController extends AbstractController
 {
     private FirstRunWizardClient $frwClient;
 
     private EntityRepositoryInterface $pluginRepo;
 
-    private SystemConfigService $configService;
-
     public function __construct(
         FirstRunWizardClient $frwClient,
-        EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $userRepository,
-        SystemConfigService $configService
+        EntityRepositoryInterface $pluginRepo
     ) {
         $this->frwClient = $frwClient;
         $this->pluginRepo = $pluginRepo;
-        parent::__construct($userRepository);
-        $this->configService = $configService;
     }
 
     /**
@@ -158,27 +151,17 @@ class FirstRunWizardController extends AbstractStoreController
     {
         $shopwareId = $requestDataBag->get('shopwareId');
         $password = $requestDataBag->get('password');
-        $language = $requestDataBag->get('language') ?? $queryDataBag->get('language', '');
+        $language = $requestDataBag->get('language') ?? $queryDataBag->get('language', 'en-GB');
 
         if ($shopwareId === null || $password === null) {
             throw new StoreInvalidCredentialsException();
         }
 
-        $contextSource = $this->ensureAdminApiSource($context);
-
         try {
-            $accessTokenStruct = $this->frwClient->frwLogin($shopwareId, $password, $language, $contextSource->getUserId());
+            $this->frwClient->frwLogin($shopwareId, $password, $language, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
-
-        $this->configService->set('core.store.shopwareId', $shopwareId);
-
-        $newStoreToken = $accessTokenStruct->getShopUserToken()->getToken();
-
-        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($newStoreToken): void {
-            $this->userRepository->update([['id' => $context->getSource()->getUserId(), 'storeToken' => $newStoreToken]], $context);
-        });
 
         return new JsonResponse();
     }
@@ -190,10 +173,9 @@ class FirstRunWizardController extends AbstractStoreController
     public function getDomainList(QueryDataBag $params, Context $context): JsonResponse
     {
         $language = $params->get('language', '');
-        $storeToken = $this->getUserStoreToken($context);
 
         try {
-            $domains = $this->frwClient->getLicenseDomains($language, $storeToken);
+            $domains = $this->frwClient->getLicenseDomains($language, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -210,13 +192,12 @@ class FirstRunWizardController extends AbstractStoreController
      */
     public function verifyDomain(QueryDataBag $params, Context $context): JsonResponse
     {
-        $storeToken = $this->getUserStoreToken($context);
         $domain = $params->get('domain') ?? '';
         $language = $params->get('language') ?? '';
         $testEnvironment = $params->getBoolean('testEnvironment');
 
         try {
-            $domainStruct = $this->frwClient->verifyLicenseDomain($domain, $language, $storeToken, $testEnvironment);
+            $domainStruct = $this->frwClient->verifyLicenseDomain($domain, $language, $context, $testEnvironment);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -234,27 +215,9 @@ class FirstRunWizardController extends AbstractStoreController
         $failed = $params->getBoolean('failed');
         $this->frwClient->finishFrw($failed, $context);
 
-        $source = $context->getSource();
-        if (!$source instanceof AdminApiSource || $source->getUserId() === null) {
-            throw new \RuntimeException('First run wizard requires a logged in user');
-        }
-
-        $userId = $source->getUserId();
-
-        $accessToken = null;
-
         try {
-            $storeToken = $this->getUserStoreToken($context);
-            $accessToken = $this->frwClient->upgradeAccessToken($storeToken, $language, $userId);
+            $this->frwClient->upgradeAccessToken($language, $context);
         } catch (\Exception $e) {
-        }
-
-        if ($accessToken !== null) {
-            $newStoreToken = $accessToken->getShopUserToken()->getToken();
-
-            $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $newStoreToken): void {
-                $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
-            });
         }
 
         return new JsonResponse();

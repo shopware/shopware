@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use GuzzleHttp\Client;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
-use Shopware\Core\Kernel;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
+use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\System\User\UserEntity;
 
 /**
@@ -20,78 +18,41 @@ class StoreService
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
     public const CONFIG_KEY_STORE_LICENSE_EDITION = 'core.store.licenseEdition';
 
-    private SystemConfigService $configService;
-
-    private string $shopwareVersion;
-
-    private ?string $instanceId;
-
-    private Client $client;
-
     private EntityRepositoryInterface $userRepository;
 
+    private InstanceService $instanceService;
+
+    private AbstractStoreRequestOptionsProvider $requestOptionsProvider;
+
     final public function __construct(
-        SystemConfigService $configService,
-        string $shopwareVersion,
-        ?string $instanceId,
-        Client $client,
-        EntityRepositoryInterface $userRepository
+        EntityRepositoryInterface $userRepository,
+        InstanceService $instanceService,
+        AbstractStoreRequestOptionsProvider $requestOptionsProvider
     ) {
-        $this->configService = $configService;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->instanceId = $instanceId;
-        $this->client = $client;
         $this->userRepository = $userRepository;
+        $this->instanceService = $instanceService;
+        $this->requestOptionsProvider = $requestOptionsProvider;
     }
 
     /**
-     * @throws StoreLicenseDomainMissingException
+     * @deprecated tag:v6.5.0 Will be removed. Use getDefaultQueryParametersFromContext instead
      */
     public function getDefaultQueryParameters(string $language, bool $checkLicenseDomain = true): array
     {
-        $licenseDomain = $this->configService->get(self::CONFIG_KEY_STORE_LICENSE_DOMAIN);
-
-        if ($checkLicenseDomain && !$licenseDomain) {
-            throw new StoreLicenseDomainMissingException();
-        }
-
-        return [
-            'shopwareVersion' => $this->getShopwareVersion(),
-            'language' => $language,
-            'domain' => $licenseDomain ?? '',
-        ];
+        return $this->requestOptionsProvider->getDefaultQueryParameters(null, $language);
     }
 
+    public function getDefaultQueryParametersFromContext(Context $context): array
+    {
+        return $this->requestOptionsProvider->getDefaultQueryParameters($context);
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 Use InstanceService::getShopwareVersion instead
+     */
     public function getShopwareVersion(): string
     {
-        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
-            return '___VERSION___';
-        }
-
-        return $this->shopwareVersion;
-    }
-
-    public function fireTrackingEvent(string $eventName, array $additionalData = []): ?array
-    {
-        if (!$this->instanceId) {
-            return null;
-        }
-
-        $additionalData['shopwareVersion'] = $this->getShopwareVersion();
-        $payload = [
-            'additionalData' => $additionalData,
-            'instanceId' => $this->instanceId,
-            'event' => $eventName,
-        ];
-
-        try {
-            $response = $this->client->post('/swplatform/tracking/events', ['json' => $payload]);
-
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (\Exception $e) {
-        }
-
-        return null;
+        return $this->instanceService->getShopwareVersion();
     }
 
     public function getLanguageByContext(Context $context): string
@@ -118,5 +79,18 @@ class StoreService
         }
 
         return $user->getLocale()->getCode();
+    }
+
+    public function updateStoreToken(Context $context, AccessTokenStruct $accessToken): void
+    {
+        /** @var AdminApiSource $contextSource */
+        $contextSource = $context->getSource();
+        $userId = $contextSource->getUserId();
+
+        $storeToken = $accessToken->getShopUserToken()->getToken();
+
+        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $storeToken): void {
+            $this->userRepository->update([['id' => $userId, 'storeToken' => $storeToken]], $context);
+        });
     }
 }

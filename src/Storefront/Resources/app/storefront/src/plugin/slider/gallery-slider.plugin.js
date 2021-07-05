@@ -257,6 +257,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               });
           } else {
               navContainer.style.display = 'none';
+              this.el.classList.remove(this.options.loadingCls);
           }
       }
 

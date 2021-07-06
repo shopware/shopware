@@ -5,8 +5,10 @@
  * used in cases of replacing items rather than uploading them.
  * @example-type code-only
  * @component-example
- * <sw-media-replace itemToReplace="mediaItem" variant="regular">
- * </sw-media-replace>
+ * <sw-media-replace
+ *      :item-to-replace="mediaItem"
+ *      variant="regular"
+ * ></sw-media-replace>
  */
 Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', {
     props: {

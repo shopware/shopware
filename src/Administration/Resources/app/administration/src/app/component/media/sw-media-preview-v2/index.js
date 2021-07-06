@@ -9,7 +9,11 @@ const { fileReader } = Shopware.Utils;
  * @description The <u>sw-media-preview-v2</u> component is used to show a preview of media objects.
  * @example-type code-only
  * @component-example
- * <sw-media-preview-v2 :item="item" :showControls="true" :autoplay="false" :useThumbnails="false">
+ * <sw-media-preview-v2
+ *      :source="item.id"
+ *      :show-controls="true"
+ *      :autoplay="false"
+ *      :use-thumbnails="false">
  * </sw-media-preview-v2>
  */
 Component.register('sw-media-preview-v2', {

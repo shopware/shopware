@@ -7,8 +7,8 @@ import './sw-media-base-item.scss';
  * @example-type code-only
  * @component-example
  * <sw-media-base-item
- *     isList="true"
- *     :isLoading="item.isLoading">
+ *     :item="myItem"
+ *     :is-list="true">
  * </sw-media-base-item>
  */
 Shopware.Component.register('sw-media-base-item', {

@@ -14,12 +14,11 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
  * @example-type code-only
  * @component-example
  * <sw-media-upload-v2
- *     uploadTag="my-upload-tag"
+ *     upload-tag="my-upload-tag"
  *     variant="regular"
- *     :allowMultiSelect="false"
- *     :autoUpload="true"
- *     label="My image-upload">
- * </sw-media-upload-v2>
+ *     :allow-multi-select="false"
+ *     label="My image-upload"
+ * ></sw-media-upload-v2>
  */
 Component.register('sw-media-upload-v2', {
     template,

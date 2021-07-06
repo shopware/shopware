@@ -8,8 +8,7 @@ const { Component, Mixin, Context } = Shopware;
  * @description The <u>sw-media-modal-move</u> component is used to validate the move action.
  * @example-type code-only
  * @component-example
- * <sw-media-modal-move itemsToDelete="[items]">
- * </sw-media-modal-move>
+ * <sw-media-modal-move :items-to-move="[items]"></sw-media-modal-move>
  */
 Component.register('sw-media-modal-move', {
     template,

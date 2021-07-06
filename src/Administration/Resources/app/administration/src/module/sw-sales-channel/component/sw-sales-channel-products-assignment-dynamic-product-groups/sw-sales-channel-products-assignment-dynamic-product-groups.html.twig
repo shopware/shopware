@@ -5,7 +5,7 @@
 >
     {% block sw_sales_channel_products_assignment_dynamic_product_groups_info_text %}
     <sw-alert variant="info">
-        {{ $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.infoText') }}
+        {{ $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.infoText') }}
     </sw-alert>
     {% endblock %}
 
@@ -24,7 +24,7 @@
                         v-model="term"
                         variant="form"
                         size="small"
-                        :placeholder="$tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.searchFieldPlaceholder')"
+                        :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.searchFieldPlaceholder')"
                         @search-term-change="onSearch"
                     />
                     {% endblock %}
@@ -88,8 +88,8 @@
                     :absolute="false"
                     :show-description="false"
                     :title="productStreams.length <= 0 && term
-                        ? $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
-                        : $tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
+                        ? $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
+                        : $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
                     "
                 >
                     <template #icon>

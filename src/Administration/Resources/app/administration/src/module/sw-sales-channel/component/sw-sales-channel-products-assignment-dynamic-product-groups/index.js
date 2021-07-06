@@ -71,7 +71,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-sales-channel.detail.productAssigmentModal.dynamicProductGroups.columnName'),
+                    label: this.$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.columnName'),
                     sortable: false,
                 },
             ];

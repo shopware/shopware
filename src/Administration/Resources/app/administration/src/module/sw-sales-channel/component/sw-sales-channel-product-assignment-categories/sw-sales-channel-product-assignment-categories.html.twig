@@ -2,7 +2,7 @@
 <div class="sw-sales-channel-product-assignment-categories">
     {% block sw_sales_channel_product_assignment_categories_info %}
     <sw-alert>
-        {{ $tc('sw-sales-channel.detail.productAssigmentModal.categories.textInfo') }}
+        {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.textInfo') }}
     </sw-alert>
     {% endblock %}
 
@@ -16,7 +16,7 @@
                     v-model="searchTerm"
                     variant="form"
                     size="small"
-                    :placeholder="$tc('sw-sales-channel.detail.productAssigmentModal.categories.textSearch')"
+                    :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.categories.textSearch')"
                 />
                 {% endblock %}
             </sw-card-section>
@@ -149,7 +149,7 @@
                 v-else
                 class="sw-sales-channel-product-assignment-categories__empty-state"
             >
-                {{ $tc('sw-sales-channel.detail.productAssigmentModal.categories.emptySearchResults') }}
+                {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.emptySearchResults') }}
             </p>
             {% endblock %}
             {% endblock %}

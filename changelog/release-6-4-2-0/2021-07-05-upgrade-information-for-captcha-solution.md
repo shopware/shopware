@@ -4,9 +4,12 @@ issue: NEXT-8225
 ---
 # Storefront
 * Changed `component_captcha_base` block to define random formId and set captchas in `views/storefront/component/captcha/base.html.twig`
-## Upgrade to captcha v2
+
+# Upgrade Information
+
+## New Captcha Solution
 * We deprecated the system config `core.basicInformation.activeCaptchas` with only honeypot captcha and upgraded to system config `core.basicInformation.activeCaptchasV2` with honeypot, basic captcha, Google reCaptcha v2, Google reCaptcha v3
-## Setting captcha in administration basic information
+### Setting captcha in administration basic information
 * Honeypot captcha is activated by default
 * Select to active more basic captcha, Google reCaptcha
 * With Google reCaptcha v2 checkbox:
@@ -18,14 +21,14 @@ issue: NEXT-8225
 * With Google reCaptcha v3:
   Configure the correct site key and secret key for reCaptcha v3
   Configure `Google reCAPTCHA v3 threshold score`, default by 0.5
-## How to adapt the captcha solution upgrade?
+### How to adapt the captcha solution upgrade?
 * Add `Shopware\Storefront\Framework\Captcha\Annotation\Captcha` annotation to StorefrontController-Routes to apply captcha protection.
 * Due to captcha forms will be displayed when activated, be aware that the captcha input might break your layout
-### Before
+#### Before
 ```php
 {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { captchas: config('core.basicInformation.activeCaptchas') } %}
 ```
-### After
+#### After
 ```php
 {% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
     with {

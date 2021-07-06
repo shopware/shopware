@@ -111,6 +111,7 @@ describe(`Checkout as Guest`, () => {
             cy.get(accountPage.elements.registerCard).should('be.visible');
 
             const accountTypeSelector = 'select[name="accountType"]';
+            const shippingAccountTypeSelector = 'select[name="shippingAddress[accountType]"]';
             const billingAddressCompanySelector = 'input[name="billingAddress[company]"]';
             const billingAddressDepartmentSelector = 'input[name="billingAddress[department]"]';
             const shippingAddressCompanySelector = 'input[name="shippingAddress[company]"]';
@@ -129,7 +130,7 @@ describe(`Checkout as Guest`, () => {
 
             cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
             // check Company, Department, VatId fields not exists in register shipping address form
-            cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('not.be.visible');
+            cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('not.be.visible').should('not.have.attr', 'required');
             cy.get(`.register-shipping ${shippingAddressDepartmentSelector}`).should('not.be.visible');
             cy.get(`.register-shipping ${vatIdsSelector}`).should('not.be.visible');
 
@@ -154,6 +155,9 @@ describe(`Checkout as Guest`, () => {
             cy.get(billingAddressDepartmentSelector).should('be.visible');
             cy.get(billingAddressDepartmentSelector).type('Department Testing');
             cy.get(vatIdsSelector).type('vat-id-test');
+
+            cy.get(shippingAccountTypeSelector).typeAndSelect('Commercial');
+            cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('be.visible').should('have.attr', 'required');
 
             cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
             cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();

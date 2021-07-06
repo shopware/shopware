@@ -20,12 +20,12 @@ const { Component, Filter } = Shopware;
  *                 src: 'http://external.path/to/asset/test4.png',
  *             }
  *         ]"
- *         :canvasWidth="600"
- *         :canvasHeight="300"
+ *         :canvas-width="600"
+ *         :canvas-height="300"
  *         overflow="visible"
- *         navigationType="all"
- *         enableDescriptions>
- * </sw-image-slider>
+ *         navigation-type="all"
+ *         enable-descriptions
+ * ></sw-image-slider>
  */
 Component.register('sw-image-slider', {
     template,

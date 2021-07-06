@@ -210,16 +210,17 @@ Component.register('sw-seo-url', {
 
             if (!currentSeoUrl) {
                 const entity = this.seoUrlRepository.create();
-                const { foreignKey, routeName, pathInfo } = this.seoUrlCollection.find((item) => {
-                    return item.salesChannelId && item.salesChannelId === this.currentSalesChannelId;
+                // Fetch any seo url as template, since we need to know foreignKey, pathInfo and the routeName
+                const seoUrl = this.seoUrlCollection.find((item) => {
+                    return item.pathInfo && item.routeName && item.foreignKey;
                 }) || {};
 
-                entity.foreignKey = this.defaultSeoUrl?.foreignKey ?? foreignKey;
+                entity.foreignKey = this.defaultSeoUrl?.foreignKey ?? seoUrl.foreignKey;
                 entity.isCanonical = true;
                 entity.languageId = actualLanguageId;
                 entity.salesChannelId = this.currentSalesChannelId;
-                entity.routeName = this.defaultSeoUrl?.routeName ?? routeName;
-                entity.pathInfo = this.defaultSeoUrl?.pathInfo ?? pathInfo;
+                entity.routeName = this.defaultSeoUrl?.routeName ?? seoUrl.routeName;
+                entity.pathInfo = this.defaultSeoUrl?.pathInfo ?? seoUrl.pathInfo;
                 entity.isModified = true;
 
                 this.seoUrlCollection.add(entity);

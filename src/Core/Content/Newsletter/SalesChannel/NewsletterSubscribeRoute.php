@@ -6,12 +6,14 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
@@ -53,14 +56,21 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      */
     private $eventDispatcher;
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_15252) remove comment on feature release
+     */
+    private SystemConfigService $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfigService
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractNewsletterSubscribeRoute
@@ -207,17 +217,23 @@ The subscription is only successful, if the /newsletter/confirm route is called 
             return new NoContentResponse();
         }
 
-        $url = $data['storefrontUrl'] . str_replace(
-            [
-                '%%HASHEDEMAIL%%',
-                '%%SUBSCRIBEHASH%%',
-            ],
-            [
-                hash('sha1', $data['email']),
-                $data['hash'],
-            ],
-            '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
-        );
+        /* @feature-deprecated (flag:FEATURE_NEXT_15252) keeps the if branch */
+        if (Feature::isActive('FEATURE_NEXT_15252')) {
+            $hashedEmail = hash('sha1', $data['email']);
+            $url = $this->getSubscribeUrl($context, $hashedEmail, $data['hash'], $data, $recipient);
+        } else {
+            $url = $data['storefrontUrl'] . str_replace(
+                [
+                    '%%HASHEDEMAIL%%',
+                    '%%SUBSCRIBEHASH%%',
+                ],
+                [
+                    hash('sha1', $data['email']),
+                    $data['hash'],
+                ],
+                '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
+            );
+        }
 
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event);
@@ -297,5 +313,36 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         return array_map(static function (SalesChannelDomainEntity $domainEntity) {
             return rtrim($domainEntity->getUrl(), '/');
         }, $context->getSalesChannel()->getDomains()->getElements());
+    }
+
+    private function getSubscribeUrl(
+        SalesChannelContext $context,
+        string $hashedEmail,
+        string $hash,
+        array $data,
+        NewsletterRecipientEntity $recipient
+    ): string {
+        $urlTemplate = $this->systemConfigService->get(
+            'core.newsletter.subscribeUrl',
+            $context->getSalesChannelId()
+        );
+        if (!\is_string($urlTemplate)) {
+            $urlTemplate = '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
+        }
+
+        $urlEvent = new NewsletterSubscribeUrlEvent($context, $urlTemplate, $hashedEmail, $hash, $data, $recipient);
+        $this->eventDispatcher->dispatch($urlEvent);
+
+        return $data['storefrontUrl'] . str_replace(
+            [
+                '%%HASHEDEMAIL%%',
+                '%%SUBSCRIBEHASH%%',
+            ],
+            [
+                $hashedEmail,
+                $hash,
+            ],
+            $urlEvent->getSubscribeUrl()
+        );
     }
 }

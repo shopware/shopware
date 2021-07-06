@@ -137,6 +137,7 @@
             <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute" public="true">

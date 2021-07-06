@@ -1,0 +1,68 @@
+{% block sw_settings_newsletter_index %}
+<sw-page class="sw-settings-newsletter">
+
+    {% block sw_settings_newsletter_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_newsletter_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_newsletter_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_newsletter_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-newsletter.general.textHeadline') }}
+            {% endblock %}
+
+            {% block sw_settings_newsletter_smart_bar_header_amount %}
+            <span
+                v-if="false"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_newsletter_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_newsletter_actions_save %}
+        <sw-button-process
+            class="sw-settings-newsletter__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-newsletter.general.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_newsletter_content %}
+    <template slot="content">
+        <sw-card-view>
+            {% block sw_setting_newsletter_system_config %}
+            <sw-system-config
+                ref="systemConfig"
+                sales-channel-switchable
+                domain="core.newsletter"
+            />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

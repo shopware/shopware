@@ -43,8 +43,12 @@ class NewsletterRegisterEvent extends Event implements MailActionInterface, Sale
      */
     private $salesChannelId;
 
-    public function __construct(Context $context, NewsletterRecipientEntity $newsletterRecipient, string $url, string $salesChannelId)
-    {
+    public function __construct(
+        Context $context,
+        NewsletterRecipientEntity $newsletterRecipient,
+        string $url,
+        string $salesChannelId
+    ) {
         $this->context = $context;
         $this->newsletterRecipient = $newsletterRecipient;
         $this->url = $url;

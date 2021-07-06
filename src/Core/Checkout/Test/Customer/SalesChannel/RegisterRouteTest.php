@@ -5,12 +5,15 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -20,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @group store-api
@@ -338,6 +342,49 @@ class RegisterRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
+    }
+
+    public function testDoubleOptinChangedUrl(): void
+    {
+        /* @feature-deprecated (flag:FEATURE_NEXT_15252) remove skipTestIfInActive if feature released */
+        Feature::skipTestIfInActive('FEATURE_NEXT_15252', $this);
+
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
+        $systemConfig->set('core.loginRegistration.confirmationUrl', '/confirm/custom/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
+
+        /** @var EventDispatcherInterface $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $dispatcher->addListener(
+            CustomerConfirmRegisterUrlEvent::class,
+            static function (CustomerConfirmRegisterUrlEvent $event): void {
+                $event->setConfirmUrl($event->getConfirmUrl());
+            }
+        );
+
+        $caughtEvent = null;
+        $dispatcher->addListener(
+            CustomerDoubleOptInRegistrationEvent::class,
+            static function (CustomerDoubleOptInRegistrationEvent $event) use (&$caughtEvent): void {
+                $caughtEvent = $event;
+            }
+        );
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData())
+            );
+
+        /** @var CustomerDoubleOptInRegistrationEvent $caughtEvent */
+        static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $caughtEvent);
+        static::assertStringStartsWith('http://localhost/confirm/custom/', $caughtEvent->getConfirmUrl());
     }
 
     public function testDoubleOptinGivenTokenIsNotLoggedin(): void

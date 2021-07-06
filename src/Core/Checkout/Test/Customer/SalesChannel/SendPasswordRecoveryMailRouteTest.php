@@ -5,14 +5,18 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
+use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @group store-api
@@ -162,6 +166,52 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         /** @var CustomerAccountRecoverRequestEvent $caughtEvent */
         static::assertInstanceOf(CustomerAccountRecoverRequestEvent::class, $caughtEvent);
         static::assertStringStartsWith('http://my-evil-page/account/', $caughtEvent->getResetUrl());
+    }
+
+    public function testSendMailWithChangedUrl(): void
+    {
+        /* @feature-deprecated (flag:FEATURE_NEXT_15252) remove skipTestIfInActive if feature released */
+        Feature::skipTestIfInActive('FEATURE_NEXT_15252', $this);
+
+        $this->createCustomer('shopware1234', 'foo-test@test.de');
+
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('core.loginRegistration.pwdRecoverUrl', '/test/rec/password/%%RECOVERHASH%%"');
+
+        /** @var EventDispatcherInterface $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $caughtEvent = null;
+        $dispatcher->addListener(
+            CustomerAccountRecoverRequestEvent::EVENT_NAME,
+            static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
+                $caughtEvent = $event;
+            }
+        );
+
+        $dispatcher->addListener(
+            PasswordRecoveryUrlEvent::class,
+            static function (PasswordRecoveryUrlEvent $event): void {
+                $event->setRecoveryUrl($event->getRecoveryUrl() . '/?somethingSpecial=1');
+            }
+        );
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/recovery-password',
+                [
+                    'email' => 'foo-test@test.de',
+                    'storefrontUrl' => 'http://localhost',
+                ]
+            );
+
+        static::assertEquals(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
+
+        /** @var CustomerAccountRecoverRequestEvent $caughtEvent */
+        static::assertInstanceOf(CustomerAccountRecoverRequestEvent::class, $caughtEvent);
+        static::assertStringStartsWith('http://localhost/test/rec/password/', $caughtEvent->getResetUrl());
+        static::assertStringEndsWith('/?somethingSpecial=1', $caughtEvent->getResetUrl());
     }
 
     public function sendMailWithDomainAndLeadingSlashProvider()

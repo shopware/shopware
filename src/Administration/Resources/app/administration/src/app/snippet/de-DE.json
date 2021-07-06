@@ -1060,7 +1060,11 @@
   "sw-app": {
     "component": {
       "sw-app-actions": {
-        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden der App-Actions aufgetreten."
+        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden der App-Actions aufgetreten.",
+        "closeWindow": "Fenster schließen",
+        "iframeModalConfirmMessage": "Möchten Sie \"{title}\" wirklich schließen?",
+        "iframeModalConfirmMessageDescription": "Bitte stellen Sie sicher, dass alle Prozesse abgeschlossen sind.",
+        "dontAskMeAgain": "Mich nicht erneut fragen"
       },
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {

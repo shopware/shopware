@@ -12,6 +12,7 @@ abstract class ActionButtonResponse extends Struct
     public const ACTION_SHOW_NOTITFICATION = 'notification';
     public const ACTION_RELOAD_DATA = 'reload';
     public const ACTION_OPEN_NEW_TAB = 'openNewTab';
+    public const ACTION_OPEN_MODAL = 'openModal';
 
     public string $actionType;
 

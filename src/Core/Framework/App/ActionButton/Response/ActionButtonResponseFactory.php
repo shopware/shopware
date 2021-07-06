@@ -18,6 +18,8 @@ class ActionButtonResponseFactory
                 return OpenNewTabResponse::create($actionId, $actionType, $payload);
             case ActionButtonResponse::ACTION_RELOAD_DATA:
                 return ReloadDataResponse::create($actionId, $actionType, $payload);
+            case ActionButtonResponse::ACTION_OPEN_MODAL:
+                return OpenModalResponse::create($actionId, $actionType, $payload);
             default:
                 throw new ActionProcessException($actionId, 'Invalid action type provided by app');
         }

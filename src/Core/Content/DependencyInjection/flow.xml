@@ -61,6 +61,24 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Action\SendMailAction">
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="mail_template_type.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="flow.action" priority="650" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Action\SetOrderStateAction">
             <tag name="kernel.event_subscriber" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />

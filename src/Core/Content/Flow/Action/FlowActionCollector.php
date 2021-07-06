@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow\Action;
 use Shopware\Core\Content\Flow\Events\FlowActionCollectorEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\UserAware;
@@ -22,6 +23,7 @@ class FlowActionCollector
         WebhookAware::class => 'webhookAware',
         UserAware::class => 'userAware',
         SalesChannelAware::class => 'salesChannelAware',
+        MailAware::class => 'mailAware',
     ];
 
     protected iterable $actions;

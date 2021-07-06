@@ -2,14 +2,19 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 
 /**
- * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0.0 - Will be removed in v6.5.0.0 Use MailAware instead
+ * @internal (FEATURE_NEXT_8225)
  */
-interface MailActionInterface extends BusinessEventInterface
+interface MailAware extends ShopwareEvent
 {
     public function getMailStruct(): MailRecipientStruct;
 
     public function getSalesChannelId(): ?string;
+
+    public static function getAvailableData(): EventDataCollection;
+
+    public function getName(): string;
 }

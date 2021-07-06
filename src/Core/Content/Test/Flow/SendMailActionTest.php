@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\MailTemplate\Subscriber;
+namespace Shopware\Core\Content\Test\Flow;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -13,8 +14,10 @@ use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
+use Shopware\Core\Content\Flow\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
+use Shopware\Core\Content\Flow\FlowState;
 use Shopware\Core\Content\Mail\Service\MailService as EMailService;
-use Shopware\Core\Content\MailTemplate\Event\MailSendSubscriberBridgeEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
@@ -26,26 +29,25 @@ use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
-use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0.0 - Will be removed in v6.5.0.0 Use SendMailActionTest instead
+ * @internal (FEATURE_NEXT_8225)
  */
-class MailSendSubscriberTest extends TestCase
+class SendMailActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
     }
 
     /**
@@ -74,14 +76,14 @@ class MailSendSubscriberTest extends TestCase
         static::assertNotEmpty($mailTemplateId);
 
         $config = array_filter([
-            'mail_template_id' => $mailTemplateId,
-            'recipients' => $recipients,
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => $recipients,
+            'documentTypeIds' => [],
         ]);
 
-        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct($contactFormRecipients), new DataBag());
-
+        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct($contactFormRecipients), new DataBag());
         $mailService = new TestEmailService();
-        $subscriber = new MailSendSubscriber(
+        $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
@@ -92,15 +94,16 @@ class MailSendSubscriberTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
             $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get('language.repository')
+            $this->getContainer()->get('language.repository'),
+            $this->getContainer()->get(Connection::class)
         );
 
         $mailFilterEvent = null;
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), MailSendSubscriberBridgeEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
-        $subscriber->sendMail(new BusinessEvent('test', $event, $config));
+        $subscriber->handle(new FlowEvent('action.send.mail', new FlowState($event), $config));
 
         if (!$skip) {
             static::assertIsObject($mailFilterEvent);
@@ -112,7 +115,7 @@ class MailSendSubscriberTest extends TestCase
         } else {
             static::assertEquals(1, $mailService->calls);
             if (!empty($recipients)) {
-                static::assertEquals($mailService->data['recipients'], $recipients);
+                static::assertEquals($mailService->data['recipients'], $recipients['data']);
             } else {
                 static::assertEquals($mailService->data['recipients'], $contactFormRecipients);
             }
@@ -126,11 +129,40 @@ class MailSendSubscriberTest extends TestCase
 
     public function sendMailProvider(): iterable
     {
-        yield 'Test skip mail' => [true, null, ['test@example.com' => 'Shopware ag']];
-        yield 'Test send mail' => [false, null, ['test@example.com' => 'Shopware ag']];
-        yield 'Test overwrite recipients' => [false, ['test2@example.com' => 'Overwrite'], ['test@example.com' => 'Shopware ag']];
-        yield 'Test extend TemplateData' => [false, null, ['test@example.com' => 'Shopware ag'], true, true];
-        yield 'Test send mail without contact recipients' => [false, ['test@example.com' => 'Shopware ag']];
+        yield 'Test skip mail' => [true, null, [
+            'type' => 'custom',
+            'data' => [
+                'test@example.com' => 'Shopware ag',
+            ],
+        ]];
+        yield 'Test send mail' => [false, [
+            'type' => 'customer',
+            'data' => ['test@example.com' => 'Shopware ag'],
+        ], ['test@example.com' => 'Shopware ag'],
+        ];
+        yield 'Test send mail admin' => [false, [
+            'type' => 'admin',
+            'data' => ['info@shopware.com' => ' admin'],
+        ]];
+        yield 'Test overwrite recipients' => [false, [
+            'type' => 'custom',
+            'data' => [
+                'test2@example.com' => 'Overwrite',
+            ],
+        ], [
+            'type' => 'custom',
+            'data' => [
+                'test@example.com' => 'Shopware ag',
+            ],
+        ]];
+        yield 'Test extend TemplateData' => [false, [
+            'type' => 'custom',
+            'data' => [
+                'test@example.com' => 'Shopware ag',
+            ],
+            null,
+        ]];
+        yield 'Test send mail without contact recipients' => [false, null];
     }
 
     public function testTranslatorInjectionInMail(): void
@@ -150,11 +182,17 @@ class MailSendSubscriberTest extends TestCase
         static::assertNotEmpty($mailTemplateId);
 
         $config = array_filter([
-            'mail_template_id' => $mailTemplateId,
-            'recipients' => ['test@example.com' => 'Shopware ag'],
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => [
+                'type' => 'admin',
+                'data' => [
+                    'phuoc.cao@shopware.com' => 'shopware',
+                    'phuoc.cao.x@shopware.com' => 'shopware',
+                ],
+            ],
         ]);
 
-        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
         $translator = $this->getContainer()->get(Translator::class);
 
         if ($translator->getSnippetSetId()) {
@@ -162,7 +200,7 @@ class MailSendSubscriberTest extends TestCase
         }
 
         $mailService = new TestEmailService();
-        $subscriber = new MailSendSubscriber(
+        $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
@@ -173,7 +211,8 @@ class MailSendSubscriberTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
             $translator,
-            $this->getContainer()->get('language.repository')
+            $this->getContainer()->get('language.repository'),
+            $this->getContainer()->get(Connection::class)
         );
 
         $mailFilterEvent = null;
@@ -183,9 +222,9 @@ class MailSendSubscriberTest extends TestCase
             $snippetSetId = $translator->getSnippetSetId();
         };
 
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), MailSendSubscriberBridgeEvent::class, $function);
+        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, $function);
 
-        $subscriber->sendMail(new BusinessEvent('test', $event, $config));
+        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
 
         static::assertIsObject($mailFilterEvent);
         static::assertEmpty($translator->getSnippetSetId());
@@ -208,7 +247,7 @@ class MailSendSubscriberTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [
@@ -256,7 +295,7 @@ class MailSendSubscriberTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [

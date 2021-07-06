@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -27,6 +28,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
+use Shopware\Core\Content\Flow\Action\FlowAction;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
@@ -41,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -99,7 +102,7 @@ class OrderRouteTest extends TestCase
 
     private string $deepLinkCode;
 
-    private EntityRepositoryInterface $customerRepository;
+    private ?EntityRepositoryInterface $customerRepository;
 
     protected function setUp(): void
     {
@@ -395,6 +398,7 @@ class OrderRouteTest extends TestCase
 
     public function testSetAnotherPaymentMethodToOrder(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -542,19 +546,7 @@ class OrderRouteTest extends TestCase
                 ->addFilter(new EqualsFilter('mailTemplateType.technicalName', 'order.state.in_progress')), $context)
             ->first();
 
-        $this->getContainer()->get('event_action.repository')->create([[
-            'eventName' => 'state_enter.order_transaction.state.in_progress',
-            'actionName' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-            'config' => [
-                'recipients' => ['admin@test.test' => 'admin'],
-                'mail_template_id' => $mailTemplate->getId(),
-                'mail_template_type_id' => $mailTemplate->getMailTemplateTypeId(),
-            ],
-            'rules' => [
-                ['id' => $newPaymentRule],
-            ],
-            'active' => true,
-        ]], $context);
+        $this->createActionEvent($mailTemplate, $newPaymentRule, $context);
 
         // change payment method from default payment method to new payment method
 
@@ -596,7 +588,11 @@ class OrderRouteTest extends TestCase
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
-        static::assertArrayHasKey('admin@test.test', $recipients);
+        if (Feature::isActive('FEATURE_NEXT_8225')) {
+            static::assertArrayHasKey('info@shopware.com', $recipients);
+        } else {
+            static::assertArrayHasKey('admin@test.test', $recipients);
+        }
 
         // test that order still hase promotion line item
 
@@ -1109,5 +1105,85 @@ class OrderRouteTest extends TestCase
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
+    }
+
+    private function createActionEvent(MailTemplateEntity $mailTemplate, string $newPaymentRule, Context $context): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8225')) {
+            $this->getContainer()->get('event_action.repository')->create([[
+                'eventName' => 'state_enter.order_transaction.state.in_progress',
+                'actionName' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
+                'config' => [
+                    'recipients' => ['admin@test.test' => 'admin'],
+                    'mail_template_id' => $mailTemplate->getId(),
+                    'mail_template_type_id' => $mailTemplate->getMailTemplateTypeId(),
+                ],
+                'rules' => [
+                    ['id' => $newPaymentRule],
+                ],
+                'active' => true,
+            ]], $context);
+
+            return;
+        }
+
+        $flowRepository = $this->getContainer()->get('flow.repository');
+        $sequenceId = Uuid::randomHex();
+        $flowRepository->create([[
+            'name' => 'Create Order',
+            'eventName' => 'state_enter.order_transaction.state.in_progress',
+            'priority' => 1,
+            'active' => true,
+            'sequences' => [
+                [
+                    'id' => $sequenceId,
+                    'parentId' => null,
+                    'ruleId' => $newPaymentRule,
+                    'actionName' => null,
+                    'config' => [],
+                    'position' => 1,
+                    'rule' => [
+                        'id' => $newPaymentRule,
+                        'name' => 'Test rule',
+                        'priority' => 1,
+                        'conditions' => [
+                            ['type' => (new AlwaysValidRule())->getName()],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => FlowAction::SEND_MAIL,
+                    'config' => [
+                        'recipient' => [
+                            'type' => 'admin',
+                            'data' => ['admin@test.test' => 'admin'],
+                        ],
+                        'mailTemplateId' => $mailTemplate->getId(),
+                        'mailTemplateTypeId' => $mailTemplate->getMailTemplateTypeId(),
+                    ],
+                    'position' => 1,
+                    'trueCase' => true,
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => FlowAction::SEND_MAIL,
+                    'config' => [
+                        'recipient' => [
+                            'type' => 'admin',
+                            'data' => ['admin@test.test' => 'admin'],
+                        ],
+                        'mailTemplateId' => $mailTemplate->getId(),
+                        'mailTemplateTypeId' => $mailTemplate->getMailTemplateTypeId(),
+                    ],
+                    'position' => 1,
+                    'trueCase' => true,
+                ],
+            ],
+        ]], Context::createDefaultContext());
     }
 }

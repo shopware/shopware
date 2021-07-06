@@ -9,11 +9,12 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware
+class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware, MailAware
 {
     public const EVENT_NAME = 'checkout.order.placed';
 

@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Event;
 /**
  * @internal (FEATURE_NEXT_8225)
  */
-
-namespace Shopware\Core\Framework\Event;
-
 interface UserAware extends ShopwareEvent
 {
     public function getUserId(): string;

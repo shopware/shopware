@@ -1,34 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MailTemplate\Event;
+namespace Shopware\Core\Content\Flow\Events;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEvent;
+use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
- * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0.0 - Will be removed in v6.5.0.0 Use FlowSendMailActionEvent instead
+ * @internal (FEATURE_NEXT_8225)
  */
-class MailSendSubscriberBridgeEvent implements ShopwareEvent
+class FlowSendMailActionEvent implements ShopwareEvent
 {
     private DataBag $dataBag;
 
     private MailTemplateEntity $mailTemplate;
 
-    private BusinessEvent $businessEvent;
+    private FlowEvent $flowEvent;
 
-    public function __construct(DataBag $dataBag, MailTemplateEntity $mailTemplate, BusinessEvent $businessEvent)
+    public function __construct(DataBag $dataBag, MailTemplateEntity $mailTemplate, FlowEvent $flowEvent)
     {
         $this->dataBag = $dataBag;
         $this->mailTemplate = $mailTemplate;
-        $this->businessEvent = $businessEvent;
+        $this->flowEvent = $flowEvent;
     }
 
     public function getContext(): Context
     {
-        return $this->businessEvent->getContext();
+        return $this->flowEvent->getContext();
     }
 
     public function getDataBag(): DataBag
@@ -41,8 +41,8 @@ class MailSendSubscriberBridgeEvent implements ShopwareEvent
         return $this->mailTemplate;
     }
 
-    public function getBusinessEvent(): BusinessEvent
+    public function getFlowEvent(): FlowEvent
     {
-        return $this->businessEvent;
+        return $this->flowEvent;
     }
 }

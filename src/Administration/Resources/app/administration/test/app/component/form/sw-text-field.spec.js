@@ -7,7 +7,7 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 
 const { Component } = Shopware;
 
-function createWrapper() {
+function createWrapper(options = {}) {
     const localVue = createLocalVue();
 
     return shallowMount(Component.build('sw-text-field'), {
@@ -21,7 +21,8 @@ function createWrapper() {
         },
         provide: {
             validationService: {}
-        }
+        },
+        ...options
     });
 }
 
@@ -74,5 +75,17 @@ describe('src/app/component/form/sw-text-field', () => {
 
         expect(withSuffix.exists()).toBeTruthy();
         expect(withSuffix.find('#sw-field--mockVar-iShallBeSuffix').exists()).toBeTruthy();
+    });
+
+    it('should render with custom html attributes like minlength and maxlength', () => {
+        const wrapper = createWrapper({
+            attrs: {
+                maxlength: '12',
+                minlength: '4'
+            }
+        });
+
+        expect(wrapper.find('input[type="text"]').attributes().maxlength).toBe('12');
+        expect(wrapper.find('input[type="text"]').attributes().minlength).toBe('4');
     });
 });

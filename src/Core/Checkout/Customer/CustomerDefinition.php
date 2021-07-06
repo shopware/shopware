@@ -106,6 +106,10 @@ class CustomerDefinition extends EntityDefinition
             (new BoolField('guest', 'guest'))->addFlags(new ApiAware()),
             (new DateTimeField('first_login', 'firstLogin'))->addFlags(new ApiAware()),
             (new DateTimeField('last_login', 'lastLogin'))->addFlags(new ApiAware()),
+            /*
+             * @feature-deprecated tag:v6.5.0 (FEATURE_NEXT_16106) - newsletter field will be remove on version 6.5.0.
+             * Please use the newsletterRecipient to detemine if a customer is subscribed to a newsletter
+             */
             (new BoolField('newsletter', 'newsletter'))->addFlags(new ApiAware()),
             (new DateField('birthday', 'birthday'))->addFlags(new ApiAware()),
             (new DateTimeField('last_order_date', 'lastOrderDate'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),

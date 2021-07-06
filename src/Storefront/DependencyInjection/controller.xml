@@ -217,6 +217,7 @@
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute"/>
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

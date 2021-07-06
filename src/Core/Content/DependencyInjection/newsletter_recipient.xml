@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterRecipientDefinition">
+            <tag name="shopware.sales_channel.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

@@ -49,6 +49,7 @@ class NewsletterRegisterPageLoader
     {
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
+        /** @var NewsletterRegisterPage $page */
         $page = NewsletterRegisterPage::createFrom($page);
 
         /** @var SalutationCollection $salutationCollection */

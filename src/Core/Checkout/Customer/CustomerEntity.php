@@ -159,6 +159,8 @@ class CustomerEntity extends Entity
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $newsletter will be removed use the newsletterRecipents instead
      */
     protected $newsletter;
 
@@ -564,11 +566,17 @@ class CustomerEntity extends Entity
         $this->lastLogin = $lastLogin;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) getNewsletter will be removed use the newsletterRecipents instead
+     */
     public function getNewsletter(): bool
     {
         return $this->newsletter;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) getNewsletter will be removed use the newsletterRecipents instead
+     */
     public function setNewsletter(bool $newsletter): void
     {
         $this->newsletter = $newsletter;

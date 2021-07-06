@@ -41,6 +41,34 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     public const STATUS_DIRECT = 'direct';
 
     /**
+     * The subscription is directly active and does not need a confirmation.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     */
+    public const OPTION_DIRECT = 'direct';
+
+    /**
+     * An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     */
+    public const OPTION_SUBSCRIBE = 'subscribe';
+
+    /**
+     * The email address will be removed from the newsletter subscriptions.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     */
+    public const OPTION_UNSUBSCRIBE = 'unsubscribe';
+
+    /**
+     * Confirmes the newsletter subscription for the provided email address.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     */
+    public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
+
+    /**
      * @var EntityRepositoryInterface
      */
     private $newsletterRecipientRepository;
@@ -267,10 +295,10 @@ The subscription is only successful, if the /newsletter/confirm route is called 
     private function getOptionSelection(): array
     {
         return [
-            'direct' => self::STATUS_DIRECT,
-            'subscribe' => self::STATUS_NOT_SET,
-            'confirmSubscribe' => self::STATUS_OPT_IN,
-            'unsubscribe' => self::STATUS_OPT_OUT,
+            self::OPTION_DIRECT => self::STATUS_DIRECT,
+            self::OPTION_SUBSCRIBE => self::STATUS_NOT_SET,
+            self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
+            self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];
     }
 

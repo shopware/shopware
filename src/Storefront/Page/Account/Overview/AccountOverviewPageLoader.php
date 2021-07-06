@@ -11,10 +11,12 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -40,16 +42,23 @@ class AccountOverviewPageLoader
      */
     private $customerRoute;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
+     */
+    private NewsletterAccountPageletLoader $newsletterAccountPageletLoader;
+
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         AbstractOrderRoute $orderRoute,
-        AbstractCustomerRoute $customerRoute
+        AbstractCustomerRoute $customerRoute,
+        NewsletterAccountPageletLoader $newsletterAccountPageletLoader
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRoute = $orderRoute;
         $this->customerRoute = $customerRoute;
+        $this->newsletterAccountPageletLoader = $newsletterAccountPageletLoader;
     }
 
     /**
@@ -62,6 +71,7 @@ class AccountOverviewPageLoader
     {
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
+        /** @var AccountOverviewPage $page */
         $page = AccountOverviewPage::createFrom($page);
         $page->setCustomer($this->loadCustomer($salesChannelContext, $customer));
 
@@ -73,6 +83,12 @@ class AccountOverviewPageLoader
 
         if ($order !== null) {
             $page->setNewestOrder($order);
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_14001')) {
+            $newslAccountPagelet = $this->newsletterAccountPageletLoader->load($request, $salesChannelContext, $customer);
+
+            $page->setNewsletterAccountPagelet($newslAccountPagelet);
         }
 
         $this->eventDispatcher->dispatch(

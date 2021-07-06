@@ -185,6 +185,11 @@ shopware:
               major: false
               description: "Admin search improvements"
               # issue: NEXT-6040
+            - name: FEATURE_NEXT_14001
+              default: false
+              major: false
+              description: "Newsletter DOI for registered customers"
+              # issue: NEXT-14001
             - name: FEATURE_NEXT_8097
               default: false
               major: false

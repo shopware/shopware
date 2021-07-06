@@ -128,6 +128,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-15346 - Create api to prevalidate basic captcha](/changelog/release-6-4-2-0/2021-06-09-create-api-to-prevalidate-basic-captcha.md)
 *  [NEXT-15345 - Add hint description for google reCAPTCHA](/changelog/release-6-4-2-0/2021-06-10-add-hint-description-for-google-recaptcha.md)
 *  [NEXT-15703 - Use entity name to determine source of slot config in contact form submit](/changelog/release-6-4-2-0/2021-06-22-use-entity-name-to-determine-source-of-slot-config-in-contact-form-submit.md)
+*  [NEXT-8225 - Upgrade information for captcha solution](/changelog/release-6-4-2-0/2021-07-05-upgrade-information-for-captcha-solution.md)
 
 ## 6.4.1.2
 *  [NEXT-15858 - Update flysystem](/changelog/release-6-4-1-2/2021-06-24-update-flysystem.md)

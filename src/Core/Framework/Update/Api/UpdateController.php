@@ -262,7 +262,7 @@ class UpdateController extends AbstractController
         }
 
         // disable plugins - save active plugins
-        $deactivationFilter = $request->query->get(
+        $deactivationFilter = (string) $request->query->get(
             'deactivationFilter',
             PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
         );

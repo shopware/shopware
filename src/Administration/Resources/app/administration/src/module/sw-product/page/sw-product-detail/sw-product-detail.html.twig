@@ -98,21 +98,9 @@
     <sw-card-view slot="content">
 
         {% block sw_product_detail_content_top %}
-        <template>
+        <template v-if="!isLoading && isChild">
             <router-link
-                v-if="!isLoading && isChild && !advanceModeEnabled"
-                class="sw-card__back-link"
-                :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
-            >
-                <sw-icon
-                    name="default-arrow-simple-left"
-                    small
-                />
-                {{ $tc('sw-product.general.backToGeneralOverview') }}
-            </router-link>
-
-            <router-link
-                v-if="!isLoading && isChild && advanceModeEnabled"
+                v-if="advanceModeEnabled"
                 class="sw-card__back-link"
                 :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
             >
@@ -121,6 +109,18 @@
                     small
                 />
                 {{ $tc('sw-product.general.backToParent') }}
+            </router-link>
+
+            <router-link
+                v-else
+                class="sw-card__back-link"
+                :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
+            >
+                <sw-icon
+                    name="default-arrow-simple-left"
+                    small
+                />
+                {{ $tc('sw-product.general.backToGeneralOverview') }}
             </router-link>
         </template>
         {% endblock %}

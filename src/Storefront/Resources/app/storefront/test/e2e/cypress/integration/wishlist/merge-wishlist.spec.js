@@ -277,7 +277,7 @@ describe('Wishlist: for wishlist', () => {
 
         heartIcon.click();
 
-        cy.wait('@wishlistAdd').then( () => {
+        cy.wait('@wishlistAdd').then(() => {
             cy.get('#wishlist-basket').contains('1');
 
             cy.visit('/account/logout');
@@ -300,8 +300,10 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/wishlist');
 
-        cy.wait('@wishlistMerge').then( () => {
+        cy.wait('@wishlistMerge').then(() => {
             cy.get('#wishlist-basket').contains('2');
+
+            cy.visit('/wishlist');
             cy.get('.cms-listing-col').eq(0).contains('Test product 2');
             cy.get('.cms-listing-col').eq(1).contains('Test product 1');
         });

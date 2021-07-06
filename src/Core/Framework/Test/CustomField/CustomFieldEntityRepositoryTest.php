@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\CustomField\CustomFieldEntityRepositoryTest;
+namespace Shopware\Core\Framework\Test\CustomField;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

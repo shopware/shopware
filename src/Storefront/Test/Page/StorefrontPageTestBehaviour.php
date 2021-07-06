@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -63,12 +62,16 @@ trait StorefrontPageTestBehaviour
 
     abstract protected function getPageLoader();
 
+    /**
+     * @deprecated tag:v6.5.0 This assertion is useless. All loaders that require a customer take a non-null customer parameter
+     */
     protected function assertLoginRequirement(array $queryParams = []): void
     {
-        $request = new Request($queryParams);
-        $context = $this->createSalesChannelContextWithNavigation();
-        $this->expectException(CustomerNotLoggedInException::class);
-        $this->getPageLoader()->load($request, $context, $context->getCustomer());
+        @trigger_deprecation(
+            'shopware/platform',
+            '6.5.0',
+            'Loader that require a customer no only accept non-null customers. So this assertion is useless. Login requirements should be validated on route level. For example with the `LoginRequired` annotation.'
+        );
     }
 
     protected function expectParamMissingException(string $paramName): void

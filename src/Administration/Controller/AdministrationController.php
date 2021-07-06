@@ -125,7 +125,7 @@ class AdministrationController extends AbstractController
     public function snippets(Request $request): Response
     {
         $locale = $request->query->get('locale', 'en-GB');
-        $snippets[$locale] = $this->snippetFinder->findSnippets($locale);
+        $snippets[$locale] = $this->snippetFinder->findSnippets((string) $locale);
 
         if ($locale !== 'en-GB') {
             $snippets['en-GB'] = $this->snippetFinder->findSnippets('en-GB');

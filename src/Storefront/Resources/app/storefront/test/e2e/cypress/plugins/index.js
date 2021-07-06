@@ -27,4 +27,10 @@ module.exports = (on, config) => {
 
     // `config` is the resolved Cypress config
     on('file:preprocessor', selectTestsWithGrep(config));
+
+    on('before:browser:launch', () => {
+        config.env.projectRoot = config.env.projectRoot || config.env.shopwareRoot;
+
+        console.log(config.env);
+    });
 };

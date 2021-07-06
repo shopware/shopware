@@ -19,6 +19,9 @@ class LoggerFactory
         $this->defaultFileRotationCount = $defaultFileRotationCount;
     }
 
+    /**
+     * @param 100|200|250|300|400|500|550|600 $loggerLevel
+     */
     public function createRotating(string $filePrefix, ?int $fileRotationCount = null, int $loggerLevel = Logger::DEBUG): LoggerInterface
     {
         $filepath = sprintf($this->rotatingFilePathPattern, $filePrefix);

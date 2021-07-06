@@ -147,7 +147,11 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2').should('be.visible');
 
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').should('be.empty');
+
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select')
             .typeMultiSelectAndCheck('Google reCAPTCHA v3');
 

@@ -62,7 +62,7 @@ class StateMachineActionController extends AbstractController
         string $entityName,
         string $entityId
     ): JsonResponse {
-        $stateFieldName = $request->query->get('stateFieldName', 'stateId');
+        $stateFieldName = (string) $request->query->get('stateFieldName', 'stateId');
 
         $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions(
             $entityName,
@@ -113,7 +113,7 @@ class StateMachineActionController extends AbstractController
         string $entityId,
         string $transition
     ): Response {
-        $stateFieldName = $request->query->get('stateFieldName', 'stateId');
+        $stateFieldName = (string) $request->query->get('stateFieldName', 'stateId');
         $stateMachineStateCollection = $this->stateMachineRegistry->transition(
             new Transition(
                 $entityName,

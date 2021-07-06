@@ -41,10 +41,18 @@ class ActiveAppsLoader
 
     private function loadApps(): array
     {
-        return $this->connection->executeQuery('
-            SELECT `name`, `path`, `author`
-            FROM `app`
-            WHERE `active` = 1
-        ')->fetchAll(FetchMode::ASSOCIATIVE);
+        try {
+            return $this->connection->executeQuery('
+                SELECT `name`, `path`, `author`
+                FROM `app`
+                WHERE `active` = 1
+            ')->fetchAll(FetchMode::ASSOCIATIVE);
+        } catch (\Throwable $e) {
+            if (\defined('\STDERR')) {
+                fwrite(\STDERR, 'Warning: Failed to load apps. Message: ' . $e->getMessage() . \PHP_EOL);
+            }
+        }
+
+        return [];
     }
 }

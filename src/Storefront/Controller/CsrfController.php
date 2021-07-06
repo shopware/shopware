@@ -53,7 +53,7 @@ class CsrfController extends StorefrontController
             throw new CsrfWrongModeException(CsrfModes::MODE_AJAX);
         }
 
-        $intent = $request->request->get('intent', 'ajax');
+        $intent = (string) $request->request->get('intent', 'ajax');
 
         $token = $this->csrfTokenManager->getToken($intent);
 

@@ -3,6 +3,8 @@
 const path = require('path');
 const { join } = require('path');
 
+process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD;
+
 const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts/jest');
 
 module.exports = {

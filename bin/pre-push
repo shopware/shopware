@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+function onExit {
+    if [[ $? != 0 ]]
+    then
+        echo "Fix the error before push or add '--no-verify'"
+    fi
+}
+trap onExit EXIT
+
+composer run lint
+
+composer run static-analyze -- --no-progress

@@ -18,5 +18,10 @@ class DevOps extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
         $loader->load('services.xml');
+
+        $environment = $container->getParameter('kernel.environment');
+        if ($environment === 'e2e') {
+            $loader->load('services_e2e.xml');
+        }
     }
 }

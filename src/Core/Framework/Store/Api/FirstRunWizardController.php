@@ -58,7 +58,7 @@ class FirstRunWizardController extends AbstractController
      */
     public function getLanguagePluginList(Request $request, Context $context): JsonResponse
     {
-        $language = $request->query->get('language', '');
+        $language = (string) $request->query->get('language', '');
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
@@ -81,7 +81,7 @@ class FirstRunWizardController extends AbstractController
      */
     public function getDemoDataPluginList(Request $request, Context $context): JsonResponse
     {
-        $language = $request->query->get('language', '');
+        $language = (string) $request->query->get('language', '');
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
@@ -104,7 +104,7 @@ class FirstRunWizardController extends AbstractController
      */
     public function getRecommendationRegions(Request $request): JsonResponse
     {
-        $language = $request->query->get('language', '');
+        $language = (string) $request->query->get('language', '');
 
         try {
             $recommendationRegions = $this->frwClient->getRecommendationRegions($language);
@@ -124,7 +124,7 @@ class FirstRunWizardController extends AbstractController
      */
     public function getRecommendations(Request $request, Context $context): JsonResponse
     {
-        $language = $request->query->get('language', '');
+        $language = (string) $request->query->get('language', '');
         $region = $request->query->has('region') ? (string) $request->query->get('region') : null;
         $category = $request->query->has('category') ? (string) $request->query->get('category') : null;
 

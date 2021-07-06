@@ -6,6 +6,7 @@ author_email: j.leifeld@shopware.com
 author_github: Jannis Leifeld
 ---
 # Administration
+* Removed Twig Block duplicates, which should not occur, by renaming the second block and adjusting its content so that the Vue component remains identical as before 
 * Changed second twig block `sw_property_assignment_empty_state` to `sw_property_assignment_empty_state_no_options` in `sw-property-assignment`
 * Changed second twig block `sw_context_menu_item_icon` to `sw_context_menu_item_entry_icon` in `sw-context-menu-item`
 * Changed second twig block `sw_context_menu_item_slot_icon` to `sw_context_menu_item_entry_slot_icon` in `sw-context-menu-item`

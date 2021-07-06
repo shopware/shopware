@@ -1,19 +1,19 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-datepicker';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-contextual-field';
 import flushPromises from 'flush-promises';
 
 function createWrapper(customOptions = {}) {
     return shallowMount(Shopware.Component.build('sw-datepicker'), {
         sync: false,
         stubs: {
-            'sw-contextual-field': {
-                template: `
-                <div class="sw-contextual-field">
-                    <slot name="sw-field-input"></slot>
-                    <slot name="sw-contextual-field-suffix"></slot>
-                </div>`
-            },
-            'sw-icon': true
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-icon': true,
+            'sw-field-error': true
         },
         ...customOptions
     });
@@ -71,5 +71,28 @@ describe('src/app/component/form/sw-datepicker', () => {
         await flushPromises();
 
         expect(wrapper.vm.$data.flatpickrInstance.config.locale).toBe('en');
+    });
+
+    it('should show the label from the property', () => {
+        wrapper = createWrapper({
+            propsData: {
+                label: 'Label from prop'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from prop');
+    });
+
+    it('should show the value from the label slot', () => {
+        wrapper = createWrapper({
+            propsData: {
+                label: 'Label from prop'
+            },
+            scopedSlots: {
+                label: '<template>Label from slot</template>'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 });

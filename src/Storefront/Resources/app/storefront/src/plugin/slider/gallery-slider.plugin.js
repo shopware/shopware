@@ -23,8 +23,8 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
       navDotDataAttr: 'data-nav-dot',
       loadingCls: 'is-loading',
       slider: {
+          preventScrollOnTouch: 'auto',
           startIndex: 1,
-          preventScrollOnTouch: 'force',
           responsive: {
               xs: {},
               sm: {},

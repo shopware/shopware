@@ -147,51 +147,45 @@ class ThemeService
      */
     public function getThemeConfiguration(string $themeId, bool $translate, Context $context): array
     {
-        $criteria = new Criteria();
-        $criteria->setTitle('theme-service::load-config');
+        $baseThemeSearchResult = $this->getThemeByName(StorefrontPluginRegistry::BASE_THEME_NAME, $context);
+        /** @var ThemeEntity $baseTheme */
+        $baseTheme = $baseThemeSearchResult->first();
+        $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
 
-        $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_OR,
-            [
-                new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME),
-                new EqualsFilter('id', $themeId),
-            ]
-        ));
+        $childThemeSearchResult = $this->getThemeById($themeId, $context);
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $childThemeSearchResult->first();
+        $childThemeConfig = $this->mergeStaticConfig($childTheme);
 
-        $themes = $this->themeRepository->search($criteria, $context);
-
-        $theme = $themes->get($themeId);
-
-        /** @var ThemeEntity|null $theme */
-        if (!$theme) {
-            throw new InvalidThemeException($themeId);
+        $parentThemeId = $childTheme->getParentThemeId();
+        if (null !== $parentThemeId) {
+            /** @var ThemeEntity $parentTheme */
+            $parentThemeSearchResult = $this->getThemeById($parentThemeId, $context);
+            $parentTheme = $parentThemeSearchResult->first();
+            $parentThemeConfig = $this->mergeStaticConfig($parentTheme);
         }
 
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $themes->filter(function (ThemeEntity $theme) {
-            return $theme->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME;
-        })->first();
+        if (isset($parentThemeConfig)) {
+            $baseThemeConfig = array_replace_recursive($baseThemeConfig, $parentThemeConfig);
+        }
 
-        $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
+        $themeConfig = array_replace_recursive($baseThemeConfig, $childThemeConfig);
 
         $themeConfigFieldFactory = new ThemeConfigFieldFactory();
         $configFields = [];
-
-        $configuredTheme = $this->mergeStaticConfig($theme);
-        $themeConfig = array_replace_recursive($baseThemeConfig, $configuredTheme);
 
         foreach ($themeConfig['fields'] as $name => $item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
         }
 
-        $configFields = json_decode((string) json_encode($configFields), true);
+        $configFields = json_decode((string)json_encode($configFields), true);
 
-        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
+        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $childTheme->getLabels() ?? []);
         if ($translate && !empty($labels)) {
             $configFields = $this->translateLabels($configFields, $labels);
         }
 
-        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
+        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $childTheme->getHelpTexts() ?? []);
         if ($translate && !empty($helpTexts)) {
             $configFields = $this->translateHelpTexts($configFields, $helpTexts);
         }
@@ -240,6 +234,36 @@ class ThemeService
         }
 
         return $outputStructure;
+    }
+
+    private function getThemeByName(
+        string $themeName,
+        $context
+    ): \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult {
+        $criteria = new Criteria();
+        $criteria->setTitle('theme-service::load-config::by-name');
+
+        $criteria->addFilter(new EqualsFilter(
+            'technicalName',
+            $themeName
+        ));
+
+        return $this->themeRepository->search($criteria, $context);
+    }
+
+    private function getThemeById(
+        string $themeId,
+        $context
+    ): \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult {
+        $criteria = new Criteria();
+        $criteria->setTitle('theme-service::load-config::by-id');
+
+        $criteria->addFilter(new EqualsFilter(
+            'id',
+            $themeId
+        ));
+
+        return $this->themeRepository->search($criteria, $context);
     }
 
     private function loadCompileConfig(string $themeId, Context $context): array
@@ -345,9 +369,13 @@ class ThemeService
                 ->search($criteria, $context)
                 ->first();
 
-            return $this->pluginRegistry
+            $pluginConfig = $this->pluginRegistry
                 ->getConfigurations()
                 ->getByTechnicalName($parentTheme->getTechnicalName());
+
+            if ($pluginConfig !== null) {
+                return $pluginConfig;
+            }
         }
 
         return $this->pluginRegistry

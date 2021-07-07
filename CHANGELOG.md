@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.4.2.1
+*  [NEXT-16091 - Fix cart deserialize](/changelog/release-6-4-2-1/2021-07-07-fix-cart-deserialize.md)
+
 ## 6.4.2.0
 *  [NEXT-14277 - Change the design product variants filter](/changelog/release-6-4-2-0/2021-03-17-change-the-design-product-variants-filter.md)
 *  [NEXT-15197 - Improve-customer-validation-factory](/changelog/release-6-4-2-0/2021-03-24-improve-customer-validation-factory.md) ([bpesch](https://github.com/bpesch))

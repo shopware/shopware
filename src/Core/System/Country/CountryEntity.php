@@ -86,8 +86,10 @@ class CountryEntity extends Entity
 
     /**
      * @internal (flag:FEATURE_NEXT_14114)
+     *
+     * @var bool|null
      */
-    protected bool $vatIdRequired;
+    protected $vatIdRequired;
 
     /**
      * @internal (flag:FEATURE_NEXT_14114)
@@ -364,7 +366,7 @@ class CountryEntity extends Entity
      */
     public function getVatIdRequired(): bool
     {
-        return $this->vatIdRequired;
+        return (bool) $this->vatIdRequired;
     }
 
     /**

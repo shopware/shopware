@@ -119,6 +119,41 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         });
     });
 
+    it('should update currentSeoUrl when defaultSeoUrl empty and the salesChannel has no seo urls yet', async () => {
+        await wrapper.setProps({
+            urls: [{
+                id: 'c0221c1f712a4f369a79e924a10fa398',
+                foreignKey: '4066b6039fcf41f089bdf859cc6ce662',
+                languageId: '12345678',
+                pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
+                routeName: 'frontend.navigation.page',
+                salesChannelId: '4066b6039fcf41f089bdf859cc6ce662',
+                seoPathInfo: 'Computers/'
+            }],
+            salesChannelId: '4066b6039fcf41f08rbdf859cc6ce662'
+        });
+
+        await wrapper.setData({
+            showEmptySeoUrlError: false,
+            currentSalesChannelId: '863137935ecf48999d69096de547b090'
+        });
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.vm.refreshCurrentSeoUrl();
+
+        expect(wrapper.vm.defaultSeoUrl).toEqual({});
+        expect(wrapper.vm.currentSeoUrl).toEqual({
+            foreignKey: '4066b6039fcf41f089bdf859cc6ce662',
+            isCanonical: true,
+            languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
+            routeName: 'frontend.navigation.page',
+            salesChannelId: '863137935ecf48999d69096de547b090',
+            isModified: true
+        });
+    });
+
     it('should update currentSeoUrl when defaultSeoUrl not empty', async () => {
         await wrapper.setProps({
             urls: [{

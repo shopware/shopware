@@ -104,13 +104,7 @@
         {% endblock %}
 
         {% block cms_form_contact_captcha %}
-            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
-                with {
-                'captchas': config('core.basicInformation.activeCaptchasV2'),
-                'additionalClass' : 'col-md-12',
-                'formId': 'contact-form'
-                }
-            %}
+            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { additionalClass : 'col-md-12'} %}
         {% endblock %}
 
         {% block cms_form_contact_privacy %}

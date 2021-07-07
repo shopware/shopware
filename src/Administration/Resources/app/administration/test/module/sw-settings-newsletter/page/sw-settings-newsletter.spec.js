@@ -140,7 +140,6 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
     });
 
     it('should contain the subscribeUrl', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_15252'];
         await wrapper.vm.$nextTick();
         expect(
             wrapper.find(`.${classes.root}`)

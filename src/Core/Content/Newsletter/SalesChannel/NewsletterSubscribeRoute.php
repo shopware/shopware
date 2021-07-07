@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -56,9 +55,6 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      */
     private $eventDispatcher;
 
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_15252) remove comment on feature release
-     */
     private SystemConfigService $systemConfigService;
 
     public function __construct(
@@ -217,23 +213,8 @@ The subscription is only successful, if the /newsletter/confirm route is called 
             return new NoContentResponse();
         }
 
-        /* @feature-deprecated (flag:FEATURE_NEXT_15252) keeps the if branch */
-        if (Feature::isActive('FEATURE_NEXT_15252')) {
-            $hashedEmail = hash('sha1', $data['email']);
-            $url = $this->getSubscribeUrl($context, $hashedEmail, $data['hash'], $data, $recipient);
-        } else {
-            $url = $data['storefrontUrl'] . str_replace(
-                [
-                    '%%HASHEDEMAIL%%',
-                    '%%SUBSCRIBEHASH%%',
-                ],
-                [
-                    hash('sha1', $data['email']),
-                    $data['hash'],
-                ],
-                '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
-            );
-        }
+        $hashedEmail = hash('sha1', $data['email']);
+        $url = $this->getSubscribeUrl($context, $hashedEmail, $data['hash'], $data, $recipient);
 
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event);

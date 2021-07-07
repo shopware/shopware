@@ -3,7 +3,6 @@ import './page/sw-settings-newsletter';
 const { Module } = Shopware;
 
 Module.register('sw-settings-newsletter', {
-    flag: 'FEATURE_NEXT_15252',
     type: 'core',
     name: 'settings-newsletter',
     title: 'sw-settings-newsletter.general.mainMenuItemGeneral',

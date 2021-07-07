@@ -8,7 +8,6 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -224,9 +223,6 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     public function testSubscribeChangedConfirmUrl(): void
     {
-        /* @feature-deprecated (flag:FEATURE_NEXT_15252) remove skipTestIfInActive if feature released */
-        Feature::skipTestIfInActive('FEATURE_NEXT_15252', $this);
-
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.newsletter.doubleOptIn', true);

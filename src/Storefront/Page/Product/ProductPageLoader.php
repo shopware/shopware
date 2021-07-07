@@ -69,9 +69,6 @@ class ProductPageLoader
      */
     public function load(Request $request, SalesChannelContext $context): ProductPage
     {
-        $page = $this->genericLoader->load($request, $context);
-        $page = ProductPage::createFrom($page);
-
         $productId = $request->attributes->get('productId');
         if (!$productId) {
             throw new MissingRequestParameterException('productId', '/productId');
@@ -94,6 +91,13 @@ class ProductPageLoader
                 return $a->getPosition() <=> $b->getPosition();
             });
         }
+
+        if ($category = $product->getSeoCategory()) {
+            $request->request->set('navigationId', $category->getId());
+        }
+
+        $page = $this->genericLoader->load($request, $context);
+        $page = ProductPage::createFrom($page);
 
         $page->setProduct($product);
         $page->setConfiguratorSettings($result->getConfigurator());

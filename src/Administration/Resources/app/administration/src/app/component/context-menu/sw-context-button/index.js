@@ -104,8 +104,6 @@ Component.register('sw-context-button', {
     computed: {
         menuStyles() {
             return {
-                right: '-34px',
-                top: '10px',
                 width: `${this.menuWidth}px`,
             };
         },

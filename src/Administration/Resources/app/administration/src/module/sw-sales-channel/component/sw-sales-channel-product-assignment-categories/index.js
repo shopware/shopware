@@ -119,7 +119,13 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                     'AND',
                     [
                         Criteria.equals('parentId', parentId),
-                        Criteria.equals('type', 'page'),
+                        Criteria.multi(
+                            'OR',
+                            [
+                                Criteria.equals('type', 'page'),
+                                Criteria.equals('type', 'folder'),
+                            ],
+                        ),
                     ],
                 ),
             );

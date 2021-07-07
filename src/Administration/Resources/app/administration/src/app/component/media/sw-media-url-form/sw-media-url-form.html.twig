@@ -55,7 +55,25 @@
 </sw-modal>
 
 <div v-else-if="variant === 'inline'">
-    {% block sw_media_url_form_input %}{% endblock %}
+    {% block sw_media_url_form_input_inline %}
+    <sw-text-field
+        v-model="url"
+        class="sw-media-url-form__url-input"
+        label="URL"
+        :error="invalidUrlError"
+        :placeholder="$tc('global.sw-media-url-form.example')"
+    />
+
+    <sw-text-field
+        v-if="missingFileExtension"
+        v-model="extensionFromInput"
+        class="sw-media-url-form__extension-input"
+        :label="$tc('global.sw-media-url-form.labelFileExtension')"
+        validation="required"
+        placeholder="jpg"
+        :help-text="$tc('global.sw-media-url-form.missingFileExtension')"
+    />
+    {% endblock %}
 
     <sw-button
         class="sw-media-url-form__submit-button"

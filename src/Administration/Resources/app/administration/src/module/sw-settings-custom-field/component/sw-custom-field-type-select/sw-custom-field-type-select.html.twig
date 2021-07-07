@@ -47,10 +47,10 @@
         {% block sw_custom_field_type_select_options_container_labels %}
         <div>
             <sw-text-field
-                class="sw-custom-field-type-select__option-label"
                 v-for="locale in locales"
                 :key="locale"
                 v-model="option.label[locale]"
+                class="sw-custom-field-type-select__option-label"
                 :label="getLabel(locale)"
             />
         </div>

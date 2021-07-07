@@ -40,9 +40,9 @@
     :class="contextMenuItemStyles"
     v-on="contextListeners"
 >
-    {% block sw_context_menu_item_icon %}
+    {% block sw_context_menu_item_entry_icon %}
     <slot name="icon">
-        {% block sw_context_menu_item_slot_icon %}
+        {% block sw_context_menu_item_entry_slot_icon %}
         <sw-icon
             v-if="icon"
             :name="icon"
@@ -52,12 +52,12 @@
     </slot>
     {% endblock %}
 
-    {% block sw_context_menu_item_text %}
+    {% block sw_context_menu_item_entry_text %}
     <span
         class="sw-context-menu-item__text"
         :class="{ 'is--disabled': disabled }"
     >
-        <slot>{% block sw_context_menu_item_slot_default %}{% endblock %}</slot>
+        <slot>{% block sw_context_menu_item_entry_slot_default %}{% endblock %}</slot>
     </span>
     {% endblock %}
 </div>

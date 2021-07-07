@@ -57,7 +57,7 @@
         class="sw-admin-menu__navigation-link"
     >
 
-        {% block sw_admin_menu_item_icon %}
+        {% block sw_admin_menu_item_external_icon %}
         <sw-icon
             v-if="displayIcon"
             :size="iconSize"
@@ -67,16 +67,16 @@
         />
         {% endblock %}
 
-        {% block sw_admin_menu_item_text %}
+        {% block sw_admin_menu_item_external_text %}
         <span
             class="sw-admin-menu__navigation-link-label"
             :class="collapsibleText ? 'collapsible-text' : ''"
         >
-            {{ $tc(entry.label) }}
+            {{ getEntryLabel }}
         </span>
         {% endblock %}
 
-        {% block sw_admin_menu_item_arrow_indicato %}
+        {% block sw_admin_menu_item_external_arrow_indicato %}
         <sw-icon
             v-if="entry.level > 1 && entry.children.length"
             name="default-arrow-head-right"
@@ -96,7 +96,7 @@
         :class="{ 'router-link-active': subIsActive(entry.id) }"
     >
 
-        {% block sw_admin_menu_item_icon %}
+        {% block sw_admin_menu_item_navigation_icon %}
         <sw-icon
             v-if="displayIcon"
             :size="iconSize"
@@ -106,12 +106,12 @@
         />
         {% endblock %}
 
-        {% block sw_admin_menu_item_text %}
+        {% block sw_admin_menu_item_navigation_text %}
         <span
             class="sw-admin-menu__navigation-link-label"
             :class="collapsibleText ? 'collapsible-text' : ''"
         >
-            {{ $tc(entry.label) }}
+            {{ getEntryLabel }}
         </span>
         {% endblock %}
 

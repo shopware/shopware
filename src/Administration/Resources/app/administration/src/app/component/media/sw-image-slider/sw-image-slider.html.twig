@@ -26,7 +26,7 @@
                 :style="componentStyles"
             >
 
-                {% block sw_image_slider_image_container %}
+                {% block sw_image_slider_image_images_container %}
                 <div
                     class="sw-image-slider__element-container"
                     :class="elementClasses(index)"
@@ -42,7 +42,7 @@
                         :src="getImage(image)"
                         :alt="imageAlt(index)"
                     >
-                    {% endblock %}
+                {% endblock %}
                 </div>
                 {% endblock %}
 

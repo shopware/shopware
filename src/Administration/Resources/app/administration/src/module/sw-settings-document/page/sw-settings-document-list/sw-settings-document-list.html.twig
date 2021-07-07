@@ -87,7 +87,7 @@
                             :title="$tc('sw-settings-document.list.contextMenuEdit')"
                             :to="{ name: 'sw.settings.document.detail', params: { id: item.id } }"
                         >
-                            {% block sw_settings_document_list_columns_name_link %}
+                            {% block sw_settings_document_list_columns_name_link_inner %}
                             {{ item.name }}
                             {% endblock %}
                         </router-link>

@@ -210,10 +210,12 @@
                         <template #results-list>
                             <sw-select-result-list :options="[indexers]">
                                 <template #result-item="{ item, index }">
-                                    <ul class="sw-settings-cache__indexers-list"
+                                    <ul
+                                        class="sw-settings-cache__indexers-list"
                                         @click.stop
                                     >
-                                        <li v-for="(updaters, indexer) in item"
+                                        <li
+                                            v-for="(updaters, indexer) in item"
                                             :key="indexer"
                                         >
                                             <sw-checkbox-field
@@ -223,7 +225,8 @@
                                                 @change="changeSkip($event, indexer)"
                                             />
                                             <ul>
-                                                <li v-for="(updater, index) in updaters"
+                                                <li
+                                                    v-for="(updater, index) in updaters"
                                                     :key="index"
                                                 >
                                                     <sw-checkbox-field

@@ -528,30 +528,45 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         $productIds = array_column($ids, 'productId');
 
-        return array_map([CachedProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($productIds));
+        return array_merge(
+            array_map([CachedProductDetailRoute::class, 'buildName'], array_unique($productIds)),
+            array_map([CachedProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($productIds))
+        );
     }
 
     private function getChangedPropertyFilterTags(EntityWrittenContainerEvent $event): array
     {
-        // invalidates the product listing route, each time a property changed
+        // invalidates the product listing route and detail rule, each time a property changed
         $ids = $event->getPrimaryKeys(PropertyGroupDefinition::ENTITY_NAME);
 
         if (empty($ids)) {
             return [];
         }
 
-        $ids = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(category_id)) as category_id
-             FROM product_category_tree
-                INNER JOIN product_property ON product_category_tree.product_id = product_property.product_id AND product_category_tree.product_version_id = product_property.product_version_id
-                INNER JOIN property_group_option ON property_group_option.id = product_property.property_group_option_id
-             WHERE property_group_option.property_group_id IN (:ids)
-             AND product_category_tree.product_version_id = :version',
+        $rows = $this->connection->fetchAll(
+            'SELECT LOWER(HEX(category_id)) as category_id, LOWER(HEX(product.id)) as product_id
+             FROM product
+                LEFT JOIN product_category_tree on product.id = product_category_tree.product_id AND product.version_id = product_category_tree.product_version_id
+                LEFT JOIN product_property ON product.id = product_property.product_id AND product_property.product_version_id = product.version_id
+                LEFT JOIN property_group_option productProperties ON productProperties.id = product_property.property_group_option_id
+                LEFT JOIN product_option ON product.id = product_option.product_id AND product_option.product_version_id = product.version_id
+                LEFT JOIN property_group_option productOptions ON productOptions.id = product_option.property_group_option_id
+             WHERE productOptions.property_group_id IN (:ids) OR productProperties.property_group_id IN (:ids)
+             AND product.version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
+        $productIds = [];
+        $categoryIds = [];
+        foreach ($rows as $row) {
+            $productIds[] = $row['product_id'];
+            $categoryIds[] = $row['category_id'];
+        }
 
-        return array_map([CachedProductListingRoute::class, 'buildName'], $ids);
+        return array_merge(
+            array_map([CachedProductDetailRoute::class, 'buildName'], array_unique(array_filter($productIds))),
+            array_map([CachedProductListingRoute::class, 'buildName'], array_unique(array_filter($categoryIds))),
+        );
     }
 
     private function getProductCategoryIds(array $ids): array

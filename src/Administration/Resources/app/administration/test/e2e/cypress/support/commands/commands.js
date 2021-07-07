@@ -326,32 +326,31 @@ Cypress.Commands.add('changeElementStyling', (selector, imageStyle) => {
 /**
  * Sorts a listing via clicking on name column
  * @memberOf Cypress.Chainable#
- * @name sortListingViaColumn
+ * @name sortAndCheckListingAscViaColumn
  * @function
  * @param {String} columnTitle - Title of the column to sort with
  * @param {String} firstEntry - String of the first entry to be in listing after sorting
  * @param {String} [rowZeroSelector = .sw-data-grid__row--0]  - Name of the sales channel
  */
-Cypress.Commands.add('sortListingViaColumn', (
+Cypress.Commands.add('sortAndCheckListingAscViaColumn', (
     columnTitle,
     firstEntry,
     rowZeroSelector = '.sw-data-grid__row--0',
 ) => {
+    // Sort listing
     cy.contains('.sw-data-grid__cell-content', columnTitle).should('be.visible');
     cy.contains('.sw-data-grid__cell-content', columnTitle).click();
 
+    // Assertions to make sure listing is loaded
     cy.get('.sw-data-grid__skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
-    cy.get('.sw-data-grid__sort-indicator').should('be.visible');
-    cy.get(rowZeroSelector).should('be.visible');
 
-    cy.get(rowZeroSelector).then(($row) => {
-        if ($row.text().includes(firstEntry)) {
-            cy.contains(rowZeroSelector, firstEntry).should('be.visible');
-        } else {
-            cy.sortListingViaColumn(columnTitle, firstEntry, rowZeroSelector);
-        }
-    });
+    // Assertions to make sure sorting was applied
+    cy.get('.sw-data-grid__sort-indicator').should('be.visible');
+    cy.get('.icon--small-arrow-small-down').should('not.exist');
+    cy.get('.icon--small-arrow-small-up').should('be.visible');
+    cy.get(rowZeroSelector).should('be.visible');
+    cy.contains(rowZeroSelector, firstEntry).should('be.visible');
 });
 
 /**
@@ -596,8 +595,7 @@ Cypress.Commands.add('handleModalSnapshot', (title) => {
         cy.get('.sw-modal-fade-leave-to').should('not.exist');
     })
         .then(() => {
-            cy.get('.sw-modal')
-                .should('have.css', 'opacity', '1');
+            cy.get('.sw-modal').should('have.css', 'opacity', '1');
         });
 });
 

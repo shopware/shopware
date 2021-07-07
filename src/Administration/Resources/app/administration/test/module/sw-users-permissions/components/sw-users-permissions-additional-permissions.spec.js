@@ -80,8 +80,26 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                                     privileges: []
                                 }
                             }
+                        },
+                        {
+                            category: 'additional_permissions',
+                            key: 'app',
+                            parent: null,
+                            roles: {
+                                all: {
+                                    dependencies: ['app.appExample'],
+                                    privileges: []
+                                },
+                                appExample: {
+                                    dependencies: [],
+                                    privileges: []
+                                }
+                            }
                         }
                     ]
+                },
+                appAclService: {
+                    addAppPermissions: () => {}
                 }
             }
         });
@@ -98,9 +116,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     it('should display all keys from the category additional_permissions', async () => {
         const systemPermissions = wrapper.find('.sw-users-permissions-additional-permissions_system');
         const ordersPermissions = wrapper.find('.sw-users-permissions-additional-permissions_orders');
+        const appPermissions = wrapper.find('.sw-users-permissions-additional-permissions-app');
 
         expect(systemPermissions.exists()).toBeTruthy();
         expect(ordersPermissions.exists()).toBeTruthy();
+        expect(appPermissions.exists()).toBeTruthy();
     });
 
     it('should not display keys from other categories', async () => {
@@ -196,5 +216,45 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         wrapper.findAll('.sw-field-stub').wrappers.forEach(field => {
             expect(field.attributes().disabled).toBe('disabled');
         });
+    });
+
+    it('should add the checked value to all app privileges when the all option checked', async () => {
+        const allField = wrapper.find('.sw-field-stub[label="sw-privileges.additional_permissions.app.all"]');
+
+        expect(allField.props().value).toBeFalsy();
+
+        await allField.trigger('click');
+        await wrapper.vm.$forceUpdate();
+
+        expect(wrapper.vm.role.privileges).toContain('app.all');
+        expect(wrapper.vm.role.privileges).toContain('app.appExample');
+        expect(allField.props().value).toBeTruthy();
+    });
+
+    it('should unchecked all app privileges when the all option unchecked', async () => {
+        const allField = wrapper.find('.sw-field-stub[label="sw-privileges.additional_permissions.app.all"]');
+
+        await allField.trigger('click');
+        await wrapper.vm.$forceUpdate();
+
+        expect(wrapper.vm.role.privileges).toContain('app.all');
+        expect(wrapper.vm.role.privileges).toContain('app.appExample');
+
+        await allField.trigger('click');
+        await wrapper.vm.$forceUpdate();
+
+        expect(wrapper.vm.role.privileges).not.toContain('app.all');
+        expect(wrapper.vm.role.privileges).not.toContain('app.appExample');
+    });
+
+    it('should disable all app privilege checkboxes when the all option checked', async () => {
+        const allField = wrapper.find('.sw-field-stub[label="sw-privileges.additional_permissions.app.all"]');
+
+        await allField.trigger('click');
+        await wrapper.vm.$forceUpdate();
+
+        const appExampleField = wrapper.find('.sw-field-stub[label="appExample"]');
+
+        expect(appExampleField.attributes().disabled).toBe('disabled');
     });
 });

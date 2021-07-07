@@ -5,7 +5,6 @@ import 'src/app/component/structure/sw-admin-menu-item';
 import createMenuService from 'src/app/service/menu.service';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
-
 /** fixtures */
 import adminModules from '../../service/_mocks/adminModules.json';
 import testApps from '../../service/_mocks/testApps.json';
@@ -23,10 +22,6 @@ function createWrapper() {
     localVue.use(VueRouter);
 
     const adminMenuComponent = Shopware.Component.build('sw-admin-menu');
-    // eslint-disable-next-line func-names
-    adminMenuComponent.provide = function () {
-        return { acl: { can: () => true } };
-    };
 
     return shallowMount(adminMenuComponent, {
         localVue,
@@ -49,11 +44,11 @@ function createWrapper() {
             },
             appModulesService: {
                 fetchAppModules: () => Promise.resolve([])
-            }
+            },
+            acl: { can: () => true }
         }
     });
 }
-
 
 describe('src/app/component/structure/sw-admin-menu', () => {
     let wrapper;

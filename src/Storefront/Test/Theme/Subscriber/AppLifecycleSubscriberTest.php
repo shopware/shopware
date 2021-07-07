@@ -3,7 +3,9 @@
 namespace Shopware\Storefront\Test\Theme\Subscriber;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -32,7 +34,7 @@ class AppLifecycleSubscriberTest extends TestCase
         $source->setIsAdmin(true);
 
         $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
-        $this->context = Context::createDefaultContext($source);
+        $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
     /**

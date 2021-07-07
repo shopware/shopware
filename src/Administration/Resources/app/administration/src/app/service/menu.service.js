@@ -96,6 +96,7 @@ export default function createMenuService(moduleFactory) {
                 },
                 position: appModule.position,
                 parent: getParentFromModule(appModule),
+                privilege: `app.${app.name}`,
             };
 
             if (typeof appModule.position === 'number') {

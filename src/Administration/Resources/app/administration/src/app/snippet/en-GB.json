@@ -32,10 +32,7 @@
       "open": "Open",
       "close": "Close",
       "from": "From",
-      "to": "To",
-      "bulkEdit": "Bulk edit",
-      "startBulkEdit": "Start bulk edit",
-      "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
+      "to": "To"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
@@ -787,6 +784,11 @@
       "Standard rate": "Standard rate",
       "Reduced rate": "Reduced rate",
       "Reduced rate 2": "Super-reduced rate"
+    },
+    "sw-bulk-edit-modal": {
+      "bulkEdit": "Bulk edit",
+      "startBulkEdit": "Start bulk edit",
+      "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
     }
   },
   "sw-text-editor-toolbar": {

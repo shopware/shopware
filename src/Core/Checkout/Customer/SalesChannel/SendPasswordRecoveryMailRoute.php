@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -65,9 +64,6 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
      */
     private $validator;
 
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_15252) remove comment on feature release
-     */
     private SystemConfigService $systemConfigService;
 
     public function __construct(
@@ -154,12 +150,7 @@ Returns a success indicating a successful initialisation of the reset flow.",
 
         $hash = $customerRecovery->getHash();
 
-        /* @feature-deprecated (flag:FEATURE_NEXT_15252) keeps the if branch */
-        if (Feature::isActive('FEATURE_NEXT_15252')) {
-            $recoverUrl = $this->getRecoverUrl($context, $hash, $data->get('storefrontUrl'), $customerRecovery);
-        } else {
-            $recoverUrl = rtrim($data->get('storefrontUrl'), '/') . '/account/recover/password?hash=' . $hash;
-        }
+        $recoverUrl = $this->getRecoverUrl($context, $hash, $data->get('storefrontUrl'), $customerRecovery);
 
         $event = new CustomerAccountRecoverRequestEvent($context, $customerRecovery, $recoverUrl);
         $this->eventDispatcher->dispatch($event, CustomerAccountRecoverRequestEvent::EVENT_NAME);

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -170,9 +169,6 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     public function testSendMailWithChangedUrl(): void
     {
-        /* @feature-deprecated (flag:FEATURE_NEXT_15252) remove skipTestIfInActive if feature released */
-        Feature::skipTestIfInActive('FEATURE_NEXT_15252', $this);
-
         $this->createCustomer('shopware1234', 'foo-test@test.de');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);

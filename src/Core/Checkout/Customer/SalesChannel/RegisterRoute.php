@@ -324,12 +324,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
 
     private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url, ?string $redirectTo = null): Event
     {
-        /* @feature-deprecated (flag:FEATURE_NEXT_15252) keeps the if branch */
-        if (Feature::isActive('FEATURE_NEXT_15252')) {
-            $url .= $this->getConfirmUrl($context, $customer);
-        } else {
-            $url .= sprintf('/registration/confirm?em=%s&hash=%s', hash('sha1', $customer->getEmail()), $customer->getHash());
-        }
+        $url .= $this->getConfirmUrl($context, $customer);
 
         if ($redirectTo) {
             $url .= '&redirectTo=' . $redirectTo;

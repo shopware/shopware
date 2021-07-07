@@ -1,7 +1,6 @@
 ---
 title: Make mail links configurable
 issue: NEXT-15252
-flag: FEATURE_NEXT_15252
 ---
 # Core
 * Added following events:

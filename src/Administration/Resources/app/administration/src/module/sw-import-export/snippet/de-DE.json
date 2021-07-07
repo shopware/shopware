@@ -68,6 +68,7 @@
             "editProfileLabel": "Profil bearbeiten",
             "addProfileLabel": "Profil hinzufügen",
             "addNewProfileLabel": "Neues Profil hinzufügen",
+            "addNewProfileTooltipLanguage": "Profile können nur in der System-Standardsprache erstellt werden.",
             "openLabel": "Öffnen",
             "duplicateLabel": "Duplizieren",
             "copyOfLabel": "Kopie von:",

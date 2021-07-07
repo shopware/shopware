@@ -68,6 +68,7 @@
             "editProfileLabel": "Edit profile",
             "addProfileLabel": "Add profile",
             "addNewProfileLabel": "Add new profile",
+            "addNewProfileTooltipLanguage": "Profiles can only be created in the default system language",
             "openLabel": "Open",
             "duplicateLabel": "Duplicate",
             "copyOfLabel": "Copy of:",

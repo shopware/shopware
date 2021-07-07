@@ -6,7 +6,6 @@ const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
-
 Component.register('sw-cms-sidebar', {
     template,
 
@@ -51,6 +50,7 @@ Component.register('sw-cms-sidebar', {
             demoEntityId: this.demoEntityIdProp,
             currentBlockCategory: 'text',
             currentDragSectionIndex: null,
+            showSidebarNavigatorModal: false,
         };
     },
 
@@ -147,7 +147,7 @@ Component.register('sw-cms-sidebar', {
             return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
         },
 
-        onBlockDragSort(dragData, dropData, validDrop) {
+        async onBlockDragSort(dragData, dropData, validDrop) {
             if (validDrop !== true) {
                 return;
             }
@@ -171,8 +171,10 @@ Component.register('sw-cms-sidebar', {
 
             // check if the section where the block is moved already has the block
             const dropSectionHasBlock = this.page.sections[dropSectionIndex].blocks.has(dragData.block.id);
+            let isCrossSectionMove = false;
             if (this.currentDragSectionIndex !== dropSectionIndex && !dropSectionHasBlock) {
                 dragData.block.isDragging = true;
+                isCrossSectionMove = true;
 
                 // calculate the remove index (this may differ since the block is moved each time it enters a new
                 // section while the dragSectionIndex is the static start index of the drag
@@ -192,24 +194,38 @@ Component.register('sw-cms-sidebar', {
                     this.currentDragSectionIndex -= 1;
                 }
 
-                // clone dragged block
-                const blockClone = this.cloneBlock(dragData.block, this.page.sections[dropSectionIndex].id);
+                dragData.block.sectionId = this.page.sections[dropSectionIndex].id;
 
-                // delete block from old section
+                await this.blockRepository.save(dragData.block);
+
+                // Add and remove the blocks from the sidebar for display reasons
+                this.page.sections[dropSectionIndex].blocks.add(dragData.block);
                 this.page.sections[removeIndex].blocks.remove(dragData.block.id);
-
-                // set dragData.block to the cloned block to keep the reference
-                dragData.block = blockClone;
-
-                // add cloned block to new section
-                this.page.sections[dropSectionIndex].blocks.add(blockClone);
             } else {
                 // move item inside the section
                 this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
             }
 
-            this.$emit('block-navigator-sort');
-            this.pageUpdate();
+            this.$emit('block-navigator-sort', isCrossSectionMove);
+        },
+
+        onSidebarNavigatorClick() {
+            if (!this.$refs.blockNavigator.isActive) {
+                return;
+            }
+            this.showSidebarNavigatorModal = true;
+        },
+
+        onSidebarNavigationConfirm() {
+            this.$emit('page-save');
+            this.showSidebarNavigatorModal = false;
+        },
+
+        onSidebarNavigationCancel() {
+            this.showSidebarNavigatorModal = false;
+            this.$nextTick(() => {
+                this.$refs.pageConfigSidebar.openContent();
+            });
         },
 
         cloneBlock(block, sectionId) {

@@ -16,9 +16,6 @@ describe('Customer:  Visual test', () => {
                 return cy.loginViaApi();
             })
             .then(() => {
-                cy.createReviewFixture();
-            })
-            .then(() => {
                 return cy.createCustomerFixture();
             })
             .then(() => {
@@ -52,11 +49,7 @@ describe('Customer:  Visual test', () => {
         }).as('getData');
 
         cy.get('.sw-customer-list').should('be.visible');
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/customer/index',
-            mainMenuId: 'sw-customer',
-            subMenuId: 'sw-customer-index'
-        });
+
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -132,8 +125,6 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-customer-detail__tab-addresses').click();
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.sortAndCheckListingAscViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName');
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('[Customer] Detail, address listing', '.sw-customer-detail-addresses');
 

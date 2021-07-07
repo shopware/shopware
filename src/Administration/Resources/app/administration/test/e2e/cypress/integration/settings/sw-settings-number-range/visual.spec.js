@@ -1,7 +1,6 @@
 // / <reference types="Cypress" />
 
 describe('Number range: Visual testing', () => {
-
     // eslint-disable-next-line no-undef
     before(() => {
         // Clean previous state and prepare Administration
@@ -38,6 +37,8 @@ describe('Number range: Visual testing', () => {
 
         cy.contains('.sw-data-grid__cell--name a', 'Delivery notes').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Number range] Details', '.sw-settings-number-range-detail');
+        cy.get('.sw-loader__element').should('not.exist');
+
+        cy.takeSnapshot('[Number range] Details', '.sw-number_range-quickinfo__alert-global-type');
     });
 });

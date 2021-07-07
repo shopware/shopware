@@ -76,6 +76,7 @@ describe('Dynamic product groups: Visual tests', () => {
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-modal__header').contains('Preview (1)');
 
+        cy.handleModalSnapshot('Preview');
         cy.takeSnapshot('[Product groups] Detail, preview', '.sw-product-stream-modal-preview .sw-data-grid__row--0');
 
         cy.get('.sw-product-stream-modal-preview').within(() => {

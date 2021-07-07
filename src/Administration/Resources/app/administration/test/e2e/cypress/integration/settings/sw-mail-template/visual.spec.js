@@ -54,6 +54,8 @@ describe('Mail templates: Check module navigation in settings', () => {
 
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-media-upload-v2__dropzone').should('be.visible');
+        cy.get('.sw-media-upload-v2__switch-mode .sw-context-button__button').should('be.visible');
+
         cy.takeSnapshot('[Mail templates] Details', '.sw-mail-template-detail');
     });
 });

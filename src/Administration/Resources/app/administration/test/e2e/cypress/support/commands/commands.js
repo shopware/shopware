@@ -595,8 +595,7 @@ Cypress.Commands.add('handleModalSnapshot', (title) => {
         cy.get('.sw-modal-fade-leave-to').should('not.exist');
     })
         .then(() => {
-            cy.get('.sw-modal')
-                .should('have.css', 'opacity', '1');
+            cy.get('.sw-modal').should('have.css', 'opacity', '1');
         });
 });
 

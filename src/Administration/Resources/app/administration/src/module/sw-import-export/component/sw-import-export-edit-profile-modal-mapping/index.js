@@ -10,7 +10,10 @@ const Criteria = Shopware.Data.Criteria;
 Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -54,7 +57,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
         },
 
         mappingColumns() {
-            return [
+            let columns = [
                 {
                     property: 'csvName',
                     label: 'sw-import-export.profile.mapping.fileValueLabel',
@@ -68,6 +71,27 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                     width: '300px',
                 },
             ];
+
+            if (this.feature.isActive('FEATURE_NEXT_8097')) {
+                columns = [...columns, {
+                    property: 'required',
+                    label: 'sw-import-export.profile.mapping.isRequired',
+                    allowResize: true,
+                    align: 'center',
+                },
+                {
+                    property: 'defaultValue',
+                    label: 'sw-import-export.profile.mapping.defaultValue',
+                    allowResize: true,
+                    width: '300px',
+                }];
+            }
+
+            return columns;
+        },
+
+        mappingsExist() {
+            return this.profile.mapping.length > 0;
         },
     },
 
@@ -121,6 +145,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                     const mappedKey = mapping.mappedKey.toLowerCase();
                     return !!(key.includes(searchTerm) || mappedKey.includes(searchTerm));
                 });
+
                 return;
             }
 
@@ -151,5 +176,24 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
         debouncedSearch: debounce(function updateSearchTerm() {
             this.loadMappings();
         }, 100),
+
+        onChangeRequiredBySystem(item, newValue) {
+            item.requiredByUser = newValue;
+
+            if (newValue !== true) {
+                return;
+            }
+
+            item.useDefaultValue = false;
+            item.defaultValue = null;
+        },
+
+        isDefaultValueCheckboxDisabled(item) {
+            return this.profile.systemDefault || item.requiredByUser || item.requiredBySystem;
+        },
+
+        isDefaultValueTextFieldDisabled(item) {
+            return this.profile.systemDefault || !item.useDefaultValue || item.requiredByUser || item.requiredBySystem;
+        },
     },
 });

@@ -148,6 +148,8 @@ class ImportExport
 
                 $record = $event->getRecord();
 
+                $this->ensureRequiredFields($record, $config);
+
                 $result = $this->repository->upsert([$record], $context);
                 $progress->addProcessedRecords(1);
 
@@ -438,5 +440,19 @@ class ImportExport
         }
 
         return $data;
+    }
+
+    private function ensureRequiredFields(array $record, Config $config): void
+    {
+        $mappings = $config->getMapping()->getElements();
+
+        foreach ($mappings as $mapping) {
+            $transformedMappingName = $this->transformMappingName();
+        }
+    }
+
+    private function transformMappingName(string $name): string
+    {
+        $nameWithoutDEFAULT = preg_replace('/DEFAULT/g', '', $name);
     }
 }

@@ -76,6 +76,7 @@
             "closeProfileLabel": "Profil schließen",
             "generalTab": "Allgemein",
             "fieldIndicatorsTab": "Feld-Indikator",
+            "mappingsTab": "Zuweisungen",
             "profileNameFieldLabel": "Profilname",
             "objectTypeFieldLabel": "Objekt-Typ",
             "separatorFieldLabel": "Seperator-Zeichen",
@@ -83,7 +84,7 @@
             "addMappingTooltipText": "Bitte lege zunächst einen Objekt-Typ fest.",
             "objectTypeFieldTooltipText": "Der Objekt-Typ kann nicht mehr verändert werden, wenn bereits Mapping-Optionen gepflegt wurden.",
             "descriptionBlock": "Objekt-Typen definieren den Import- und Export-Modus und haben Auswirkungen auf die verfügbaren Optionen in der Tabelle unten. Sobald Du ihn konfiguriert hast, kannst Du kannst den Objekt-Typ nicht mehr verändern.",
-            "mappingDescriptionBlock": "Verwende die Tabelle unten, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
+            "mappingDescriptionBlock": "Verwende die Tabelle unter dem \"Zuweisungen\"-Tab, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
             "csvDescriptionBlock": "Separatoren werden verwendet, um einzelne Felder zu trennen. Einfassungszeichen werden verwendet, um gezielt darin enthaltene Steuerzeichen zu ignorieren. Zum Beispiel, wenn im Fließtext das Separator-Zeichen auftaucht.",
             "cancelLabel": "Abbrechen",
             "addMappingLabel": "Neues Mapping hinzufügen",
@@ -91,7 +92,9 @@
             "systemDefaultInfoText": "Dies ist ein Systemstandardprofil, das nicht geändert werden kann. Du kannst entweder ein neues Profil erstellen oder ein Systemstandardprofil duplizieren.",
             "mapping": {
                 "fileValueLabel": "CSV-Name",
-                "entityLabel": "Datenbank-Eintrag"
+                "entityLabel": "Datenbank-Eintrag",
+                "isRequired": "Erforderlich",
+                "defaultValue": "Standard-Wert"
             },
             "typeColumn": "Typ",
             "nameColumn": "Name",

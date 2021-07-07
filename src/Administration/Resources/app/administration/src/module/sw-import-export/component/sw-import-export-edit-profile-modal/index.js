@@ -11,7 +11,10 @@ const { Mixin } = Shopware;
 Shopware.Component.register('sw-import-export-edit-profile-modal', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 

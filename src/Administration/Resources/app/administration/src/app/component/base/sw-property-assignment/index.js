@@ -102,7 +102,6 @@ Component.register('sw-property-assignment', {
 
         deleteOption(option) {
             this.propertyCollection.remove(option.id);
-            this.groupProperties();
         },
 
         groupProperties() {

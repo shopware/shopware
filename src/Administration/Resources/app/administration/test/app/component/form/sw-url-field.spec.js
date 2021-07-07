@@ -41,23 +41,29 @@ describe('components/form/sw-url-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should validate the url correctly', async () => {
+    it.only('should validate the url correctly', async () => {
         await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de:8080');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de:8080/foobar:foo');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de:8080:');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(true);
 
         await wrapper.find('.sw-url-input-field__input').setValue('#');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(true);
 
         await wrapper.find('.sw-url-input-field__input').setValue(':');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(true);
     });
 
@@ -69,18 +75,65 @@ describe('components/form/sw-url-field', () => {
 
     it('should display unicode format', async () => {
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de');
         expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de');
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/blä');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/blä');
         expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/bl%C3%A4');
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/😋');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/😋');
         expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/%F0%9F%98%8B');
+    });
+
+    it('should keep a URL hash', async () => {
+        await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/#a-hash');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
+        expect(wrapper.find('.sw-field__error').exists()).toBe(false);
+        expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/#a-hash');
+        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/#a-hash');
+    });
+
+    it('should ignore URL hashes', async () => {
+        // switch prop to omit hash
+        await wrapper.setProps({ omitUrlHash: true });
+
+        await wrapper.find('.sw-url-input-field__input').setValue('www.example.org/#a-hash');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
+        expect(wrapper.find('.sw-field__error').exists()).toBe(false);
+        expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.example.org');
+        expect(wrapper.vm.currentValue).toBe('www.example.org');
+
+        // reset component state
+        await wrapper.setProps({ omitUrlHash: false });
+    });
+
+    it('should keep a URL search', async () => {
+        await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/?a=search');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
+        expect(wrapper.find('.sw-field__error').exists()).toBe(false);
+        expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/?a=search');
+        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/?a=search');
+    });
+
+    it('should ignore a URL search', async () => {
+        // switch prop to omit hash
+        await wrapper.setProps({ omitUrlSearch: true });
+
+        await wrapper.find('.sw-url-input-field__input').setValue('www.example.org/?a=search');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
+        expect(wrapper.find('.sw-field__error').exists()).toBe(false);
+        expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.example.org');
+        expect(wrapper.vm.currentValue).toBe('www.example.org');
+
+        // reset component state
+        await wrapper.setProps({ omitUrlSearch: false });
     });
 });

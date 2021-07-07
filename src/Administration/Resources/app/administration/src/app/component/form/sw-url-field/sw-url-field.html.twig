@@ -30,6 +30,7 @@
 
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
         <input
+            type="url"
             :id="identification"
             class="sw-url-input-field__input"
             :name="identification"
@@ -38,7 +39,7 @@
             :disabled="disabled"
             @input="onInput"
             @focus="setFocusClass"
-            @blur="removeFocusClass"
+            @blur="onBlur($event); removeFocusClass();"
         >
     </template>
 

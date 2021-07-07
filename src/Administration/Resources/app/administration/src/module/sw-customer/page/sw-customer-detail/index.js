@@ -92,6 +92,10 @@ Component.register('sw-customer-detail', {
                 .addAssociation('tags')
                 .addAssociation('requestedGroup');
 
+            criteria
+                .getAssociation('addresses')
+                .addSorting(Criteria.sort('firstName'), 'ASC', false);
+
             return criteria;
         },
 

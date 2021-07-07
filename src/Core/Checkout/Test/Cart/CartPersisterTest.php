@@ -124,4 +124,10 @@ class CartPersisterTest extends TestCase
         static::assertNotNull($firstLineItem);
         static::assertSame('test', $firstLineItem->getLabel());
     }
+
+    public function testCartCanBeUnserialized(): void
+    {
+        $cart = unserialize(file_get_contents(__DIR__ . '/fixtures/cart.blob'));
+        static::assertInstanceOf(Cart::class, $cart);
+    }
 }

@@ -2,7 +2,7 @@
 $sw-field-color-secure: $color-emerald-500;
 
 .sw-field {
-    .sw-field__url-input__prefix {
+    &__url-input__prefix {
         display: inline-flex;
         cursor: pointer;
         user-select: none;

@@ -55,5 +55,5 @@
     "require-dev": {
         "phpunit/phpunit": "9.5.2"
     },
-    "version": "6.4.2.0"
+    "version": "6.4.2.1"
 }

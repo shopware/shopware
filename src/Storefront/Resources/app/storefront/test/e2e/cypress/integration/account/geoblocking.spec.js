@@ -88,6 +88,9 @@ describe('Account: indicate non shippable country on register page', () => {
 
         cy.get('.login-submit [type="submit"]').click();
 
+        cy.get('.account-overview .alert-warning')
+            .contains('We can not deliver to the country that is stored in your delivery address.');
+
         cy.get('.overview-shipping-address > .card > .card-body > .card-actions > .btn').click();
 
         // create new address

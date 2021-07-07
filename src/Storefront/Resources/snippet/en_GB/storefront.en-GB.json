@@ -161,6 +161,7 @@
     "overviewChangeShipping": "Change shipping address",
     "overviewNewestOrderHeader": "Last order",
     "overviewCustomerGroupRequest": "Access to customer group \"%group%\" requested.",
+    "overviewNotAbleToShip": "We can not deliver to the country that is stored in your delivery address.",
     "paymentChangeSubmit": "Change",
     "profilePersonalTitle": "Personal data",
     "profileMailTitle": "Email address",

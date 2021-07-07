@@ -161,6 +161,7 @@
     "overviewChangeShipping": "Lieferadresse ändern",
     "overviewNewestOrderHeader": "Letzte Bestellung",
     "overviewCustomerGroupRequest": "Anfrage zur Aufnahme in die Kundengruppe \"%group%\" gestellt.",
+    "overviewNotAbleToShip": "Wir können nicht in das Land liefern, welches in Ihrer Lieferadresse hinterlegt ist.",
     "paymentChangeSubmit": "Ändern",
     "profilePersonalTitle": "Persönliche Daten",
     "profileMailTitle": "E-Mail-Adresse",

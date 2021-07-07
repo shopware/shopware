@@ -39,7 +39,7 @@
                 {% block sw_product_variants_media_upload_preview %}
                 <div
                     class="sw-product-variants-media-upload__images"
-                    :class="{ 'is--compact--button': mediaSource.length > 3 }"
+                    :class="{ 'is--compact--button': mediaSource.length > 2 }"
                 >
                     <div
                         v-for="(item, index) in mediaSource"
@@ -95,7 +95,7 @@
             <div class="sw-media-upload-v2__actions">
                 {% block sw_product_variants_media_upload_actions_regular %}
                 <div
-                    v-if="mediaSource.length <= 3"
+                    v-if="mediaSource.length <= 2"
                     class="sw-product-variants-media-upload__regular-button"
                 >
                     {% block sw_product_variants_media_upload_actions_regular_upload_button %}

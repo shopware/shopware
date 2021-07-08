@@ -18,7 +18,7 @@ export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin
     getGreCaptchaInfo() {
         return {
             version: 'GoogleReCaptchaV3',
-        }
+        };
     }
 
     /**

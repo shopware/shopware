@@ -20,13 +20,13 @@ class CaptchaRouteListener implements EventSubscriberInterface
      */
     private iterable $captchas;
 
-    private ?ErrorController $errorController;
+    private ErrorController $errorController;
 
     private SystemConfigService $systemConfigService;
 
     public function __construct(
         iterable $captchas,
-        ?ErrorController $errorController = null,
+        ErrorController $errorController,
         SystemConfigService $systemConfigService
     ) {
         $this->captchas = $captchas;
@@ -68,9 +68,9 @@ class CaptchaRouteListener implements EventSubscriberInterface
 
         foreach ($this->captchas as $captcha) {
             $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
-
+            $request = $event->getRequest();
             if (
-                $captcha->supports($event->getRequest(), $captchaConfig) && !$captcha->isValid($event->getRequest(), $captchaConfig)
+                $captcha->supports($request, $captchaConfig) && !$captcha->isValid($request, $captchaConfig)
             ) {
                 if ($captcha->shouldBreak()) {
                     throw new CaptchaInvalidException($captcha);
@@ -78,17 +78,15 @@ class CaptchaRouteListener implements EventSubscriberInterface
 
                 $violations = $captcha->getViolations();
 
-                /** @var ErrorController $errorController */
-                $errorController = $this->errorController;
-
-                $request = $event->getRequest();
                 $event->setController(function () use (
-                    $errorController,
                     $violations,
                     $request
                 ) {
-                    return $errorController->onCaptchaFailure($violations, $request);
+                    return $this->errorController->onCaptchaFailure($violations, $request);
                 });
+
+                // Return on first invalid captcha
+                return;
             }
         }
     }

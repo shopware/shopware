@@ -355,6 +355,7 @@
 
         <service id="Shopware\Storefront\Controller\CaptchaController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Captcha\BasicCaptcha"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

@@ -1,7 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
-export default class GoogleReCaptchaBasePlugin extends Plugin
-{
+export default class GoogleReCaptchaBasePlugin extends Plugin {
     init() {
         this._getForm();
 

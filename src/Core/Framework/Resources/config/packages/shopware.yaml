@@ -185,6 +185,11 @@ shopware:
               major: false
               description: "Admin search improvements"
               # issue: NEXT-6040
+            - name: FEATURE_NEXT_8097
+              default: false
+              major: false
+              description: "Groundwork for csv import"
+              # issue: NEXT-8097
 
     logger:
         file_rotation_count: 14

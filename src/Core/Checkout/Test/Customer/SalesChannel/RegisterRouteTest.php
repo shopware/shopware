@@ -81,6 +81,9 @@ class RegisterRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('customer', $response['apiAlias']);
+        static::assertNotEmpty($response['addresses']);
+        static::assertNotEmpty($response['salutation']);
+        static::assertNotEmpty($response['defaultBillingAddress']);
         static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser

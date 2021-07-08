@@ -134,7 +134,8 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.content-main h1').contains('Maintenance mode');
     });
 
-    it('@settings: change active captcha and test input field show when google recaptcha selected', () => {
+    // NEXT-16105 - Flaky, looks like the test does not wait for the clear of the multi select
+    it.skip('@settings: change active captcha and test input field show when google recaptcha selected', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({

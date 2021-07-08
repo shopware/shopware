@@ -25,7 +25,7 @@ describe('Validation of theme and cache after auto update', () => {
         cy.get('.sw-admin-menu__sales-channel-item--0').click();
         cy.get('a[title="Theme"]').click();
 
-        cy.contains('Theme Zuweisung').should('be.visible');
+        cy.contains('Theme-Zuweisung').should('be.visible');
         cy.contains('Theme ändern').click();
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-theme-modal__content-item:last-child input').click();
@@ -45,7 +45,7 @@ describe('Validation of theme and cache after auto update', () => {
         cy.visit('/admin'); cy.get('.sw-admin-menu__sales-channel-item--0').click();
         cy.get('a[title="Theme"]').click();
 
-        cy.contains('Theme Zuweisung').should('be.visible');
+        cy.contains('Theme-Zuweisung').should('be.visible');
         cy.contains('Theme ändern').click();
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-theme-modal__content-item:first-child input').click();

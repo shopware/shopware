@@ -168,7 +168,7 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         // Open product assignment modal
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body .sw-tabs-item').contains('Filter by categories').click();
+        cy.get('.sw-modal__body .sw-tabs-item').contains('Category selection').click();
 
         // Search Test category
         cy.get('.sw-sales-channel-product-assignment-categories .sw-simple-search-field').type('Test');

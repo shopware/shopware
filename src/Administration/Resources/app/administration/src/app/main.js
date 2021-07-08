@@ -32,6 +32,7 @@ import LocaleHelperService from 'src/app/service/locale-helper.service';
 import FilterService from 'src/app/service/filter.service';
 import AppCmsService from 'src/app/service/app-cms.service';
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
+import AppAclService from 'src/app/service/app-acl.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -144,6 +145,12 @@ Application
     })
     .addServiceProvider('mediaDefaultFolderService', () => {
         return MediaDefaultFolderService();
+    })
+    .addServiceProvider('appAclService', () => {
+        return new AppAclService({
+            privileges: Shopware.Service('privileges'),
+            appRepository: Shopware.Service('repositoryFactory').create('app'),
+        });
     })
     .addServiceProvider('appCmsService', (container) => {
         const appCmsBlocksService = container.appCmsBlocks;

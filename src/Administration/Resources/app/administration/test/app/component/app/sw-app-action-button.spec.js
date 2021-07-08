@@ -4,6 +4,7 @@ import 'src/app/component/base/sw-icon';
 
 function createWrapper(action, listeners = {}) {
     const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
 
     return mount(Shopware.Component.build('sw-app-action-button'), {
         localVue,
@@ -16,6 +17,9 @@ function createWrapper(action, listeners = {}) {
             'icons-default-action-external': {
                 template: '<span class="sw-icon sw-icon--default-action-external"></span>'
             }
+        },
+        provide: {
+            acl: { can: () => true }
         }
     });
 }

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\ActionButton\AppActionLoader;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,25 +23,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AppActionController extends AbstractController
 {
-    /**
-     * @var ActionButtonLoader
-     */
-    private $actionButtonLoader;
+    private ActionButtonLoader $actionButtonLoader;
 
-    /**
-     * @var Executor
-     */
-    private $executor;
+    private Executor $executor;
 
-    /**
-     * @var AppActionLoader
-     */
-    private $appActionFactory;
+    private AppActionLoader $appActionFactory;
 
-    /**
-     * @var ModuleLoader
-     */
-    private $moduleLoader;
+    private ModuleLoader $moduleLoader;
 
     public function __construct(
         ActionButtonLoader $actionButtonLoader,
@@ -68,6 +57,7 @@ class AppActionController extends AbstractController
     /**
      * @Since("6.3.3.0")
      * @Route("api/app-system/action-button/run/{id}", name="api.app_system.action_button.run", methods={"POST"})
+     * @Acl({"app"})
      */
     public function runAction(string $id, Request $request, Context $context): Response
     {

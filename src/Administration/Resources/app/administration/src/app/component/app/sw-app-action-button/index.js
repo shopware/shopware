@@ -6,6 +6,8 @@ const { Component, State, Context } = Shopware;
 Component.register('sw-app-action-button', {
     template,
 
+    inject: ['acl'],
+
     props: {
         action: {
             type: Object,

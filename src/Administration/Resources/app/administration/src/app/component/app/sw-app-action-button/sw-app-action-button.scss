@@ -14,3 +14,9 @@
         vertical-align: baseline;
     }
 }
+
+.sw-context-menu-item--disabled {
+    color: #b3bfcc;
+    pointer-events: none;
+    opacity: 0.5;
+}

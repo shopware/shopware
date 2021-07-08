@@ -32,10 +32,7 @@
       "open": "Öffnen",
       "close": "Schließen",
       "from": "Von",
-      "to": "Bis",
-      "bulkEdit": "Mehrfach-Bearbeitung",
-      "startBulkEdit": "Beginne die Mehrfach-Bearbeitung",
-      "bulkEditModalTitle": "Mehrfach-Bearbeitung - {count} Element ausgewählt | Mehrfach-Bearbeitung - {count} Elemente ausgewählt"
+      "to": "Bis"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -787,6 +784,11 @@
       "Standard rate": "Standard-Satz",
       "Reduced rate": "Ermäßigter Satz",
       "Reduced rate 2": "Stark ermäßigter Satz"
+    },
+    "sw-bulk-edit-modal": {
+      "bulkEdit": "Mehrfach-Bearbeitung",
+      "startBulkEdit": "Beginne die Mehrfach-Bearbeitung",
+      "bulkEditModalTitle": "Mehrfach-Bearbeitung - {count} Element ausgewählt | Mehrfach-Bearbeitung - {count} Elemente ausgewählt"
     }
   },
   "sw-text-editor-toolbar": {

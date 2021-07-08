@@ -2,6 +2,7 @@
     {% set googleReCaptchaV3Options = {
         siteKey: config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.config.siteKey')
     } %}
+
     <div class="captcha-google-re-captcha-v3"
          data-google-re-captcha-v3="true"
          data-google-re-captcha-v3-options="{{ googleReCaptchaV3Options|json_encode }}">

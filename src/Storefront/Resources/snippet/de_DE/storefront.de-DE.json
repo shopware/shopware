@@ -565,7 +565,7 @@
   },
   "captcha": {
     "googleReCaptcha": {
-      "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\\\"https://policies.google.com/privacy?hl=de\\\">Datenschutzrichtlinie</a> und\\n<a href=\\\"https://policies.google.com/terms?hl=de\\\">Nutzungsbedingungen</a>."
+      "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\\\"https://policies.google.com/privacy?hl=de\\\">Datenschutzrichtlinie</a> und <a href=\\\"https://policies.google.com/terms?hl=de\\\">Nutzungsbedingungen</a>."
     },
     "basicCaptchaLabel" : "Bitte geben Sie die abgebildeten Zeichen ein*"
   },

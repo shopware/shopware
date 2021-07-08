@@ -123,7 +123,7 @@ describe('Captcha: Google ReCaptcha', () => {
             contactForm.get('.grecaptcha-v2-input').should('be.not.visible');
             contactForm.get('.grecaptcha-protection-information').should('be.visible');
             contactForm.get('.grecaptcha-protection-information').should('have.length', 1);
-            contactForm.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google\nPrivacy Policy and\nTerms of Service apply.');
+            contactForm.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.');
         })
     });
 
@@ -148,7 +148,7 @@ describe('Captcha: Google ReCaptcha', () => {
             cy.get('.grecaptcha-badge').should('be.not.visible');
             cy.get('.grecaptcha-protection-information').should('be.visible');
             cy.get('.grecaptcha-protection-information').should('have.length', 1);
-            cy.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google\nPrivacy Policy and\nTerms of Service apply.');
+            cy.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.');
         });
 
         setActiveCaptchas({
@@ -170,7 +170,7 @@ describe('Captcha: Google ReCaptcha', () => {
             cy.get('.grecaptcha_v3-input').should('be.exist');
             cy.get('.grecaptcha_v3-input').should('be.not.visible');
             cy.get('.grecaptcha-protection-information').should('have.length', 1);
-            cy.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google\nPrivacy Policy and\nTerms of Service apply.');
+            cy.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.');
         });
 
         setActiveCaptchas({
@@ -198,7 +198,7 @@ describe('Captcha: Google ReCaptcha', () => {
             cy.get('.grecaptcha-protection-information').should('be.visible');
             // only one .grecaptcha-protection-information exists
             cy.get('.grecaptcha-protection-information').should('have.length', 1);
-            cy.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google\nPrivacy Policy and\nTerms of Service apply.');
+            cy.get('.grecaptcha-protection-information').should('include.text', 'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.');
         })
     });
 });

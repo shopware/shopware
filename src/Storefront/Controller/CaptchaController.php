@@ -4,8 +4,10 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
+use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Shopware\Storefront\Pagelet\Captcha\AbstractBasicCaptchaPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,10 +22,14 @@ class CaptchaController extends StorefrontController
 {
     private AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader;
 
+    private AbstractCaptcha $basicCaptcha;
+
     public function __construct(
-        AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader
+        AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader,
+        AbstractCaptcha $basicCaptcha
     ) {
         $this->basicCaptchaPageletLoader = $basicCaptchaPageletLoader;
+        $this->basicCaptcha = $basicCaptcha;
     }
 
     /**
@@ -45,14 +51,32 @@ class CaptchaController extends StorefrontController
     /**
      * @Since("6.4.0.0")
      * @Route("/basic-captcha-validate", name="frontend.captcha.basic-captcha.validate", methods={"POST"}, defaults={"XmlHttpRequest"=true})
-     * @Captcha
      */
     public function validate(Request $request): JsonResponse
     {
         $formId = $request->get('formId');
-        $fakeSession = (string) time();
-        $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
+        if (!$formId) {
+            throw new MissingRequestParameterException('formId');
+        }
 
-        return new JsonResponse(['session' => $fakeSession]);
+        if ($this->basicCaptcha->isValid($request)) {
+            $fakeSession = $request->get(BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
+            $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
+
+            return new JsonResponse(['session' => $fakeSession]);
+        }
+
+        $violations = $this->basicCaptcha->getViolations();
+        $formViolations = new ConstraintViolationException($violations, []);
+        $response[] = [
+            'type' => 'danger',
+            'error' => 'invalid_captcha',
+            'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
+                'formId' => $request->get('formId'),
+                'formViolations' => $formViolations,
+            ]),
+        ];
+
+        return new JsonResponse($response);
     }
 }

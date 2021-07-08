@@ -518,7 +518,7 @@
 
         <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
             <argument type="tagged" tag="shopware.storefront.captcha"/>
-            <argument type="service" id="Shopware\Storefront\Controller\ErrorController" on-invalid="null"/>
+            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -527,14 +527,14 @@
         <service id="Shopware\Storefront\Framework\Captcha\HoneypotCaptcha">
             <argument type="service" id="validator"/>
 
-            <tag name="shopware.storefront.captcha"/>
+            <tag name="shopware.storefront.captcha" priority="400"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
-            <tag name="shopware.storefront.captcha"/>
+            <tag name="shopware.storefront.captcha" priority="300"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator"/>
@@ -544,13 +544,13 @@
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2">
             <argument type="service" id="shopware.captcha.client"/>
 
-            <tag name="shopware.storefront.captcha"/>
+            <tag name="shopware.storefront.captcha" priority="200"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
             <argument type="service" id="shopware.captcha.client"/>
 
-            <tag name="shopware.storefront.captcha"/>
+            <tag name="shopware.storefront.captcha" priority="100"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>

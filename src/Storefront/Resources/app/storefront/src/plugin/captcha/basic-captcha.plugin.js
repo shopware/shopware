@@ -79,9 +79,9 @@ export default class BasicCaptchaPlugin extends Plugin {
             shopware_basic_captcha_confirm: this.el.querySelector(this.options.basicCaptchaInputId).value,
             _csrf_token: this.options.preCheckRoute.token,
         });
-        this._httpClient.post(this.options.preCheckRoute.path, data , (res) => {
+        this._httpClient.post(this.options.preCheckRoute.path, data, (res) => {
             this.formValidating = false;
-            const response = JSON.parse(res)
+            const response = JSON.parse(res);
             if (response.session) {
                 this.onFormSubmit(response.session);
                 return;
@@ -116,7 +116,7 @@ export default class BasicCaptchaPlugin extends Plugin {
             return;
         }
         this.formValidating = true;
-        const response = JSON.parse(res)[0]
+        const response = JSON.parse(res)[0];
         if (response.error !== 'invalid_captcha') {
             return;
         }

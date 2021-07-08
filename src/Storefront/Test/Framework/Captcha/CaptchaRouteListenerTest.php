@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha as CaptchaAnnotation;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
@@ -52,7 +53,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         (new CaptchaRouteListener(
             $this->getCaptchas(true, false),
-            null,
+            $this->getContainer()->get(ErrorController::class),
             $this->getContainer()->get(SystemConfigService::class)
         ))->validateCaptcha($event);
     }

@@ -25,7 +25,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
         return {
             version: 'GoogleReCaptchaV2',
             invisible: this.options.invisible,
-        }
+        };
     }
 
     onFormSubmit() {

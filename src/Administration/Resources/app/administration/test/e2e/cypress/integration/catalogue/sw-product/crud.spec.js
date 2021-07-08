@@ -219,4 +219,26 @@ describe('Product: Test crud operations', () => {
                 expect(text).to.equal('');
             });
     });
+
+    it('@base @catalogue: Test floating point precision', () => {
+        // Request we want to wait for later
+        cy.server();
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
+            method: 'post'
+        }).as('calculatePrice');
+
+        // Add basic data to product
+        cy.get('a[href="#/sw/product/create"]').click();
+
+        cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with floating point net price');
+
+        // Check net price calculation
+        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
+        cy.get('.sw-list-price-field .sw-price-field__net input').eq(0).type('4.23').type('{enter}');
+        cy.wait('@calculatePrice').then(() => {
+            cy.get('.sw-list-price-field .sw-price-field__gross input').eq(0).should('have.value', '5.0337');
+        });
+    });
 });

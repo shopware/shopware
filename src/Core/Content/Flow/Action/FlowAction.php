@@ -16,6 +16,7 @@ abstract class FlowAction implements EventSubscriberInterface
     public const REMOVE_ORDER_TAG = 'action.remove.order.tag';
     public const REMOVE_CUSTOMER_TAG = 'action.remove.customer.tag';
     public const SET_ORDER_STATE = 'action.set.order.state';
+    public const SEND_MAIL = 'action.mail.send';
     public const CALL_WEBHOOK = 'action.call.webhook';
 
     abstract public function requirements(): array;

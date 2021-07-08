@@ -77,7 +77,7 @@ Component.register('sw-flow-sequence-action', {
             return this.flowBuilderService.getActionModalName(this.actionModal);
         },
 
-        ...mapState('swFlowState', ['invalidSequences', 'stateMachineState']),
+        ...mapState('swFlowState', ['invalidSequences', 'stateMachineState', 'documentTypes']),
         ...mapGetters('swFlowState', ['availableActions']),
     },
 
@@ -263,7 +263,9 @@ Component.register('sw-flow-sequence-action', {
                 case ACTION.STOP_FLOW:
                     return this.$tc('sw-flow.actions.textStopFlowDescription');
                 case ACTION.SET_ORDER_STATE:
-                    return this.showSetOrderStateDescription(config);
+                    return this.getSetOrderStateDescription(config);
+                case ACTION.GENERATE_DOCUMENT:
+                    return this.getGenerateDocumentDescription(config);
                 default: {
                     return '';
                 }
@@ -295,12 +297,7 @@ Component.register('sw-flow-sequence-action', {
             return item.actionName !== ACTION.STOP_FLOW;
         },
 
-        onCreateActionSuccess(actionSequence) {
-            this.addAction(actionSequence);
-            this.onCloseModal();
-        },
-
-        showSetOrderStateDescription(config) {
+        getSetOrderStateDescription(config) {
             const description = [];
             if (config.order) {
                 const orderStatus = this.stateMachineState.find(item => item.technicalName === config.order);
@@ -321,6 +318,13 @@ Component.register('sw-flow-sequence-action', {
             }
 
             return description.join('<br>');
+        },
+
+        getGenerateDocumentDescription(config) {
+            const documentType = this.documentTypes.find(item => item.technicalName === config.documentType);
+            return this.$tc('sw-flow.modals.document.documentDescription', 0, {
+                documentType: documentType?.translated?.name,
+            });
         },
     },
 });

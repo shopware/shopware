@@ -20,6 +20,12 @@ Component.register('sw-flow-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(),
+        };
+    },
+
     computed: {
         flowRepository() {
             return this.repositoryFactory.create('flow');
@@ -47,7 +53,7 @@ Component.register('sw-flow-list', {
                     primary: true,
                 },
                 {
-                    property: 'trigger',
+                    property: 'eventName',
                     label: this.$tc('sw-flow.list.labelColumnTrigger'),
                     sortable: false,
                     allowResize: true,

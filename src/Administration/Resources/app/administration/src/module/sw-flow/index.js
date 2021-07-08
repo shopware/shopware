@@ -11,6 +11,7 @@ import './component/sw-flow-sequence-selector';
 import './component/modals/sw-flow-create-rule-modal';
 import './component/modals/sw-flow-tag-modal';
 import './component/modals/sw-flow-set-order-state-modal';
+import './component/modals/sw-flow-generate-document-modal';
 
 import './service/flow-builder.service';
 import './acl';

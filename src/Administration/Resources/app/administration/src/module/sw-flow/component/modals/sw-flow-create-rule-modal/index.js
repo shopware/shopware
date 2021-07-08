@@ -26,6 +26,7 @@ Component.register('sw-flow-create-rule-modal', {
                 tags: [],
             },
             conditions: null,
+            conditionTree: null,
         };
     },
 
@@ -40,8 +41,8 @@ Component.register('sw-flow-create-rule-modal', {
             }
 
             return this.repositoryFactory.create(
-                this.rule.conditions.entity,
-                this.rule.conditions.source,
+                this.rule?.conditions?.entity,
+                this.rule?.conditions?.source,
             );
         },
 
@@ -66,7 +67,7 @@ Component.register('sw-flow-create-rule-modal', {
     methods: {
         createNewRule() {
             this.rule = this.ruleRepository.create(Context.api);
-            this.conditions = this.rule.conditions;
+            this.conditions = this.rule?.conditions;
         },
 
         onConditionsChanged({ conditions }) {

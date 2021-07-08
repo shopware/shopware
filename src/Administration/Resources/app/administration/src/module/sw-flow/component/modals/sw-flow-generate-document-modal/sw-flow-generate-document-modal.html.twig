@@ -1,0 +1,53 @@
+{% block sw_flow_generate_document_modal %}
+<sw-modal
+    class="sw-flow-generate-document-modal"
+    :title="$tc('sw-flow.modals.document.titleCreateDocument')"
+    @modal-close="onClose"
+>
+    {% block sw_flow_generate_document_modal_document_type %}
+    <sw-select-field
+        v-model="documentType"
+        required
+        class="sw-flow-generate-document-modal__type-select"
+        :label="$tc('sw-flow.modals.document.labelDocumentType')"
+        :placeholder="$tc('sw-flow.modals.document.placeholderDocumentType')"
+        :error="fieldError"
+    >
+        <template v-if="documentTypes && documentTypes.length">
+            <option
+                v-for="option in documentTypes"
+                :key="option.id"
+                :value="option.technicalName"
+            >
+                {{ option.translated.name }}
+            </option>
+        </template>
+    </sw-select-field>
+    {% endblock %}
+
+    {% block sw_flow_generate_document_modal_footer %}
+    <template #modal-footer>
+        {% block sw_flow_generate_document_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-generate-document-modal__cancel-button"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_generate_document_modal_footer_save_button %}
+        <sw-button
+            class="sw-flow-generate-document-modal__save-button"
+            variant="primary"
+            @click="onAddAction"
+        >
+            {{ sequence.id
+                ? $tc('sw-flow.modals.buttonSaveAction')
+                : $tc('sw-flow.modals.buttonAddAction') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

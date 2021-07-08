@@ -58,6 +58,16 @@ Component.register('sw-flow-detail', {
             return criteria;
         },
 
+        documentTypeRepository() {
+            return this.repositoryFactory.create('document_type');
+        },
+
+        documentTypeCriteria() {
+            const criteria = new Criteria(1, 100);
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+            return criteria;
+        },
+
         stateMachineStateRepository() {
             return this.repositoryFactory.create('state_machine_state');
         },
@@ -90,6 +100,10 @@ Component.register('sw-flow-detail', {
         this.createdComponent();
     },
 
+    beforeDestroy() {
+        this.beforeDestroyComponent();
+    },
+
     methods: {
         createdComponent() {
             if (this.flowId) {
@@ -98,6 +112,10 @@ Component.register('sw-flow-detail', {
             }
 
             this.createNewFlow();
+        },
+
+        beforeDestroyComponent() {
+            State.dispatch('swFlowState/resetFlowState');
         },
 
         routeDetailTab(tabName) {
@@ -237,6 +255,15 @@ Component.register('sw-flow-detail', {
                     .then(data => {
                         State.commit('swFlowState/setStateMachineState', data);
                     }));
+            }
+
+            const hasDocumentAction = this.sequences.some(sequence => sequence.actionName === ACTION.GENERATE_DOCUMENT);
+
+            if (hasDocumentAction) {
+                // get support information for generate document action.
+                promises.push(this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
+                    Shopware.State.commit('swFlowState/setDocumentTypes', data);
+                }));
             }
 
             return Promise.all(promises);

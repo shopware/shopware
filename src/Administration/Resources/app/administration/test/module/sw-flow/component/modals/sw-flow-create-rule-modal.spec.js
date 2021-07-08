@@ -5,6 +5,7 @@ import 'src/app/component/base/sw-tabs-item';
 
 function createRuleMock(isNew) {
     return {
+        id: '1',
         name: 'Test rule',
         isNew: () => isNew,
         conditions: {
@@ -23,7 +24,8 @@ function createWrapper() {
                         create: () => {
                             return createRuleMock(true);
                         },
-                        get: () => Promise.resolve(createRuleMock(false))
+                        get: () => Promise.resolve(createRuleMock(false)),
+                        save: () => Promise.resolve()
                     };
                 }
             },
@@ -48,7 +50,9 @@ function createWrapper() {
                     </div>
                 `
             },
-            'sw-button': true,
+            'sw-button': {
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+            },
             'sw-icon': true,
             'sw-condition-tree': true,
             'sw-container': true,
@@ -61,16 +65,12 @@ function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-create-rule-modal', () => {
-    it('should show the condition on rule tab', async () => {
+    it('should show element correctly', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
 
         const conditionElement = wrapper.find('.sw-flow-create-rule-modal__rule');
         expect(conditionElement.exists()).toBe(true);
-    });
 
-    it('should show these fields on the details tab', async () => {
-        const wrapper = createWrapper();
         const fieldClasses = [
             '.sw-flow-create-rule-modal__name',
             '.sw-flow-create-rule-modal__priority',
@@ -85,5 +85,15 @@ describe('module/sw-flow/component/sw-flow-create-rule-modal', () => {
         fieldClasses.forEach(elementClass => {
             expect(wrapper.find(elementClass).exists()).toBe(true);
         });
+    });
+
+    it('should emit event process-finish when saving rule sucessfully', async () => {
+        const wrapper = await createWrapper();
+
+        const saveButton = wrapper.find('.sw-flow-create-rule-modal__save-button');
+        await saveButton.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted()['process-finish']).toBeTruthy();
     });
 });

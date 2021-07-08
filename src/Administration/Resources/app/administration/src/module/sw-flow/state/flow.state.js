@@ -12,6 +12,7 @@ export default {
         triggerActions: [],
         invalidSequences: [],
         stateMachineState: [],
+        documentTypes: [],
     },
 
     mutations: {
@@ -76,6 +77,25 @@ export default {
         setInvalidSequences(state, invalidSequences) {
             state.invalidSequences = invalidSequences;
         },
+
+        setDocumentTypes(state, documentTypes) {
+            state.documentTypes = documentTypes;
+        },
+
+        removeCurrentFlow(state) {
+            state.flow = {
+                eventName: '',
+                sequences: [],
+            };
+        },
+
+        removeInvalidSequences(state) {
+            state.invalidSequences = [];
+        },
+
+        removeTriggerEvent(state) {
+            state.triggerEvent = {};
+        },
     },
 
     getters: {
@@ -111,6 +131,14 @@ export default {
             });
 
             return availableAction;
+        },
+    },
+
+    actions: {
+        resetFlowState({ commit }) {
+            commit('removeCurrentFlow');
+            commit('removeInvalidSequences');
+            commit('removeTriggerEvent');
         },
     },
 };

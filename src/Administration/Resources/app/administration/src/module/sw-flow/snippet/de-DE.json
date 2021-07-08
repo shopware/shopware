@@ -132,6 +132,12 @@
         "placeholderPaymentStatus": "Select payment status...",
         "placeholderDeliveryStatus": "Select shipping status...",
         "messageNoStatusError": "At least one status should be selected"
+      },
+      "document": {
+        "titleCreateDocument": "Create document",
+        "labelDocumentType": "Document type",
+        "placeholderDocumentType": "Select document type...",
+        "documentDescription": "Document type: {documentType}"
       }
     }
   },

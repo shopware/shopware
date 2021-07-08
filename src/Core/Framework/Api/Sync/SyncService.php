@@ -84,9 +84,17 @@ class SyncService implements SyncServiceInterface
             $this->eventDispatcher->dispatch($writes);
 
             $ids = $this->getWrittenEntities($result->getWritten());
+
+            $deleted = $this->getWrittenEntitiesByEvent($deletes);
+
             $notFound = $this->getWrittenEntities($result->getNotFound());
 
-            return new SyncResult($ids, empty($notFound), $notFound);
+            //@internal (flag:FEATURE_NEXT_15815) - second construct parameter removed - simply remove if condition and all other code below
+            if (Feature::isActive('FEATURE_NEXT_15815')) {
+                return new SyncResult($ids, $notFound, $deleted);
+            }
+
+            return new SyncResult($ids, empty($notFound), $notFound, $deleted);
         }
 
         //@internal (flag:FEATURE_NEXT_15815) - remove all code below and all functions which will are no longer used

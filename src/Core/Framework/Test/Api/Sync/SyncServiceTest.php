@@ -246,12 +246,15 @@ class SyncServiceTest extends TestCase
         $id2 = Uuid::randomHex();
 
         $operation = new SyncOperation(
-            'write',
+            'manufacturers',
             'product_manufacturer',
             SyncOperation::ACTION_UPSERT,
             [
                 ['id' => $id1, 'name' => 'first manufacturer'],
                 ['id' => $id2],
+                ['id' => Uuid::randomHex()],
+                ['id' => Uuid::randomHex()],
+                ['id' => Uuid::randomHex()],
             ]
         );
 
@@ -270,12 +273,12 @@ class SyncServiceTest extends TestCase
 
         static::assertInstanceOf(WriteException::class, $e);
 
-        static::assertCount(1, $e->getExceptions());
+        static::assertCount(4, $e->getExceptions());
         $first = $e->getExceptions()[0];
 
         /** @var WriteConstraintViolationException $first */
         static::assertInstanceOf(WriteConstraintViolationException::class, $first);
-        static::assertStringStartsWith('/write/1/translations', $first->getPath());
+        static::assertStringStartsWith('/manufacturers/1/translations', $first->getPath());
     }
 
     public function testFailOnErrorContinues(): void

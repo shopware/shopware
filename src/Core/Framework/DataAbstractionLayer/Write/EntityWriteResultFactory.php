@@ -117,16 +117,22 @@ class EntityWriteResultFactory
 
         $deleted = $this->addParentResults($results['deleted'], $parents);
 
+        $mapped = [];
         $updates = [];
         foreach ($deleted as $entity => $nested) {
-            $updates[$entity] = array_filter($nested, function (EntityWriteResult $single) {
-                return $single->getOperation() === EntityWriteResult::OPERATION_UPDATE;
-            });
+            /** @var EntityWriteResult $result */
+            foreach ($nested as $result) {
+                if ($result->getOperation() === EntityWriteResult::OPERATION_UPDATE) {
+                    $updates[$entity][] = $result;
+                } else {
+                    $mapped[$entity][] = $result;
+                }
+            }
         }
 
         $updates = array_merge_recursive($results['updated'], $updates);
 
-        return new WriteResult($deleted, $notFound, $updates);
+        return new WriteResult($mapped, $notFound, array_filter($updates));
     }
 
     private function resolveParents(EntityDefinition $definition, array $ids): array

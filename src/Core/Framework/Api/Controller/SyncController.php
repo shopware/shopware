@@ -15,6 +15,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
@@ -144,6 +145,9 @@ a list of identifiers can be provided.",
 
         $operations = [];
         foreach ($payload as $key => $operation) {
+            if (isset($operation['key'])) {
+                $key = $operation['key'];
+            }
             $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
         }
 
@@ -151,10 +155,14 @@ a list of identifiers can be provided.",
             return $this->syncService->sync($operations, $context, $behavior);
         });
 
-        if ($behavior->failOnError() && !$result->isSuccess()) {
-            return new JsonResponse($result, 400);
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            return new JsonResponse($result, Response::HTTP_OK);
         }
 
-        return new JsonResponse($result, 200);
+        if ($behavior->failOnError() && !$result->isSuccess()) {
+            return new JsonResponse($result, Response::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 }

@@ -182,7 +182,7 @@ class VersioningTest extends TestCase
         $priceRepository->delete([['id' => $id]], $version);
 
         $commits = $this->getCommits('product', $id, $versionId);
-        static::assertCount(2, $commits);
+        static::assertCount(1, $commits);
 
         /** @var EntityRepositoryInterface $mappingRepository */
         $mappingRepository = $this->getContainer()->get('product_category.repository');

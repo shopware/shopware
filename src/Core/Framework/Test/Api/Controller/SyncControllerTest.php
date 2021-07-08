@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -312,6 +313,8 @@ class SyncControllerTest extends TestCase
 
     public function testItThrows400OnFailOnError(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
+
         $product = Uuid::randomHex();
         $product2 = Uuid::randomHex();
 
@@ -361,6 +364,8 @@ class SyncControllerTest extends TestCase
 
     public function testItReturns200WhenFailOnErrorIsFalse(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
+
         $product = Uuid::randomHex();
 
         $data = [

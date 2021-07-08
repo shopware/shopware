@@ -116,6 +116,9 @@ parameters:
         -
             message: '#Parameter \#1 \$failOnError of class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor expects bool, string\|null given\.#'
             path: src/Core/Framework/Api/Controller/SyncController.php
+        -
+            message: '#Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.#'
+            path: src/Core/Framework/Api/Sync/SyncService.php
 
 services:
     -

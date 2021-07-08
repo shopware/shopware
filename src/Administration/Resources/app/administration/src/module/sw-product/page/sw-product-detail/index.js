@@ -98,6 +98,10 @@ Component.register('sw-product-detail', {
             return this.repositoryFactory.create('product');
         },
 
+        syncRepository() {
+            return this.repositoryFactory.create('product', null, { useSync: true });
+        },
+
         currencyRepository() {
             return this.repositoryFactory.create('currency');
         },
@@ -799,7 +803,7 @@ Component.register('sw-product-detail', {
                 }
 
                 // save product
-                this.productRepository.save(this.product).then(() => {
+                this.syncRepository.save(this.product).then(() => {
                     this.loadAll().then(() => {
                         Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
 

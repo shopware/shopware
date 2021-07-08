@@ -94,12 +94,6 @@
             </errorLevel>
         </UndefinedConstant>
 
-        <DuplicateClass>
-            <errorLevel type="info">
-                <file name="src/Core/Framework/DataAbstractionLayer/Field/Flag/AllowHtml.php" />
-            </errorLevel>
-        </DuplicateClass>
-
         <UndefinedClass>
             <errorLevel type="info">
                 <referencedClass name="SwagTest\SwagTest"/>
@@ -109,6 +103,8 @@
         <DuplicateClass>
             <errorLevel type="info">
                 <file name="src/Core/Framework/Api/Sync/SyncBehavior.php"/>
+                <file name="src/Core/Framework/Api/Sync/SyncResult.php"/>
+                <file name="src/Core/Framework/DataAbstractionLayer/Field/Flag/AllowHtml.php" />
             </errorLevel>
         </DuplicateClass>
 

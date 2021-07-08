@@ -1,0 +1,24 @@
+@import "~scss/variables";
+
+.sw-bulk-edit-change-field__container {
+    padding: 24px 32px;
+
+    &:nth-child(even) {
+        .sw-field--switch__content {
+            background-color: $color-gray-100;
+        }
+
+        background-color: $color-gray-100;
+    }
+
+    .sw-field,
+    .sw-field--switch,
+    .sw-field--checkbox {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .sw-field--checkbox__content {
+        padding: 15px 0;
+    }
+}

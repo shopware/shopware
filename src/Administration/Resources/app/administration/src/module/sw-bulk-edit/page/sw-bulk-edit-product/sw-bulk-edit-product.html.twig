@@ -1,0 +1,136 @@
+{% block sw_bulk_edit_product %}
+<sw-page class="sw-bulk-edit-product">
+    {% block sw_bulk_edit_product_search_bar %}
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_product_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_bulk_edit_product_smart_bar_header_title %}
+        <h2>{{ $tc('sw-bulk-edit.product.textTitle', 0, { productTotal: selectedIds.length }) }}</h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_product_content_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_product_content_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_bulk_edit_product_actions_save %}
+        <sw-button-process
+            class="sw-bulk-edit-product__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-basic-information.general.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_product_content %}
+    <template #content>
+        <sw-card-view v-if="selectedIds.length > 0">
+            {% block sw_bulk_edit_product_content_gereral_information_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__info"
+                :title="$tc('sw-bulk-edit.product.generalInformation.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_product_content_gereral_information %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="generalFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_deliverability_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__deliverability"
+                :title="$tc('sw-bulk-edit.product.deliverability.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_product_content_deliverability %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="deliverabilityFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_labelling_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__labelling"
+                :title="$tc('sw-bulk-edit.product.labelling.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="labellingFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                />
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_seo_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__seo"
+                :title="$tc('sw-bulk-edit.product.seo.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="seoFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                />
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_meansures_packaging_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__measures"
+                :title="$tc('sw-bulk-edit.product.measuresAndPackaging.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="measuresPackagingFields"
+                    :bulk-edit-data="bulkEditProduct"
+                />
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_meansures_custom_field_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__custom_fields"
+                :title="$tc('sw-bulk-edit.product.customFields.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <sw-bulk-edit-custom-fields
+                    class="sw-bulk-edit__custom-fields"
+                    :is-change="bulkEditProduct.customFields.isChanged"
+                    :selected-custom-fields="bulkEditProduct.customFields.value"
+                    :sets="customFieldSets"
+                    @change="onCustomFieldsChange"
+                />
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+        <sw-empty-state
+            v-else
+            :title="$tc('sw-bulk-edit.product.messageEmptyTitle')"
+            :subline="$tc('sw-bulk-edit.product.messageEmptySubline')"
+        />
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

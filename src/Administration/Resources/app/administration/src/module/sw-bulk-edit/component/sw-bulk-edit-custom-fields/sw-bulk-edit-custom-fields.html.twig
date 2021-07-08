@@ -1,0 +1,46 @@
+{% block sw_custom_field_set_renderer_card_form_renderer %}
+<div class="sw-custom-field-set-renderer-card-form-renderer">
+    <template v-for="customField in set.customFields">
+        <sw-container
+            :key="customField.id"
+            columns="240px 1fr"
+            gap="32px"
+        >
+            {% block sw_custom_field_set_renderer_card_form_renderer_change_field %}
+            <sw-field
+                class="sw-bulk-edit-custom-fields__change"
+                type="checkbox"
+                :label="$tc('sw-bulk-edit.product.customFields.changeLabel', 0, {name: getInlineSnippet(customField.config.label)})"
+                @change="toggleItemCheck($event, customField)"
+            />
+            {% endblock %}
+
+            {% block sw_custom_field_set_renderer_card_form_renderer_custom_field %}
+            <sw-inherit-wrapper
+                v-if="entity && customField.config"
+                v-model="entity.customFields[customField.name]"
+                v-bind="getInheritWrapperBind(customField)"
+                :class="'sw-form-field-renderer-field__' + customField.name"
+                :has-parent="hasParent"
+                :required="customField.config.validation === 'required'"
+                :inherited-value="getInheritedCustomField(customField.name)"
+                @input="updateCustomField(customField)"
+                @change="updateCustomField(customField)"
+            >
+                <template #content="props">
+                    <sw-form-field-renderer
+                        v-bind="getBind(customField, props)"
+                        :key="props.isInherited"
+                        :class="'sw-form-field-renderer-input-field__' + customField.name"
+                        :disabled="disabled || props.isInherited"
+                        :value="props.currentValue"
+                        @input="props.updateCurrentValue"
+                        @change="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+            {% endblock %}
+        </sw-container>
+    </template>
+</div>
+{% endblock %}

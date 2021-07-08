@@ -354,8 +354,16 @@ Component.register('sw-product-list', {
             this.productEntityVariantModal = null;
         },
 
+        onBulkEditItems() {
+            this.$router.push({ name: 'sw.bulk.edit.product' });
+        },
+
         onBulkEditModalOpen() {
             this.showBulkEditModal = true;
+        },
+
+        onBulkEditModalClose() {
+            this.showBulkEditModal = false;
         },
     },
 });

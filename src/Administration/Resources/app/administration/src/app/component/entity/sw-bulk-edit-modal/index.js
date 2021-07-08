@@ -80,8 +80,13 @@ Component.register('sw-bulk-edit-modal', {
         },
 
         editItems() {
-            // TODO: NEXT-14946 - Navigate to bulk edit detail page
+            const entityIds = Object.keys(this.selection);
+
             this.$emit('modal-close');
+            if (entityIds.length > 0) {
+                Shopware.State.commit('shopwareApps/setSelectedIds', entityIds);
+                this.$emit('edit-items');
+            }
         },
     },
 });

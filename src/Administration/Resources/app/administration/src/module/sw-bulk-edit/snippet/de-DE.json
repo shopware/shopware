@@ -1,0 +1,133 @@
+{
+  "sw-bulk-edit": {
+    "general": {
+      "mainMenuTitle": "Mehrfach-Bearbeitung",
+      "descriptionTextModule": "Modul zur Mehrfach-Bearbeitung von Daten",
+      "defaultChangeLabel": "Ändern:"
+    },
+    "changeTypes": {
+      "overwrite": "Überschreiben",
+      "clear": "Leeren",
+      "add": "Hinzufügen",
+      "remove": "Entfernen"
+    },
+    "product": {
+      "textTitle": "Mehrfach-Bearbeitung: {productTotal} Produkte",
+      "messageEmptyTitle": "Keine Produkte für die Mehrfachbearbeitung ausgewählt",
+      "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
+      "generalInformation": {
+        "cardTitle": "Allgemeine Informationen",
+        "description": {
+          "changeLabel": "Ändern: Beschreibung"
+        },
+        "manufacturer": {
+          "changeLabel": "Ändern: Hersteller",
+          "placeholderManufacturer": "Gib einen Produkthersteller ein ..."
+        },
+        "active": {
+          "changeLabel": "Ändern: Aktiv",
+          "switchLabel": "Aktiv"
+        },
+        "productPromotion": {
+          "changeLabel": "Ändern: Produkt hervorheben",
+          "switchLabel": "Produkt hervorheben"
+        }
+      },
+      "deliverability": {
+        "cardTitle": "Lieferbarkeit",
+        "stock": {
+          "changeLabel": "Ändern: Lagerbestand"
+        },
+        "isCloseout": {
+          "changeLabel": "Ändern: Abverkauf",
+          "switchLabel": "Abverkauf"
+        },
+        "deliveryTime": {
+          "changeLabel": "Ändern: Lieferzeit",
+          "placeholderDeliveryTime": "Gib die Lieferzeit an..."
+        },
+        "restockTime": {
+          "changeLabel": "Ändern: Wiederauffüllzeit"
+        },
+        "freeShipping": {
+          "changeLabel": "Ändern: Versandkostenfrei",
+          "switchLabel": "Versandkostenfrei"
+        },
+        "minOrderQuantity": {
+          "changeLabel": "Ändern: Mindestabnahme"
+        },
+        "purchaseSteps": {
+          "changeLabel": "Ändern: Staffelung"
+        },
+        "maxOrderQuantity": {
+          "changeLabel": "Ändern: Maximalabnahme"
+        }
+      },
+      "labelling": {
+        "cardTitle": "Auszeichnung",
+        "releaseDate": {
+          "changeLabel": "Ändern: Erscheinungsdatum",
+          "placeholderReleaseDate": "Gib ein Einstelldatum ein ..."
+        }
+      },
+      "seo": {
+        "cardTitle": "SEO",
+        "metaTitle": {
+          "changeLabel": "Ändern: Meta-Titel",
+          "placeholderMetaTitle": "Gib einen Meta-Titel ein..."
+        },
+        "metaDescription": {
+          "changeLabel": "Ändern: Meta-Beschreibung",
+          "placeholderMetaDescription": "Gib eine Beschreibung ein..."
+        },
+        "seoKeywords": {
+          "changeLabel": "Ändern: Schlüsselwörter",
+          "placeholderSeoKeywords": "Gib ein oder mehrere Schlüsselwörter ein..."
+        }
+      },
+      "measuresAndPackaging": {
+        "cardTitle": "Maße & Verpackung",
+        "widthTitle": {
+          "changeLabel": "Ändern: Breite",
+          "placeholder": "-"
+        },
+        "heightTitle": {
+          "changeLabel": "Ändern: Höhe",
+          "placeholder": "-"
+        },
+        "lengthTitle": {
+          "changeLabel": "Ändern: Länge",
+          "placeholder": "-"
+        },
+        "weightTitle": {
+          "changeLabel": "Ändern: Gewicht",
+          "placeholder": "-"
+        },
+        "sellingUnitTitle": {
+          "changeLabel": "Ändern: Verkaufseinheit",
+          "placeholder": "Verkaufseinheit eingeben..."
+        },
+        "scaleUnitTitle": {
+          "changeLabel": "Ändern: Maßeinheit",
+          "placeholder": "Maßeinheit eingeben..."
+        },
+        "packUnitTitle": {
+          "changeLabel": "Ändern: Packaging unit",
+          "placeholder": "Verpackungseinheit eingeben..."
+        },
+        "packUnitPluralTitle": {
+          "changeLabel": "Ändern: Packaging unit plural",
+          "placeholder": "Verpackungseinheit-Mehrzahl eingeben..."
+        },
+        "basicUnitTitle": {
+          "changeLabel": "Ändern: Grundeinheit",
+          "placeholder": "Grundeinheit eingeben..."
+        }
+      },
+      "customFields": {
+        "cardTitle": "Freitextfelder",
+        "changeLabel": "Ändern: {name}"
+      }
+    }
+  }
+}

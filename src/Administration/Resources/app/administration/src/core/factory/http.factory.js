@@ -38,7 +38,80 @@ function createClient() {
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
 
+    /**
+     * Don´t use cache in unit tests because it is possible
+     * that the test uses the same route with different
+     * (e.g. error, success) in a short amount of time.
+     * So in test cases we are using the originalAdapter directly
+     * and skipping the caching mechanism.
+     */
+    if (process?.env?.NODE_ENV !== 'test') {
+        requestCacheAdapterInterceptor(client);
+    }
+
     return client;
+}
+
+/**
+ * This cacheAdapterFactory creates an adapter for the axios
+ * library. The created adapter do short time caching for
+ * identical requests.
+ *
+ * @param originalAdapter
+ * @param requestCaches
+ * @returns {(function(*=): (*))|*}
+ */
+export function cacheAdapterFactory(originalAdapter, requestCaches) {
+    return (config) => {
+        // use the stringified configuration as hashValue
+        const requestHash = JSON.stringify(config);
+
+        // check if identical requests already exists
+        const identicalRequest = requestCaches[requestHash];
+        if (identicalRequest) {
+            Shopware.Utils.debug.warn(
+                'http.factory',
+                'Duplicated requests happening in short amount of time: ',
+                config,
+                'This duplicated request should be fixed.',
+            );
+
+            // when identical requests exists then return the previous value
+            return identicalRequest;
+        }
+
+        // when no identical request exists then
+        // create a new one with the original adapter
+        requestCaches[requestHash] = originalAdapter(config);
+
+        // remove the request cache entry after 1.5 seconds
+        setTimeout(() => {
+            if (requestCaches[requestHash]) {
+                delete requestCaches[requestHash];
+            }
+        }, 1500);
+
+        // return the created request from the request cache
+        return requestCaches[requestHash];
+    };
+}
+
+/**
+ * Sets up an interceptor to handle automatic cache of same requests in short time amount
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function requestCacheAdapterInterceptor(client) {
+    const requestCaches = {};
+
+    client.interceptors.request.use((config) => {
+        const originalAdapter = config.adapter;
+
+        config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
+
+        return config;
+    });
 }
 
 /**

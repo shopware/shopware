@@ -6,5 +6,4 @@ author_email: blechschmidt@fabian-blechschmidt.de
 author_github: Schrank
 ---
 # Core
-* Improve error message for write operations with executeQuery
-* Fix test
+* Changed `Shopware\Core\Profiling\Doctrine\DebugStack` to improve the error message for write operations with executeQuery

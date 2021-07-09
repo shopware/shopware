@@ -126,12 +126,16 @@ Component.extend('sw-url-field', 'sw-text-field', {
                     if (this.omitUrlHash) {
                         url.hash = '';
                     }
-                    // build URL vie native URL.toString() function instead by hand @see NEXT-15747
+
+                    // when a hash or search query is provided we want to allow trailing slash, eg a vue route `admin#/`
+                    const removeTrailingSlash = url.hash === '' && url.search === '' ? /\/$/ : '';
+
+                    // build URL via native URL.toString() function instead by hand @see NEXT-15747
                     this.currentValue = url
                         .toString()
                         .replace(/https?\:\/\//, '') // remove leading http|https
                         .replace(url.host, this.$options.filters.unicodeUri(url.host)) // fix "umlaut" domains
-                        .replace(/\/$/, ''); // remove trainling slash
+                        .replace(removeTrailingSlash, ''); // remove trailing slash
                     this.errorUrl = null;
                 } catch {
                     this.errorUrl = new ShopwareError({

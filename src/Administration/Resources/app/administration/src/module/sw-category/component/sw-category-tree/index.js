@@ -367,8 +367,11 @@ Component.register('sw-category-tree', {
             }
 
             this.loadedParentIds.push(parentId);
-            const criteria = Criteria.fromCriteria(this.criteria)
-                .addFilter(Criteria.equals('parentId', parentId));
+            const criteria = Criteria.fromCriteria(this.criteria);
+            criteria.addFilter(Criteria.equals('parentId', parentId));
+            // in case the criteria has been altered to search specific ids e.g. by dragndrop position change
+            // reset all ids so categories can be found solely by parentId
+            criteria.setIds([]);
 
             return this.categoryRepository.search(criteria).then((children) => {
                 this.addCategories(children);

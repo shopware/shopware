@@ -17,7 +17,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     private $tokenizer;
 
     /**
-     * @var AbstractTokenFilter|null
+     * @var AbstractTokenFilter
      */
     private $tokenFilter;
 
@@ -39,20 +39,34 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             $values = array_filter($this->resolveEntityValue($product, $path));
 
             if ($isTokenize) {
-                $fieldValue = implode(' ', $values);
-                $values = $this->tokenizer->tokenize($fieldValue);
-
-                if ($this->tokenFilter) {
-                    $values = $this->tokenFilter->filter($values, $context);
+                try {
+                    $values = $this->tokenize($values, $context);
+                } catch (\Throwable $error) {
+                    // Can occur if the resolved value is a nested array. This prevents the implode() from being executed. We ignore this error at this point to allow some error tolerance in the configuration
+                    continue;
                 }
             }
 
             foreach ($values as $value) {
-                $keywords->add(new AnalyzedKeyword((string) $value, $ranking));
+                try {
+                    $keywords->add(new AnalyzedKeyword((string) $value, $ranking));
+                } catch (\Throwable $error) {
+                    // Can occur if the resolved value is a nested array. This prevents the string cast from being executed (Array to string conversion). We ignore this error at this point to allow some error tolerance in the configuration
+                    continue;
+                }
             }
         }
 
         return $keywords;
+    }
+
+    private function tokenize(array $values, Context $context): array
+    {
+        $values = $this->tokenizer->tokenize(
+            implode(' ', $values)
+        );
+
+        return $this->tokenFilter->filter($values, $context);
     }
 
     private function resolveEntityValue(Entity $entity, string $path): array
@@ -80,8 +94,11 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                     foreach ($value as $item) {
                         $values = array_merge($values, $this->resolveEntityValue($item, $part));
                     }
-                    $value = $values;
-                } else {
+
+                    return $values;
+                }
+
+                if ($value instanceof Entity) {
                     if ($value->get($part) === null) {
                         // if we are at the destination entity and it does not have a value for the field
                         // on it's on, then try to get the translation fallback
@@ -89,6 +106,12 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                     } else {
                         $value = $value->get($part);
                     }
+                } elseif (\is_array($value)) {
+                    $value = $value[$part] ?? null;
+                }
+
+                if (\is_array($value) && !empty($parts)) {
+                    continue;
                 }
 
                 if (\is_array($value)) {

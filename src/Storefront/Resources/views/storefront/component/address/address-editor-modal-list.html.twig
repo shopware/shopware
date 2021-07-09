@@ -28,7 +28,7 @@
                                                                 {% block component_address_address_editor_modal_list_address_include %}
                                                                     {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
                                                                         'address': address,
-                                                                        'showShippingWarning': changeShipping
+                                                                        'showShippingWarning': address.country.shippingAvailable
                                                                     } %}
                                                                 {% endblock %}
                                                             </div>

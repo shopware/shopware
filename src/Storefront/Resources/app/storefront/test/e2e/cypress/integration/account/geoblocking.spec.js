@@ -94,7 +94,7 @@ describe('Account: indicate non shippable country on register page', () => {
         cy.get('.overview-shipping-address > .card > .card-body > .card-actions > .btn').click();
 
         // create new address
-        cy.get('.modal').should('be.visible');
+        cy.get('.address-editor-modal').should('be.visible');
 
         cy.get('.row > :nth-child(2) > .btn').click();
 
@@ -120,16 +120,20 @@ describe('Account: indicate non shippable country on register page', () => {
 
         cy.get('#address-create-new button[type="submit"]').click();
 
-        cy.get('.modal').should('not.be.visible');
+        cy.get('.address-editor-modal').should('not.be.visible');
 
         cy.get('.overview-shipping-address > .card > .card-body > .card-actions > .btn').click();
 
-        cy.get('.modal').should('be.visible');
+        cy.get('.address-editor-modal').should('be.visible');
 
         // waiting for this request to reduce flakyness of the test. Apparantely the modal gets reopened after it got closed because of this request.
         cy.wait('@countryStateRequest').then(xhr => {
             expect(xhr).to.have.property('status', 200)
         });
+
+        cy.get('.address-editor-modal .card .alert')
+            .contains('A delivery to this country is not possible.')
+            .should('be.visible');
 
         cy.get('#address-list .alert')
             .contains('A delivery to this country is not possible.')
@@ -141,7 +145,7 @@ describe('Account: indicate non shippable country on register page', () => {
 
         cy.get('.js-pseudo-modal .modal-close').click();
 
-        cy.get('.modal').should('not.be.visible');
+        cy.get('.address-editor-modal').should('not.be.visible');
 
         // check behaviour on address overview page
         cy.visit('/account/address');

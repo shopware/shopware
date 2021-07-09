@@ -62,7 +62,7 @@
                 {% block sw_data_grid_columns_render_value %}
                 <span>
                     <sw-product-variant-info :variations="item.product.variation">
-                        {{ item.product.translated.name || item.product.name }}
+                        {{ item.product.translated.name || item.product.name || variantNames[item.product.id] }}
                     </sw-product-variant-info>
                 </span>
                 {% endblock %}

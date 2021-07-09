@@ -30,6 +30,7 @@ Component.register('sw-product-cross-selling-assignment', {
     data() {
         return {
             isLoadingData: false,
+            variantNames: {},
         };
     },
 
@@ -105,6 +106,41 @@ Component.register('sw-product-cross-selling-assignment', {
                 sortable: false,
             }];
         },
+
+        variantProductIds() {
+            const variantProductIds = [];
+
+            this.assignedProducts.forEach((item) => {
+                if (!item.product.parentId || item.product.translated.name || item.product.name) {
+                    return;
+                }
+
+                variantProductIds.push(item.product.id);
+            });
+
+            return variantProductIds;
+        },
+
+        variantCriteria() {
+            const criteria = new Criteria();
+            criteria.setIds(this.variantProductIds);
+
+            return criteria;
+        },
+    },
+
+    created() {
+        if (this.variantProductIds.length === 0) {
+            return;
+        }
+
+        this.productRepository.search(this.variantCriteria, { ...Context.api, inheritance: true }).then((variants) => {
+            const variantNames = {};
+            variants.forEach((variant) => {
+                variantNames[variant.id] = variant.translated.name;
+            });
+            this.variantNames = variantNames;
+        });
     },
 
     methods: {
@@ -128,7 +164,10 @@ Component.register('sw-product-cross-selling-assignment', {
                 newProduct.position = this.assignedProducts.length + 1;
                 this.assignedProducts.add(newProduct);
 
-                this.productRepository.get(productId, { ...Context.api, inheritance: true }).then((product) => {
+                const criteria = new Criteria();
+                criteria.addAssociation('options.group');
+
+                this.productRepository.get(productId, { ...Context.api, inheritance: true }, criteria).then((product) => {
                     newProduct.product = product;
                     this.isLoadingData = false;
                 });

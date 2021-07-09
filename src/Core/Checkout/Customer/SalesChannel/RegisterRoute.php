@@ -282,6 +282,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
         $criteria = new Criteria([$customer['id']]);
         $criteria->addAssociation('addresses');
         $criteria->addAssociation('salutation');
+        $criteria->addAssociation('defaultBillingAddress');
 
         /** @var CustomerEntity $customerEntity */
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();

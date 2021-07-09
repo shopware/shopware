@@ -285,7 +285,7 @@ describe('Country: Test acl privileges', () => {
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__title').contains('Edit state/province');
+        cy.get('.sw-modal__title').contains('Edit state/region');
 
         // edit name, shortCode, position
         cy.get('#sw-field--countryState-name')
@@ -375,7 +375,7 @@ describe('Country: Test acl privileges', () => {
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__title').contains('New state/province');
+        cy.get('.sw-modal__title').contains('New state/region');
 
         // enter name, shortCode, position
         cy.get('#sw-field--countryState-name').typeAndCheck('000');
@@ -472,7 +472,7 @@ describe('Country: Test acl privileges', () => {
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__title').contains('New state/province');
+        cy.get('.sw-modal__title').contains('New state/region');
 
         // enter name, shortCode, position
         cy.get('#sw-field--countryState-name').typeAndCheck('000');

@@ -550,7 +550,7 @@
       "title": "Settings",
       "entities": {
         "country": "Country",
-        "country_state": "State/province",
+        "country_state": "State/region",
         "currency": "Currency",
         "delivery_time": "Delivery time",
         "language": "Language",

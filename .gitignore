@@ -106,3 +106,4 @@ install.lock
 docker-compose.override.yaml
 
 vendor-bin/**/vendor
+vendor-bin/**/composer.lock

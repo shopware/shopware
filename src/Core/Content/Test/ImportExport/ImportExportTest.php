@@ -11,6 +11,7 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -34,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -42,6 +44,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -576,6 +579,217 @@ class ImportExportTest extends TestCase
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+    }
+
+    public function testProductsWithOwnIdentifier(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('NEXT-8097');
+        }
+
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+
+        $productIds = [
+            Uuid::fromStringToHex('product1'),
+            Uuid::fromStringToHex('product2'),
+            Uuid::fromStringToHex('product3'),
+            Uuid::fromStringToHex('product4'),
+        ];
+
+        /** @var EntityRepositoryInterface $categoryRepository */
+        $categoryRepository = $this->getContainer()->get(CategoryDefinition::ENTITY_NAME . '.repository');
+        $category1Id = Uuid::fromStringToHex('category1');
+        $category2Id = '0a600a2648b3486fbfdbc60993050103';
+        $category3Id = Uuid::fromStringToHex('category3');
+        $categoryRepository->upsert([
+            [
+                'id' => $category1Id,
+                'name' => 'First category',
+            ],
+
+            [
+                'id' => $category2Id,
+                'name' => 'Second category',
+            ],
+
+            [
+                'id' => $category3Id,
+                'name' => 'Third category',
+            ],
+        ], $context);
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_own_identifier.csv', 'products.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        /** @var EntityRepositoryInterface $productRepository */
+        $productRepository = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $count = $productRepository->search(new Criteria($productIds), $context)->count();
+        static::assertSame(4, $count);
+
+        $name = 'Name has changed';
+        $productRepository->upsert([
+            [
+                'id' => $productIds[0],
+                'name' => $name,
+            ],
+        ], $context);
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        /** @var ProductEntity $product */
+        $criteria = new Criteria([$productIds[0]]);
+        $criteria->addAssociation('categories');
+        $product = $productRepository->search($criteria, $context)->first();
+
+        static::assertNotSame($name, $product->getName());
+        static::assertSame(Uuid::fromStringToHex('tax19'), $product->getTaxId());
+        static::assertSame(Uuid::fromStringToHex('manufacturer1'), $product->getManufacturerId());
+        static::assertSame(3, $product->getCategories()->count());
+        static::assertSame($category1Id, $product->getCategories()->get($category1Id)->getId());
+        static::assertSame($category2Id, $product->getCategories()->get($category2Id)->getId());
+        static::assertSame($category3Id, $product->getCategories()->get($category3Id)->getId());
+    }
+
+    public function testEnsureIdFields(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('NEXT-8097');
+        }
+
+        $context = Context::createDefaultContext();
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_own_identifier.csv', 'products.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        $method = ReflectionHelper::getMethod(ImportExport::class, 'ensureIdFields');
+
+        [$expectedData, $importData] = require __DIR__ . '/fixtures/ensure_ids_for_products.php';
+
+        $return = $method->invoke($importExport, $importData, $productDefinition);
+        static::assertSame($expectedData, $return);
+    }
+
+    public function testEnsureIdFieldsWithInvalidCharacter(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('NEXT-8097');
+        }
+
+        static::expectExceptionObject(new InvalidIdentifierException('id'));
+        $context = Context::createDefaultContext();
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_own_identifier.csv', 'products.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        $method = ReflectionHelper::getMethod(ImportExport::class, 'ensureIdFields');
+
+        [$expectedData, $importData] = require __DIR__ . '/fixtures/ensure_ids_for_products.php';
+        $importData['id'] = 'invalid|string_with_pipe';
+
+        $return = $method->invoke($importExport, $importData, $productDefinition);
+        static::assertSame($expectedData, $return);
+    }
+
+    public function testEnsureIdFieldsWithMixedContent(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('NEXT-8097');
+        }
+
+        $context = Context::createDefaultContext();
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_own_identifier.csv', 'products.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        $method = ReflectionHelper::getMethod(ImportExport::class, 'ensureIdFields');
+
+        [$expectedData, $importData] = require __DIR__ . '/fixtures/ensure_ids_for_products.php';
+        $importData['tax'] = [
+            'id' => Uuid::randomHex(),
+        ];
+        $importData['categories'] = [
+            [
+                'id' => Uuid::randomHex(),
+            ],
+            [
+                'id' => Uuid::randomHex(),
+            ],
+            [
+                'id' => Uuid::randomHex(),
+            ],
+        ];
+        $expectedData['categories'] = $importData['categories'];
+        $expectedData['tax'] = $importData['tax'];
+
+        $return = $method->invoke($importExport, $importData, $productDefinition);
+        static::assertSame($expectedData, $return);
     }
 
     public function testInvalidFile(): void

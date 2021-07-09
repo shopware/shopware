@@ -275,7 +275,8 @@ Component.register('sw-price-field', {
             this.$emit('price-calculate', true);
 
             this.requestTaxValue(value, 'net').then((res) => {
-                this.priceForCurrency.gross = this.priceForCurrency.net + res;
+                const newValue = this.priceForCurrency.net + res;
+                this.priceForCurrency.gross = parseFloat(newValue.toPrecision(14));
             });
             return true;
         },
@@ -295,7 +296,8 @@ Component.register('sw-price-field', {
             this.$emit('price-calculate', true);
 
             this.requestTaxValue(value, 'gross').then((res) => {
-                this.priceForCurrency.net = this.priceForCurrency.gross - res;
+                const newValue = this.priceForCurrency.gross - res;
+                this.priceForCurrency.net = parseFloat(newValue.toPrecision(14));
             });
             return true;
         },

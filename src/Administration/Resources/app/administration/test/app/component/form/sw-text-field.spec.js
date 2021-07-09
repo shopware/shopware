@@ -88,27 +88,4 @@ describe('src/app/component/form/sw-text-field', () => {
         expect(wrapper.find('input[type="text"]').attributes().maxlength).toBe('12');
         expect(wrapper.find('input[type="text"]').attributes().minlength).toBe('4');
     });
-
-    it('should show the label from the property', () => {
-        const wrapper = createWrapper({
-            propsData: {
-                label: 'Label from prop'
-            }
-        });
-
-        expect(wrapper.find('label').text()).toEqual('Label from prop');
-    });
-
-    it('should show the value from the label slot', () => {
-        const wrapper = createWrapper({
-            propsData: {
-                label: 'Label from prop'
-            },
-            scopedSlots: {
-                label: '<template>Label from slot</template>'
-            }
-        });
-
-        expect(wrapper.find('label').text()).toEqual('Label from slot');
-    });
 });

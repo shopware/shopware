@@ -2,13 +2,16 @@
 
 namespace Shopware\Core\Checkout\Test\Payment;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
@@ -16,6 +19,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
@@ -24,18 +28,26 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
+use Shopware\Core\System\StateMachine\StateMachineDefinition;
+use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * This test handels transactions itself, because it shuts down the kernel in the tear down method.
+ */
 class PaymentServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
+    use BasicTestDataBehaviour;
 
     private PaymentService $paymentService;
 
@@ -51,18 +63,33 @@ class PaymentServiceTest extends TestCase
 
     private Context $context;
 
-    private StateMachineRegistry $stateMachineRegistry;
+    private EntityRepositoryInterface $stateMachineRepository;
+
+    private EntityRepositoryInterface $stateMachineStateRepository;
 
     protected function setUp(): void
     {
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
         $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+        $this->orderRepository = $this->getRepository(OrderDefinition::ENTITY_NAME);
+        $this->customerRepository = $this->getRepository(CustomerDefinition::ENTITY_NAME);
+        $this->orderTransactionRepository = $this->getRepository(OrderTransactionDefinition::ENTITY_NAME);
+        $this->paymentMethodRepository = $this->getRepository(PaymentMethodDefinition::ENTITY_NAME);
+        $this->stateMachineRepository = $this->getRepository(StateMachineDefinition::ENTITY_NAME);
+        $this->stateMachineStateRepository = $this->getRepository(StateMachineStateDefinition::ENTITY_NAME);
         $this->context = Context::createDefaultContext();
+
+        $this->getContainer()->get(Connection::class)->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->getContainer()
+            ->get(Connection::class)
+            ->rollBack();
+
+        // Shutdown the Kernel, to clear the local cache of the \Shopware\Core\System\StateMachine\StateMachineRegistry
+        $this->getContainer()->get('kernel')->shutdown();
     }
 
     public function testHandlePaymentByOrderWithInvalidOrderId(): void
@@ -269,6 +296,55 @@ class PaymentServiceTest extends TestCase
         );
     }
 
+    public function testHandlePaymentByOrderCanHandleNoneOpenInitialTransactionState(): void
+    {
+        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+
+        // Set initialStateId to reminded
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(
+            new EqualsFilter('technicalName', OrderTransactionStates::STATE_MACHINE)
+        );
+
+        // We can not use the state machine registry here because it would cache the result with the open initial state
+        $orderTransactionStateMachineId = $this->stateMachineRepository->searchIds($criteria, $this->context)->firstId();
+        static::assertNotNull($orderTransactionStateMachineId);
+
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(
+            new EqualsFilter('stateMachineId', $orderTransactionStateMachineId),
+            new EqualsFilter('technicalName', OrderTransactionStates::STATE_REMINDED)
+        );
+
+        $remindedStateId = $this->stateMachineStateRepository->searchIds($criteria, $this->context)->firstId();
+        static::assertNotNull($remindedStateId);
+
+        $this->stateMachineRepository->update(
+            [
+                [
+                    'id' => $orderTransactionStateMachineId,
+                    'initialStateId' => $remindedStateId,
+                ],
+            ],
+            $this->context
+        );
+
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
+        $transaction = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
+        static::assertNotNull($transaction);
+        static::assertSame($transaction->getStateId(), $remindedStateId);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+
+        static::assertNotNull($response);
+        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+    }
+
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
         return $this->getContainer()->get(SalesChannelContextFactory::class)
@@ -287,7 +363,7 @@ class PaymentServiceTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context)->getId(),
+            'stateId' => $this->getInitialOrderTransactionStateId($context),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -304,7 +380,7 @@ class PaymentServiceTest extends TestCase
     ): string {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId();
+        $stateId = $this->getInitialOrderTransactionStateId($context);
 
         $order = [
             'id' => $orderId,
@@ -402,5 +478,38 @@ class PaymentServiceTest extends TestCase
         $this->paymentMethodRepository->upsert([$payment], $context);
 
         return $id;
+    }
+
+    private function getRepository(string $entityName): EntityRepositoryInterface
+    {
+        $repository = $this->getContainer()->get(\sprintf('%s.repository', $entityName));
+        static::assertInstanceOf(EntityRepositoryInterface::class, $repository);
+
+        return $repository;
+    }
+
+    /**
+     * Does the same like \Shopware\Core\System\StateMachine\StateMachineRegistry::getInitialState without local caching.
+     */
+    private function getInitialOrderTransactionStateId(Context $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(
+            new EqualsFilter('technicalName', OrderTransactionStates::STATE_MACHINE)
+        );
+
+        /** @var StateMachineEntity|null $orderTransactionStateMachineId */
+        $orderTransactionStateMachineId = $this->stateMachineRepository->search($criteria, $this->context)->first();
+        static::assertNotNull($orderTransactionStateMachineId);
+        static::assertNotNull($orderTransactionStateMachineId->getInitialStateId());
+
+        $stateId = $this->stateMachineStateRepository->searchIds(
+            new Criteria([$orderTransactionStateMachineId->getInitialStateId()]),
+            $context
+        )->firstId();
+        static::assertNotNull($stateId);
+
+        return $stateId;
     }
 }

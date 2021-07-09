@@ -125,4 +125,39 @@ describe('app/component/form/sw-switch-field', () => {
         await wrapper.find('input[name="sw-field--checkThree"]').trigger('click');
         expect(wrapper.vm.checkThree).toBeTruthy();
     });
+
+    it('should show the label from the property', () => {
+        const wrapper = shallowMount(Shopware.Component.build('sw-switch-field'), {
+            propsData: {
+                label: 'Label from prop'
+            },
+            stubs: {
+                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-field-error': {
+                    template: '<div></div>'
+                }
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from prop');
+    });
+
+    it('should show the value from the label slot', () => {
+        const wrapper = shallowMount(Shopware.Component.build('sw-switch-field'), {
+            propsData: {
+                label: 'Label from prop'
+            },
+            stubs: {
+                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-field-error': {
+                    template: '<div></div>'
+                }
+            },
+            scopedSlots: {
+                label: '<template>Label from slot</template>'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from slot');
+    });
 });

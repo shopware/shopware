@@ -6,9 +6,28 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/utils/sw-popover';
 
+function createWrapper(additionalProps = {}) {
+    const localVue = createLocalVue();
+    localVue.directive('popover', {});
+
+    return shallowMount(Shopware.Component.build('sw-colorpicker'), {
+        localVue,
+        stubs: {
+            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-popover': Shopware.Component.build('sw-popover')
+        },
+        props: {
+            value: null
+        },
+        ...additionalProps
+    });
+}
+
 describe('components/form/sw-colorpicker', () => {
     let wrapper;
-    let localVue;
     const eventListener = {};
 
     beforeAll(() => {
@@ -22,26 +41,10 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     beforeEach(() => {
-        localVue = createLocalVue();
-        localVue.directive('popover', {});
-
-        wrapper = shallowMount(Shopware.Component.build('sw-colorpicker'), {
-            localVue,
-            stubs: {
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-popover': Shopware.Component.build('sw-popover')
-            },
-            props: {
-                value: null
-            }
-        });
+        wrapper = createWrapper();
     });
 
     afterEach(() => {
-        localVue = null;
         wrapper.destroy();
     });
 
@@ -506,5 +509,28 @@ describe('components/form/sw-colorpicker', () => {
         expect(hslValues.saturation).toBe(71.8);
         expect(hslValues.luminance).toBe(50);
         expect(hslValues.alpha).toBe(0.6);
+    });
+
+    it('should show the label from the property', () => {
+        wrapper = createWrapper({
+            propsData: {
+                label: 'Label from prop'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from prop');
+    });
+
+    it('should show the value from the label slot', () => {
+        wrapper = createWrapper({
+            propsData: {
+                label: 'Label from prop'
+            },
+            scopedSlots: {
+                label: '<template>Label from slot</template>'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 });

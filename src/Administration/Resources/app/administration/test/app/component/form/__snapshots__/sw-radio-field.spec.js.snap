@@ -4,7 +4,22 @@ exports[`components/form/sw-radio-field should renders correctly with children s
 <div
   class="sw-field sw-field--radio"
 >
-  <!---->
+  <div
+    class="sw-field__label"
+  >
+    <!---->
+     
+    <label
+      class=""
+      for="sw-field--currentValue"
+    >
+      
+                
+            
+    </label>
+     
+    <!---->
+  </div>
    
   <!---->
    

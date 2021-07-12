@@ -20,6 +20,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('enabled')->end()
                 ->booleanNode('indexing_enabled')->end()
+                ->integerNode('indexing_batch_size')->defaultValue(100)->end()
                 ->scalarNode('hosts')->end()
                 ->scalarNode('index_prefix')->end()
                 ->scalarNode('throw_exception')->end()

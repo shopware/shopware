@@ -245,6 +245,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
+            <argument>%elasticsearch.indexing_batch_size%</argument>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -267,6 +268,7 @@
             <argument>%env(string:SHOPWARE_ES_HOSTS)%</argument>
             <argument>%env(string:SHOPWARE_ES_INDEX_PREFIX)%</argument>
             <argument>%env(bool:SHOPWARE_ES_THROW_EXCEPTION)%</argument>
+            <argument>%env(int:SHOPWARE_ES_INDEXING_BATCH_SIZE)%</argument>
         </service>
     </services>
 </container>

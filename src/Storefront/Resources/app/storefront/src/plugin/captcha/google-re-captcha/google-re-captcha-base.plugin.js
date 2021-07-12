@@ -93,6 +93,6 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
 
         this._formSubmitting = true;
 
-        this.onFormSubmit()
+        this.onFormSubmit();
     }
 }

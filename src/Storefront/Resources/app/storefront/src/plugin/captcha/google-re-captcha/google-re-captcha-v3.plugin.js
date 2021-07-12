@@ -1,7 +1,6 @@
 import GoogleReCaptchaBasePlugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-base.plugin';
 
-export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin
-{
+export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin {
     static options = {
         siteKey: null,
         grecaptchaInputSelector: '.grecaptcha_v3-input',

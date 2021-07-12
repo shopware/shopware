@@ -84,7 +84,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
      */
     _onGreCaptchaReady() {
         this.grecaptchaWidgetId = this.grecaptcha.render(this.grecaptchaContainer, {
-            sitekey : this.options.siteKey,
+            sitekey: this.options.siteKey,
             size: this.options.invisible ? 'invisible' : 'normal',
             callback: this._onCaptchaTokenResponse.bind(this),
             'expired-callback': this._onGreCaptchaExpire.bind(this),

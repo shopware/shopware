@@ -42,7 +42,7 @@ use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * This test handels transactions itself, because it shuts down the kernel in the tear down method.
+ * This test handles transactions itself, because it shuts down the kernel in the setUp method.
  */
 class PaymentServiceTest extends TestCase
 {
@@ -69,6 +69,9 @@ class PaymentServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        // Previous tests may build the local cache of \Shopware\Core\System\StateMachine\StateMachineRegistry, shutdown the Kernel to rebuild the container
+        $this->getContainer()->get('kernel')->shutdown();
+
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
         $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
         $this->orderRepository = $this->getRepository(OrderDefinition::ENTITY_NAME);
@@ -88,7 +91,7 @@ class PaymentServiceTest extends TestCase
             ->get(Connection::class)
             ->rollBack();
 
-        // Shutdown the Kernel, to clear the local cache of the \Shopware\Core\System\StateMachine\StateMachineRegistry
+        // Shutdown the Kernel, to clear the local cache of the \Shopware\Core\System\StateMachine\StateMachineRegistry for following test cases.
         $this->getContainer()->get('kernel')->shutdown();
     }
 

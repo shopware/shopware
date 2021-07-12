@@ -3,16 +3,19 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractUpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -51,13 +54,16 @@ class AddressController extends StorefrontController
 
     private AbstractDeleteAddressRoute $deleteAddressRoute;
 
+    private AbstractChangeCustomerProfileRoute $updateCustomerProfileRoute;
+
     public function __construct(
         AddressListingPageLoader $addressListingPageLoader,
         AddressDetailPageLoader $addressDetailPageLoader,
         AccountService $accountService,
         AbstractListAddressRoute $listAddressRoute,
         AbstractUpsertAddressRoute $updateAddressRoute,
-        AbstractDeleteAddressRoute $deleteAddressRoute
+        AbstractDeleteAddressRoute $deleteAddressRoute,
+        AbstractChangeCustomerProfileRoute $updateCustomerProfileRoute
     ) {
         $this->accountService = $accountService;
         $this->addressListingPageLoader = $addressListingPageLoader;
@@ -65,6 +71,7 @@ class AddressController extends StorefrontController
         $this->listAddressRoute = $listAddressRoute;
         $this->updateAddressRoute = $updateAddressRoute;
         $this->deleteAddressRoute = $deleteAddressRoute;
+        $this->updateCustomerProfileRoute = $updateCustomerProfileRoute;
     }
 
     /**
@@ -218,6 +225,9 @@ class AddressController extends StorefrontController
         $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
 
         $viewData->setPage($this->addressListingPageLoader->load($request, $context, $customer));
+        if (Feature::isActive('FEATURE_NEXT_15957')) {
+            $this->handleCustomerVatIds($dataBag, $context, $customer);
+        }
 
         if ($request->get('redirectTo') || $request->get('forwardTo')) {
             return $this->createActionResponse($request);
@@ -376,5 +386,26 @@ class AddressController extends StorefrontController
         }
 
         return $address;
+    }
+
+    private function handleCustomerVatIds(RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): void
+    {
+        if (!$dataBag->has('vatIds')) {
+            return;
+        }
+
+        $newVatIds = $dataBag->get('vatIds')->all();
+        $oldVatIds = $customer->getVatIds() ?? [];
+        if (!array_diff($newVatIds, $oldVatIds) && !array_diff($oldVatIds, $newVatIds)) {
+            return;
+        }
+
+        $dataCustomer = CustomerTransformer::transform($customer);
+        $dataCustomer['vatIds'] = $newVatIds;
+        $dataCustomer['accountType'] = $customer->getCompany() === null ? CustomerEntity::ACCOUNT_TYPE_PRIVATE : CustomerEntity::ACCOUNT_TYPE_BUSINESS;
+
+        $newDataBag = new RequestDataBag($dataCustomer);
+
+        $this->updateCustomerProfileRoute->change($newDataBag, $context, $customer);
     }
 }

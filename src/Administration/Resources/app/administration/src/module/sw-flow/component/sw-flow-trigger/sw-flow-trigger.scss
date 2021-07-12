@@ -1,9 +1,10 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
 .sw-flow-trigger {
-    &__tree-selection {
+    &__event-selection {
         width: 100%;
 
         .sw-tree {
@@ -36,7 +37,7 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
         }
     }
 
-    &.overlay .sw-flow-trigger__tree-selection {
+    &.overlay .sw-flow-trigger__event-selection {
         position: absolute;
         z-index: $z-index-flyout;
         border-radius: $border-radius-default;
@@ -47,10 +48,16 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
     .sw-flow-trigger__search-field {
         margin-bottom: 0;
-    }
 
-    &__search-field .sw-block-field__block input {
-        text-transform: capitalize;
+        .sw-field__label label {
+            font-size: $font-size-default;
+            text-transform: uppercase;
+            font-weight: $font-weight-semi-bold;
+        }
+
+        .sw-block-field__block input {
+            text-transform: capitalize;
+        }
     }
 
     &__search-results {
@@ -65,10 +72,11 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
             display: flex;
             padding: 0 12px 10px 12px;
             border-radius: $border-radius-default;
-        }
 
-        li.sw-flow-trigger__search-result:hover {
-            background-color: lighten($color-shopware-brand-500, 40);
+            &:hover,
+            &.is--focus {
+                background-color: lighten($color-shopware-brand-500, 40);
+            }
         }
 
         li .sw-flow-trigger__search-result-icon {
@@ -83,6 +91,19 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
     &__empty {
         padding: 12px;
+    }
+
+    &__loader.sw-loader {
+        @include size(16px);
+
+        position: static;
+        margin-right: 10px;
+
+        .sw-loader__container {
+            transform: none;
+            left: 0;
+            top: 0;
+        }
     }
 
     // Vue.js transitions

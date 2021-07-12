@@ -5,30 +5,50 @@
 >
     {% block sw_flow_trigger_select_field %}
     <div class="sw-flow-trigger__select-toolbar">
-        <div class="sw-flow-trigger__select-field-container">
-            <sw-text-field
-                v-model="searchTerm"
-                required
-                class="sw-flow-trigger__search-field"
-                :disabled="disabled"
-                :placeholder="$tc('sw-flow.detail.trigger.placeholder')"
-                :error="flowEventNameError"
-                @focus="onFocusTrigger"
-            />
-        </div>
+        <sw-contextual-field
+            v-tooltip="{
+                message: formatEventName,
+                disabled: !eventName,
+            }"
+            class="sw-flow-trigger__search-field"
+            required
+            :label="$tc('sw-flow.detail.trigger.name')"
+            :disabled="disabled"
+            :error="flowEventNameError"
+        >
+            <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
+                <input
+                    ref="searchInput"
+                    v-model="searchTerm"
+                    type="text"
+                    class="sw-flow-trigger__input-field"
+                    :placeholder="$tc('sw-flow.detail.trigger.placeholder')"
+                    :disabled="disabled"
+                    @focus="openDropdown({ setFocusClass, removeFocusClass });"
+                >
+
+                {% block sw_flow_trigger_loader %}
+                <sw-loader
+                    v-if="isLoading"
+                    class="sw-flow-trigger__loader"
+                    size="16px"
+                />
+                {% endblock %}
+            </template>
+        </sw-contextual-field>
     </div>
     {% endblock %}
 
-    {% block sw_flow_trigger_tree_transition %}
+    {% block sw_flow_trigger_select_transition %}
     <transition name="sw-flow-trigger__fade-down">
-        {% block sw_flow_trigger_tree_selection %}
+        {% block sw_flow_trigger_event_selection %}
         <div
             v-if="isExpanded"
-            class="sw-flow-trigger__tree-selection"
+            class="sw-flow-trigger__event-selection"
         >
 
             {% block sw_flow_trigger_container %}
-            <sw-container class="sw-flow-trigger__tree-container">
+            <sw-container class="sw-flow-trigger__event-container">
 
                 {% block sw_flow_trigger_select_tree %}
                 <sw-tree
@@ -69,6 +89,8 @@
                         <sw-tree-item
                             v-for="item in treeItems"
                             :key="item.id"
+                            should-focus
+                            :active-focus-id="selectedTreeItem.id"
                             :sortable="sortable"
                             :item="item"
                             :on-change-route="onChangeRoute"
@@ -96,6 +118,7 @@
                         v-for="item in searchResult"
                         :key="item.id"
                         class="sw-flow-trigger__search-result"
+                        :class="{ 'is--focus': isSearchResultInFocus(item)}"
                         @click="onClickSearchItem(item)"
                     >
                         {% block sw_flow_trigger_search_list_item_icon %}

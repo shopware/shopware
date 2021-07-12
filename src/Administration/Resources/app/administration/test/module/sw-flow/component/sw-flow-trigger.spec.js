@@ -1,6 +1,5 @@
 import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-trigger';
-import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -37,7 +36,6 @@ function createWrapper(propsData) {
     return shallowMount(Shopware.Component.build('sw-flow-trigger'), {
         localVue,
         stubs: {
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
             'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
@@ -47,6 +45,7 @@ function createWrapper(propsData) {
             },
             'sw-tree': Shopware.Component.build('sw-tree'),
             'sw-tree-item': Shopware.Component.build('sw-tree-item'),
+            'sw-loader': true,
             'sw-icon': {
                 template: '<div></div>'
             },
@@ -83,7 +82,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         let eventTree = wrapper.find('.sw-tree');
         expect(eventTree.exists()).toBeFalsy();
 
-        const searchField = wrapper.find('#sw-field--searchTerm');
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
         await searchField.trigger('focus');
 
         eventTree = wrapper.find('.sw-tree');
@@ -95,7 +94,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             eventName: 'mail.before.send'
         });
 
-        const searchField = wrapper.find('#sw-field--searchTerm');
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
         expect(searchField.element.value).toEqual('mail / before / send');
     });
 
@@ -145,7 +144,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     it('should emit an event when clicking tree item', async () => {
         const wrapper = await createWrapper();
 
-        const searchField = wrapper.find('#sw-field--searchTerm');
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
         await searchField.trigger('focus');
 
         const treeItem = wrapper.find('.tree-items .sw-tree-item:first-child .sw-tree-item__toggle');
@@ -167,7 +166,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     it('should show search list when user type search term in search field', async () => {
         const wrapper = await createWrapper();
 
-        const searchField = wrapper.find('#sw-field--searchTerm');
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
         await searchField.trigger('focus');
 
         let eventTree = wrapper.find('.sw-tree');
@@ -186,7 +185,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     it('should show search result correctly', async () => {
         const wrapper = await createWrapper();
 
-        const searchField = wrapper.find('#sw-field--searchTerm');
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
         await searchField.trigger('focus');
         await searchField.setValue('payment');
         await searchField.trigger('input');
@@ -210,7 +209,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     it('should emit an event when clicking on search item', async () => {
         const wrapper = await createWrapper();
 
-        const searchField = wrapper.find('#sw-field--searchTerm');
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
         await searchField.trigger('focus');
 
 
@@ -223,5 +222,221 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         const emittedEvent = wrapper.emitted()['option-select'];
         expect(emittedEvent).toBeTruthy();
         expect(emittedEvent[0]).toEqual(['checkout.customer.changed-payment-method']);
+    });
+
+    it('should able to close the event selection by tab or escape key', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        // focus trigger input to open event selection
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        await searchField.trigger('focus');
+
+        // Selection is expanded
+        let eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
+        expect(eventSelection.exists()).toBeTruthy();
+
+        // Press tab button to close the tree
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Tab'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        // Selection is collapsed
+        eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
+        expect(eventSelection.exists()).toBeFalsy();
+
+        await searchField.trigger('focus');
+        eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
+        expect(eventSelection.exists()).toBeTruthy();
+
+        // Press escape button to close the tree
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Escape'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        // Selection is collapsed
+        eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
+        expect(eventSelection.exists()).toBeFalsy();
+    });
+
+    it('should able to interact tree by arrow key', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        // focus trigger input to open event selection
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        await searchField.trigger('focus');
+
+        // Selection is expanded
+        let treeItems = wrapper.findAll('.sw-tree-item');
+        expect(treeItems.length).toEqual(1);
+        expect(treeItems.at(0).classes()).toContain('is--focus');
+        expect(treeItems.at(0).text()).toEqual('checkout');
+
+        // Press arrow right to open checkout tree
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowright'
+        }));
+
+        await wrapper.vm.$nextTick();
+        treeItems = wrapper.findAll('.sw-tree-item');
+        expect(treeItems.length).toEqual(2);
+        expect(treeItems.at(1).text()).toEqual('customer');
+
+        // Move down to customer item
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowdown'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        expect(treeItems.at(0).classes()).not.toContain('is--focus');
+        expect(treeItems.at(1).classes()).toContain('is--focus');
+
+        // open customer tree
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowright'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        treeItems = wrapper.findAll('.sw-tree-item');
+        expect(treeItems.length).toEqual(5);
+        expect(treeItems.at(2).text()).toEqual('before');
+        expect(treeItems.at(3).text()).toEqual('changed payment method');
+        expect(treeItems.at(4).text()).toEqual('deleted');
+
+        // close customer tree
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowleft'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        treeItems = wrapper.findAll('.sw-tree-item');
+        expect(treeItems.length).toEqual(2);
+
+        // Move up to checkout item
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowup'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        expect(treeItems.at(1).classes()).not.toContain('is--focus');
+        expect(treeItems.at(0).classes()).toContain('is--focus');
+
+        // close checkout tree
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowleft'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        treeItems = wrapper.findAll('.sw-tree-item');
+        expect(treeItems.length).toEqual(1);
+    });
+
+    it('should able to emit an event when pressing Enter on the item which has no children', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        // focus trigger input to open event selection
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        await searchField.trigger('focus');
+
+        let treeItems = wrapper.findAll('.sw-tree-item');
+
+        // Press arrow right to open checkout tree
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowright'
+        }));
+
+        // Move down to customer item
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowdown'
+        }));
+
+        // Press enter to select customer item
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Enter'
+        }));
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        let emittedEvent = wrapper.emitted()['option-select'];
+        expect(emittedEvent).toBeFalsy();
+
+        let eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
+        expect(eventSelection.exists()).toBeTruthy();
+
+        // open customer tree
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowright'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        treeItems = wrapper.findAll('.sw-tree-item');
+        expect(treeItems.length).toEqual(5);
+        expect(treeItems.at(2).text()).toEqual('before');
+        expect(treeItems.at(3).text()).toEqual('changed payment method');
+        expect(treeItems.at(4).text()).toEqual('deleted');
+
+        // move down to changed payment method item
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowdown'
+        }));
+
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Arrowdown'
+        }));
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // changed payment method item is focused
+        expect(treeItems.at(3).classes()).toContain('is--focus');
+
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Enter'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        emittedEvent = wrapper.emitted()['option-select'];
+        expect(emittedEvent).toBeTruthy();
+        expect(emittedEvent[0]).toEqual(['checkout.customer.changed-payment-method']);
+
+        eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
+        expect(eventSelection.exists()).toBeFalsy();
+    });
+
+    it('should emit an event when pressing Enter on search item', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        await searchField.trigger('focus');
+
+
+        await searchField.setValue('checkout');
+        await searchField.trigger('input');
+
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Enter'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        const emittedEvent = wrapper.emitted()['option-select'];
+        expect(emittedEvent).toBeTruthy();
+        expect(emittedEvent[0]).toEqual(['checkout.customer.before.login']);
     });
 });

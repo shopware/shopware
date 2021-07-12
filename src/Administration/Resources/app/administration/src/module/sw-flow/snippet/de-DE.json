@@ -6,38 +6,38 @@
     },
     "list": {
       "textHeadline": "Flow Builder",
-      "buttonAddFlow": "Hinzufügen flow",
+      "buttonAddFlow": "Flow hinzufügen",
       "labelColumnActive": "Aktiv",
       "labelColumnName": "Name",
       "labelColumnTrigger": "Trigger",
       "labelColumnDescription": "Beschreibung",
       "confirmText": "Soll der Eintrag wirklich gelöscht werden?",
-      "emptyStateTitle": "Noch keine flows",
-      "emptyStateSubTitle": "Füge flows über den \"Hinzufügen\"-Button hinzu."
+      "emptyStateTitle": "Noch keine Flows erstellt",
+      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu."
     },
     "detail": {
-      "textHeadline": "Neue flow",
-      "labelGeneralCard": "General information",
-      "labelLogCard": "Log",
+      "textHeadline": "Neuer Flow",
+      "labelGeneralCard": "Allgemeine Informationen",
+      "labelLogCard": "Ereignis-Log",
       "labelGeneralInformationName": "Name",
-      "placeholderGeneralInformationName": "Flow name eingeben...",
+      "placeholderGeneralInformationName": "Namen eingeben ...",
       "labelGeneralInformationDescription": "Beschreibung",
-      "placeholderGeneralInformationDescription": "Flow beschreibung eingeben...",
+      "placeholderGeneralInformationDescription": "Beschreibung eingeben ...",
       "labelGeneralInformationPriority": "Priorität",
       "labelGeneralInformationActive": "Aktiv",
-      "labelLogExecuted": "This flow as been executed \"{total}\" time in total.",
+      "labelLogExecuted": "Dieser Flow wurde insgesamt \"{total}\" mal aufgeführt.",
       "labelLogInstruct": "Click on the log file to see more details of the flow execution actions and to replay the flow.",
-      "labelLogDateExecuted": "Date executed",
+      "labelLogDateExecuted": "Ausführungsdatum",
       "labelLogTrigger": "Trigger",
-      "labelLogTriggerValue": "Trigger value",
-      "labelLogActions": "Actions",
-      "labelLogSuccess": "Success",
+      "labelLogTriggerValue": "Trigger-Wert",
+      "labelLogActions": "Aktionen",
+      "labelLogSuccess": "Erfolg",
       "trigger": {
         "name": "Trigger",
-        "placeholder": "Select a start trigger...",
+        "placeholder": "Wähle einen Trigger aus ...",
         "title": "Trigger auswählen",
-        "helpText": "Triggers werden benutzt, um einen Ablauf zu beginnen. Nachdem Du einen Trigger ausgewählt hast, hast Du die Möglichkeit Bedingungen hinzuzufügen, um den Trigger zu verfeinern oder Aktionen hinzuzufügen, die mit diesem Trigger ausgelöst werden.",
-        "textNoEvent": "No events found"
+        "helpText": "Trigger werden benutzt, um einen Flow zu beginnen. Innerhalb des Flows kannst Du entweder Bedingungen hinzuzufügen, um den Trigger zu verfeinern oder Aktionen hinzuzufügen, die durch den Trigger ausgelöst werden.",
+        "textNoEvent": "Keine Ereignisse gefunden"
       },
       "sequence": {
         "selectorTitle": "Bedingung oder Aktion hinzufügen",
@@ -58,8 +58,8 @@
         },
         "labelTrue": "Wahr",
         "labelFalse": "Falsch",
-        "noActions": "No actions added yet",
-        "noRule": "No rule defined yet"
+        "noActions": "Kein Aktionen hinzugefügt",
+        "noRule": "Noch keine Regeln definiert"
       }
     },
     "page": {
@@ -67,51 +67,51 @@
       "flowTab": "Flow"
     },
     "flowNotification": {
-      "messageDeleteSuccess": "Die flow wurde erfolgreich gelöscht.",
-      "messageDeleteError": "Die flow konnte nicht gelöscht werden.",
-      "messageSaveSuccess": "The flow wurde erfolgreich gespeichert.",
-      "messageSaveError": "The flow konnte nicht gespeichert werden.",
+      "messageDeleteSuccess": "Flow gelöscht.",
+      "messageDeleteError": "Flow konnte nicht gelöscht werden.",
+      "messageSaveSuccess": "Flow gespeichert.",
+      "messageSaveError": "Flow konnte nicht gespeichert werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
       "messageRequiredEventName": "Wähle bitte ein Trigger-Ereignis vor dem Speichern.",
       "messageRequiredEmptyFields": "Wähle bitte eine Regel oder Aktion vor dem Speichern."
     },
     "actions": {
-      "addTag": "Add tag",
-      "callURL": "Call URL (Webhook)",
-      "generateDocument": "Generate document",
-      "removeTag": "Remove tag",
-      "sendEmail": "Send email",
-      "setStatus": "Set status",
-      "stopFlow": "Stop flow",
+      "addTag": "Tag hinzufügen",
+      "callWebhook": "URL aufrufen (Webhook)",
+      "generateDocument": "Dokument erzeugen",
+      "removeTag": "Tag entfernen",
+      "mailSend": "E-Mail verschicken",
+      "setOrderState": "Status setzen",
+      "stopFlow": "Flow anhalten",
       "textStopFlowDescription": "Nachfolgende Aktionen/Sequenzen werden nicht ausgeführt.",
       "contextButton": {
-        "editAction": "Edit action",
-        "deleteAction": "Delete action"
+        "editAction": "Aktion bearbeiten",
+        "deleteAction": "Aktion entfernen"
       },
       "addAction": "Aktion hinzufügen"
     },
     "rule": {
       "addRule": "Regel hinzufügen",
-      "createNewRule": "Create new rule",
+      "createNewRule": "Neue Regel erstellen",
       "contextButton": {
-        "editRule": "Edit rule",
-        "deleteRule": "Delete rule"
+        "editRule": "Regel bearbeiten",
+        "deleteRule": "Regel entfernen"
       }
     },
     "modals": {
       "rule": {
-        "labelAddNewRule": "Add new rule",
-        "tabRule": "Rule",
+        "labelAddNewRule": "Neue Regel hinzufügen",
+        "tabRule": "Regel",
         "detailsTab": "Details",
-        "buttonAddRule": "Save and apply",
+        "buttonAddRule": "Speichern und anwenden",
         "labelName": "Name",
-        "placeholderName": "Enter rule name...",
-        "labelPriority": "Priority",
-        "placeholderPriority": "Enter rule priority...",
-        "labelDescription": "Description",
-        "placeholderDescription": "Enter rule description...",
-        "labelType": "Type",
-        "placeholderType": "Select rule type..."
+        "placeholderName": "Namen eingeben ...",
+        "labelPriority": "Priorität",
+        "placeholderPriority": "Priorität festlegen ...",
+        "labelDescription": "Beschreibung",
+        "placeholderDescription": "Beschreibung eingeben ...",
+        "labelType": "Typ",
+        "placeholderType": "Regel-Typ auswählen ..."
       }
     }
   },

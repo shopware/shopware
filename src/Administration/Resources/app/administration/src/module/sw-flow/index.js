@@ -10,10 +10,13 @@ import './component/sw-flow-sequence-condition';
 import './component/sw-flow-sequence-selector';
 import './component/modals/sw-flow-create-rule-modal';
 
-import './service/flow.service';
+import './service/flow-builder.service';
 import './acl';
 
-const { Module } = Shopware;
+import flowState from './state/flow.state';
+
+const { Module, State } = Shopware;
+State.registerModule('swFlowState', flowState);
 
 Module.register('sw-flow', {
     flag: 'FEATURE_NEXT_8225',

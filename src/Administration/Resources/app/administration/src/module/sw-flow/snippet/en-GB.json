@@ -26,7 +26,7 @@
       "labelGeneralInformationPriority": "Priority",
       "labelGeneralInformationActive": "Active",
       "labelLogExecuted": "This flow as been executed \"{total}\" time in total.",
-      "labelLogInstruct": "Click on the log file to see more details of the flow execution actions and to replay the flow.",
+      "labelLogInstruct": "Click on the log file to see details of flow executions and actions, or to replay the flow entirely.",
       "labelLogDateExecuted": "Date executed",
       "labelLogTrigger": "Trigger",
       "labelLogTriggerValue": "Trigger value",
@@ -77,11 +77,11 @@
     },
     "actions": {
       "addTag": "Add tag",
-      "callURL": "Call URL (Webhook)",
+      "callWebhook": "Call URL (Webhook)",
       "generateDocument": "Generate document",
       "removeTag": "Remove tag",
-      "sendEmail": "Send email",
-      "setStatus": "Set status",
+      "mailSend": "Send email",
+      "setOrderState": "Set status",
       "stopFlow": "Stop flow",
       "textStopFlowDescription": "Subsequent actions/ sequences will not be executed.",
       "contextButton": {

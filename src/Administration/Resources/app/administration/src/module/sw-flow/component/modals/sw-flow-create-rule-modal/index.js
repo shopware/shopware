@@ -18,13 +18,6 @@ Component.register('sw-flow-create-rule-modal', {
         Mixin.getByName('notification'),
     ],
 
-    props: {
-        sequence: {
-            type: Object,
-            required: true,
-        },
-    },
-
     data() {
         return {
             isLoading: false,
@@ -81,19 +74,18 @@ Component.register('sw-flow-create-rule-modal', {
         },
 
         getRuleDetail() {
-            if (!this.sequence?.ruleId) {
+            if (!this.rule?.id) {
                 return null;
             }
 
-            return this.ruleRepository.get(this.sequence.ruleId)
+            return this.ruleRepository.get(this.rule.id)
                 .then((rule) => {
-                    this.sequence.rule = rule;
+                    this.$emit('process-finish', rule);
                 })
                 .catch(() => {
-                    this.sequence.rule = null;
+                    this.$emit('process-finish', null);
                 })
                 .finally(() => {
-                    this.$emit('process-finish');
                     this.onClose();
                 });
         },
@@ -107,7 +99,6 @@ Component.register('sw-flow-create-rule-modal', {
                         message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', 0, { name: this.rule.name }),
                     });
                     Shopware.State.dispatch('error/resetApiErrors');
-                    this.sequence.ruleId = this.rule.id;
                     this.getRuleDetail();
                 })
                 .catch(() => {

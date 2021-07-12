@@ -145,24 +145,18 @@
 
                 {% block sw_flow_sequence_condition_rule %}
                 <div class="sw-flow-sequence-condition__rule">
-                    {% block sw_flow_sequence_condition_rule_loader %}
-                    <sw-loader
-                        v-if="isRuleLoading"
-                        class="sw-flow-sequence-condition__loader"
-                        size="16px"
-                    />
-                    {% endblock %}
-
                     {% block sw_flow_sequence_condition_rule_empty %}
                     <div
-                        v-else-if="!sequence.rule"
+                        v-if="!sequence.rule"
                         class="sw-flow-sequence-condition__rule-empty"
                     >
                         <sw-icon
                             size="12px"
                             name="small-default-rule"
                         />
-                        <span>{{ $tc('sw-flow.detail.sequence.noRule') }}</span>
+                        <span class="sw-flow-sequence-condition__no-rule">
+                            {{ $tc('sw-flow.detail.sequence.noRule') }}
+                        </span>
                     </div>
                     {% endblock %}
 
@@ -275,12 +269,12 @@
                                 {% block sw_flow_sequence_condition_select_selection_before_list %}
                                 <ul class="sw-select-result__item-list">
                                     <li
-                                        class="sw-select-result sw-select-result__create-new-rule"
                                         v-tooltip="{
                                             message: $tc('sw-privileges.tooltip.warning'),
                                             disabled: acl.can('rule.creator'),
                                             showOnDisabledElements: true
                                         }"
+                                        class="sw-select-result sw-select-result__create-new-rule"
                                         :disabled="!acl.can('rule.creator')"
                                         @click="onCreateNewRule"
                                     >
@@ -322,9 +316,9 @@
     {% endblock %}
 
     {% block sw_flow_sequence_condition_create_rule_modal %}
-    <sw-flow-sequence-modal
+    <sw-flow-create-rule-modal
+        v-if="showCreateRuleModal"
         :sequence="sequence"
-        :modal-name="modalName"
         @process-finish="onCreateRuleSuccess"
         @modal-close="onCloseModal"
     />

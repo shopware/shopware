@@ -1,8 +1,6 @@
 import template from './sw-flow-sequence-condition.html.twig';
 import './sw-flow-sequence-condition.scss';
 
-import { ACTION } from '../../constant/flow.constant';
-
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
@@ -14,7 +12,7 @@ Component.register('sw-flow-sequence-condition', {
 
     inject: [
         'repositoryFactory',
-        'flowService',
+        'flowBuilderService',
         'acl',
     ],
 
@@ -32,11 +30,10 @@ Component.register('sw-flow-sequence-condition', {
 
     data() {
         return {
+            showCreateRuleModal: false,
             showRuleSelection: false,
-            isRuleLoading: false,
             fieldError: null,
             showAddButton: false,
-            actionModal: '',
         };
     },
 
@@ -59,7 +56,7 @@ Component.register('sw-flow-sequence-condition', {
         },
 
         modalName() {
-            return this.flowService.getActionModalName(this.actionModal);
+            return this.flowBuilderService.getActionModalName(this.actionModal);
         },
 
         ...mapState('swFlowState', ['invalidSequences']),
@@ -68,11 +65,7 @@ Component.register('sw-flow-sequence-condition', {
     watch: {
         sequence: {
             handler(value) {
-                const { ruleId, rule, parentId, trueBlock, falseBlock } = value;
-
-                if (ruleId && !rule) {
-                    this.getRuleDetail();
-                }
+                const { ruleId, parentId, trueBlock, falseBlock } = value;
 
                 this.setFieldError();
 
@@ -100,34 +93,15 @@ Component.register('sw-flow-sequence-condition', {
     },
 
     methods: {
-        getRuleDetail() {
-            if (!this.sequence?.ruleId) {
-                return Promise.resolve();
-            }
-
-            this.isRuleLoading = true;
-
-            return this.ruleRepository.get(this.sequence.ruleId, Shopware.Context.api)
-                .then((rule) => {
-                    State.commit('swFlowState/updateSequence', {
-                        id: this.sequence.id,
-                        rule,
-                    });
-                }).finally(() => {
-                    this.isRuleLoading = false;
-                });
-        },
-
         onCreateNewRule() {
-            this.actionModal = ACTION.ADD_RULE;
+            this.showCreateRuleModal = true;
         },
 
         onCloseModal() {
-            this.actionModal = '';
+            this.showCreateRuleModal = false;
         },
 
-        onCreateRuleSuccess(sequence) {
-            const { rule } = sequence;
+        onCreateRuleSuccess(rule) {
             this.onRuleChange(rule);
         },
 

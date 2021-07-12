@@ -10,7 +10,7 @@ const { mapState } = Component.getComponentHelper();
 Component.register('sw-flow-sequence-action', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'flowBuilderService'],
 
     props: {
         sequence: {
@@ -38,35 +38,10 @@ Component.register('sw-flow-sequence-action', {
         },
 
         actionOptions() {
-            return [{
-                value: ACTION.ADD_TAG,
-                icon: 'default-action-tags',
-                label: this.$tc('sw-flow.actions.addTag'),
-            }, {
-                value: ACTION.CALL_URL,
-                icon: 'default-web-link',
-                label: this.$tc('sw-flow.actions.callURL'),
-            }, {
-                value: ACTION.GENERATE_DOCUMENT,
-                icon: 'default-documentation-file',
-                label: this.$tc('sw-flow.actions.generateDocument'),
-            }, {
-                value: ACTION.REMOVE_TAG,
-                icon: 'default-action-tags',
-                label: this.$tc('sw-flow.actions.removeTag'),
-            }, {
-                value: ACTION.SEND_MAIL,
-                icon: 'default-communication-envelope',
-                label: this.$tc('sw-flow.actions.sendEmail'),
-            }, {
-                value: ACTION.SET_STATUS,
-                icon: 'default-shopping-plastic-bag',
-                label: this.$tc('sw-flow.actions.setStatus'),
-            }, {
-                value: ACTION.STOP_FLOW,
-                icon: 'default-basic-x-circle',
-                label: this.$tc('sw-flow.actions.stopFlow'),
-            }];
+            // TODO: NEXT-15781 - Handle specific action, the line below will be removed
+            return Object.values(ACTION).map(actionName => {
+                return this.getActionTitle(actionName);
+            });
         },
 
         sequenceData() {
@@ -74,7 +49,7 @@ Component.register('sw-flow-sequence-action', {
                 return [
                     {
                         ...this.sequence,
-                        ...this.getActionInfo(this.sequence.actionName),
+                        ...this.getActionTitle(this.sequence.actionName),
                     },
                 ];
             }
@@ -82,7 +57,7 @@ Component.register('sw-flow-sequence-action', {
             return this.sortByPosition(Object.values(this.sequence).map(item => {
                 return {
                     ...item,
-                    ...this.getActionInfo(item.actionName),
+                    ...this.getActionTitle(item.actionName),
                 };
             }));
         },
@@ -170,8 +145,16 @@ Component.register('sw-flow-sequence-action', {
             State.commit('swFlowState/removeSequences', removeSequences);
         },
 
-        getActionInfo(actionName) {
-            return this.actionOptions.find(item => item.value === actionName);
+        getActionTitle(actionName) {
+            if (!actionName) {
+                return null;
+            }
+
+            const actionTitle = this.flowBuilderService.getActionTitle(actionName);
+            return {
+                ...actionTitle,
+                label: this.$tc(actionTitle.label),
+            };
         },
 
         toggleAddButton() {

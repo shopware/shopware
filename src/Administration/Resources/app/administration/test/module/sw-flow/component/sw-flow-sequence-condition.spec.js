@@ -5,7 +5,6 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
-import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 
 const sequenceFixture = {
     id: '1',
@@ -57,7 +56,6 @@ function createWrapper(propsData = {}) {
             'sw-icon': {
                 template: '<div class="sw-icon" v-on="$listeners"></div>'
             },
-            'sw-loader': true,
             'sw-context-button': true,
             'sw-context-menu-item': {
                 template: `
@@ -81,14 +79,14 @@ function createWrapper(propsData = {}) {
                 `
             },
             'sw-label': true,
-            'sw-flow-sequence-modal': true
+            'sw-flow-create-rule-modal': true
         },
         propsData: {
             sequence: sequenceFixture,
             ...propsData
         },
         provide: {
-            flowService: {
+            flowBuilderService: {
                 getActionModalName: () => {}
             },
             repositoryFactory: {
@@ -495,7 +493,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         });
     });
 
-    it('should assign actionModal value to action.add.rule', async () => {
+    it('should show create rule modal', async () => {
         const sequence = {
             ...sequenceFixture,
             ruleId: ''
@@ -507,11 +505,13 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             sequence
         });
 
-        expect(wrapper.vm.actionModal).toEqual('');
+        let createRuleModal = wrapper.find('sw-flow-create-rule-modal-stub');
+        expect(createRuleModal.exists()).toBeFalsy();
 
         const createRuleButton = wrapper.find('.sw-select-result__create-new-rule');
         await createRuleButton.trigger('click');
 
-        expect(wrapper.vm.actionModal).toEqual(ACTION.ADD_RULE);
+        createRuleModal = wrapper.find('sw-flow-create-rule-modal-stub');
+        expect(createRuleModal.exists()).toBeTruthy();
     });
 });

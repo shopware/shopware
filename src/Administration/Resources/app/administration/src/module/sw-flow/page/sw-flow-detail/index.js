@@ -1,6 +1,5 @@
 import template from './sw-flow-detail.html.twig';
 import './sw-flow-detail.scss';
-import flowState from '../../state/flow.state';
 
 const { Component, Mixin, Context, State } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -46,6 +45,8 @@ Component.register('sw-flow-detail', {
 
         flowCriteria() {
             const criteria = new Criteria();
+
+            criteria.addAssociation('sequences.rule');
             criteria.getAssociation('sequences')
                 .addSorting(Criteria.sort('parentId', 'ASC'))
                 .addSorting(Criteria.sort('trueCase', 'ASC'))
@@ -65,23 +66,11 @@ Component.register('sw-flow-detail', {
         },
     },
 
-    beforeCreate() {
-        State.registerModule('swFlowState', flowState);
-    },
-
     created() {
         this.createdComponent();
     },
 
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
-        beforeDestroyComponent() {
-            State.unregisterModule('swFlowState', flowState);
-        },
-
         createdComponent() {
             if (this.flowId) {
                 this.getDetailFlow();
@@ -102,8 +91,9 @@ Component.register('sw-flow-detail', {
         },
 
         createNewFlow() {
-            const flow = this.flowRepository.create(Context.api);
+            const flow = this.flowRepository.create();
             flow.priority = 0;
+            flow.eventName = '';
 
             State.commit('swFlowState/setFlow', flow);
         },

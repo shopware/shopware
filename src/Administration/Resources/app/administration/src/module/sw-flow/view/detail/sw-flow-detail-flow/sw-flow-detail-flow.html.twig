@@ -4,13 +4,8 @@
     <div class="sw-flow-detail-flow__trigger-card">
         {% block sw_flow_detail_flow_trigger_select %}
         <div class="sw-flow-detail-flow__trigger-select">
-            {% block sw_flow_detail_flow_single_select_name %}
-            <h3>{{ $tc('sw-flow.detail.trigger.name') }}</h3>
-            {% endblock %}
-
             {% block sw_flow_detail_flow_single_select %}
             <sw-flow-trigger
-                :collapsible="true"
                 :overlay="true"
                 :disabled="!acl.can('flow.editor')"
                 :event-name="flow.eventName"

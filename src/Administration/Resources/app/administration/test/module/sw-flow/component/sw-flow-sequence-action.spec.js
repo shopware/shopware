@@ -31,7 +31,7 @@ const sequencesFixture = [
     },
     {
         ...sequenceFixture,
-        actionName: ACTION.SEND_MAIL,
+        actionName: ACTION.MAIL_SEND,
         position: 2,
         id: '3'
     }
@@ -101,6 +101,13 @@ function createWrapper(propsData = {}) {
                         create: () => {
                             return {};
                         }
+                    };
+                }
+            },
+            flowBuilderService: {
+                getActionTitle: (actionName) => {
+                    return {
+                        value: actionName
                     };
                 }
             }
@@ -194,7 +201,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         expect(sequencesState.length).toEqual(3);
         expect(sequencesState[2].position).toEqual(3);
-        expect(sequencesState[2].actionName).toEqual(ACTION.CALL_URL);
+        expect(sequencesState[2].actionName).toEqual(ACTION.REMOVE_TAG);
     });
 
     it('should not able to add more actions if existing action is stop flow', async () => {

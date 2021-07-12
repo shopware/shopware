@@ -18,8 +18,8 @@ Component.register('sw-flow-sequence-modal', {
     },
 
     methods: {
-        processSuccess() {
-            this.$emit('process-finish', this.sequence);
+        processSuccess(data) {
+            this.$emit('process-finish', data);
         },
 
         onClose() {

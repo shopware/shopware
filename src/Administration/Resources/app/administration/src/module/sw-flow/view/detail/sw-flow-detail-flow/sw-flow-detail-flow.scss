@@ -20,14 +20,6 @@
         border: 1px solid $color-gray-300;
         box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.2);
         padding: 24px 24px 17px;
-
-        h3 {
-            color: $color-darkgray-200;
-            font-size: 16px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 9px;
-        }
     }
 
     &__trigger-explain {

@@ -65,8 +65,13 @@ Component.register('sw-flow-detail-flow', {
 
             const sequences = cloneDeep(this.sequences);
 
-            const results = sequences.reduce((result, org) => {
-                (result[org.displayGroup] ??= []).push(org);
+            // Group sequences by its displayGroup, then those groups are arranged in ascending order.
+            const results = sequences.reduce((result, sequence) => {
+                if (!Array.isArray(result[sequence.displayGroup])) {
+                    result[sequence.displayGroup] = [];
+                }
+
+                result[sequence.displayGroup].push(sequence);
                 return result;
             }, {});
 
@@ -85,19 +90,22 @@ Component.register('sw-flow-detail-flow', {
             let sequence = null;
 
             sequences.forEach(node => {
+                // Check if node is a root sequence
                 if (!node.parentId) {
                     sequence = node.actionName === null
                         ? node
-                        : { ...sequence, [node.id]: node };
+                        : { ...sequence, [node.id]: node }; // Generate action groups
                     return;
                 }
 
                 const parentIndex = sequences.findIndex(el => el.id === node.parentId);
 
+                // Skip node parent does not existed
                 if (!sequences[parentIndex]) {
                     return;
                 }
 
+                // Child node is assigned to parent's true block or false block based on their trueCase
                 if (node.trueCase) {
                     sequences[parentIndex].trueBlock = {
                         ...sequences[parentIndex].trueBlock,
@@ -133,6 +141,9 @@ Component.register('sw-flow-detail-flow', {
 
         onEventChange(eventName) {
             State.commit('swFlowState/setEventName', eventName);
+            State.commit('error/removeApiError', {
+                expression: `flow.${this.flow.id}.eventName`,
+            });
 
             if (!this.rootSequences.length) {
                 const sequence = this.createSequence();

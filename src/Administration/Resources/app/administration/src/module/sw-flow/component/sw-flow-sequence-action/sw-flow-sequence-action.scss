@@ -37,14 +37,13 @@
         .sw-icon {
             color: $color-gray-500;
         }
+    }
 
-        span:last-child {
-            color: $color-gray-500;
-            font-size: 15px;
-            font-weight: $font-weight-semi-bold;
-            opacity: 75%;
-            margin-left: 8px;
-        }
+    &__no-action {
+        color: $color-gray-400;
+        font-size: 15px;
+        font-weight: $font-weight-semi-bold;
+        margin-left: 8px;
     }
 
     &__action-list {

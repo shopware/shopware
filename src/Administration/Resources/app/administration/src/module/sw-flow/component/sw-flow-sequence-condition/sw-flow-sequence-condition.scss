@@ -167,12 +167,6 @@
         }
     }
 
-    &__loader.sw-loader {
-        @include size(16px);
-
-        position: static;
-    }
-
     &__card {
         max-width: 322px;
         background: $color-white;
@@ -208,14 +202,13 @@
         .sw-icon {
             color: $color-gray-500;
         }
+    }
 
-        span:last-child {
-            color: $color-gray-500;
-            font-size: 15px;
-            font-weight: 600;
-            opacity: 75%;
-            margin-left: 8px;
-        }
+    &__no-rule {
+        color: $color-gray-400;
+        font-size: 15px;
+        font-weight: 600;
+        margin-left: 8px;
     }
 
     &__rule-info {

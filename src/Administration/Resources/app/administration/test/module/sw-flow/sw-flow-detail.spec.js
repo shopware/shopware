@@ -2,6 +2,7 @@ import { shallowMount, enableAutoDestroy, createLocalVue } from '@vue/test-utils
 import 'src/module/sw-flow/page/sw-flow-detail';
 
 import Vuex from 'vuex';
+import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const sequenceFixture = {
@@ -123,6 +124,19 @@ function createWrapper(privileges = []) {
 enableAutoDestroy(afterEach);
 
 describe('module/sw-flow/page/sw-flow-detail', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('swFlowState', {
+            ...flowState,
+            state: {
+                flow: {
+                    eventName: '',
+                    sequences: getSequencesCollection([{ ...sequenceFixture }])
+                },
+                invalidSequences: []
+            }
+        });
+    });
+
     it('should not be able to save a flow', () => {
         const wrapper = createWrapper();
 

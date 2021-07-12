@@ -13,6 +13,7 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
+use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
@@ -543,6 +544,108 @@ class ImportExportTest extends TestCase
         static::assertCount(1, $property);
     }
 
+    public function importPropertyWithDefaultsCsv(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        // setup profile
+        $clonedPropertyProfile = $this->cloneDefaultProfile(PropertyGroupOptionDefinition::ENTITY_NAME);
+        $mappings = $clonedPropertyProfile->getMapping();
+        foreach (array_keys($mappings) as $key) {
+            if ($mappings[$key]['mappedKey'] === 'name') {
+                $mappings[$key]['useDefaultValue'] = true;
+                $mappings[$key]['defaultValue'] = 'MyDefaultNameForProperties';
+
+                break;
+            }
+        }
+        $this->updateProfileMapping($clonedPropertyProfile->getId(), $mappings);
+
+        // do the import
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/properties_with_empty_names.csv', 'properties.csv', 'text/csv');
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $clonedPropertyProfile->getId(),
+            $expireDate,
+            $file
+        );
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        // import should succeed even if required names are empty (they will be replaced by default values)
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        /** @var EntityRepositoryInterface $propertyRepository */
+        $propertyRepository = $this->getContainer()->get($logEntity->getProfile()->getSourceEntity() . '.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'MyDefaultNameForProperties'));
+        $property = $propertyRepository->search($criteria, $context);
+        // import should create 7 properties with default name
+        static::assertCount(7, $property);
+    }
+
+    public function importPropertyWithUserRequiredCsv(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        // setup profile
+        $clonedPropertyProfile = $this->cloneDefaultProfile(PropertyGroupOptionDefinition::ENTITY_NAME);
+        $mappings = $clonedPropertyProfile->getMapping();
+        foreach (array_keys($mappings) as $key) {
+            if ($mappings[$key]['mappedKey'] === 'media_url') {
+                $mappings[$key]['requiredByUser'] = true;
+
+                break;
+            }
+        }
+        $this->updateProfileMapping($clonedPropertyProfile->getId(), $mappings);
+
+        // do the import
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/properties.csv', 'properties.csv', 'text/csv');
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $clonedPropertyProfile->getId(),
+            $expireDate,
+            $file
+        );
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        // import should fail even if all system required fields are set,
+        // there are rows that have no values for user required fields.
+        // Input CSV is the same as in the 'importPropertyCsv' test (which previously succeeded here).
+        static::assertSame(Progress::STATE_FAILED, $progress->getState());
+        static::assertSame(0, $progress->getProcessedRecords());
+
+        // check the errors
+        $config = Config::fromLog($importExport->getLogEntity()->getInvalidRecordsLog());
+        $reader = new CsvReader();
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $resource = $filesystem->readStream($logEntity->getFile()->getPath() . '_invalid');
+        $invalid = iterator_to_array($reader->read($config, $resource, 0));
+
+        static::assertGreaterThanOrEqual(1, \count($invalid)); // there could already be other errors
+        $first = $invalid[0];
+        static::assertStringContainsString('media_url is set to required by the user but has no value', $first['_error']);
+    }
+
     /**
      * @group slow
      */
@@ -554,6 +657,11 @@ class ImportExportTest extends TestCase
         $this->importCategoryCsv();
         $this->importPropertyCsv();
         $this->importPropertyCsvWithoutIds();
+
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $this->importPropertyWithDefaultsCsv();
+            $this->importPropertyWithUserRequiredCsv();
+        }
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
@@ -1108,6 +1216,32 @@ class ImportExportTest extends TestCase
         $criteria->addFilter(new EqualsFilter('sourceEntity', $entity));
 
         return $profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+    }
+
+    private function cloneDefaultProfile(string $entity): ImportExportProfileEntity
+    {
+        /** @var EntityRepositoryInterface $profileRepository */
+        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
+
+        $systemDefaultProfileId = $this->getDefaultProfileId($entity);
+        $newId = Uuid::randomHex();
+        $profileRepository->clone($systemDefaultProfileId, Context::createDefaultContext(), $newId);
+
+        // get the cloned profile
+        return $profileRepository->search(new Criteria([$newId]), Context::createDefaultContext())->first();
+    }
+
+    private function updateProfileMapping(string $profileId, array $mappings): void
+    {
+        /** @var EntityRepositoryInterface $profileRepository */
+        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
+
+        $profileRepository->update([
+            [
+                'id' => $profileId,
+                'mapping' => $mappings,
+            ],
+        ], Context::createDefaultContext());
     }
 
     private function getTestProduct(string $id): array

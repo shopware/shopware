@@ -101,6 +101,8 @@
             "customTypeLabel": "Benutzerdefiniert",
             "defaultTypeLabel": "Standard",
             "propertyLabel": "Eigenschaften",
+            "mappingDescription": "Verwende die folgende Tabelle, um den CSV-Namen auf die Shopware-Datenbank abzubilden. Zusätzlich kannst Du einstellen, ob die Zuordnung erforderlich sein soll (falls es nicht bereits durch die Datenbank selbst erforderlich ist). Leere Pflichtfelder führen beim Import zu einem Fehler, es sei denn, der Standard-Wert wurde eingestellt. Der Standard-Wert wird verwendet, um leere Datenbankeinträge beim Import oder CSV-Namen beim Export auszufüllen.",
+            "mappingEmptyState": "Es wurde noch kein benutzerdefiniertes Mapping angelegt.",
             "configuratorSettingLabel": "Varianten-Konfiguration",
             "productCrossSellingLabel": "Cross-Selling",
             "closeViolation": "Schließen",

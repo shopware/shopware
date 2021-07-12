@@ -231,7 +231,13 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         processFunctions() {
-            return [this.processTranslations, this.processVisibilities, this.processAssignedProducts, this.processPrice, this.processProperties];
+            return [
+                this.processTranslations,
+                this.processVisibilities,
+                this.processAssignedProducts,
+                this.processPrice,
+                this.processProperties,
+            ];
         },
 
         options() {

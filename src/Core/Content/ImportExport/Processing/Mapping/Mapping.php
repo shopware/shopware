@@ -26,12 +26,33 @@ class Mapping extends Struct
      */
     protected $mappedDefault;
 
-    public function __construct(string $key, ?string $mappedKey = null, $default = null, $mappedDefault = null)
+    /**
+     * @var bool
+     */
+    protected $requiredByUser;
+
+    /**
+     * @var bool
+     */
+    protected $useDefaultValue;
+
+    /**
+     * @var mixed|null
+     */
+    protected $defaultValue;
+
+    /**
+     * @param mixed|null $defaultValue
+     */
+    public function __construct(string $key, ?string $mappedKey = null, $default = null, $mappedDefault = null, bool $requiredByUser = false, bool $useDefaultValue = false, $defaultValue = null)
     {
         $this->key = $key;
         $this->mappedKey = $mappedKey ?? $key;
         $this->default = $default;
         $this->mappedDefault = $mappedDefault;
+        $this->requiredByUser = $requiredByUser;
+        $this->useDefaultValue = $useDefaultValue;
+        $this->defaultValue = $defaultValue;
     }
 
     public function getKey(): string
@@ -44,14 +65,46 @@ class Mapping extends Struct
         return $this->mappedKey;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8097) Use getDefaultValue() instead if you want the user specified default value.
+     */
     public function getDefault()
     {
         return $this->default;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8097) Use getDefaultValue() instead if you want the user specified default value.
+     */
     public function getMappedDefault()
     {
         return $this->mappedDefault;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8097)
+     */
+    public function isRequiredByUser(): bool
+    {
+        return $this->requiredByUser;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8097)
+     */
+    public function isUseDefaultValue(): bool
+    {
+        return $this->useDefaultValue;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8097)
+     *
+     * @return mixed|null
+     */
+    public function getDefaultValue()
+    {
+        return $this->defaultValue;
     }
 
     public static function fromArray(array $data): self

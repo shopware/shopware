@@ -25,6 +25,13 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             required: false,
             default: null,
         },
+        systemRequiredFields: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
     },
 
     data() {
@@ -177,23 +184,20 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             this.loadMappings();
         }, 100),
 
-        onChangeRequiredBySystem(item, newValue) {
-            item.requiredByUser = newValue;
-
-            if (newValue !== true) {
-                return;
-            }
-
-            item.useDefaultValue = false;
-            item.defaultValue = null;
-        },
-
-        isDefaultValueCheckboxDisabled(item) {
-            return this.profile.systemDefault || item.requiredByUser || item.requiredBySystem;
+        isDefaultValueCheckboxDisabled() {
+            return this.profile.systemDefault;
         },
 
         isDefaultValueTextFieldDisabled(item) {
-            return this.profile.systemDefault || !item.useDefaultValue || item.requiredByUser || item.requiredBySystem;
+            return this.profile.systemDefault || !item.useDefaultValue;
+        },
+
+        isRequiredBySystem(item) {
+            if (!item || !item.key) {
+                return false;
+            }
+
+            return this.systemRequiredFields[item.key] !== undefined;
         },
     },
 });

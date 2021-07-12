@@ -4,8 +4,8 @@
         v-if="profile"
         class="sw-import-export-edit-profile-modal"
         :title="modalTitle"
-        @modal-close="$emit('profile-close')"
         variant="full"
+        @modal-close="$emit('profile-close')"
     >
 
         {% block sw_import_export_edit_profile_modal_alert %}
@@ -20,7 +20,8 @@
         {% block sw_import_export_edit_profile_modal_tabs %}
         <sw-tabs
             :small="false"
-            default-item="general">
+            default-item="general"
+        >
 
             <template #default="{ active }">
 
@@ -35,14 +36,14 @@
                 {% endblock %}
 
                 {% block sw_import_export_edit_profile_modal_tabs_field_mappings %}
-                    <sw-tabs-item
-                        v-if="feature.isActive('FEATURE_NEXT_8097')"
-                        :title="$tc('sw-import-export.profile.mappingsTab')"
-                        :active-tab="active"
-                        name="mappings"
-                    >
-                        {{ $tc('sw-import-export.profile.mappingsTab') }}
-                    </sw-tabs-item>
+                <sw-tabs-item
+                    v-if="feature.isActive('FEATURE_NEXT_8097')"
+                    :title="$tc('sw-import-export.profile.mappingsTab')"
+                    :active-tab="active"
+                    name="mappings"
+                >
+                    {{ $tc('sw-import-export.profile.mappingsTab') }}
+                </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_import_export_edit_profile_modal_tabs_field_indicators %}
@@ -111,6 +112,7 @@
                     <sw-import-export-edit-profile-modal-mapping
                         v-if="!feature.isActive('FEATURE_NEXT_8097')"
                         :profile="profile"
+                        :system-required-fields="systemRequiredFields"
                     />
                     {% endblock %}
                 </template>
@@ -118,16 +120,18 @@
                 <template v-if="active === 'mappings' && feature.isActive('FEATURE_NEXT_8097')">
                     {% block sw_import_export_edit_profile_modal_tabs_mappings %}
 
-                        {% block sw_import_export_edit_profile_modal_tabs_mappings_text %}
-                            <p class="sw-import-export-edit-profile-modal__text">{{ $tc('sw-import-export.profile.mappingDescription') }}</p>
-                        {% endblock %}
+                    {% block sw_import_export_edit_profile_modal_tabs_mappings_text %}
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.mappingDescription') }}
+                    </p>
+                    {% endblock %}
 
-
-                        {% block sw_import_export_edit_profile_modal_tabs_mappings_mapping %}
-                            <sw-import-export-edit-profile-modal-mapping
-                                :profile="profile"
-                            />
-                        {% endblock %}
+                    {% block sw_import_export_edit_profile_modal_tabs_mappings_mapping %}
+                    <sw-import-export-edit-profile-modal-mapping
+                        :profile="profile"
+                        :system-required-fields="systemRequiredFields"
+                    />
+                    {% endblock %}
                     {% endblock %}
                 </template>
 

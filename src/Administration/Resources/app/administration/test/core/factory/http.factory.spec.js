@@ -224,4 +224,55 @@ describe('core/factory/http.factory.js', () => {
         // expect no warning in the console
         expect(console.warn).toHaveBeenCalledTimes(0);
     });
+
+    it('should cache the second request when its identical and happen shortly afterwards. Mutating value in the first response should not be happening on the second request', async () => {
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+
+        const productSearchRequest = {
+            url: '/search/product',
+            method: 'post',
+            data: '{"page": 1, "limit": 25}',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1
+        };
+
+        // do first request
+        const firstRequest = await cacheAdapter(productSearchRequest);
+        expect(firstRequest.response).toEqual('success');
+
+        // mutate value from first request
+        firstRequest.response = 'Very dangerous';
+        expect(firstRequest.response).toEqual('Very dangerous');
+
+        // expect that the original adapter was called only once
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+        // expect no warning in the console
+        expect(console.warn).not.toHaveBeenCalled();
+
+        // set timer 1 second forward so caching should be used
+        jest.advanceTimersByTime(1000);
+
+        // do second request
+        const secondRequest = await cacheAdapter(productSearchRequest);
+        expect(secondRequest.response).toEqual('success');
+
+        // expect that the original adapter was called only once
+        // because the second request should be cached when it is identical
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+
+        // expect a warning in the console
+        expect(console.warn).toHaveBeenCalledTimes(1);
+        expect(console.warn.mock.calls[0][1]).toContain('Duplicated requests happening in short amount of time');
+    });
 });

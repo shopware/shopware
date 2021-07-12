@@ -76,8 +76,8 @@ export function cacheAdapterFactory(originalAdapter, requestCaches) {
                 'This duplicated request should be fixed.',
             );
 
-            // when identical requests exists then return the previous value
-            return identicalRequest;
+            // when identical requests exists then return the previous value as a clone
+            return cloneResponse(identicalRequest);
         }
 
         // when no identical request exists then
@@ -91,9 +91,23 @@ export function cacheAdapterFactory(originalAdapter, requestCaches) {
             }
         }, 1500);
 
-        // return the created request from the request cache
-        return requestCaches[requestHash];
+        // return a clone of the created request from the request cache
+        return cloneResponse(requestCaches[requestHash]);
     };
+}
+
+/**
+ * This function returns a clone of the original axios response object.
+ * This guarantees that the response can be mutated and following requests are returning the
+ * original, initial response values.
+ * @param request
+ * @returns {Promise<{finishedRequest: *, response: any}>}
+ */
+function cloneResponse(request) {
+    return request.then((response) => {
+        // response is in JSON format therefore JSON stringify is safe
+        return JSON.parse(JSON.stringify(response));
+    });
 }
 
 /**

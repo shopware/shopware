@@ -84,6 +84,11 @@ class RegisterRouteTest extends TestCase
         static::assertNotEmpty($response['addresses']);
         static::assertNotEmpty($response['salutation']);
         static::assertNotEmpty($response['defaultBillingAddress']);
+        static::assertNotEmpty($response['defaultBillingAddress']['country']);
+        static::assertNotEmpty($response['defaultBillingAddress']['salutation']);
+        static::assertNotEmpty($response['defaultShippingAddress']);
+        static::assertNotEmpty($response['defaultShippingAddress']['country']);
+        static::assertNotEmpty($response['defaultShippingAddress']['salutation']);
         static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser

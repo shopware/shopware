@@ -56,7 +56,7 @@ class DebugStack extends DoctrineDebugStack
 
         if ($matches) {
             throw new \RuntimeException(
-                sprintf('Write operations are not supported when using executeQuery. Query: %s', $query)
+                sprintf('Write operations are not supported when using executeQuery, use executeStatement instead. Query: %s', $query)
             );
         }
     }

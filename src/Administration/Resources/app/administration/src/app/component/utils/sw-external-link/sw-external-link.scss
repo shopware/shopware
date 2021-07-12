@@ -6,6 +6,11 @@
     text-decoration: underline;
     cursor: pointer;
 
+    &:hover,
+    &:focus {
+        color: $color-shopware-brand-600;
+    }
+
     .sw-external-link__icon {
         margin-left: 4px;
     }

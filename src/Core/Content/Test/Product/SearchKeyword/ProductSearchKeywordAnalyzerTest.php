@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -66,6 +67,85 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->createDataTest();
+    }
+
+    public function testCustomFields(): void
+    {
+        $config = [
+            [
+                'field' => 'customFields.field1',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'product.customFields.field2',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'product.customFields.field3',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'product.customFields.field4',
+                'tokenize' => false,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'product.customFields.field5',
+                'tokenize' => false,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'product.customFields.field6',
+                'tokenize' => false,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'product.customFields.nestedField.value',
+                'tokenize' => false,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'customFields.notExists',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'customFields',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+        ];
+
+        $product = new ProductEntity();
+        $product->setCustomFields([
+            'field1' => 'searchable',
+            'field2' => 'match',
+            'field3' => ['array'],
+            'field4' => 10000000,
+            'field5' => false,
+            'field6' => 10.99999,
+            'nestedField' => [
+                'value' => 'nested',
+                'second' => 'ignored',
+            ],
+            'ignored' => 'ignored',
+        ]);
+
+        $analyzer = $this->getContainer()->get(ProductSearchKeywordAnalyzer::class);
+
+        $result = $analyzer->analyze($product, Context::createDefaultContext(), $config);
+
+        $words = $result->map(function (AnalyzedKeyword $keyword) {
+            return $keyword->getKeyword();
+        });
+
+        static::assertEquals(
+            ['searchable', 'match', 'array', '10000000', '10.99999', 'nested'],
+            array_values($words)
+        );
     }
 
     /**

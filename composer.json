@@ -167,30 +167,25 @@
         "post-update-cmd": [
             "@composer bin all update --ansi"
         ],
-
         "hook:pre-commit": [
             "bin/pre-commit"
         ],
         "hook:pre-commit:install": [
             "ln -sf $PWD/bin/pre-commit .git/hooks/pre-commit"
         ],
-
         "hook:pre-push": [
             "bin/pre-commit"
         ],
         "hook:pre-push:install": [
             "ln -sf $PWD/bin/pre-push .git/hooks/pre-push"
         ],
-
         "init:db": [
             "@php bin/console system:install --drop-database --basic-setup --force"
         ],
-
         "init:js": [
             "@npm:admin clean-install",
             "@npm:storefront clean-install"
         ],
-
         "setup": [
             "@composer install",
             "mkdir -p config/jwt || true",
@@ -203,18 +198,14 @@
             "@php bin/console theme:change --all Storefront",
             "@php bin/console assets:install"
         ],
-
         "npm:admin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration && npm",
         "npm:admin:bin": "cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; ",
-
         "npm:storefront": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront && npm",
         "npm:storefront:bin": "cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; ",
-
         "npm:e2e:admin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e && npm",
         "npm:e2e:admin:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; ",
         "npm:e2e:storefront": "cd src/Storefront/Resources/app/storefront/test/e2e && npm",
         "npm:e2e:storefront:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; ",
-
         "build:js:admin": [
             "@npm:admin run build"
         ],
@@ -222,33 +213,27 @@
             "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js"
         ],
-
         "build:js": [
             "@php bin/console bundle:dump",
             "@build:js:admin",
             "@build:js:storefront"
         ],
-
         "stylelint:admin": "@npm:admin:bin stylelint --syntax scss",
         "stylelint:storefront": "@npm:storefront:bin stylelint --syntax scss --config stylelint.config.js",
         "stylelint": [
             "@stylelint:admin src/**/*.scss",
             "@stylelint:storefront src/**/*.scss"
         ],
-
         "eslint:admin": "@npm:admin:bin eslint --config .eslintrc.js --ext .js,.vue,.html.twig",
         "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront"
         ],
-
         "ecs": "@php vendor/bin/ecs check",
         "ecs-fix": "@php vendor/bin/ecs check --fix",
-
         "lint:changelog": "@php bin/shopware changelog:check",
         "lint:snippets": "@php bin/shopware snippets:validate",
-
         "lint": [
             "@stylelint",
             "@eslint",
@@ -256,7 +241,6 @@
             "@lint:changelog",
             "@lint:snippets"
         ],
-
         "phpstan": [
             "@php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php",
             "phpstan --memory-limit=2G"
@@ -266,53 +250,42 @@
             "@phpstan",
             "@psalm"
         ],
-
         "phpunit": [
             "phpunit"
         ],
         "paratest": [
             "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver --processes $(nproc)"
         ],
-
         "init:e2e:admin": "@npm:e2e:admin clean-install",
         "init:e2e:storefront": "@npm:e2e:storefront clean-install",
-
         "e2e:setup": [
             "@putenv APP_ENV=e2e",
             "@setup",
             "@e2e:prepare"
         ],
-
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",
             "@putenv CYPRESS_localUsage=1",
             "@php bin/console e2e:dump-db"
         ],
-
         "e2e:admin:run": [
             "@e2e:admin:cypress run --browser chrome --headless"
         ],
-
         "e2e:storefront:run": [
             "@e2e:storefront:cypress run --browser chrome --headless"
         ],
-
         "e2e:admin:cypress": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; cypress"
         ],
-
         "e2e:admin:percy": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; percy"
         ],
-
         "e2e:storefront:cypress": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; cypress"
         ],
-
         "e2e:admin:open": [
             "@e2e:admin:cypress open"
         ],
-
         "e2e:storefront:open": [
             "@e2e:storefront:cypress open"
         ]

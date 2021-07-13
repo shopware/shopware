@@ -9,7 +9,6 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
-use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\CriteriaBuilder;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -20,14 +19,10 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -147,10 +142,6 @@ class ImportExport
 
             try {
                 $record = $this->ensurePrimaryKeys($record);
-
-                if (Feature::isActive('FEATURE_NEXT_8097')) {
-                    $record = $this->ensureIdFields($record, $this->repository->getDefinition());
-                }
 
                 $event = new ImportExportBeforeImportRecordEvent($record, $row, $config, $context);
                 $this->eventDispatcher->dispatch($event);
@@ -432,37 +423,6 @@ class ImportExport
         );
 
         return $progress;
-    }
-
-    private function ensureIdFields(array $data, EntityDefinition $definition): array
-    {
-        foreach ($definition->getFields() as $field) {
-            $propertyName = $field->getPropertyName();
-
-            if ($field instanceof ManyToOneAssociationField && isset($data[$propertyName])) {
-                $definition = $field->getReferenceDefinition();
-                $data[$propertyName] = $this->ensureIdFields($data[$propertyName], $definition);
-            }
-
-            if ($field instanceof ManyToManyAssociationField && isset($data[$propertyName])) {
-                $definition = $field->getToManyReferenceDefinition();
-                foreach ($data[$propertyName] as &$property) {
-                    $property = $this->ensureIdFields($property, $definition);
-                }
-            }
-
-            if (!($field instanceof IdField) || !isset($data[$propertyName]) || Uuid::isValid($data[$propertyName])) {
-                continue;
-            }
-
-            if (str_contains($data[$propertyName], '|')) {
-                throw new InvalidIdentifierException($propertyName);
-            }
-
-            $data[$propertyName] = Uuid::fromStringToHex($data[$propertyName]);
-        }
-
-        return $data;
     }
 
     private function ensurePrimaryKeys(array $data): array

@@ -1,0 +1,4 @@
+id;name;product_id;active;position;limit;type;sort_by;sort_direction;assigned_products
+b168eea85f33410bba2d8dad90dec07b;Lorem;product1;1;1;500;productList;name;ASC;product2|c1ace7586faa4342a4d3b33e6dd33b7c|c9a70321b66449abb54ba9306ad02835
+cross-selling-1;Ipsum;c9a70321b66449abb54ba9306ad02835;1;1;500;productList;name;ASC;c1ace7586faa4342a4d3b33e6dd33b7c|product2
+cross-selling-1;Ipsum;c9a70321b66449abb54ba9306ad02835;1;1;500;productList;name;ASC;c1ace7586faa4342a4d3b33e6dd33b7c|product2|product1

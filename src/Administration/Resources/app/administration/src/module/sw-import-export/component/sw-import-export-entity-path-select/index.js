@@ -211,6 +211,11 @@ Component.register('sw-import-export-entity-path-select', {
                     return;
                 }
 
+                // Return if property is a assignedProducts association
+                if (propertyName === 'assignedProducts' && property.relation === 'one_to_many') {
+                    return;
+                }
+
                 // Return if property is a price
                 if (propertyName === 'price' && property.type === 'json_object') {
                     return;
@@ -226,7 +231,7 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         processFunctions() {
-            return [this.processTranslations, this.processVisibilities, this.processPrice, this.processProperties];
+            return [this.processTranslations, this.processVisibilities, this.processAssignedProducts, this.processPrice, this.processProperties];
         },
 
         options() {
@@ -488,6 +493,34 @@ Component.register('sw-import-export-entity-path-select', {
             });
 
             return options;
+        },
+
+        processAssignedProducts({ definition, options, properties, path }) {
+            const assignedProductsProperty = definition.properties.assignedProducts;
+
+            if (!assignedProductsProperty || assignedProductsProperty.relation !== 'one_to_many') {
+                return { properties, options, definition, path };
+            }
+
+            const newOptions = [...options, ...this.getAssignedProductsProperties(path)];
+
+            // Remove assignedProducts property
+            const filteredProperties = properties.filter(propertyName => {
+                return propertyName !== 'assignedProducts';
+            });
+
+            return {
+                properties: filteredProperties,
+                options: newOptions,
+                definition: definition,
+                path: path,
+            };
+        },
+
+        getAssignedProductsProperties(path) {
+            const name = `${path}assignedProducts`;
+
+            return [{ label: name, value: name }];
         },
 
         sortOptions(a, b) {

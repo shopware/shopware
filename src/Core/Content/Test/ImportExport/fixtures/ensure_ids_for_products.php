@@ -5,7 +5,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 if (!function_exists('convertToUuid')) {
     function convertToUuid($name): string
     {
-        return Uuid::fromBytesToHex(md5($name, true));
+        return Uuid::fromStringToHex($name);
     }
 }
 
@@ -48,14 +48,7 @@ $expected = [
 
 $import = [
     'id' => 'product1',
-    'categories' => [
-        [
-            'id' => 'category1',
-        ],
-        [
-            'id' => 'category2',
-        ],
-    ],
+    'categories' => 'category1|category2',
     'tax' => [
         'id' => 'tax1',
     ],
@@ -65,22 +58,8 @@ $import = [
     'manufacturer' => [
         'id' => 'manufacturer1',
     ],
-    'properties' => [
-        [
-            'id' => 'property1',
-        ],
-        [
-            'id' => 'property2',
-        ],
-    ],
-    'options' => [
-        [
-            'id' => 'property1',
-        ],
-        [
-            'id' => 'property2',
-        ],
-    ],
+    'properties' => 'property1|property2',
+    'options' => 'property1|property2',
 ];
 
 return [$expected, $import];

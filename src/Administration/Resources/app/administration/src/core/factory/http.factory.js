@@ -63,6 +63,15 @@ function createClient() {
  */
 export function cacheAdapterFactory(originalAdapter, requestCaches) {
     return (config) => {
+        // remove all caches when something gets deleted
+        if (config?.method === 'delete') {
+            Object.keys(requestCaches).forEach((key) => {
+                delete requestCaches[key];
+            });
+
+            return cloneResponse(originalAdapter(config));
+        }
+
         // use the stringified configuration as hashValue
         const requestHash = JSON.stringify(config);
 

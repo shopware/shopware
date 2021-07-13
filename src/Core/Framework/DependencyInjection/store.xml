@@ -123,7 +123,7 @@
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLoader">
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
@@ -159,7 +159,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>

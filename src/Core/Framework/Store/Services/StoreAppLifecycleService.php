@@ -42,10 +42,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
      */
     private $salesChannelRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
+    private ?EntityRepositoryInterface $themeRepository;
 
     /**
      * @var AppStateService
@@ -63,7 +60,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         AbstractAppLifecycle $appLifecycle,
         EntityRepositoryInterface $appRepository,
         EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $themeRepository,
+        ?EntityRepositoryInterface $themeRepository,
         AppStateService $appStateService
     ) {
         $this->storeClient = $storeClient;
@@ -191,6 +188,10 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
     private function getThemeIdByTechnicalName(string $technicalName, Context $context): ?string
     {
+        if (!$this->themeRepository instanceof EntityRepositoryInterface) {
+            return null;
+        }
+
         return $this->themeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $technicalName)),
             $context

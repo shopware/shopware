@@ -475,6 +475,34 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ]);
     });
 
+    it('should process assignedProducts and remove property from properties array', async () => {
+        await wrapper.setProps({
+            value: '',
+            languages: [
+                { locale: { code: 'DEFAULT' } }
+            ]
+        });
+
+        const definition = Shopware.EntityDefinition.get('product_cross_selling');
+
+        let data = {
+            definition: definition,
+            options: [],
+            properties: Object.keys(definition.properties),
+            path: ''
+        };
+        data = wrapper.vm.processTranslations(data);
+
+        expect(data.properties).toContain('assignedProducts');
+
+        data = wrapper.vm.processAssignedProducts(data);
+
+        expect(data.properties).not.toContain('assignedProducts');
+
+        expect(data.options).toContainEqual({ label: 'assignedProducts', value: 'assignedProducts' });
+        expect(data.options).toContainEqual({ label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' });
+    });
+
     it('should sort options', async () => {
         const options = [
             { label: 'name', value: 'name' },

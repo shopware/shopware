@@ -98,6 +98,7 @@
             "defaultTypeLabel": "Standard",
             "propertyLabel": "Eigenschaften",
             "configuratorSettingLabel": "Varianten-Konfiguration",
+            "productCrossSellingLabel": "Cross-Selling",
             "closeViolation": "Schließen",
             "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:"
         },

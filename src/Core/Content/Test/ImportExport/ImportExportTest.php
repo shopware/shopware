@@ -11,7 +11,6 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
-use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -25,6 +24,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -44,7 +44,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -681,117 +680,6 @@ class ImportExportTest extends TestCase
         static::assertSame($category3Id, $product->getCategories()->get($category3Id)->getId());
     }
 
-    public function testEnsureIdFields(): void
-    {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
-        $context = Context::createDefaultContext();
-        $factory = $this->getContainer()->get(ImportExportFactory::class);
-        $importExportService = $this->getContainer()->get(ImportExportService::class);
-        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
-
-        $expireDate = new \DateTimeImmutable('2099-01-01');
-        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_own_identifier.csv', 'products.csv', 'text/csv');
-
-        $logEntity = $importExportService->prepareImport(
-            $context,
-            $profileId,
-            $expireDate,
-            $file
-        );
-
-        $importExport = $factory->create($logEntity->getId(), 5, 5);
-        $method = ReflectionHelper::getMethod(ImportExport::class, 'ensureIdFields');
-
-        [$expectedData, $importData] = require __DIR__ . '/fixtures/ensure_ids_for_products.php';
-
-        $return = $method->invoke($importExport, $importData, $productDefinition);
-        static::assertSame($expectedData, $return);
-    }
-
-    public function testEnsureIdFieldsWithInvalidCharacter(): void
-    {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
-        static::expectExceptionObject(new InvalidIdentifierException('id'));
-        $context = Context::createDefaultContext();
-        $factory = $this->getContainer()->get(ImportExportFactory::class);
-        $importExportService = $this->getContainer()->get(ImportExportService::class);
-        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
-
-        $expireDate = new \DateTimeImmutable('2099-01-01');
-        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_own_identifier.csv', 'products.csv', 'text/csv');
-
-        $logEntity = $importExportService->prepareImport(
-            $context,
-            $profileId,
-            $expireDate,
-            $file
-        );
-
-        $importExport = $factory->create($logEntity->getId(), 5, 5);
-        $method = ReflectionHelper::getMethod(ImportExport::class, 'ensureIdFields');
-
-        [$expectedData, $importData] = require __DIR__ . '/fixtures/ensure_ids_for_products.php';
-        $importData['id'] = 'invalid|string_with_pipe';
-
-        $return = $method->invoke($importExport, $importData, $productDefinition);
-        static::assertSame($expectedData, $return);
-    }
-
-    public function testEnsureIdFieldsWithMixedContent(): void
-    {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
-        $context = Context::createDefaultContext();
-        $factory = $this->getContainer()->get(ImportExportFactory::class);
-        $importExportService = $this->getContainer()->get(ImportExportService::class);
-        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
-
-        $expireDate = new \DateTimeImmutable('2099-01-01');
-        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_own_identifier.csv', 'products.csv', 'text/csv');
-
-        $logEntity = $importExportService->prepareImport(
-            $context,
-            $profileId,
-            $expireDate,
-            $file
-        );
-
-        $importExport = $factory->create($logEntity->getId(), 5, 5);
-        $method = ReflectionHelper::getMethod(ImportExport::class, 'ensureIdFields');
-
-        [$expectedData, $importData] = require __DIR__ . '/fixtures/ensure_ids_for_products.php';
-        $importData['tax'] = [
-            'id' => Uuid::randomHex(),
-        ];
-        $importData['categories'] = [
-            [
-                'id' => Uuid::randomHex(),
-            ],
-            [
-                'id' => Uuid::randomHex(),
-            ],
-            [
-                'id' => Uuid::randomHex(),
-            ],
-        ];
-        $expectedData['categories'] = $importData['categories'];
-        $expectedData['tax'] = $importData['tax'];
-
-        $return = $method->invoke($importExport, $importData, $productDefinition);
-        static::assertSame($expectedData, $return);
-    }
-
     public function testInvalidFile(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
@@ -983,6 +871,103 @@ class ImportExportTest extends TestCase
         static::assertCount(0, $productC->getVisibilities());
         static::assertNull($productC->getVisibilities()->filterBySalesChannelId($salesChannelAId)->first());
         static::assertNull($productC->getVisibilities()->filterBySalesChannelId($salesChannelBId)->first());
+    }
+
+    /**
+     * @group slow
+     */
+    public function testCrossSellingCsv(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $csvPath = __DIR__ . '/fixtures/cross_selling_products_with_own_identifier.csv';
+        } else {
+            $csvPath = __DIR__ . '/fixtures/cross_selling_products.csv';
+        }
+
+        $file = new UploadedFile($csvPath, 'products.csv', 'text/csv');
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $profileId = $this->getDefaultProfileId(ProductCrossSellingDefinition::ENTITY_NAME);
+
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $csvPath = __DIR__ . '/fixtures/cross_selling_with_own_identifier.csv';
+        } else {
+            $csvPath = __DIR__ . '/fixtures/cross_selling.csv';
+        }
+
+        $file = new UploadedFile($csvPath, 'cross_selling.csv', 'text/csv');
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $criteria = new Criteria(['cf682b73be1afad47d0f32559ac34627', 'c9a70321b66449abb54ba9306ad02835']);
+        $criteria->addAssociation('crossSellings.assignedProducts');
+
+        /** @var ProductEntity $productA */
+        $productA = $this->productRepository->search($criteria, Context::createDefaultContext())->get('cf682b73be1afad47d0f32559ac34627');
+        /** @var ProductEntity $productB */
+        $productB = $this->productRepository->search($criteria, Context::createDefaultContext())->get('c9a70321b66449abb54ba9306ad02835');
+
+        static::assertEquals('Lorem', $productA->getCrossSellings()->first()->getName());
+        static::assertEquals(3, $productA->getCrossSellings()->first()->getAssignedProducts()->count());
+        static::assertEquals('Ipsum', $productB->getCrossSellings()->first()->getName());
+        static::assertEquals(3, $productB->getCrossSellings()->first()->getAssignedProducts()->count());
+
+        $logEntity = $importExportService->prepareExport(Context::createDefaultContext(), $profileId, $expireDate);
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        do {
+            $importExport = $factory->create($logEntity->getId(), 5, 5);
+            $progress = $importExport->export(Context::createDefaultContext(), new Criteria(), $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $csv = $filesystem->read($logEntity->getFile()->getPath());
+
+        static::assertStringContainsString(
+            'f26b0d8f252a76f2f99337cced08314b|c1ace7586faa4342a4d3b33e6dd33b7c|c9a70321b66449abb54ba9306ad02835',
+            $csv
+        );
+
+        static::assertStringContainsString(
+            'c1ace7586faa4342a4d3b33e6dd33b7c|f26b0d8f252a76f2f99337cced08314b|cf682b73be1afad47d0f32559ac34627',
+            $csv
+        );
     }
 
     private function getDefaultProfileId(string $entity): string

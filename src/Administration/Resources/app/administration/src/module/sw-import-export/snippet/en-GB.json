@@ -98,6 +98,7 @@
             "defaultTypeLabel": "Default",
             "propertyLabel": "Properties",
             "configuratorSettingLabel": "Variant configuration settings",
+            "productCrossSellingLabel": "Cross-Selling",
             "closeViolation": "Close",
             "violationMessage": "Your profile is not valid, yet. You need to add mappings to the required fields shown below to save the profile:"
         },

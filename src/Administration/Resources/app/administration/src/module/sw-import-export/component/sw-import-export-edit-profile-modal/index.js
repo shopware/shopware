@@ -56,6 +56,10 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                     value: 'product_configurator_setting',
                     label: this.$tc('sw-import-export.profile.configuratorSettingLabel'),
                 },
+                {
+                    value: 'product_cross_selling',
+                    label: this.$tc('sw-import-export.profile.productCrossSellingLabel'),
+                },
             ],
             supportedDelimiter: [
                 {

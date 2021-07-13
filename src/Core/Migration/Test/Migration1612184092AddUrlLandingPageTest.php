@@ -8,11 +8,20 @@ use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPa
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1612184092AddUrlLandingPage;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
 
 class Migration1612184092AddUrlLandingPageTest extends TestCase
 {
     use KernelTestBehaviour;
+
+    /**
+     * @see \Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute::ROUTE_NAME
+     */
+    private const ROUTE_NAME = 'frontend.landing.page';
+
+    /**
+     * @see \Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute::DEFAULT_TEMPLATE
+     */
+    private const DEFAULT_TEMPLATE = '{{ landingPage.translated.url }}';
 
     /**
      * @var Connection
@@ -41,7 +50,7 @@ class Migration1612184092AddUrlLandingPageTest extends TestCase
             'SELECT id
             FROM `seo_url_template`
             WHERE `seo_url_template`.`route_name` = :routeName',
-            ['routeName' => LandingPageSeoUrlRoute::ROUTE_NAME]
+            ['routeName' => self::ROUTE_NAME]
         );
 
         static::assertNotEmpty($seoUrlTemplate);
@@ -62,9 +71,9 @@ class Migration1612184092AddUrlLandingPageTest extends TestCase
         $this->connection->delete(
             'seo_url_template',
             [
-                'route_name' => LandingPageSeoUrlRoute::ROUTE_NAME,
+                'route_name' => self::ROUTE_NAME,
                 'entity_name' => LandingPageDefinition::ENTITY_NAME,
-                'template' => LandingPageSeoUrlRoute::DEFAULT_TEMPLATE,
+                'template' => self::DEFAULT_TEMPLATE,
             ]
         );
     }

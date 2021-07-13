@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -147,7 +146,16 @@ class MediaGenerator implements DemodataGeneratorInterface
         /** @var string $text */
         $text = $context->getFaker()->words(1, true);
 
-        return $this->tmpImages[] = ImagesGeneratorProvider::imageGenerator(
+        /*
+         * @deprecated tag:v6.5.0.0 remove and replace by importing \Maltyx\ImagesGenerator\ImagesGeneratorProvider
+         */
+        if (\class_exists(\Maltyx\ImagesGenerator\ImagesGeneratorProvider::class)) {
+            $provider = \Maltyx\ImagesGenerator\ImagesGeneratorProvider::class;
+        } else {
+            $provider = \bheller\ImagesGenerator\ImagesGeneratorProvider::class;
+        }
+
+        return $this->tmpImages[] = $provider::imageGenerator(
             null,
             $context->getFaker()->numberBetween(600, 800),
             $context->getFaker()->numberBetween(400, 600),

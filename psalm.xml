@@ -297,5 +297,13 @@
                 <file name="src/Core/Content/Product/SalesChannel/Listing/ProductListingFeaturesSubscriber.php"/>
             </errorLevel>
         </RedundantCast>
+
+        <!-- @deprecated tag:v6.4.5.0 (replacing production template dev-dependencies is not allowed atm) -->
+        <UndefinedClass>
+            <errorLevel type="info">
+                <file name="src/Core/Framework/Demodata/Generator/MediaGenerator.php" />
+                <file name="src/Core/Framework/Demodata/DemodataService.php" />
+            </errorLevel>
+        </UndefinedClass>
     </issueHandlers>
 </psalm>

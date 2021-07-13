@@ -3,14 +3,13 @@
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
@@ -33,19 +32,16 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
      */
     private $appRepository;
 
-    /**
-     * @var ThemeAppLifecycleHandler
-     */
-    private $themeLifecycleHandler;
+    private AppStateService $appStateService;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
         SystemConfigService $systemConfigService,
-        ThemeAppLifecycleHandler $themeLifecycleHandler
+        AppStateService $appStateService
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->appRepository = $appRepository;
-        $this->themeLifecycleHandler = $themeLifecycleHandler;
+        $this->appStateService = $appStateService;
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy
@@ -72,7 +68,7 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
         foreach ($apps as $app) {
-            $this->themeLifecycleHandler->handleUninstall(new AppDeactivatedEvent($app, $context));
+            $this->appStateService->deactivateApp($app->getId(), $context);
             $this->appRepository->delete([['id' => $app->getId()]], $context);
         }
 

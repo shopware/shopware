@@ -114,7 +114,7 @@ $content-max-width: 960px;
         &:active,
         &:hover,
         &:focus {
-            color: $color-darkgray-200;
+            color: $color-darkgray-300 !important;
             text-decoration: none;
             font-size: $font-size-small;
         }

@@ -7,6 +7,13 @@
     <services>
         <defaults public="true" />
 
+        <service id="Shopware\Storefront\Controller\Api\CaptchaController" public="true">
+            <argument type="tagged" tag="shopware.storefront.captcha"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\AccountOrderController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader"/>

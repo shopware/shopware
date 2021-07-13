@@ -61,15 +61,42 @@ function createClient() {
  * @param requestCaches
  * @returns {(function(*=): (*))|*}
  */
-export function cacheAdapterFactory(originalAdapter, requestCaches) {
+export function cacheAdapterFactory(originalAdapter, requestCaches = {}) {
     return (config) => {
-        // remove all caches when something gets deleted
-        if (config?.method === 'delete') {
+        // this list contains all URLs which should be cached
+        const allowUrlList = [
+            '/search/user-config',
+            '/search/product',
+            '/search/product-review',
+            '/search/currency',
+            '/search/order',
+            '/search/customer',
+            '/_info/me',
+        ];
+
+        const requestChangesData = ['delete', 'patch'].includes(config?.method);
+        const createdData = [
+            '/user-config',
+            'user-config',
+            '/_action/sync',
+            '_action/sync',
+            '/product-visibility',
+            'product-visibility',
+        ].includes(config?.url);
+
+        // remove all caches when something gets changed
+        if (requestChangesData || createdData) {
             Object.keys(requestCaches).forEach((key) => {
                 delete requestCaches[key];
             });
 
-            return cloneResponse(originalAdapter(config));
+            return originalAdapter(config);
+        }
+
+        // ignore requests which are not in the allowedUrlList
+        const isNotInAllowList = !allowUrlList.includes(config?.url);
+        if (isNotInAllowList) {
+            return originalAdapter(config);
         }
 
         // use the stringified configuration as hashValue

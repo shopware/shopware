@@ -326,4 +326,151 @@ describe('core/factory/http.factory.js', () => {
         // expect removal off all cached requests
         expect(Object.values(requestCaches).length).toEqual(0);
     });
+
+    it('should clear the requestCaches when patch request is happening', async () => {
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+
+        const productSearchRequest = {
+            url: '/search/product',
+            method: 'post',
+            data: '{"page": 1, "limit": 25}',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1
+        };
+
+        const productPatchRequest = {
+            url: '/product/1a2b3cd4',
+            method: 'patch',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1
+        };
+
+        // do post request
+        await cacheAdapter(productSearchRequest);
+        // expect caching the request
+        expect(Object.values(requestCaches).length).toEqual(1);
+
+        // do delete request
+        await cacheAdapter(productPatchRequest);
+        // expect removal off all cached requests
+        expect(Object.values(requestCaches).length).toEqual(0);
+    });
+
+    it('should clear the requestCaches when specifc data is created', async () => {
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+
+        const productSearchRequest = {
+            url: '/search/product',
+            method: 'post',
+            data: '{"page": 1, "limit": 25}',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1
+        };
+
+        const userConfigCreateRequest = {
+            url: '/user-config',
+            method: 'post',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1
+        };
+
+        // do post request
+        await cacheAdapter(productSearchRequest);
+        // expect caching the request
+        expect(Object.values(requestCaches).length).toEqual(1);
+
+        // create new user config
+        await cacheAdapter(userConfigCreateRequest);
+        // expect removal off all cached requests
+        expect(Object.values(requestCaches).length).toEqual(0);
+    });
+
+    it('should not cache requests which are not in the allowUrlList', async () => {
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+
+        const mediaSearchRequest = {
+            url: '/search/media',
+            method: 'post',
+            data: '{"page": 1, "limit": 25}',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/json',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                Authorization: 'Bearer lOnGtOkEn',
+                'sw-api-compatibility': true
+            },
+            baseURL: '/api',
+            timeout: 0,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            maxContentLength: -1,
+            maxBodyLength: -1
+        };
+
+        // do first request
+        cacheAdapter(mediaSearchRequest);
+
+        // expect that the original adapter was called only once
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+        // expect no warning in the console
+        expect(console.warn).not.toHaveBeenCalled();
+
+        // set timer 1 second forward so caching should be used
+        jest.advanceTimersByTime(1000);
+
+        // do second request
+        cacheAdapter(mediaSearchRequest);
+
+        // expect that the original adapter was called twice
+        // because the second request should not be cached because it is
+        // not in the allowUrList
+        expect(mockAdapter).toHaveBeenCalledTimes(2);
+
+        // expect no warning in the console
+        expect(console.warn).toHaveBeenCalledTimes(0);
+    });
 });

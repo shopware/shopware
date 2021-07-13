@@ -20,12 +20,12 @@ describe('Product: Test variants', () => {
     it('@base @catalogue: variants display corresponding name based on specific language', () => {
         const page = new PropertyPageObject();
 
-        cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
-
         cy.route({
             url: `${Cypress.env('apiPath')}/search/user-config`,
             method: 'post'
         }).as('searchUserConfig');
+
+        cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
 
         // Add option to property group
         cy.wait('@searchUserConfig').then((xhr) => {
@@ -258,7 +258,7 @@ describe('Product: Test variants', () => {
 
         // Wait for every needed xhr request to load the current product
         // `@searchCall` was defined in `page.generateVariants`
-        cy.wait(['@searchCall', '@searchCall', '@searchCall', '@loadPropertyGroup'])
+        cy.wait(['@searchCall', '@loadPropertyGroup'])
             .then((xhrs) => {
                 xhrs.forEach((xhr) => {
                     expect(xhr).to.have.property('status', 200);

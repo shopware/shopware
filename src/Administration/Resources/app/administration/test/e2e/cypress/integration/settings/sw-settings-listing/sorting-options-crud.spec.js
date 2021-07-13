@@ -106,7 +106,7 @@ describe('Listing: Test crud operations', () => {
             method: 'post'
         }).as('saveCustomField');
 
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
 
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
 

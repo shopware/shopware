@@ -95,6 +95,8 @@ describe('Product: Sort grid', () => {
         // close context menu
         cy.get('.sw-data-grid__cell-settings .sw-data-grid-settings__trigger').click();
 
+        cy.get('.sw-data-grid-settings').should('not.exist');
+
         // sort products by gbp - first
         cy.get('.sw-data-grid__cell--9').click({ force: true });
 

@@ -5,6 +5,5 @@ author: Pascal Josephy
 author_email: pascal.josephy@jkweb.ch
 author_github: pascaljosephy
 ---
-# Elasticsearch
+# Core
 *  Changed method `src/Elasticsearch/Product/ElasticsearchProductDefinition:fetchProducts` to consider correct operator precedence
-___

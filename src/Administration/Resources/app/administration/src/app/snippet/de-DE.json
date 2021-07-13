@@ -15,6 +15,7 @@
       "apply": "Anwenden",
       "cancel": "Abbrechen",
       "delete": "Löschen",
+      "remove": "Entfernen",
       "edit": "Bearbeiten",
       "duplicate": "Duplizieren",
       "error": "Fehler",
@@ -491,9 +492,6 @@
     },
     "sw-entity-many-to-many-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
-    },
-    "sw-label": {
-      "buttonDismiss": "Entfernen"
     },
     "sw-search-bar": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",

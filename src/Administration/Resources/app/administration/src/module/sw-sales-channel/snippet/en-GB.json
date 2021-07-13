@@ -111,9 +111,9 @@
       "basicinformationLink": "Change default maintenance layout here",
       "columnDomainCurrency": "Currency",
       "products": {
-        "titleEmptyState": "No products added yet",
+        "titleEmptyState": "No more products found",
         "titleEmptyStateTable": "No matching products found",
-        "buttonAddProducts": "No products to add | Add {productCount} product | Add {productCount} products",
+        "buttonAddProducts": "Add {productCount} products | Add {productCount} product | Add {productCount} products",
         "columnProductName": "Product name",
         "columnActive": "Active",
         "columnProductNumber": "Product number"
@@ -233,7 +233,7 @@
       },
       "titleShippingPayment": "Payment and shipping",
       "labelTaxCalculation": "Tax calculation",
-      "descriptionTaxCalculation": "Changing this setting could lead to acounting problems with external payment providers. Check back on how VAT is calculated by payment providers you employ, before you make any changes.",
+      "descriptionTaxCalculation": "Changing this setting could lead to accounting problems with external payment providers. Check back on how VAT is calculated by payment providers you employ, before you make any changes.",
       "taxCalculation": {
         "verticalName": "Column by column (vertical) calculation",
         "verticalDescription": "VAT is calculated from the order total. No individual VAT values are displayed during checkout.",
@@ -242,16 +242,16 @@
       },
       "productAssignmentModal": {
         "title": "Add products",
-        "singleProducts": "Individual products",
+        "singleProducts": "Product selection",
         "categories": {
-          "title": "Filter by categories",
-          "textInfo": "The assignments made here are static and are therefore not affected by subsequent changes to the respective categories.",
+          "title": "Category selection",
+          "textInfo": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of categories won't affect the assignment.",
           "textSearch": "Search categories ...",
           "emptySearchResults": "No categories found."
         },
         "dynamicProductGroups": {
-          "title": "Dynamic product groups",
-          "infoText": "Its not possible to keep the dynamic groups dynamic. But you can use the dynamic product groups to add the products that currently are included in the group.",
+          "title": "Product group selection",
+          "infoText": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of dynamic product groups won't affect the assignment.",
           "columnName": "Name",
           "searchFieldPlaceholder": "Search dynamic product groups...",
           "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
